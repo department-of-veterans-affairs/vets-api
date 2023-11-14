@@ -382,7 +382,6 @@
                   ]
                 },
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
                   "required": [
                     "data"
@@ -744,7 +743,6 @@
                   }
                 },
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
                   "type": "object",
                   "required": [
                     "data"
@@ -5506,7 +5504,6 @@
                   }
                 },
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
                   "required": [
                     "data"
                   ],
@@ -5732,7 +5729,6 @@
                   }
                 },
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-04/schema#",
                   "required": [
                     "data"
                   ],

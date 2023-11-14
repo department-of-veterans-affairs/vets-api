@@ -157,7 +157,7 @@ end
 
 def remove_dollar_schema!(data)
   transformer = lambda do |k, v, root|
-    if k == 'attributes' && v.is_a?(Hash) && root[0] == 'paths'
+    if %w[attributes schema].include?(k) && v.is_a?(Hash) && root[0] == 'paths'
       v.except('$schema')
     else
       v
