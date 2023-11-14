@@ -130,7 +130,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     return unless @session_object
 
     user = User.find(@session_object.uuid)
-    @current_user = user if skip_terms_check || !user&.needs_accepted_terms_of_use
+    @current_user = user if (skip_terms_check || !user&.needs_accepted_terms_of_use) && !user&.credential_lock
   end
 
   def sso_cookie_content
