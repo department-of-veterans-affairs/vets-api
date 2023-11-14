@@ -936,31 +936,6 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.string "updated_by"
   end
 
-  create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
-    t.string "name"
-    t.string "title"
-    t.text "terms_content"
-    t.text "header_content"
-    t.string "yes_content"
-    t.string "no_content"
-    t.string "footer_content"
-    t.string "version"
-    t.boolean "latest", default: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["name", "latest"], name: "index_terms_and_conditions_on_name_and_latest"
-  end
-
-  create_table "terms_and_conditions_acceptances", id: false, force: :cascade do |t|
-    t.string "user_uuid"
-    t.integer "terms_and_conditions_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.uuid "user_account_id"
-    t.index ["user_account_id"], name: "index_terms_and_conditions_acceptances_on_user_account_id"
-    t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
-  end
-
   create_table "terms_of_use_agreements", force: :cascade do |t|
     t.uuid "user_account_id", null: false
     t.string "agreement_version", null: false
@@ -1290,7 +1265,6 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
-  add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"
