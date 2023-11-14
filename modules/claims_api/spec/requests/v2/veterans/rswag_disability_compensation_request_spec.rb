@@ -6,7 +6,9 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
+describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+  let(:scopes) { %w[system/claim.read system/claim.write] }
+
   path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
       tags 'Disability'
@@ -57,10 +59,7 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
 
       describe 'Getting a successful response' do
         response '202', 'Successful response with disability' do
-          form_data = JSON.parse(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read)
-          nested_form_data = { data: form_data }
-
-          schema nested_form_data
+          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
           let(:scopes) { %w[system/claim.read system/claim.write] }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -209,16 +208,16 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
     end
   end
 
-  path '/veterans/{veteranId}/526/{id}/getPDF' do
-    get 'Returns filled out 526EZ form as PDF' do
+  path '/veterans/{veteranId}/526/generatePDF' do
+    post 'Returns filled out 526EZ form as PDF' do
       tags 'Disability'
-      operationId 'get526Pdf'
+      operationId 'post526Pdf'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
         { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
-      consumes 'multipart/form-data'
+      consumes 'application/json'
       produces 'application/json'
 
       parameter name: 'veteranId',
@@ -230,6 +229,14 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
+      let(:data) do
+        temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                               'disability_compensation', 'form_526_json_api.json').read
+        temp = JSON.parse(temp)
+
+        temp
+      end
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
       pdf_description = <<~VERBIAGE
         Returns a filled out 526EZ form for a disability compensation claim (21-526EZ).
 
@@ -238,19 +245,54 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
       description pdf_description
 
       describe 'Getting a successful response' do
-        response '200', 'upload response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+        response '200', 'post pdf response' do
+          before do |example|
+            stub_poa_verification
+            stub_mpi
+
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a 401 response' do
-            one = 1
-            expect(one).to eq(1)
+          let(:Authorization) { nil }
+
+          before do |example|
+            stub_poa_verification
+            stub_mpi
+
+            mock_acg(scopes) do
+              allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end

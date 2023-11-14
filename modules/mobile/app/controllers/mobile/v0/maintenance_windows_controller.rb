@@ -24,7 +24,8 @@ module Mobile
         %i[mhv secure_messaging],
         %i[vaos appointments],
         %i[vet360 user_profile_update],
-        %i[mhv rx_refill]
+        %i[mhv rx_refill],
+        %i[eoas preneed_burial]
       )
 
       def index

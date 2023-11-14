@@ -5,10 +5,10 @@ module AskVAApi
     ENDPOINT = 'get_inquiries_mock_data'
 
     class Retriever
-      attr_reader :service, :sec_id
+      attr_reader :service, :icn
 
-      def initialize(sec_id:, service: nil)
-        @sec_id = sec_id
+      def initialize(icn:, service: nil)
+        @icn = icn
         @service = service || default_service
       end
 
@@ -21,9 +21,9 @@ module AskVAApi
         ErrorHandler.handle_service_error(e)
       end
 
-      def fetch_by_sec_id
-        validate_input(sec_id, 'Invalid SEC_ID')
-        fetch_data(payload: { sec_id: }).map { |inq| Entity.new(inq) }
+      def fetch_by_icn
+        validate_input(icn, 'Invalid SEC_ID')
+        fetch_data(payload: { icn: }).map { |inq| Entity.new(inq) }
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -31,7 +31,7 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(sec_id:)
+        Dynamics::Service.new(icn:)
       end
 
       def fetch_data(payload: {})

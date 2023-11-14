@@ -46,10 +46,10 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
 
       it 'logs that the upload status progressed to "uploaded"' do
         with_settings(Settings.vba_documents.s3, enabled: true) do
-          log_message = 'VBADocuments: UploadSubmission progressed to "uploaded" status'
-          log_details = { 'job' => described_class.name }.merge(upload.as_json)
-
           described_class.new.perform
+
+          log_message = 'VBADocuments: UploadSubmission progressed to "uploaded" status'
+          log_details = { 'job' => described_class.name }.merge(upload.reload.as_json)
 
           expect(Rails.logger).to have_received(:info).with(log_message, log_details)
         end
