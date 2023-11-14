@@ -7,6 +7,7 @@ require 'dgi/status/service'
 module MebApi
   module V0
     class BaseController < ::ApplicationController
+      service_tag 'education-benefits'
       before_action :authorize_access
 
       private
