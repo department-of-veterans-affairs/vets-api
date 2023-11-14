@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logging/third_party_transaction'
+require 'lighthouse/benefits_documents/form_526_lighthouse_documents_service'
 
 module EVSS
   module DisabilityCompensationForm

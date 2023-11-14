@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_documents/form_526_lighthouse_documents_service'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitUploads < Job
