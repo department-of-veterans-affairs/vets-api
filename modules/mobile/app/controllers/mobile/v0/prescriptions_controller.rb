@@ -13,6 +13,8 @@ module Mobile
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
 
+        page_meta_data[:meta].merge!(status_meta(resource))
+
         render json: Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
       end
 
@@ -41,6 +43,19 @@ module Mobile
           filter: params[:filter].present? ? filter_params.to_h : nil,
           sort: params[:sort]
         )
+      end
+
+      def status_meta(resource)
+        {
+          prescription_status_count: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
+            if obj.is_trackable || %w[active submitted providerHold activeParked
+                                      refillinprocess].include?(obj.refill_status)
+              hash['active'] += 1
+            else
+              hash[obj.refill_status] += 1
+            end
+          end
+        }
       end
 
       def paginate(records)
