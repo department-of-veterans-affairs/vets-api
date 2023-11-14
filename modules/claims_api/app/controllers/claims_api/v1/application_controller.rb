@@ -194,7 +194,7 @@ module ClaimsApi
         ClaimsApi::Logger.log(tag,
                               icn:,
                               cid: token&.payload&.[]('cid'),
-                              current_user: current_user&.uuid,
+                              current_user: @current_user&.uuid,
                               message:,
                               api_version: 'V1',
                               level:)
