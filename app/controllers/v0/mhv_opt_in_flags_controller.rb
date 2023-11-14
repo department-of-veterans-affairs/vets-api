@@ -2,6 +2,7 @@
 
 module V0
   class MHVOptInFlagsController < ApplicationController
+    service_tag 'deprecated'
     def show
       opt_in_flag = MHVOptInFlag.find_by(user_account_id: current_user.user_account, feature: params[:feature])
       raise Common::Exceptions::RecordNotFound, message: 'Record not found' if opt_in_flag.nil?

@@ -3,6 +3,8 @@
 module V0
   module ContactUs
     class InquiriesController < ApplicationController
+      service_tag 'deprecated'
+
       skip_before_action :authenticate, only: :create
 
       def index
