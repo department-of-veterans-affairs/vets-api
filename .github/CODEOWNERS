@@ -919,6 +919,7 @@ lib/sidekiq/semantic_logging.rb @department-of-veterans-affairs/backend-review-g
 lib/sidekiq/set_current_retry.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/set_request_attributes.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/set_request_id.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+lib/sidekiq/tracing_middleware.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sign_in @department-of-veterans-affairs/vsp-identity
 lib/simple_forms_api_submission @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/slack @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
