@@ -39,7 +39,7 @@ module ClaimsApi
         if request.headers['Mock-Override'] &&
            Settings.claims_api.disability_claims_mock_override
           evss_headers['Mock-Override'] = request.headers['Mock-Override']
-          Rails.logger.info('ClaimsApi: Mock Override Engaged')
+          claims_v2_logging('mock_override', message: 'ClaimsApi: Mock Override Engaged in app_controller_v2')
         end
 
         evss_headers
@@ -159,8 +159,8 @@ module ClaimsApi
         found_record = target_veteran.mpi_record?(user_key: veteran_id)
 
         unless found_record
-          log_message_to_sentry("Claims v2 Veteran record not found - Veteran ICN: #{veteran_id}",
-                                :warning)
+          claims_v2_logging('veteran_not_found', icn: veteran_id,
+                                                 message: 'Claims v2 Veteran record not found')
           raise ::Common::Exceptions::ResourceNotFound.new(detail:
             "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
@@ -169,8 +169,8 @@ module ClaimsApi
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
 
         if mpi_profile[:participant_id].blank?
-          log_message_to_sentry("Claims v2 Veteran PID not found - Veteran ICN: #{veteran_id}",
-                                :warning)
+          claims_v2_logging('pid_not_found', icn: veteran_id,
+                                             message: 'Claims v2 Veteran PID not found')
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
@@ -178,8 +178,8 @@ module ClaimsApi
 
         target_veteran[:first_name] = mpi_profile[:given_names]&.first
         if target_veteran[:first_name].nil?
-          log_message_to_sentry("Claims v2 Veteran First Name not found - Veteran ICN: #{veteran_id}",
-                                :warning)
+          claims_v2_logging('missing_first_name', icn: veteran_id,
+                                                  message: 'Claims v2 Veteran First Name not found')
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Missing first name')
         end
 
@@ -197,8 +197,8 @@ module ClaimsApi
         if target_veteran&.mpi&.birls_id.present?
           @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
         else
-          ClaimsApi::Logger.log('missing_file_number',
-                                detail: 'missing_file_number on request in application controller.')
+          claims_v2_logging('missing_file_number', icn: nil,
+                                                   message: 'missing_file_number on request in application controller.')
 
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
@@ -206,14 +206,14 @@ module ClaimsApi
         end
       end
 
-      def claims_v2_logging(tag = 'traceability', poa: nil, message: nil)
+      def claims_v2_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
         ClaimsApi::Logger.log(tag,
-                              icn: target_veteran.mpi.icn,
+                              icn:,
                               cid: token&.payload&.[]('cid'),
                               current_user: current_user&.uuid,
                               message:,
                               api_version: 'V2',
-                              poa:)
+                              level:)
       end
     end
   end
