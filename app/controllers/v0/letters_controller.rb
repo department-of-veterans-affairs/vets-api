@@ -6,6 +6,7 @@ require 'evss/letters/service'
 
 module V0
   class LettersController < ApplicationController
+    service_tag 'letters'
     before_action { authorize :evss, :access_letters? }
 
     def index

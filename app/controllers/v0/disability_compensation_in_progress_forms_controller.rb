@@ -2,6 +2,8 @@
 
 module V0
   class DisabilityCompensationInProgressFormsController < InProgressFormsController
+    service_tag 'disability-application'
+
     def show
       if form_for_user
         render json: data_and_metadata_with_updated_rated_disabilities

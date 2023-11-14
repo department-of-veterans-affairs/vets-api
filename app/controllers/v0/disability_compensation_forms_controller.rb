@@ -10,6 +10,7 @@ require 'disability_compensation/factories/api_provider_factory'
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
+    service_tag 'disability-application'
     before_action(except: :rating_info) { authorize :evss, :access? }
     before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]

@@ -2,6 +2,7 @@
 
 module V0
   class VeteranReadinessEmploymentClaimsController < ClaimsBaseController
+    service_tag 'vre-application'
     before_action :authenticate
     skip_before_action :load_user
 

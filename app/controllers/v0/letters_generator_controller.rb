@@ -6,6 +6,7 @@ require 'lighthouse/letters_generator/veteran_sponsor_resolver'
 
 module V0
   class LettersGeneratorController < ApplicationController
+    service_tag 'letters'
     before_action { authorize :lighthouse, :access? }
     before_action :validate_letter_type, only: %i[download]
     Raven.tags_context(team: 'benefits-claim-appeal-status', feature: 'letters-generator')
