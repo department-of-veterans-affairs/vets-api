@@ -3959,11 +3959,13 @@
                 "type": "object",
                 "properties": {
                   "attachment1": {
-                    "type": "file",
+                    "type": "string",
+                    "format": "binary",
                     "description": "Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in.\n"
                   },
                   "attachment2": {
-                    "type": "file",
+                    "type": "string",
+                    "format": "binary",
                     "description": "Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in.\n"
                   }
                 }

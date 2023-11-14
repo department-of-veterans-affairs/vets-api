@@ -184,11 +184,13 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
                   type: :object,
                   properties: {
                     attachment1: {
-                      type: :file,
+                      type: :string,
+                      format: :binary,
                       description: attachment_description
                     },
                     attachment2: {
-                      type: :file,
+                      type: :string,
+                      format: :binary,
                       description: attachment_description
                     }
                   }
