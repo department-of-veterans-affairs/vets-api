@@ -181,7 +181,6 @@ module SwaggerSharedComponents
 
       {
         disability_compensation: {
-          name: 'data',
           required: ['data'],
           properties: {
             data: {

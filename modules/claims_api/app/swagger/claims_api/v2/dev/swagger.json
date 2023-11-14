@@ -1506,7 +1506,6 @@
                   }
                 },
                 "schema": {
-                  "name": "data",
                   "required": [
                     "data"
                   ],
