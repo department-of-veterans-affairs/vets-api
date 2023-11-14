@@ -83,7 +83,7 @@ module ClaimsApi
           return itf_response if itf.nil?
 
           temp = itf.deep_transform_keys(&:underscore)
-          &.deep_symbolize_keys
+                    &.deep_symbolize_keys
           itf_response.push(temp)
         end
         return itf_response
@@ -291,7 +291,8 @@ module ClaimsApi
       duration = (::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time).round(4)
 
       # event should be first key in log, duration last
-      ClaimsApi::Logger.log 'local_bgs', **{ event: }.merge(extra_params).merge({ duration: })
+      event_for_log = { event: }.merge(extra_params).merge({ duration: })
+      ClaimsApi::Logger.log 'local_bgs', **event_for_log
       StatsD.measure("api.claims_api.local_bgs.#{event}.duration", duration, tags: {})
       result
     end
