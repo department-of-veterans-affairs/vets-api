@@ -98,7 +98,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         errors = response.parsed_body['errors']
         expect(errors).to eq([{ 'title' => 'Invalid field value',
                                 'detail' =>
-                                        '"8398465" is not a valid value for "ids"',
+                                  '"8398465" is not a valid value for "ids"',
                                 'code' => '103',
                                 'status' => '400' }])
       end
@@ -119,7 +119,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                    'failedPrescriptionIds' => ['123456'],
                                    'errors' => [{ 'errorCode' => 135,
                                                   'developerMessage' =>
-                                                  'Prescription not found for id : 123456',
+                                                    'Prescription not found for id : 123456',
                                                   'message' => 'Prescription not found' }],
                                    'infoMessages' => [] })
       end
@@ -216,11 +216,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
-        expect(response.parsed_body['meta']).to eq({ 'pagination' =>
-                                                       { 'currentPage' => 2,
-                                                         'perPage' => 3,
-                                                         'totalPages' => 20,
-                                                         'totalEntries' => 59 } })
+        expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
+                                                                   'perPage' => 3,
+                                                                   'totalPages' => 20,
+                                                                   'totalEntries' => 59 })
       end
     end
 
@@ -372,11 +371,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
-        expect(response.parsed_body['meta']).to eq({ 'pagination' =>
-                                                       { 'currentPage' => 2,
-                                                         'perPage' => 3,
-                                                         'totalPages' => 12,
-                                                         'totalEntries' => 36 } })
+        expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
+                                                                   'perPage' => 3,
+                                                                   'totalPages' => 12,
+                                                                   'totalEntries' => 36 })
 
         statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
         expect(statuses).to eq(['refillinprocess'])
@@ -386,6 +384,22 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
             2021-12-07T05:00:00.000Z 2021-10-27T04:00:00.000Z 2021-10-22T04:00:00.000Z
           ]
         )
+      end
+    end
+
+    describe 'counting subscription statuses' do
+      it 'returns meta with a count of all statuses while grouping certain ones under active' do
+        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+        end
+        expect(response.parsed_body['meta']['prescriptionStatusCount']).to eq({
+                                                                                'active' => 48,
+                                                                                'discontinued' => 6,
+                                                                                'transferred' => 1,
+                                                                                'expired' => 2,
+                                                                                'hold' => 1,
+                                                                                'unknown' => 1
+                                                                              })
       end
     end
   end
