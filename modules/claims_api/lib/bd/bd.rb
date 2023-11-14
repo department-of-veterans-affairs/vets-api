@@ -58,13 +58,15 @@ module ClaimsApi
     # @return {parameters, file}
     def generate_upload_body(claim:, doc_type:, pdf_path:, file_number: nil)
       payload = {}
+      veteran_name = "#{claim.auth_headers['va_eauth_firstName']}_#{claim.auth_headers['va_eauth_lastName']}"
+      file_name = "526EZ_#{veteran_name}_#{claim.evss_id}.pdf"
       data = {
         data: {
           systemName: 'VA.gov',
           docType: doc_type,
           claimId: claim.evss_id,
           fileNumber: file_number || claim.auth_headers['va_eauth_birlsfilenumber'],
-          fileName: File.basename(pdf_path),
+          fileName: file_name,
           trackedItemIds: []
         }
       }
