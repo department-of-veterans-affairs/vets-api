@@ -349,11 +349,6 @@ Rails.application.routes.draw do
 
     resources :apidocs, only: [:index]
 
-    get 'terms_and_conditions', to: 'terms_and_conditions#index'
-    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
-    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
-    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
-
     get 'feature_toggles', to: 'feature_toggles#index'
 
     resource :mhv_opt_in_flags, only: %i[show create]
