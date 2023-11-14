@@ -26,7 +26,7 @@ end
 class FormMilitaryInformation
   include Virtus.model
 
-  attribute :service_episodes_by_date, Array if Flipper.enabled?(:military_information_vaprofile)
+  attribute :service_episodes_by_date, Array
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
