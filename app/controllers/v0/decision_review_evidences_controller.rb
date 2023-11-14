@@ -7,6 +7,7 @@ module V0
   class DecisionReviewEvidencesController < ApplicationController
     include FormAttachmentCreate
     include DecisionReviewV1::Appeals::LoggingUtils
+    service_tag 'evidence-upload'
 
     FORM_ATTACHMENT_MODEL = DecisionReviewEvidenceAttachment
 
