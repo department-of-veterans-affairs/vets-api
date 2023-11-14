@@ -255,7 +255,7 @@ GEM
     bcp47 (0.3.3)
       i18n
     bindex (0.8.1)
-    blueprinter (0.25.3)
+    blueprinter (0.30.0)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     brakeman (6.0.1)
