@@ -4,7 +4,10 @@ require 'rails_helper'
 
 RSpec.describe TestUserDashboard::DailyMaintenance do
   describe '#perform' do
-    let!(:accounts) { [create(:tud_account)] }
+    let!(:accounts) do
+      account = create(:tud_account)
+      TestUserDashboard::TudAccount.where(id: account.id)
+    end
 
     before do
       # rubocop:disable RSpec/MessageChain
