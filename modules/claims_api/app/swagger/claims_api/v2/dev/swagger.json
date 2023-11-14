@@ -3932,6 +3932,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "UUID given when Disability Claim was submitted",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
