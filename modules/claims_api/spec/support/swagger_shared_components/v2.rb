@@ -125,7 +125,7 @@ module SwaggerSharedComponents
             properties: {
               data: {
                 type: :object,
-                required: ['attributes', disability_compensation_json_schema['required']],
+                required: ['attributes'],
                 properties: {
                   attributes: disability_compensation_json_schema
                 }

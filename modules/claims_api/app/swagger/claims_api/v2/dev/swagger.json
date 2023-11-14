@@ -2577,8 +2577,7 @@
                   "data": {
                     "type": "object",
                     "required": [
-                      "attributes",
-                      null
+                      "attributes"
                     ],
                     "properties": {
                       "attributes": {
@@ -4045,8 +4044,7 @@
                   "data": {
                     "type": "object",
                     "required": [
-                      "attributes",
-                      null
+                      "attributes"
                     ],
                     "properties": {
                       "attributes": {
