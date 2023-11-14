@@ -108,39 +108,52 @@ def format_for_swagger(version, env = nil)
   path = "app/swagger/claims_api/#{version}/swagger.json"
   path = "app/swagger/claims_api/#{version}/#{env}/swagger.json" if version.eql?('v2')
   swagger_file_path = ClaimsApi::Engine.root.join(path)
-  temp_path = swagger_file_path.sub('swagger.json', 'temp.json').to_s
+  oas = JSON.parse(File.read(swagger_file_path.to_s))
 
-  schema_description = 'Claims API 526 Schema'
-  handling_disability_compensation = false
-
-  File.open(temp_path, 'w') do |output_file|
-    File.foreach(swagger_file_path) do |line|
-      # Switch to true when we hit 526, then switch to false at the next schema
-      if version.eql?('v2') && line.include?('description') && line.include?(schema_description)
-        handling_disability_compensation = true
-      elsif line.include?('$schema') # For all other schemas outside of the v2 526 we want this to be false
-        handling_disability_compensation = false
-      end
-
-      line &&= check_for_and_handle_null_values(line, version) if handling_disability_compensation
-
-      output_file.puts line unless line.include?('basePath')
-    end
-  end
-
-  FileUtils.mv(temp_path, swagger_file_path.to_s)
+  remove_base_path!(oas)
+  clear_null_types!(oas) if version == 'v2'
+  File.write(swagger_file_path, JSON.pretty_generate(oas))
 end
 
-def check_for_and_handle_null_values(line, version)
-  current = line.strip
+def deep_transform(hash, transformer:, root: [])
+  return unless hash.is_a?(Hash)
 
-  if current == '"null"' && version.eql?('v2') # null is second in the array
-    '""'
-  elsif current == '"null",' && version.eql?('v2') # null is first in the array
-    '"",'
-  else
-    line
+  ret = hash.map do |key, v|
+    v = transformer.call key, v, root
+    h_ret = v
+    proot = root.dup
+    if v.is_a? Hash
+      root.push(key)
+      h_ret = deep_transform(v, root: root.dup, transformer:)
+      root = proot
+    elsif v.is_a? Array
+      root.push(key)
+      h_ret = v.map do |val|
+        next deep_transform(val, root: root.dup, transformer:) if val.is_a?(Hash) || val.is_a?(Array)
+
+        next val
+      end
+      root = proot
+    end
+    [key, h_ret]
   end
+  ret.to_h
+end
+
+def clear_null_types!(data)
+  transformer = lambda do |k, v, root|
+    if k == 'type' && v.is_a?(Array) && root[0] == 'paths'
+      r = v.excluding('null')
+      r.size > 1 ? r : r[0]
+    else
+      v
+    end
+  end
+  data.replace deep_transform(data, transformer:)
+end
+
+def remove_base_path!(data)
+  data.except!('basePath')
 end
 
 # Does file manipulation to make an rswag-output json file compatible to OAS v3

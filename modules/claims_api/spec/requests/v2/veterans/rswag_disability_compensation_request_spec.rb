@@ -59,10 +59,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       describe 'Getting a successful response' do
         response '202', 'Successful response with disability' do
-          form_data = JSON.parse(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read)
-          nested_form_data = { data: form_data }
-
-          schema nested_form_data
+          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
           let(:scopes) { %w[system/claim.read system/claim.write] }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
