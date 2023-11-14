@@ -85,12 +85,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
 
     describe 'perform' do
       it 'uploads the document via the Form526LighthouseDocumentsService' do
-        expect_any_instance_of(EVSS::DisabilityCompensationForm::UploadBddInstructions).to receive(:upload_lighthouse_document).with(
-          instance_of(String),
-          'BDD_Instructions.pdf',
-          submission,
-          'L023'
-        )
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::UploadBddInstructions)
+          .to receive(:upload_lighthouse_document)
+          .with(
+            instance_of(String),
+            'BDD_Instructions.pdf',
+            submission,
+            'L023'
+          )
 
         subject.perform_async(submission.id)
         described_class.drain

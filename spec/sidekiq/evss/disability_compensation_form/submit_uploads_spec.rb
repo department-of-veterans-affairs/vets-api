@@ -28,7 +28,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       end
 
       let(:submission) do
-        create(:form526_submission,
+        create(
+          :form526_submission,
           :with_uploads,
           user_uuid: user.uuid,
           auth_headers_json: auth_headers.to_json,
@@ -142,13 +143,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       it 'uploads the document via the Form526LighthouseDocumentsService' do
         file_contents = lighthouse_attachment&.get_file&.read
 
-        allow_any_instance_of(LighthouseSupportingEvidenceAttachment).to receive(:converted_filename).and_return('Doctors_Note.pdf')
-        expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:upload_lighthouse_document).with(
-          file_contents,
-          'Doctors_Note.pdf',
-          submission,
-          'L023'
-        )
+        allow_any_instance_of(LighthouseSupportingEvidenceAttachment).to receive(:converted_filename)
+          .and_return('Doctors_Note.pdf')
+
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:upload_lighthouse_document)
+          .with(
+            file_contents,
+            'Doctors_Note.pdf',
+            submission,
+            'L023'
+          )
 
         subject.perform_async(submission.id, upload_data)
         described_class.drain

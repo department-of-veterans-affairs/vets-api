@@ -109,24 +109,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
         it 'uploads both documents via the Form526LighthouseDocumentsService' do
           # Form 0781
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm0781).to receive(:upload_lighthouse_document).with(
-            # file_contents
-            instance_of(String),
-            # file_name
-            instance_of(String),
-            submission,
-            'L228'
-          )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm0781)
+            .to receive(:upload_lighthouse_document)
+            .with(
+              # file_contents
+              instance_of(String),
+              # file_name
+              instance_of(String),
+              submission,
+              'L228'
+            )
 
           # Form 0781a
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm0781).to receive(:upload_lighthouse_document).with(
-            # file_contents
-            instance_of(String),
-            # file_name
-            instance_of(String),
-            submission,
-            'L229'
-          )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm0781)
+            .to receive(:upload_lighthouse_document)
+            .with(
+              # file_contents
+              instance_of(String),
+              # file_name
+              instance_of(String),
+              submission,
+              'L229'
+            )
 
           subject.perform_async(submission.id)
           described_class.drain
