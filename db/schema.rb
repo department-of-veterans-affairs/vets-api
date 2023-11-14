@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_24_161640) do
+ActiveRecord::Schema.define(version: 2023_11_13_202956) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1172,6 +1172,9 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.float "long"
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.jsonb "raw_address"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
@@ -1210,6 +1213,9 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.jsonb "raw_address"
     t.string "full_name"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true

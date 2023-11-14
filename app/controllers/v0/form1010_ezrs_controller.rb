@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'form1010_ezr/service'
+
 module V0
   class Form1010EzrsController < ApplicationController
     def create
