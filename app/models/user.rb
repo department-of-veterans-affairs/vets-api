@@ -33,6 +33,7 @@ class User < Common::RedisStore
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
+  attribute :credential_lock, Boolean
 
   def account
     @account ||= Identity::AccountCreator.new(self).call
@@ -44,6 +45,12 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
+  end
+
+  def credential_lock
+    return @credential_lock unless @credential_lock.nil?
+
+    @credential_lock = user_verification&.locked
   end
 
   def needs_accepted_terms_of_use
