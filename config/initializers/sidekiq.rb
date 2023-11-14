@@ -8,6 +8,7 @@ require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
 require 'sidekiq/set_current_retry'
+require 'sidekiq/tracing_middleware'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 
 Rails.application.reloader.to_prepare do
@@ -26,6 +27,7 @@ Rails.application.reloader.to_prepare do
       chain.add Sidekiq::RetryMonitoring
       chain.add Sidekiq::SetCurrentRetry
       chain.add Sidekiq::ErrorTag
+      chain.add Sidekiq::TracingMiddleware
 
       if Settings.dogstatsd.enabled == true
         require 'sidekiq/middleware/server/statsd'
