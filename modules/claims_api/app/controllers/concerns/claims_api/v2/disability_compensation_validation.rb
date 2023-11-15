@@ -15,6 +15,8 @@ module ClaimsApi
       BDD_LOWER_LIMIT = 90
       BDD_UPPER_LIMIT = 180
 
+      CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
+
       def validate_form_526_submission_values!(target_veteran)
         # ensure 'claimantCertification' is true
         validate_form_526_claimant_certification!
@@ -501,8 +503,8 @@ module ClaimsApi
 
       def validate_claim_date_to_active_duty_end_date!(service_information)
         max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
-        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
-        if Date.strptime(date.to_s, '%Y-%m-%d') > Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') + 180.days
+        if Date.strptime(CLAIM_DATE.to_s,
+                         '%Y-%m-%d') > Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') + 180.days
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'Claim date must be within 180 days of the last active duty end date.'
           )
@@ -807,8 +809,7 @@ module ClaimsApi
       end
 
       def validate_claim_process_type_bdd!
-        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
-        claim_date = Date.parse(date.to_s)
+        claim_date = Date.parse(CLAIM_DATE.to_s)
         service_information = form_attributes['serviceInformation']
         active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')

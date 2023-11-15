@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d615a1f7-9c74-4041-b1d3-d9fd8444f92b",
+                    "id": "f7f89a54-efe2-4368-bd85-e85521647c8d",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1399,7 +1399,6 @@
                       ],
                       "claimantCertification": true,
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimDate": "2023-02-18",
                       "changeOfAddress": {
                         "dates": {
                           "beginDate": "2023-06-04",
@@ -1541,13 +1540,6 @@
                             "claimProcessType"
                           ],
                           "properties": {
-                            "claimDate": {
-                              "description": "Date of claim submission to be applied to signature on form 21-526EZ. Date cannot be in the future.",
-                              "type": "string",
-                              "example": "2018-08-28T19:53:45+00:00",
-                              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-                              "nullable": true
-                            },
                             "claimProcessType": {
                               "type": "string",
                               "description": "Select type of claim program/process that applies to the Veteran.",
@@ -2597,13 +2589,6 @@
                           "claimProcessType"
                         ],
                         "properties": {
-                          "claimDate": {
-                            "description": "Date of claim submission to be applied to signature on form 21-526EZ. Date cannot be in the future.",
-                            "type": "string",
-                            "example": "2018-08-28T19:53:45+00:00",
-                            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-                            "nullable": true
-                          },
                           "claimProcessType": {
                             "type": "string",
                             "description": "Select type of claim program/process that applies to the Veteran.",
@@ -3625,7 +3610,6 @@
                     "attributes": {
                       "claimantCertification": true,
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimDate": "2023-11-01",
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
@@ -4066,13 +4050,6 @@
                           "claimProcessType"
                         ],
                         "properties": {
-                          "claimDate": {
-                            "description": "Date of claim submission to be applied to signature on form 21-526EZ. Date cannot be in the future.",
-                            "type": "string",
-                            "example": "2018-08-28T19:53:45+00:00",
-                            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-                            "nullable": true
-                          },
                           "claimProcessType": {
                             "type": "string",
                             "description": "Select type of claim program/process that applies to the Veteran.",
@@ -5094,7 +5071,6 @@
                     "attributes": {
                       "claimantCertification": true,
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimDate": "2023-11-01",
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
@@ -5726,8 +5702,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-08",
-                      "expirationDate": "2024-11-08",
+                      "creationDate": "2023-11-14",
+                      "expirationDate": "2024-11-14",
                       "type": "compensation",
                       "status": "active"
                     }
