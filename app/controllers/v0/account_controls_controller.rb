@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class AccountControlsController < ApplicationController
-    skip_before_action :authenticate, :verify_authenticity_token
-    before_action :authenticate_service_account
-
+  class AccountControlsController < SignIn::ServiceAccountController
     VALID_CSP_TYPES = %w[logingov idme dslogon mhv].freeze
 
     def credential_index

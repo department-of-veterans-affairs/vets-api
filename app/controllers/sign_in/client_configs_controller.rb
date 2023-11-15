@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 module SignIn
-  class ClientConfigsController < SignIn::ApplicationController
+  class ClientConfigsController < SignIn::ServiceAccountController
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    skip_before_action :authenticate
-    before_action :authenticate_service_account
     before_action :set_client_config, only: %i[show update destroy]
 
     def index
