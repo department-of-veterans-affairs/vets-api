@@ -5,6 +5,7 @@ require 'apps/client'
 module V0
   class AppsController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
+    service_tag 'third-party-apps'
 
     skip_before_action :authenticate
 
