@@ -4,11 +4,9 @@ module Veteran
   module Accreditation
     class OrganizationSerializer < ActiveModel::Serializer
       attribute :name
-      # rubocop:disable Naming/VariableNumber
-      attribute :address_line_1
-      attribute :address_line_2
-      attribute :address_line_3
-      # rubocop:enable Naming/VariableNumber
+      attribute :address_line1
+      attribute :address_line2
+      attribute :address_line3
       attribute :address_type
       attribute :city
       attribute :country_name
