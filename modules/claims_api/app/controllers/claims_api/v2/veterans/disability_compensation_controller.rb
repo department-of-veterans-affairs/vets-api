@@ -56,7 +56,7 @@ module ClaimsApi
         end
 
         def attachments
-          if params.keys.select { |key| key.include? 'attachment' }.count > 3
+          if params.keys.select { |key| key.include? 'attachment' }.count > 10
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.')
           end
 
