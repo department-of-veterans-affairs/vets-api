@@ -486,6 +486,17 @@ RSpec.describe ApplicationController, type: :controller do
             expect(response).to have_http_status(:bad_request)
           end
         end
+
+        context 'with a credential that is locked' do
+          let(:user) { build(:user, :loa3, :idme_lock) }
+
+          it 'returns an unauthorized status' do
+            get :test_authentication
+            expect(response).to have_http_status(:unauthorized)
+            expect(JSON.parse(response.body)['errors'].first)
+              .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
+          end
+        end
       end
 
       context 'with valid session and no user' do

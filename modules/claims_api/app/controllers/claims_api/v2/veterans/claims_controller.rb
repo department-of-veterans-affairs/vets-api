@@ -24,7 +24,7 @@ module ClaimsApi
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           if lighthouse_claim.blank? && bgs_claim.blank?
-            claims_v2_logging('claims_show', message: 'Claim not found.')
+            claims_v2_logging('claims_show', level: :warn, message: 'Claim not found.')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
@@ -497,8 +497,8 @@ module ClaimsApi
         def get_evss_documents(claim_id)
           evss_docs_service.get_claim_documents(claim_id).body
         rescue => e
-          claims_v2_logging('evss_doc_service',
-                            message: "getting docs failed in claims controller with e.message: ' \
+          claims_v2_logging('evss_doc_service', level: 'error',
+                                                message: "getting docs failed in claims controller with e.message: ' \
                             '#{e.message}, rid: #{request.request_id}")
           {}
         end
@@ -513,17 +513,16 @@ module ClaimsApi
                    file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
 
                    if file_number.nil?
-                     ClaimsApi::Logger.log('benefits_documents',
-                                           detail: 'calling benefits documents api ' \
-                                                   "for claim_id #{params[:id]} returned nil ' \
-                                                   'file number in claims controller v2")
+                     claims_v2_logging('benefits_documents',
+                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
+                                                'returned a nil file number in claims controller v2')
 
                      return []
                    end
 
-                   ClaimsApi::Logger.log('benefits_documents',
-                                         detail: "calling benefits documents api for claim_id ' \
-                                         '#{params[:id]} in claims controller v2")
+                   claims_v2_logging('benefits_documents',
+                                     message: "calling benefits documents api for claim_id #{params[:id]} " \
+                                              'in claims controller v2')
                    supporting_docs_list = benefits_doc_api.search(params[:id],
                                                                   file_number)&.dig(:data)
                    # add with_indifferent_access so ['documents'] works below

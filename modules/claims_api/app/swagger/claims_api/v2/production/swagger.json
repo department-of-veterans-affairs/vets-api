@@ -1038,10 +1038,7 @@
                               }
                             },
                             "tempJurisdiction": {
-                              "type": [
-                                "string",
-                                "null"
-                              ],
+                              "type": "string",
                               "description": "Temporary jurisdiction of claim"
                             },
                             "trackedItems": {
