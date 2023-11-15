@@ -451,4 +451,44 @@ describe VAOS::V2::MobileFacilityService do
       end
     end
   end
+
+  describe '#page_params' do
+    context 'when per_page is positive' do
+      context 'when per_page is positive' do
+        let(:pagination_params) do
+          { per_page: 3, page: 2 }
+        end
+
+        it 'returns pageSize and page' do
+          result = subject.send(:page_params, pagination_params)
+
+          expect(result).to eq({ pageSize: 3, page: 2 })
+        end
+      end
+    end
+
+    context 'when per_page is not positive' do
+      let(:pagination_params) do
+        { per_page: 0, page: 2 }
+      end
+
+      it 'returns pageSize only' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
+      end
+    end
+
+    context 'when per_page does not exist' do
+      let(:pagination_params) do
+        { page: 2 }
+      end
+
+      it 'returns pageSize as 0' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
+      end
+    end
+  end
 end
