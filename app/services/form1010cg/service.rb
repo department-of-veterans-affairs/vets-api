@@ -6,7 +6,6 @@ require 'carma/client/mule_soft_client'
 require 'carma/models/submission'
 require 'carma/models/attachments'
 require 'mpi/service'
-require 'emis/service'
 
 module Form1010cg
   class Service
@@ -148,26 +147,6 @@ module Form1010cg
       raise response.error if response.error
 
       @cache[:icns][form_subject] = NOT_FOUND
-    end
-
-    # Will search eMIS for the provided form subject and return `true` if the subject is a verteran.
-    # The result will be cached and subsequent calls will return the cached value, preventing additional api requests.
-    #
-    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
-    # @return [true | false] Returns `true` if the form subject is a veteran and false otherwise.
-    def is_veteran(form_subject) # rubocop:disable Naming/PredicateName
-      cached_veteran_status = @cache[:veteran_statuses][form_subject]
-      return cached_veteran_status unless cached_veteran_status.nil?
-
-      icn = icn_for(form_subject)
-
-      return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
-
-      response = emis_service.get_veteran_status(icn:)
-
-      is_veteran = response&.items&.first&.title38_status_code == 'V1'
-
-      @cache[:veteran_statuses][form_subject] = is_veteran || false
     end
 
     private
