@@ -29,6 +29,20 @@ module ClaimsApi
       @timeout = Settings.bgs.timeout || 120
     end
 
+    def self.breakers_service
+      url = Settings.bgs.url
+      path = URI.parse(url).path
+      host = URI.parse(url).host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      Breakers::Service.new(
+        name: 'BGS/Claims',
+        request_matcher: matcher
+      )
+    end
+
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
       header = Nokogiri::XML::DocumentFragment.parse <<~EOXML
@@ -101,7 +115,10 @@ module ClaimsApi
 
     def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
       connection = log_duration event: 'establish_ssl_connection' do
-        Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
+        Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
+          f.use :breakers
+          f.adapter Faraday.default_adapter
+        end
       end
       connection.options.timeout = @timeout
 
