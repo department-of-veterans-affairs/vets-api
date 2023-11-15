@@ -2,8 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
-  stub_virus_scan
-  subject(:job) { described_class.new }
+RSpec.describe Lighthouse::PensionBenefitIntakeJob, type: :job do
+  describe '#perform' do
+
+  end
+
 
 end
