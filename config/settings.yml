@@ -944,6 +944,7 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: "peer"
+  url: "https://something.fake.va.gov"
 
 directory:
   url: http://example.com/services/apps/v0/
