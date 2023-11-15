@@ -145,13 +145,13 @@ components:
             full_name:
               type: string
               example: 'Bob Law'
-            address_line_1:
+            address_line1:
               type: string
               example: '123 East Main Street'
-            address_line_2:
+            address_line2:
               type: string
               example: 'Suite 123'
-            address_line_3:
+            address_line3:
               type: string
               example: 'Address Line 3'
             address_type:
@@ -217,13 +217,13 @@ components:
             name:
               type: string
               example: 'Virginia Department of Veterans Services'
-            address_line_1:
+            address_line1:
               type: string
               example: '123 East Main Street'
-            address_line_2:
+            address_line2:
               type: string
               example: 'Suite 123'
-            address_line_3:
+            address_line3:
               type: string
               example: 'Address Line 3'
             address_type:
