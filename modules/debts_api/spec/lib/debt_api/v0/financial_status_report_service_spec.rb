@@ -269,6 +269,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       copay_count = builder.grouped_vha_copays.length
       expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(copay_count)
       expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
+      form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
+      expect(form.class).to be(Hash)
     end
 
     context 'with both debts and copays' do
