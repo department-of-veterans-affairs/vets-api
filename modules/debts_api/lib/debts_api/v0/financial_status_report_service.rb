@@ -163,6 +163,7 @@ module DebtsApi
       form = form_submission.form
       form['transactionId'] = form_submission.id
       form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
+      form
     end
 
     def build_public_metadata(form_builder, form, debts)
