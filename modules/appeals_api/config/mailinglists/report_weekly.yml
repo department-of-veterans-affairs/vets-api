@@ -1,5 +1,4 @@
 common:
-   - drew.fisher@adhocteam.us
    - michael.hobson@adhocteam.us
    - michel.mcdonald@adhocteam.us
    - casey.williams@adhocteam.us
@@ -19,3 +18,4 @@ production:
   - steve.albers@va.gov
   - eugene.lynch@coforma.io
   - sade@coforma.io
+  - drew.fisher@adhocteam.us
