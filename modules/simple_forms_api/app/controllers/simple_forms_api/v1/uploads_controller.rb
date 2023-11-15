@@ -7,7 +7,7 @@ module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate
-      before_action :authenticate, if: :form_is210966
+      before_action :authenticate, if: :should_authenticate
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -83,7 +83,7 @@ module SimpleFormsApi
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @user
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
           ).send
         end
 
@@ -126,6 +126,10 @@ module SimpleFormsApi
 
       def form_is210966
         params[:form_number] == '21-0966'
+      end
+
+      def should_authenticate
+        params[:form_number] == '21-0966' || params[:form_number] == '21-0845'
       end
 
       def icn
