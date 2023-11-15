@@ -26,6 +26,21 @@ describe ClaimsApi::LocalBGS do
       end
     end
 
+    describe 'breakers' do
+      it 'returns a Bad Gateway' do
+        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL").to_timeout
+        expect do
+          subject.find_poa_by_participant_id('also-does-not-matter')
+        end.to raise_error(Common::Exceptions::BadGateway)
+      end
+
+      it 'hits breakers' do
+        ClaimsApi::LocalBGS.breakers_service.begin_forced_outage!
+        expect { subject.find_poa_by_participant_id('also-does-not-matter') }.to raise_error(Breakers::OutageException)
+        ClaimsApi::LocalBGS.breakers_service.end_forced_outage!
+      end
+    end
+
     it 'triggers StatsD measurements' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id', allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
