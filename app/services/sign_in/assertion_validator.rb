@@ -46,6 +46,7 @@ module SignIn
       ServiceAccountAccessToken.new(service_account_id:,
                                     audience:,
                                     scopes:,
+                                    user_attributes:,
                                     user_identifier:)
     end
 
@@ -76,6 +77,10 @@ module SignIn
 
     def scopes
       @scopes ||= decoded_assertion.scopes
+    end
+
+    def user_attributes
+      @user_attributes = decoded_assertion.user_attributes || {}
     end
 
     def user_identifier

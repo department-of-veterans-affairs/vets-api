@@ -138,6 +138,26 @@ RSpec.describe SignIn::AssertionValidator do
           end
         end
       end
+
+      context 'and user_attributes claim is provided' do
+        let(:user_attributes) { { 'foo' => 'bar' } }
+        let(:assertion_payload) do
+          {
+            iss: service_account_audience,
+            aud: token_route,
+            sub:,
+            jti:,
+            exp: 1.month.from_now.to_i,
+            service_account_id: service_account_config.service_account_id,
+            scopes: [service_account_config.scopes.first],
+            user_attributes:
+          }
+        end
+
+        it 'returns the service account access token with the user attributes' do
+          expect(subject.user_attributes).to eq(user_attributes)
+        end
+      end
     end
   end
 end
