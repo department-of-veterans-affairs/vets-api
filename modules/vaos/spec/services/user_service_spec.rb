@@ -162,5 +162,27 @@ describe VAOS::UserService do
         end
       end
     end
+
+    context 'with no cached token' do
+      it 'returns nil and logs warning' do
+        allow(Rails.logger).to receive(:warn)
+        allow_any_instance_of(VAOS::UserService).to receive(:cached_by_account_uuid).and_return(nil)
+
+        expect(subject.update_session_token(user.account_uuid)).to be_nil
+        expect(Rails.logger).to have_received(:warn).with('VAOS no session to update', anything)
+      end
+    end
+
+    context 'with session update failure' do
+      it 'logs the error and re-raises the exception' do
+        allow(Rails.logger).to receive(:error)
+        allow_any_instance_of(VAOS::UserService).to receive(:cached_by_account_uuid)
+          .and_raise(Common::Exceptions::BackendServiceException)
+
+        expect { subject.update_session_token(user.account_uuid) }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to have_received(:error).with('VAOS session update failed', anything)
+      end
+    end
   end
 end
