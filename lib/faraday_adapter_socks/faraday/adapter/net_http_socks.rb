@@ -3,7 +3,7 @@
 # Reference: https://github.com/goldeneggg/faraday_adapter_socks/blob/master/lib/faraday/adapter/net_http_socks.rb
 
 module Faraday
-  class Adapter < Middleware
+  class Adapter
     register_middleware net_http_socks: :NetHttpSocks
 
     class NetHttpSocks < Faraday::Adapter::NetHttp

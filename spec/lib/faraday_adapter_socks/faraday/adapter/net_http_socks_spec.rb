@@ -46,10 +46,9 @@ describe Faraday::Adapter::NetHttpSocks do
         adapter = faraday.app
         expect(adapter).to be_instance_of(Faraday::Adapter::NetHttp)
 
-        # TODO: Come back to spec after upgrading to faraday >1.0
-        # uri = URI(url)
-        # http = adapter.net_http_connection({ url: uri, request: options })
-        # expect(http).to be_instance_of(Net::HTTP)
+        uri = URI(url)
+        http = adapter.net_http_connection({ url: uri, request: options })
+        expect(http).to be_instance_of(Net::HTTP)
       end
     end
 
