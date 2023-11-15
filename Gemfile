@@ -62,7 +62,7 @@ gem 'dogstatsd-ruby', '5.6.0'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
-gem 'faraday'
+gem 'faraday' # TODO: next step - update to ~> 1.0 , '~> 1.10'
 gem 'faraday_middleware'
 gem 'fastimage'
 gem 'fhir_client'
@@ -187,7 +187,6 @@ group :development, :test do
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
-  gem 'faraday_adapter_socks'
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec'

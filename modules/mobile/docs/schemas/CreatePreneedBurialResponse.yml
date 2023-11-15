@@ -1,0 +1,47 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "9E68GA6Q3NBTx8mxT3VG"
+        type:
+          type: string
+          example: "preneeds_receive_applications"
+        attributes:
+          type: object
+          required:
+            - receiveApplicationId
+            - trackingNumber
+            - returnCode
+            - applicationUuid
+            - returnDescription
+            - submittedAt
+          properties:
+            receiveApplicationId:
+              type: string
+              example: "9E68GA6Q3NBTx8mxT3VG"
+            trackingNumber:
+              type: string
+              example: "9E68GA6Q3NBTx8mxT3VG"
+            returnCode:
+              type: integer
+              example: 0
+            applicationUuid:
+              type: string
+              example: "29d0af3b-4929-418a-89c8-fa1d696a3886"
+            returnDescription:
+              type: boolean
+              example: "PreNeed Application Received Successfully."
+            submittedAt:
+              type: string
+              example: "2023-11-09T17:43:19.534Z"
