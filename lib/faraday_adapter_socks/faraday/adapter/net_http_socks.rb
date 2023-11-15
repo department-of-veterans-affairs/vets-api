@@ -4,7 +4,7 @@
 
 module Faraday
   class Adapter
-    register_middleware net_http_socks: :NetHttpSocks
+    Faraday::Adapter.register_middleware net_http_socks: :NetHttpSocks
 
     class NetHttpSocks < Faraday::Adapter::NetHttp
       SOCKS_SCHEMES = %w[socks socks4 socks5].freeze
