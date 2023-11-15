@@ -252,7 +252,6 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
-    base64 (0.1.1)
     bcp47 (0.3.3)
       i18n
     bindex (0.8.1)
@@ -409,9 +408,6 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.2.0)
       faraday (>= 0.8)
-    faraday_adapter_socks (0.1.1)
-      faraday (~> 0.9)
-      socksify (~> 1.7)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
     faraday_middleware (0.14.0)
@@ -838,26 +834,25 @@ GEM
     rswag-ui (2.11.0)
       actionpack (>= 3.1, < 7.2)
       railties (>= 3.1, < 7.2)
-    rubocop (1.56.2)
-      base64 (~> 0.1.1)
+    rubocop (1.57.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
-      parser (>= 3.2.2.3)
+      parser (>= 3.2.2.4)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
       rubocop-ast (>= 1.28.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.29.0)
+    rubocop-ast (1.30.0)
       parser (>= 3.2.1.0)
     rubocop-capybara (2.19.0)
       rubocop (~> 1.41)
     rubocop-factory_bot (2.24.0)
       rubocop (~> 1.33)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.20.2)
+    rubocop-rails (2.22.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
@@ -1073,7 +1068,6 @@ DEPENDENCIES
   faker
   fakeredis
   faraday
-  faraday_adapter_socks
   faraday_curl
   faraday_middleware
   fastimage

@@ -47,7 +47,7 @@ module Webhooks
         attempt = create_attempt(successful, attempt_response)
 
         # write an association record tied to each notification used in this attempt
-        Webhooks::Notification.where(id: @ids).each do |notification|
+        Webhooks::Notification.where(id: @ids).find_each do |notification|
           create_attempt_assoc(notification, attempt)
 
           # seal off the attempt if we received a successful response or hit our max retry limit
