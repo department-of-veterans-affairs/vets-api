@@ -43,7 +43,8 @@ module CheckIn
       end
 
       def permitted_params
-        params.require(:patient_check_ins).permit(:uuid, :appointment_ien, :set_e_checkin_started_called)
+        params.require(:patient_check_ins).permit(:uuid, :appointment_ien, :set_e_checkin_started_called,
+                                                  :is_travel_enabled, :travel_submitted)
       end
 
       private

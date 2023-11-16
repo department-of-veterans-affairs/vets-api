@@ -61,7 +61,8 @@ module V2
       # @return [Hash] unauthorized message if token is not present
       def create_check_in
         resp = if token.present?
-                 chip_client.check_in_appointment(token:, appointment_ien: check_in_body[:appointment_ien])
+                 chip_client.check_in_appointment(token:, appointment_ien: check_in_body[:appointment_ien],
+                                                  travel_params:)
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -243,6 +244,13 @@ module V2
         {
           patientDfn: hashed_identifiers[:patientDFN],
           stationNo: hashed_identifiers[:stationNo].to_s
+        }
+      end
+
+      def travel_params
+        {
+          isTravelEnabled: check_in_body[:is_travel_enabled],
+          travelSubmitted: check_in_body[:travel_submitted]
         }
       end
 
