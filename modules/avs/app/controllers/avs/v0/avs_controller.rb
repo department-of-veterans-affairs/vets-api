@@ -17,15 +17,15 @@ module Avs
 
         response = avs_service.get_avs_by_appointment(station_no, appointment_ien)
 
-        if response['body'].empty?
+        if response.body.empty?
           data = {}
         else
-          if response['body'][0]['icn'].nil? || !icns_match?(@current_user.icn, response['body'][0]['icn'])
+          if response.body[0]['icn'].nil? || !icns_match?(@current_user.icn, response.body[0]['icn'])
             render_client_error('Not authorized', 'User may not view the AVS for this appointment.', :unauthorized)
             return
           end
 
-          data = { path: get_avs_path(response['body'][0]['sid']) }
+          data = { path: get_avs_path(response.body[0]['sid']) }
         end
 
         render json: data

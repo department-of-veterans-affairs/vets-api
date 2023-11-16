@@ -38,7 +38,7 @@ RSpec.describe 'V0::TravelClaims', type: :request do
       it 'returns unauthorized response' do
         post '/check_in/v0/travel_claims', params: post_params
 
-        expect(response.body).to eq(unauth_response.body.to_json)
+        expect(response.body).to eq(unauth_response.env.request_body.to_json)
         expect(response.status).to eq(unauth_response.status)
       end
     end
