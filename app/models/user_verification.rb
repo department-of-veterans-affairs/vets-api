@@ -29,6 +29,14 @@ class UserVerification < ApplicationRecord
     user_verification
   end
 
+  def lock!
+    update_attribute!('locked', true)
+  end
+
+  def unlock!
+    update_attribute!('locked', false)
+  end
+
   def verified?
     verified_at.present? && user_account.verified?
   end

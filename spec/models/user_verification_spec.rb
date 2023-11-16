@@ -11,7 +11,8 @@ RSpec.describe UserVerification, type: :model do
            mhv_uuid:,
            backing_idme_uuid:,
            verified_at:,
-           user_account_id: user_account&.id)
+           user_account_id: user_account&.id,
+           locked:)
   end
 
   let(:idme_uuid) { nil }
@@ -21,6 +22,7 @@ RSpec.describe UserVerification, type: :model do
   let(:user_account) { nil }
   let(:backing_idme_uuid) { nil }
   let(:verified_at) { nil }
+  let(:locked) { false }
 
   describe 'validations' do
     shared_examples 'failed credential identifier validation' do
@@ -245,6 +247,29 @@ RSpec.describe UserVerification, type: :model do
           end
         end
       end
+    end
+  end
+
+  describe '.lock!' do
+    subject { user_verification.lock! }
+
+    let(:user_account) { create(:user_account) }
+    let(:logingov_uuid) { SecureRandom.uuid }
+
+    it 'updates locked to true' do
+      expect { subject }.to change(user_verification, :locked).from(false).to(true)
+    end
+  end
+
+  describe '.unlock!' do
+    subject { user_verification.unlock! }
+
+    let(:user_account) { create(:user_account) }
+    let(:logingov_uuid) { SecureRandom.uuid }
+    let(:locked) { true }
+
+    it 'updates locked to false' do
+      expect { subject }.to change(user_verification, :locked).from(true).to(false)
     end
   end
 

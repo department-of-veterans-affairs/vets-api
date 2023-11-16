@@ -21,7 +21,7 @@ module V0
       validate_credential_params
 
       user_verification = UserVerification.find_by_type!(params[:type], params[:credential_id])
-      user_verification.update!(locked: true)
+      user_verification.lock!
       Rails.logger.info('[V0::AccountControlsController] credential_lock', lock_log_info(user_verification:))
       render json: { data: serialize_user_verification(user_verification:) }
     rescue ActiveRecord::RecordInvalid
@@ -37,7 +37,7 @@ module V0
       validate_credential_params
 
       user_verification = UserVerification.find_by_type!(params[:type], params[:credential_id])
-      user_verification.update!(locked: false)
+      user_verification.unlock!
       Rails.logger.info('[V0::AccountControlsController] credential_unlock', lock_log_info(user_verification:))
       render json: { data: serialize_user_verification(user_verification:) }
     rescue ActiveRecord::RecordInvalid
