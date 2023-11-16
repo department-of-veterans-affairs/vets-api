@@ -23,7 +23,18 @@ spec:
               value: "{{ .Values.databaseUrl }}"
             - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
               value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
+            - name: "KMS_KEY_ID"
+              value: "insecure-test-key"
           ports:
             - name: http
               containerPort: 3000
               protocol: TCP
+          volumeMounts:
+            - name: settings-local-yml
+              mountPath: /app/config
+              subPath: settings.local.yml
+      volumes:
+        - name: settings-local-yml
+          configMap:
+            name: settings-local-yml
+

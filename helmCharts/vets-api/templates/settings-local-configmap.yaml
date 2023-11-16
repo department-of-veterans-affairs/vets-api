@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: settings-local-yml
+data:
+  settings.local.yml: |
+    virtual_hosts: ["{{ .Values.domainName }}"]
