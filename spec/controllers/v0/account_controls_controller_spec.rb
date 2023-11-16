@@ -108,7 +108,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
         end
 
         before do
-          allow_any_instance_of(UserVerification).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
+          allow_any_instance_of(UserVerification).to receive(expected_lock_method)
+            .and_raise(ActiveRecord::RecordInvalid)
           allow(Rails.logger).to receive(:info)
         end
 
@@ -175,6 +176,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     let(:account_controls_params) { { type: type_param, credential_id: credential_id_param } }
     let(:expected_lock_status) { true }
     let(:expected_lock_action) { 'lock' }
+    let(:expected_lock_method) { :lock! }
     let(:expected_response_data) do
       { 'credential_id' => credential_id,
         'type' => type,
@@ -224,6 +226,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     let(:account_controls_params) { { type: type_param, credential_id: credential_id_param } }
     let(:expected_lock_status) { false }
     let(:expected_lock_action) { 'unlock' }
+    let(:expected_lock_method) { :unlock! }
     let(:expected_response_data) do
       { 'credential_id' => credential_id,
         'type' => type,

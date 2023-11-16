@@ -30,11 +30,11 @@ class UserVerification < ApplicationRecord
   end
 
   def lock!
-    update_attribute!('locked', true)
+    update!(locked: true)
   end
 
   def unlock!
-    update_attribute!('locked', false)
+    update!(locked: false)
   end
 
   def verified?
