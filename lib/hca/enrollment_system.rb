@@ -589,7 +589,6 @@ module HCA
 
     def veteran_to_association_collection(veteran)
       associations = []
-
       dependents_list = veteran['dependents'] || []
 
       dependents = dependents_list.map do |dependent|
