@@ -18,23 +18,23 @@ module Lighthouse
 
     def perform(saved_claim_id)
       @claim = SavedClaim::Pension.find(saved_claim_id)
-      @form_path = process_pdf(claim.to_pdf)
-      @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
+      @form_path = process_pdf(@claim.to_pdf)
+      @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
       lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: claim.id,
+      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: @claim.id,
                           uuid: lighthouse_service.uuid })
 
       response = lighthouse_service.upload_form(
-        main_document: split_file_and_path(form_path),
-        attachments: attachment_paths.map(&method(:split_file_and_path)),
+        main_document: split_file_and_path(@form_path),
+        attachments: @attachment_paths.map(&method(:split_file_and_path)),
         form_metadata: generate_form_metadata_lh
       )
 
-      check_success(response, saved_claim_id, user_struct)
+      check_success(response, saved_claim_id)
     rescue => e
       Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob failed!',
-                        { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
+                        { error: e.message })
       raise
     ensure
       cleanup_file_paths
@@ -64,15 +64,15 @@ module Lighthouse
         veteran_last_name: veteran_full_name['last'],
         file_number: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         zip: address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        doc_type: claim.form_id,
-        claim_date: claim.created_at
+        doc_type: @claim.form_id,
+        claim_date: @claim.created_at
       }
     end
 
     def check_success(response, saved_claim_id)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: })
-        claim.send_confirmation_email(OpenStruct.new(user_struct))
+        @claim.send_confirmation_email
       else
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Unsuccessful',
                           { response: response['message'].presence || response['errors'] })
@@ -81,8 +81,8 @@ module Lighthouse
     end
 
     def cleanup_file_paths
-      Common::FileHelpers.delete_file_if_exists(form_path)
-      attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+      Common::FileHelpers.delete_file_if_exists(@form_path)
+      @attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
   end
 end
