@@ -3,6 +3,7 @@
 module Avs
   module V0
     class ApidocsController < ApplicationController
+      service_tag 'after-visit-summary'
       include Swagger::Blocks
 
       skip_before_action(:authenticate)

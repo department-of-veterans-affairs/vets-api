@@ -6,11 +6,9 @@ RSpec.describe Veteran::Accreditation::OrganizationSerializer do
   before do
     create(:organization,
            name: 'Bob Law',
-           # rubocop:disable Naming/VariableNumber
-           address_line_1: '123 East Main St',
-           address_line_2: 'Suite 1',
-           address_line_3: 'Address Line 3',
-           # rubocop:enable Naming/VariableNumber
+           address_line1: '123 East Main St',
+           address_line2: 'Suite 1',
+           address_line3: 'Address Line 3',
            address_type: 'DOMESTIC',
            city: 'My City',
            country_name: 'United States of America',
@@ -36,9 +34,9 @@ RSpec.describe Veteran::Accreditation::OrganizationSerializer do
     attributes = JSON.parse(result)['data']['attributes']
 
     %w[name
-       address_line_1
-       address_line_2
-       address_line_3
+       address_line1
+       address_line2
+       address_line3
        address_type
        city
        country_name
@@ -89,9 +87,9 @@ RSpec.describe Veteran::Accreditation::OrganizationSerializer do
     attributes = JSON.parse(result)['data']['attributes']
 
     expect(attributes.keys).to eq(%w[name
-                                     address_line_1
-                                     address_line_2
-                                     address_line_3
+                                     address_line1
+                                     address_line2
+                                     address_line3
                                      address_type
                                      city
                                      country_name

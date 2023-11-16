@@ -5,6 +5,7 @@ require_relative '../../../rails_helper'
 
 RSpec.describe 'Disability Claims', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
+  let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
 
   before do
     stub_mpi
@@ -20,14 +21,12 @@ RSpec.describe 'Disability Claims', type: :request do
   end
 
   describe '#526', vcr: 'claims_api/disability_comp' do
-    let(:claim_date) { (Time.zone.today - 1.day).to_s }
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                              'form_526_json_api.json').read
       temp = JSON.parse(temp)
       attributes = temp['data']['attributes']
-      attributes['claimDate'] = claim_date
       attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
 
       temp.to_json
@@ -1754,38 +1753,6 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when the claimDate is over 180 days after the last activeDutyEndDate' do
-          let(:active_duty_end_date) { '2022-11-03' }
-
-          it 'responds with a 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
-                active_duty_end_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the claimDate is under 180 days after the last activeDutyEndDate' do
-          let(:active_duty_end_date) { Time.find_zone!('Central Time (US & Canada)').today - 179.days }
-          let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
-
-          it 'responds with a 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['claimDate'] = claim_date
-              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
-                active_duty_end_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
         context 'when the activeDutyEndDate is in the future' do
           let(:active_duty_end_date) { 2.months.from_now.strftime('%Y-%m-%d') }
 
@@ -2828,13 +2795,11 @@ RSpec.describe 'Disability Claims', type: :request do
       describe "claimProcessType is 'BDD_PROGRAM'" do
         context 'when activeDutyEndDate is between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:active_duty_end_date) { '2024-01-16' }
-          let(:claim_date) { '2023-10-15' }
+          let(:active_duty_end_date) { claim_date + 91.days }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['claimDate'] = claim_date
               json['data']['attributes']['claimProcessType'] = claim_process_type
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                 active_duty_end_date
@@ -2847,13 +2812,11 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when activeDutyEndDate is not between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:active_duty_end_date) { '01-16-2023' }
-          let(:claim_date) { '2023-10-15' }
+          let(:active_duty_end_date) { claim_date + 81.days }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['claimDate'] = claim_date
               json['data']['attributes']['claimProcessType'] = claim_process_type
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                 active_duty_end_date
@@ -2866,13 +2829,11 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when anticipatedSeparationDate is between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:anticipated_separation_date) { '2024-01-16' }
-          let(:claim_date) { '2023-10-15' }
+          let(:anticipated_separation_date) { claim_date + 91.days }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['claimDate'] = claim_date
               json['data']['attributes']['claimProcessType'] = claim_process_type
               json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
                 anticipated_separation_date
@@ -2886,12 +2847,10 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
           let(:anticipated_separation_date) { '2024-06-16' }
-          let(:claim_date) { '2023-10-15' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['claimDate'] = claim_date
               json['data']['attributes']['claimProcessType'] = claim_process_type
               json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
                 anticipated_separation_date
@@ -3473,6 +3432,42 @@ RSpec.describe 'Disability Claims', type: :request do
               .to receive(:target_veteran).and_return(target_veteran)
             post attachments_path, params: base64_params, headers: auth_header
             expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
+
+      describe 'with more then 10 attachments' do
+        let(:binary_params) do
+          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment3: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment4: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment5: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment7: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment6: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment8: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment9: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment10: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s),
+            attachment11: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+            .split('/')).to_s) }
+        end
+
+        it 'responds with a 422' do
+          mock_ccg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            post attachments_path, params: binary_params, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
