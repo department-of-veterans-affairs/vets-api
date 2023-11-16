@@ -4,109 +4,228 @@
   "required": [
     "data"
   ],
-  "properties": {
-    "data": {
-      "type": "array",
-      "minItems": 0,
-      "uniqueItems": true,
-      "items": {
-        "required": [
-          "id",
-          "type",
-          "attributes",
-          "links"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "messages"
-            ]
-          },
-          "attributes": {
-            "type": "object",
+  "oneOf": [
+    {
+      "properties": {
+        "data": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": {
             "required": [
-              "messageId",
-              "category",
-              "subject",
-              "body",
-              "attachment",
-              "sentDate",
-              "senderId",
-              "senderName",
-              "recipientId",
-              "recipientName",
-              "readReceipt"
+              "id",
+              "type",
+              "attributes",
+              "links"
             ],
             "properties": {
-              "messageId": {
-                "type": "integer"
-              },
-              "category": {
+              "id": {
                 "type": "string"
               },
-              "subject": {
-                "type": "string"
-              },
-              "body": {
-                "type": [
-                  "null",
-                  "string"
+              "type": {
+                "enum": [
+                  "messages"
                 ]
               },
-              "attachment": {
-                "type": "boolean"
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "messageId",
+                  "category",
+                  "subject",
+                  "body",
+                  "attachment",
+                  "sentDate",
+                  "senderId",
+                  "senderName",
+                  "recipientId",
+                  "recipientName",
+                  "readReceipt"
+                ],
+                "properties": {
+                  "messageId": {
+                    "type": "integer"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "attachment": {
+                    "type": "boolean"
+                  },
+                  "sentDate": {
+                    "type": "date-time"
+                  },
+                  "senderId": {
+                    "type": "integer"
+                  },
+                  "senderName": {
+                    "type": "string"
+                  },
+                  "recipientId": {
+                    "type": "integer"
+                  },
+                  "recipientName": {
+                    "type": "string"
+                  },
+                  "readReceipt": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "triageGroupName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "proxySenderName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
               },
-              "sentDate": {
-                "type": "date-time"
-              },
-              "senderId": {
-                "type": "integer"
-              },
-              "senderName": {
-                "type": "string"
-              },
-              "recipientId": {
-                "type": "integer"
-              },
-              "recipientName": {
-                "type": "string"
-              },
-              "readReceipt": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "triageGroupName": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "proxySenderName": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+              "links": {
+                "type": "object",
+                "required": [
+                  "self"
+                ],
+                "properties": {
+                  "self": {
+                    "type": "string"
+                  }
+                }
               }
             }
-          },
-          "links": {
-            "type": "object",
+          }
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "messageCounts": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "data": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": {
             "required": [
-              "self"
+              "id",
+              "type",
+              "attributes",
+              "links"
             ],
             "properties": {
-              "self": {
+              "id": {
                 "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "messages"
+                ]
+              },
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "messageId",
+                  "category",
+                  "subject",
+                  "body",
+                  "attachment",
+                  "sentDate",
+                  "senderId",
+                  "senderName",
+                  "recipientId",
+                  "recipientName",
+                  "readReceipt"
+                ],
+                "properties": {
+                  "messageId": {
+                    "type": "integer"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "attachment": {
+                    "type": "boolean"
+                  },
+                  "sentDate": {
+                    "type": "date-time"
+                  },
+                  "senderId": {
+                    "type": "integer"
+                  },
+                  "senderName": {
+                    "type": "string"
+                  },
+                  "recipientId": {
+                    "type": "integer"
+                  },
+                  "recipientName": {
+                    "type": "string"
+                  },
+                  "readReceipt": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "triageGroupName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "proxySenderName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              },
+              "links": {
+                "type": "object",
+                "required": [
+                  "self"
+                ],
+                "properties": {
+                  "self": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
         }
       }
     }
-  }
+  ]
 }
