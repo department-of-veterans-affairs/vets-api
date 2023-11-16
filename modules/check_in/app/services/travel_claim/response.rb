@@ -16,7 +16,7 @@ module TravelClaim
     end
 
     def initialize(opts)
-      @body = opts[:response].body || []
+      @body = opts[:response].env.request_body || []
       @status = opts[:response].status
     end
 
