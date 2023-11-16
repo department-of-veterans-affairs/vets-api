@@ -105,9 +105,15 @@ module AppealsApi
             start_date = Date.parse(start_date_str)
             end_date = Date.parse(end_date_str)
 
-            valid_date_ranges = start_date <= end_date && start_date < Time.zone.today && end_date < Time.zone.today
+            #{}valid_date_ranges = start_date <= end_date && start_date <= Time.zone.today && end_date <= Time.zone.today
 
-            add_date_range_error(schema_pointer, start_date, end_date) unless valid_date_ranges
+            if start_date > end_date
+              errors.add schema_pointer, "startDate: #{start_date} must before or the same day as endDate: #{end_date}."
+            end
+
+            if end_date > Time.zone.today
+              errors.add schema_pointer, "endDate: #{end_date} can not be greater than submission date."
+            end
           end
         end
       end
@@ -132,12 +138,6 @@ module AppealsApi
       def add_date_error(pointer, date_str, error_opts = {})
         errors.add pointer,
                    "Date must be in the past: #{date_str}",
-                   **error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
-      end
-
-      def add_date_range_error(pointer, start_date, end_date, error_opts = {})
-        errors.add pointer,
-                   "#{start_date} must before or the same day as #{end_date}. Both dates must also be in the past.",
                    **error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
       end
     end

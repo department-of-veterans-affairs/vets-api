@@ -186,8 +186,22 @@ describe AppealsApi::SupplementalClaim, type: :model do
           error = appeal.errors.first
           expect(error.attribute)
             .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
-          expect(error.message).to eq '2020-05-10 must before or the same day as 2020-04-10. ' \
-                                      'Both dates must also be in the past.'
+          expect(error.message).to eq 'startDate: 2020-05-10 must before or the same day as endDate: 2020-04-10.'
+        end
+      end
+
+      context "when 'evidenceSubmission.retrieveFrom.endDate' is in the future" do
+        it 'errors with a point to the offending evidenceDates index' do
+          retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+          end_date = (Time.zone.today + 1.day).to_s
+          retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = end_date
+
+          expect(appeal.valid?).to be false
+          expect(appeal.errors.size).to eq 1
+          error = appeal.errors.first
+          expect(error.attribute)
+            .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
+          expect(error.message).to eq "endDate: #{end_date} can not be greater than submission date."
         end
       end
     end
