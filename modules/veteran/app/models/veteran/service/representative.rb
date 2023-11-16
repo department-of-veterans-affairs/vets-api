@@ -6,6 +6,7 @@ module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
     class Representative < ApplicationRecord
+      self.ignored_columns += %w[address_line_1 address_line_2 address_line_3]
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id

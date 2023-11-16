@@ -4,7 +4,6 @@
     "attributes": {
       "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-      "claimDate": "2023-11-01",
       "veteranIdentification": {
         "currentVaEmployee": false,
         "mailingAddress": {
