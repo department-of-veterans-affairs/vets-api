@@ -123,7 +123,12 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'
               }
             }
-          ] }
+          ],
+        'meta' => {
+          'messageCounts' => {
+            'read' => 3
+          }
+        } }
     end
 
     describe '#thread' do
@@ -149,6 +154,16 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
         expect(response).to be_successful
         expect(response.parsed_body['data']).to eq(thread_response['data'].filter { |m| m['id'] != thread_id.to_s })
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be false
+      end
+
+      it 'provides a count in the meta of read' do
+        VCR.use_cassette('mobile/messages/v1_get_thread') do
+          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
+              headers: sis_headers,
+              params: { excludeProvidedMessage: true }
+        end
+
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(3)
       end
     end
   end

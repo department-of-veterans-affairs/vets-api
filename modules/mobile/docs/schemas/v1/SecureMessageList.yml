@@ -147,3 +147,12 @@ properties:
           totalEntries:
             type: integer
             example: 15
+      messageCounts:
+        type: object
+        properties:
+          unread:
+            type: integer
+            example: 5
+          total:
+            type: integer
+            example: 15

@@ -174,6 +174,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('messages_thread')
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(2)
       end
     end
 
