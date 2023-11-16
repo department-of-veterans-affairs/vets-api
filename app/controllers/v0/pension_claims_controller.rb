@@ -25,10 +25,11 @@ module V0
     end
 
     use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
-    unless use_lighthouse
-      claim.process_attachments!
-    else
+    byebug
+    if use_lighthouse
       claim.upload_to_lighthouse
+    else
+      claim.process_attachments!
     end
 
     StatsD.increment("#{stats_key}.success")
@@ -37,5 +38,4 @@ module V0
     clear_saved_form(claim.form_id)
     render(json: claim)
   end
-
 end

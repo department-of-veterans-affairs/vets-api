@@ -34,5 +34,4 @@ class SavedClaim::Pension < CentralMailClaim
   def upload_to_lighthouse
     Lighthouse::PensionBenefitIntakeJob.perform_async(id)
   end
-
 end

@@ -20,19 +20,18 @@ module Lighthouse
       @claim = SavedClaim::Pension.find(saved_claim_id)
       @form_path = process_pdf(claim.to_pdf)
       @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
-      Rails.logger.info({ message: 'PensionBenefitIntakeJob Initiate Attempt', claim_id: claim.id })
 
       lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: claim.id, uuid: lighthouse_service.uuid})
+      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: claim.id,
+                          uuid: lighthouse_service.uuid })
 
       response = lighthouse_service.upload_form(
         main_document: split_file_and_path(form_path),
         attachments: attachment_paths.map(&method(:split_file_and_path)),
         form_metadata: generate_form_metadata_lh
       )
-      Rails.logger.info({ message: 'PensionBenefitIntakeJob Complete', claim_id: claim.id, uuid: lighthouse_service.uuid})
 
-      check_success(result, saved_claim_id, user_struct)
+      check_success(response, saved_claim_id, user_struct)
     rescue => e
       Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob failed!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
@@ -85,6 +84,5 @@ module Lighthouse
       Common::FileHelpers.delete_file_if_exists(form_path)
       attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
-
   end
 end
