@@ -26,21 +26,12 @@ module Form1010Ezr
       @user = user
     end
 
-    # @param [HashWithIndifferentAccess] parsed_form JSON form data
-    def submit_form(parsed_form)
-      begin
-        configure_and_validate_form(parsed_form)
-
-        formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
-        content = Gyoku.xml(formatted)
-        submission = soap.build_request(:save_submit_form, message: content)
-        response = with_monitoring do
-          perform(:post, '', submission.body)
-        end
-      rescue => e
-        log_submission_failure(parsed_form)
-        Rails.logger.error "10-10EZR form submission failed: #{e.message}"
-        raise e
+    def submit_sync(parsed_form)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
+      content = Gyoku.xml(formatted)
+      submission = soap.build_request(:save_submit_form, message: content)
+      response = with_monitoring do
+        perform(:post, '', submission.body)
       end
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
@@ -50,6 +41,18 @@ module Form1010Ezr
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
         timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
+    end
+
+    # @param [HashWithIndifferentAccess] parsed_form JSON form data
+    def submit_form(parsed_form)
+      begin
+        configure_and_validate_form(parsed_form)
+        submit_sync(parsed_form)
+      rescue => e
+        log_submission_failure(parsed_form)
+        Rails.logger.error "10-10EZR form submission failed: #{e.message}"
+        raise e
+      end
     end
 
     private
