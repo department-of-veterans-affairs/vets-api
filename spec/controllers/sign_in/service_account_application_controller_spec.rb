@@ -2,8 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ServiceAccountController, type: :controller do
+RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
   controller do
+    before_action :authenticate_service_account
+
     def service_account_auth
       head :ok
     end
@@ -11,7 +13,7 @@ RSpec.describe SignIn::ServiceAccountController, type: :controller do
 
   before do
     routes.draw do
-      get 'service_account_auth' => 'sign_in/service_account#service_account_auth'
+      get 'service_account_auth' => 'sign_in/service_account_application#service_account_auth'
     end
   end
 

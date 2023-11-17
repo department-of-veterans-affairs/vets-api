@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module V0
-  class AccountControlsController < SignIn::ServiceAccountController
+  class AccountControlsController < SignIn::ServiceAccountApplicationController
     VALID_CSP_TYPES = %w[logingov idme dslogon mhv].freeze
 
     def credential_index
-      raise Common::Exceptions::ParameterMissing, 'icn' if params[:icn].blank?
+      raise SignIn::Errors::MissingParamsError, 'icn' if params[:icn].blank?
 
       serialized_user_verifications = serialize_user_verifications(user_verifications: fetch_verifications_by_icn)
       Rails.logger.info('[V0::AccountControlsController] credential_index',
@@ -13,7 +13,7 @@ module V0
       render json: { data: serialized_user_verifications }
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount not found.' }, status: :not_found
-    rescue Common::Exceptions::ParameterMissing => e
+    rescue SignIn::Errors => e
       render json: { error: e.errors.first.detail }, status: :bad_request
     end
 
@@ -29,7 +29,7 @@ module V0
       render json: { error: 'UserAccount credential lock failed.' }, status: :internal_server_error
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount credential record not found.' }, status: :not_found
-    rescue Common::Exceptions::ParameterMissing, Common::Exceptions::InvalidFieldValue => e
+    rescue SignIn::Errors => e
       render json: { error: e.errors.first.detail }, status: :bad_request
     end
 
@@ -45,18 +45,18 @@ module V0
       render json: { error: 'UserAccount credential unlock failed.' }, status: :internal_server_error
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount credential record not found.' }, status: :not_found
-    rescue Common::Exceptions::ParameterMissing, Common::Exceptions::InvalidFieldValue => e
+    rescue SignIn::Errors => e
       render json: { error: e.errors.first.detail }, status: :bad_request
     end
 
     private
 
     def validate_credential_params
-      raise Common::Exceptions::ParameterMissing, 'credential_id' if params[:credential_id].blank?
-      raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
+      raise SignIn::Errors::MissingParamsError, 'credential_id' if params[:credential_id].blank?
+      raise SignIn::Errors::MissingParamsError, 'type' if params[:type].blank?
 
       unless VALID_CSP_TYPES.include?(params[:type])
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type])
+        raise SignIn::Errors::MalformedParamsError.new('type', params[:type])
       end
     end
 

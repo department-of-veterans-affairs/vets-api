@@ -5,9 +5,8 @@ require 'rx/client'
 
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
-    skip_before_action :authenticate, only: %w[index_optional_auth service_account_auth]
+    skip_before_action :authenticate, only: %w[index_optional_auth]
     before_action :load_user, only: %(index_optional_auth)
-    before_action :authenticate_service_account, only: %(service_account_auth)
     attr_reader :payload
 
     def index
@@ -38,7 +37,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'client_connection_failed' => 'sign_in/application#client_connection_failed'
       get 'index' => 'sign_in/application#index'
       get 'index_optional_auth' => 'sign_in/application#index_optional_auth'
-      get 'service_account_auth' => 'sign_in/application#service_account_auth'
     end
   end
 
