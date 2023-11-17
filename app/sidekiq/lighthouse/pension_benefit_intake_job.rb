@@ -17,10 +17,7 @@ module Lighthouse
     def perform(saved_claim_id)
       @claim = SavedClaim::Pension.find(saved_claim_id)
       @form_path = process_pdf(@claim.to_pdf)
-      @attachment_paths = @claim.persistent_attachments.map { |pa|
-        # always includes, at least, the form pdf
-        process_pdf(pa.to_pdf)
-      }
+      @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
       lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: @claim.id,

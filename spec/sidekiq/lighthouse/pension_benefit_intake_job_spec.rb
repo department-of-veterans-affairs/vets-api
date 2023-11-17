@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
   stub_virus_scan
   let(:job) { described_class.new }
-  let(:claim) { create(:pension_burial).saved_claim }
+  let(:claim) { create(:pension_claim) }
 
   describe '#perform' do
     let(:service) { double('service') }
@@ -23,6 +23,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(service).to receive(:upload_form).and_return(response)
     end
 
+    # success
     it 'submits the saved claim successfully' do
       allow(response).to receive(:success?) { true }
       doc = { file: pdf_path, file_name: 'pdf' }
@@ -31,12 +32,35 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       expect(job).to receive(:process_pdf).with(pdf_path)
       expect(job).to receive(:generate_form_metadata_lh).once
       expect(service).to receive(:upload_form).with(
-        main_document: doc, attachments: [doc], form_metadata: anything)
+        main_document: doc, attachments: [], form_metadata: anything)
       expect(job).to receive(:check_success).with(response, claim.id)
+
+      #expect(claim).to receive(:send_confirmation_email)
+
       expect(job).to receive(:cleanup_file_paths)
 
       job.perform(claim.id)
     end
+
+    # fail
+    it 'submits the saved claim successfully' do
+      allow(response).to receive(:success?) { true }
+      doc = { file: pdf_path, file_name: 'pdf' }
+
+      expect(claim).to receive(:to_pdf)
+      expect(job).to receive(:process_pdf).with(pdf_path)
+      expect(job).to receive(:generate_form_metadata_lh).once
+      expect(service).to receive(:upload_form).with(
+        main_document: doc, attachments: [], form_metadata: anything)
+      expect(job).to receive(:check_success).with(response, claim.id)
+
+      expect(claim).not_to receive(:send_confirmation_email)
+
+      expect(job).to receive(:cleanup_file_paths)
+
+      job.perform(claim.id)
+    end
+
 
   end # describe #perform
 end # Rspec.describe
