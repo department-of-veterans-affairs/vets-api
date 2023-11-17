@@ -3,6 +3,7 @@
 module Avs
   module V0
     class AvsController < ApplicationController
+      service_tag 'after-visit-summary'
       before_action :feature_enabled
       before_action { :authenticate }
 

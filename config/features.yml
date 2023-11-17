@@ -521,6 +521,9 @@ features:
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
+  form210966:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-0966
   form210972:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0972
@@ -800,6 +803,9 @@ features:
   my_va_notification_dot_indicator:
     actor_type: user
     description: Enable dot indicator for notifications
+  my_va_remove_cerner_message:
+    actor_type: user
+    description: Remove Cerner alerts under Health care section
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)

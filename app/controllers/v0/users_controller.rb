@@ -22,5 +22,9 @@ module V0
         meta: { errors: pre_serialized_profile.errors }
       )
     end
+
+    def icn
+      render json: { icn: current_user.icn }, status: :ok
+    end
   end
 end

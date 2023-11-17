@@ -145,6 +145,8 @@ describe SimpleFormsApi::ConfirmationEmail do
           confirmation_number: 'confirmation_number'
         )
 
+        allow(subject.user).to receive(:va_profile_email).and_return('abraham.lincoln@vets.gov')
+
         subject.send
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
