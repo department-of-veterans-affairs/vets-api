@@ -9,17 +9,18 @@ module Lighthouse
 
     class PensionBenefitIntakeError < StandardError; end
 
+    FOREIGN_POSTALCODE = '00000'
+
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
-    # Set minimum retry time to ~1 hour
-    sidekiq_retry_in do |count, _exception|
-      rand(3600..3660) if count < 9
-    end
 
     def perform(saved_claim_id)
       @claim = SavedClaim::Pension.find(saved_claim_id)
       @form_path = process_pdf(@claim.to_pdf)
-      @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
+      @attachment_paths = @claim.persistent_attachments.map { |pa|
+        # always includes, at least, the form pdf
+        process_pdf(pa.to_pdf)
+      }
 
       lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: @claim.id,
@@ -72,7 +73,7 @@ module Lighthouse
     def check_success(response, saved_claim_id)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: })
-        @claim.send_confirmation_email
+        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Unsuccessful',
                           { response: response['message'].presence || response['errors'] })
