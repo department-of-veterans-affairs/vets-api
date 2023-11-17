@@ -5,7 +5,7 @@ module V0
     VALID_CSP_TYPES = %w[logingov idme dslogon mhv].freeze
 
     def credential_index
-      raise SignIn::Errors::MissingParamsError, 'icn' if params[:icn].blank?
+      raise SignIn::Errors::MissingParamsError.new message: 'icn is not defined' if params[:icn].blank?
 
       serialized_user_verifications = serialize_user_verifications(user_verifications: fetch_verifications_by_icn)
       Rails.logger.info('[V0::AccountControlsController] credential_index',
@@ -13,8 +13,8 @@ module V0
       render json: { data: serialized_user_verifications }
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount not found.' }, status: :not_found
-    rescue SignIn::Errors => e
-      render json: { error: e.errors.first.detail }, status: :bad_request
+    rescue SignIn::Errors::MissingParamsError => e
+      render json: { error: e.message }, status: :bad_request
     end
 
     def credential_lock
@@ -29,8 +29,8 @@ module V0
       render json: { error: 'UserAccount credential lock failed.' }, status: :internal_server_error
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount credential record not found.' }, status: :not_found
-    rescue SignIn::Errors => e
-      render json: { error: e.errors.first.detail }, status: :bad_request
+    rescue SignIn::Errors::MissingParamsError, SignIn::Errors::MalformedParamsError => e
+      render json: { error: e.message }, status: :bad_request
     end
 
     def credential_unlock
@@ -45,18 +45,20 @@ module V0
       render json: { error: 'UserAccount credential unlock failed.' }, status: :internal_server_error
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount credential record not found.' }, status: :not_found
-    rescue SignIn::Errors => e
-      render json: { error: e.errors.first.detail }, status: :bad_request
+    rescue SignIn::Errors::MissingParamsError, SignIn::Errors::MalformedParamsError => e
+      render json: { error: e.message }, status: :bad_request
     end
 
     private
 
     def validate_credential_params
-      raise SignIn::Errors::MissingParamsError, 'credential_id' if params[:credential_id].blank?
-      raise SignIn::Errors::MissingParamsError, 'type' if params[:type].blank?
+      if params[:credential_id].blank?
+        raise SignIn::Errors::MissingParamsError.new message: 'credential_id is not defined'
+      end
+      raise SignIn::Errors::MissingParamsError.new message: 'type is not defined' if params[:type].blank?
 
       unless VALID_CSP_TYPES.include?(params[:type])
-        raise SignIn::Errors::MalformedParamsError.new('type', params[:type])
+        raise SignIn::Errors::MalformedParamsError.new message: 'type is malformed'
       end
     end
 

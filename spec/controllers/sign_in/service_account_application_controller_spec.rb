@@ -22,9 +22,7 @@ RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
 
     shared_context 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:sentry_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: nil }.compact
-      end
+      let(:sentry_context) { { access_token_authorization_header: access_token } }
       let(:sentry_log_level) { :error }
 
       it 'renders Malformed Params error' do

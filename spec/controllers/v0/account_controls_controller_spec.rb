@@ -12,7 +12,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   let!(:mhv_user_verification) { create(:mhv_user_verification, user_account:, locked:) }
 
   before do
-    allow_any_instance_of(V0::AccountControlsController).to receive(:authenticate_service_account).and_return(true)
+    allow_any_instance_of(SignIn::ServiceAccountAuthentication).to receive(:authenticate_service_account)
+      .and_return(true)
     controller.instance_variable_set(:@service_account_access_token, service_account_access_token)
   end
 
@@ -24,7 +25,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
 
     context 'without an ICN param' do
       let(:icn_param) { nil }
-      let(:expected_error) { 'The required parameter "icn", is missing' }
+      let(:expected_error) { 'icn is not defined' }
 
       it 'returns a bad request error' do
         expect(subject).to have_http_status(:bad_request)
@@ -127,7 +128,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
 
     context 'when a request is made without a type' do
       let(:type_param) { nil }
-      let(:expected_error_message) { 'The required parameter "type", is missing' }
+      let(:expected_error_message) { 'type is not defined' }
 
       it 'returns a type parameter missing error' do
         expect(subject).to have_http_status(:bad_request)
@@ -137,7 +138,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
 
     context 'when a request is made with a type that is not found in VALID_CSP_TYPES' do
       let(:type_param) { 'some-csp-type' }
-      let(:expected_error_message) { "\"#{type_param}\" is not a valid value for \"type\"" }
+      let(:expected_error_message) { 'type is malformed' }
 
       it 'returns a type parameter missing error' do
         expect(subject).to have_http_status(:bad_request)
@@ -147,7 +148,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
 
     context 'when a request is made without a CSP uuid' do
       let(:credential_id_param) { nil }
-      let(:expected_error_message) { 'The required parameter "credential_id", is missing' }
+      let(:expected_error_message) { 'credential_id is not defined' }
 
       it 'returns a CSP uuid parameter missing error' do
         expect(subject).to have_http_status(:bad_request)
