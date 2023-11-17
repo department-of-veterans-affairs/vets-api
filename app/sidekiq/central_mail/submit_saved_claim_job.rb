@@ -11,14 +11,54 @@ module CentralMail
     include SentryLogging
 
     FOREIGN_POSTALCODE = '00000'
+    STATSD_KEY_PREFIX = 'worker.central_mail.submit_saved_claim_job'
 
-    sidekiq_options retry: false
+    # Sidekiq has built in exponential back-off functionality for retries
+    # A max retry attempt of 14 will result in a run time of ~25 hours
+    RETRY = 14
+
+    sidekiq_options retry: RETRY
 
     class CentralMailResponseError < StandardError
     end
 
+    sidekiq_retries_exhausted do |msg, _ex|
+      Rails.logger.send(
+        :error,
+        "Failed all retries on CentralMail::SubmitSavedClaimJob, last error: #{msg['error_message']}"
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+    end
+
+    # Performs an asynchronous job for submitting a saved claim to central mail service
+    #
+    # @param saved_claim_id [Integer] the claim id
+    #
     def perform(saved_claim_id)
       PensionBurial::TagSentry.tag_sentry
+      @saved_claim_id = saved_claim_id
+      log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
+
+      response = send_claim_to_central_mail(saved_claim_id)
+      log_cmp_response(response) if @claim.is_a?(SavedClaim::VeteranReadinessEmploymentClaim)
+
+      if response.success?
+        update_submission('success')
+        log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
+
+        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      else
+        raise CentralMailResponseError, response.to_s
+      end
+    rescue => e
+      update_submission('failed')
+      log_message_to_sentry(
+        'CentralMail::SubmitSavedClaimJob failed, retrying...', :warn, generate_sentry_details(e)
+      )
+      raise
+    end
+
+    def send_claim_to_central_mail(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
 
@@ -27,20 +67,11 @@ module CentralMail
       end
 
       response = CentralMail::Service.new.upload(create_request_body)
-      log_cmp_response(response) if @claim.is_a?(SavedClaim::VeteranReadinessEmploymentClaim)
+
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
-      if response.success?
-        update_submission('success')
-
-        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      else
-        raise CentralMailResponseError
-      end
-    rescue
-      update_submission('failed')
-      raise
+      response
     end
 
     def create_request_body
@@ -124,6 +155,17 @@ module CentralMail
 
     def log_cmp_response(response)
       log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
+    end
+
+    def generate_sentry_details(e = nil)
+      details = {
+        'guid' => @claim&.guid,
+        'docType' => @claim&.form_id,
+        'savedClaimId' => @saved_claim_id
+      }
+      details['error'] = e if e
+
+      details
     end
   end
 end
