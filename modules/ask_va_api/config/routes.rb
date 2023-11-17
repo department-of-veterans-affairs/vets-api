@@ -16,5 +16,8 @@ AskVAApi::Engine.routes.draw do
     get '/zipcodes', to: 'static_data#zipcodes'
     get '/states', to: 'static_data#states'
     get '/provinces', to: 'static_data#provinces'
+
+    # address_validation
+    post '/address_validation', to: 'address_validation#create'
   end
 end
