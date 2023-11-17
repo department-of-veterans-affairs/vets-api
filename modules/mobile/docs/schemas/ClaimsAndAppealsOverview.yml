@@ -38,3 +38,6 @@ properties:
           totalEntries:
             type: number
             example: 15
+      activeClaimsCount:
+        type: number
+        example: 3
