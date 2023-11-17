@@ -10,6 +10,15 @@ RSpec.describe TermsOfUseAgreement, type: :model do
   let(:response) { 'accepted' }
   let(:agreement_version) { 'V1' }
 
+  describe 'default_scope' do
+    let!(:terms_of_use_agreement1) { create(:terms_of_use_agreement, created_at: 2.days.ago) }
+    let!(:terms_of_use_agreement2) { create(:terms_of_use_agreement, created_at: 1.day.ago) }
+
+    it 'orders by created_at ascending' do
+      expect(TermsOfUseAgreement.last).to eq(terms_of_use_agreement2)
+    end
+  end
+
   describe 'associations' do
     it 'belongs to a user_account' do
       expect(terms_of_use_agreement.user_account).to eq(user_account)
