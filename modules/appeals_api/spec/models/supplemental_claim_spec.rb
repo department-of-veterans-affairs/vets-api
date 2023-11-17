@@ -186,7 +186,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           error = appeal.errors.first
           expect(error.attribute)
             .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
-          expect(error.message).to eq 'startDate: 2020-05-10 must before or the same day as endDate: 2020-04-10.'
+          expect(error.message).to eq 'startDate: 2020-05-10 can not be after endDate: 2020-04-10.'
         end
       end
 
@@ -201,7 +201,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           error = appeal.errors.first
           expect(error.attribute)
             .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
-          expect(error.message).to eq "endDate: #{end_date} can not be greater than submission date."
+          expect(error.message).to eq 'endDate: 2023-11-18 can not be after submission date: 2023-11-17.'
         end
       end
     end

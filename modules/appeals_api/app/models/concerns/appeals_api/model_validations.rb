@@ -105,14 +105,12 @@ module AppealsApi
             start_date = Date.parse(start_date_str)
             end_date = Date.parse(end_date_str)
 
-            #{}valid_date_ranges = start_date <= end_date && start_date <= Time.zone.today && end_date <= Time.zone.today
-
             if start_date > end_date
-              errors.add schema_pointer, "startDate: #{start_date} must before or the same day as endDate: #{end_date}."
+              errors.add schema_pointer, "startDate: #{start_date} can not be after endDate: #{end_date}."
             end
 
             if end_date > Time.zone.today
-              errors.add schema_pointer, "endDate: #{end_date} can not be greater than submission date."
+              errors.add schema_pointer, "endDate: #{end_date} can not be after submission date: #{Time.zone.today}."
             end
           end
         end
