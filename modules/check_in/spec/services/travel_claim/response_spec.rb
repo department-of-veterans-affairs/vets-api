@@ -10,7 +10,7 @@ describe TravelClaim::Response do
       context 'when json string' do
         it 'returns a formatted response' do
           claims_api_response = { claimNumber: 'TC202207000011666' }
-          resp = Faraday::Response.new(body: claims_api_response, status: 200)
+          resp = Faraday::Response.new(response_body: claims_api_response, status: 200)
           hsh = { data: claims_api_response.merge(code: 'CLM_000_SUCCESS'), status: 200 }
 
           expect(subject.build(response: resp).handle).to eq(hsh)
@@ -25,7 +25,7 @@ describe TravelClaim::Response do
           currentDate: '[10/16/2020 03:28:48 PM]',
           message: error_message
         }
-        resp = Faraday::Response.new(body: claims_api_400_response, status: 400)
+        resp = Faraday::Response.new(response_body: claims_api_400_response, status: 400)
         hsh = { data: { error: true, code: 'CLM_002_CLAIM_EXISTS', message: error_message }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
@@ -39,7 +39,7 @@ describe TravelClaim::Response do
           currentDate: '[10/16/2020 03:28:48 PM]',
           message: error_message
         }
-        resp = Faraday::Response.new(body: claims_api_400_response, status: 400)
+        resp = Faraday::Response.new(response_body: claims_api_400_response, status: 400)
         hsh = { data: { error: true, code: 'CLM_001_MULTIPLE_APPTS', message: error_message }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
@@ -53,7 +53,7 @@ describe TravelClaim::Response do
           currentDate: '[10/16/2020 03:28:48 PM]',
           message: error_message
         }
-        resp = Faraday::Response.new(body: claims_api_400_response, status: 400)
+        resp = Faraday::Response.new(response_body: claims_api_400_response, status: 400)
         hsh = { data: { error: true, code: 'CLM_010_CLAIM_SUBMISSION_ERROR', message: error_message },
                 status: resp.status }
 
@@ -68,7 +68,7 @@ describe TravelClaim::Response do
           currentDate: '[10/16/2020 03:28:48 PM]',
           message: error_message
         }
-        resp = Faraday::Response.new(body: claims_api_401_response, status: 401)
+        resp = Faraday::Response.new(response_body: claims_api_401_response, status: 401)
         hsh = { data: { error: true, code: 'CLM_020_INVALID_AUTH', message: error_message },
                 status: resp.status }
 
@@ -83,7 +83,7 @@ describe TravelClaim::Response do
           currentDate: '[10/16/2020 03:28:48 PM]',
           message: error_message
         }
-        resp = Faraday::Response.new(body: claims_api_response, status: 404)
+        resp = Faraday::Response.new(response_body: claims_api_response, status: 404)
         hsh = { data: { error: true, code: 'CLM_003_APPOINTMENT_NOT_FOUND', message: error_message },
                 status: resp.status }
 
@@ -93,7 +93,7 @@ describe TravelClaim::Response do
 
     context 'when status 500' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: 'Something went wrong', status: 500)
+        resp = Faraday::Response.new(response_body: 'Something went wrong', status: 500)
         hsh = {
           data: { error: true, code: 'CLM_030_UNKNOWN_SERVER_ERROR',
                   message: 'Internal server error' }, status: resp.status
