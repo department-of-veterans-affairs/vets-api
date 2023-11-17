@@ -32,14 +32,27 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
       let(:success) { false }
 
       it 'raises CentralMailResponseError and updates submission to failed' do
+        expect(Rails.logger).to receive(:warn).exactly(:once)
         expect { job.perform(claim.id) }.to raise_error(CentralMail::SubmitSavedClaimJob::CentralMailResponseError)
         expect(central_mail_submission.reload.state).to eq('failed')
       end
     end
 
     it 'submits the saved claim and updates submission to success' do
+      expect(Rails.logger).to receive(:info).exactly(:twice)
       job.perform(claim.id)
       expect(central_mail_submission.reload.state).to eq('success')
+    end
+  end
+
+  describe 'sidekiq_retries_exhausted block' do
+    it 'logs a distrinct error when retries are exhausted' do
+      CentralMail::SubmitSavedClaimJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once).with(
+          'Failed all retries on CentralMail::SubmitSavedClaimJob, last error: An error occured'
+        )
+        expect(StatsD).to receive(:increment).with('worker.central_mail.submit_saved_claim_job.exhausted')
+      end
     end
   end
 
