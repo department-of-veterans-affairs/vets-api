@@ -8,5 +8,6 @@ class TermsOfUseAgreement < ApplicationRecord
   validates :agreement_version, :response, presence: true
   enum response: { declined: 0, accepted: 1 }
 
+  default_scope { order(created_at: :asc) }
   scope :current, -> { where(agreement_version: CURRENT_VERSION) }
 end

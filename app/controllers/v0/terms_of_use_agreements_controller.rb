@@ -19,7 +19,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
+    rescue TermsOfUse::Errors::AcceptorError => e
       render_error(e.message)
     end
 
@@ -29,7 +29,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
+    rescue TermsOfUse::Errors::DeclinerError => e
       render_error(e.message)
     end
 
