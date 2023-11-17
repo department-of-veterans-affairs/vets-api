@@ -230,8 +230,14 @@ class FormProfiles::VA526ez < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
+    log_ppiu_error(e, provider)
     {}
+  end
+
+  def log_ppiu_error(e, provider)
+    method_name = '#initialize_payment_information'
+    error_message = "#{method_name} Failed to retrieve PPIU data from #{provider.class}: #{e.message}"
+    Rails.logger.error(error_message)
   end
 
   def mask(number)
