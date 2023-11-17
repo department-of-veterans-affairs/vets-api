@@ -216,8 +216,8 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           }
         }
       end
-      let(:body) { { 'data' => 'Pre-checkin successful', 'status' => 200 } }
-      let(:success_resp) { Faraday::Response.new(body:, status: 200) }
+      let(:response_body) { { 'data' => 'Pre-checkin successful', 'status' => 200 } }
+      let(:success_resp) { Faraday::Response.new(response_body:, status: 200) }
 
       it 'returns successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -236,7 +236,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           end
         end
         expect(response.status).to eq(success_resp.status)
-        expect(response.body).to eq(success_resp.env.request_body.to_json)
+        expect(response.body).to eq(success_resp.env.response_body.to_json)
       end
     end
 
@@ -265,7 +265,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           ]
         }
       end
-      let(:error_resp) { Faraday::Response.new(body: error_body, status: 404) }
+      let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 404) }
 
       it 'returns 404 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -279,7 +279,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           end
         end
         expect(response.status).to eq(error_resp.status)
-        expect(response.body).to eq(error_resp.env.request_body.to_json)
+        expect(response.body).to eq(error_resp.env.response_body.to_json)
       end
     end
 
@@ -308,7 +308,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           ]
         }
       end
-      let(:error_resp) { Faraday::Response.new(body: error_body, status: 500) }
+      let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 500) }
 
       it 'returns 500 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -322,18 +322,18 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           end
         end
         expect(response.status).to eq(error_resp.status)
-        expect(response.body).to eq(error_resp.env.request_body.to_json)
+        expect(response.body).to eq(error_resp.env.response_body.to_json)
       end
     end
 
     context 'when session is not authorized' do
-      let(:body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
-      let(:unauth_response) { Faraday::Response.new(body:, status: 401) }
+      let(:response_body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
+      let(:unauth_response) { Faraday::Response.new(response_body:, status: 401) }
 
       it 'returns unauthorized response' do
         post '/check_in/v2/pre_check_ins', params: post_params
 
-        expect(response.body).to eq(unauth_response.env.request_body.to_json)
+        expect(response.body).to eq(unauth_response.env.response_body.to_json)
         expect(response.status).to eq(unauth_response.status)
       end
     end
