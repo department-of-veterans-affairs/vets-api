@@ -100,7 +100,9 @@ Rails.application.routes.draw do
     resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
-    resource :user, only: [:show]
+    resource :user, only: [:show] do
+      get 'icn', to: 'users#icn'
+    end
     resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
