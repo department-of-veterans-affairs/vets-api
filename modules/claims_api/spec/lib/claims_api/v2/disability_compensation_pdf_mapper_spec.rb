@@ -29,20 +29,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       )
     end
 
-    let(:claim_without_exposure) do
-      JSON.parse(
-        Rails.root.join(
-          'modules',
-          'claims_api',
-          'config',
-          'schemas',
-          'v2',
-          'request_bodies',
-          'disability_compensation',
-          'example.json'
-        ).read
-      )
-    end
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -50,6 +36,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     let(:middle_initial) { 'L' }
     let(:created_at) { Timecop.freeze(Time.zone.now) }
+    let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
 
     let(:mapper) do
       ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial,
@@ -57,8 +44,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 0, claim attributes' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -81,7 +66,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 1' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
       let(:birls_file_number) { auth_headers['va_eauth_birlsfilenumber'] }
 
       it 'maps the mailing address' do
@@ -157,8 +141,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 2, change of address' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the dates' do
         mapper.map_claim
         begin_date = pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:start]
@@ -185,8 +167,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 3, homelessness' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the homeless_point_of_contact' do
         mapper.map_claim
 
@@ -237,8 +217,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 4, toxic exposure' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -285,8 +263,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 5, claimInfo: diabilities' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -317,8 +293,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 5, claim info: disabilities, & has conditions attribute' do
-      let(:form_attributes) { claim_without_exposure.dig('data', 'attributes') || {} }
-
       it 'maps the has_condition related to exposure method correctly' do
         mapper.map_claim
 
@@ -329,8 +303,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 5, treatment centers' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -347,8 +319,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 6, service info' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -420,8 +390,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 7, service pay' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -437,8 +405,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 8, direct deposot' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         mapper.map_claim
 
@@ -459,8 +425,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 9, date and signature' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'maps the attributes correctly' do
         auto_claim['data']['attributes']['claim_date'] = Timecop.freeze(Time.zone.parse('2023-11-01T08:00:00Z'))
         mapper.map_claim
@@ -474,8 +438,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 #deep_compact' do
-      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-
       it 'eliminates nil string values' do
         form_attributes['veteranIdentification']['mailingAddress']['addressLine2'] = nil
         form_attributes['veteranIdentification']['mailingAddress']['addressLine3'] = nil
