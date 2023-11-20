@@ -61,10 +61,17 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
         response '202', 'Successful response with disability' do
           schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
           let(:scopes) { %w[system/claim.read system/claim.write] }
+          let(:claim_date) { (Time.zone.today - 1.day).to_s }
+          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
+            attributes = temp['data']['attributes']
+            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+              anticipated_separation_date
+            temp['data']['attributes'] = attributes
+            temp.to_json
 
             temp
           end
