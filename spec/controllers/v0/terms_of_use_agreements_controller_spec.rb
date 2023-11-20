@@ -118,7 +118,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       context 'when the user does not have a common_name' do
         let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Name for user must be present' }
+        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
 
         it 'returns an unprocessable_entity' do
           subject
@@ -216,7 +216,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       context 'when the user does not have a common_name' do
         let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Name for user must be present' }
+        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
 
         it 'returns an unprocessable_entity' do
           subject
