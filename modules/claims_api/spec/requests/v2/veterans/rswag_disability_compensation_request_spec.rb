@@ -255,6 +255,9 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       VERBIAGE
       description put_description
 
+      parameter name: :id, in: :path, required: true, type: :string,
+                description: 'UUID given when Disability Claim was submitted'
+
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
@@ -284,20 +287,124 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
                   }
                 }
 
-      describe 'Getting a successful response' do
-        response '200', 'upload response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+      describe 'Getting an accepted response' do
+        response '202', 'upload response' do
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+
+          let(:scopes) { %w[system/claim.write] }
+          let(:auto_claim) { create(:auto_established_claim) }
+          let(:attachment1) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:attachment2) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:id) { auto_claim.id }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 202 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a 401 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+
+          let(:scopes) { %w[system/claim.write] }
+          let(:auto_claim) { create(:auto_established_claim) }
+          let(:attachment1) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:attachment2) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:id) { auto_claim.id }
+          let(:Authorization) { nil }
+
+          before do |example|
+            submit_request(example.metadata)
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:scopes) { %w[claim.write] }
+          let(:attachment1) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:attachment2) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:id) { 999_999_999 }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
