@@ -16,6 +16,10 @@ module Lighthouse
 
     def perform(saved_claim_id)
       @claim = SavedClaim::Pension.find(saved_claim_id)
+      unless @claim
+        raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}"
+      end
+
       @form_path = process_pdf(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
@@ -29,7 +33,7 @@ module Lighthouse
         form_metadata: generate_form_metadata_lh
       )
 
-      check_success(response, saved_claim_id)
+      check_success(response)
     rescue => e
       Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob failed!',
                         { error: e.message })
@@ -40,12 +44,14 @@ module Lighthouse
 
     def process_pdf(pdf_path)
       stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
-      CentralMail::DatestampPdf.new(stamped_path).run(
+      stamped_path = CentralMail::DatestampPdf.new(stamped_path).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 429,
         y: 770,
         text_only: true
       )
+
+      stamped_path
     end
 
     def split_file_and_path(path)
@@ -67,20 +73,18 @@ module Lighthouse
       }
     end
 
-    def check_success(response, saved_claim_id)
+    def check_success(response)
       if response.success?
-        Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: })
+        Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: @claim.id })
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
-        Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Unsuccessful',
-                          { response: response['message'].presence || response['errors'] })
         raise PensionBenefitIntakeError, response.to_s
       end
     end
 
     def cleanup_file_paths
-      Common::FileHelpers.delete_file_if_exists(@form_path)
-      @attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+      Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
+      @attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) } if @attachment_paths
     end
   end
 end
