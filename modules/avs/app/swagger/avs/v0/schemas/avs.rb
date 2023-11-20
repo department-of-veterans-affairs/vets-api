@@ -11,6 +11,9 @@ module Avs
       property :id, type: :string, example: '9A7AF40B2BC2471EA116891839113252'
       property :type, type: :string, example: 'AfterVisitSummary'
 
+      # See the following link for source field type info:
+      # https://github.com/department-of-veterans-affairs/avs/tree/e07d3d62b91f2762a2258d71fea7e442980409b0/ll-avs-service/src/main/java/gov/va/med/lom/avs/model
+
       property :attributes, type: :object do
         property :appointmentIens, type: :array do
           items type: :string
