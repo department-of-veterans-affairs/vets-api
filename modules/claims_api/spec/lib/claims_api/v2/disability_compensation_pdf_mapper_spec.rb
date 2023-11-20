@@ -404,8 +404,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(other_name).to eq('YES')
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
-        expect(fed_act).to eq({ month: '10', day: '01', year: '2025' })
-        expect(fed_sep).to eq({ month: '10', day: '31', year: '2027' })
+        expect(fed_act).to eq({ month: '10', day: '01', year: '2023' })
+        expect(fed_sep).to eq({ month: '10', day: '31', year: '2023' })
         expect(served_after_nine_eleven).to eq('NO')
       end
 
