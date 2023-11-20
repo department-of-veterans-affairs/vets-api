@@ -502,11 +502,18 @@ module ClaimsApi
       end
 
       def validate_claim_date_to_active_duty_end_date!(service_information)
-        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
-        if Date.strptime(CLAIM_DATE.to_s,
-                         '%Y-%m-%d') > Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') + 180.days
+        ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
+        unless service_information['servicePeriods'].nil?
+          max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        end
+        max_active_duty_end_date = max_period['activeDutyEndDate']
+        if ant_sep_date.present? && max_active_duty_end_date.present? &&
+           ((Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
+           180.days) || (Date.strptime(ant_sep_date,
+                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
+
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Claim date must be within 180 days of the last active duty end date.'
+            detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
           )
         end
       end
