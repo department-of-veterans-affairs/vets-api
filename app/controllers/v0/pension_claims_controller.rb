@@ -15,6 +15,7 @@ module V0
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
     def create
+      Rails.logger.info("Creating #{short_name} claim for user #{current_user&.uuid}")
       PensionBurial::TagSentry.tag_sentry
       claim = claim_class.new(form: filtered_params[:form])
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
