@@ -53,6 +53,11 @@ module Avs
         end
         property :patientInstructions, type: :string
         property :patientEducation, type: :string
+        property :pharmacyTerms, type: :array do
+          items do
+            key :$ref, :pharmacyTerm
+          end
+        end
         property :primaryCareProviders, type: :array do
           items type: :string
         end
@@ -158,6 +163,14 @@ module Avs
       property :fmDatetime, type: :number
       property :type, type: :string
       property :physicalLocation, type: :string
+    end
+
+    swagger_schema :pharmacyTerm do
+      property :type, type: :string
+      property :term, type: :string
+      property :aka, type: :string
+      property :explanation, type: :string
+      property :patientActions, type: :string
     end
 
     swagger_schema :primaryCareTeamMember do
