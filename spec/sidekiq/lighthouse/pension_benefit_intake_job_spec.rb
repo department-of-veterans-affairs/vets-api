@@ -49,16 +49,33 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
   end # perform
 
   describe '#process_pdf' do
+    let(:service) { double('service') }
+    let(:response) { double('response') }
     let(:pdf_path) { 'random/path/to/pdf' }
+
+    before do
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:validate_document).and_return(response)
+    end
 
     it 'returns a datestamp pdf path' do
       run_count = 0
       allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) { run_count += 1; pdf_path }
+      allow(response).to receive(:success?) { true }
 
       new_path = job.process_pdf('test/path')
 
       expect(new_path).to eq(pdf_path)
       expect(run_count).to eq(2)
+    end
+
+    it 'raises an error on invalid document' do
+      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run)
+      allow(response).to receive(:success?) { false }
+
+      expect { job.process_pdf('test/path') }.to raise_error(
+        Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
+        "Invalid Document: #{response.to_s}")
     end
   end # process_pdf
 
