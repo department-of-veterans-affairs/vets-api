@@ -67,6 +67,11 @@ module Avs
             key :$ref, :problem
           end
         end
+        property :procedures, type: :array do
+          items do
+            key :$ref, :procedure
+          end
+        end
         property :allergiesReactions, type: :object do
           property :T, type: :string
           property :noAllergyAssessment, type: :boolean
@@ -189,6 +194,14 @@ module Avs
       property :service, type: :string
       property :version, type: :string
       property :comments, type: :string
+    end
+
+    swagger_schema :procedure do
+      property :stationName, type: :string
+      property :stationNo, type: :string
+      property :date, type: :string
+      property :name, type: :string
+      property :code, type: :string
     end
 
     swagger_schema :allergy do

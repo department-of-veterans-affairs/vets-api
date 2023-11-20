@@ -57,6 +57,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team: nil,
           primary_care_team_members: [],
           problems: [],
+          procedures: [],
           allergies_reactions: nil,
           va_medications: [],
           lab_results: [],
