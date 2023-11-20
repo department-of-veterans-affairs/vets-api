@@ -21,6 +21,7 @@ module Avs
     attribute :appointments, Array
     attribute :patient_instructions, String
     attribute :patient_education, String
+    attribute :pharmacy_terms, Array
     attribute :primary_care_providers, Array
     attribute :primary_care_team, String
     attribute :primary_care_team_members, Array
