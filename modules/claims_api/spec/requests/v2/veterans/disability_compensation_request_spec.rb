@@ -1711,7 +1711,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context "when the activeDutyBeginDate is on or before the Veteran's 13th birthday" do
-          let(:active_duty_begin_date) { '1904-01-01-' }
+          let(:active_duty_begin_date) { '1904-01-01' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -1726,14 +1726,14 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyBeginDate is not formatted correctly' do
-          let(:active_duty_begin_date) { '1979-01-01' }
+          let(:active_duty_begin_date) { '01-01-2009' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                 active_duty_begin_date
-              data = json
+              data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
             end
@@ -1741,7 +1741,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyEndDate is not formatted correctly' do
-          let(:active_duty_end_date) { '1995-07-28' }
+          let(:active_duty_end_date) { '07-28-2009' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -1751,6 +1751,74 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the activeDutyEndDate is not present' do
+          let(:service_periods) do
+            [
+              {
+                serviceBranch: 'Public Health Service',
+                activeDutyBeginDate: '2005-07-28',
+                serviceComponent: 'Active',
+                separationLocationCode: '98282'
+              }
+            ]
+          end
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when the activeBeginDate is not present' do
+          let(:service_periods) do
+            [
+              {
+                serviceBranch: 'Public Health Service',
+                activeDutyEndDate: 2.days.from_now.strftime('%Y-%m-%d'),
+                serviceComponent: 'Active',
+                separationLocationCode: '98282'
+              }
+            ]
+          end
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when neither activeDutyEndDate or activeBeginEndDate is present' do
+          let(:service_periods) do
+            [
+              {
+                serviceBranch: 'Public Health Service',
+                serviceComponent: 'Active',
+                separationLocationCode: '98282'
+              }
+            ]
+          end
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
