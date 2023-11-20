@@ -3743,9 +3743,9 @@
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
-                          "addressLine1": "1234 Test Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
+                          "addressLine1": "123 Main Street",
+                          "addressLine2": "Unit 1",
+                          "addressLine3": "Room 2",
                           "city": "Portland",
                           "country": "USA",
                           "zipFirstFive": "41726",
@@ -3758,18 +3758,18 @@
                           "agreeToEmailRelatedToClaim": true
                         },
                         "veteranNumber": {
-                          "internationalTelephone": "+44 20 1234 5678"
+                          "telephone": "5555555555"
                         }
                       },
                       "changeOfAddress": {
                         "dates": {
-                          "beginDate": "2018-06-04",
-                          "endDate": "2019-06-04"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         },
                         "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
+                        "addressLine1": "456 Main Street",
+                        "addressLine2": "Unit 3",
+                        "addressLine3": "Room 4",
                         "city": "Atlanta",
                         "zipFirstFive": "42220",
                         "zipLastFour": "9897",
@@ -3777,13 +3777,13 @@
                         "country": "USA"
                       },
                       "homeless": {
-                        "pointOfContact": "john stewart",
+                        "pointOfContact": "John Doe",
                         "pointOfContactNumber": {
-                          "internationalTelephone": "442-234-5678"
+                          "telephone": "5555555555"
                         },
                         "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
+                          "homelessSituationOptions": "OTHER",
+                          "otherDescription": "Other living situation"
                         }
                       },
                       "toxicExposure": {
@@ -3820,7 +3820,7 @@
                               "endDate": "2013-07"
                             },
                             "exposureLocation": "Guam",
-                            "hazardExposedTo": "RADIATION"
+                            "hazardExposedTo": "Hazard"
                           }
                         ]
                       },
@@ -3828,48 +3828,16 @@
                         {
                           "disabilityActionType": "NEW",
                           "name": "Hearing Loss",
-                          "classificationCode": "3140",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "1988-10",
+                          "approximateDate": "1988-07",
                           "isRelatedToToxicExposure": false,
                           "exposureOrEventOrInjury": "Noise"
-                        },
-                        {
-                          "disabilityActionType": "INCREASE",
-                          "name": "Musculoskeletal - Foot",
-                          "classificationCode": "8994",
-                          "serviceRelevance": "Service in Vietnam War",
-                          "approximateDate": "1972-12",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": true,
-                          "exposureOrEventOrInjury": "Agent Orange"
-                        },
-                        {
-                          "disabilityActionType": "NONE",
-                          "name": "Traumatic Brain Injury",
-                          "classificationCode": "9020",
-                          "serviceRelevance": "Explanation of service connection",
-                          "approximateDate": "2019-11-04",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": false,
-                          "secondaryDisabilities": [
-                            {
-                              "name": "Cancer - Musculoskeletal - Elbow",
-                              "disabilityActionType": "SECONDARY",
-                              "classificationCode": "249470",
-                              "serviceRelevance": "Injured left knee when brace on right knee failed",
-                              "approximateDate": "2008-06-11"
-                            }
-                          ]
                         }
                       ],
                       "treatments": [
                         {
                           "treatedDisabilityNames": [
-                            "Hearing Loss",
-                            "Traumatic Brain Injury"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -3880,7 +3848,7 @@
                         },
                         {
                           "treatedDisabilityNames": [
-                            "Musculoskeletal - Foot"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -3893,7 +3861,7 @@
                       "serviceInformation": {
                         "servicePeriods": [
                           {
-                            "serviceBranch": "Public Health Service",
+                            "serviceBranch": "Air Force",
                             "activeDutyBeginDate": "2008-11-14",
                             "activeDutyEndDate": "2023-10-30",
                             "serviceComponent": "Active",
@@ -3935,7 +3903,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivingMilitaryRetiredPay": "NO",
                         "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Army",
                           "monthlyAmount": 840.75
@@ -5204,9 +5172,9 @@
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
-                          "addressLine1": "1234 Test Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
+                          "addressLine1": "123 Main Street",
+                          "addressLine2": "Unit 1",
+                          "addressLine3": "Room 2",
                           "city": "Portland",
                           "country": "USA",
                           "zipFirstFive": "41726",
@@ -5219,18 +5187,18 @@
                           "agreeToEmailRelatedToClaim": true
                         },
                         "veteranNumber": {
-                          "internationalTelephone": "+44 20 1234 5678"
+                          "telephone": "5555555555"
                         }
                       },
                       "changeOfAddress": {
                         "dates": {
-                          "beginDate": "2018-06-04",
-                          "endDate": "2019-06-04"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         },
                         "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
+                        "addressLine1": "456 Main Street",
+                        "addressLine2": "Unit 3",
+                        "addressLine3": "Room 4",
                         "city": "Atlanta",
                         "zipFirstFive": "42220",
                         "zipLastFour": "9897",
@@ -5238,13 +5206,13 @@
                         "country": "USA"
                       },
                       "homeless": {
-                        "pointOfContact": "john stewart",
+                        "pointOfContact": "John Doe",
                         "pointOfContactNumber": {
-                          "internationalTelephone": "442-234-5678"
+                          "telephone": "5555555555"
                         },
                         "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
+                          "homelessSituationOptions": "OTHER",
+                          "otherDescription": "Other living situation"
                         }
                       },
                       "toxicExposure": {
@@ -5281,7 +5249,7 @@
                               "endDate": "2013-07"
                             },
                             "exposureLocation": "Guam",
-                            "hazardExposedTo": "RADIATION"
+                            "hazardExposedTo": "Hazard"
                           }
                         ]
                       },
@@ -5289,48 +5257,16 @@
                         {
                           "disabilityActionType": "NEW",
                           "name": "Hearing Loss",
-                          "classificationCode": "3140",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "1988-10",
+                          "approximateDate": "1988-07",
                           "isRelatedToToxicExposure": false,
                           "exposureOrEventOrInjury": "Noise"
-                        },
-                        {
-                          "disabilityActionType": "INCREASE",
-                          "name": "Musculoskeletal - Foot",
-                          "classificationCode": "8994",
-                          "serviceRelevance": "Service in Vietnam War",
-                          "approximateDate": "1972-12",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": true,
-                          "exposureOrEventOrInjury": "Agent Orange"
-                        },
-                        {
-                          "disabilityActionType": "NONE",
-                          "name": "Traumatic Brain Injury",
-                          "classificationCode": "9020",
-                          "serviceRelevance": "Explanation of service connection",
-                          "approximateDate": "2019-11-04",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": false,
-                          "secondaryDisabilities": [
-                            {
-                              "name": "Cancer - Musculoskeletal - Elbow",
-                              "disabilityActionType": "SECONDARY",
-                              "classificationCode": "249470",
-                              "serviceRelevance": "Injured left knee when brace on right knee failed",
-                              "approximateDate": "2008-06-11"
-                            }
-                          ]
                         }
                       ],
                       "treatments": [
                         {
                           "treatedDisabilityNames": [
-                            "Hearing Loss",
-                            "Traumatic Brain Injury"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -5341,7 +5277,7 @@
                         },
                         {
                           "treatedDisabilityNames": [
-                            "Musculoskeletal - Foot"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -5354,7 +5290,7 @@
                       "serviceInformation": {
                         "servicePeriods": [
                           {
-                            "serviceBranch": "Public Health Service",
+                            "serviceBranch": "Air Force",
                             "activeDutyBeginDate": "2008-11-14",
                             "activeDutyEndDate": "2023-10-30",
                             "serviceComponent": "Active",
@@ -5396,7 +5332,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivingMilitaryRetiredPay": "NO",
                         "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Army",
                           "monthlyAmount": 840.75
