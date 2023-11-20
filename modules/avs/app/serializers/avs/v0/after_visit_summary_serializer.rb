@@ -17,6 +17,7 @@ module Avs
     attribute :orders
     attribute :immunizations
     attribute :appointments
+    attribute :patient_info
     attribute :patient_instructions
     attribute :patient_education
     attribute :primary_care_providers
