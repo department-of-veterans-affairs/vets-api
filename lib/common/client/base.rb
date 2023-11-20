@@ -73,8 +73,9 @@ module Common
         @connection ||= lambda do
           connection = config.connection
           handlers = connection.builder.handlers
+          adapter = connection.builder.adapter
 
-          if handlers.include?(Faraday::Adapter::HTTPClient) &&
+          if adapter == Faraday::Adapter::HTTPClient &&
              handlers.exclude?(Common::Client::Middleware::Request::RemoveCookies)
             raise SecurityError, 'http client needs cookies stripped'
           end
