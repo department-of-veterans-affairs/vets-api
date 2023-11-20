@@ -1263,7 +1263,7 @@
             ]
           }
         ],
-        "description": "Automatically establishes a disability compensation claim (21-526EZ) in Veterans Benefits Management System (VBMS). \nThis endpoint generates a filled and electronically signed 526EZ form, establishes the disability claim in VBMS, and \nsubmits the form to the Veteran's eFolder.\n\nA 200 response indicates the API submission was successful. The claim has not reached VBMS until it has a CLAIM_RECEIVED status. \nCheck claim status using the GET veterans/{veteranId}/claims/{id} endpoint.\n\n**A substantially complete 526EZ claim must include:**\n* Veteran's name\n* Sufficient service information for VA to verify the claimed service, if applicable\n* At least one claimed disability or medical condition and how it relates to service\n* Veteran and/or Representative signature\n\n**Standard and fully developed claims (FDCs)**\n\n[Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/)\nare claims certified by the submitter to include all information needed for processing. These claims process faster \nthan claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, \nit will be processed as a standard claim.\n\nTo certify a claim for the FDC process, set the claimProcessType to FDC_PROGRAM.\n",
+        "description": "Automatically establishes a disability compensation claim (21-526EZ) in Veterans Benefits Management System (VBMS). \nThis endpoint generates a filled and electronically signed 526EZ form, establishes the disability claim in VBMS, and \nsubmits the form to the Veteran's eFolder.\n\nA 202 response indicates the API submission was accepted. The claim has not reached VBMS until it has a CLAIM_RECEIVED status. \nCheck claim status using the GET veterans/{veteranId}/claims/{id} endpoint.\n\n**A substantially complete 526EZ claim must include:**\n* Veteran's name\n* Sufficient service information for VA to verify the claimed service, if applicable\n* At least one claimed disability or medical condition and how it relates to service\n* Veteran and/or Representative signature\n\n**Standard and fully developed claims (FDCs)**\n\n[Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/)\nare claims certified by the submitter to include all information needed for processing. These claims process faster \nthan claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, \nit will be processed as a standard claim.\n\nTo certify a claim for the FDC process, set the claimProcessType to FDC_PROGRAM.\n",
         "parameters": [
           {
             "name": "veteranId",
@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f7f89a54-efe2-4368-bd85-e85521647c8d",
+                    "id": "ef4d531a-96f6-40f0-b89c-c005bd6b67fe",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,8 +1329,8 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2027-10-31",
-                          "activationDate": "2025-10-01"
+                          "anticipatedSeparationDate": "2023-11-22",
+                          "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
                           "obligationTermsOfService": {
@@ -2558,6 +2558,136 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Violates JSON Schema": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": 422,
+                          "detail": "The property / did not contain the required key veteranIdentification",
+                          "source": "/"
+                        },
+                        {
+                          "status": 422,
+                          "detail": "The property / did not contain the required key serviceInformation",
+                          "source": "/"
+                        },
+                        {
+                          "status": 422,
+                          "detail": "The property / did not contain the required key disabilities",
+                          "source": "/"
+                        },
+                        {
+                          "status": 422,
+                          "detail": "The property / did not contain the required key claimProcessType",
+                          "source": "/"
+                        }
+                      ]
+                    }
+                  },
+                  "Not a JSON Object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": 422,
+                          "detail": "The request body isn't a JSON object: \"This is not valid JSON\"",
+                          "source": ""
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -3613,9 +3743,9 @@
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
-                          "addressLine1": "1234 Test Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
+                          "addressLine1": "123 Main Street",
+                          "addressLine2": "Unit 1",
+                          "addressLine3": "Room 2",
                           "city": "Portland",
                           "country": "USA",
                           "zipFirstFive": "41726",
@@ -3628,18 +3758,18 @@
                           "agreeToEmailRelatedToClaim": true
                         },
                         "veteranNumber": {
-                          "internationalTelephone": "+44 20 1234 5678"
+                          "telephone": "5555555555"
                         }
                       },
                       "changeOfAddress": {
                         "dates": {
-                          "beginDate": "2018-06-04",
-                          "endDate": "2019-06-04"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         },
                         "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
+                        "addressLine1": "456 Main Street",
+                        "addressLine2": "Unit 3",
+                        "addressLine3": "Room 4",
                         "city": "Atlanta",
                         "zipFirstFive": "42220",
                         "zipLastFour": "9897",
@@ -3647,13 +3777,13 @@
                         "country": "USA"
                       },
                       "homeless": {
-                        "pointOfContact": "john stewart",
+                        "pointOfContact": "John Doe",
                         "pointOfContactNumber": {
-                          "internationalTelephone": "442-234-5678"
+                          "telephone": "5555555555"
                         },
                         "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
+                          "homelessSituationOptions": "OTHER",
+                          "otherDescription": "Other living situation"
                         }
                       },
                       "toxicExposure": {
@@ -3690,7 +3820,7 @@
                               "endDate": "2013-07"
                             },
                             "exposureLocation": "Guam",
-                            "hazardExposedTo": "RADIATION"
+                            "hazardExposedTo": "Hazard"
                           }
                         ]
                       },
@@ -3698,48 +3828,16 @@
                         {
                           "disabilityActionType": "NEW",
                           "name": "Hearing Loss",
-                          "classificationCode": "3140",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "1988-10",
+                          "approximateDate": "1988-07",
                           "isRelatedToToxicExposure": false,
                           "exposureOrEventOrInjury": "Noise"
-                        },
-                        {
-                          "disabilityActionType": "INCREASE",
-                          "name": "Musculoskeletal - Foot",
-                          "classificationCode": "8994",
-                          "serviceRelevance": "Service in Vietnam War",
-                          "approximateDate": "1972-12",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": true,
-                          "exposureOrEventOrInjury": "Agent Orange"
-                        },
-                        {
-                          "disabilityActionType": "NONE",
-                          "name": "Traumatic Brain Injury",
-                          "classificationCode": "9020",
-                          "serviceRelevance": "Explanation of service connection",
-                          "approximateDate": "2019-11-04",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": false,
-                          "secondaryDisabilities": [
-                            {
-                              "name": "Cancer - Musculoskeletal - Elbow",
-                              "disabilityActionType": "SECONDARY",
-                              "classificationCode": "249470",
-                              "serviceRelevance": "Injured left knee when brace on right knee failed",
-                              "approximateDate": "2008-06-11"
-                            }
-                          ]
                         }
                       ],
                       "treatments": [
                         {
                           "treatedDisabilityNames": [
-                            "Hearing Loss",
-                            "Traumatic Brain Injury"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -3750,7 +3848,7 @@
                         },
                         {
                           "treatedDisabilityNames": [
-                            "Musculoskeletal - Foot"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -3763,7 +3861,7 @@
                       "serviceInformation": {
                         "servicePeriods": [
                           {
-                            "serviceBranch": "Public Health Service",
+                            "serviceBranch": "Air Force",
                             "activeDutyBeginDate": "2008-11-14",
                             "activeDutyEndDate": "2023-10-30",
                             "serviceComponent": "Active",
@@ -3805,7 +3903,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivingMilitaryRetiredPay": "NO",
                         "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Army",
                           "monthlyAmount": 840.75
@@ -3913,6 +4011,15 @@
         "description": "Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.\n",
         "parameters": [
           {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID given when Disability Claim was submitted",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "veteranId",
             "in": "path",
             "required": true,
@@ -3924,11 +4031,199 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "upload response"
+          "202": {
+            "description": "upload response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "ed8b8704-eded-4585-a42b-bf4ca114846f",
+                    "type": "forms/526",
+                    "attributes": {
+                      "veteran": {
+                        "flashes": [
+                          "Hardship",
+                          "Homeless"
+                        ],
+                        "currentlyVAEmployee": false,
+                        "currentMailingAddress": {
+                          "city": "Portland",
+                          "country": "USA",
+                          "zipFirstFive": "12345",
+                          "addressLine1": "1234 Couch Street",
+                          "addressLine2": "Apt. 22",
+                          "type": "DOMESTIC",
+                          "zipLastFour": "6789",
+                          "state": "OR"
+                        },
+                        "homelessness": {
+                          "currentlyHomeless": {
+                            "homelessSituationType": "fleeing",
+                            "otherLivingSituation": "none"
+                          },
+                          "pointOfContact": {
+                            "pointOfContactName": "Firstname Lastname",
+                            "primaryPhone": {
+                              "areaCode": "123",
+                              "phoneNumber": "5551234"
+                            }
+                          }
+                        }
+                      },
+                      "claimantCertification": true,
+                      "disabilities": [
+                        {
+                          "ratedDisabilityId": "1100583",
+                          "diagnosticCode": 9999,
+                          "disabilityActionType": "NEW",
+                          "name": "PTSD (post traumatic stress disorder)",
+                          "specialIssues": [
+                            "Fully Developed Claim",
+                            "PTSD/2"
+                          ],
+                          "secondaryDisabilities": [
+                            {
+                              "name": "PTSD personal trauma",
+                              "disabilityActionType": "SECONDARY",
+                              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+                            }
+                          ]
+                        }
+                      ],
+                      "standardClaim": false,
+                      "autoCestPDFGenerationDisabled": true,
+                      "claimDate": "1990-01-03",
+                      "applicationExpirationDate": "2055-08-28T19:53:45+00:00",
+                      "serviceInformation": {
+                        "servicePeriods": [
+                          {
+                            "activeDutyEndDate": "1990-01-02",
+                            "serviceBranch": "Air Force",
+                            "activeDutyBeginDate": "1980-02-05"
+                          },
+                          {
+                            "activeDutyEndDate": "1999-01-01",
+                            "serviceBranch": "Air Force",
+                            "activeDutyBeginDate": "1990-04-05"
+                          }
+                        ],
+                        "reservesNationalGuardService": {
+                          "obligationTermOfServiceFromDate": "2000-01-01",
+                          "obligationTermOfServiceToDate": "2000-01-02",
+                          "unitName": "A name, with commas, and  double  spaces"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Resource not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -5074,9 +5369,9 @@
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
-                          "addressLine1": "1234 Test Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
+                          "addressLine1": "123 Main Street",
+                          "addressLine2": "Unit 1",
+                          "addressLine3": "Room 2",
                           "city": "Portland",
                           "country": "USA",
                           "zipFirstFive": "41726",
@@ -5089,18 +5384,18 @@
                           "agreeToEmailRelatedToClaim": true
                         },
                         "veteranNumber": {
-                          "internationalTelephone": "+44 20 1234 5678"
+                          "telephone": "5555555555"
                         }
                       },
                       "changeOfAddress": {
                         "dates": {
-                          "beginDate": "2018-06-04",
-                          "endDate": "2019-06-04"
+                          "beginDate": "2025-06-04",
+                          "endDate": "2026-06-04"
                         },
                         "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
+                        "addressLine1": "456 Main Street",
+                        "addressLine2": "Unit 3",
+                        "addressLine3": "Room 4",
                         "city": "Atlanta",
                         "zipFirstFive": "42220",
                         "zipLastFour": "9897",
@@ -5108,13 +5403,13 @@
                         "country": "USA"
                       },
                       "homeless": {
-                        "pointOfContact": "john stewart",
+                        "pointOfContact": "John Doe",
                         "pointOfContactNumber": {
-                          "internationalTelephone": "442-234-5678"
+                          "telephone": "5555555555"
                         },
                         "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
+                          "homelessSituationOptions": "OTHER",
+                          "otherDescription": "Other living situation"
                         }
                       },
                       "toxicExposure": {
@@ -5151,7 +5446,7 @@
                               "endDate": "2013-07"
                             },
                             "exposureLocation": "Guam",
-                            "hazardExposedTo": "RADIATION"
+                            "hazardExposedTo": "Hazard"
                           }
                         ]
                       },
@@ -5159,48 +5454,16 @@
                         {
                           "disabilityActionType": "NEW",
                           "name": "Hearing Loss",
-                          "classificationCode": "3140",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "1988-10",
+                          "approximateDate": "1988-07",
                           "isRelatedToToxicExposure": false,
                           "exposureOrEventOrInjury": "Noise"
-                        },
-                        {
-                          "disabilityActionType": "INCREASE",
-                          "name": "Musculoskeletal - Foot",
-                          "classificationCode": "8994",
-                          "serviceRelevance": "Service in Vietnam War",
-                          "approximateDate": "1972-12",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": true,
-                          "exposureOrEventOrInjury": "Agent Orange"
-                        },
-                        {
-                          "disabilityActionType": "NONE",
-                          "name": "Traumatic Brain Injury",
-                          "classificationCode": "9020",
-                          "serviceRelevance": "Explanation of service connection",
-                          "approximateDate": "2019-11-04",
-                          "ratedDisabilityId": "1234567",
-                          "diagnosticCode": 9999,
-                          "isRelatedToToxicExposure": false,
-                          "secondaryDisabilities": [
-                            {
-                              "name": "Cancer - Musculoskeletal - Elbow",
-                              "disabilityActionType": "SECONDARY",
-                              "classificationCode": "249470",
-                              "serviceRelevance": "Injured left knee when brace on right knee failed",
-                              "approximateDate": "2008-06-11"
-                            }
-                          ]
                         }
                       ],
                       "treatments": [
                         {
                           "treatedDisabilityNames": [
-                            "Hearing Loss",
-                            "Traumatic Brain Injury"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -5211,7 +5474,7 @@
                         },
                         {
                           "treatedDisabilityNames": [
-                            "Musculoskeletal - Foot"
+                            "Hearing Loss"
                           ],
                           "center": {
                             "name": "Center One",
@@ -5224,7 +5487,7 @@
                       "serviceInformation": {
                         "servicePeriods": [
                           {
-                            "serviceBranch": "Public Health Service",
+                            "serviceBranch": "Air Force",
                             "activeDutyBeginDate": "2008-11-14",
                             "activeDutyEndDate": "2023-10-30",
                             "serviceComponent": "Active",
@@ -5266,7 +5529,7 @@
                         "favorMilitaryRetiredPay": false,
                         "receivingMilitaryRetiredPay": "NO",
                         "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Army",
                           "monthlyAmount": 840.75
@@ -5702,8 +5965,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-14",
-                      "expirationDate": "2024-11-14",
+                      "creationDate": "2023-11-20",
+                      "expirationDate": "2024-11-20",
                       "type": "compensation",
                       "status": "active"
                     }
