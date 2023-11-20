@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b1b4f32f-ab1e-4f0f-b9a0-671ccd25625a",
+                    "id": "ef4d531a-96f6-40f0-b89c-c005bd6b67fe",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,8 +1329,8 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2027-10-31",
-                          "activationDate": "2025-10-01"
+                          "anticipatedSeparationDate": "2023-11-22",
+                          "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
                           "obligationTermsOfService": {
@@ -4011,6 +4011,15 @@
         "description": "Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.\n",
         "parameters": [
           {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID given when Disability Claim was submitted",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "veteranId",
             "in": "path",
             "required": true,
@@ -4022,11 +4031,199 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "upload response"
+          "202": {
+            "description": "upload response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "ed8b8704-eded-4585-a42b-bf4ca114846f",
+                    "type": "forms/526",
+                    "attributes": {
+                      "veteran": {
+                        "flashes": [
+                          "Hardship",
+                          "Homeless"
+                        ],
+                        "currentlyVAEmployee": false,
+                        "currentMailingAddress": {
+                          "city": "Portland",
+                          "country": "USA",
+                          "zipFirstFive": "12345",
+                          "addressLine1": "1234 Couch Street",
+                          "addressLine2": "Apt. 22",
+                          "type": "DOMESTIC",
+                          "zipLastFour": "6789",
+                          "state": "OR"
+                        },
+                        "homelessness": {
+                          "currentlyHomeless": {
+                            "homelessSituationType": "fleeing",
+                            "otherLivingSituation": "none"
+                          },
+                          "pointOfContact": {
+                            "pointOfContactName": "Firstname Lastname",
+                            "primaryPhone": {
+                              "areaCode": "123",
+                              "phoneNumber": "5551234"
+                            }
+                          }
+                        }
+                      },
+                      "claimantCertification": true,
+                      "disabilities": [
+                        {
+                          "ratedDisabilityId": "1100583",
+                          "diagnosticCode": 9999,
+                          "disabilityActionType": "NEW",
+                          "name": "PTSD (post traumatic stress disorder)",
+                          "specialIssues": [
+                            "Fully Developed Claim",
+                            "PTSD/2"
+                          ],
+                          "secondaryDisabilities": [
+                            {
+                              "name": "PTSD personal trauma",
+                              "disabilityActionType": "SECONDARY",
+                              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+                            }
+                          ]
+                        }
+                      ],
+                      "standardClaim": false,
+                      "autoCestPDFGenerationDisabled": true,
+                      "claimDate": "1990-01-03",
+                      "applicationExpirationDate": "2055-08-28T19:53:45+00:00",
+                      "serviceInformation": {
+                        "servicePeriods": [
+                          {
+                            "activeDutyEndDate": "1990-01-02",
+                            "serviceBranch": "Air Force",
+                            "activeDutyBeginDate": "1980-02-05"
+                          },
+                          {
+                            "activeDutyEndDate": "1999-01-01",
+                            "serviceBranch": "Air Force",
+                            "activeDutyBeginDate": "1990-04-05"
+                          }
+                        ],
+                        "reservesNationalGuardService": {
+                          "obligationTermOfServiceFromDate": "2000-01-01",
+                          "obligationTermOfServiceToDate": "2000-01-02",
+                          "unitName": "A name, with commas, and  double  spaces"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Resource not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -5768,8 +5965,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-17",
-                      "expirationDate": "2024-11-17",
+                      "creationDate": "2023-11-20",
+                      "expirationDate": "2024-11-20",
                       "type": "compensation",
                       "status": "active"
                     }
