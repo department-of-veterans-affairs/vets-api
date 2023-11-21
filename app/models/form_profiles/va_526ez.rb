@@ -213,8 +213,10 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_payment_information
     return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
-    service = EVSS::PPIU::Service.new(user)
-    response = service.get_payment_information
+    provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
+                                       current_user: user,
+                                       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
     if raw_account
@@ -228,8 +230,14 @@ class FormProfiles::VA526ez < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
+    log_ppiu_error(e, provider)
     {}
+  end
+
+  def log_ppiu_error(e, provider)
+    method_name = '#initialize_payment_information'
+    error_message = "#{method_name} Failed to retrieve PPIU data from #{provider.class}: #{e.message}"
+    Rails.logger.error(error_message)
   end
 
   def mask(number)

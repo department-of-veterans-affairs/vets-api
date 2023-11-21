@@ -10,7 +10,8 @@ RSpec.describe SignIn::StatePayload, type: :model do
            type:,
            acr:,
            code:,
-           client_state:)
+           client_state:,
+           created_at:)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }
@@ -20,6 +21,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
   let(:client_config) { create(:client_config) }
   let(:client_id) { client_config.client_id }
   let(:client_state) { SecureRandom.hex }
+  let(:created_at) { Time.zone.now.to_i }
 
   describe 'validations' do
     describe '#code' do
@@ -119,6 +121,23 @@ RSpec.describe SignIn::StatePayload, type: :model do
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
+      end
+    end
+  end
+
+  describe '#created_at' do
+    subject { state_payload.created_at }
+
+    before { Timecop.freeze }
+
+    after { Timecop.return }
+
+    context 'when created_at is nil' do
+      let(:created_at) { nil }
+      let(:expected_time) { Time.zone.now.to_i }
+
+      it 'sets created_at to current time' do
+        expect(subject).to eq(expected_time)
       end
     end
   end

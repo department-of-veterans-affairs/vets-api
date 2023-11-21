@@ -41,6 +41,17 @@ RSpec.describe ApiProviderFactory do
       expect(provider.class).to equal(EvssRatedDisabilitiesProvider)
     end
 
+    it 'returns the correct factory type' do
+      factory = ApiProviderFactory.new(
+        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+        provider: nil,
+        options: { icn:, auth_headers: },
+        current_user: nil,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+      )
+      expect(factory.type).to equal(:rated_disabilities)
+    end
+
     it 'throw error if provider unknown' do
       expect do
         ApiProviderFactory.call(
@@ -138,24 +149,12 @@ RSpec.describe ApiProviderFactory do
     end
 
     it 'provides a Lighthouse ppiu direct deposit provider' do
-      # TODO: Uncomment once Lighthouse provider is implemented in #59698
-      # expect(provider(:lighthouse).class).to equal(LighthousePPIUProvider)
-
-      # TODO: Remove once Lighthouse provider is implemented in #59698
-      expect do
-        provider(:lighthouse)
-      end.to raise_error NotImplementedError
+      expect(provider(:lighthouse).class).to equal(LighthousePPIUProvider)
     end
 
     it 'provides ppiu direct deposit provider based on Flipper' do
       Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-      # TODO: Uncomment once Lighthouse provider is implemented in #59698
-      # expect(provider.class).to equal(LighthousePPIUProvider)
-
-      # TODO: Remove once Lighthouse provider is implemented in #59698
-      expect do
-        provider
-      end.to raise_error NotImplementedError
+      expect(provider.class).to equal(LighthousePPIUProvider)
 
       Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
       expect(provider.class).to equal(EvssPPIUProvider)

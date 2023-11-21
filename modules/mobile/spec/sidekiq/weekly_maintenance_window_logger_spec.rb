@@ -8,7 +8,7 @@ RSpec.describe Mobile::V0::WeeklyMaintenanceWindowLogger, type: :job do
 
   describe '#perform' do
     before do
-      FactoryBot.create(:mobile_maintenance_evss)
+      FactoryBot.create(:mobile_maintenance_evss_first)
       FactoryBot.create(:mobile_maintenance_mpi)
       FactoryBot.create(:mobile_maintenance_dslogon)
     end

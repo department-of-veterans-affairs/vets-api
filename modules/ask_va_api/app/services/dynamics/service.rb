@@ -2,39 +2,45 @@
 
 module Dynamics
   class Service
-    SUPPORTED_METHODS = %i[get post patch put].freeze
-    attr_reader :base_uri, :sec_id, :mock, :logger, :conn
+    extend Forwardable
 
-    def initialize(base_uri:, sec_id:, mock: false, logger: DatadogLogger.new)
+    attr_reader :icn, :logger, :settings, :base_uri
+
+    BASE_URI = 'https://dev.integration.d365.va.gov'
+    VEIS_API_PATH = 'veis/vagov.lob.ava/api'
+
+    def_delegators :settings,
+                   :auth_url,
+                   :base_url,
+                   :client_id,
+                   :client_secret,
+                   :veis_api_path,
+                   :tenant_id,
+                   :ocp_apim_subscription_key,
+                   :service_name
+
+    def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
+      @settings = Settings.ask_va_api.dynamics_api
       @base_uri = base_uri
-      @sec_id = sec_id
-      @mock = mock
+      @icn = icn
       @logger = logger
-      setup_connection unless mock
     end
 
-    def call(endpoint:, method: :get, payload: {}, criteria: {})
-      validate_method!(method)
-      return mock_service(endpoint, method, criteria) if mock
+    def call(endpoint:, method: :get, payload: {})
+      endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
 
-      params = { sec_id: }
+      params = { icn: }
       execute_api_call(endpoint, method, payload, params)
     end
 
     private
 
-    def validate_method!(method)
-      raise ArgumentError, "Unsupported HTTP method: #{method}" unless SUPPORTED_METHODS.include?(method)
-    end
-
-    def mock_service(endpoint, method, criteria)
-      ::DynamicsMockService.new(endpoint, method, criteria).call
-    end
-
-    def setup_connection
-      @conn = Faraday.new(url: base_uri) do |f|
+    def conn(url: base_uri)
+      Faraday.new(url:) do |f|
         f.headers['Content-Type'] = 'application/json'
         f.request :url_encoded
+        f.response :raise_error, error_prefix: service_name
+        f.response :betamocks if settings.mock && !Rails.env.production?
         f.adapter Faraday.default_adapter
       end
     end
@@ -46,14 +52,13 @@ module Dynamics
     rescue ErrorHandler::ServiceError => e
       log_error(endpoint, e.class.name)
       raise e
-    rescue JSON::ParserError => e
-      log_error(endpoint, 'JSON::ParserError')
-      raise ErrorHandler::ServiceError, "Error parsing response from #{endpoint}: #{e.message}"
     end
 
     def invoke_request(endpoint, method, payload, params)
       logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
-        conn.public_send(method, endpoint, prepare_payload(method, payload, params))
+        conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
+          req.headers = default_header.merge('Authorization' => "Bearer #{token(method, endpoint)}")
+        end
       end
     end
 
@@ -71,13 +76,45 @@ module Dynamics
     end
 
     def build_tags(endpoint, error_or_status = nil)
-      tags = { endpoint:, sec_id: }
+      tags = { endpoint:, icn: }
       tags[:error] = error_or_status if error_or_status
       tags
     end
 
     def log_error(endpoint, error_type)
       logger.call('api_call.error', tags: build_tags(endpoint, error_type))
+    end
+
+    def token_headers
+      {
+        'Content-Type' => 'application/x-www-form-urlencoded'
+      }
+    end
+
+    def default_header
+      {
+        'Content-Type' => 'application/json',
+        'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
+      }
+    end
+
+    def auth_params
+      {
+        client_id:,
+        client_secret:,
+        resource: 'resource',
+        grant_type: 'client_credentials'
+      }
+    end
+
+    def token(method, endpoint)
+      logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
+        response = conn(url: auth_url).post("/#{tenant_id}/oauth2/v2.0/token") do |req|
+          req.headers = token_headers
+          req.body = URI.encode_www_form(auth_params)
+        end
+        parse_response(response.body)[:access_token]
+      end
     end
   end
 end

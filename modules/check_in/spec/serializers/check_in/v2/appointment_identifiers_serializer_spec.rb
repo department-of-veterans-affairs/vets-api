@@ -85,6 +85,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
+              appointmentIEN: '1',
               icn: nil,
               mobilePhone: '5553334444',
               patientCellPhone: '4445556666'
@@ -114,6 +115,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
+              appointmentIEN: '1',
               icn: '12340V123456',
               mobilePhone: '5553334444',
               patientCellPhone: '4445556666'
@@ -144,6 +146,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
+              appointmentIEN: '1',
               icn: nil,
               mobilePhone: nil,
               patientCellPhone: '4445556666'
@@ -169,6 +172,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
+              appointmentIEN: '1',
               icn: nil,
               mobilePhone: '5553334444',
               patientCellPhone: '4445556666'
@@ -194,6 +198,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
+              appointmentIEN: '1',
               icn: nil,
               mobilePhone: '5553334444',
               patientCellPhone: '4445556666'
@@ -224,6 +229,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
+              appointmentIEN: '1',
               icn: nil,
               mobilePhone: '5553334444',
               patientCellPhone: nil
@@ -234,6 +240,63 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
 
       it 'returns a serialized hash without patientCellPhone' do
         appt_struct = OpenStruct.new(appointment_data_without_patient_cell_phone)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'when appointmentIEN exists' do
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              appointmentIEN: '1',
+              icn: nil,
+              mobilePhone: '5553334444',
+              patientCellPhone: '4445556666'
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash with appointmentIEN' do
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'when appointmentIEN does not exist' do
+      let(:appointment_data_without_appointment_ien) do
+        appointment_data[:payload][:appointments][0].except!(:appointmentIEN)
+        appointment_data
+      end
+
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              appointmentIEN: nil,
+              icn: nil,
+              mobilePhone: '5553334444',
+              patientCellPhone: '4445556666'
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash without appointmentIEN' do
+        appt_struct = OpenStruct.new(appointment_data_without_appointment_ien)
         appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
 
         expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)

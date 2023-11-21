@@ -19,6 +19,7 @@ module AppealsApi
     attr_readonly :form_data
 
     before_create :assign_metadata
+    before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_success? && delay_evidence_enabled? }
 
     scope :pii_expunge_policy, lambda {
       where(
@@ -204,6 +205,9 @@ module AppealsApi
 
     def assign_metadata
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     def accepts_evidence?
@@ -252,7 +256,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -267,7 +271,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end
@@ -276,6 +280,10 @@ module AppealsApi
 
     def update_status!(status:, code: nil, detail: nil)
       update_status(status:, code:, detail:, raise_on_error: true)
+    end
+
+    def submit_evidence_to_central_mail!
+      evidence_submissions&.each(&:submit_to_central_mail!)
     end
 
     private
@@ -363,6 +371,14 @@ module AppealsApi
 
     def email_present?
       claimant.email.present? || email_identifier.present?
+    end
+
+    def status_changed_to_success?
+      status_changed? && status == 'success'
+    end
+
+    def delay_evidence_enabled?
+      Flipper.enabled?(:decision_review_delay_evidence)
     end
 
     def clear_memoized_values

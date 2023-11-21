@@ -64,6 +64,7 @@ module ClaimsApi
           end
 
           if auto_claim.errors.present?
+            claims_v1_logging('526_submit', message: auto_claim.errors.messages.to_s)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
@@ -71,7 +72,6 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
           end
 
-          ClaimsApi::Logger.log('526', detail: '526 - Request Completed')
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
@@ -79,7 +79,7 @@ module ClaimsApi
         # Required if first ever claim for Veteran.
         #
         # @return [JSON] Claim record
-        def upload_form_526
+        def upload_form_526 # rubocop:disable Metrics/MethodLength
           validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
@@ -97,11 +97,13 @@ module ClaimsApi
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
             message = <<-MESSAGE
-              Claim submission requires that the "autoCestPDFGenerationDisabled" field
-              must be set to "true" in order to allow a 526 PDF to be uploaded
+            Claim submission requires that the "autoCestPDFGenerationDisabled" field
+            must be set to "true" in order to allow a 526 PDF to be uploaded
             MESSAGE
+            claims_v1_logging('526_upload', message:)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
           else
+            claims_v1_logging('526_upload', message: 'Resource not found')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
           end
         end
@@ -114,13 +116,12 @@ module ClaimsApi
           validate_documents_page_size
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
-
-          ClaimsApi::Logger.log(
-            '526',
-            claim_id: claim.id,
-            detail: "/attachments called with #{documents.length} #{'attachment'.pluralize(documents.length)}"
-          )
+          unless claim
+            claims_v1_logging('526_attachments',
+                              message: "/attachments called with
+                              #{documents.length} #{'attachment'.pluralize(documents.length)}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+          end
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
@@ -170,6 +171,7 @@ module ClaimsApi
           end
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
+
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
           error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages

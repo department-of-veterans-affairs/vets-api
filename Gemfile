@@ -23,7 +23,6 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
-  gem 'openid_auth'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'va_forms'
@@ -59,11 +58,11 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby'
+gem 'dogstatsd-ruby', '5.6.0'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
-gem 'faraday'
+gem 'faraday' # TODO: next step - update to ~> 1.0 , '~> 1.10'
 gem 'faraday_middleware'
 gem 'fastimage'
 gem 'fhir_client'
@@ -71,7 +70,7 @@ gem 'fitbit_api'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-active_support_cache_store'
-gem 'flipper-ui', '0.22.0' # Flipper#552 (CSP) in 0.22.1 is causing our styles not to load
+gem 'flipper-ui'
 gem 'foreman'
 gem 'google-api-client'
 gem 'google-apis-core'
@@ -168,6 +167,7 @@ group :test do
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
+  gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
   gem 'simplecov', require: false
@@ -187,7 +187,6 @@ group :development, :test do
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
-  gem 'faraday_adapter_socks'
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec'

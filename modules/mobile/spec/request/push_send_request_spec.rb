@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'push send', type: :request do
   include JsonSchemaMatchers
-  before { iam_sign_in }
 
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let!(:user) { sis_user(icn: '1008596379V859838') }
 
   describe 'POST /mobile/v0/push/send' do
     context 'with with valid request body' do
@@ -25,7 +24,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns 200 and empty json' do
         VCR.use_cassette('vetext/send_success', match_requests_on: [:body]) do
-          post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
+          post '/mobile/v0/push/send', headers: sis_headers(json: true), params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to eq('{}')
         end
@@ -46,7 +45,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns bad request and error' do
         VCR.use_cassette('vetext/send_bad_request') do
-          post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
+          post '/mobile/v0/push/send', headers: sis_headers(json: true), params: params.to_json
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to match_json_schema('errors')
         end
@@ -67,7 +66,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns bad gateway and error' do
         VCR.use_cassette('vetext/send_internal_server_error') do
-          post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
+          post '/mobile/v0/push/send', headers: sis_headers(json: true), params: params.to_json
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end
@@ -87,7 +86,7 @@ RSpec.describe 'push send', type: :request do
       end
 
       it 'returns not found and error' do
-        post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
+        post '/mobile/v0/push/send', headers: sis_headers(json: true), params: params.to_json
         expect(response).to have_http_status(:not_found)
         expect(response.body).to match_json_schema('errors')
       end

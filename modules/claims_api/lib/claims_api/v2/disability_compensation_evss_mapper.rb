@@ -14,6 +14,9 @@ module ClaimsApi
         claim_attributes
         claim_meta
 
+        # must set to true by default so the EVSS Docker Container
+        # does not submit a duplicate PDF
+        @evss_claim[:autoCestPDFGenerationDisabled] = true
         { form526: @evss_claim }
       end
 
@@ -24,6 +27,7 @@ module ClaimsApi
         current_mailing_address
         disabilities
         standard_claim
+        claim_process_type
         veteran_meta
       end
 
@@ -71,6 +75,10 @@ module ClaimsApi
         @evss_claim[:standardClaim] = @data[:claimProcessType] == 'STANDARD_CLAIM_PROCESS'
       end
 
+      def claim_process_type
+        @evss_claim[:claimProcessType] = 'BDD_PROGRAM_CLAIM' if @data[:claimProcessType] == 'BDD_PROGRAM'
+      end
+
       def claim_meta
         @evss_claim[:applicationExpirationDate] = Time.zone.today + 1.year
         @evss_claim[:claimantCertification] = @data[:claimantCertification]
@@ -81,16 +89,21 @@ module ClaimsApi
         @evss_claim[:veteran] ||= {}
         # EVSS Docker needs currentlyVAEmployee, 526 schema uses currentVaEmployee
         @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
-        @evss_claim[:veteran][:emailAddress] = @data.dig(:veteranIdentification, :emailAddress, :email)
+        email_address = @data.dig(:veteranIdentification, :emailAddress, :email)
+        @evss_claim[:veteran][:emailAddress] = email_address unless email_address.nil?
         @evss_claim[:veteran][:fileNumber] = @file_number
       end
 
       # Convert 12-05-1984 to 1984-12-05 for Docker container
       def format_service_periods(service_period_dates)
         service_period_dates.each do |sp_date|
-          begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%m-%d-%Y')
-          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%m-%d-%Y')
+          next if sp_date[:activeDutyBeginDate].nil?
+
+          begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%Y-%m-%d')
           sp_date[:activeDutyBeginDate] = begin_year.strftime('%Y-%m-%d')
+          next if sp_date[:activeDutyEndDate].nil?
+
+          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%Y-%m-%d')
           sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
         end
       end

@@ -781,13 +781,16 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
                 let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+                let(:authentication_time) { 0 }
                 let(:expected_logger_context) do
                   {
                     type:,
                     client_id:,
                     ial:,
                     acr:,
-                    icn: mpi_profile.icn
+                    icn: mpi_profile.icn,
+                    uuid: logingov_uuid,
+                    authentication_time:
                   }
                 end
                 let(:expected_user_attributes) do
@@ -808,7 +811,12 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
-                before { allow(SecureRandom).to receive(:uuid).and_return(client_code) }
+                before do
+                  allow(SecureRandom).to receive(:uuid).and_return(client_code)
+                  Timecop.freeze
+                end
+
+                after { Timecop.return }
 
                 it 'returns ok status' do
                   expect(subject).to have_http_status(:ok)
@@ -970,13 +978,16 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
                 let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+                let(:authentication_time) { 0 }
                 let(:expected_logger_context) do
                   {
                     type:,
                     client_id:,
                     ial:,
                     acr:,
-                    icn: mpi_profile.icn
+                    icn: mpi_profile.icn,
+                    uuid: idme_uuid,
+                    authentication_time:
                   }
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1119,6 +1130,7 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:client_redirect_uri) { client_config.redirect_uri }
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+              let(:authentication_time) { 0 }
               let(:expected_icn) { nil }
               let(:expected_logger_context) do
                 {
@@ -1126,7 +1138,9 @@ RSpec.describe V0::SignInController, type: :controller do
                   client_id:,
                   ial:,
                   acr:,
-                  icn: expected_icn
+                  icn: expected_icn,
+                  uuid: backing_idme_uuid,
+                  authentication_time:
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1295,13 +1309,16 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
               let(:expected_icn) { mpi_profile.icn }
+              let(:authentication_time) { 0 }
               let(:expected_logger_context) do
                 {
                   type:,
                   client_id:,
                   ial:,
                   acr:,
-                  icn: expected_icn
+                  icn: expected_icn,
+                  uuid: backing_idme_uuid,
+                  authentication_time:
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1480,7 +1497,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let(:user_verification) { create(:user_verification) }
     let(:user_verification_id) { user_verification.id }
-    let!(:user) { create(:user, uuid: user_uuid) }
+    let!(:user) { create(:user, :loa3, uuid: user_uuid) }
     let(:user_uuid) { user_verification.credential_identifier }
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
@@ -1498,19 +1515,25 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
     let!(:client_config) do
-      create(:client_config, authentication:, anti_csrf:, pkce:, certificates: [client_assertion_certificate])
+      create(:client_config,
+             authentication:,
+             anti_csrf:,
+             pkce:,
+             certificates: [client_assertion_certificate],
+             enforced_terms:)
     end
+    let(:enforced_terms) { nil }
     let(:client_assertion_certificate) { nil }
     let(:pkce) { true }
     let(:anti_csrf) { false }
     let(:loa) { nil }
     let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
+    let(:expected_error_status) { :bad_request }
 
     before { allow(Rails.logger).to receive(:info) }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:expected_error_status) { :bad_request }
       let(:statsd_token_failure) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE }
       let(:expected_error_log) { '[SignInService] [V0::SignInController] token error' }
       let(:expected_error_context) { { errors: expected_error.to_s } }
@@ -1689,6 +1712,32 @@ RSpec.describe V0::SignInController, type: :controller do
 
               before { allow(Rails.logger).to receive(:info) }
 
+              context 'and the retrieved UserVerification is locked' do
+                let(:user_verification) { create(:user_verification, locked: true) }
+                let(:expected_error) { 'Credential is locked' }
+
+                it_behaves_like 'error response'
+              end
+
+              context 'and client config is configured with enforced terms' do
+                let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                context 'and authenticating user has accepted current terms of use' do
+                  let(:user_account) { user_verification.user_account }
+                  let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+
+                  it 'returns ok status' do
+                    expect(subject).to have_http_status(:ok)
+                  end
+                end
+
+                context 'and authenticating user has not accepted current terms of use' do
+                  let(:expected_error) { 'Terms of Use has not been accepted' }
+
+                  it_behaves_like 'error response'
+                end
+              end
+
               it 'creates an OAuthSession' do
                 expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
               end
@@ -1829,6 +1878,25 @@ RSpec.describe V0::SignInController, type: :controller do
 
                 before { allow(Rails.logger).to receive(:info) }
 
+                context 'and client config is configured with enforced terms' do
+                  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                  context 'and authenticating user has accepted current terms of use' do
+                    let(:user_account) { user_verification.user_account }
+                    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+
+                    it 'returns ok status' do
+                      expect(subject).to have_http_status(:ok)
+                    end
+                  end
+
+                  context 'and authenticating user has not accepted current terms of use' do
+                    let(:expected_error) { 'Terms of Use has not been accepted' }
+
+                    it_behaves_like 'error response'
+                  end
+                end
+
                 it 'creates an OAuthSession' do
                   expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
                 end
@@ -1940,8 +2008,10 @@ RSpec.describe V0::SignInController, type: :controller do
       create(:validated_credential, user_verification:, client_config:)
     end
     let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:, anti_csrf:) }
+    let!(:client_config) { create(:client_config, authentication:, anti_csrf:, enforced_terms:) }
+    let(:enforced_terms) { nil }
     let(:anti_csrf) { false }
+    let(:expected_error_status) { :unauthorized }
 
     before { allow(Rails.logger).to receive(:info) }
 
@@ -1978,7 +2048,6 @@ RSpec.describe V0::SignInController, type: :controller do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end
       let(:expected_error) { 'Anti CSRF token is not valid' }
-      let(:expected_error_status) { :unauthorized }
 
       context 'and anti_csrf_token param is not given' do
         let(:anti_csrf_token_param) { {} }
@@ -1998,7 +2067,6 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when refresh_token is an arbitrary string' do
       let(:refresh_token) { 'some-refresh-token' }
       let(:expected_error) { 'Refresh token cannot be decrypted' }
-      let(:expected_error_status) { :unauthorized }
 
       it_behaves_like 'error response'
     end
@@ -2030,7 +2098,6 @@ RSpec.describe V0::SignInController, type: :controller do
           split_token.join
         end
         let(:expected_error) { 'Refresh token cannot be decrypted' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
@@ -2043,7 +2110,6 @@ RSpec.describe V0::SignInController, type: :controller do
           split_token.join('.')
         end
         let(:expected_error) { 'Refresh nonce is invalid' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
@@ -2056,14 +2122,12 @@ RSpec.describe V0::SignInController, type: :controller do
           split_token.join('.')
         end
         let(:expected_error) { 'Refresh token version is invalid' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
 
       context 'and refresh token is expired' do
         let(:expected_error) { 'No valid Session found' }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           session = session_container.session
@@ -2076,7 +2140,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and refresh token does not map to an existing session' do
         let(:expected_error) { 'No valid Session found' }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           session = session_container.session
@@ -2088,7 +2151,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and refresh token is not a parent or child according to the session' do
         let(:expected_error) { 'Token theft detected' }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           session = session_container.session
@@ -2105,6 +2167,19 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and refresh token is unmodified and valid' do
         before { allow(Rails.logger).to receive(:info) }
+
+        context 'and the retrieved UserVerification is locked' do
+          let(:locked_user_verification) { create(:user_verification, locked: true) }
+          let(:expected_error) { 'Credential is locked' }
+
+          before do
+            session = session_container.session
+            session.user_verification = locked_user_verification
+            session.save!
+          end
+
+          it_behaves_like 'error response'
+        end
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -2220,7 +2295,8 @@ RSpec.describe V0::SignInController, type: :controller do
       create(:validated_credential, user_verification:, client_config:)
     end
     let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:, anti_csrf:) }
+    let!(:client_config) { create(:client_config, authentication:, anti_csrf:, enforced_terms:) }
+    let(:enforced_terms) { nil }
     let(:anti_csrf) { false }
 
     shared_examples 'error response' do

@@ -28,10 +28,10 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
           janet.coutinho@va.gov
           jennica.stiehl@oddball.io
           kayla.watanabe@adhocteam.us
-          matt.king@adhocteam.us
           matthew.christianson@adhocteam.us
-          premal.shah@va.gov
+          michael.harlow@va.gov
           robert.perea-martinez@adhocteam.us
+          rockwell.rice@oddball.io
           stone_christopher@bah.com
           zachary.goldfine@va.gov
         ]

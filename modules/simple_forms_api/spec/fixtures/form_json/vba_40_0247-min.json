@@ -1,0 +1,37 @@
+{
+  "form_number": "40-0247",
+  "veteran_full_name": {
+    "first": "John",
+    "last": "Veteran"
+  },
+  "veteran_date_of_birth": "1985-01-01",
+  "veteran_date_of_death": "2015-01-01",
+  "veteran_id": {
+    "ssn": "333221111"
+  },
+  "is_first_request": true,
+  "applicant_full_name": {
+    "first": "Joe",
+    "last": "Applicant"
+  },
+  "applicant_address": {
+    "country": "USA",
+    "street": "123 Any St",
+    "city": "Anytown",
+    "state": "NY",
+    "postal_code": "12345"
+  },
+  "applicant_phone": "5555555555",
+  "certificates": "3",
+  "additional_certificates": true,
+  "additional_address": {
+    "country": "USA",
+    "street": "124 Any St",
+    "city": "Anytown",
+    "state": "NY",
+    "postal_code": "12345"
+  },
+  "additional_copies": "3",
+  "statement_of_truth_signature": "Joe Applicant",
+  "statement_of_truth_certified": true
+}

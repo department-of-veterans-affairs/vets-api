@@ -3,15 +3,15 @@
 require 'rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'health/rx/prescriptions', type: :request do
   include JsonSchemaMatchers
   include Rx::ClientHelpers
 
+  let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/gethistoryrx' }
   let(:set_cache) do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
@@ -22,17 +22,13 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
-    current_user = build(:iam_user, :mhv)
-
-    iam_sign_in(current_user)
   end
 
   describe 'GET /mobile/v0/health/rx/prescriptions/refill', :aggregate_failures do
     it 'returns all successful refills' do
       VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions') do
-        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942] }, headers: iam_headers
+        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942] }, headers: sis_headers
       end
       expect(response).to have_http_status(:ok)
       attributes = response.parsed_body.dig('data', 'attributes')
@@ -49,7 +45,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_with_error') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
-                                                           headers: iam_headers
+                                                           headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -70,7 +66,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_with_multiple_errors') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
-                                                           headers: iam_headers
+                                                           headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -97,12 +93,12 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
     context 'attempt to refill with non array of ids' do
       it 'returns Invalid Field Value 400 error' do
-        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: '8398465' }, headers: iam_headers
+        put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: '8398465' }, headers: sis_headers
         expect(response).to have_http_status(:bad_request)
         errors = response.parsed_body['errors']
         expect(errors).to eq([{ 'title' => 'Invalid field value',
                                 'detail' =>
-                                        '"8398465" is not a valid value for "ids"',
+                                  '"8398465" is not a valid value for "ids"',
                                 'code' => '103',
                                 'status' => '400' }])
       end
@@ -112,7 +108,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_not_found') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942 123456] },
-                                                           headers: iam_headers
+                                                           headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -123,7 +119,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                    'failedPrescriptionIds' => ['123456'],
                                    'errors' => [{ 'errorCode' => 135,
                                                   'developerMessage' =>
-                                                  'Prescription not found for id : 123456',
+                                                    'Prescription not found for id : 123456',
                                                   'message' => 'Prescription not found' }],
                                    'infoMessages' => [] })
       end
@@ -135,10 +131,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942] },
-                                                           headers: iam_headers
+                                                           headers: sis_headers
         end
 
-        get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+        get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
 
         assert_requested :get, upstream_mhv_history_url, times: 1
       end
@@ -149,7 +145,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     context 'with a valid MHV response and no failed facilities' do
       it 'returns 200' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-          get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
@@ -159,7 +155,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     context 'with a valid EVSS response and failed facilities' do
       it 'returns 200 and omits failed facilities' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/handles_failed_stations') do
-          get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
@@ -170,7 +166,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'uses cache instead of service' do
         set_cache
 
-        get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+        get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
 
         assert_requested :get, upstream_mhv_history_url, times: 0
         expect(response).to have_http_status(:ok)
@@ -179,12 +175,11 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     end
 
     context 'when user does not have mhv access' do
-      it 'returns a 403 forbidden response' do
-        unauthorized_user = build(:iam_user)
-        iam_sign_in(unauthorized_user)
+      let!(:user) { sis_user }
 
+      it 'returns a 403 forbidden response' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-          get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response).to have_http_status(:forbidden)
         expect(response.parsed_body).to eq({ 'errors' =>
@@ -198,7 +193,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     describe 'error cases' do
       it 'converts 400 errors to 409' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_optimistic_locking_error') do
-          get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
 
         expect(response).to have_http_status(:conflict)
@@ -207,7 +202,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'converts Faraday::TimeouError to 408' do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
 
-        get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+        get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         expect(response).to have_http_status(:request_timeout)
       end
     end
@@ -217,15 +212,14 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         params = { page: { number: 2, size: 3 } }
 
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-          get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
-        expect(response.parsed_body['meta']).to eq({ 'pagination' =>
-                                                       { 'currentPage' => 2,
-                                                         'perPage' => 3,
-                                                         'totalPages' => 20,
-                                                         'totalEntries' => 59 } })
+        expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
+                                                                   'perPage' => 3,
+                                                                   'totalPages' => 20,
+                                                                   'totalEntries' => 59 })
       end
     end
 
@@ -235,7 +229,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'returns all prescriptions that are refillinprocess status' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -250,7 +244,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'returns all prescriptions that are both trackable and refillable' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -267,7 +261,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'returns all prescriptions that are both trackable and refillable' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -282,7 +276,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'returns all prescriptions that are not refillinprocess status' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
@@ -299,7 +293,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'cannot filter by unexpected field' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:bad_request)
           expect(response.parsed_body).to eq({ 'errors' =>
@@ -318,7 +312,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'sorts prescriptions by ASC refill_status' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
 
           expect(response).to have_http_status(:ok)
@@ -335,7 +329,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'sorts prescriptions by DESC refill_status' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
 
           expect(response).to have_http_status(:ok)
@@ -353,7 +347,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
         it 'sorts prescriptions by refill_status' do
           VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-            get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+            get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
 
           expect(response).to have_http_status(:bad_request)
@@ -373,15 +367,14 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                    filter: { refill_status: { eq: 'refillinprocess' } } }
 
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
-          get '/mobile/v0/health/rx/prescriptions', params:, headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
-        expect(response.parsed_body['meta']).to eq({ 'pagination' =>
-                                                       { 'currentPage' => 2,
-                                                         'perPage' => 3,
-                                                         'totalPages' => 12,
-                                                         'totalEntries' => 36 } })
+        expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
+                                                                   'perPage' => 3,
+                                                                   'totalPages' => 12,
+                                                                   'totalEntries' => 36 })
 
         statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
         expect(statuses).to eq(['refillinprocess'])
@@ -393,13 +386,29 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         )
       end
     end
+
+    describe 'counting subscription statuses' do
+      it 'returns meta with a count of all statuses while grouping certain ones under active' do
+        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+        end
+        expect(response.parsed_body['meta']['prescriptionStatusCount']).to eq({
+                                                                                'active' => 48,
+                                                                                'discontinued' => 6,
+                                                                                'transferred' => 1,
+                                                                                'expired' => 2,
+                                                                                'hold' => 1,
+                                                                                'unknown' => 1
+                                                                              })
+      end
+    end
   end
 
   describe 'GET /mobile/v0/health/rx/prescriptions/:id/tracking', :aggregate_failures do
     context 'when id is found' do
       it 'returns 200' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_tracking_for_a_prescription') do
-          get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription_tracking')
@@ -409,7 +418,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     context 'when record is not found' do
       it 'returns 404' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/tracking_error_id') do
-          get '/mobile/v0/health/rx/prescriptions/1/tracking', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions/1/tracking', headers: sis_headers
         end
 
         expect(response).to have_http_status(:not_found)
@@ -419,7 +428,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     context 'with empty otherPrescriptions section' do
       it 'returns 200 with ' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/gets_tracking_with_empty_other_prescriptions') do
-          get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: iam_headers
+          get '/mobile/v0/health/rx/prescriptions/13650541/tracking', headers: sis_headers
         end
 
         expect(response).to have_http_status(:ok)

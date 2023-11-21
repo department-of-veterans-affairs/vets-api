@@ -39,7 +39,7 @@
   "F[0].Page_2[0].ADDRESS_OF_PERSON_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= data.dig('person_address', 'postal_code')&.[](0..4) %>",
   "F[0].Page_2[0].ADDRESS_OF_PERSON_ZIPOrPostalCode_LastFourNumbers[0]": "<%= data.dig('person_address', 'postal_code')&.[](5..8) %>",
 
-  "F[0].Page_2[0].International_Telephone_Number_If_Applicable[1]": "<%= data['organization_name']&.+('\n')&.+(data['organization_representatives']&.map { |rep| rep['representative_name'] }.join(', ')) %>",
+  "F[0].Page_2[0].International_Telephone_Number_If_Applicable[1]": "<%= (data['organization_name'] || '') + '\n' + (data['organization_representatives']&.map { |rep| rep['representative_name'] }&.join(', ') || '') %>",
   
   "F[0].#subform[2].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= data['veteran_ssn']&.[](0..2) %>",
   "F[0].#subform[2].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= data['veteran_ssn']&.[](3..4) %>",
@@ -77,11 +77,11 @@
   "F[0].#subform[2].YOUR_FIRST_PETS_NAME[0]": "<%= data['security_question'] == 'firstPetName' ? 1 : 0 %>",
   "F[0].#subform[2].YOUR_FAVORITE_TEACHERS_NAME[0]": "<%= data['security_question'] == 'favoriteTeacherName' ? 1 : 0 %>",
   "F[0].#subform[2].YOUR_FATHERS_MIDDLE_NAME[0]": "<%= data['security_question'] == 'fatherMiddleName' ? 1 : 0 %>",
-  "F[0].#subform[2].International_Telephone_Number_If_Applicable[0]": "<%= data['security_question'] == 'motherBirthplace' ? data['security_answer'] : '' %>",
-  "F[0].#subform[2].International_Telephone_Number_If_Applicable[1]": "<%= data['security_question'] == 'highSchoolName' ? data['security_answer'] : '' %>",
-  "F[0].#subform[2].International_Telephone_Number_If_Applicable[2]": "<%= data['security_question'] == 'firstPetName' ? data['security_answer'] : '' %>",
-  "F[0].#subform[2].International_Telephone_Number_If_Applicable[3]": "<%= data['security_question'] == 'favoriteTeacherName' ? data['security_answer'] : '' %>",
-  "F[0].#subform[2].International_Telephone_Number_If_Applicable[4]": "<%= data['security_question'] == 'fatherMiddleName' ? data['security_answer'] : '' %>",
+  "F[0].#subform[2].International_Telephone_Number_If_Applicable[0]": "<%= data['security_answer'] && data['security_question'] == 'motherBirthplace' ? data['security_answer'] : '' %>",
+  "F[0].#subform[2].International_Telephone_Number_If_Applicable[1]": "<%= data['security_answer'] && data['security_question'] == 'highSchoolName' ? data['security_answer'] : '' %>",
+  "F[0].#subform[2].International_Telephone_Number_If_Applicable[2]": "<%= data['security_answer'] && data['security_question'] == 'firstPetName' ? data['security_answer'] : '' %>",
+  "F[0].#subform[2].International_Telephone_Number_If_Applicable[3]": "<%= data['security_answer'] && data['security_question'] == 'favoriteTeacherName' ? data['security_answer'] : '' %>",
+  "F[0].#subform[2].International_Telephone_Number_If_Applicable[4]": "<%= data['security_answer'] && data['security_question'] == 'fatherMiddleName' ? data['security_answer'] : '' %>",
 
   "F[0].#subform[2].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
   "F[0].#subform[2].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",

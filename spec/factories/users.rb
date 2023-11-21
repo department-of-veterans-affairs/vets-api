@@ -36,6 +36,7 @@ FactoryBot.define do
       common_name { nil }
       person_types { ['VET'] }
       home_phone { '(800) 867-5309' }
+      needs_accepted_terms_of_use { false }
       suffix { 'Jr' }
       address do
         {
@@ -121,6 +122,7 @@ FactoryBot.define do
       user_identity = create(:user_identity,
                              t.user_identity)
       user.instance_variable_set(:@identity, user_identity)
+      user.instance_variable_set(:@needs_accepted_terms_of_use, t.needs_accepted_terms_of_use)
       stub_mpi(t.mpi_profile) unless t.stub_mpi == false
     end
 
@@ -445,6 +447,19 @@ FactoryBot.define do
     trait :no_vha_facilities do
       vha_facility_ids {}
       vha_facility_hash {}
+    end
+
+    trait :with_terms_of_use_agreement do
+      after(:build) do |user, _context|
+        verification = create(:idme_user_verification, idme_uuid: user.idme_uuid)
+        create(:terms_of_use_agreement, user_account: verification.user_account)
+      end
+    end
+
+    trait :idme_lock do
+      after(:build) do |user, _context|
+        create(:idme_user_verification, idme_uuid: user.idme_uuid, locked: true)
+      end
     end
   end
 end

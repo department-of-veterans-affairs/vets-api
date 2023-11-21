@@ -16,8 +16,10 @@ module ClaimsApi
                      ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
 
       auto_claim = claim_object.try(:auto_established_claim) || claim_object
+      doc_type = claim_object.is_a?(ClaimsApi::SupportingDocument) ? 'L023' : 'L122'
 
       if auto_claim.evss_id.nil?
+        ClaimsApi::Logger.log('claims_uploader', detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
         self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers
@@ -26,7 +28,7 @@ module ClaimsApi
         file_body = uploader.read
         ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd
-          bd_upload_body(auto_claim:, file_body:)
+          bd_upload_body(auto_claim:, file_body:, doc_type:)
         else
           EVSS::DocumentsService.new(auth_headers).upload(file_body, claim_upload_document(claim_object))
         end
@@ -35,24 +37,24 @@ module ClaimsApi
 
     private
 
-    def bd_upload_body(auto_claim:, file_body:)
+    def bd_upload_body(auto_claim:, file_body:, doc_type:)
       fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)
       begin
         fh.write(file_body)
         fh.close
-        claim_bd_upload_document(auto_claim, fh.path)
+        claim_bd_upload_document(auto_claim, doc_type, fh.path)
       ensure
         fh.unlink
       end
     end
 
-    def claim_bd_upload_document(claim, pdf_path)
-      ClaimsApi::BD.new.upload(claim:, pdf_path:)
+    def claim_bd_upload_document(claim, doc_type, pdf_path)
+      ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
       ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
-                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}")
+                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
       raise e
     # Permanent failures, don't retry
     rescue => e
@@ -63,7 +65,7 @@ module ClaimsApi
                 end
       ClaimsApi::Logger.log('benefits_documents',
                             retry: false,
-                            detail: "/upload failure for claimId #{claim&.id}: #{message}")
+                            detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       {}
     end
 

@@ -19,13 +19,17 @@ module Common
         # @param session [Hash] a hash containing user_id with which the session will be found or built
         #
         def initialize(session:)
+          refresh_session(session)
+        end
+
+        def refresh_session(session)
           @session = self.class.client_session.find_or_build(session)
         end
 
         attr_reader :session
 
         ##
-        # Ensures the MHV based session is not expired
+        # Ensures the MHV based session is not expired or incomplete.
         #
         # @return [MHVJwtSessionClient] instance of `self`
         #
@@ -38,64 +42,45 @@ module Common
         end
 
         ##
-        # Decodes a JWT to get the patient's subjectId, then uses that to fetch their FHIR ID
-        #
-        # @param jwt_token [String] a JWT token
-        # @return [String] the patient's FHIR ID
-        #
-        def get_patient_fhir_id(jwt_token)
-          decoded_token = begin
-            JWT.decode jwt_token, nil, false
-          rescue JWT::DecodeError
-            raise Common::Exceptions::Unauthorized, detail: 'Invalid JWT token'
-          end
-
-          subject_id = decoded_token[0]['subjectId']
-          raise Common::Exceptions::Unauthorized, detail: 'JWT token does not contain subjectId' if subject_id.nil?
-
-          # Get the patient's FHIR ID
-          fhir_client = sessionless_fhir_client(jwt_token)
-          patient = get_patient_by_identifier(fhir_client, subject_id)
-          if patient.nil? || patient.entry.empty? || !patient.entry[0].resource.respond_to?(:id)
-            raise Common::Exceptions::Unauthorized,
-                  detail: 'Patient record not found or does not contain a valid FHIR ID'
-          end
-
-          patient.entry[0].resource.id
-        end
-
-        ##
-        # Creates a session from the request headers
+        # Creates a session
         #
         # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
         #
         def get_session
-          # Perform an async PHR refresh for the user
-          MHV::PhrUpdateJob.perform_async(session.icn, session.user_id)
-
+          # Call the security endpoint to create an MHV session and get a JWT token.
           validate_session_params
           env = get_session_tagged
-          # req_headers = env.request_headers
-          res_headers = env.response_headers
+          jwt = get_jwt_from_headers(env.response_headers)
+          decoded_token = decode_jwt_token(jwt)
+          session.expires_at = extract_token_expiration(decoded_token)
+          @session.class.new(user_id: session.user_id.to_s,
+                             icn: session.icn,
+                             expires_at: session.expires_at,
+                             token: jwt)
+        end
 
+        def get_jwt_from_headers(res_headers)
           # Get the JWT token from the headers
           auth_header = res_headers['authorization']
           if auth_header.nil? || !auth_header.start_with?('Bearer ')
             raise Common::Exceptions::Unauthorized, detail: 'Invalid or missing authorization header'
           end
 
-          jwt_token = auth_header.sub('Bearer ', '')
+          auth_header.sub('Bearer ', '')
+        end
 
-          patient_fhir_id = get_patient_fhir_id(jwt_token)
+        def decode_jwt_token(jwt_token)
+          JWT.decode jwt_token, nil, false
+        rescue JWT::DecodeError
+          raise Common::Exceptions::Unauthorized, detail: 'Invalid JWT token'
+        end
 
-          expires = (DateTime.now + Rational(3600, 86_400)).rfc2822
-          @session.class.new(user_id: session.user_id.to_s,
-                             patient_fhir_id:,
-                             icn: session.icn,
-                             # TODO: If MHV updates API to include this field, use the version from their headers
-                             #  expires_at: res_headers['expires'],
-                             expires_at: expires,
-                             token: jwt_token)
+        def extract_token_expiration(decoded_token)
+          if decoded_token[0]['exp']
+            Time.zone.at(decoded_token[0]['exp']).to_datetime.rfc2822
+          else
+            1.hour.from_now.rfc2822
+          end
         end
 
         ##

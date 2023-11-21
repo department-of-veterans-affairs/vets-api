@@ -6,6 +6,8 @@ require 'va_profile/address_validation/service'
 module V0
   module Profile
     class AddressValidationController < ApplicationController
+      service_tag 'profile'
+
       def create
         address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?

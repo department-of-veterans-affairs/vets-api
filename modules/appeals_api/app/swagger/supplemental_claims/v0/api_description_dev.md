@@ -1,23 +1,23 @@
 The Supplemental Claims API lets you add and manage evidence that may change the decision on a previous issue. [Learn more about Supplemental Claims](https://www.va.gov/decision-reviews/supplemental-claim/).
 
-To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).
+To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](/explore/api/appeals-status/docs).
 
 ## Technical overview
 The Supplemental Claims API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Supplemental Claim.
 
 ### Authorization and Access
 The authentication model for the Supplemental Claims API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
-* [Authorization code flow](https://dev-developer.va.gov/explore/api/supplemental-claims/authorization-code)
-* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/supplemental-claims/client-credentials)
+* [Authorization code flow](/explore/api/supplemental-claims/authorization-code)
+* [Client Credentials Grant (CCG)](/explore/api/supplemental-claims/client-credentials)
 
-**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](/support/contact-us).
 
 ### Submission statuses
 Use the correct GET endpoint to check the status of a Supplemental Claim submission.
 
 These endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.
 
-To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).
+To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](/explore/api/appeals-status/docs).
 
 | Status      | What it means |
 | ---        |     ---     |

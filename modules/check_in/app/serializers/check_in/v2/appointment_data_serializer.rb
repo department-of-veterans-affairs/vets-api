@@ -53,10 +53,12 @@ module CheckIn
           emergencyContactNeedsUpdate: raw_confirmation[:emergencyContactNeedsUpdate],
           emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
         }
+        set_e_check_in_started_called = object.payload[:setECheckinStartedCalled]
         {
           demographics:,
           appointments:,
-          patientDemographicsStatus: demographics_confirmation
+          patientDemographicsStatus: demographics_confirmation,
+          setECheckinStartedCalled: set_e_check_in_started_called
         }
       end
 

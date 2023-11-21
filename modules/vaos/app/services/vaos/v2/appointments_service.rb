@@ -15,6 +15,8 @@ module VAOS
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
 
+      AVS_FLIPPER = :va_online_scheduling_after_visit_summary
+
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
@@ -22,7 +24,7 @@ module VAOS
                  .compact
 
         with_monitoring do
-          response = perform(:get, appointments_base_url, params, headers)
+          response = perform(:get, appointments_base_path, params, headers)
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
@@ -35,6 +37,8 @@ module VAOS
 
             log_telehealth_data(appt) unless appt[:telehealth].nil?
             convert_appointment_time(appt)
+
+            fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
           end
           {
             data: deserialized_appointments(response.body[:data]),
@@ -46,7 +50,7 @@ module VAOS
       def get_appointment(appointment_id)
         params = {}
         with_monitoring do
-          response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
+          response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
 
           # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
@@ -62,6 +66,10 @@ module VAOS
             response.body[:data][:requested_periods] = nil
           end
 
+          if avs_applicable?(response.body[:data]) && Flipper.enabled?(AVS_FLIPPER, user)
+            fetch_avs_and_update_appt_body(response.body[:data])
+          end
+
           OpenStruct.new(response.body[:data])
         end
       end
@@ -70,7 +78,8 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_url, params, headers)
+          response = perform(:post, appointments_base_path, params, headers)
+          convert_appointment_time(response.body)
           log_telehealth_data(response.body) unless response.body[:telehealth].nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -84,6 +93,7 @@ module VAOS
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
           response = perform(:put, url_path, params, headers)
+          convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
       end
@@ -129,6 +139,112 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(user)
+      end
+
+      def avs_service
+        @avs_service ||=
+          Avs::V0::AvsService.new
+      end
+
+      # Extracts the station number and appointment IEN from an Appointment.
+      #
+      # Given an appointment, this method will check the identifiers, find the identifier associated
+      # with 'VistADefinedTerms/409_84' or 'VistADefinedTerms/409_85' and return the identifier value
+      # as a two-item array (split on the ':' character). If there is no such identifier, it will return nil.
+      #
+      # @param [Hash] appointment The appointment object to find the identifier in.
+      # This Hash must include an :identifier key.
+      #
+      # @return [Array, nil] An array containing two strings representing the station number
+      # and IEN if found, or nil if not.
+      def extract_station_and_ien(appointment)
+        return nil if appointment[:identifier].nil?
+
+        regex = %r{VistADefinedTerms/409_(84|85)}
+        identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
+
+        return if identifier.nil?
+
+        identifier[:value]&.split(':', 2)
+      end
+
+      # Normalizes an Integration Control Number (ICN) by removing the 'V' character and the trailing six digits.
+      # The ICN format consists of 17 alpha-numeric characters (10 digits + "V" + 6 digits) with
+      # V being a deliminator, and the 6 trailing digits a checksum.
+      #
+      # @param [String] icn The input ICN to be normalized.
+      #
+      # @return [String, nil] The normalized ICN as a string, after removing the trailing pattern 'V\[\d\]{6}',
+      # or nil if the input ICN was nil.
+      #
+      def normalize_icn(icn)
+        icn&.gsub(/V[\d]{6}$/, '')
+      end
+
+      # Checks equality between two ICNs (Integration Control Numbers)
+      # after normalizing them.
+      #
+      # @param [String] icn_a The first ICN to be compared.
+      # @param [String] icn_b The second ICN to be compared.
+      #
+      # @return [Boolean] Returns true if the normalized versions of icn_a and icn_b are equal,
+      # false if they are not equal or if either icn is nil.
+      def icns_match?(icn_a, icn_b)
+        return false if icn_a.nil? || icn_b.nil?
+
+        normalize_icn(icn_a) == normalize_icn(icn_b)
+      end
+
+      # Retrieves a link to the After Visit Summary (AVS) for a given appointment.
+      #
+      # @param appt [Hash] The appointment for which to retrieve an AVS link.
+      # @return [String, nil] The AVS link associated with the appointment,
+      # or nil if no link could be found or if there was a mismatch in Integration Control Numbers (ICNs).
+      def get_avs_link(appt)
+        station_no, appt_ien = extract_station_and_ien(appt)
+
+        return nil if station_no.nil? || appt_ien.nil?
+
+        avs_resp = avs_service.get_avs_by_appointment(station_no, appt_ien)
+
+        return nil if avs_resp.body.empty?
+
+        data = avs_resp.body.first.with_indifferent_access
+
+        if data[:icn].nil? || !icns_match?(data[:icn], user[:icn])
+          Rails.logger.warn('VAOS: AVS response ICN does not match user ICN')
+          return nil
+        end
+
+        avs_path(data[:sid])
+      end
+
+      # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
+      #
+      # In case of an error the method logs the error details and sets the `:avs_path` attribute of `appt` to `nil`.
+      #
+      # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
+      #
+      # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
+      def fetch_avs_and_update_appt_body(appt)
+        avs_link = get_avs_link(appt)
+        appt[:avs_path] = avs_link
+      rescue => e
+        err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
+        Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
+        appt[:avs_path] = nil
+      end
+
+      # Checks if appointment is eligible for receiving an AVS link, i.e.
+      # the appointment is booked and in the past
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is eligible, false otherwise
+      #
+      def avs_applicable?(appt)
+        return false if appt.nil? || appt[:status].nil? || appt[:start].nil?
+
+        appt[:status] == 'booked' && appt[:start].to_datetime.past?
       end
 
       # Checks if the appointment is booked.
@@ -418,11 +534,15 @@ module VAOS
         }
       end
 
-      def appointments_base_url
+      def appointments_base_path
         "/vaos/v1/patients/#{user.icn}/appointments"
       end
 
-      def get_appointment_base_url(appointment_id)
+      def avs_path(sid)
+        "/my-health/medical-records/summaries-and-notes/visit-summary/#{sid}"
+      end
+
+      def get_appointment_base_path(appointment_id)
         "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 

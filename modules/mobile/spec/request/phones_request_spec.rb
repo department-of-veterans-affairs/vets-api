@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'phones', type: :request do
   include JsonSchemaMatchers
 
-  before { iam_sign_in(user) }
+  let!(:user) { sis_user }
 
-  let(:user) { FactoryBot.build(:iam_user) }
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:headers) do
+    sis_headers(json: true)
+  end
   let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
 
   describe 'POST /mobile/v0/user/phones' do
@@ -21,7 +22,7 @@ RSpec.describe 'phones', type: :request do
         VCR.use_cassette('mobile/profile/get_phone_status_complete') do
           VCR.use_cassette('mobile/profile/get_phone_status_incomplete') do
             VCR.use_cassette('mobile/profile/post_phone_initial') do
-              post('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
+              post('/mobile/v0/user/phones', params: telephone.to_json, headers:)
             end
           end
         end
@@ -44,7 +45,7 @@ RSpec.describe 'phones', type: :request do
     context 'with missing params' do
       before do
         telephone.phone_number = ''
-        post('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
+        post('/mobile/v0/user/phones', params: telephone.to_json, headers:)
       end
 
       it 'returns a 422' do
@@ -80,7 +81,7 @@ RSpec.describe 'phones', type: :request do
         VCR.use_cassette('mobile/profile/get_phone_status_complete') do
           VCR.use_cassette('mobile/profile/get_phone_status_incomplete') do
             VCR.use_cassette('mobile/profile/put_phone_initial') do
-              put('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
+              put('/mobile/v0/user/phones', params: telephone.to_json, headers:)
             end
           end
         end
@@ -103,7 +104,7 @@ RSpec.describe 'phones', type: :request do
     context 'with missing params' do
       before do
         telephone.phone_number = ''
-        put('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
+        put('/mobile/v0/user/phones', params: telephone.to_json, headers:)
       end
 
       it 'returns a 422' do
@@ -141,7 +142,7 @@ RSpec.describe 'phones', type: :request do
             VCR.use_cassette('mobile/profile/delete_phone_initial') do
               delete '/mobile/v0/user/phones',
                      params: telephone.to_json,
-                     headers: iam_headers(json_body_headers)
+                     headers:
             end
           end
         end
@@ -164,7 +165,7 @@ RSpec.describe 'phones', type: :request do
     context 'with telephone missing from params' do
       before do
         telephone.phone_number = ''
-        delete('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
+        delete('/mobile/v0/user/phones', params: telephone.to_json, headers:)
       end
 
       it 'returns a 422' do

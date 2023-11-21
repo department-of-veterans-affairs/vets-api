@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
 
 describe Mobile::V0::LighthouseHealth::Service do
-  let(:user) { FactoryBot.build(:iam_user) }
+  let(:user) { build(:user, icn: '9000682') }
   let(:service) { Mobile::V0::LighthouseHealth::Service.new(user) }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
   let(:access_token) do
@@ -75,8 +74,6 @@ describe Mobile::V0::LighthouseHealth::Service do
 
   before do
     allow(File).to receive(:read).and_return(rsa_key.to_s)
-    allow_any_instance_of(IAMUser).to receive(:icn).and_return('9000682')
-    iam_sign_in(build(:iam_user))
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
   end
 

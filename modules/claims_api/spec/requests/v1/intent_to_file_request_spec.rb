@@ -29,10 +29,6 @@ RSpec.describe 'Intent to file', type: :request do
 
   describe '#0966' do
     context 'when Veteran has all necessary identifiers' do
-      before do
-        stub_mpi
-      end
-
       describe 'schema' do
         it 'returns a successful get response with json schema' do
           get path
@@ -275,7 +271,6 @@ RSpec.describe 'Intent to file', type: :request do
 
   describe '#active' do
     before do
-      stub_mpi
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     end
 
@@ -336,10 +331,6 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#validate' do
-    before do
-      stub_mpi
-    end
-
     it 'returns a response when valid' do
       mock_acg(scopes) do |auth_header|
         post "#{path}/validate", params: data.to_json, headers: headers.merge(auth_header)

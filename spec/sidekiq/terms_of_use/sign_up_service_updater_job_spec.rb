@@ -7,14 +7,15 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     subject(:job) { described_class.new }
 
     let(:user_account) { create(:user_account) }
+    let(:icn) { user_account.icn }
     let(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:, response:) }
     let(:response) { 'accepted' }
     let(:common_name) { 'some-common-name' }
-    let(:service_instance) { instance_double(MobileApplicationPlatform::SignUp::Service) }
+    let(:service_instance) { instance_double(MAP::SignUp::Service) }
     let(:version) { terms_of_use_agreement.agreement_version }
 
     before do
-      allow(MobileApplicationPlatform::SignUp::Service).to receive(:new).and_return(service_instance)
+      allow(MAP::SignUp::Service).to receive(:new).and_return(service_instance)
     end
 
     it 'retries 15 times after failure' do
@@ -25,7 +26,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       logger_spy = instance_spy(ActiveSupport::Logger)
       allow(Rails).to receive(:logger).and_return(logger_spy)
 
-      job_info = { 'name' => described_class.to_s, 'args' => %w[foo bar] }
+      job_info = { 'class' => described_class.to_s, 'args' => %w[foo bar] }
       error_message = 'foobar'
       described_class.sidekiq_retries_exhausted_block.call(
         job_info, Common::Client::Errors::ClientError.new(error_message)
@@ -34,10 +35,12 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       expect(logger_spy)
         .to have_received(:warn)
         .with(
-          "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job_info['name']} " \
+          "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job_info['class']} " \
           "with args #{job_info['args']}: #{error_message}"
         )
     end
+
+    it { is_expected.to be_unique }
 
     context 'when the terms of use agreement is accepted' do
       before do
@@ -45,9 +48,9 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
 
       it 'updates the terms of use agreement in sign up service' do
-        job.perform(terms_of_use_agreement.id, common_name)
+        job.perform(icn, common_name, version)
 
-        expect(MobileApplicationPlatform::SignUp::Service).to have_received(:new)
+        expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
                                                                            signature_name: common_name,
                                                                            version:)
@@ -62,9 +65,9 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       end
 
       it 'updates the terms of use agreement in sign up service' do
-        job.perform(terms_of_use_agreement.id, common_name)
+        job.perform(icn, common_name, version)
 
-        expect(MobileApplicationPlatform::SignUp::Service).to have_received(:new)
+        expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)
       end
     end

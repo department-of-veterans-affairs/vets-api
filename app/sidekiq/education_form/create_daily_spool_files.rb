@@ -12,6 +12,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
+    MAX_RETRIES = 5
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
     STATSD_KEY = 'worker.education_benefits_claim'
     STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file".freeze
@@ -27,6 +28,8 @@ module EducationForm
     # because the execution of the query itself is deferred until the
     # data is accessed by the code inside of the method.
     def perform
+      retry_count = 0
+
       begin
         records = EducationBenefitsClaim
                   .unprocessed.joins(:saved_claim).includes(:education_stem_automated_decision).where(
@@ -51,7 +54,16 @@ module EducationForm
         write_files(writer, structured_data: formatted_records)
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
-        log_exception(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
+        if retry_count < MAX_RETRIES
+          log_exception(DailySpoolFileError.new("Error creating spool files.\n\n#{e}
+                                                 Retry count: #{retry_count}. Retrying..... "))
+          retry_count += 1
+          sleep(10 * retry_count) # exponential backoff for retries
+          retry
+        else
+          log_exception(DailySpoolFileError.new("Error creating spool files.
+                                                 Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
+        end
       end
       true
     end
@@ -94,6 +106,10 @@ module EducationForm
           begin
             writer.write(contents, filename)
 
+            ## Testing to see if writer is the cause for retry attempt failures
+            ## If we get to this message, it's not the writer object
+            log_info("Successfully wrote to filename: #{filename}")
+
             # send copy of staging spool files to testers
             # This mailer is intended to only work for development, staging and NOT production
             # Rails.env will return 'production' on the development & staging servers and  which
@@ -119,7 +135,15 @@ module EducationForm
                           end
             exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
             log_exception(exception, region)
-            next
+            if spool_file_event.retry_attempt < MAX_RETRIES
+              spool_file_event.update(retry_attempt: spool_file_event.retry_attempt + 1)
+
+              # Reinstantiate the writer before retrying
+              writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger:)
+              retry
+            else
+              next
+            end
           end
         end
       end

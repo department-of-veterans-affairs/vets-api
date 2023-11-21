@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Immunization?_count=9999&clinical-status=active&patient=2952"
+      uri: "<MHV_MR_HOST>/fhir/Immunization?_count=9999&patient=2952"
       body:
         encoding: US-ASCII
         string: ""
@@ -78,7 +78,7 @@ http_interactions:
                 "patient": {
                   "reference": "Patient/2952"
                 },
-                "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+                "occurrenceDateTime": "2023-03-11T10:05:00-04:00",
                 "location": {
                   "reference": "Location/2220"
                 }
@@ -111,7 +111,7 @@ http_interactions:
                 "patient": {
                   "reference": "Patient/2952"
                 },
-                "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+                "occurrenceDateTime": "2023-03-19T10:05:00-04:00",
                 "location": {
                   "reference": "Location/2220"
                 },
@@ -147,7 +147,7 @@ http_interactions:
                 "patient": {
                   "reference": "Patient/2952"
                 },
-                "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+                "occurrenceDateTime": "2023-03-12T10:05:00-04:00",
                 "location": {
                   "reference": "Location/2220"
                 },
@@ -183,7 +183,7 @@ http_interactions:
                 "patient": {
                   "reference": "Patient/2952"
                 },
-                "occurrenceDateTime": "2023-02-23T10:05:00-05:00",
+                "occurrenceDateTime": "2023-02-28T10:05:00-05:00",
                 "location": {
                   "reference": "Location/2220"
                 },
@@ -251,7 +251,7 @@ http_interactions:
                 "patient": {
                   "reference": "Patient/2952"
                 },
-                "occurrenceDateTime": "2023-02-01T12:00:00-05:00",
+                "occurrenceDateTime": "2023-02-07T12:00:00-05:00",
                 "location": {
                   "reference": "Location/2220"
                 },

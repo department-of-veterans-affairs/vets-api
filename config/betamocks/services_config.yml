@@ -1,6 +1,28 @@
 ---
 :services:
 
+#Dynamics API GET endpoint
+- :name: "Dynamics API GET endpoint"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.base_url).host}:#{URI(Settings.ask_va_api.dynamics_api.base_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/ping" %>
+      :file_path: "/ask_va/dynamics_api"
+      :response_delay: 15
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/inquiries/new" %>
+      :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :response_delay: 0.3
+
+#Dynamics Token post
+- :name: "Dynamics VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.auth_url).host}:#{URI(Settings.ask_va_api.dynamics_api.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/ask_va/token/default"
+      :response_delay: 0.3
+
 - :name: 'carma'
   :base_uri: <%= "#{URI(Settings['salesforce-carma'].url).host}:#{URI(Settings['salesforce-carma'].url).port}" %>
   :endpoints:
@@ -498,7 +520,6 @@
       :uid_locator: 'id (?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(.*)\^NI\^200DOD\^USDOD\^A"(?:root="2.16.840.1.113883.3.42.10001.100001.12")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
 
-
 # EMIS
 - :name: 'EMIS'
   :base_uri: <%= "#{URI(Settings.emis.host).host}:#{URI(Settings.emis.host).port}" %>
@@ -831,6 +852,10 @@
       :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-demographics" %>
       :file_path: "/chip/update-demographics/default"
       :response_delay: 4
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/set-e-check-in-started" %>
+      :file_path: "/chip/set-echeckin-started/default"
+      :response_delay: 2
 
 # LGY: Certificate of Eligibility
 - :name: "LGY"
@@ -901,6 +926,13 @@
       :cache_multiple_responses:
         :uid_location: "url"
         :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
+    # Benefits Documents API
+    - :method: :post
+      :path: "/services/benefits-documents/v1/documents"
+      :file_path: "/lighthouse/claims_api/benefits_documents/upload"
+    - :method: :post
+      :path: "/services/benefits-documents/v1/documents/search"
+      :file_path: "/lighthouse/claims_api/benefits_documents/search/default"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
@@ -926,3 +958,40 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator:  '\/avs\/(.*)'
+
+# Security Token Service API
+- :name: "MAP STS"
+  :base_uri: <%= "#{URI(Settings.map_services.oauth_url).host}:#{URI(Settings.map_services.oauth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/sts/oauth/v1/token"
+      :file_path: "map/secure_token_service/token"
+
+# Sign Up Service Terms API
+- :name: "MAP SUS"
+  :base_uri: <%= "#{URI(Settings.map_services.sign_up_service_url).host}:#{URI(Settings.map_services.sign_up_service_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/signup/v1/patients/*/status/summary"
+      :file_path: "map/sign_up_service/status"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)/status\/summary'
+    - :method: :post
+      :path: "/signup/v1/patients/*/agreements"
+      :file_path: "map/sign_up_service/agreements_accept"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/agreements'
+    - :method: :delete
+      :path: "/signup/v1/patients/*/agreements"
+      :file_path: "map/sign_up_service/agreements_delete"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/agreements'
+    - :method: :put
+      :path: "/signup/v1/patients/*/provisioning/cerner"
+      :file_path: "map/sign_up_service/update_provisioning"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'

@@ -3,6 +3,7 @@
 module V0
   class HCAAttachmentsController < ApplicationController
     include FormAttachmentCreate
+    service_tag 'healthcare-application'
 
     skip_before_action(:authenticate, raise: false)
 

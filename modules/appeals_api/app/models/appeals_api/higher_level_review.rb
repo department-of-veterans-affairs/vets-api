@@ -246,7 +246,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -261,7 +261,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end
@@ -299,6 +299,9 @@ module AppealsApi
       self.metadata = { form_data: { benefit_type: } }
 
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     private

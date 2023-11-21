@@ -25,7 +25,8 @@ RSpec.describe SignIn::SessionRefresher do
       let(:input_anti_csrf_token) { anti_csrf_token }
       let(:session_handle) { SecureRandom.uuid }
       let(:user_uuid) { user_verification.credential_identifier }
-      let(:user_verification) { create(:user_verification, user_account:) }
+      let(:user_verification) { create(:user_verification, user_account:, locked:) }
+      let(:locked) { false }
       let(:user_account) { create(:user_account) }
       let!(:session) do
         create(:oauth_session,
@@ -33,23 +34,66 @@ RSpec.describe SignIn::SessionRefresher do
                hashed_refresh_token: session_hashed_refresh_token,
                handle: session_handle,
                user_account:,
+               user_verification:,
                client_id:)
       end
       let(:session_expiration) { Time.zone.now + 5.minutes }
       let(:client_id) { client_config.client_id }
       let(:client_config) do
-        create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:)
+        create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:, enforced_terms:)
       end
       let(:access_token_attributes) { %w[first_name last_name email] }
       let(:anti_csrf) { false }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
+      let(:enforced_terms) { nil }
 
       before { Timecop.freeze(Time.zone.now.floor) }
 
       after { Timecop.return }
 
+      context 'when client config is set to enforce terms' do
+        let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+        context 'and user has accepted current terms of use' do
+          let!(:terms_of_use_agreement) do
+            create(:terms_of_use_agreement, user_account:)
+          end
+
+          it 'does not return an error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+
+        context 'and user has not accepted current terms of use' do
+          let(:expected_error) { SignIn::Errors::TermsOfUseNotAcceptedError }
+          let(:expected_error_message) { 'Terms of Use has not been accepted' }
+
+          it 'returns a terms of use not accepted error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
       context 'when session handle in refresh token matches an existing oauth session' do
         context 'and session is not expired' do
+          context 'expected credential_lock validation' do
+            context 'when the UserVerification is not locked' do
+              it 'does not return an error' do
+                expect { subject }.not_to raise_error
+              end
+            end
+
+            context 'when the UserVerification is locked' do
+              let(:locked) { true }
+              let(:expected_error) { SignIn::Errors::CredentialLockedError }
+              let(:expected_error_message) { 'Credential is locked' }
+
+              it 'returns a credential locked error' do
+                expect { subject }.to raise_error(expected_error, expected_error_message)
+              end
+            end
+          end
+
           context 'and client in session is configured to check for anti csrf' do
             let(:anti_csrf) { true }
 

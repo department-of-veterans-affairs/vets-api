@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
 
 RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
   let(:user) { create(:user, :loa3, icn: '1012846043V576341') }
@@ -20,8 +19,8 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
     after { Timecop.return }
 
     it 'caches the user\'s appointments' do
-      VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
             expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
 
@@ -34,8 +33,8 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
     end
 
     it 'doesn\'t caches the user\'s appointments when failures are encountered' do
-      VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_partial_error',
                            match_requests_on: %i[method uri]) do
             expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
@@ -57,38 +56,6 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
         expect do
           subject.perform(user.uuid)
         end.not_to raise_error
-        expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
-      end
-    end
-
-    context 'with IAM user' do
-      let(:user) { FactoryBot.build(:iam_user) }
-
-      before do
-        allow_any_instance_of(IAMUser).to receive(:icn).and_return('1012846043V576341')
-        iam_sign_in(user)
-      end
-
-      it 'caches the user\'s appointments' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-              expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
-
-              subject.perform(user.uuid)
-
-              expect(Mobile::V0::Appointment.get_cached(user)).not_to be_nil
-            end
-          end
-        end
-      end
-    end
-
-    context 'when user is not found' do
-      it 'caches the expected claims and appeals' do
-        expect do
-          subject.perform('iamtheuuidnow')
-        end.to raise_error(described_class::MissingUserError, 'iamtheuuidnow')
         expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
       end
     end

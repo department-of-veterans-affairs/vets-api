@@ -23,7 +23,8 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
       %i[mhv auth_mhv],
       %i[mhv secure_messaging],
       %i[vaos appointments],
-      %i[vet360 user_profile_update]
+      %i[vet360 user_profile_update],
+      %i[eoas preneed_burial]
     )
   end
 
@@ -33,13 +34,13 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
     end
 
     it 'adds multiple service nodes to the list' do
-      expect(subject.services.size).to eq(24)
+      expect(subject.services.size).to eq(26)
     end
   end
 
   describe '#affected_services' do
     context 'with one window' do
-      let(:mobile_maintenance_evss) { FactoryBot.build(:mobile_maintenance_evss) }
+      let(:mobile_maintenance_evss) { FactoryBot.build(:mobile_maintenance_evss_first) }
       let(:affected_services) { subject.affected_services([mobile_maintenance_evss]) }
 
       it 'finds the api services (leaves) that are downstream from the queried node' do
@@ -60,9 +61,9 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
     end
 
     context 'with two overlapping windows' do
-      let(:maintenance_evss) { FactoryBot.build(:mobile_maintenance_evss) }
+      let(:maintenance_bgs) { FactoryBot.build(:mobile_maintenance_bgs_first) }
       let(:maintenance_mpi) { FactoryBot.build(:mobile_maintenance_mpi) }
-      let(:affected_services) { subject.affected_services([maintenance_evss, maintenance_mpi]) }
+      let(:affected_services) { subject.affected_services([maintenance_bgs, maintenance_mpi]) }
 
       it 'finds the api services (leaves) that are downstream from the queried node' do
         expect(affected_services.keys).to eq(%i[claims direct_deposit_benefits letters_and_documents auth_dslogon
@@ -74,7 +75,7 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
       end
 
       it 'includes downstream windows with the earliest upstream start time' do
-        expect(affected_services[:claims].start_time).to eq(maintenance_evss.start_time)
+        expect(affected_services[:claims].start_time).to eq(maintenance_bgs.start_time)
       end
 
       it 'includes downstream windows with the latest upstream end time' do

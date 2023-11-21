@@ -10,7 +10,7 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
   let(:entity) { instance_double(AskVAApi::Correspondences::Entity) }
   let(:inquiry_number) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
-  let(:criteria) { { inquiry_number: 'A-1' } }
+  let(:payload) { { inquiry_number: 'A-1' } }
 
   before do
     allow(Dynamics::Service).to receive(:new).and_return(service)
@@ -24,32 +24,32 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
 
       it 'raises an ArgumentError' do
         expect { retriever.call }
-          .to raise_error(ErrorHandler::ServiceError, ': Invalid Inquiry Number')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry Number')
       end
     end
 
     context 'when Dynamics raise an error' do
-      let(:criteria) { { inquiry_number: 'A-1' } }
+      let(:payload) { { inquiry_number: 'A-1' } }
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Correspondences::ENDPOINT }
       let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
 
       before do
         allow(service).to receive(:call)
-          .with(endpoint:, criteria:)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError, error_message)
+          .with(endpoint:, payload:)
+          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises an Error' do
         expect do
           retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Bad Request Error: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 
     it 'returns an Entity object with correct data' do
       allow(service).to receive(:call)
-        .with(endpoint: 'get_replies_mock_data', criteria: { inquiry_number: })
+        .with(endpoint: 'get_replies_mock_data', payload: { inquiry_number: })
         .and_return([double])
       expect(retriever.call).to eq(entity)
     end

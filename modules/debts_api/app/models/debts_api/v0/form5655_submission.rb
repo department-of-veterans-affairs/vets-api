@@ -5,32 +5,23 @@ require 'user_profile_attribute_service'
 module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
+    STATS_KEY = 'api.fsr_submission'
     enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true
     belongs_to :user_account, dependent: nil, optional: true
-    has_kms_key version: 2,
-                previous_versions: {
-                  1 => { key_id: KmsEncrypted.key_id }
-                }
-
+    has_kms_key
     has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
 
-    def kms_encryption_context(version:)
-      if version == 1
-        {
-          model_name: model_name.to_s,
-          model_id: id
-        }
-      else
-        {
-          model_name: Form5655Submission.model_name.to_s,
-          model_id: id
-        }
-      end
+    def kms_encryption_context
+      {
+        model_name: Form5655Submission.model_name.to_s,
+        model_id: id
+      }
     end
 
+    scope :with_flags, ->(flag_array) { where("public_metadata -> 'flags' ?| array[:elements]", elements: flag_array) }
     scope :streamlined, -> { where("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
     scope :not_streamlined, -> { where.not("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
     scope :streamlined_unclear, -> { where("(public_metadata -> 'streamlined') IS NULL") }
@@ -62,7 +53,7 @@ module DebtsApi
       batch = Sidekiq::Batch.new
       batch.on(
         :complete,
-        'DebtsApi::V0::Form5655Submission#set_completed_state',
+        'DebtsApi::V0::Form5655Submission#set_vha_completed_state',
         'submission_id' => id
       )
       batch.jobs do
@@ -71,12 +62,14 @@ module DebtsApi
       end
     end
 
-    def set_completed_state(status, options)
+    def set_vha_completed_state(status, options)
       submission = DebtsApi::V0::Form5655Submission.find(options['submission_id'])
       if status.failures.zero?
         submission.submitted!
+        StatsD.increment("#{STATS_KEY}.vha.success")
       else
         submission.failed!
+        StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
     end
@@ -85,6 +78,14 @@ module DebtsApi
       failed!
       update(error_message: message)
       Rails.logger.error('Form5655Submission failed', message)
+      StatsD.increment("#{STATS_KEY}.failure")
+      StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+    end
+
+    def register_success
+      submitted!
+      StatsD.increment("#{STATS_KEY}.success")
+      StatsD.increment("#{STATS_KEY}.combined.success") if public_metadata['combined']
     end
 
     def streamlined?

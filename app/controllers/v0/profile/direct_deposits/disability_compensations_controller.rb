@@ -9,14 +9,16 @@ module V0
   module Profile
     module DirectDeposits
       class DisabilityCompensationsController < ApplicationController
+        service_tag 'direct-deposit'
         before_action :controller_enabled?
         before_action { authorize :lighthouse, :access_disability_compensations? }
+        after_action :log_sso_info, only: :update
 
         rescue_from(*Lighthouse::ServiceException::ERROR_MAP.values) do |exception|
           error = { status: exception.status_code, body: exception.errors.first }
           response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
 
-          log_failure(response)
+          log_stats(response)
 
           render status: response.status, json: response.body
         end
@@ -31,7 +33,6 @@ module V0
 
         def update
           response = client.update_payment_info(payment_account)
-          Rails.logger.info('DisabilityCompensationsController#update request completed', sso_logging_info)
           send_confirmation_email
 
           render status: response.status,
@@ -45,7 +46,7 @@ module V0
           routing_error unless Flipper.enabled?(:profile_lighthouse_direct_deposit, @current_user)
         end
 
-        def log_failure(response)
+        def log_stats(response)
           error = response.body[:errors]&.first
           StatsD.increment(error[:code]) if error
         end
@@ -63,7 +64,7 @@ module V0
         end
 
         def send_confirmation_email
-          VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :comp_and_pen)
+          VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'comp_and_pen')
         end
       end
     end

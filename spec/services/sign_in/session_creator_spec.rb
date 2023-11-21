@@ -14,9 +14,55 @@ RSpec.describe SignIn::SessionCreator do
       let(:validated_credential) { create(:validated_credential, client_config:) }
       let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
       let(:client_id) { client_config.client_id }
-      let(:client_config) { create(:client_config, refresh_token_duration:, access_token_attributes:) }
+      let(:client_config) { create(:client_config, refresh_token_duration:, access_token_attributes:, enforced_terms:) }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
       let(:access_token_attributes) { %w[first_name last_name email] }
+      let(:enforced_terms) { nil }
+
+      context 'expected credential_lock validation' do
+        let(:validated_credential) { create(:validated_credential, client_config:, user_verification:) }
+        let(:user_verification) { create(:user_verification, locked:) }
+        let(:locked) { false }
+        let(:expected_error) { SignIn::Errors::CredentialLockedError }
+        let(:expected_error_message) { 'Credential is locked' }
+
+        context 'when the UserVerification is not locked' do
+          it 'does not return an error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+
+        context 'when the UserVerification is locked' do
+          let(:locked) { true }
+
+          it 'returns a credential locked error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
+      context 'when client config is set to enforce terms' do
+        let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+        context 'and user has accepted current terms of use' do
+          let!(:terms_of_use_agreement) do
+            create(:terms_of_use_agreement, user_account: validated_credential.user_verification.user_account)
+          end
+
+          it 'does not return an error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+
+        context 'and user has not accepted current terms of use' do
+          let(:expected_error) { SignIn::Errors::TermsOfUseNotAcceptedError }
+          let(:expected_error_message) { 'Terms of Use has not been accepted' }
+
+          it 'returns a terms of use not accepted error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
 
       context 'expected anti_csrf_token' do
         let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }

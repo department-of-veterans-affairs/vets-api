@@ -4,35 +4,41 @@ class DynamicsMockService
   class FileNotFound < StandardError; end
   class InvalidJSONContent < StandardError; end
 
-  def initialize(endpoint, method, criteria)
-    @endpoint = endpoint
-    @method = method
-    @criteria = criteria
+  def initialize(icn: nil, logger: nil)
+    @icn = icn
+    @logger = logger
   end
 
-  def call
-    file_path = "modules/ask_va_api/config/locales/#{mock_filename}"
-    data = JSON.parse(File.read(file_path), symbolize_names: true)[:data]
-    filter_mock_data(data)
+  def call(endpoint:, method: :get, payload: {})
+    @payload = payload
+    if method == :get
+      file_path = "modules/ask_va_api/config/locales/#{sanitize_endpoint(endpoint)}"
+      data = JSON.parse(File.read(file_path), symbolize_names: true)[:data]
+      filter_mock_data(data)
+    end
   rescue Errno::ENOENT
-    raise FileNotFound, "Mock file not found for #{@endpoint}"
+    raise FileNotFound, "Mock file not found for #{endpoint}"
   rescue JSON::ParserError
-    raise InvalidJSONContent, "Invalid JSON content for #{@endpoint}"
+    raise InvalidJSONContent, "Invalid JSON content for #{endpoint}"
   end
 
   private
 
-  def mock_filename
-    "#{@endpoint.tr('/', '_')}.json"
+  def sanitize_endpoint(endpoint)
+    "#{endpoint.tr('/', '_')}.json"
   end
 
   def filter_mock_data(data)
-    if @criteria[:inquiry_number]
-      data.find { |i| i[:inquiryNumber] == @criteria[:inquiry_number] } || {}
-    elsif @criteria[:sec_id]
-      data.select { |i| i[:sec_id] == @criteria[:sec_id] }.map { |i| i.except(:attachments) }
-    else
+    if @payload[:inquiry_number]
+      data.find { |i| i[:inquiryNumber] == @payload[:inquiry_number] } || {}
+    elsif @payload[:icn]
+      data.select { |i| i[:icn] == @payload[:icn] }.map { |i| i.except(:attachments) }
+    elsif @payload.blank?
       data
+    else
+      key = @payload.keys.first
+      symbolize_key = key.to_s.gsub(/_([a-z])/) { ::Regexp.last_match(1).upcase }.to_sym
+      data.select { |i| i[symbolize_key] == @payload[key].to_i }
     end
   end
 end
