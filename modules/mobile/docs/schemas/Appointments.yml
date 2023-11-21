@@ -13,6 +13,7 @@ properties:
       - errors
       - minutesCheckinEarlyWindow
       - minutesCheckinLateWindow
+      - upcomingAppointmentsCount
     properties:
       errors:
         type: [array, null]
@@ -28,3 +29,6 @@ properties:
           minutesAfter:
             type: integer
             example: 15
+      upcomingAppointmentsCount:
+        type: number
+        example: 3

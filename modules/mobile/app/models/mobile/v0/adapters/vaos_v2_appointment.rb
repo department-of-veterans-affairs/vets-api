@@ -13,17 +13,13 @@ module Mobile
           va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
         }.freeze
 
-        HIDDEN_STATUS = %w[
-          noshow
-          pending
-        ].freeze
-
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',
           arrived: 'BOOKED',
           cancelled: 'CANCELLED',
-          hidden: 'HIDDEN',
+          noshow: 'HIDDEN',
+          pending: 'HIDDEN',
           proposed: 'SUBMITTED'
         }.freeze
 
@@ -245,8 +241,6 @@ module Mobile
         end
 
         def status
-          return STATUSES[:hidden] if HIDDEN_STATUS.include?(appointment[:status])
-
           STATUSES[appointment[:status].to_sym]
         end
 
