@@ -79,7 +79,30 @@ namespace :redis do
       puts "Highest LOA3: #{loa3}"
       puts "Highest LOA1: #{loa1}"
     end
+
+    desc 'Cached Veteran Status'
+    task vets_cached: :environment do
+      count = 0
+      veteran = 0
+
+      namespace = 'va_profile_veteran_status'
+      redis = $redis
+      redis.scan_each(match: "#{namespace}:*") do |key|
+        count += 1
+        resp = Oj.load(redis.get(key))[:response]
+        veteran += 1 if item&.title38_indicator?(resp.items.first)
+      rescue
+        puts "Couldn't parse #{key}"
+      end
+
+      puts "Total cached responses: #{count}"
+      puts "Veterans: #{veteran}"
+    end
   end
+end
+
+def title38_indicator?(item)
+  item&.respond_to?(:title38_status)
 end
 
 def any_veteran_indicator?(item)

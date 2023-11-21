@@ -32,11 +32,13 @@ module V0
 
       title38_status = begin
         current_user.veteran_status.title38_status
-      rescue EMISRedis::VeteranStatus::RecordNotFound
-        nil
-      rescue => e
-        log_exception_to_sentry(e)
-        raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC010
+      rescue VAProfile::VeteranStatus::VAProfileError => e
+        if e.status == 404
+          nil
+        else
+          log_exception_to_sentry(e)
+          raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC010
+        end
       end
 
       raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC002 if title38_status.blank?
