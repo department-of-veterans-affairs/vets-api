@@ -77,7 +77,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
@@ -111,7 +110,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
@@ -145,7 +143,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               expect_any_instance_of(
@@ -181,7 +178,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
@@ -248,7 +244,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
             Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
 
             mock_acg(scopes) do
@@ -284,7 +279,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
@@ -320,7 +314,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
             allow_any_instance_of(BGS::IntentToFileWebService)
               .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return([])
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
@@ -353,7 +346,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
@@ -421,7 +413,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
@@ -455,7 +446,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
@@ -489,7 +479,6 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
