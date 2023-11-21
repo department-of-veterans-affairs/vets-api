@@ -15,6 +15,7 @@ module MyHealth
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
+        resource = last_refill_date_filter(resource) if params[0] == '-dispensed date'
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         render json: resource.data,
@@ -47,6 +48,16 @@ module MyHealth
         when 'active'
           client.get_active_rxs_with_details
         end
+      end
+
+      def last_refill_date_filter(resource)
+        resource = resource.sort_by do |x|
+          x.rx_rf_records?.rf_record.find do |rf_record|
+            rf_record[:dispensed_date].present?
+          end.present? || x[:dispensed_date].present?
+        end
+
+        Collection.new(Prescription, data: resource, metadata:, errors:)
       end
     end
   end

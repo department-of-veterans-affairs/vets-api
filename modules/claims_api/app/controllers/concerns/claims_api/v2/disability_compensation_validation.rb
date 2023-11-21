@@ -447,11 +447,14 @@ module ClaimsApi
         names
       end
 
-      def validate_treatment_dates(treatments)
+      def validate_treatment_dates(treatments) # rubocop:disable Metrics/MethodLength
         first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
           per['activeDutyBeginDate']
         end
-        first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'], '%Y-%m-%d')
+        if first_service_period['activeDutyBeginDate']
+          first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'],
+                                             '%Y-%m-%d')
+        end
         treatments.each do |treatment|
           next if treatment['beginDate'].nil?
 
@@ -465,7 +468,7 @@ module ClaimsApi
                                      detail: 'Each treatment begin date must be in the format of yyyy-mm or yyyy.'
                                    )
                                  end
-          next if treatment_begin_date >= first_service_date
+          next if first_service_date.blank? || treatment_begin_date >= first_service_date
 
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: "Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'."
@@ -502,11 +505,18 @@ module ClaimsApi
       end
 
       def validate_claim_date_to_active_duty_end_date!(service_information)
-        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
-        if Date.strptime(CLAIM_DATE.to_s,
-                         '%Y-%m-%d') > Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') + 180.days
+        ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
+        unless service_information['servicePeriods'].nil?
+          max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        end
+        max_active_duty_end_date = max_period['activeDutyEndDate']
+        if ant_sep_date.present? && max_active_duty_end_date.present? &&
+           ((Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
+           180.days) || (Date.strptime(ant_sep_date,
+                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
+
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Claim date must be within 180 days of the last active duty end date.'
+            detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
           )
         end
       end
@@ -598,6 +608,9 @@ module ClaimsApi
 
           service_periods = service_information&.dig('servicePeriods')
           earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
+
+          next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
+
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
           if begin_date_is_after_end_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                            approximate_begin_date)
@@ -615,10 +628,13 @@ module ClaimsApi
         end
       end
 
-      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods)
+      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
         service_periods.each do |sp|
-          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d')
-          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d')
+          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
+          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
+
+          next if active_duty_begin_date.blank? || active_duty_end_date.blank? # nothing to compare against
+
           begin_date_has_day = date_has_day?(approximate_begin_date)
           end_date_has_day = date_has_day?(approximate_end_date)
           if begin_date_has_day && end_date_has_day
@@ -639,6 +655,8 @@ module ClaimsApi
       end
 
       def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
+        return if service_begin.blank? || service_end.blank?
+
         conf_begin.between?(service_begin, service_end) &&
           conf_end.between?(service_begin, service_end)
       end
