@@ -98,6 +98,7 @@ module Avs
           end
         end
         property :radiologyReports1Yr, type: :string
+        property :moreHelpAndInformation, type: :string
       end
     end
     # rubocop:enable Metrics/BlockLength

@@ -76,6 +76,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           va_medications: [],
           lab_results: [],
           radiology_reports1_yr: nil,
+          more_help_and_information: nil,
           discrete_data: {
             temp: [
               {
@@ -125,6 +126,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           va_medications: [],
           lab_results: [],
           radiology_reports1_yr: nil,
+          more_help_and_information: nil,
           discrete_data: nil
         }
       )

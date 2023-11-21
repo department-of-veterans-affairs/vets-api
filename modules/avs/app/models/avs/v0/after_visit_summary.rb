@@ -31,6 +31,7 @@ module Avs
     attribute :lab_results, Array
     attribute :radiology_reports1_yr, String
     attribute :discrete_data, Object
+    attribute :more_help_and_information, String
 
     def initialize(data)
       super(data)
