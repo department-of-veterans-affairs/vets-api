@@ -156,7 +156,9 @@ describe V2::Chip::Service do
     end
 
     context 'when token is present but CHIP returns error' do
-      let(:resp) { Faraday::Response.new(response_body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
+      let(:resp) do
+        Faraday::Response.new(response_body: { 'title' => 'An error was encountered.' }.to_json, status: 500)
+      end
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
