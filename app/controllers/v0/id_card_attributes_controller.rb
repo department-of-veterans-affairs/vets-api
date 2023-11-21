@@ -5,6 +5,7 @@ require 'vic/id_card_attribute_error'
 
 module V0
   class IdCardAttributesController < ApplicationController
+    service_tag 'veteran-id-card'
     before_action :authorize
 
     def show
