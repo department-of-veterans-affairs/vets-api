@@ -62,7 +62,7 @@ module Lighthouse
         text_only: true
       )
 
-      response = BenefitsIntakeService::Service.new.validate_document(doc_path: stamped_path)
+      response = BenefitsIntakeService::Service.new.validate_document(pdf_path: stamped_path)
       raise PensionBenefitIntakeError, "Invalid Document: #{response}" unless response.success?
 
       stamped_path
