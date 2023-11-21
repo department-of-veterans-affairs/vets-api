@@ -907,6 +907,10 @@ features:
   show_meb_service_history_categorize_disagreement:
     actor_type: user
     enable_in_development: false
+  meb_exclusion_period_enabled:
+    actor_type: user
+    description: enables exclusion period checks
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
