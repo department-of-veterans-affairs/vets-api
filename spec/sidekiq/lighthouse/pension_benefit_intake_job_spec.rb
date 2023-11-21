@@ -23,14 +23,15 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(service).to receive(:upload_form).and_return(response)
     end
 
-    it 'submits the saved claim' do
+    it 'submits the saved claim successfully' do
       doc = { file: pdf_path, file_name: 'pdf' }
 
       expect(claim).to receive(:to_pdf)
       expect(job).to receive(:process_pdf).with(pdf_path)
       expect(job).to receive(:generate_form_metadata_lh).once
       expect(service).to receive(:upload_form).with(
-        main_document: doc, attachments: [], form_metadata: anything)
+        main_document: doc, attachments: [], form_metadata: anything
+      )
       expect(job).to receive(:check_success).with(response)
 
       expect(job).to receive(:cleanup_file_paths)
@@ -44,9 +45,11 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       expect(claim).not_to receive(:to_pdf)
       expect { job.perform(claim.id) }.to raise_error(
         Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        "Unable to find SavedClaim::Pension #{claim.id}")
+        "Unable to find SavedClaim::Pension #{claim.id}"
+      )
     end
-  end # perform
+    # perform
+  end
 
   describe '#process_pdf' do
     let(:service) { double('service') }
@@ -60,8 +63,11 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) { run_count += 1; pdf_path }
-      allow(response).to receive(:success?) { true }
+      allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run) {
+                                                            run_count += 1
+                                                            pdf_path
+                                                          }
+      allow(response).to receive(:success?).and_return(true)
 
       new_path = job.process_pdf('test/path')
 
@@ -71,13 +77,15 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     it 'raises an error on invalid document' do
       allow_any_instance_of(CentralMail::DatestampPdf).to receive(:run)
-      allow(response).to receive(:success?) { false }
+      allow(response).to receive(:success?).and_return(false)
 
       expect { job.process_pdf('test/path') }.to raise_error(
         Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        "Invalid Document: #{response.to_s}")
+        "Invalid Document: #{response}"
+      )
     end
-  end # process_pdf
+    # process_pdf
+  end
 
   describe '#generate_form_metadata_lh' do
     before do
@@ -86,22 +94,23 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     it 'returns expected hash' do
       expect(job.generate_form_metadata_lh).to include(
-        veteran_first_name: be_a_kind_of(String),
-        veteran_last_name: be_a_kind_of(String),
-        file_number: be_a_kind_of(String),
-        zip: be_a_kind_of(String),
-        doc_type: be_a_kind_of(String),
-        claim_date: be_a_kind_of(ActiveSupport::TimeWithZone)
+        veteran_first_name: be_a(String),
+        veteran_last_name: be_a(String),
+        file_number: be_a(String),
+        zip: be_a(String),
+        doc_type: be_a(String),
+        claim_date: be_a(ActiveSupport::TimeWithZone)
       )
     end
-  end # generate_form_metadata_lh
+    # generate_form_metadata_lh
+  end
 
   describe '#check_success' do
     let(:response) { double('response') }
 
     it 'sends a confirmation email on success' do
       job.instance_variable_set(:@claim, claim)
-      allow(response).to receive(:success?) { true }
+      allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
       job.check_success(response)
@@ -110,13 +119,16 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     it 'does not send an email on failure' do
       job.instance_variable_set(:@claim, claim)
 
-      allow(response).to receive(:message) { 'TEST RESPONSE' }
-      allow(response).to receive(:success?) { false }
+      allow(response).to receive(:message).and_return('TEST RESPONSE')
+      allow(response).to receive(:success?).and_return(false)
 
       expect(claim).not_to receive(:send_confirmation_email)
       expect { job.check_success(response) }.to raise_error(
         Lighthouse::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        response.to_s)
+        response.to_s
+      )
     end
-  end # check_success
-end # Rspec.describe
+    # check_success
+  end
+  # Rspec.describe
+end

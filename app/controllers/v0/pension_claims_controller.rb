@@ -34,6 +34,5 @@ module V0
       clear_saved_form(claim.form_id)
       render(json: claim)
     end
-
   end
 end

@@ -25,7 +25,7 @@ module BenefitsIntakeService
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
     def validate_document(doc_path:)
-      headers = {'Content-Type': 'application/pdf'}
+      headers = { 'Content-Type': 'application/pdf' }
       request_body = File.read(doc_path, mode: 'rb')
       perform :post, 'uploads/validate_document', request_body, headers
     end

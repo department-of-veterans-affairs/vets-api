@@ -16,16 +16,14 @@ module Lighthouse
 
     def perform(saved_claim_id)
       @claim = SavedClaim::Pension.find(saved_claim_id)
-      unless @claim
-        raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}"
-      end
+      raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @form_path = process_pdf(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
       lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt', claim_id: @claim.id,
-                          uuid: lighthouse_service.uuid })
+      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt',
+                          claim_id: @claim.id, uuid: lighthouse_service.uuid })
 
       response = lighthouse_service.upload_form(
         main_document: split_file_and_path(@form_path),
@@ -52,9 +50,7 @@ module Lighthouse
       )
 
       response = BenefitsIntakeService::Service.new.validate_document(doc_path: stamped_path)
-      unless response.success?
-        raise PensionBenefitIntakeError, "Invalid Document: #{response.to_s}"
-      end
+      raise PensionBenefitIntakeError, "Invalid Document: #{response}" unless response.success?
 
       stamped_path
     end
@@ -89,7 +85,7 @@ module Lighthouse
 
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
-      @attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) } if @attachment_paths
+      @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
   end
 end
