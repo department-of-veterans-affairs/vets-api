@@ -41,9 +41,10 @@ module ClaimsApi
       ews.bgs_error_message = nil if ews.bgs_error_message.present?
       ClaimsApi::EvidenceWaiverSubmission::UPDATED
     rescue => e
-      error_message = "Failed to update suspense dates for claim #{ews.claim_id}: #{e.message}, #{e.class}"
+      error_message = "Failed to update suspense dates for claim #{ews.claim_id}: #{e.message}"
       ClaimsApi::Logger.log('ews_updater', ews_id: ews.id,
-                                           detail: error_message)
+                                           detail: error_message,
+                                           error_class: e.class)
       ClaimsApi::EvidenceWaiverSubmission::ERRORED
     end
 

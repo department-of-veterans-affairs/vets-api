@@ -37,7 +37,8 @@ module ClaimsApi
         error_message = get_error_message(e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "BD failure #{e.class}: #{error_message}")
+                         "BD failure: #{error_message}",
+                         e.class)
         log_exception_to_sentry(e)
 
         raise e

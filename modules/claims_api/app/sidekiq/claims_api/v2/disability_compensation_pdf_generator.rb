@@ -64,7 +64,8 @@ module ClaimsApi
 
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator faraday error #{error_status} #{error_message}",
+                         e.class)
         log_exception_to_sentry(e)
 
         raise e
@@ -75,7 +76,8 @@ module ClaimsApi
 
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e.class}: #{error_status} #{error_message}")
+                         "526EZ PDF generator errored #{error_status} #{error_message}",
+                         e.class)
         log_exception_to_sentry(e)
 
         raise e
@@ -84,7 +86,8 @@ module ClaimsApi
 
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e.class}: #{e}")
+                         "526EZ PDF generator errored #{e}",
+                         e.class)
         log_exception_to_sentry(e)
 
         raise e

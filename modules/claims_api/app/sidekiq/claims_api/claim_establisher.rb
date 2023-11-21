@@ -60,7 +60,8 @@ module ClaimsApi
     rescue ::Common::Exceptions::BackendServiceException => e
       ClaimsApi::Logger.log('claims_establisher',
                             retry: false,
-                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}, #{e.class}")
+                            error_class: e.class,
+                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}")
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
       auto_claim.form_data = orig_form_data

@@ -45,7 +45,8 @@ module ClaimsApi
 
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Docker container job errored #{e.class}: #{error_status} #{error_message}")
+                         "Docker container job errored: #{error_status} #{error_message}",
+                         error_class: e.class)
 
         log_exception_to_sentry(e)
 
@@ -57,7 +58,8 @@ module ClaimsApi
 
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Docker container job errored #{e.class}: #{error_message}")
+                         "Docker container job errored: #{error_message}",
+                         error_class: e.class)
         log_exception_to_sentry(e)
         # if will_retry?
         if will_retry?(e)
@@ -70,7 +72,8 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Docker container job errored #{e.class}: #{e&.detailed_message}")
+                         "Docker container job errored: #{e&.detailed_message}",
+                         error_class: e.class)
         log_exception_to_sentry(e)
 
         raise e

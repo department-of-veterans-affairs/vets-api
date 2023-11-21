@@ -54,7 +54,8 @@ module ClaimsApi
     rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
       ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
-                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
+                            error_class: e.class,
+                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}.")
       raise e
     # Permanent failures, don't retry
     rescue => e
@@ -65,7 +66,8 @@ module ClaimsApi
                 end
       ClaimsApi::Logger.log('benefits_documents',
                             retry: false,
-                            detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
+                            error_class: e.class,
+                            detail: "/upload failure for claimId #{claim&.id}: #{message}.")
       {}
     end
 

@@ -93,10 +93,11 @@ module ClaimsApi
         ClaimsApi::AutoEstablishedClaim::ERRORED
       end
 
-      def log_job_progress(tag, claim_id, detail)
+      def log_job_progress(tag, claim_id, detail, error_class = nil)
         ClaimsApi::Logger.log(tag,
                               claim_id:,
-                              detail:)
+                              detail:,
+                              error_class:)
       end
     end
   end
