@@ -1884,6 +1884,7 @@ spec/support/vcr_cassettes/rx_client @department-of-veterans-affairs/vfs-mhv-med
 spec/support/vcr_cassettes/s3 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/saml @department-of-veterans-affairs/vsp-identity
 spec/support/vcr_cassettes/search @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+spec/support/vcr_cassettes/search_click_tracking @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/search_typeahead @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/shared @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/slack/slack_bot_notify.yml @department-of-veterans-affairs/vsp-identity
