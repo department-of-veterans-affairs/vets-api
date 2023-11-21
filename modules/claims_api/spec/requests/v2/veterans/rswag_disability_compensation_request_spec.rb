@@ -451,7 +451,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
         response '200', 'post pdf response' do
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -478,7 +477,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
