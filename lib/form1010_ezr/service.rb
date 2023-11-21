@@ -26,6 +26,13 @@ module Form1010Ezr
       @user = user
     end
 
+    def submit_async(parsed_form)
+      HCA::EzrSubmissionJob.perform_async(
+        HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
+        HealthCareApplication.get_user_identifier(@user)
+      )
+    end
+
     def submit_sync(parsed_form)
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
       content = Gyoku.xml(formatted)
