@@ -6,6 +6,7 @@ require 'va_profile/address_validation/service'
 module AskVAApi
   module V0
     class AddressValidationController < ApplicationController
+      skip_before_action :authenticate
       service_tag 'profile'
 
       def create
