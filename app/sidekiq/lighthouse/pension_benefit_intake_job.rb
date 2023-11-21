@@ -14,6 +14,13 @@ module Lighthouse
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
 
+    # Process claim pdfs and upload to Benefits Intake API
+    # https://developer.va.gov/explore/api/benefits-intake/docs
+    #
+    # On success send confirmation email
+    # Raises PensionBenefitIntakeError
+    #
+    # @param [Integer] saved_claim_id
     def perform(saved_claim_id)
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
@@ -40,6 +47,12 @@ module Lighthouse
       cleanup_file_paths
     end
 
+    # Create a temp stamped PDF, validate the PDF satisfies Benefits Intake specification
+    #
+    # Raises PensionBenefitIntakeError if PDF is invalid
+    #
+    # @param [String] pdf_path
+    # @return [String] path to temp stamped PDF
     def process_pdf(pdf_path)
       stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
       stamped_path = CentralMail::DatestampPdf.new(stamped_path).run(
@@ -55,10 +68,18 @@ module Lighthouse
       stamped_path
     end
 
+    # Format doc path to send in upload to Benefits Intake API
+    #
+    # @param [String] path
+    # @return [Hash] { file:, file_name: }
     def split_file_and_path(path)
       { file: path, file_name: path.split('/').last }
     end
 
+    # Generate form metadata to send in upload to Benefits Intake API
+    #
+    # @see SavedClaim.parsed_form
+    # @return [Hash]
     def generate_form_metadata_lh
       form = @claim.parsed_form
       veteran_full_name = form['veteranFullName']
@@ -74,6 +95,11 @@ module Lighthouse
       }
     end
 
+    # Check benefits service upload_form response. On success send confirmation email.
+    #
+    # Raises PensionBenefitIntakeError unless response.success?
+    #
+    # @param [Object] response
     def check_success(response)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: @claim.id })
@@ -83,6 +109,7 @@ module Lighthouse
       end
     end
 
+    # Delete temporary stamped PDF files for this instance.
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }

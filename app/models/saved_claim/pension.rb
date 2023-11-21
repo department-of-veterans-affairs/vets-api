@@ -31,6 +31,9 @@ class SavedClaim::Pension < CentralMailClaim
     )
   end
 
+  # Send this Pension claim to the Lighthouse Benefit Intake API
+  # https://developer.va.gov/explore/api/benefits-intake/docs
+  # @see Lighthouse::PensionBenefitIntakeJob
   def upload_to_lighthouse
     Lighthouse::PensionBenefitIntakeJob.perform_async(id)
   end
