@@ -201,7 +201,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           error = appeal.errors.first
           expect(error.attribute)
             .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
-          expect(error.message).to eq 'endDate: 2023-11-18 can not be after submission date: 2023-11-17.'
+          expect(error.message).to eq "endDate: #{end_date} can not be after submission date: #{Time.zone.today}."
         end
       end
     end
