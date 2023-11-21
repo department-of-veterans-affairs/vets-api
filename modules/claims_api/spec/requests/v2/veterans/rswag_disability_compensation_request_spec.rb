@@ -32,7 +32,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
         **A substantially complete 526EZ claim must include:**
         * Veteran's name
-        * Sufficient service information for VA to verify the claimed service, if applicable
+        * Sufficient service information for VA to verify the claimed service
         * At least one claimed disability or medical condition and how it relates to service
         * Veteran and/or Representative signature
 
