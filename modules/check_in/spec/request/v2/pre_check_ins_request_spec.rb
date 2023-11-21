@@ -236,7 +236,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           end
         end
         expect(response.status).to eq(success_resp.status)
-        expect(response.body).to eq(success_resp.env.response_body.to_json)
+        expect(response.body).to eq(success_resp.body.to_json)
       end
     end
 
@@ -279,7 +279,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           end
         end
         expect(response.status).to eq(error_resp.status)
-        expect(response.body).to eq(error_resp.env.response_body.to_json)
+        expect(response.body).to eq(error_resp.body.to_json)
       end
     end
 
@@ -322,7 +322,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           end
         end
         expect(response.status).to eq(error_resp.status)
-        expect(response.body).to eq(error_resp.env.response_body.to_json)
+        expect(response.body).to eq(error_resp.body.to_json)
       end
     end
 
@@ -333,7 +333,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       it 'returns unauthorized response' do
         post '/check_in/v2/pre_check_ins', params: post_params
 
-        expect(response.body).to eq(unauth_response.env.response_body.to_json)
+        expect(response.body).to eq(unauth_response.body.to_json)
         expect(response.status).to eq(unauth_response.status)
       end
     end
