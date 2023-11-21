@@ -28,7 +28,8 @@ module ClaimsApi
         rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
           ClaimsApi::Logger.log('claims_establisher',
                                 retry: true,
-                                detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}, #{e.class}")
+                                detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}",
+                                error_class: e.class)
           raise e
         end
 

@@ -13,13 +13,18 @@ module ClaimsApi
       level = pick_level(**params)
       params.delete(:level)
       msg = format_msg(tag, **params)
+      err_class = get_error_class(**params)
 
-      Rails.logger.send(level, msg)
+      Rails.logger.send(level, msg, err_class)
       msg
     end
 
     def self.pick_level(**params)
       params.key?(:level) && params[:level].to_sym.in?(LEVELS) ? params[:level].to_sym : :info
+    end
+
+    def self.get_error_class(**params)
+      params.key?(:error_class) ? params[:error_class] : ''
     end
 
     # rubocop:disable Metrics/MethodLength
