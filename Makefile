@@ -136,6 +136,6 @@ endif
 up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"
 
-.PHONY native
+.PHONY: native
 native:
 	foreman start -m all=1,clamd=0,freshclam=0
