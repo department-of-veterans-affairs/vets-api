@@ -5,6 +5,7 @@ require 'sentry_logging'
 module TestUserDashboard
   class ApplicationController < ActionController::API
     include SentryLogging
+    include Traceable
 
     def require_jwt
       token = request.headers['JWT']
