@@ -24,14 +24,11 @@ module ClaimsApi
           mhv_icn: veteran_id,
           loa:
         )
-        # populate missing veteran attributes with their mpi record
-        found_record = target_veteran.mpi_record?(user_key: veteran_id)
-        unless found_record
-          raise ::Common::Exceptions::ResourceNotFound.new(detail:
-                                                             "Unable to locate Veteran's ID/ICN " \
-                                                             'in Master Person Index (MPI). ' \
-                                                             'Please submit an issue at ask.va.gov ' \
-                                                             'or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        unless target_veteran.mpi_record?(user_key: veteran_id)
+          raise ::Common::Exceptions::ResourceNotFound.new(
+            detail: "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
+                    'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+          )
         end
         populate_target_veteran(mpi_profile_from(target_veteran), target_veteran)
       end
@@ -39,17 +36,40 @@ module ClaimsApi
       def mpi_profile_from(target_veteran)
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
         if mpi_profile[:participant_id].blank?
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-                                                                "Unable to locate Veteran's Participant ID " \
-                                                                'in Master Person Index (MPI). ' \
-                                                                'Please submit an issue at ask.va.gov ' \
-                                                                'or call 1-800-MyVA411 (800-698-2411) for assistance.')
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+                    'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+          )
         end
         mpi_profile
       end
 
-      # Determine if the current authenticated user is an accredited representative
-      # @return [boolean] True if current user is an accredited representative, false otherwise
+      def user_is_target_veteran?
+        return false if params[:veteranId].blank?
+        return false if @current_user.icn.blank?
+        return false if target_veteran&.mpi&.icn.blank?
+        return false unless params[:veteranId] == target_veteran.mpi.icn
+
+        @current_user.icn == target_veteran.mpi.icn
+      end
+
+      def user_represents_veteran?
+        reps = ::Veteran::Service::Representative.all_for_user(
+          first_name: @current_user.first_name,
+          last_name: @current_user.last_name
+        )
+
+        return false if reps.blank?
+        return false if reps.count > 1
+
+        rep = reps.first
+        veteran_poa_code = ::Veteran::User.new(target_veteran)&.power_of_attorney&.code
+
+        return false if veteran_poa_code.blank?
+
+        rep.poa_codes.include?(veteran_poa_code)
+      end
+
       def user_is_representative?
         return if @is_valid_ccg_flow
 
