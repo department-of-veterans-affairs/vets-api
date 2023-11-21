@@ -8,6 +8,8 @@ AskVAApi::Engine.routes.draw do
     # inquiries
     get '/inquiries', to: 'inquiries#index'
     get '/inquiries/:inquiry_number', to: 'inquiries#show'
+    post '/inquiries/auth', to: 'inquiries#create'
+    post '/inquiries', to: 'inquiries#unauth_create'
 
     # static_data
     get '/categories', to: 'static_data#categories'
