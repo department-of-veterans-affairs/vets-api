@@ -4,6 +4,7 @@ require 'terms_of_use/exceptions'
 
 module V0
   class TermsOfUseAgreementsController < ApplicationController
+    service_tag 'terms-of-use'
     skip_before_action :authenticate
 
     before_action :terms_authenticate

@@ -4,6 +4,7 @@
 
 module V0
   class ExampleController < ApplicationController
+    service_tag 'platform-base'
     before_action :authenticate, only: [:welcome]
 
     def index
