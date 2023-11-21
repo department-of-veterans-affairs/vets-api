@@ -190,6 +190,9 @@ development: &defaults
   vanotify_confirmation_email_store:
     namespace: confirmation_email
     each_ttl: 600 # 10 minutes
+  va_profile_veteran_status:
+    namespace: va_profile_veteran_status
+    each_ttl: 86400
 test:
   <<: *defaults
   redis:

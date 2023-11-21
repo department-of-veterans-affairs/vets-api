@@ -250,6 +250,11 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
+  veteran_status:
+    cache_enabled: true
+    enabled: true
+    timeout: 30
+    mock: false
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
