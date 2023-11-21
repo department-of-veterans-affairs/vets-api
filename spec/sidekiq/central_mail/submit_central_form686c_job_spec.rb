@@ -87,7 +87,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           'document' => 'faraday1'
         ).and_return(OpenStruct.new(success?: success, body:))
 
-        expect(File).to receive(:delete).with(path)
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
       end
 
       context 'with an response error' do
@@ -152,10 +152,10 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         expect(lighthouse_mock).to receive(:upload_form).with(
           main_document: { file: path, file_name: 'pdf_path' },
           attachments: [],
-          form_metadata: hash_including(fileNumber: '796104437')
+          form_metadata: hash_including(file_number: '796104437')
         ).and_return(OpenStruct.new(success?: success, data:))
 
-        expect(File).to receive(:delete).with(path)
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
       end
 
       context 'with an response error' do

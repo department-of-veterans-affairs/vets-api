@@ -2,6 +2,7 @@
 
 module DhpConnectedDevices
   class ApidocsController < ApplicationController
+    service_tag 'connected-devices'
     skip_before_action :authenticate
 
     def index

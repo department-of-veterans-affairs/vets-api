@@ -71,9 +71,7 @@ module SwaggerSharedComponents
             'config',
             'schemas',
             'v2',
-            'request_bodies',
-            'disability_compensation',
-            'request.json'
+            '526.json'
           )
         )
       )
@@ -123,8 +121,16 @@ module SwaggerSharedComponents
           required: true,
           schema: {
             type: :object,
-            required: disability_compensation_json_schema['required'],
-            properties: disability_compensation_json_schema['properties'],
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', disability_compensation_json_schema['required']],
+                properties: {
+                  attributes: disability_compensation_json_schema
+                }
+              }
+            },
             example: disability_compensation_request_body_example
           }
         },
@@ -152,6 +158,45 @@ module SwaggerSharedComponents
                     )
                   )
                 }
+              }
+            }
+          }
+        }
+      }
+    end
+
+    def self.schemas # rubocop:disable Metrics/MethodLength
+      disability_compensation_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '526.json'
+          )
+        )
+      )
+
+      {
+        disability_compensation: {
+          name: 'data',
+          required: ['data'],
+          properties: {
+            data: {
+              type: :object,
+              required: %w[id type attributes],
+              properties: {
+                id: {
+                  type: 'string',
+                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
+                },
+                type: {
+                  type: 'string',
+                  example: 'form/526'
+                },
+                attributes: disability_compensation_json_schema.except('$schema')
               }
             }
           }

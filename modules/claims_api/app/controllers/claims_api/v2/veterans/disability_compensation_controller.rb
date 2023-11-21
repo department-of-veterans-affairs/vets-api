@@ -5,6 +5,7 @@ require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
+require 'claims_api/v2/disability_compensation_documents'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
 
@@ -15,21 +16,18 @@ module ClaimsApi
         include ClaimsApi::V2::DisabilityCompensationValidation
 
         FORM_NUMBER = '526'
-        EVSS_DOCUMENT_TYPE = 'L023'
 
+        skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit # rubocop:disable Metrics/MethodLength
+        def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers:,
-            form_data: form_attributes,
+            auth_headers:, form_data: form_attributes,
             flashes:,
-            cid: token.payload['cid'],
-            veteran_icn: target_veteran.mpi.icn,
+            cid: token.payload['cid'], veteran_icn: target_veteran.mpi.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           )
-
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
@@ -37,66 +35,59 @@ module ClaimsApi
             existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
+          auto_claim.save!
 
           if auto_claim.errors.present?
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           track_pact_counter auto_claim
-          pdf_data = get_pdf_data
-          pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
 
-          if auto_claim.evss_id.nil?
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
-            evss_data = evss_mapper_service(auto_claim).map_claim
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
-            evss_res = evss_service.submit(auto_claim, evss_data)
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Successfully submitted to EVSS',
-                                            evss_id: evss_res[:claimId])
-            auto_claim.update(evss_id: evss_res[:claimId],
-                              validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD)
-          else
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
-                                            evss_id: auto_claim.evss_id)
-          end
+          # This kicks off the first of three jobs required to fully establish the claim
+          process_claim(auto_claim)
 
-          ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
-          pdf_string = generate_526_pdf(pdf_data)
-          ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
-          if pdf_string.empty?
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
-          elsif pdf_string
-            file_name = "#{SecureRandom.hex}.pdf"
-            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-            upload = ActionDispatch::Http::UploadedFile.new({
-                                                              filename: file_name,
-                                                              type: 'application/pdf',
-                                                              tempfile: File.open(path)
-                                                            })
-            auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
-            auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
-            auto_claim.save!
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
-            ::Common::FileHelpers.delete_file_if_exists(path)
-            ClaimsApi::ClaimUploader.perform_async(auto_claim.id)
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to VBMS')
-          end
-          get_benefits_documents_auth_token unless Rails.env.test?
-
-          render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
+          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
+            auto_claim, root: :data
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
         def validate
           render json: valid_526_response
         end
 
-        def attachments; end
+        def attachments
+          if params.keys.select { |key| key.include? 'attachment' }.count > 10
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.')
+          end
 
-        def get_pdf
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
+
+          documents_service(params, claim).process_documents
+
+          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
+            claim, root: :data
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
+        end
+
+        def generate_pdf
           # Returns filled out 526EZ form as PDF
+          render json: { data: { attributes: {} } } # place holder
         end
 
         private
+
+        def process_claim(auto_claim)
+          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
+            auto_claim.id,
+            veteran_middle_initial # PDF mapper just needs middle initial
+          )
+        end
+
+        # Only value required by background jobs that is missing in headers is middle name
+        def veteran_middle_initial
+          @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : ''
+        end
 
         def flashes
           veteran_flashes = []
@@ -114,6 +105,10 @@ module ClaimsApi
           validate_form_526_submission_values!(target_veteran)
         end
 
+        def documents_service(params, claim)
+          ClaimsApi::V2::DisabilityCompensationDocuments.new(params, claim)
+        end
+
         def valid_526_response
           {
             data: {
@@ -123,20 +118,6 @@ module ClaimsApi
               }
             }
           }
-        end
-
-        def generate_526_pdf(pdf_data)
-          pdf_data[:data] = pdf_data[:data][:attributes]
-          client = PDFClient.new(pdf_data.to_json)
-          client.generate_pdf
-        end
-
-        def pdf_mapper_service(auto_claim, pdf_data, target_veteran)
-          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data, target_veteran)
-        end
-
-        def evss_mapper_service(auto_claim)
-          ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, @file_number)
         end
 
         def track_pact_counter(claim)
@@ -150,20 +131,6 @@ module ClaimsApi
             ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
                                               consumer_label: token.payload['label'] || token.payload['cid']
           end
-        end
-
-        def evss_service
-          ClaimsApi::EVSSService::Base.new(request)
-        end
-
-        def get_pdf_data
-          {
-            data: {}
-          }
-        end
-
-        def benefits_doc_api
-          ClaimsApi::BD.new
         end
       end
     end

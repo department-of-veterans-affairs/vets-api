@@ -61,7 +61,8 @@ module V2
       # @return [Hash] unauthorized message if token is not present
       def create_check_in
         resp = if token.present?
-                 chip_client.check_in_appointment(token:, appointment_ien: check_in_body[:appointment_ien])
+                 chip_client.check_in_appointment(token:, appointment_ien: check_in_body[:appointment_ien],
+                                                  travel_params:)
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -130,11 +131,13 @@ module V2
       # @return [Faraday::Response] response from CHIP
       # @return [Faraday::Response] unauthorized message if token is not present
       def set_echeckin_started
-        if token.present?
-          chip_client.set_echeckin_started(token:, appointment_attributes:)
-        else
-          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
-        end
+        resp = if token.present?
+                 chip_client.set_echeckin_started(token:, appointment_attributes:)
+               else
+                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+               end
+
+        response.build(response: resp).handle
       end
 
       # Call the CHIP API to confirm demographics. A CHIP token is required
@@ -244,6 +247,13 @@ module V2
         }
       end
 
+      def travel_params
+        {
+          isTravelEnabled: check_in_body[:is_travel_enabled],
+          travelSubmitted: check_in_body[:travel_submitted]
+        }
+      end
+
       def demographic_confirmations
         confirmed_at = Time.zone.now.iso8601
 
@@ -275,7 +285,7 @@ module V2
 
         {
           stationNo: hashed_identifiers[:stationNo].to_s,
-          appointmentIen: hashed_identifiers[:appointmentIen]
+          appointmentIen: hashed_identifiers[:appointmentIEN].to_s
         }
       end
 

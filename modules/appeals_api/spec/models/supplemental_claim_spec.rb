@@ -327,6 +327,26 @@ describe AppealsApi::SupplementalClaim, type: :model do
       it { expect(sc_with_nvc.lob).to eq 'CMP' }
     end
 
+    describe '#submit_evidence_to_central_mail!' do
+      let(:supplemental_claim) { create(:supplemental_claim) }
+      let(:evidence_submission1) { create(:evidence_submission, supportable: supplemental_claim) }
+      let(:evidence_submission2) { create(:evidence_submission, supportable: supplemental_claim) }
+      let(:evidence_submissions) { [evidence_submission1, evidence_submission2] }
+
+      before do
+        allow(supplemental_claim).to receive(:evidence_submissions).and_return(evidence_submissions)
+        allow(evidence_submission1).to receive(:submit_to_central_mail!)
+        allow(evidence_submission2).to receive(:submit_to_central_mail!)
+      end
+
+      it 'calls "#submit_to_central_mail!" for each evidence submission' do
+        supplemental_claim.submit_evidence_to_central_mail!
+
+        expect(evidence_submission1).to have_received(:submit_to_central_mail!)
+        expect(evidence_submission2).to have_received(:submit_to_central_mail!)
+      end
+    end
+
     context 'appellant handling' do
       describe '#veteran' do
         subject { sc_with_nvc.veteran }
@@ -399,6 +419,64 @@ describe AppealsApi::SupplementalClaim, type: :model do
           full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
           supplemental_claim.auth_headers['X-VA-Last-Name'] = full_last_name
           expect(supplemental_claim.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+        end
+      end
+    end
+  end
+
+  describe 'callbacks' do
+    describe 'before_update' do
+      before { allow(supplemental_claim).to receive(:submit_evidence_to_central_mail!) }
+
+      context 'when the status has changed to "success"' do
+        let(:supplemental_claim) { create(:supplemental_claim, status: 'processing') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'calls "#submit_evidence_to_central_mail!"' do
+            supplemental_claim.update(status: 'success')
+
+            expect(supplemental_claim).to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+
+        context 'and the delay evidence feature is disabled' do
+          before { Flipper.disable(:decision_review_delay_evidence) }
+
+          it 'does not call "#submit_evidence_to_central_mail!"' do
+            supplemental_claim.update(status: 'success')
+
+            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+
+      context 'when the status has not changed' do
+        let(:supplemental_claim) { create(:supplemental_claim, status: 'success') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'does not call "#submit_evidence_to_central_mail!"' do
+            supplemental_claim.update(source: 'VA.gov')
+
+            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+
+      context 'when the status has changed but not to "success"' do
+        let(:supplemental_claim) { create(:supplemental_claim, status: 'submitted') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'does not call "submit_evidence_to_central_mail!"' do
+            supplemental_claim.update(status: 'processing')
+
+            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
+          end
         end
       end
     end

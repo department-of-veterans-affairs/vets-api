@@ -112,6 +112,7 @@ Layout/LineContinuationSpacing:
     - 'app/controllers/v1/sessions_controller.rb'
     - 'app/models/in_progress_form.rb'
     - 'app/swagger/swagger/requests/health_care_applications.rb'
+    - 'app/swagger/swagger/requests/form1010_ezrs.rb'
     - 'app/swagger/swagger/requests/profile.rb'
     - 'app/swagger/swagger/requests/user.rb'
     - 'app/sidekiq/cypress_viewport_updater/viewport.rb'
@@ -854,7 +855,6 @@ RSpec/Rails/HaveHttpStatus:
     - 'spec/requests/pension_claims_controller_spec.rb'
     - 'spec/requests/ppiu_request_spec.rb'
     - 'spec/requests/service_history_request_spec.rb'
-    - 'spec/requests/terms_and_conditions_request_spec.rb'
     - 'spec/requests/user_request_spec.rb'
     - 'spec/requests/v0/in_progress_forms/5655_request_spec.rb'
     - 'spec/requests/v0/lgy_coe_request_spec.rb'
@@ -1246,7 +1246,6 @@ Rails/UniqueValidationWithoutIndex:
   Exclude:
     - 'app/models/gibs_not_found_user.rb'
     - 'app/models/invalid_letter_address_edipi.rb'
-    - 'app/models/terms_and_conditions_acceptance.rb'
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
 
@@ -1517,6 +1516,7 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'app/models/concerns/redis_caching.rb'
     - 'app/models/form_profile.rb'
     - 'lib/common/client/base.rb'
+    - 'lib/common/client/concerns/mhv_fhir_session_client.rb'
     - 'lib/common/client/concerns/mhv_jwt_session_client.rb'
     - 'lib/common/client/concerns/mhv_session_based_client.rb'
     - 'lib/common/models/base.rb'

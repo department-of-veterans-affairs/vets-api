@@ -96,3 +96,13 @@ identity_dashboard_service_account_config.update!(service_account_id: vaid_servi
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
                                                   certificates: [vaid_certificate])
+
+# Create Service Account Config for Chatbot
+chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '88a6d94a3182fd63279ea5565f26bcb4')
+chatbot.update!(
+  description: 'Chatbot',
+  scopes: ['http://localhost:3000/v0/map_services/chatbot/token'],
+  access_token_audience: 'http://localhost:3001',
+  access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  certificates: [File.read('spec/fixtures/sign_in/sample_service_account.crt')]
+)

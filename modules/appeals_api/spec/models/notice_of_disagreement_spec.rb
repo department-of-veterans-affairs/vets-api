@@ -75,6 +75,64 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  describe 'callbacks' do
+    describe 'before_update' do
+      before { allow(notice_of_disagreement).to receive(:submit_evidence_to_central_mail!) }
+
+      context 'when the status has changed to "success"' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'processing') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'calls "#submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(status: 'success')
+
+            expect(notice_of_disagreement).to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+
+        context 'and the delay evidence feature is disabled' do
+          before { Flipper.disable(:decision_review_delay_evidence) }
+
+          it 'does not call "#submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(status: 'success')
+
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+
+      context 'when the status has not changed' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'success') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'does not call "#submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(source: 'VA.gov')
+
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+
+      context 'when the status has changed but not to "success"' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'submitted') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'does not call "submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(status: 'processing')
+
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+    end
+  end
+
   # rubocop:disable Layout/LineLength
   describe '#validate_hearing_type_selection' do
     context "when board review option 'hearing' selected" do
@@ -209,6 +267,26 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   describe '#stamp_text' do
     it { expect(notice_of_disagreement.stamp_text).to eq 'Doe - 6789' }
+  end
+
+  describe '#submit_evidence_to_central_mail!' do
+    let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+    let(:evidence_submission1) { create(:evidence_submission, supportable: notice_of_disagreement) }
+    let(:evidence_submission2) { create(:evidence_submission, supportable: notice_of_disagreement) }
+    let(:evidence_submissions) { [evidence_submission1, evidence_submission2] }
+
+    before do
+      allow(notice_of_disagreement).to receive(:evidence_submissions).and_return(evidence_submissions)
+      allow(evidence_submission1).to receive(:submit_to_central_mail!)
+      allow(evidence_submission2).to receive(:submit_to_central_mail!)
+    end
+
+    it 'calls "#submit_to_central_mail!" for each evidence submission' do
+      notice_of_disagreement.submit_evidence_to_central_mail!
+
+      expect(evidence_submission1).to have_received(:submit_to_central_mail!)
+      expect(evidence_submission2).to have_received(:submit_to_central_mail!)
+    end
   end
 
   it_behaves_like 'an appeal model with updatable status' do

@@ -5,6 +5,8 @@
     "middle": "V.",
     "last": "Party, III"
   },
+  "third_party_preparer_role": "other",
+  "other_third_party_preparer_role": "Secret agent",
   "preparer_identification": "THIRD_PARTY_SURVIVING_DEPENDENT",
   "surviving_dependent_full_name": {
     "first": "I",
@@ -40,7 +42,7 @@
     "relationship_to_veteran": "other"
   },
   "benefit_selection": {
-    "survivors": true
+    "survivor": true
   },
   "statement_of_truth_signature": "Preparer V. Party, III",
   "statement_of_truth_certified": true

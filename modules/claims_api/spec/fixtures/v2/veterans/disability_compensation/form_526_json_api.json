@@ -28,30 +28,30 @@
         "servicePeriods": [
           {
             "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "11-14-2008",
-            "activeDutyEndDate": "11-30-2021",
+            "activeDutyBeginDate": "2008-11-14",
+            "activeDutyEndDate": "2023-10-30",
             "serviceComponent": "Active",
             "separationLocationCode": "98282"
           }
         ],
         "confinements": [
           {
-            "approximateBeginDate": "06-04-2018",
-            "approximateEndDate": "06-04-2018"
+            "approximateBeginDate": "2018-06-04",
+            "approximateEndDate": "2018-07-04"
           },
           {
-            "approximateBeginDate": "06-2020",
-            "approximateEndDate": "06-2020"
+            "approximateBeginDate": "2020-06",
+            "approximateEndDate": "2020-07"
           }
         ],
         "federalActivation": {
-          "anticipatedSeparationDate": "10-03-6705",
-          "activationDate": "02-11-3619"
+          "anticipatedSeparationDate": "2023-10-31",
+          "activationDate": "2023-10-01"
         },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
-            "beginDate": "06-04-2019",
-            "endDate": "06-04-2020"
+            "beginDate": "2019-06-04",
+            "endDate": "2020-06-04"
           },
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
@@ -71,7 +71,7 @@
           "name": "Traumatic Brain Injury",
           "classificationCode": "9014",
           "serviceRelevance": "ABCDEFG",
-          "approximateDate": "03-11-2018",
+          "approximateDate": "2018-03-11",
           "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
           "diagnosticCode": 9020,
           "secondaryDisabilities": [
@@ -80,7 +80,7 @@
               "disabilityActionType": "SECONDARY",
               "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
               "classificationCode": "9014",
-              "approximateDate": "03-12-2018",
+              "approximateDate": "2018-03-12",
               "exposureOrEventOrInjury": "EXPOSURE"
             }
           ],
@@ -92,7 +92,7 @@
           "name": "Cancer - Musculoskeletal - Elbow",
           "classificationCode": "9014",
           "serviceRelevance": "ABCDEFG",
-          "approximateDate": "03-02-2018",
+          "approximateDate": "2018-03-02",
           "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
           "diagnosticCode": 249470,
           "isRelatedToToxicExposure": true,
@@ -112,11 +112,10 @@
       ],
       "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-      "claimDate": "2023-02-18",
       "changeOfAddress": {
         "dates": {
-          "beginDate": "11-30-2012",
-          "endDate": "10-11-2013"
+          "beginDate": "2023-06-04",
+          "endDate": "2023-12-04"
         },
         "typeOfAddressChange": "TEMPORARY",
         "addressLine1": "10 Peach St",
@@ -143,31 +142,31 @@
         "gulfWarHazardService": {
           "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
+            "beginDate": "2018-07",
+            "endDate": "2018-08"
           }
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "ABCDEFGHIJKLM",
           "serviceDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
+            "beginDate": "2018-07",
+            "endDate": "2018-08"
           }
         },
         "additionalHazardExposures": {
           "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
+            "beginDate": "2018-07",
+            "endDate": "2018-08"
           }
         },
         "multipleExposures": [
           {
             "exposureDates": {
-              "beginDate": "12-2012",
-              "endDate": "07-2013"
+              "beginDate": "2012-12",
+              "endDate": "2013-07"
             },
             "exposureLocation": "Guam",
             "hazardExposedTo": "RADIATION"
@@ -186,7 +185,7 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-2009"
+          "beginDate": "2009-03"
         }
       ],
       "servicePay": {
@@ -202,7 +201,7 @@
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "receivedSeparationOrSeverancePay": "NO",
         "separationSeverancePay": {
-          "datePaymentReceived": "03-12-2022",
+          "datePaymentReceived": "2022-03-12",
           "branchOfService": "Naval Academy",
           "preTaxAmountReceived": 379.25
         }

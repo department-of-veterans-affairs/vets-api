@@ -32,7 +32,7 @@
   "F[0].Page_1[0].ClaimantsSocialSecurityNumber_SecondTwoNumbers[0]": "<%= data.dig('surviving_dependent_id', 'ssn')&.[](3..4) %>",
   "F[0].Page_1[0].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]": "<%= data.dig('surviving_dependent_id', 'ssn')&.[](0..2) %>",
   "F[0].Page_1[0].RadioButtonList[0]": "<%= data.dig('surviving_dependent_id', 'va_file_number') ? 1 : 2 %>",
-  "F[0].Page_1[0].VA_File_Number[1]": "<%= data.dig('surviving_dependent_id', 'va_file_number') %>",
+  "F[0].Page_1[0].VA_File_Number[1]": "<%= data.dig('surviving_dependent_id', 'va_file_number') || '' %>",
   "F[0].Page_1[0].RadioButtonList[1]": "<%= ['', 'spouse', 'child']&.find_index(data.dig('relationship_to_veteran', 'relationship_to_veteran')) %>",
   "F[0].Page_1[0].RelationshipToVeteranOther_Specify[0]": "<%= ['parent', 'executor', 'other'].include?(data.dig('relationship_to_veteran', 'relationship_to_veteran')) ? data.dig('relationship_to_veteran', 'relationship_to_veteran') : '' %>",
   "F[0].Page_1[0].Mailing_Address_ZIPOrPostalCode_LastFourNumbers[0]": "<%= data.dig('surviving_dependent_mailing_address', 'postal_code')&.[](5..8) %>",
@@ -56,11 +56,11 @@
 
   "F[0].#subform[1].PENSION[0]": "<%= data.dig('benefit_selection', 'pension') ? 1 : 0 %>",
   "F[0].#subform[1].COMPENSATION[0]": "<%= data.dig('benefit_selection', 'compensation') ? 1 : 0 %>",
-  "F[0].#subform[1].SURVIVORS_PENSION_AND_OR_DEPENDENCY_AND_INDEMNITY_COMPENSATION_DIC[0]": "<%= data.dig('benefit_selection', 'survivors') ? 1 : 0 %>",
+  "F[0].#subform[1].SURVIVORS_PENSION_AND_OR_DEPENDENCY_AND_INDEMNITY_COMPENSATION_DIC[0]": "<%= data.dig('benefit_selection', 'survivor') ? 1 : 0 %>",
   "F[0].#subform[1].SignatureField1[0]": "",
   "F[0].#subform[1].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
   "F[0].#subform[1].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
   "F[0].#subform[1].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "F[0].#subform[1].Name_Of_Attorney_Agent_Or_Veterans_Service_Organization_VS[0]": "<%= (data.dig('third_party_preparer_full_name', 'first') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'middle') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'last') || '') %>",
+  "F[0].#subform[1].Name_Of_Attorney_Agent_Or_Veterans_Service_Organization_VS[0]": "<%= (data.dig('third_party_preparer_full_name', 'first') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'middle') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'last') || '') + ', ' + (data['third_party_preparer_role'] == 'other' ? (data['other_third_party_preparer_role'] || '') : data['third_party_preparer_role'] || '') %>",
   "F[0]": "<%= data.dig('F') %>"
 }

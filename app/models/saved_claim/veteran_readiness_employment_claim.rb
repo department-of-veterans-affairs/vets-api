@@ -112,32 +112,26 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     if user&.participant_id.blank?
+      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
       send_to_central_mail!(user)
     else
       begin
         upload_to_vbms
         send_vbms_confirmation_email(user)
       rescue => e
-        log_message_to_sentry('Error uploading VRE claim to VBMS', :warn)
-        log_exception_to_sentry(e)
-        send_to_central_mail!(user)
+        log_message_to_sentry('Error uploading VRE claim to VBMS', :warn, { uuid: user.uuid })
+        log_exception_to_sentry(e, { uuid: user.uuid })
+        begin
+          send_to_central_mail!(user)
+        rescue => e
+          log_message_to_sentry('Error uploading VRE claim to central mail after failure uploading claim to vbms',
+                                :warn, { uuid: user.uuid })
+          log_exception_to_sentry(e, { uuid: user.uuid })
+        end
       end
     end
 
-    @office_location = check_office_location[0] if @office_location.nil?
-
-    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
-
-    log_message_to_sentry('Not delivering VRE email for VRE Claim submission, form 28-1900', :warn) if user.blank?
-
-    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
-
-    # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
-    # send the data to them. We always send a pdf to VBMS
-    return unless PERMITTED_OFFICE_LOCATIONS.include?(@office_location)
-
-    service = VRE::Ch31Form.new(user:, claim: self)
-    service.submit
+    send_vre_email_form(user)
   end
 
   def upload_to_vbms(doc_type: '1167')
@@ -170,6 +164,27 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     send_central_mail_confirmation_email(user)
+  end
+
+  def send_vre_email_form(user)
+    @office_location = check_office_location[0] if @office_location.nil?
+
+    log_message_to_sentry("VRE claim office location: #{@office_location}",
+                          :info, { uuid: user.uuid })
+
+    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+
+    log_message_to_sentry("VRE claim email: #{email_addr}, sent to cmp: #{@sent_to_cmp} #{user.present?}",
+                          :info, { uuid: user.uuid })
+
+    VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
+
+    # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
+    # send the data to them. We always send a pdf to VBMS
+    return unless PERMITTED_OFFICE_LOCATIONS.include?(@office_location)
+
+    service = VRE::Ch31Form.new(user:, claim: self)
+    service.submit
   end
 
   # SavedClaims require regional_office to be defined

@@ -9,31 +9,12 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options retry: false
+    attr_reader :claim, :user, :in_progress_copy, :user_uuid, :saved_claim_id, :vet_info
 
-    # rubocop:disable Metrics/MethodLength
-    def perform(user_uuid, icn, saved_claim_id, vet_info)
-      Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
-      in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
-      in_progress_copy = in_progress_form_copy(in_progress_form)
-      claim_data = valid_claim_data(saved_claim_id, vet_info)
-      normalize_names_and_addresses!(claim_data)
-      user = generate_user_struct(vet_info['veteran_information'])
+    sidekiq_options retry: 14
 
-      BGS::Form686c.new(user).submit(claim_data)
-
-      # If Form 686c job succeeds, then enqueue 674 job.
-      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      user_struct_hash = user.to_h
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash) if claim.submittable_674? # rubocop:disable Layout/LineLength
-
-      send_confirmation_email(user)
-      in_progress_form&.destroy
-
-      Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
-    rescue => e
-      Rails.logger.error('BGS::SubmitForm686cJob failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
-      log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
+    sidekiq_retries_exhausted do |msg|
+      Rails.logger.error('BGS::SubmitForm686cJob failed!', { user_uuid:, saved_claim_id:, icn: @icn, error: msg })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
         user ||= generate_user_struct(vet_info['veteran_information'])
@@ -44,12 +25,42 @@ module BGS
         DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
       end
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def perform(user_uuid, icn, saved_claim_id, vet_info)
+      Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
+
+      @vet_info = vet_info
+      @user = generate_user_struct
+      @user_uuid = user_uuid
+      @saved_claim_id = saved_claim_id
+
+      in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
+      @in_progress_copy = in_progress_form_copy(in_progress_form)
+
+      claim_data = normalize_names_and_addresses!(valid_claim_data)
+
+      BGS::Form686c.new(user, claim).submit(claim_data)
+
+      # If Form 686c job succeeds, then enqueue 674 job.
+      user_struct_hash = user.to_h
+      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash) if claim.submittable_674? # rubocop:disable Layout/LineLength
+
+      send_confirmation_email
+      in_progress_form&.destroy
+      Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
+    rescue => e
+      Rails.logger.warn('BGS::SubmitForm686cJob received error!',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
+      @icn = icn
+
+      raise
+    end
 
     private
 
-    def valid_claim_data(saved_claim_id, vet_info)
-      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+    def valid_claim_data
+      @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
       claim.add_veteran_info(vet_info)
 
@@ -58,7 +69,7 @@ module BGS
       claim.formatted_686_data(vet_info)
     end
 
-    def send_confirmation_email(user)
+    def send_confirmation_email
       return if user.va_profile_email.blank?
 
       VANotify::ConfirmationEmail.send(
@@ -69,18 +80,20 @@ module BGS
       )
     end
 
-    def generate_user_struct(vet_info)
+    def generate_user_struct
+      info = vet_info['veteran_information']
+      full_name = info['full_name']
       OpenStruct.new(
-        first_name: vet_info['full_name']['first'],
-        last_name: vet_info['full_name']['last'],
-        middle_name: vet_info['full_name']['middle'],
-        ssn: vet_info['ssn'],
-        email: vet_info['email'],
-        va_profile_email: vet_info['va_profile_email'],
-        participant_id: vet_info['participant_id'],
-        icn: vet_info['icn'],
-        uuid: vet_info['uuid'],
-        common_name: vet_info['common_name']
+        first_name: full_name['first'],
+        last_name: full_name['last'],
+        middle_name: full_name['middle'],
+        ssn: info['ssn'],
+        email: info['email'],
+        va_profile_email: info['va_profile_email'],
+        participant_id: info['participant_id'],
+        icn: info['icn'],
+        uuid: info['uuid'],
+        common_name: info['common_name']
       )
     end
   end

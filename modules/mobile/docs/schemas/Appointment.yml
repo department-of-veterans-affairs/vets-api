@@ -14,6 +14,7 @@ properties:
     type: object
     required:
       - appointmentType
+      - appointmentIen
       - cancelId
       - comment
       - clinicId
@@ -21,6 +22,7 @@ properties:
       - healthcareProvider
       - healthcareService
       - location
+      - physicalLocation
       - minutesDuration
       - phoneOnly
       - startDateLocal
@@ -31,7 +33,6 @@ properties:
       - vetextId
       - reason
       - isCovidVaccine
-      - appointmentIEN
       - locationId
       - eCheckinAllowed
     properties:
@@ -39,6 +40,9 @@ properties:
         type: string
         enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE, VA_VIDEO_CONNECT_ONSITE ]
         example: VA
+      appointmentIen:
+        type: string
+        example: 19648
       cancelId:
         type: string
         example: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
@@ -113,6 +117,9 @@ properties:
           code:
             type: string
             example: GL32C
+      physicalLocation:
+        type: string
+        example: Blind Rehabilitation Center
       minutesDuration:
         type: integer
         example: 60
@@ -175,8 +182,6 @@ properties:
       serviceCategoryName:
         type: string
         example: "COMPENSATION & PENSION"
-      appointmentIEN:
-        type: string
       locationId:
         type: string
         example: '983'

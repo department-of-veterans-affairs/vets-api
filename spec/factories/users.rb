@@ -448,5 +448,18 @@ FactoryBot.define do
       vha_facility_ids {}
       vha_facility_hash {}
     end
+
+    trait :with_terms_of_use_agreement do
+      after(:build) do |user, _context|
+        verification = create(:idme_user_verification, idme_uuid: user.idme_uuid)
+        create(:terms_of_use_agreement, user_account: verification.user_account)
+      end
+    end
+
+    trait :idme_lock do
+      after(:build) do |user, _context|
+        create(:idme_user_verification, idme_uuid: user.idme_uuid, locked: true)
+      end
+    end
   end
 end

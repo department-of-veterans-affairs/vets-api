@@ -79,6 +79,7 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = perform(:post, appointments_base_path, params, headers)
+          convert_appointment_time(response.body)
           log_telehealth_data(response.body) unless response.body[:telehealth].nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -92,6 +93,7 @@ module VAOS
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
           response = perform(:put, url_path, params, headers)
+          convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
       end
@@ -147,8 +149,8 @@ module VAOS
       # Extracts the station number and appointment IEN from an Appointment.
       #
       # Given an appointment, this method will check the identifiers, find the identifier associated
-      # with 'VistADefinedTerms/409_84' and return the identifier value as a two-item array
-      # (split on the ':' character). If there is no such identifier, it will return nil.
+      # with 'VistADefinedTerms/409_84' or 'VistADefinedTerms/409_85' and return the identifier value
+      # as a two-item array (split on the ':' character). If there is no such identifier, it will return nil.
       #
       # @param [Hash] appointment The appointment object to find the identifier in.
       # This Hash must include an :identifier key.
@@ -158,7 +160,8 @@ module VAOS
       def extract_station_and_ien(appointment)
         return nil if appointment[:identifier].nil?
 
-        identifier = appointment[:identifier].find { |id| id[:system]&.include? 'VistADefinedTerms/409_84' }
+        regex = %r{VistADefinedTerms/409_(84|85)}
+        identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
 
         return if identifier.nil?
 

@@ -130,6 +130,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'skips POA check when :stem_automated_decision flag is on' do
+        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.after_submit(evss_user)
@@ -140,6 +141,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'skips POA check for user without an EDIPI' do
+        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.after_submit(no_edipi_evss_user)
@@ -150,6 +152,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'sets claim poa for evss user without poa' do
+        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.after_submit(evss_user)
@@ -163,6 +166,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'sets claim poa for evss user with poa' do
+        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.after_submit(evss_user)

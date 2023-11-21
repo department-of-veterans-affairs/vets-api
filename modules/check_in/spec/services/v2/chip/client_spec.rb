@@ -56,6 +56,7 @@ describe V2::Chip::Client do
     let(:response) { Faraday::Response.new(body: 'success', status: 200) }
     let(:token) { 'abc123' }
     let(:appointment_ien) { '4567' }
+    let(:travel_params) { { is_travel_enabled: true, travel_submitted: false } }
 
     before do
       allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(response)
@@ -65,11 +66,11 @@ describe V2::Chip::Client do
       expect_any_instance_of(Faraday::Connection).to receive(:post)
         .with("/dev/actions/check-in/#{uuid}").and_yield(Faraday::Request.new)
 
-      subject.check_in_appointment(token:, appointment_ien:)
+      subject.check_in_appointment(token:, appointment_ien:, travel_params:)
     end
 
     it 'returns success response' do
-      expect(subject.check_in_appointment(token:, appointment_ien:)).to eq(response)
+      expect(subject.check_in_appointment(token:, appointment_ien:, travel_params:)).to eq(response)
     end
   end
 
@@ -219,9 +220,8 @@ describe V2::Chip::Client do
       it 'handles the exception and returns original error' do
         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
 
-        response = subject.set_echeckin_started(token:, appointment_attributes:)
-        expect(response.status).to eq(resp.status)
-        expect(response.body).to eq(resp.body)
+        expect { subject.set_echeckin_started(token:, appointment_attributes:) }
+          .to raise_error Common::Exceptions::BackendServiceException
       end
     end
   end

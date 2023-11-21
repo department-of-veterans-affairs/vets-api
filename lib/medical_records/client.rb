@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/client/concerns/mhv_jwt_session_client'
+require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
 
@@ -10,7 +10,7 @@ module MedicalRecords
   # Core class responsible for Medical Records API interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::Concerns::MHVJwtSessionClient
+    include Common::Client::Concerns::MhvFhirSessionClient
 
     # Default number of records to request per call when searching
     DEFAULT_COUNT = 9999
@@ -73,7 +73,10 @@ module MedicalRecords
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
-      result = fhir_client.search(FHIR::Patient, search: { parameters: { identifier: } })
+      result = fhir_client.search(FHIR::Patient, {
+                                    search: { parameters: { identifier: } },
+                                    headers: { 'Cache-Control': 'no-cache' }
+                                  })
       resource = result.resource
       handle_api_errors(result) if resource.nil?
       resource
@@ -81,7 +84,10 @@ module MedicalRecords
 
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance,
-                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } })
+                           {
+                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 

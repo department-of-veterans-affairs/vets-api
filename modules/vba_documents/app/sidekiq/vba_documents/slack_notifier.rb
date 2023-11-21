@@ -42,12 +42,19 @@ module VBADocuments
       results = ''
       statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded'] - ['success']
       statuses.each do |status|
-        model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
-        next unless model
+        uploads = if status == 'uploaded' && delay_appeals_evidence_enabled?
+                    UploadSubmission.not_from_appeals_api
+                  else
+                    UploadSubmission.all
+                  end
 
-        start_time = model.metadata['status'][status]['start']
+        upload = uploads.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
+
+        next unless upload
+
+        start_time = upload.metadata['status'][status]['start']
         duration = distance_of_time_in_words(Time.now.to_i - start_time)
-        results += "\n\tStatus \'#{status}\' for #{duration} (GUID: #{model.guid})"
+        results += "\n\tStatus \'#{status}\' for #{duration} (GUID: #{upload.guid})"
       end
 
       notify_slack('Status Report (worst offenders over past week)', results)
@@ -55,7 +62,10 @@ module VBADocuments
     end
 
     def upload_stalled_alert
-      alert_on = fetch_stuck_in_state(['uploaded'], @upload_hungtime, :minutes)
+      # Exclude Appeals API evidence submissions as these stay in "uploaded" much longer,
+      # by design (we wait to submit to CMP until the associated appeal is in a sufficient status)
+      exclude_appeals_api = delay_appeals_evidence_enabled?
+      alert_on = fetch_stuck_in_state(['uploaded'], @upload_hungtime, :minutes, exclude_appeals_api:)
       message = 'GUIDS in uploaded for too long! (Top 10 shown)'
       alert(alert_on, message)
     end
@@ -117,13 +127,15 @@ module VBADocuments
       end
     end
 
-    def fetch_stuck_in_state(statuses, hungtime, unit_of_measure)
+    def fetch_stuck_in_state(statuses, hungtime, unit_of_measure, exclude_appeals_api: false)
       alerting_on = {}
       status_counts = {}
       statuses.each do |status|
-        status_counts[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status).count
-        alerting_on[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status)
-                                              .limit(AGED_PROCESSING_QUERY_LIMIT).map do |m|
+        uploads = UploadSubmission.aged_processing(hungtime, unit_of_measure, status)
+        uploads = uploads.not_from_appeals_api if exclude_appeals_api
+
+        status_counts[status] = uploads.count
+        alerting_on[status] = uploads.limit(AGED_PROCESSING_QUERY_LIMIT).map do |m|
           last_notified = m.metadata['last_slack_notification'].to_i # nil to zero
           delta = Time.now.to_i - last_notified
           notify = delta > @renotify_time * 60
@@ -142,6 +154,10 @@ module VBADocuments
         details: results
       }
       VBADocuments::Slack::Messenger.new(slack_details).notify!
+    end
+
+    def delay_appeals_evidence_enabled?
+      Flipper.enabled?(:decision_review_delay_evidence)
     end
   end
 end

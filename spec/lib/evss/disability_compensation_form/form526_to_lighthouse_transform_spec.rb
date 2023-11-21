@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/form526_to_lighthouse_transform'
 
 RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
-  let(:transformer) { EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new }
+  let(:transformer) { subject }
 
   describe '#transform' do
     let(:submission) { create(:form526_submission, :with_everything) }
@@ -16,7 +16,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     end
 
     context 'when claim_date is provided' do
-      let(:claim_date) { Date.new(2023, 7, 19) }
+      let(:claim_date) { Date.new(2023, 7, 19).strftime('%Y-%m-%d') }
 
       it 'sets claim_date in the Lighthouse request body' do
         data['form526']['claimDate'] = claim_date
@@ -35,7 +35,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.claimant_certification).to eq(true)
       expect(result.claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
       expect(result.veteran_identification.class).to eq(Requests::VeteranIdentification)
+
       expect(result.change_of_address.class).to eq(Requests::ChangeOfAddress)
+      expect(result.change_of_address.dates.begin_date).to eq('2018-02-01')
+      expect(result.change_of_address.dates.end_date).to eq('2018-06-30')
+
       expect(result.homeless.class).to eq(Requests::Homeless)
       expect(result.service_information.class).to eq(Requests::ServiceInformation)
       expect(result.disabilities.first.class).to eq(Requests::Disability)
@@ -98,10 +102,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
     it 'sets veteran identification correctly' do
       result = transformer.transform_veteran(data['form526']['veteran'])
-      expect(result.currently_va_employee).to eq(false)
+      expect(result.current_va_employee).to eq(false)
       expect(result.email_address).not_to be_nil
       expect(result.veteran_number).not_to be_nil
       expect(result.mailing_address).not_to be_nil
+    end
+
+    it 'sets military/intl address correctly' do
+      data['form526']['veteran']['currentMailingAddress']['militaryPostOfficeTypeCode'] = 'APO'
+      data['form526']['veteran']['currentMailingAddress']['militaryStateCode'] = 'AE'
+      data['form526']['veteran']['currentMailingAddress']['internationalPostalCode'] = '817'
+
+      result = transformer.transform_veteran(data['form526']['veteran'])
+      expect(result.mailing_address.city).to eq('APO')
+      expect(result.mailing_address.state).to eq('AE')
+      expect(result.mailing_address.zip_first_five).to eq('817')
     end
   end
 
@@ -112,6 +127,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'sets change of address correctly' do
       result = transformer.transform_change_of_address(data['form526']['veteran'])
       expect(result.city).to eq('Portland')
+      expect(result.dates).not_to be_nil
+    end
+
+    it 'sets military/intl address correctly' do
+      data['form526']['veteran']['changeOfAddress']['militaryPostOfficeTypeCode'] = 'APO'
+      data['form526']['veteran']['changeOfAddress']['militaryStateCode'] = 'AE'
+      data['form526']['veteran']['changeOfAddress']['internationalPostalCode'] = '817'
+
+      result = transformer.transform_change_of_address(data['form526']['veteran'])
+      expect(result.city).to eq('APO')
+      expect(result.state).to eq('AE')
+      expect(result.zip_first_five).to eq('817')
       expect(result.dates).not_to be_nil
     end
   end
@@ -139,6 +166,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.confinements).not_to be_nil
       expect(result.alternate_names).not_to be_nil
       expect(result.reserves_national_guard_service).not_to be_nil
+      expect(result.reserves_national_guard_service.receiving_inactive_duty_training_pay).to be('YES')
       expect(result.service_periods.first.separation_location_code).to eq('OU812')
       expect(result.reserves_national_guard_service.component).to eq('Reserves')
     end
@@ -165,9 +193,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'converts approximate dates' do
       result = transformer.send(:convert_approximate_date,
                                 JSON.parse({ month: '03', day: '22', year: '1973' }.to_json))
-      expect(result).to eq('03-22-1973')
+      expect(result).to eq('1973-03-22')
       result = transformer.send(:convert_approximate_date, JSON.parse({ month: '03', year: '1973' }.to_json))
-      expect(result).to eq('03-1973')
+      expect(result).to eq('1973-03')
     end
   end
 
@@ -204,8 +232,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_service_pay, data)
       expect(result.favor_training_pay).to eq(true)
       expect(result.favor_military_retired_pay).to eq(false)
-      expect(result.receiving_military_retired_pay).to eq(true)
-      expect(result.future_military_retired_pay).to eq(true)
+      expect(result.receiving_military_retired_pay).to eq('YES')
+      expect(result.future_military_retired_pay).to eq('YES')
 
       # military retired mappings
       expect(result.military_retired_pay.class).to eq(Requests::MilitaryRetiredPay)
@@ -213,8 +241,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.military_retired_pay.monthly_amount).to eq(500.00)
 
       # separation severance pay mappings
-      expect(result.retired_status).to eq('Retired')
-      expect(result.received_separation_or_severance_pay).to eq(true)
+      expect(result.retired_status).to eq('RETIRED')
+      expect(result.received_separation_or_severance_pay).to eq('YES')
       expect(result.separation_severance_pay.class).to eq(Requests::SeparationSeverancePay)
       expect(result.separation_severance_pay.date_payment_received).to eq('2000')
       expect(result.separation_severance_pay.branch_of_service).to eq('Air Force')

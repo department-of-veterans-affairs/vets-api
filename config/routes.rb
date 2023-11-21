@@ -100,7 +100,9 @@ Rails.application.routes.draw do
     resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
-    resource :user, only: [:show]
+    resource :user, only: [:show] do
+      get 'icn', to: 'users#icn'
+    end
     resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -160,6 +162,7 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
+    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
@@ -327,6 +330,7 @@ Rails.application.routes.draw do
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
       resources :communication_preferences, only: %i[index create update]
+      resources :contacts, only: %i[index]
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
@@ -346,11 +350,6 @@ Rails.application.routes.draw do
     resources :backend_statuses, param: :service, only: %i[index show]
 
     resources :apidocs, only: [:index]
-
-    get 'terms_and_conditions', to: 'terms_and_conditions#index'
-    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
-    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
-    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
     get 'feature_toggles', to: 'feature_toggles#index'
 
@@ -372,7 +371,11 @@ Rails.application.routes.draw do
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+    put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
+
+    resources :form1010_ezrs, only: %i[create]
   end
+  # end /v0
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]

@@ -6,20 +6,23 @@ module TermsOfUse
   class SignUpServiceUpdaterJob
     include Sidekiq::Job
 
+    sidekiq_options unique_for: 2.days
     sidekiq_options retry: 15 # 2.1 days using exponential backoff
 
     sidekiq_retries_exhausted do |job, exception|
       Rails.logger.warn(
-        "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job['name']} " \
+        "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job['class']} " \
         "with args #{job['args']}: #{exception.message}"
       )
     end
 
-    attr_reader :terms_of_use_agreement, :signature_name
+    attr_reader :icn, :signature_name, :version
 
-    def perform(terms_of_use_agreement_id, signature_name)
-      @terms_of_use_agreement = TermsOfUseAgreement.find(terms_of_use_agreement_id)
+    def perform(icn, signature_name, version)
+      @icn = icn
       @signature_name = signature_name
+      @version = version
+
       terms_of_use_agreement.accepted? ? accept : decline
     end
 
@@ -33,12 +36,8 @@ module TermsOfUse
       MAP::SignUp::Service.new.agreements_decline(icn:)
     end
 
-    def icn
-      @icn ||= terms_of_use_agreement.user_account.icn
-    end
-
-    def version
-      @version ||= terms_of_use_agreement.agreement_version
+    def terms_of_use_agreement
+      UserAccount.find_by(icn:).terms_of_use_agreements.where(agreement_version: version).last
     end
   end
 end

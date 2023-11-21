@@ -26,15 +26,18 @@ idme:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
 
-mobile_application_platform:
+map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
+  check_in_client_id: bc75b71c7e67
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/map/oauth.crt
   client_key_path: spec/fixtures/map/oauth.key
   sign_up_service_url: https://cerner.apps-staging.va.gov
   sign_up_service_provisioning_api_key: abcd1234
   secure_token_service:
+    mock: true
+  sign_up_service:
     mock: true
 
 # Settings for new SAML authentication with SSOe
@@ -45,7 +48,9 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  logout_url: https://int.eauth.va.gov/slo/globallogout
+  logout_app_key: https://ssoe-sp-dev.va.gov
+  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
   request_signing: false
   relay: ~
   response_signing: false
@@ -73,6 +78,7 @@ sign_in:
 
 terms_of_use:
   current_version: v1
+  provisioner_cookie_domain: localhost
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -247,6 +253,13 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
+  health_benefit:
+    mock: true
+  disability:
+    cache_enabled: false
+    enabled: true
+    timeout: 30
+    mock: false
 
 # Settings for IHub
 ihub:
@@ -631,6 +644,23 @@ vba_documents:
     registration_next_run_in_minutes: 15
     registration_max_retries: 3
 
+#Settings for Ask VA Api Module
+ask_va_api:
+  dynamics_api:
+    auth_url: https://login.microsoftonline.us
+    base_url: https://dev.integration.d365.va.gov
+    client_id: client_id
+    client_secret: secret
+    veis_api_path: veis/vagov.lob.ava/api
+    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    ocp_apim_subscription_key: subscription_key
+    redis_token_expiry: 3540 # 59 minutes
+    mock: true
+    service_name: VEIS-API
+  authentication:
+    max_auth_retry_limit: 3
+    retry_attempt_expiry: 604800 # 7 Days
+    
 #Settings for Claims Api Module
 claims_api:
   pdf_generator_526:
@@ -911,6 +941,7 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: "peer"
+  url: "https://something.fake.va.gov"
 
 directory:
   url: http://example.com/services/apps/v0/
@@ -1269,7 +1300,9 @@ vanotify:
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
+        form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
@@ -1518,6 +1551,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
+  ep_merge_path: employee-experience/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1642,3 +1676,4 @@ avs:
 
 brd:
   api_key: 'fake_key'
+  base_name: 'https://something.fake.va.gov'

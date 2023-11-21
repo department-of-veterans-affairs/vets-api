@@ -4,13 +4,12 @@
     "attributes": {
       "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-      "claimDate": "2020-12-18",
       "veteranIdentification": {
         "currentVaEmployee": false,
         "mailingAddress": {
-          "addressLine1": "1234 Test Street",
-          "addressLine2": "Unit 4",
-          "addressLine3": "Room 1",
+          "addressLine1": "123 Main Street",
+          "addressLine2": "Unit 1",
+          "addressLine3": "Room 2",
           "city": "Portland",
           "country": "USA",
           "zipFirstFive": "41726",
@@ -23,18 +22,18 @@
           "agreeToEmailRelatedToClaim": true
         },
         "veteranNumber": {
-          "internationalTelephone": "+44 20 1234 5678"
+          "telephone": "5555555555"
         }
       },
       "changeOfAddress": {
         "dates": {
-          "beginDate": "11-29-2013",
-          "endDate": "10-11-2025"
+          "beginDate": "2025-06-04",
+          "endDate": "2026-06-04"
         },
         "typeOfAddressChange": "TEMPORARY",
-        "addressLine1": "10 Peach St",
-        "addressLine2": "Unit 4",
-        "addressLine3": "Room 1",
+        "addressLine1": "456 Main Street",
+        "addressLine2": "Unit 3",
+        "addressLine3": "Room 4",
         "city": "Atlanta",
         "zipFirstFive": "42220",
         "zipLastFour": "9897",
@@ -42,47 +41,50 @@
         "country": "USA"
       },
       "homeless": {
-        "pointOfContact": "john stewart",
+        "pointOfContact": "John Doe",
         "pointOfContactNumber": {
-          "internationalTelephone": "442-234-5678"
+          "telephone": "5555555555"
         },
         "currentlyHomeless": {
-          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-          "otherDescription": "ABCDEFGHIJKLM"
+          "homelessSituationOptions": "OTHER",
+          "otherDescription": "Other living situation"
         }
       },
       "toxicExposure": {
         "gulfWarHazardService": {
           "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
-            "beginDate": "07-1999",
-            "endDate": "01-2005"
+            "beginDate": "1999-07",
+            "endDate": "2005-01"
           }
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "Guam",
           "serviceDates": {
-            "beginDate": "03-2002",
-            "endDate": "10-2004"
+            "beginDate": "2002-03",
+            "endDate": "2004-10"
           }
         },
         "additionalHazardExposures": {
-          "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
+          "additionalExposures": [
+            "ASBESTOS",
+            "SHIPBOARD_HAZARD_AND_DEFENSE"
+          ],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
-            "beginDate": "07-2011",
-            "endDate": "10-2013"
+            "beginDate": "2011-07",
+            "endDate": "2013-10"
           }
         },
         "multipleExposures": [
           {
             "exposureDates": {
-              "beginDate": "12-2012",
-              "endDate": "07-2013"
+              "beginDate": "2012-12",
+              "endDate": "2013-07"
             },
             "exposureLocation": "Guam",
-            "hazardExposedTo": "RADIATION"
+            "hazardExposedTo": "Hazard"
           }
         ]
       },
@@ -90,91 +92,64 @@
         {
           "disabilityActionType": "NEW",
           "name": "Hearing Loss",
-          "classificationCode": "3140",
           "serviceRelevance": "Heavy equipment operator in service",
-          "approximateDate": "10-1988",
+          "approximateDate": "1988-07",
           "isRelatedToToxicExposure": false,
           "exposureOrEventOrInjury": "Noise"
-        },
-        {
-          "disabilityActionType": "INCREASE",
-          "name": "Musculoskeletal - Foot",
-          "classificationCode": "8994",
-          "serviceRelevance": "Service in Vietnam War",
-          "approximateDate": "12-1972",
-          "ratedDisabilityId": "1234567",
-          "diagnosticCode": 9999,
-          "isRelatedToToxicExposure": true,
-          "exposureOrEventOrInjury": "Agent Orange"
-        },
-        {
-          "disabilityActionType": "NONE",
-          "name": "Traumatic Brain Injury",
-          "classificationCode": "9020",
-          "serviceRelevance": "Explanation of service connection",
-          "approximateDate": "11-04-2019",
-          "ratedDisabilityId": "1234567",
-          "diagnosticCode": 9999,
-          "isRelatedToToxicExposure": false,
-          "secondaryDisabilities": [
-            {
-              "name": "Cancer - Musculoskeletal - Elbow",
-              "disabilityActionType": "SECONDARY",
-              "classificationCode": "249470",
-              "serviceRelevance": "Injured left knee when brace on right knee failed",
-              "approximateDate": "06-11-2008"
-            }
-          ]
         }
       ],
       "treatments": [
         {
-          "treatedDisabilityNames": ["Hearing Loss", "Traumatic Brain Injury"],
+          "treatedDisabilityNames": [
+            "Hearing Loss"
+          ],
           "center": {
             "name": "Center One",
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "04-2009"
+          "beginDate": "2009-04"
         },
         {
-          "treatedDisabilityNames": ["Musculoskeletal - Foot"],
+          "treatedDisabilityNames": [
+            "Hearing Loss"
+          ],
           "center": {
             "name": "Center One",
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-2009"
+          "beginDate": "2009-03"
         }
       ],
       "serviceInformation": {
         "servicePeriods": [
           {
-            "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "11-14-2008",
-            "activeDutyEndDate": "11-30-2025",
+            "serviceBranch": "Air Force",
+            "activeDutyBeginDate": "2008-11-14",
+            "activeDutyEndDate": "2023-10-30",
             "serviceComponent": "Active",
-            "separationLocationCode": "25077"
+            "separationLocationCode": "98282"
           }
         ],
         "confinements": [
           {
-            "approximateBeginDate": "06-11-2016",
-            "approximateEndDate": "09-11-2016"
+            "approximateBeginDate": "2016-06-11",
+            "approximateEndDate": "2016-09-11"
           },
           {
-            "approximateBeginDate": "06-2019",
-            "approximateEndDate": "07-2019"
+            "approximateBeginDate": "2019-06",
+            "approximateEndDate": "2019-07"
           }
         ],
         "federalActivation": {
-          "anticipatedSeparationDate": "10-03-2025",
-          "activationDate": "02-10-2023"
+          "anticipatedSeparationDate": "2023-10-03",
+          "activationDate": "2023-02-10"
         },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
-            "beginDate": "11-24-2016",
-            "endDate": "11-17-2017"
+            "beginDate": "2016-11-24",
+            "endDate": "2017-11-17"
           },
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
@@ -192,7 +167,7 @@
         "favorMilitaryRetiredPay": false,
         "receivingMilitaryRetiredPay": "NO",
         "futureMilitaryRetiredPay": "YES",
-        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
         "militaryRetiredPay": {
           "branchOfService": "Army",
           "monthlyAmount": 840.75
@@ -200,7 +175,7 @@
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "receivedSeparationOrSeverancePay": "NO",
         "separationSeverancePay": {
-          "datePaymentReceived": "07-31-2018",
+          "datePaymentReceived": "2018-07-31",
           "branchOfService": "Naval Academy",
           "preTaxAmountReceived": 379.25
         }

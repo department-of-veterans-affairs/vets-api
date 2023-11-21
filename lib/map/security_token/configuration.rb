@@ -7,23 +7,27 @@ module MAP
   module SecurityToken
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.mobile_application_platform.oauth_url
+        Settings.map_services.oauth_url
       end
 
       def chatbot_client_id
-        Settings.mobile_application_platform.chatbot_client_id
+        Settings.map_services.chatbot_client_id
       end
 
       def sign_up_service_client_id
-        Settings.mobile_application_platform.sign_up_service_client_id
+        Settings.map_services.sign_up_service_client_id
+      end
+
+      def check_in_client_id
+        Settings.map_services.check_in_client_id
       end
 
       def client_key_path
-        Settings.mobile_application_platform.client_key_path
+        Settings.map_services.client_key_path
       end
 
       def client_cert_path
-        Settings.mobile_application_platform.client_cert_path
+        Settings.map_services.client_cert_path
       end
 
       def service_name
@@ -78,7 +82,7 @@ module MAP
         ) do |conn|
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :betamocks if Settings.mobile_application_platform.secure_token_service.mock
+          conn.response :betamocks if Settings.map_services.secure_token_service.mock
           conn.adapter Faraday.default_adapter
         end
       end

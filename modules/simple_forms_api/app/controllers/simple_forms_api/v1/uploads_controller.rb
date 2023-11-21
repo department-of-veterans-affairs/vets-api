@@ -7,7 +7,7 @@ module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate
-      before_action :authenticate, if: :form_is210966
+      before_action :authenticate, if: :should_authenticate
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -58,31 +58,32 @@ module SimpleFormsApi
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(params, icn)
         existing_intents = intent_service.existing_intents
-        expiration_date = intent_service.submit
+        confirmation_number, expiration_date = intent_service.submit
 
         render json: {
+          confirmation_number:,
           expiration_date:,
-          compensation_intent: existing_intents[:compensation],
-          pension_intent: existing_intents[:pension],
-          survivor_intent: existing_intents[:survivor]
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
         }
       end
 
       def submit_form_to_central_mail
-        parsed_form_data = JSON.parse(params.to_json)
+        parsed_form_data = form_is210966 ? handle_210966_data : JSON.parse(params.to_json)
         form_id = FORM_NUMBER_MAP[params[:form_number]]
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
         metadata = filler.metadata
 
-        handle_attachments(file_path) if form_id == 'vba_40_0247'
+        SimpleFormsApi::VBA400247.new(parsed_form_data).handle_attachments(file_path) if form_id == 'vba_40_0247'
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
           ).send
         end
 
@@ -109,6 +110,7 @@ module SimpleFormsApi
         lighthouse_service = SimpleFormsApiSubmission::Service.new
         uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
 
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
           "Simple forms api - preparing to upload PDF to benefits intake:
             location: #{uuid_and_location[:location]}, uuid: #{uuid_and_location[:uuid]}"
@@ -126,29 +128,28 @@ module SimpleFormsApi
         params[:form_number] == '21-0966'
       end
 
+      def should_authenticate
+        params[:form_number] == '21-0966' || params[:form_number] == '21-0845'
+      end
+
       def icn
         @current_user&.icn
       end
 
-      def handle_attachments(file_path)
-        attachments = get_attachments
-        if attachments.count.positive?
-          combined_pdf = CombinePDF.new
-          combined_pdf << CombinePDF.load(file_path)
-          attachments.each do |attachment|
-            combined_pdf << CombinePDF.load(attachment.to_pdf)
-          end
-
-          combined_pdf.save file_path
+      def handle_210966_data
+        roles = {
+          'fiduciary' => 'Fiduciary',
+          'officer' => 'Veteran Service Officer',
+          'alternate' => 'Alternate Signer'
+        }
+        data = JSON.parse(params.to_json)
+        if data['third_party_preparer_role']
+          data['third_party_preparer_role'] = (
+            roles[data['third_party_preparer_role']] || data['other_third_party_preparer_role']
+          ) || ''
         end
-      end
 
-      def get_attachments
-        confirmation_codes = []
-        supporting_documents = params['veteran_supporting_documents']
-        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-
-        PersistentAttachment.where(guid: confirmation_codes)
+        data
       end
     end
   end

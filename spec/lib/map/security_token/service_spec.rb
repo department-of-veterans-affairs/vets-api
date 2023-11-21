@@ -12,40 +12,20 @@ describe MAP::SecurityToken::Service do
     let(:log_prefix) { '[MAP][SecurityToken][Service]' }
 
     shared_examples 'STS token request' do
-      context 'when an issue occurs with the client request' do
+      context 'when response is not successful with a 401 error' do
+        let(:context) { { error: expected_error_message } }
+        let(:expected_error_message) { 'invalid_client' }
+        let(:expected_error_status) { 401 }
+        let(:expected_message) do
+          "#{log_prefix} token failed, client error, status: #{expected_error_status}, application: #{application}, " \
+            "icn: #{icn}, context: #{context}"
+        end
         let(:expected_error) { Common::Client::Errors::ClientError }
-        let(:expected_error_message) do
-          "#{log_prefix} token failed, client error, status: #{status}, description: #{description}," \
-            " application: #{application}, icn: #{icn}"
-        end
-        let(:status) { 'some-status' }
-        let(:description) { 'some-description' }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
-
-        before do
-          allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
-        end
 
         it 'raises a client error with expected message' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
-      end
-
-      context 'and response is malformed' do
-        let(:expected_error) { NoMethodError }
-        let(:expected_error_message) do
-          "#{log_prefix} token failed, response unknown, application: #{application}, icn: #{icn}"
-        end
-        let(:status) { 'some-status' }
-        let(:description) { 'some-description' }
-        let(:empty_response) { nil }
-
-        before do
-          allow_any_instance_of(described_class).to receive(:perform).and_return(empty_response)
-        end
-
-        it 'raises an unknown response error with expected message' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
+          VCR.use_cassette('map/security_token_service_401_response') do
+            expect { subject }.to raise_error(expected_error, expected_message)
+          end
         end
       end
 
@@ -78,6 +58,12 @@ describe MAP::SecurityToken::Service do
 
     context 'when input application is sign up service' do
       let(:application) { :sign_up_service }
+
+      it_behaves_like 'STS token request'
+    end
+
+    context 'when input application is check in' do
+      let(:application) { :check_in }
 
       it_behaves_like 'STS token request'
     end

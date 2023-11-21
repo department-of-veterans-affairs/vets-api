@@ -1919,93 +1919,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    context 'terms and conditions routes' do
-      context 'with some terms and acceptances' do
-        let!(:terms) { create(:terms_and_conditions, latest: true) }
-        # The Faker in the factory will _sometimes_ return the same name. make sure it's different
-        # so that the association in terms_acc works as expected with these tests.
-        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
-        let!(:terms_acc) do
-          create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
-        end
-
-        it 'validates the routes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions',
-            200
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            200,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            200,
-            headers.merge('name' => terms.name)
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            422,
-            headers.merge('name' => terms.name)
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            200,
-            headers.merge('name' => terms2.name)
-          )
-        end
-
-        it 'validates auth errors' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            401,
-            'name' => terms.name
-          )
-        end
-      end
-
-      context 'with no terms and acceptances' do
-        it 'validates the routes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions',
-            200
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            404,
-            'name' => 'blat'
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            404,
-            headers.merge('name' => 'blat')
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            404,
-            headers.merge('name' => 'blat')
-          )
-        end
-      end
-    end
-
     describe 'Lighthouse Benefits Reference Data' do
       it 'gets data from endpoint' do
         VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
@@ -3592,6 +3505,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
             expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
           end
+        end
+      end
+    end
+
+    describe '/v0/profile/contacts' do
+      context 'unauthenticated user' do
+        it 'returns unauthorized status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 401)
+        end
+      end
+
+      context 'loa1 user' do
+        let(:mhv_user) { build(:user, :loa1) }
+
+        it 'returns forbidden status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 403, headers)
+        end
+      end
+
+      context 'loa3 user' do
+        let(:mhv_user) { build(:user, :loa3) }
+
+        it 'returns ok status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
         end
       end
     end

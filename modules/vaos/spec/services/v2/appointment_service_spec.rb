@@ -73,20 +73,30 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - va - booked' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                          match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-          response = subject.post_appointment(va_booked_request_body)
-          expect(response[:id]).to be_a(String)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            response = subject.post_appointment(va_booked_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(response[:local_start_time])
+              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+          end
         end
       end
 
       it 'returns the created appointment and logs data' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_logs_data',
                          match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-          response = subject.post_appointment(va_booked_request_body)
-          expect(response[:id]).to be_a(String)
-          expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
-                                                            any_args).at_least(:once)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            response = subject.post_appointment(va_booked_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
+                                                              any_args).at_least(:once)
+            expect(response[:local_start_time])
+              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+          end
         end
       end
 
@@ -103,8 +113,13 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - cc - proposed' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
                          match_requests_on: %i[method path query]) do
-          response = subject.post_appointment(community_cares_request_body)
-          expect(response[:id]).to be_a(String)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            response = subject.post_appointment(community_cares_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(response.dig(:requested_periods, 0, :local_start_time))
+              .to eq(DateTime.parse('2021-06-15T06:00:00-06:00'))
+          end
         end
       end
     end
@@ -406,8 +421,11 @@ describe VAOS::V2::AppointmentsService do
       context 'with Jaqueline Morgan' do
         it 'returns a cancelled status and the cancelled appointment information' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
-            response = subject.update_appointment('70060', 'cancelled')
-            expect(response.status).to eq('cancelled')
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.update_appointment('70060', 'cancelled')
+              expect(response.status).to eq('cancelled')
+            end
           end
         end
       end
@@ -801,6 +819,16 @@ describe VAOS::V2::AppointmentsService do
         subject.send(:log_telehealth_data, appt)
       end
     end
+
+    context 'when an exception is raised getting the telehealth data' do
+      it 'logs the exception' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService)
+          .to receive(:atlas_details).and_raise(StandardError)
+
+        expect(Rails.logger).to receive(:warn).with('Error logging VAOS telehealth atlas details: StandardError')
+        subject.send(:log_telehealth_data, appt)
+      end
+    end
   end
 
   describe '#extract_station_and_ien' do
@@ -818,6 +846,13 @@ describe VAOS::V2::AppointmentsService do
 
     it 'returns the station id and ien if the identifier with the system VistADefinedTerms/409_84 is found' do
       appointment = { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] }
+      expected_result = %w[983 12345678]
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
+    end
+
+    it 'returns the station id and ien if the identifier with the system VistADefinedTerms/409_85 is found' do
+      appointment = { identifier: [{ system: '/Terminology/VistADefinedTerms/409_85', value: '983:12345678' }] }
       expected_result = %w[983 12345678]
 
       expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
@@ -901,25 +936,37 @@ describe VAOS::V2::AppointmentsService do
     let(:expected_avs_link) do
       '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
     end
+    let(:appt) do
+      {
+        identifier: [
+          {
+            system: 'Appointment/',
+            value: '4139383338323131'
+          },
+          {
+            system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
+            value: '500:9876543'
+          }
+        ]
+      }
+    end
 
     context 'with good station number and ien' do
-      appt =
-        {
-          identifier: [
-            {
-              system: 'Appointment/',
-              value: '4139383338323131'
-            },
-            {
-              system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
-              value: '500:9876543'
-            }
-          ]
-        }
-
       it 'returns avs link' do
         VCR.use_cassette('vaos/v2/appointments/avs-search-9876543', match_requests_on: %i[method path query]) do
           expect(subject.send(:get_avs_link, appt)).to eq(expected_avs_link)
+        end
+      end
+    end
+
+    context 'with mismatched icn' do
+      it 'returns nil and logs mismatch' do
+        VCR.use_cassette('vaos/v2/appointments/avs-search-9876543', match_requests_on: %i[method path query]) do
+          allow(Rails.logger).to receive(:warn)
+          user.identity.icn = '123'
+
+          expect(subject.send(:get_avs_link, appt)).to be_nil
+          expect(Rails.logger).to have_received(:warn).with('VAOS: AVS response ICN does not match user ICN')
         end
       end
     end
@@ -945,6 +992,46 @@ describe VAOS::V2::AppointmentsService do
         expect(Rails.logger).to receive(:error)
         subject.send(:fetch_avs_and_update_appt_body, appt)
         expect(appt[:avs_path]).to be_nil
+      end
+    end
+  end
+
+  describe '#page_params' do
+    context 'when per_page is positive' do
+      context 'when per_page is positive' do
+        let(:pagination_params) do
+          { per_page: 3, page: 2 }
+        end
+
+        it 'returns pageSize and page' do
+          result = subject.send(:page_params, pagination_params)
+
+          expect(result).to eq({ pageSize: 3, page: 2 })
+        end
+      end
+    end
+
+    context 'when per_page is not positive' do
+      let(:pagination_params) do
+        { per_page: 0, page: 2 }
+      end
+
+      it 'returns pageSize only' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
+      end
+    end
+
+    context 'when per_page does not exist' do
+      let(:pagination_params) do
+        { page: 2 }
+      end
+
+      it 'returns pageSize as 0' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
       end
     end
   end

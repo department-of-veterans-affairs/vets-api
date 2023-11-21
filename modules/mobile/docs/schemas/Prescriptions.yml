@@ -1,9 +1,29 @@
 type: object
 required:
   - data
+  - meta
 properties:
   data:
     type: array
     items:
       type: object
       $ref: "./PrescriptionRecord.yml"
+  meta:
+    type: object
+    required:
+      - prescriptionStatusCount
+    properties:
+      prescriptionStatusCount:
+        type: object
+        description: |
+          The number of prescriptions in each status for the user. "active" contains prescriptions that are active,
+          submitted, providcerHold, activeParked, refillinprocess, and/or prescriptions that have a tracking number 
+          associated with them.
+        example:
+            active: 1
+            discontinued: 0
+            expired: 0
+            historical: 0
+            pending: 0
+            submitted: 0
+            total: 1

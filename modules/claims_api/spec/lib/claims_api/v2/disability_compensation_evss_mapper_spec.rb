@@ -52,6 +52,18 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       it 'maps the cert correctly' do
         expect(evss_data[:claimantCertification]).to be true
       end
+
+      context 'When claimProcessType is BDD_PROGRAM' do
+        let(:claim_process_type) { 'BDD_PROGRAM' }
+
+        it 'maps correctly to BDD_PROGRAM_CLAIM' do
+          form_data['data']['attributes']['claimProcessType'] = claim_process_type
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+          claim_process_type = evss_data[:claimProcessType]
+          expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
+        end
+      end
     end
 
     context '526 section 1' do
@@ -113,7 +125,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
 
         expect(service_periods[:serviceBranch]).to eq('Public Health Service')
         expect(service_periods[:activeDutyBeginDate]).to eq('2008-11-14')
-        expect(service_periods[:activeDutyEndDate]).to eq('2021-11-30')
+        expect(service_periods[:activeDutyEndDate]).to eq('2023-10-30')
         expect(service_periods[:serviceComponent]).to eq('Active')
         expect(service_periods[:separationLocationCode]).to eq('98282')
       end

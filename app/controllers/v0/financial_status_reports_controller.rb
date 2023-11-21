@@ -4,6 +4,7 @@ require 'debts_api/v0/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
+    service_tag 'financial-report'
     before_action { authorize :debt, :access? }
 
     rescue_from ::DebtsApi::V0::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
@@ -141,8 +142,10 @@ module V0
           veteran_signature
         ],
         selected_debts_and_copays: [
+          :current_ar,
           :debt_type,
           :deduction_code,
+          :p_h_amt_due,
           :resolution_comment,
           :resolution_option,
           { station: [:facilit_y_num] }

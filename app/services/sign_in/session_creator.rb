@@ -9,6 +9,7 @@ module SignIn
     end
 
     def perform
+      validate_credential_lock
       validate_terms_of_use if client_config.enforced_terms.present?
       SessionContainer.new(session:,
                            refresh_token:,
@@ -18,6 +19,10 @@ module SignIn
     end
 
     private
+
+    def validate_credential_lock
+      raise SignIn::Errors::CredentialLockedError.new(message: 'Credential is locked') if user_verification.locked
+    end
 
     def validate_terms_of_use
       if user_account.needs_accepted_terms_of_use?

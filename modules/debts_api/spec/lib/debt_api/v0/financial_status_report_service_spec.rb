@@ -29,7 +29,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   end
 
   describe '#submit_financial_status_report' do
-    let(:valid_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_submission') }
+    let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
@@ -42,8 +42,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
-            expect(service).to receive(:submit_combined_fsr).with(valid_form_data)
-            service.submit_financial_status_report(valid_form_data)
+            expect(service).to receive(:submit_combined_fsr)
+            service.submit_financial_status_report(combined_form_data)
           end
         end
       end
@@ -58,8 +58,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
-            expect(service).to receive(:submit_combined_fsr).with(valid_form_data)
-            service.submit_financial_status_report(valid_form_data)
+            expect(service).to receive(:submit_combined_fsr)
+            service.submit_financial_status_report(combined_form_data)
           end
         end
       end
@@ -196,13 +196,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    it 'parses out delimiter characters' do
-      service = described_class.new(user_data)
-      delimitered_json = { 'name' => "^Gr\neg|" }
-      parsed_form_string = service.send(:remove_form_delimiters, delimitered_json).to_s
-      expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
-    end
-
     context 'with streamlined waiver' do
       let(:form_submission) { build(:debts_api_sw_form5655_submission) }
       let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
@@ -213,29 +206,14 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
           expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
         end
       end
-
-      it 'makes streamlined the last key in the form hash' do
-        service = described_class.new(user_data)
-        adjusted_form = service.send(:streamline_adjustments, form_submission.form)
-        expect(adjusted_form.keys.last).to eq('streamlined')
-      end
-
-      it 'changes fsrReason for streamlined waivers' do
-        service = described_class.new(user_data)
-        adjusted_form = service.send(:streamline_adjustments, form_submission.form)
-        expect(adjusted_form['personalIdentification']['fsrReason']).to eq('et, Automatically Approved')
-      end
-
-      it 'does not change fsrReason for non-streamlined waivers' do
-        service = described_class.new(user_data)
-        adjusted_form = service.send(:streamline_adjustments, non_streamlined_form_submission.form)
-        expect(adjusted_form['personalIdentification']['fsrReason']).not_to eq('Automatically Approved')
-      end
     end
   end
 
   describe '#submit_combined_fsr' do
     let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
+    let(:vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
+    let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
     let!(:user) { build(:user, :loa3) }
 
     before do
@@ -245,12 +223,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     end
 
     it 'enqueues a VBA submission job' do
-      valid_form_data['selectedDebtsAndCopays'] = [{ 'foo' => 'bar', 'debtType' => 'DEBT' }]
-      valid_form_data['personalIdentification'] = {}
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
           service = described_class.new(user)
-          expect { service.submit_combined_fsr(valid_form_data) }
+          builder = DebtsApi::V0::FsrFormBuilder.new(valid_vba_form_data, '', user)
+          expect { service.submit_combined_fsr(builder) }
             .to change { DebtsApi::V0::Form5655::VBASubmissionJob.jobs.size }
             .from(0)
             .to(1)
@@ -264,7 +241,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       VCR.use_cassette('dmc/submit_fsr') do
         VCR.use_cassette('bgs/people_service/person_data') do
           service = described_class.new(user)
-          expect { service.submit_combined_fsr(valid_form_data) }
+          builder = DebtsApi::V0::FsrFormBuilder.new(valid_form_data, '', user)
+          expect { service.submit_combined_fsr(builder) }
             .to change { DebtsApi::V0::Form5655::VBASubmissionJob.jobs.size }
             .from(0)
             .to(1)
@@ -273,52 +251,36 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     end
 
     it 'enqueues VHA submission jobs' do
-      valid_form_data['selectedDebtsAndCopays'] = [{
-        'station' => {
-          'facilitYNum' => '123'
-        },
-        'resolutionOption' => 'waiver',
-        'debtType' => 'COPAY'
-      }]
-      valid_form_data['personalIdentification'] = {}
       service = described_class.new(user)
-      expect { service.submit_combined_fsr(valid_form_data) }
+      builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
+      copay_count = builder.grouped_vha_copays.length
+      expect { service.submit_combined_fsr(builder) }
         .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
         .from(0)
-        .to(1)
+        .to(copay_count)
         .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
-        .to(1)
+        .to(copay_count)
     end
 
     it 'creates a form 5655 submission record' do
-      valid_form_data['selectedDebtsAndCopays'] = [{
-        'station' => {
-          'facilitYNum' => '123'
-        },
-        'resolutionOption' => 'waiver',
-        'debtType' => 'COPAY'
-      }]
-      valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       service = described_class.new(user)
-      expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(1)
+      builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
+      copay_count = builder.grouped_vha_copays.length
+      expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(copay_count)
       expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
+      form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
+      expect(form.class).to be(Hash)
     end
 
     context 'with both debts and copays' do
       it 'adds combined key to forms' do
-        valid_form_data['selectedDebtsAndCopays'] = [{
-          'station' => {
-            'facilitYNum' => '123'
-          },
-          'resolutionOption' => 'waiver',
-          'debtType' => 'COPAY'
-        },
-                                                     { 'foo' => 'bar', 'debtType' => 'DEBT' }]
-        valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
         service = described_class.new(user)
-
-        expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(2)
+        builder = DebtsApi::V0::FsrFormBuilder.new(combined_form_data, '', user)
+        copay_count = builder.grouped_vha_copays.length
+        debt_count = builder.vba_debts.present? ? 1 : 0
+        needed_count = copay_count + debt_count
+        expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(needed_count)
         expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
       end
     end
@@ -352,7 +314,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         }
       ]
       service = described_class.new(user)
-      expect { service.create_vha_fsr(valid_form_data) }
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_form_data, '', user)
+      expect { service.create_vha_fsr(builder) }
         .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
         .from(0)
         .to(2)

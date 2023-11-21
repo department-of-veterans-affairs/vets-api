@@ -9,16 +9,16 @@ module Lighthouse
     # a map of the known Lighthouse errors based on the documentation
     # https://developer.va.gov/
     ERROR_MAP = {
-      '504': Common::Exceptions::GatewayTimeout,
-      '503': Common::Exceptions::ServiceUnavailable,
-      '502': Common::Exceptions::BadGateway,
-      '500': Common::Exceptions::ExternalServerInternalServerError,
-      '429': Common::Exceptions::TooManyRequests,
-      '413': Common::Exceptions::PayloadTooLarge,
-      '404': Common::Exceptions::ResourceNotFound,
-      '403': Common::Exceptions::Forbidden,
-      '401': Common::Exceptions::Unauthorized,
-      '400': Common::Exceptions::BadRequest
+      504 => Common::Exceptions::GatewayTimeout,
+      503 => Common::Exceptions::ServiceUnavailable,
+      502 => Common::Exceptions::BadGateway,
+      500 => Common::Exceptions::ExternalServerInternalServerError,
+      429 => Common::Exceptions::TooManyRequests,
+      413 => Common::Exceptions::PayloadTooLarge,
+      404 => Common::Exceptions::ResourceNotFound,
+      403 => Common::Exceptions::Forbidden,
+      401 => Common::Exceptions::Unauthorized,
+      400 => Common::Exceptions::BadRequest
     }.freeze
 
     # sends error logs to sentry that contains the client id and url that the consumer was trying call
@@ -27,45 +27,37 @@ module Lighthouse
     def self.send_error(error, service_name, lighthouse_client_id, url)
       send_error_logs(error, service_name, lighthouse_client_id, url)
 
-      raise error_class(:'504') if gateway_timeout?(error.response)
+      response = error.response
 
-      error_response = error.response.deep_symbolize_keys
+      status_code = get_status_code(response)
+      return error unless status_code
 
-      return error unless error_response&.key?(:status)
-
-      error_status = error_response[:status]
-
-      errors = get_errors_from_response(error, error_status)
-
-      error_status_sym = error_status.to_s.to_sym
-
-      raise error_class(error_status_sym).new(errors:)
+      errors = get_errors_from_response(error, status_code) if json_response?(response)
+      raise error_class(status_code).new(errors:)
     end
 
     # chooses which error class should be reported based on the http status
-    def self.error_class(error_status_sym)
-      return Common::Exceptions::ServiceError unless ERROR_MAP.include?(error_status_sym)
+    def self.error_class(status_code)
+      return Common::Exceptions::ServiceError unless ERROR_MAP.include?(status_code)
 
-      ERROR_MAP[error_status_sym]
+      ERROR_MAP[status_code]
     end
 
     # extracts and transforms Lighthouse errors into the evss_errors schema for the
     # controller ExceptionHandling class
-    def self.get_errors_from_response(error, error_status = nil)
+    def self.get_errors_from_response(error, status_code)
       errors = error.response[:body]['errors']
-
-      error_status ||= error.response[:status]
 
       if errors&.any?
         errors.map do |e|
-          status, title, detail, code = error_object_details(e, error_status)
+          status, title, detail, code = error_object_details(e, status_code)
 
           transform_error_keys(e, status, title, detail, code)
         end
       else
         error_body = error.response[:body]
 
-        status, title, detail, code = error_object_details(error_body, error_status)
+        status, title, detail, code = error_object_details(error_body, status_code)
 
         [transform_error_keys(error_body, status, title, detail, code)]
       end
@@ -74,16 +66,15 @@ module Lighthouse
     # error details that match the evss_errors response schema
     # uses known fields in the Lighthouse errors such as "title", "code", "detail", "message", "error"
     # used to get more information from Lighthouse errors in the controllers
-    def self.error_object_details(error_body, error_status)
-      status = error_status&.to_s
-      title = error_body['title'] || error_class(status.to_sym).to_s
+    def self.error_object_details(error_body, status_code)
+      status = status_code.to_s
+      title = error_body['title'] || error_class(status_code).to_s
       detail = error_body['detail'] ||
                error_body['message'] ||
                error_body['error'] ||
                error_body['error_description'] ||
                'No details provided'
-
-      code = error_body['code'] || error_status&.to_s
+      code = error_body['code'] || status
 
       [status, title, detail, code]
     end
@@ -116,11 +107,21 @@ module Lighthouse
       log_exception_to_sentry(error, extra_context, tags_context)
     end
 
-    def self.gateway_timeout?(response)
-      return response.status == 504 if response.respond_to?(:status)
-      return response[:status] == 504 if response.instance_of?(Hash) && response&.key?(:status)
+    def self.get_status_code(response)
+      return response.status if response.respond_to?(:status)
 
-      false
+      response[:status] if response.instance_of?(Hash) && response&.key?(:status)
+    end
+
+    def self.json_response?(response)
+      format = response_type(response)
+      format&.include? 'application/json'
+    end
+
+    def self.response_type(response)
+      return response[:headers]['content-type'] if response[:headers]
+
+      response.headers['content-type'] if response.respond_to?(:headers)
     end
   end
 end
