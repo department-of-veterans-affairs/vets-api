@@ -2,6 +2,8 @@
 
 require 'lighthouse/letters_generator/configuration'
 require 'lighthouse/letters_generator/service_error'
+require 'lighthouse/service_exception'
+require 'common/exceptions/bad_request'
 
 module Lighthouse
   module LettersGenerator
@@ -31,7 +33,91 @@ module Lighthouse
         service_verification
       ].to_set.freeze
 
+      BENEFICIARY_KEY_TRANFORMS = {
+        awardEffectiveDateTime: :awardEffectiveDate,
+        chapter35Eligibility: :hasChapter35Eligibility,
+        nonServiceConnectedPension: :hasNonServiceConnectedPension,
+        serviceConnectedDisabilities: :hasServiceConnectedDisabilities,
+        adaptedHousing: :hasAdaptedHousing,
+        individualUnemployabilityGranted: :hasIndividualUnemployabilityGranted,
+        specialMonthlyCompensation: :hasSpecialMonthlyCompensation
+      }.freeze
+
       configuration Lighthouse::LettersGenerator::Configuration
+
+      def get_letter(icn, letter_type, options = {})
+        endpoint = "letter-contents/#{letter_type}"
+        log = "Retrieving letter from #{config.generator_url}/#{endpoint}"
+        params = { icn: }.merge(options)
+
+        response = get_from_lighthouse(endpoint, params, log)
+        response.body
+      end
+
+      def get_eligible_letter_types(icn)
+        endpoint = 'eligible-letters'
+        log = "Retrieving eligible letter types and destination from #{config.generator_url}/#{endpoint}"
+        params = { icn: }
+
+        response = get_from_lighthouse(endpoint, params, log)
+        {
+          letters: transform_letters(response.body['letters']),
+          letter_destination: response.body['letterDestination']
+        }
+      end
+
+      def get_benefit_information(icn)
+        endpoint = 'eligible-letters'
+        log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
+        params = { icn: }
+
+        response = get_from_lighthouse(endpoint, params, log)
+        {
+          benefitInformation: transform_benefit_information(response.body['benefitInformation']),
+          militaryService: transform_military_services(response.body['militaryServices'])
+        }
+      end
+
+      def download_letter(icns, letter_type, options = {})
+        endpoint = "letters/#{letter_type}/letter"
+        log = "Downloading letter from #{config.generator_url}/#{endpoint}"
+        params = icns.merge(options)
+
+        response = get_from_lighthouse(endpoint, params, log)
+        response.body
+      end
+
+      def valid_type?(letter_type)
+        LETTER_TYPES.include? letter_type.downcase
+      end
+
+      private
+
+      def get_from_lighthouse(endpoint, params, log)
+        Lighthouse::LettersGenerator.measure_time(log) do
+          config.connection.get(
+            endpoint,
+            params,
+            { Authorization: "Bearer #{config.get_access_token}" }
+          )
+        end
+      rescue Faraday::ClientError, Faraday::ServerError => e
+        Raven.tags_context(
+          team: 'benefits-claim-appeal-status',
+          feature: 'letters-generator'
+        )
+
+        handle_error(e, config.service_name, endpoint)
+      end
+
+      def handle_error(error, lighthouse_client_id, endpoint)
+        Lighthouse::ServiceException.send_error(
+          error,
+          self.class.to_s.underscore,
+          lighthouse_client_id,
+          "#{config.generator_url}/#{endpoint}"
+        )
+      end
 
       def transform_letters(letters)
         letters.map do |letter|
@@ -43,7 +129,6 @@ module Lighthouse
       end
 
       def transform_military_services(services_info)
-        # transform
         services_info.map do |service|
           service[:enteredDate] = service.delete 'enteredDateTime'
           service[:releasedDate] = service.delete 'releasedDateTime'
@@ -53,109 +138,30 @@ module Lighthouse
       end
 
       def transform_benefit_information(info)
-        transform_targets = {
-          awardEffectiveDateTime: :awardEffectiveDate,
-          chapter35Eligibility: :hasChapter35Eligibility,
-          nonServiceConnectedPension: :hasNonServiceConnectedPension,
-          serviceConnectedDisabilities: :hasServiceConnectedDisabilities,
-          adaptedHousing: :hasAdaptedHousing,
-          individualUnemployabilityGranted: :hasIndividualUnemployabilityGranted,
-          specialMonthlyCompensation: :hasSpecialMonthlyCompensation
-        }
-
         symbolized_info = info.deep_transform_keys(&:to_sym)
 
         transformed_info = symbolized_info.reduce({}) do |acc, (k, v)|
-          if transform_targets.key? k
-            acc.merge({ transform_targets[k] => v })
+          if BENEFICIARY_KEY_TRANFORMS.key? k
+            acc.merge({ BENEFICIARY_KEY_TRANFORMS[k] => v })
           else
             acc.merge({ k => v })
           end
         end
 
+        monthly_award_amount = symbolized_info[:monthlyAwardAmount] ? symbolized_info[:monthlyAwardAmount][:value] : 0
+
         # Don't return chapter35EligibilityDateTime
-        # It's not used on the frontend, and in fact causes problems
-        transformed_info.merge(
-          { monthlyAwardAmount: symbolized_info[:monthlyAwardAmount][:value] }
-        ).except(:chapter35EligibilityDateTime)
-      end
-
-      def get_eligible_letter_types(icn)
-        endpoint = 'eligible-letters'
-
-        begin
-          log = "Retrieving eligible letter types and destination from #{config.generator_url}/#{endpoint}"
-          response = Lighthouse::LettersGenerator.measure_time(log) do
-            config.connection.get(endpoint, { icn: }, { Authorization: "Bearer #{config.get_access_token}" })
-          end
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          Raven.tags_context(
-            team: 'benefits-claim-appeal-status',
-            feature: 'letters-generator'
-          )
-          raise Lighthouse::LettersGenerator::ServiceError.new(e.response[:body]), 'Lighthouse error'
-        end
-
-        {
-          letters: transform_letters(response.body['letters']),
-          letter_destination: response.body['letterDestination']
-        }
-      end
-
-      # TODO: repeated code #get_eligible_letter_types
-      def get_benefit_information(icn)
-        endpoint = 'eligible-letters'
-
-        begin
-          log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
-          response = Lighthouse::LettersGenerator.measure_time(log) do
-            config.connection.get(endpoint, { icn: }, { Authorization: "Bearer #{config.get_access_token}" })
-          end
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          Raven.tags_context(
-            team: 'benefits-claim-appeal-status',
-            feature: 'letters-generator'
-          )
-          raise Lighthouse::LettersGenerator::ServiceError.new(e.response[:body]), 'Lighthouse error'
-        end
-
-        {
-          benefitInformation: transform_benefit_information(response.body['benefitInformation']),
-          militaryService: transform_military_services(response.body['militaryServices'])
-        }
-      end
-
-      def download_letter(icn, letter_type, options = {})
-        unless LETTER_TYPES.include? letter_type.downcase
-          error = create_invalid_type_error(letter_type.downcase)
-          raise error
-        end
-
-        endpoint = "letters/#{letter_type}/letter"
-        letter_options = options.select { |_, v| v == true }
-
-        begin
-          log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
-          response = Lighthouse::LettersGenerator.measure_time(log) do
-            config.connection.get(
-              endpoint,
-              { icn: }.merge(letter_options),
-              { Authorization: "Bearer #{config.get_access_token}" }
-            )
-          end
-        rescue Faraday::ClientError, Faraday::ServerError => e
-          Raven.tags_context(team: 'benefits-claim-appeal-status', feature: 'letters-generator')
-          raise Lighthouse::LettersGenerator::ServiceError.new(e.response[:body]), 'Lighthouse error'
-        end
-
-        response.body
+        # It's not currently (June 2023) used on the frontend, and in fact causes problems
+        transformed_info
+          .merge({ monthlyAwardAmount: monthly_award_amount })
+          .except(:chapter35EligibilityDateTime)
       end
 
       def create_invalid_type_error(letter_type)
-        error = Lighthouse::LettersGenerator::ServiceError.new
-        error.title = 'Invalid letter type'
-        error.message = "Letter type of #{letter_type.downcase} is not one of the expected options"
-        error.status = 400
+        error = {}
+        error['title'] = 'Invalid letter type'
+        error['message'] = "Letter type of #{letter_type.downcase} is not one of the expected options"
+        error['status'] = 400
 
         error
       end

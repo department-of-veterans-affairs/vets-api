@@ -12,11 +12,24 @@
           "zipFirstFive": "12345",
           "zipLastFour": "6789"
         },
+        "daytimePhone": {
+          "areaCode": "603",
+          "phoneNumber": "5892689"
+        },
+        "eveningPhone": {
+          "areaCode": "603",
+          "phoneNumber": "5892600"
+        },
+        "cellPhone": {
+          "areaCode": "603",
+          "phoneNumber": "5892602"
+        },
         "changeOfAddress": {
           "country": "USA",
           "addressLine1": "5678 Couch Street",
           "addressLine2": "Apt. 2",
           "beginningDate": "2018-02-01",
+          "endingDate": "2018-06-30",
           "type": "DOMESTIC",
           "city": "Portland",
           "state": "OR",
@@ -35,6 +48,10 @@
           "currentlyHomeless": {
             "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
             "otherLivingSituation": "other living situation"
+          },
+          "homelessnessRisk": {
+            "homelessnessRiskSituationType": "HOUSING_WILL_BE_LOST_IN_30_DAYS",
+            "otherLivingSituation": "other living situation (at risk)"
           }
         },
         "currentlyVAEmployee": false
@@ -54,15 +71,19 @@
         "waiveVABenefitsToRetainTrainingPay": true,
         "waiveVABenefitsToRetainRetiredPay": false,
         "militaryRetiredPay": {
+          "willReceiveInFuture": true,
           "receiving": true,
           "payment": {
-            "serviceBranch": "Air Force"
+            "serviceBranch": "Air Force",
+            "amount": 500.00
           }
         },
+        "retiredStatus": "Retired",
         "separationPay": {
           "received": true,
           "payment": {
-            "serviceBranch": "Air Force"
+            "serviceBranch": "Air Force",
+            "amount": 1000.00
           },
           "receivedDate": {
             "year": "2000"
@@ -70,6 +91,7 @@
         }
       },
       "serviceInformation": {
+        "separationLocationCode": "OU812",
         "servicePeriods": [
           {
             "serviceBranch": "Air Force",
@@ -80,6 +102,11 @@
             "serviceBranch": "Air Force Reserves",
             "activeDutyBeginDate": "1990-04-05",
             "activeDutyEndDate": "1999-01-01"
+          },
+          {
+            "serviceBranch": "Air National Guard",
+            "activeDutyBeginDate": "1990-03-05",
+            "activeDutyEndDate": "1990-04-05"
           }
         ],
         "confinements": [

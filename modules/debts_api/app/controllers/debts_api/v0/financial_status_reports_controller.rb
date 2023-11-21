@@ -5,6 +5,7 @@ require 'debts_api/v0/financial_status_report_service'
 module DebtsApi
   module V0
     class FinancialStatusReportsController < ApplicationController
+      service_tag 'financial-report'
       before_action { authorize :debt, :access? }
 
       rescue_from DebtsApi::V0::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
@@ -51,6 +52,10 @@ module DebtsApi
       # rubocop:disable Metrics/MethodLength
       def fsr_form
         params.permit(
+          streamlined: %i[
+            value
+            type
+          ],
           personal_identification: %i[fsr_reason ssn file_number],
           personal_data: [
             :telephone_number,
@@ -138,8 +143,10 @@ module DebtsApi
             veteran_signature
           ],
           selected_debts_and_copays: [
+            :current_ar,
             :debt_type,
             :deduction_code,
+            :p_h_amt_due,
             :resolution_comment,
             :resolution_option,
             { station: [:facilit_y_num] }

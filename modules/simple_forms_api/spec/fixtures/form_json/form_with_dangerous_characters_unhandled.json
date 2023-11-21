@@ -1,0 +1,63 @@
+{
+  "form_number": "",
+  "veteran": {
+    "full_name": {
+      "first": "Veteran",
+      "middle": "B",
+      "last": "Surname",
+      "suffix": "III"
+    },
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "street2": "Suite 22",
+      "street3": "Room 3",
+      "city": "Place",
+      "state": "AL",
+      "postal_code": "12345"
+    },
+    "date_of_birth": "1987-02-02",
+    "ssn": "222614444",
+    "va_file_number": "123456789",
+    "home_phone": "9876543213",
+    "mobile_phone": "9876543213",
+    "email": "veteran.surname@address.com"
+  },
+  "previous_sah_application": {
+    "has_previous_sah_application": true,
+    "previous_sah_application_date": "2010-05-05",
+    "previous_sah_application_address": {
+      "country": "USA",
+      "street": "2 Second St",
+      "street2": "Unit 242",
+      "city": "Town",
+      "state": "LA",
+      "postal_code": "34251"
+    }
+  },
+  "previous_hi_application": {
+    "has_previous_hi_application": true,
+    "previous_hi_application_date": "2013-06-06",
+    "previous_hi_application_address": {
+      "country": "USA",
+      "street": "3 Third Ave",
+      "street2": "Apt #11",
+      "city": "City",
+      "state": "NY",
+      "postal_code": "08712"
+    }
+  },
+  "living_situation": {
+    "is_in_care_facility": true,
+    "care_facility_name": "Top Care",
+    "care_facility_address": {
+      "country": "USA",
+      "street": "4 Final Rd",
+      "street2": "Suite 2456",
+      "city": "Ville",
+      "state": "MI",
+      "postal_code": "54890"
+    }
+  },
+  "remarks": "Lengthy \"remarks\" here \nabout what is needed\tand such"
+}

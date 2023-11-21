@@ -16,7 +16,7 @@ describe AppealsApi::LegacyAppeals::V0::LegacyAppealsController, type: :request 
       expect(JSON.parse(response.body)['description']).to eq(
         'JSON Schema for Legacy Appeals endpoint headers (Decision Reviews API)'
       )
-      expect(response.body).to include('{"$ref":"non_blank_string.json"}')
+      expect(response.body).to include('{"$ref":"nonBlankString.json"}')
     end
 
     it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do

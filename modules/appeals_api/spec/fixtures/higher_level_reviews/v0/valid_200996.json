@@ -1,0 +1,100 @@
+{
+  "data": {
+    "type": "higherLevelReview",
+    "attributes": {
+      "informalConference": true,
+      "benefitType": "fiduciary",
+      "veteran": {
+        "icn": "1013062086V794840",
+        "ssn": "123456789",
+        "firstName": "Jäñe",
+        "middleInitial": "ø",
+        "lastName": "Doé",
+        "birthDate": "1969-12-31",
+        "fileNumber": "987654321",
+        "serviceNumber": "876543210",
+        "insurancePolicyNumber": "987654321123456789",
+        "address": {
+          "addressLine1": "123 Somestreet",
+          "city": "Sometown",
+          "countryCodeIso3": "USA",
+          "zipCode5": "66002"
+        },
+        "phone": {
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8001111"
+        },
+        "email": "josie@example.com",
+        "timezone": "America/Chicago",
+        "homeless": false
+      },
+      "informalConferenceContact": "veteran",
+      "informalConferenceTime": "800-1200 ET",
+      "informalConferenceRep": {
+        "firstName": "Helen",
+        "lastName": "Holly",
+        "phone": {
+          "countryCode": "6",
+          "areaCode": "555",
+          "phoneNumber": "8001111"
+        }
+      }
+    }
+  },
+  "included": [
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2",
+        "ratingDecisionReferenceId": "3",
+        "socDate": "2020-08-01"
+      }
+    },
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "left knee",
+        "decisionDate": "1900-01-02",
+        "decisionIssueId": 4,
+        "ratingIssueReferenceId": "5"
+      }
+    },
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "right knee",
+        "decisionDate": "1900-01-03",
+        "ratingIssueReferenceId": "6",
+        "ratingDecisionReferenceId": "7"
+      }
+    },
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "PTSD",
+        "decisionDate": "1900-01-04",
+        "decisionIssueId": 8,
+        "ratingDecisionReferenceId": "9"
+      }
+    },
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "Traumatic Brain Injury",
+        "decisionDate": "1900-01-05",
+        "decisionIssueId": 10
+      }
+    },
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "right shoulder",
+        "decisionDate": "1900-01-06"
+      }
+    }
+  ]
+}

@@ -1,114 +1,80 @@
 ---
 http_interactions:
-  - request:
-      method: get
-      uri: "<MHV_MR_HOST>/baseR4/Immunization?_id=49432&_include=*"
-      body:
-        encoding: US-ASCII
-        string: ""
-      headers:
-        Accept:
-          - application/fhir+json
-        User-Agent:
-          - Ruby FHIR Client
-        Accept-Charset:
-          - utf-8
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-        Host:
-          - hapi.fhir.org
-    response:
-      status:
-        code: 200
-        message: OK
-      headers:
-        Server:
-          - nginx/1.18.0 (Ubuntu)
-        Date:
-          - Fri, 05 May 2023 17:49:23 GMT
-        Content-Type:
-          - application/fhir+json;charset=utf-8
-        Transfer-Encoding:
-          - chunked
-        Connection:
-          - keep-alive
-        X-Powered-By:
-          - HAPI FHIR 6.7.0-SNAPSHOT/a3c33d2a53/2023-05-03 REST Server (FHIR Server; FHIR
-            4.0.1/R4)
-        X-Request-Id:
-          - D3Bxrztf3BYKM3eE
-        Last-Modified:
-          - Fri, 05 May 2023 17:49:23 GMT
-      body:
-        encoding: UTF-8
-        string: |-
-          {
-            "resourceType": "Bundle",
-            "id": "201da3f9-bfd7-4e1b-9fc0-906ba295fb2c",
-            "meta": {
-              "lastUpdated": "2023-05-05T17:49:23.541+00:00"
-            },
-            "type": "searchset",
-            "total": 1,
-            "link": [ {
-              "relation": "self",
-              "url": "https://hapi.fhir.org/baseR4/Immunization?_id=49432&_include=*"
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/fhir/Immunization/2954"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/fhir+json
+      User-Agent:
+      - Ruby FHIR Client
+      Accept-Charset:
+      - utf-8
+      Authorization:
+      - Bearer token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - localhost:2003
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 12 Jul 2023 20:15:04 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      X-Powered-By:
+      - HAPI FHIR 6.2.2 REST Server (FHIR Server; FHIR 4.0.1/R4)
+      Etag:
+      - W/"1"
+      X-Request-Id:
+      - 7dcc57d2c7dd47d31a3e9947bff14c9d
+      Content-Location:
+      - https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2954/_history/1
+      Last-Modified:
+      - Fri, 07 Jul 2023 14:05:56 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "resourceType": "Immunization",
+          "id": "2954",
+          "meta": {
+            "versionId": "1",
+            "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+            "source": "#a9952b10e72d72b1"
+          },
+          "identifier": [ {
+            "system": "urn:oid:2.16.840.1.113883.4.349",
+            "value": "983.60992"
+          } ],
+          "status": "completed",
+          "vaccineCode": {
+            "coding": [ {
+              "code": "90611",
+              "display": "SMALLPOX&MONKEYPOX VAC 0.5ML"
             } ],
-            "entry": [ {
-              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49432",
-              "resource": {
-                "resourceType": "Immunization",
-                "id": "49432",
-                "meta": {
-                  "versionId": "1",
-                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
-                  "source": "#ML8v9Ku1pGuXAhZr"
-                },
-                "status": "completed",
-                "vaccineCode": {
-                  "coding": [ {
-                    "system": "http://hl7.org/fhir/sid/cvx",
-                    "code": "140",
-                    "display": "Influenza, seasonal, injectable, preservative free"
-                  } ],
-                  "text": "Influenza, seasonal, injectable, preservative free"
-                },
-                "patient": {
-                  "reference": "Patient/49006"
-                },
-                "encounter": {
-                  "reference": "Encounter/49431"
-                },
-                "occurrenceDateTime": "2019-08-05T20:27:01-04:00",
-                "primarySource": true
-              },
-              "search": {
-                "mode": "match"
-              }
-            }, {
-              "fullUrl": "https://hapi.fhir.org/baseR4/Patient/49006",
-              "resource": {
-                "resourceType": "Patient",
-                "id": "49006",
-                "meta": {
-                  "versionId": "2",
-                  "lastUpdated": "2020-09-30T22:33:13.494+00:00",
-                  "source": "#KLMbL5Q6hypXtsP6"
-                },
-                "text": {
-                  "status": "generated",
-                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody></tbody></table></div>"
-                },
-                "telecom": [ {
-                  "system": "phone",
-                  "value": "9899 9878",
-                  "use": "home"
-                } ]
-              },
-              "search": {
-                "mode": "include"
-              }
-            } ]
-          }
-    recorded_at: Fri, 05 May 2023 17:49:23 GMT
-recorded_with: VCR 6.1.0
+            "text": "VACCINIA, SMALLPOX MPOX VACCINE LIVE, PF, SQ OR ID INJECTION"
+          },
+          "patient": {
+            "reference": "Patient/2952"
+          },
+          "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+          "location": {
+            "reference": "Location/2220"
+          },
+          "note": [ {
+            "text": "Maruf's Immunization test"
+          } ]
+        }
+  recorded_at: Wed, 12 Jul 2023 20:15:04 GMT
+recorded_with: VCR 6.2.0

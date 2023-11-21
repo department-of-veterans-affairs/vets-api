@@ -62,8 +62,40 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_single_id_200',
                          match_requests_on: %i[method path query]) do
-          response = subject.get_facilities(ids: '688')
+          response = subject.get_facilities(ids: '688', schedulable: true)
           expect(response[:data].size).to eq(1)
+        end
+      end
+    end
+
+    context 'with facility ids and schedulable not passed' do
+      it 'raises ArgumentError' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_not_passed',
+                         match_requests_on: %i[method path query]) do
+          expect { subject.get_facilities(ids: '983, 983GB, 983GC, 983GD') }.to raise_error(ArgumentError)
+        end
+      end
+    end
+
+    context 'with facility ids and schedulable false' do
+      it 'filters out schedulable configurations' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_false_required',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD', schedulable: false)
+          expect(response[:data].size).to eq(0)
+        end
+      end
+    end
+
+    context 'with facility ids and schedulable true' do
+      it 'returns schedulable configurations' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_true_required',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD', schedulable: true)
+          expect(response[:data][0][:classification]).to eq('Primary Care CBOC')
+          expect(response[:data][1][:classification]).to eq('Multi-Specialty CBOC')
+          expect(response[:data][2][:classification]).to eq('Other Outpatient Services (OOS)')
+          expect(response[:data][3][:classification]).to eq('VA Medical Center (VAMC)')
         end
       end
     end
@@ -72,18 +104,38 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200',
                          match_requests_on: %i[method path query]) do
-          response = subject.get_facilities(ids: '983,984')
+          response = subject.get_facilities(ids: '983,984', schedulable: true)
           expect(response[:data].size).to eq(2)
         end
       end
     end
 
-    context 'with a facility id and children true' do
+    context 'with a facility id and children true and schedulable true' do
       it 'returns a configuration' do
-        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_schedulable_200',
                          match_requests_on: %i[method path query]) do
-          response = subject.get_facilities(children: true, ids: '688')
+          response = subject.get_facilities(children: true, schedulable: true, ids: '688')
           expect(response[:data].size).to eq(8)
+        end
+      end
+    end
+
+    context 'with a facility id and children true and schedulable false' do
+      it 'returns a configuration' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_schedulable_false_200',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(children: true, schedulable: false, ids: '688')
+          expect(response[:data].size).to eq(0)
+        end
+      end
+    end
+
+    context 'with multiple facility ids and children true and schedulable true' do
+      it 'returns a configuration' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_multi_facilities_with_children_schedulable_true_200',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(children: true, schedulable: true, ids: '983, 984')
+          expect(response[:data].size).to eq(13)
         end
       end
     end
@@ -92,9 +144,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_400',
                          match_requests_on: %i[method path query]) do
-          expect { subject.get_facilities(ids: 688) }.to raise_error(
-            Common::Exceptions::BackendServiceException
-          )
+          expect { subject.get_facilities(ids: 688) }.to raise_error(ArgumentError)
         end
       end
     end
@@ -103,10 +153,64 @@ describe VAOS::V2::MobileFacilityService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_500',
                          match_requests_on: %i[method path query]) do
-          expect { subject.get_facilities(ids: '688') }.to raise_error(
+          expect { subject.get_facilities(ids: '688', schedulable: true) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
+      end
+    end
+  end
+
+  describe '#get_facilities_with_cache' do
+    context 'with multiple facility ids, none in cache' do
+      it 'returns all facility information and caches it' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_none_cached_200',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities_with_cache('541QB', '541QA', '541QE', '541QC')
+          facilities = response[:data]
+          expect(facilities.size).to eq(4)
+          expect(Rails.cache.exist?('vaos_facility_541QB')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QA')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QE')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QC')).to eq(true)
+        end
+      end
+    end
+
+    context 'with multiple facility ids, some in cache' do
+      it 'returns the facility information and caches uncached' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_some_cached_200',
+                         match_requests_on: %i[method path query]) do
+          mock_541_qb = OpenStruct.new(id: '541QB', name: 'Ceveland VA Clinic')
+          mock_541_qa = OpenStruct.new(id: '541QA', name: 'Summit County VA Clinic')
+          Rails.cache.write('vaos_facility_541QB', mock_541_qb)
+          Rails.cache.write('vaos_facility_541QA', mock_541_qa)
+
+          response = subject.get_facilities_with_cache(%w[541QB 541QA 541QE 541QC])
+          facilities = response[:data]
+          expect(facilities.size).to eq(4)
+          expect(Rails.cache.exist?('vaos_facility_541QB')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QA')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QE')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QC')).to eq(true)
+        end
+      end
+    end
+
+    context 'with multiple facility ids, all in cache' do
+      it 'returns the cached facility information' do
+        mock_541_qb = OpenStruct.new(id: '541QB', name: 'Ceveland VA Clinic')
+        mock_541_qa = OpenStruct.new(id: '541QA', name: 'Summit County VA Clinic')
+        mock_541_qe = OpenStruct.new(id: '541QE', name: 'Summit County 1 VA Clinic')
+        mock_541_qc = OpenStruct.new(id: '541QC', name: 'Cleveland 1 VA Clinic')
+        Rails.cache.write('vaos_facility_541QB', mock_541_qb)
+        Rails.cache.write('vaos_facility_541QA', mock_541_qa)
+        Rails.cache.write('vaos_facility_541QE', mock_541_qe)
+        Rails.cache.write('vaos_facility_541QC', mock_541_qc)
+
+        response = subject.get_facilities_with_cache(%w[541QB 541QA 541QE 541QC])
+        facilities = response[:data]
+        expect(facilities.size).to eq(4)
       end
     end
   end
@@ -118,7 +222,7 @@ describe VAOS::V2::MobileFacilityService do
                          match_requests_on: %i[method path query]) do
           clinic = subject.get_clinic(station_id: '983', clinic_id: '455')
           expect(clinic[:station_id]).to eq('983')
-          expect(clinic[:clinic_id]).to eq('455')
+          expect(clinic[:id]).to eq('455')
         end
       end
     end
@@ -129,7 +233,7 @@ describe VAOS::V2::MobileFacilityService do
                          match_requests_on: %i[method path query]) do
           clinic = subject.get_clinic(station_id: '983GB', clinic_id: '1053')
           expect(clinic[:station_id]).to eq('983GB')
-          expect(clinic[:clinic_id]).to eq('1053')
+          expect(clinic[:id]).to eq('1053')
         end
       end
     end
@@ -154,12 +258,12 @@ describe VAOS::V2::MobileFacilityService do
           expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(false)
           clinic = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(clinic[:station_id]).to eq('983')
-          expect(clinic[:clinic_id]).to eq('455')
+          expect(clinic[:id]).to eq('455')
           expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
         end
       end
 
-      it "calls '#get_clinic' retrieving information from MFS" do
+      it "calls '#get_clinic' retrieving information from VAOS Service" do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
                          match_requests_on: %i[method path query]) do
           # rubocop:disable RSpec/SubjectStub
@@ -197,6 +301,58 @@ describe VAOS::V2::MobileFacilityService do
             Common::Exceptions::BackendServiceException
           )
           expect(Rails.cache.exist?('vaos_clinic_983_does_not_exist')).to eq(false)
+        end
+      end
+    end
+  end
+
+  describe '#get_clinics' do
+    context 'when no station_id is passed in' do
+      it 'raises ParameterMissing exception' do
+        expect { subject.get_clinics(nil, 455) }.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
+
+    context 'when no clinic_ids are passed in' do
+      it 'raises ParameterMissing exception' do
+        expect { subject.get_clinics(983, nil) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { subject.get_clinics(983, []) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { subject.get_clinics(983) }.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
+
+    context 'with a station id and single clinic id' do
+      it 'returns the clinic information as the only item in an array' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          clinic = subject.get_clinics('983', '455')
+          expect(clinic.length).to eq(1)
+          expect(clinic[0][:station_id]).to eq('983')
+          expect(clinic[0][:id]).to eq('455')
+        end
+      end
+    end
+
+    context 'with a station id and multiple clinic ids as an array' do
+      it 'returns an array with the information of all the clinics' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinics_200',
+                         match_requests_on: %i[method path query]) do
+          clinics = subject.get_clinics('983', %w[455 16])
+          expect(clinics.length).to eq(2)
+          expect(clinics[0][:id]).to eq('16')
+          expect(clinics[1][:id]).to eq('455')
+        end
+      end
+    end
+
+    context 'with a station id and multiple clinic ids as individual arguments' do
+      it 'returns an array with the information of all the clinics' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinics_200',
+                         match_requests_on: %i[method path query]) do
+          clinic = subject.get_clinics('983', '455', '16')
+          expect(clinic.size).to eq(2)
+          expect(clinic[0][:id]).to eq('16')
+          expect(clinic[1][:id]).to eq('455')
         end
       end
     end
@@ -292,6 +448,46 @@ describe VAOS::V2::MobileFacilityService do
           )
           expect(Rails.cache.exist?('vaos_facility_983')).to eq(false)
         end
+      end
+    end
+  end
+
+  describe '#page_params' do
+    context 'when per_page is positive' do
+      context 'when per_page is positive' do
+        let(:pagination_params) do
+          { per_page: 3, page: 2 }
+        end
+
+        it 'returns pageSize and page' do
+          result = subject.send(:page_params, pagination_params)
+
+          expect(result).to eq({ pageSize: 3, page: 2 })
+        end
+      end
+    end
+
+    context 'when per_page is not positive' do
+      let(:pagination_params) do
+        { per_page: 0, page: 2 }
+      end
+
+      it 'returns pageSize only' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
+      end
+    end
+
+    context 'when per_page does not exist' do
+      let(:pagination_params) do
+        { page: 2 }
+      end
+
+      it 'returns pageSize as 0' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
       end
     end
   end

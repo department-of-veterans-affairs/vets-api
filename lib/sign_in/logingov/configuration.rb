@@ -70,6 +70,14 @@ module SignIn
         'api/openid_connect/userinfo'
       end
 
+      def public_jwks_path
+        '/api/openid_connect/certs'
+      end
+
+      def jwt_decode_algorithm
+        'RS256'
+      end
+
       def ssl_key
         OpenSSL::PKey::RSA.new(File.read(client_key_path))
       end
@@ -84,6 +92,14 @@ module SignIn
 
       def service_name
         'logingov'
+      end
+
+      def jwks_cache_key
+        'logingov_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
       end
 
       def connection

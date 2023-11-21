@@ -10,19 +10,21 @@ require 'disability_compensation/factories/api_provider_factory'
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
-    before_action { authorize :evss, :access? }
+    service_tag 'disability-application'
+    before_action(except: :rating_info) { authorize :evss, :access? }
+    before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
-      # TODO: Hard-coding 'form526' as the application that consumes this for now
-      # need whichever app that consumes this endpoint to switch to their credentials for Lighthouse API consumption
-      application = params['application'] || 'form526'
-      settings = Settings.lighthouse.veteran_verification[application]
-      service = ApiProviderFactory.rated_disabilities_service_provider(
-        { icn: @current_user.icn.to_s, auth_headers: }
+      api_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+        provider: nil,
+        options: { icn: @current_user.icn.to_s, auth_headers: },
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
 
-      response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities
 
       render json: response,
              serializer: RatedDisabilitiesSerializer
@@ -64,13 +66,31 @@ module V0
     end
 
     def rating_info
-      rating_info_service = EVSS::CommonService.new(auth_headers)
-      response = rating_info_service.get_rating_info
-      render json: response,
-             serializer: RatingInfoSerializer
+      if lighthouse?
+        service = LighthouseRatedDisabilitiesProvider.new(@current_user.icn)
+
+        disability_rating = service.get_combined_disability_rating
+
+        render json: { user_percent_of_disability: disability_rating },
+               serializer: LighthouseRatingInfoSerializer
+      else
+        rating_info_service = EVSS::CommonService.new(auth_headers)
+        response = rating_info_service.get_rating_info
+
+        render json: response, serializer: RatingInfoSerializer
+      end
     end
 
     private
+
+    def auth_rating_info
+      api = lighthouse? ? :lighthouse : :evss
+      authorize(api, :rating_info_access?)
+    end
+
+    def lighthouse?
+      Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
+    end
 
     def create_submission(saved_claim)
       Rails.logger.info(

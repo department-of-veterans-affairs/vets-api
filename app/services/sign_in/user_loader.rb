@@ -37,7 +37,7 @@ module SignIn
     def user_attributes
       {
         mhv_icn: session.user_account.icn,
-        idme_uuid: user_verification.idme_uuid,
+        idme_uuid: user_verification.idme_uuid || user_verification.backing_idme_uuid,
         logingov_uuid: user_verification.logingov_uuid,
         loa:,
         email: session.credential_email,

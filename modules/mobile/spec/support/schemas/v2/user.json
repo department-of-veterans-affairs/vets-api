@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "id",
+            "firstName",
+            "middleName",
+            "lastName",
+            "signinEmail",
+            "birthDate",
+            "signinService"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "middleName": {
+              "type": ["string", "null"]
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "signinEmail": {
+              "type": "string"
+            },
+            "birthDate": {
+              "type": ["string", "null"]
+            },
+            "signinService": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

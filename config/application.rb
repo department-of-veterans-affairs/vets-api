@@ -17,6 +17,7 @@ require 'action_mailer/railtie'
 # require "sprockets/railtie"
 require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/statsd_middleware'
+require_relative '../lib/faraday_adapter_socks/faraday_adapter_socks'
 require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems
@@ -98,6 +99,13 @@ module VetsAPI
         redirect_uri: 'coverband/auth/github/callback'
       }
 
+      config.scope_defaults :flipper, config: {
+        client_id: Settings.flipper.github_oauth_key,
+        client_secret: Settings.flipper.github_oauth_secret,
+        scope: 'read:org',
+        redirect_uri: 'flipper/auth/github/callback'
+      }
+
       config.serialize_from_session { |key| Warden::GitHub::Verifier.load(key) }
       config.serialize_into_session { |user| Warden::GitHub::Verifier.dump(user) }
     end
@@ -108,7 +116,7 @@ module VetsAPI
                                    http_only: true
 
     # These files do not contain auto-loaded ruby classes,
-    #   they are loaded through app/workers/education_form/forms/base.rb
-    Rails.autoloaders.main.ignore(Rails.root.join('app', 'workers', 'education_form', 'templates', '1990-disclosure'))
+    #   they are loaded through app/sidekiq/education_form/forms/base.rb
+    Rails.autoloaders.main.ignore(Rails.root.join('app', 'sidekiq', 'education_form', 'templates', '1990-disclosure'))
   end
 end

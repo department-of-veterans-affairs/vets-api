@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for Notice of Disagreement Creation endpoint headers (Decision Reviews API)",
+  "$ref": "#/definitions/nodCreateParameters",
+  "definitions": {
+    "nodCreateParameters": {
+      "type": "object",
+      "properties": {
+        "X-Consumer-Username":  { "$ref": "#/definitions/X-Consumer-Username"},
+        "X-Consumer-ID":        { "$ref": "#/definitions/X-Consumer-ID"}
+      }
+    },
+
+    "X-Consumer-Username": {
+      "allOf": [
+        { "description": "Consumer Username (passed from Kong)", "minLength": 1, "maxLength": 255 },
+        { "$ref": "nonBlankString.json" }
+      ]
+    },
+
+    "X-Consumer-ID": {
+      "allOf": [
+        { "description": "Consumer GUID", "minLength": 1, "maxLength": 255 },
+        { "$ref": "nonBlankString.json" }
+      ]
+    }
+  }
+}

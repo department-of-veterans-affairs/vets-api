@@ -38,6 +38,10 @@ module SignIn
         Constants::Auth::IDME_LOA3
       end
 
+      def public_jwks_path
+        'oidc/.well-known/jwks'
+      end
+
       def auth_path
         'oauth/authorize'
       end
@@ -70,10 +74,6 @@ module SignIn
         'RS256'
       end
 
-      def jwt_decode_public_key
-        OpenSSL::PKey::RSA.new(File.read(Settings.idme.oauth_public_key))
-      end
-
       def ssl_key
         OpenSSL::PKey::RSA.new(File.read(client_key_path))
       end
@@ -84,6 +84,18 @@ module SignIn
 
       def log_credential
         false
+      end
+
+      def sign_up_operation
+        'signup'
+      end
+
+      def jwks_cache_key
+        'idme_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
       end
 
       # Faraday connection object with breakers, snakecase and json response middleware

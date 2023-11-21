@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
 describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
@@ -25,15 +26,31 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
       let(:'X-VA-SSN') { '796-04-3735' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'WESLEY' }
+      let(:'X-VA-First-Name') { 'Wesley' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'FORD' }
+      let(:'X-VA-Last-Name') { 'Ford' }
 
       parameter SwaggerSharedComponents::V1.header_params[:veteran_birth_date_header]
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
 
       let(:Authorization) { 'Bearer token' }
+
+      let(:target_veteran) do
+        OpenStruct.new(
+          icn: '1012832025V743496',
+          first_name: 'Wesley',
+          last_name: 'Ford',
+          loa: { current: 3, highest: 3 },
+          edipi: '1007697216',
+          ssn: '796043735',
+          participant_id: '600061742',
+          mpi: OpenStruct.new(
+            icn: '1012832025V743496',
+            profile: OpenStruct.new(ssn: '796043735')
+          )
+        )
+      end
 
       describe 'Getting a 200 response' do
         response '200', 'claim response' do
@@ -43,10 +60,11 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claims_trimmed_down') do
+            mock_acg(scopes) do
+              VCR.use_cassette('bgs/claims/claims_trimmed_down') do
+                allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+                  .to receive(:target_veteran).and_return(target_veteran)
                 submit_request(example.metadata)
               end
             end
@@ -76,10 +94,10 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claims') do
+            mock_acg(scopes) do
+              VCR.use_cassette('bgs/claims/claims') do
+                allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
             end
@@ -108,14 +126,12 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            allow_any_instance_of(
-              ClaimsApi::UnsynchronizedEVSSClaimService
-            ).to receive(:all).and_raise(EVSS::ErrorMiddleware::EVSSError)
-
-            with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claims') do
+            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:all).and_raise(
+              Common::Exceptions::ResourceNotFound.new(detail: 'The BGS server did not find the resource.')
+            )
+            mock_acg(scopes) do
+              VCR.use_cassette('bgs/claims/claims') do
                 submit_request(example.metadata)
               end
             end
@@ -179,10 +195,9 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claim') do
+            mock_acg(scopes) do
+              VCR.use_cassette('bgs/claims/claim') do
                 submit_request(example.metadata)
               end
             end
@@ -213,10 +228,10 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claim') do
+            mock_acg(scopes) do
+              VCR.use_cassette('bgs/claims/claim') do
+                allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
             end
@@ -246,11 +261,10 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).and_return(nil)
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               submit_request(example.metadata)
             end
           end

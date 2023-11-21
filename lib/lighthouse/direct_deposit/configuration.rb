@@ -64,7 +64,7 @@ module DirectDeposit
 
         faraday.response :betamocks if use_mocks?
         faraday.response :snakecase, symbolize: false
-        faraday.response :json
+        faraday.response :json, content_type: /\bjson/
 
         faraday.adapter Faraday.default_adapter
       end
@@ -95,7 +95,7 @@ module DirectDeposit
       token = settings.access_token
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        url, API_SCOPES, token.client_id, token.aud_claim_url, token.rsa_key
+        url, API_SCOPES, token.client_id, token.aud_claim_url, token.rsa_key, 'direct-deposit'
       )
     end
   end

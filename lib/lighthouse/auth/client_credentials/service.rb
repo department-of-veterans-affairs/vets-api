@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'lighthouse/auth/client_credentials/configuration'
+require 'lighthouse/auth/client_credentials/access_token_tracker'
 require 'lighthouse/auth/client_credentials/jwt_generator'
 
 module Auth
@@ -16,14 +17,20 @@ module Auth
       # @param [String] client_id - ID used to identify the application
       # @param [String] aud_claim_url - The claim URL used as the 'aud' portion of the JWT
       # @param [String] rsa_key - RSA key used to encode the authentication JWT
-      def initialize(token_url, api_scopes, client_id, aud_claim_url, rsa_key)
+      # @param [String] service_name - name to use when caching access token in Redis (Optional)
+      # rubocop:disable Metrics/ParameterLists
+      def initialize(token_url, api_scopes, client_id, aud_claim_url, rsa_key, service_name = nil)
         @url = token_url
         @scopes = api_scopes
         @client_id = client_id
         @aud = aud_claim_url
         @rsa_key = rsa_key
+        @service_name = service_name
+
+        @tracker = AccessTokenTracker
         super()
       end
+      # rubocop:enable Metrics/ParameterLists
 
       ##
       # Request an access token
@@ -31,14 +38,40 @@ module Auth
       # @return [String] the access token needed to make requests
       #
       def get_token(auth_params = {})
-        assertion = build_assertion
-        request_body = build_request_body(assertion, @scopes, auth_params)
-        res = config.get_access_token(@url, request_body)
+        if @service_name.nil?
+          res = get_new_token(auth_params)
+          return res.body['access_token']
+        end
 
-        res.body['access_token']
+        access_token = @tracker.get_access_token(@service_name)
+
+        if access_token.nil?
+          uuid = SecureRandom.uuid
+          log_info(message: 'Access token expired. Fetching new token', service_name: @service_name, uuid:)
+
+          res = get_new_token(auth_params)
+          access_token = res.body['access_token']
+          ttl = res.body['expires_in']
+          @tracker.set_access_token(@service_name, access_token, ttl)
+
+          log_info(message: "New access token deposited in Redis store with TTL: #{ttl}",
+                   service_name: @service_name, uuid:)
+        end
+
+        access_token
       end
 
       private
+
+      def get_new_token(auth_params = {})
+        assertion = build_assertion
+        request_body = build_request_body(assertion, @scopes, auth_params)
+        config.get_access_token(@url, request_body)
+      end
+
+      def log_info(message:, service_name:, uuid:)
+        ::Rails.logger.info({ message_type: 'Lighthouse CCG access token', message:, service_name:, uuid: })
+      end
 
       ##
       # @return [String] new JWT token

@@ -1,0 +1,32 @@
+{
+  "data": {
+    "type": "higherLevelReview",
+    "attributes": {
+      "informalConference": false,
+      "benefitType": "lifeInsurance",
+      "veteran": {
+        "icn": "1013062086V794840",
+        "ssn": "123456789",
+        "firstName": "Jane",
+        "lastName": "Doe",
+        "birthDate": "1969-12-31",
+        "homeless": false,
+        "address": {
+          "addressLine1": "123 Some St.",
+          "city": "Sometown",
+          "countryCodeIso3": "USA",
+          "zipCode5": "12345"
+        }
+      }
+    }
+  },
+  "included": [
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "left shoulder",
+        "decisionDate": "1920-12-01"
+      }
+    }
+  ]
+}

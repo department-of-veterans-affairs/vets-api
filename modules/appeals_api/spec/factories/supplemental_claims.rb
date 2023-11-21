@@ -1,18 +1,15 @@
 # frozen_string_literal: true
 
+require_relative '../support/fixture_helpers'
+
 FactoryBot.define do
+  # Decision Reviews API v2 SCs
   factory :supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     evidence_submission_indicated { true }
-    auth_headers do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995_headers.json'.split('/')).to_s))
-    end
-    form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995.json'.split('/')).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995.json' }
 
     trait :status_success do
       status { 'success' }
@@ -32,43 +29,37 @@ FactoryBot.define do
     api_version { 'V2' }
     evidence_submission_indicated { true }
     auth_headers do
-      JSON.parse(File
-        .read(
-          ::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995_headers_extra.json'.split('/')).to_s
-        )).transform_values(&:strip)
+      FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_headers_extra.json')
+                    .transform_values(&:strip)
     end
-    form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995_extra.json'.split('/')).to_s))
-    end
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995_extra.json' }
   end
 
   factory :minimal_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
     id { SecureRandom.uuid }
     api_version { 'V2' }
-    auth_headers do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995_headers_minimum.json'.split('/'))
-        .to_s))
-    end
-    form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995.json'.split('/')).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995_headers_minimum.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995.json' }
   end
 
+  # Supplemental Claims API v0 SCs
   factory :supplemental_claim_v0,
           class: 'AppealsApi::SupplementalClaim', parent: :supplemental_claim do
     api_version { 'V0' }
+    auth_headers { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995.json' }
   end
 
   factory :extra_supplemental_claim_v0,
           class: 'AppealsApi::SupplementalClaim', parent: :extra_supplemental_claim do
     api_version { 'V0' }
+    auth_headers { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_extra.json' }
   end
 
   factory :minimal_supplemental_claim_v0,
           class: 'AppealsApi::SupplementalClaim', parent: :minimal_supplemental_claim do
     api_version { 'V0' }
+    form_data { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995.json' }
   end
 end

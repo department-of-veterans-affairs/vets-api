@@ -1,23 +1,23 @@
 The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).  
 
-To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).
+To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/api/appeals-status/docs).
 
 ## Technical overview
 The Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.
 
 ### Authorization and Access
 The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
-* [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code)
-* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials)
+* [Authorization code flow](https://developer.va.gov/explore/api/higher-level-reviews/authorization-code)
+* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/higher-level-reviews/client-credentials)
 
-To use this API, you must first [request sandbox access](https://developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials).
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
 
 ### Submission Statuses
 Use the correct GET endpoint to check the status of a Higher-Level Review submission. 
 
 These endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns. 
 
-To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).
+To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://developer.va.gov/explore/api/appeals-status/docs).
 
 | Status      | What it means |
 | ---        |     ---     |
@@ -34,6 +34,4 @@ To check the status of an appeal as it will appear to a claimant, use the [Appea
 Test submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.
 
 #### Status Caching
-Due to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.
-
-### [Terms of service](https://developer.va.gov/terms-of-service)
+Due to system limitations, status attribute data for the GET `/forms/200996/{id}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.

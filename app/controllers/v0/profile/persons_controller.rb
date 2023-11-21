@@ -6,6 +6,7 @@ module V0
   module Profile
     class PersonsController < ApplicationController
       include Vet360::Transactionable
+      service_tag 'profile'
 
       after_action :invalidate_mpi_cache
 

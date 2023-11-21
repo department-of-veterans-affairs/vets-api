@@ -2,26 +2,44 @@
 
 require 'rails_helper'
 require 'support/mr_client_helpers'
+require 'medical_records/client'
 
 RSpec.describe 'Medical Records Integration', type: :request do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 
-  it 'responds to GET #index' do
-    VCR.use_cassette('mr_client/get_a_list_of_labs_and_tests') do
-      get '/my_health/v1/medical_records/labs_and_tests?patient_id=258974'
-    end
+  let(:user_id) { '11898795' }
+  let(:va_patient) { true }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
-    expect(response).to be_successful
-    expect(response.body).to be_a(String)
+  before do
+    allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    sign_in_as(current_user)
   end
 
-  it 'responds to GET #show' do
-    VCR.use_cassette('mr_client/get_a_single_lab_or_test') do
-      get '/my_health/v1/medical_records/labs_and_tests/40766'
+  context 'Premium User' do
+    let(:mhv_account_type) { 'Premium' }
+
+    it 'responds to GET #index' do
+      VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
+        VCR.use_cassette('mr_client/get_a_list_of_diagreport_labs') do
+          VCR.use_cassette('mr_client/get_a_list_of_docref_labs') do
+            get '/my_health/v1/medical_records/labs_and_tests'
+          end
+        end
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
     end
 
-    expect(response).to be_successful
-    expect(response.body).to be_a(String)
+    it 'responds to GET #show' do
+      VCR.use_cassette('mr_client/get_a_single_lab_or_test') do
+        get '/my_health/v1/medical_records/labs_and_tests/40766'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+    end
   end
 end

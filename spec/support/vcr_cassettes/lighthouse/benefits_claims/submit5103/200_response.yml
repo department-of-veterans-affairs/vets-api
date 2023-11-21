@@ -1,0 +1,82 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims/600397108/5103
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 01 Jun 2023 18:09:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '16'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '22'
+      Etag:
+      - W/"c955e57777ec0d73639dca6748560d00"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Custom-Response-Header:
+      - eks-staging
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 6e7211ba39afc48551d417bbfeb8a6a251585bda
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 39011c07-f65a-4a88-820e-49e862c62275
+      X-Runtime:
+      - '1.210936'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"success":true}'
+  recorded_at: Thu, 01 Jun 2023 18:09:39 GMT
+recorded_with: VCR 6.1.0

@@ -1,0 +1,202 @@
+{
+    "data": {
+      "type": "higherLevelReview",
+      "attributes": {
+        "benefitType": "education",
+        "veteran": {
+          "icn": "1013062086V794840",
+          "ssn": "123456789",
+          "firstName": "Jäñe",
+          "middleInitial": "ø",
+          "lastName": "Doé",
+          "birthDate": "1969-12-31",
+          "fileNumber": "987654321",
+          "serviceNumber": "876543210",
+          "insurancePolicyNumber": "987654321123456789",
+          "homeless": true,
+          "address": {
+            "addressLine1": "123 Main St",
+            "addressLine2": "Suite #1200",
+            "addressLine3": "Box 4",
+            "city": "New York",
+            "countryCodeIso3": "USA",
+            "stateCode": "NY",
+            "zipCode5": "30012"
+          },
+          "phone": {
+            "countryCode": "34",
+            "areaCode": "555",
+            "phoneNumber": "8001111",
+            "phoneNumberExt": "2"
+          },
+          "email": "bob@bobbytablesemail.com",
+          "timezone": "America/Chicago"
+        },
+        "claimant": {
+          "ssn": "829347561",
+          "birthDate": "1972-05-08",
+          "firstName": "Betty",
+          "middleInitial": "D",
+          "lastName": "Boop",
+          "address": {
+            "addressLine1": "456 First St",
+            "addressLine2": "Apt 5",
+            "addressLine3": "Box 1",
+            "city": "Detroit",
+            "countryCodeIso3": "USA",
+            "stateCode": "MI",
+            "zipCode5": "48070"
+          },
+          "phone": {
+            "countryCode": "1",
+            "areaCode": "555",
+            "phoneNumber": "8111100",
+            "phoneNumberExt": "4"
+          },
+          "email": "claimant@email.com",
+          "timezone": "America/Detroit"
+        },
+        "informalConference": true,
+        "informalConferenceContact": "veteran",
+        "informalConferenceTime": "800-1200 ET",
+        "informalConferenceRep": {
+          "firstName": "Helen",
+          "lastName": "Holly",
+          "email": "holly@hellohellenholly.com",
+          "phone": {
+            "countryCode": "1",
+            "areaCode": "555",
+            "phoneNumber": "8001111",
+            "phoneNumberExt": "2"
+          }
+        }
+      }
+    },
+    "included": [
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "123456789",
+          "decisionDate": "1900-01-01",
+          "decisionIssueId": 1,
+          "ratingIssueReferenceId": "2",
+          "ratingDecisionReferenceId": "3",
+          "socDate": "2020-04-30",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left eyee",
+          "decisionDate": "1900-01-02",
+          "disagreementArea": "123456789"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right eye",
+          "decisionDate": "1900-01-03"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left ear",
+          "decisionDate": "1900-01-04",
+          "socDate": "2019-05-15",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right ear",
+          "decisionDate": "1900-01-05",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "migraines",
+          "decisionDate": "1900-01-06",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left knee",
+          "decisionDate": "1900-01-07",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right knee",
+          "decisionDate": "1900-01-08",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left foot",
+          "decisionDate": "1900-01-09",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right foot",
+          "decisionDate": "1900-01-10",
+          "socDate": "2021-01-08",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left hand",
+          "decisionDate": "1900-01-11",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right hand",
+          "decisionDate": "1900-01-12",
+          "disagreementArea": "Rating"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "fever",
+          "decisionDate": "1900-01-13",
+          "disagreementArea": "Service connection"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "lupus",
+          "decisionDate": "1900-01-14",
+          "socDate": "2020-09-23"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "cooties",
+          "decisionDate": "1900-01-15",
+          "disagreementArea": "Service connection"
+        }
+      }
+    ]
+}

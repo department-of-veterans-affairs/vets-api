@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/sis_session_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.shared_examples 'sso logging' do |type|
@@ -11,7 +11,10 @@ RSpec.shared_examples 'sso logging' do |type|
       allow(Rails.logger).to receive(:warn)
 
       if type == :sis
+        user = sis_user
         @new_headers = sis_headers
+        # prevent fingerprint mismatch that raises a warning and complicates tests
+        request.remote_ip = user.fingerprint
       else
         @new_headers = iam_headers
         iam_sign_in

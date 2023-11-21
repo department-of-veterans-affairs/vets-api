@@ -85,7 +85,7 @@
           "name": "Asthma, bronchial",
           "classificationCode": "string",
           "disabilityActionType": "INCREASE",
-          "ratedDisabilityId": "0",
+          "ratedDisabilityId": "1",
           "diagnosticCode": 6602,
           "secondaryDisabilities": []
         },
@@ -93,7 +93,7 @@
           "name": "Diabetes, mellitus",
           "classificationCode": "string",
           "disabilityActionType": "INCREASE",
-          "ratedDisabilityId": "1",
+          "ratedDisabilityId": "2",
           "diagnosticCode": 5238,
           "secondaryDisabilities": []
         }

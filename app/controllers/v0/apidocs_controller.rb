@@ -65,10 +65,6 @@ module V0
         key :description, 'Send and receive secure messages to health providers'
       end
       tag do
-        key :name, 'terms_and_conditions'
-        key :description, 'Terms and conditions acceptance for access to health tools'
-      end
-      tag do
         key :name, 'facilities'
         key :description, 'VA facilities, locations, hours of operation, available services'
       end
@@ -177,7 +173,6 @@ module V0
       Swagger::Requests::SearchClickTracking,
       Swagger::Requests::SearchTypeahead,
       Swagger::Requests::SignIn,
-      Swagger::Requests::TermsAndConditions,
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
       Swagger::Requests::CaregiversAssistanceClaims,
@@ -199,6 +194,7 @@ module V0
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
+      Swagger::Schemas::Contacts,
       Swagger::Schemas::DecisionReviewEvidence,
       Swagger::Schemas::Dependents,
       Swagger::Schemas::DependentsVerifications,
@@ -242,7 +238,6 @@ module V0
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::SignIn,
       Swagger::Schemas::States,
-      Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Permission,

@@ -91,13 +91,12 @@ modules_appeals_api:
     path_enabled_flag: true
   legacy_appeals_enabled: true
 
+bd:
+  base_name: staging-api.va.gov/services
+
 # Put a real api_key in the BRD_API_KEY environment variable to record VCR cassettes
 # Be sure to not commit the api key and the cassettes.
-# If used the tunnel and localhost for the base_name, then you don't need an api key
-# If you use localhost, uncomment `ssl: false`.
 brd:
-  # base_name: localhost:4451
-  # ssl: false
   base_name: staging-api.va.gov/services
   api_key: testapikeyhere
 
@@ -118,8 +117,11 @@ bgs:
   # ssl_verify_mode: "none"
 
 flipper:
-  admin_user_emails:
-    - abraham.lincoln@vets.gov
+  github_organization: "organization"
+  github_team: 0000000
+  github_oauth_key: xxx000
+  github_oauth_secret: 000xxx
+  github_api_key: ~
 
 va_forms:
   drupal_username: ~
@@ -133,7 +135,6 @@ vanotify:
       api_key: fake_api_key
       template_id:
         disconnection_template: fake_template_id
-        connection_template: fake_template_id
     check_in:
       api_key: check-in_aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
       sms_sender_id: fake_sms_sender_id
@@ -239,6 +240,15 @@ sidekiq:
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
 
+chip:
+  url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+  base_path: dev
+  api_gtwy_id: fake_gtwy_id
+  redis_timeout: 30
+  mock: true
+  mobile_app:
+    tenant_id: 12345678-aaaa-bbbb-cccc-269c51a7d380
+
 check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
@@ -295,15 +305,18 @@ mcp:
   vbs:
     url: https://fake_url.com:9000
     host: fake_url.com:9000
-    base_path: /base/path
+    base_path: /vbsapi
     service_name: VBS
     mock: true
   vbs_v2:
-    url: https://fake_url.com:9000
-    host: fake_url.com:9000
-    base_path: /base/path
+    url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    host: internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    base_path: /vbsapi
     service_name: VBS
     mock: true
+  notifications:
+    job_interval: 90
+    batch_size: 100
 dgi:
   jwt:
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
@@ -338,18 +351,54 @@ form_10_10cg:
 
 vha:
   sharepoint:
-    sharepoint_url: "fake_url.com"
-    client_id: "51dadf135qwwc"
-    client_secret: "xxxxxxxxx"
-    tenant_id: "ad21angkl35dadf43ad56"
-    resource: "23asdb54ada655a3"
+    sharepoint_url: "dvagov.sharepoint.com"
+    client_id: "fake_sharepoint_client_id"
+    client_secret: "fake_sharepoint_client_secret"
+    tenant_id: "fake_sharepoint_tenant_id"
+    resource: "00000003-0000-0ff1-ce00-000000000000"
     service_name: "VHA-SHAREPOINT"
-    base_path: "/base"
-    authentication_url: "https://fake_auth_url.com"
-    mock: true
+    base_path: "/sites/vhafinance/MDW"
+    authentication_url: "https://accounts.accesscontrol.windows.net"
+    mock: false
 
 mhv:
   medical_records:
     app_id: 0
     app_token: xyz
     host: http://example.org
+
+evss:
+  dvp:
+    url: https://fakedomainandsubdomain.com
+
+claims_api:
+  evss_container:
+    auth_base_name: staging-api.va.gov
+    client_key: fakekeyvaluehere
+  pdf_generator_526:
+    url: 'https://fake_pdf_url.com'
+    path: '/form-526ez-pdf-generator/v1/forms/'
+    content_type: 'application/vnd.api+json'
+  benefits_documents:
+    host: https://staging-api.va.gov
+    auth:
+      ccg:
+        client_id: fakekeyvaluehere
+        secret_key: path/to/fake/key.pem
+        aud_claim_url: https://fakeurlhere/fake/path/here
+
+ask_va:
+  dynamics_api:
+    auth_url: https://login.microsoftonline.us
+    base_url: https://dev.integration.d365.va.gov
+    client_id: client_id
+    client_secret: client_secret
+    veis_api_path: veis/vagov.lob.ava/api
+    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    ocp_apim_subscription_key: subscription_key
+    mock: true
+    redis_token_expiry: 3540 # 59 minutes
+    service_name: VEIS-API
+  authentication:
+    max_auth_retry_limit: 3
+    retry_attempt_expiry: 604800 # 7 Days

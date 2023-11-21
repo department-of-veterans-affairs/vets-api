@@ -6,8 +6,7 @@
     "contact": {
       "name": "developer.va.gov"
     },
-    "termsOfService": "https://developer.va.gov/terms-of-service",
-    "description": "The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nThe authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)\n\nTo use this API, you must first [request sandbox access](https://dev-developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://dev-developer.va.gov/explore/authorization/docs/client-credentials).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission.\n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.\n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n\n### [Terms of service](https://dev-developer.va.gov/terms-of-service)\n"
+    "description": "The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](/explore/api/appeals-status/docs).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nThe authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](/explore/api/higher-level-reviews/authorization-code)\n* [Client Credentials Grant (CCG)](/explore/api/higher-level-reviews/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](/support/contact-us).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission.\n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.\n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](/explore/api/appeals-status/docs).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{id}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n"
   },
   "tags": [
     {
@@ -170,8 +169,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Info about a single Higher-Level Review",
+          "201": {
+            "description": "Higher-Level Review created",
             "content": {
               "application/json": {
                 "examples": {
@@ -182,8 +181,8 @@
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2020-01-02T03:04:05.067Z",
-                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "createDate": "2020-01-02T03:04:05.067Z",
+                          "updateDate": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -191,20 +190,24 @@
                                 "informalConference": false,
                                 "benefitType": "lifeInsurance",
                                 "veteran": {
+                                  "icn": "1013062086V794840",
+                                  "ssn": "123456789",
+                                  "firstName": "Jane",
+                                  "lastName": "Doe",
+                                  "birthDate": "1969-12-31",
                                   "homeless": false,
                                   "address": {
                                     "addressLine1": "123 Some St.",
                                     "city": "Sometown",
-                                    "countryCodeISO2": "US",
+                                    "countryCodeIso3": "USA",
                                     "zipCode5": "12345"
                                   }
-                                },
-                                "socOptIn": true
+                                }
                               }
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left shoulder",
                                   "decisionDate": "1920-12-01"
@@ -223,21 +226,30 @@
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2020-01-02T03:04:05.067Z",
-                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "createDate": "2020-01-02T03:04:05.067Z",
+                          "updateDate": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
                               "attributes": {
                                 "benefitType": "education",
                                 "veteran": {
+                                  "icn": "1013062086V794840",
+                                  "ssn": "123456789",
+                                  "firstName": "Jäñe",
+                                  "middleInitial": "ø",
+                                  "lastName": "Doé",
+                                  "birthDate": "1969-12-31",
+                                  "fileNumber": "987654321",
+                                  "serviceNumber": "876543210",
+                                  "insurancePolicyNumber": "987654321123456789",
                                   "homeless": true,
                                   "address": {
                                     "addressLine1": "123 Main St",
                                     "addressLine2": "Suite #1200",
                                     "addressLine3": "Box 4",
                                     "city": "New York",
-                                    "countryCodeISO2": "US",
+                                    "countryCodeIso3": "USA",
                                     "stateCode": "NY",
                                     "zipCode5": "30012"
                                   },
@@ -251,12 +263,17 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "claimant": {
+                                  "ssn": "829347561",
+                                  "birthDate": "1972-05-08",
+                                  "firstName": "Betty",
+                                  "middleInitial": "D",
+                                  "lastName": "Boop",
                                   "address": {
                                     "addressLine1": "456 First St",
                                     "addressLine2": "Apt 5",
                                     "addressLine3": "Box 1",
                                     "city": "Detroit",
-                                    "countryCodeISO2": "US",
+                                    "countryCodeIso3": "USA",
                                     "stateCode": "MI",
                                     "zipCode5": "48070"
                                   },
@@ -269,7 +286,6 @@
                                   "email": "claimant@email.com",
                                   "timezone": "America/Detroit"
                                 },
-                                "socOptIn": true,
                                 "informalConference": true,
                                 "informalConferenceContact": "veteran",
                                 "informalConferenceTime": "800-1200 ET",
@@ -288,7 +304,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "123456789",
                                   "decisionDate": "1900-01-01",
@@ -300,7 +316,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left eyee",
                                   "decisionDate": "1900-01-02",
@@ -308,14 +324,14 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right eye",
                                   "decisionDate": "1900-01-03"
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left ear",
                                   "decisionDate": "1900-01-04",
@@ -324,7 +340,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right ear",
                                   "decisionDate": "1900-01-05",
@@ -332,7 +348,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "migraines",
                                   "decisionDate": "1900-01-06",
@@ -340,7 +356,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left knee",
                                   "decisionDate": "1900-01-07",
@@ -348,7 +364,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right knee",
                                   "decisionDate": "1900-01-08",
@@ -356,7 +372,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left foot",
                                   "decisionDate": "1900-01-09",
@@ -364,7 +380,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right foot",
                                   "decisionDate": "1900-01-10",
@@ -373,7 +389,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left hand",
                                   "decisionDate": "1900-01-11",
@@ -381,7 +397,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right hand",
                                   "decisionDate": "1900-01-12",
@@ -389,7 +405,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "fever",
                                   "decisionDate": "1900-01-13",
@@ -397,7 +413,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "lupus",
                                   "decisionDate": "1900-01-14",
@@ -405,7 +421,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "cooties",
                                   "decisionDate": "1900-01-15",
@@ -489,20 +505,24 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jane",
+                          "lastName": "Doe",
+                          "birthDate": "1969-12-31",
                           "homeless": false,
                           "address": {
                             "addressLine1": "123 Some St.",
                             "city": "Sometown",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "zipCode5": "12345"
                           }
-                        },
-                        "socOptIn": true
+                        }
                       }
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left shoulder",
                           "decisionDate": "1920-12-01"
@@ -518,13 +538,22 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "serviceNumber": "876543210",
+                          "insurancePolicyNumber": "987654321123456789",
                           "homeless": true,
                           "address": {
                             "addressLine1": "123 Main St",
                             "addressLine2": "Suite #1200",
                             "addressLine3": "Box 4",
                             "city": "New York",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "stateCode": "NY",
                             "zipCode5": "30012"
                           },
@@ -538,12 +567,17 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "ssn": "829347561",
+                          "birthDate": "1972-05-08",
+                          "firstName": "Betty",
+                          "middleInitial": "D",
+                          "lastName": "Boop",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
                             "addressLine3": "Box 1",
                             "city": "Detroit",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "stateCode": "MI",
                             "zipCode5": "48070"
                           },
@@ -556,7 +590,6 @@
                           "email": "claimant@email.com",
                           "timezone": "America/Detroit"
                         },
-                        "socOptIn": true,
                         "informalConference": true,
                         "informalConferenceContact": "veteran",
                         "informalConferenceTime": "800-1200 ET",
@@ -575,7 +608,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "123456789",
                           "decisionDate": "1900-01-01",
@@ -587,7 +620,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left eyee",
                           "decisionDate": "1900-01-02",
@@ -595,14 +628,14 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right eye",
                           "decisionDate": "1900-01-03"
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left ear",
                           "decisionDate": "1900-01-04",
@@ -611,7 +644,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right ear",
                           "decisionDate": "1900-01-05",
@@ -619,7 +652,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "migraines",
                           "decisionDate": "1900-01-06",
@@ -627,7 +660,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left knee",
                           "decisionDate": "1900-01-07",
@@ -635,7 +668,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right knee",
                           "decisionDate": "1900-01-08",
@@ -643,7 +676,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left foot",
                           "decisionDate": "1900-01-09",
@@ -651,7 +684,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right foot",
                           "decisionDate": "1900-01-10",
@@ -660,7 +693,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left hand",
                           "decisionDate": "1900-01-11",
@@ -668,7 +701,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right hand",
                           "decisionDate": "1900-01-12",
@@ -676,7 +709,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "fever",
                           "decisionDate": "1900-01-13",
@@ -684,7 +717,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "lupus",
                           "decisionDate": "1900-01-14",
@@ -692,7 +725,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "cooties",
                           "decisionDate": "1900-01-15",
@@ -708,7 +741,7 @@
         }
       }
     },
-    "/forms/200996/{uuid}": {
+    "/forms/200996/{id}": {
       "get": {
         "summary": "Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)",
         "description": "Returns all of the data associated with a specific Higher-Level Review.",
@@ -739,14 +772,15 @@
         ],
         "parameters": [
           {
-            "name": "uuid",
+            "name": "id",
             "in": "path",
-            "description": "Higher-Level Review UUID",
-            "example": "44e08764-6008-46e8-a95e-eb21951a5b68",
-            "required": true,
+            "description": "Higher-Level Review ID",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "44e08764-6008-46e8-a95e-eb21951a5b68",
+            "required": true
           }
         ],
         "responses": {
@@ -760,8 +794,8 @@
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z"
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -782,6 +816,155 @@
                       "detail": "HigherLevelReview with uuid invalid not found",
                       "status": "404",
                       "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/forms/200996/{id}/download": {
+      "get": {
+        "summary": "Download a watermarked copy of a submitted Higher-Level Review",
+        "tags": [
+          "Higher-Level Reviews"
+        ],
+        "operationId": "downloadHlr",
+        "security": [
+          {
+            "productionOauth": [
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Returns a watermarked copy of a Higher-Level Review PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Higher-Level Review has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Higher-Level Review has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n",
+        "parameters": [
+          {
+            "name": "icn",
+            "description": "ICN of the Veteran associated with the Higher-Level Review",
+            "example": "0123456789V012345",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{10}V[0-9]{6}$",
+              "minLength": 17,
+              "maxLength": 17
+            },
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Higher-Level Review ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "44444444-5555-6666-7777-888888888888",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Higher-Level Review record was not found, or the provided 'icn' query parameter does not match the record's ICN",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "404",
+                      "detail": "HigherLevelReview with uuid 44444444-5555-6666-7777-888888888888 not found",
+                      "status": "404",
+                      "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Personally identifying information gone",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "410",
+                      "detail": "PDF for HigherLevelReview with id 44444444-5555-6666-7777-888888888888 cannot be downloaded because the form data was deleted from the server after the PII retention period expired",
+                      "status": "410",
+                      "title": "PDF download expired"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing 'icn' query parameter",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable Entity",
+                      "detail": "'icn' parameter is required",
+                      "code": "422",
+                      "status": "422"
                     }
                   ]
                 },
@@ -847,7 +1030,7 @@
           {
             "name": "schema_type",
             "in": "path",
-            "description": "Schema type. Can be: `200996`, `address`, `non_blank_string`, `phone`, `timezone`",
+            "description": "Schema type. Can be: `200996`, `address`, `nonBlankString`, `phone`, `timezone`",
             "required": true,
             "examples": {
               "200996": {
@@ -856,8 +1039,8 @@
               "address": {
                 "value": "address"
               },
-              "non_blank_string": {
-                "value": "non_blank_string"
+              "nonBlankString": {
+                "value": "nonBlankString"
               },
               "phone": {
                 "value": "phone"
@@ -915,6 +1098,76 @@
                                 "veteran": {
                                   "type": "object",
                                   "properties": {
+                                    "ssn": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Veteran's SSN"
+                                        }
+                                      ]
+                                    },
+                                    "icn": {
+                                      "$ref": "icn.json"
+                                    },
+                                    "firstName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's first name",
+                                          "minLength": 1,
+                                          "maxLength": 30
+                                        },
+                                        {
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's middle initial",
+                                          "minLength": 1,
+                                          "maxLength": 1
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's last name",
+                                          "minLength": 1,
+                                          "maxLength": 40
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Veteran's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "fileNumber": {
+                                      "$ref": "fileNumber.json"
+                                    },
+                                    "insurancePolicyNumber": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's insurance policy number",
+                                          "maxLength": 18
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
                                     "homeless": {
                                       "type": "boolean"
                                     },
@@ -935,6 +1188,11 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "icn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "homeless"
                                   ],
                                   "if": {
@@ -952,8 +1210,50 @@
                                 },
                                 "claimant": {
                                   "type": "object",
-                                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                                  "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                                   "properties": {
+                                    "ssn": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's SSN"
+                                        }
+                                      ]
+                                    },
+                                    "firstName": {
+                                      "type": "string",
+                                      "description": "Non-veteran claimant's first name",
+                                      "maxLength": 30
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's middle initial",
+                                          "maxLength": 1
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's last name",
+                                          "maxLength": 40
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Non-veteran claimant's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
                                     "address": {
                                       "$ref": "address.json"
                                     },
@@ -971,6 +1271,10 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "address",
                                     "phone"
                                   ]
@@ -1016,16 +1320,12 @@
                                     "lastName",
                                     "phone"
                                   ]
-                                },
-                                "socOptIn": {
-                                  "type": "boolean"
                                 }
                               },
                               "required": [
                                 "informalConference",
                                 "benefitType",
-                                "veteran",
-                                "socOptIn"
+                                "veteran"
                               ],
                               "if": {
                                 "properties": {
@@ -1055,7 +1355,7 @@
                               "type": {
                                 "type": "string",
                                 "enum": [
-                                  "contestableIssue"
+                                  "appealableIssue"
                                 ]
                               },
                               "attributes": {
@@ -1064,7 +1364,7 @@
                                   "issue": {
                                     "allOf": [
                                       {
-                                        "$ref": "non_blank_string.json"
+                                        "$ref": "nonBlankString.json"
                                       },
                                       {
                                         "minLength": 1,
@@ -1210,15 +1510,17 @@
                                 "WY"
                               ]
                             },
-                            "countryCodeISO2": {
+                            "countryCodeIso3": {
+                              "description": "Three letter ISO 3166-1 country code",
                               "type": "string",
-                              "pattern": "^[A-Z]{2}$",
-                              "minLength": 2,
-                              "maxLength": 2
+                              "pattern": "^[A-Z]{3}$",
+                              "minLength": 3,
+                              "maxLength": 3,
+                              "example": "USA"
                             },
                             "zipCode5": {
                               "type": "string",
-                              "description": "5-digit zipcode. Use \"00000\" if address is outside the United States",
+                              "description": "Five digit zipcode. Use \"00000\" if address is outside the United States",
                               "pattern": "^[0-9]{5}$",
                               "minLength": 5,
                               "maxLength": 5
@@ -1232,14 +1534,14 @@
                           "required": [
                             "addressLine1",
                             "city",
-                            "countryCodeISO2",
+                            "countryCodeIso3",
                             "zipCode5"
                           ]
                         }
                       }
                     }
                   },
-                  "non_blank_string": {
+                  "nonBlankString": {
                     "value": {
                       "$schema": "http://json-schema.org/draft-2020-12/schema#",
                       "description": "JSON Schema for VA Decision Review Forms: 'nonBlankString'",
@@ -1300,8 +1602,6 @@
                         "timezone": {
                           "type": "string",
                           "enum": [
-                            "Abu Dhabi",
-                            "Adelaide",
                             "Africa/Abidjan",
                             "Africa/Accra",
                             "Africa/Addis_Ababa",
@@ -1356,8 +1656,6 @@
                             "Africa/Tripoli",
                             "Africa/Tunis",
                             "Africa/Windhoek",
-                            "Alaska",
-                            "Almaty",
                             "America/Adak",
                             "America/Anchorage",
                             "America/Anguilla",
@@ -1399,6 +1697,7 @@
                             "America/Cayman",
                             "America/Chicago",
                             "America/Chihuahua",
+                            "America/Ciudad_Juarez",
                             "America/Coral_Harbour",
                             "America/Cordoba",
                             "America/Costa_Rica",
@@ -1479,6 +1778,7 @@
                             "America/North_Dakota/Beulah",
                             "America/North_Dakota/Center",
                             "America/North_Dakota/New_Salem",
+                            "America/Nuuk",
                             "America/Ojinaga",
                             "America/Panama",
                             "America/Pangnirtung",
@@ -1524,8 +1824,6 @@
                             "America/Winnipeg",
                             "America/Yakutat",
                             "America/Yellowknife",
-                            "American Samoa",
-                            "Amsterdam",
                             "Antarctica/Casey",
                             "Antarctica/Davis",
                             "Antarctica/DumontDUrville",
@@ -1539,7 +1837,6 @@
                             "Antarctica/Troll",
                             "Antarctica/Vostok",
                             "Arctic/Longyearbyen",
-                            "Arizona",
                             "Asia/Aden",
                             "Asia/Almaty",
                             "Asia/Amman",
@@ -1639,9 +1936,6 @@
                             "Asia/Yangon",
                             "Asia/Yekaterinburg",
                             "Asia/Yerevan",
-                            "Astana",
-                            "Athens",
-                            "Atlantic Time (Canada)",
                             "Atlantic/Azores",
                             "Atlantic/Bermuda",
                             "Atlantic/Canary",
@@ -1654,7 +1948,6 @@
                             "Atlantic/South_Georgia",
                             "Atlantic/St_Helena",
                             "Atlantic/Stanley",
-                            "Auckland",
                             "Australia/ACT",
                             "Australia/Adelaide",
                             "Australia/Brisbane",
@@ -1678,29 +1971,12 @@
                             "Australia/Victoria",
                             "Australia/West",
                             "Australia/Yancowinna",
-                            "Azores",
-                            "Baghdad",
-                            "Baku",
-                            "Bangkok",
-                            "Beijing",
-                            "Belgrade",
-                            "Berlin",
-                            "Bern",
-                            "Bogota",
-                            "Brasilia",
-                            "Bratislava",
                             "Brazil/Acre",
                             "Brazil/DeNoronha",
                             "Brazil/East",
                             "Brazil/West",
-                            "Brisbane",
-                            "Brussels",
-                            "Bucharest",
-                            "Budapest",
-                            "Buenos Aires",
                             "CET",
                             "CST6CDT",
-                            "Cairo",
                             "Canada/Atlantic",
                             "Canada/Central",
                             "Canada/Eastern",
@@ -1709,31 +1985,14 @@
                             "Canada/Pacific",
                             "Canada/Saskatchewan",
                             "Canada/Yukon",
-                            "Canberra",
-                            "Cape Verde Is.",
-                            "Caracas",
-                            "Casablanca",
-                            "Central America",
-                            "Central Time (US & Canada)",
-                            "Chatham Is.",
-                            "Chennai",
-                            "Chihuahua",
                             "Chile/Continental",
                             "Chile/EasterIsland",
-                            "Chongqing",
-                            "Copenhagen",
                             "Cuba",
-                            "Darwin",
-                            "Dhaka",
-                            "Dublin",
                             "EET",
                             "EST",
                             "EST5EDT",
-                            "Eastern Time (US & Canada)",
-                            "Edinburgh",
                             "Egypt",
                             "Eire",
-                            "Ekaterinburg",
                             "Etc/GMT",
                             "Etc/GMT+0",
                             "Etc/GMT+1",
@@ -1793,6 +2052,7 @@
                             "Europe/Kaliningrad",
                             "Europe/Kiev",
                             "Europe/Kirov",
+                            "Europe/Kyiv",
                             "Europe/Lisbon",
                             "Europe/Ljubljana",
                             "Europe/London",
@@ -1833,25 +2093,14 @@
                             "Europe/Zaporozhye",
                             "Europe/Zurich",
                             "Factory",
-                            "Fiji",
                             "GB",
                             "GB-Eire",
                             "GMT",
                             "GMT+0",
                             "GMT-0",
                             "GMT0",
-                            "Georgetown",
-                            "Greenland",
                             "Greenwich",
-                            "Guadalajara",
-                            "Guam",
                             "HST",
-                            "Hanoi",
-                            "Harare",
-                            "Hawaii",
-                            "Helsinki",
-                            "Hobart",
-                            "Hong Kong",
                             "Hongkong",
                             "Iceland",
                             "Indian/Antananarivo",
@@ -1865,69 +2114,23 @@
                             "Indian/Mauritius",
                             "Indian/Mayotte",
                             "Indian/Reunion",
-                            "Indiana (East)",
-                            "International Date Line West",
                             "Iran",
-                            "Irkutsk",
-                            "Islamabad",
                             "Israel",
-                            "Istanbul",
-                            "Jakarta",
                             "Jamaica",
                             "Japan",
-                            "Jerusalem",
-                            "Kabul",
-                            "Kaliningrad",
-                            "Kamchatka",
-                            "Karachi",
-                            "Kathmandu",
-                            "Kolkata",
-                            "Krasnoyarsk",
-                            "Kuala Lumpur",
-                            "Kuwait",
                             "Kwajalein",
-                            "Kyiv",
-                            "La Paz",
                             "Libya",
-                            "Lima",
-                            "Lisbon",
-                            "Ljubljana",
-                            "London",
                             "MET",
                             "MST",
                             "MST7MDT",
-                            "Madrid",
-                            "Magadan",
-                            "Marshall Is.",
-                            "Mazatlan",
-                            "Melbourne",
-                            "Mexico City",
                             "Mexico/BajaNorte",
                             "Mexico/BajaSur",
                             "Mexico/General",
-                            "Mid-Atlantic",
-                            "Midway Island",
-                            "Minsk",
-                            "Monrovia",
-                            "Monterrey",
-                            "Montevideo",
-                            "Moscow",
-                            "Mountain Time (US & Canada)",
-                            "Mumbai",
-                            "Muscat",
                             "NZ",
                             "NZ-CHAT",
-                            "Nairobi",
                             "Navajo",
-                            "New Caledonia",
-                            "New Delhi",
-                            "Newfoundland",
-                            "Novosibirsk",
-                            "Nuku'alofa",
-                            "Osaka",
                             "PRC",
                             "PST8PDT",
-                            "Pacific Time (US & Canada)",
                             "Pacific/Apia",
                             "Pacific/Auckland",
                             "Pacific/Bougainville",
@@ -1945,6 +2148,7 @@
                             "Pacific/Guam",
                             "Pacific/Honolulu",
                             "Pacific/Johnston",
+                            "Pacific/Kanton",
                             "Pacific/Kiritimati",
                             "Pacific/Kosrae",
                             "Pacific/Kwajalein",
@@ -1971,45 +2175,11 @@
                             "Pacific/Wake",
                             "Pacific/Wallis",
                             "Pacific/Yap",
-                            "Paris",
-                            "Perth",
                             "Poland",
-                            "Port Moresby",
                             "Portugal",
-                            "Prague",
-                            "Pretoria",
-                            "Puerto Rico",
-                            "Quito",
                             "ROC",
                             "ROK",
-                            "Rangoon",
-                            "Riga",
-                            "Riyadh",
-                            "Rome",
-                            "Samara",
-                            "Samoa",
-                            "Santiago",
-                            "Sapporo",
-                            "Sarajevo",
-                            "Saskatchewan",
-                            "Seoul",
                             "Singapore",
-                            "Skopje",
-                            "Sofia",
-                            "Solomon Is.",
-                            "Srednekolymsk",
-                            "Sri Jayawardenepura",
-                            "St. Petersburg",
-                            "Stockholm",
-                            "Sydney",
-                            "Taipei",
-                            "Tallinn",
-                            "Tashkent",
-                            "Tbilisi",
-                            "Tehran",
-                            "Tijuana",
-                            "Tokelau Is.",
-                            "Tokyo",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2023,26 +2193,12 @@
                             "US/Michigan",
                             "US/Mountain",
                             "US/Pacific",
-                            "US/Pacific-New",
                             "US/Samoa",
                             "UTC",
-                            "Ulaanbaatar",
                             "Universal",
-                            "Urumqi",
-                            "Vienna",
-                            "Vilnius",
-                            "Vladivostok",
-                            "Volgograd",
                             "W-SU",
                             "WET",
-                            "Warsaw",
-                            "Wellington",
-                            "West Central Africa",
-                            "Yakutsk",
-                            "Yerevan",
-                            "Zagreb",
-                            "Zulu",
-                            "Zurich"
+                            "Zulu"
                           ]
                         }
                       }
@@ -2070,8 +2226,11 @@
                         "available_options": [
                           "200996",
                           "address",
-                          "non_blank_string",
+                          "fileNumber",
+                          "icn",
+                          "nonBlankString",
                           "phone",
+                          "ssn",
                           "timezone"
                         ]
                       }
@@ -2317,6 +2476,30 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Not JSON object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "code": "109",
+                          "detail": "The request body isn't a JSON object",
+                          "status": "400",
+                          "title": "Bad Request"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Error",
             "content": {
@@ -2338,18 +2521,6 @@
                               "informalConference"
                             ]
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "Not JSON object": {
-                    "value": {
-                      "errors": [
-                        {
-                          "code": "109",
-                          "detail": "The request body isn't a JSON object",
-                          "status": "422",
-                          "title": "Validation error"
                         }
                       ]
                     }
@@ -2397,20 +2568,24 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jane",
+                          "lastName": "Doe",
+                          "birthDate": "1969-12-31",
                           "homeless": false,
                           "address": {
                             "addressLine1": "123 Some St.",
                             "city": "Sometown",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "zipCode5": "12345"
                           }
-                        },
-                        "socOptIn": true
+                        }
                       }
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left shoulder",
                           "decisionDate": "1920-12-01"
@@ -2426,13 +2601,22 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "serviceNumber": "876543210",
+                          "insurancePolicyNumber": "987654321123456789",
                           "homeless": true,
                           "address": {
                             "addressLine1": "123 Main St",
                             "addressLine2": "Suite #1200",
                             "addressLine3": "Box 4",
                             "city": "New York",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "stateCode": "NY",
                             "zipCode5": "30012"
                           },
@@ -2446,12 +2630,17 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "ssn": "829347561",
+                          "birthDate": "1972-05-08",
+                          "firstName": "Betty",
+                          "middleInitial": "D",
+                          "lastName": "Boop",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
                             "addressLine3": "Box 1",
                             "city": "Detroit",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "stateCode": "MI",
                             "zipCode5": "48070"
                           },
@@ -2464,7 +2653,6 @@
                           "email": "claimant@email.com",
                           "timezone": "America/Detroit"
                         },
-                        "socOptIn": true,
                         "informalConference": true,
                         "informalConferenceContact": "veteran",
                         "informalConferenceTime": "800-1200 ET",
@@ -2483,7 +2671,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "123456789",
                           "decisionDate": "1900-01-01",
@@ -2495,7 +2683,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left eyee",
                           "decisionDate": "1900-01-02",
@@ -2503,14 +2691,14 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right eye",
                           "decisionDate": "1900-01-03"
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left ear",
                           "decisionDate": "1900-01-04",
@@ -2519,7 +2707,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right ear",
                           "decisionDate": "1900-01-05",
@@ -2527,7 +2715,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "migraines",
                           "decisionDate": "1900-01-06",
@@ -2535,7 +2723,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left knee",
                           "decisionDate": "1900-01-07",
@@ -2543,7 +2731,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right knee",
                           "decisionDate": "1900-01-08",
@@ -2551,7 +2739,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left foot",
                           "decisionDate": "1900-01-09",
@@ -2559,7 +2747,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right foot",
                           "decisionDate": "1900-01-10",
@@ -2568,7 +2756,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left hand",
                           "decisionDate": "1900-01-11",
@@ -2576,7 +2764,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right hand",
                           "decisionDate": "1900-01-12",
@@ -2584,7 +2772,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "fever",
                           "decisionDate": "1900-01-13",
@@ -2592,7 +2780,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "lupus",
                           "decisionDate": "1900-01-14",
@@ -2600,7 +2788,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "cooties",
                           "decisionDate": "1900-01-15",
@@ -2626,48 +2814,58 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/higher-level-reviews/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/higher-level-reviews/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
-              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
-              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
-              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
-              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "veteran/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "veteran/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "representative/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "representative/appeals.read": "Appeals info",
+              "representative/appeals.write": "Ability to submit appeals"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "system/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "system/appeals.read": "Appeals info",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/higher-level-reviews/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/higher-level-reviews/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
-              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
-              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
-              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
-              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "veteran/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "veteran/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "representative/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "representative/appeals.read": "Appeals info",
+              "representative/appeals.write": "Ability to submit appeals"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "system/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "system/appeals.read": "Appeals info",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
@@ -2764,15 +2962,17 @@
               "WY"
             ]
           },
-          "countryCodeISO2": {
+          "countryCodeIso3": {
+            "description": "Three letter ISO 3166-1 country code",
             "type": "string",
-            "pattern": "^[A-Z]{2}$",
-            "minLength": 2,
-            "maxLength": 2
+            "pattern": "^[A-Z]{3}$",
+            "minLength": 3,
+            "maxLength": 3,
+            "example": "USA"
           },
           "zipCode5": {
             "type": "string",
-            "description": "5-digit zipcode. Use \"00000\" if address is outside the United States",
+            "description": "Five digit zipcode. Use \"00000\" if address is outside the United States",
             "pattern": "^[0-9]{5}$",
             "minLength": 5,
             "maxLength": 5
@@ -2786,7 +2986,7 @@
         "required": [
           "addressLine1",
           "city",
-          "countryCodeISO2",
+          "countryCodeIso3",
           "zipCode5"
         ]
       },
@@ -2893,6 +3093,77 @@
                   "veteran": {
                     "type": "object",
                     "properties": {
+                      "ssn": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Veteran's SSN"
+                          }
+                        ]
+                      },
+                      "icn": {
+                        "$ref": "#/components/schemas/icn"
+                      },
+                      "firstName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's first name",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          {
+                            "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's middle initial",
+                            "minLength": 1,
+                            "maxLength": 1
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's last name",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Veteran's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "fileNumber": {
+                        "$ref": "#/components/schemas/fileNumber"
+                      },
+                      "insurancePolicyNumber": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's insurance policy number",
+                            "maxLength": 18
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
                       "homeless": {
                         "type": "boolean"
                       },
@@ -2913,6 +3184,11 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "icn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "homeless"
                     ],
                     "if": {
@@ -2930,8 +3206,51 @@
                   },
                   "claimant": {
                     "type": "object",
-                    "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                    "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                     "properties": {
+                      "ssn": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Non-veteran claimant's SSN"
+                          }
+                        ]
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "description": "Non-veteran claimant's first name",
+                        "maxLength": 30,
+                        "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "description": "Non-veteran claimant's middle initial",
+                            "maxLength": 1
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "description": "Non-veteran claimant's last name",
+                            "maxLength": 40
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Non-veteran claimant's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -2949,6 +3268,10 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "address",
                       "phone"
                     ]
@@ -2994,16 +3317,12 @@
                       "lastName",
                       "phone"
                     ]
-                  },
-                  "socOptIn": {
-                    "type": "boolean"
                   }
                 },
                 "required": [
                   "informalConference",
                   "benefitType",
-                  "veteran",
-                  "socOptIn"
+                  "veteran"
                 ],
                 "if": {
                   "properties": {
@@ -3033,7 +3352,7 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {
@@ -3042,7 +3361,7 @@
                     "issue": {
                       "allOf": [
                         {
-                          "$ref": "#/components/schemas/non_blank_string"
+                          "$ref": "#/components/schemas/nonBlankString"
                         },
                         {
                           "minLength": 1,
@@ -3121,14 +3440,14 @@
                       "error"
                     ]
                   },
-                  "updatedAt": {
+                  "updateDate": {
                     "description": "The last time the submission was updated",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
                   },
-                  "createdAt": {
-                    "description": "The last time the submission was updated",
+                  "createDate": {
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
@@ -3147,7 +3466,7 @@
           "data"
         ]
       },
-      "non_blank_string": {
+      "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
       },
@@ -3187,8 +3506,6 @@
       "timezone": {
         "type": "string",
         "enum": [
-          "Abu Dhabi",
-          "Adelaide",
           "Africa/Abidjan",
           "Africa/Accra",
           "Africa/Addis_Ababa",
@@ -3243,8 +3560,6 @@
           "Africa/Tripoli",
           "Africa/Tunis",
           "Africa/Windhoek",
-          "Alaska",
-          "Almaty",
           "America/Adak",
           "America/Anchorage",
           "America/Anguilla",
@@ -3286,6 +3601,7 @@
           "America/Cayman",
           "America/Chicago",
           "America/Chihuahua",
+          "America/Ciudad_Juarez",
           "America/Coral_Harbour",
           "America/Cordoba",
           "America/Costa_Rica",
@@ -3366,6 +3682,7 @@
           "America/North_Dakota/Beulah",
           "America/North_Dakota/Center",
           "America/North_Dakota/New_Salem",
+          "America/Nuuk",
           "America/Ojinaga",
           "America/Panama",
           "America/Pangnirtung",
@@ -3411,8 +3728,6 @@
           "America/Winnipeg",
           "America/Yakutat",
           "America/Yellowknife",
-          "American Samoa",
-          "Amsterdam",
           "Antarctica/Casey",
           "Antarctica/Davis",
           "Antarctica/DumontDUrville",
@@ -3426,7 +3741,6 @@
           "Antarctica/Troll",
           "Antarctica/Vostok",
           "Arctic/Longyearbyen",
-          "Arizona",
           "Asia/Aden",
           "Asia/Almaty",
           "Asia/Amman",
@@ -3526,9 +3840,6 @@
           "Asia/Yangon",
           "Asia/Yekaterinburg",
           "Asia/Yerevan",
-          "Astana",
-          "Athens",
-          "Atlantic Time (Canada)",
           "Atlantic/Azores",
           "Atlantic/Bermuda",
           "Atlantic/Canary",
@@ -3541,7 +3852,6 @@
           "Atlantic/South_Georgia",
           "Atlantic/St_Helena",
           "Atlantic/Stanley",
-          "Auckland",
           "Australia/ACT",
           "Australia/Adelaide",
           "Australia/Brisbane",
@@ -3565,29 +3875,12 @@
           "Australia/Victoria",
           "Australia/West",
           "Australia/Yancowinna",
-          "Azores",
-          "Baghdad",
-          "Baku",
-          "Bangkok",
-          "Beijing",
-          "Belgrade",
-          "Berlin",
-          "Bern",
-          "Bogota",
-          "Brasilia",
-          "Bratislava",
           "Brazil/Acre",
           "Brazil/DeNoronha",
           "Brazil/East",
           "Brazil/West",
-          "Brisbane",
-          "Brussels",
-          "Bucharest",
-          "Budapest",
-          "Buenos Aires",
           "CET",
           "CST6CDT",
-          "Cairo",
           "Canada/Atlantic",
           "Canada/Central",
           "Canada/Eastern",
@@ -3596,31 +3889,14 @@
           "Canada/Pacific",
           "Canada/Saskatchewan",
           "Canada/Yukon",
-          "Canberra",
-          "Cape Verde Is.",
-          "Caracas",
-          "Casablanca",
-          "Central America",
-          "Central Time (US & Canada)",
-          "Chatham Is.",
-          "Chennai",
-          "Chihuahua",
           "Chile/Continental",
           "Chile/EasterIsland",
-          "Chongqing",
-          "Copenhagen",
           "Cuba",
-          "Darwin",
-          "Dhaka",
-          "Dublin",
           "EET",
           "EST",
           "EST5EDT",
-          "Eastern Time (US & Canada)",
-          "Edinburgh",
           "Egypt",
           "Eire",
-          "Ekaterinburg",
           "Etc/GMT",
           "Etc/GMT+0",
           "Etc/GMT+1",
@@ -3680,6 +3956,7 @@
           "Europe/Kaliningrad",
           "Europe/Kiev",
           "Europe/Kirov",
+          "Europe/Kyiv",
           "Europe/Lisbon",
           "Europe/Ljubljana",
           "Europe/London",
@@ -3720,25 +3997,14 @@
           "Europe/Zaporozhye",
           "Europe/Zurich",
           "Factory",
-          "Fiji",
           "GB",
           "GB-Eire",
           "GMT",
           "GMT+0",
           "GMT-0",
           "GMT0",
-          "Georgetown",
-          "Greenland",
           "Greenwich",
-          "Guadalajara",
-          "Guam",
           "HST",
-          "Hanoi",
-          "Harare",
-          "Hawaii",
-          "Helsinki",
-          "Hobart",
-          "Hong Kong",
           "Hongkong",
           "Iceland",
           "Indian/Antananarivo",
@@ -3752,69 +4018,23 @@
           "Indian/Mauritius",
           "Indian/Mayotte",
           "Indian/Reunion",
-          "Indiana (East)",
-          "International Date Line West",
           "Iran",
-          "Irkutsk",
-          "Islamabad",
           "Israel",
-          "Istanbul",
-          "Jakarta",
           "Jamaica",
           "Japan",
-          "Jerusalem",
-          "Kabul",
-          "Kaliningrad",
-          "Kamchatka",
-          "Karachi",
-          "Kathmandu",
-          "Kolkata",
-          "Krasnoyarsk",
-          "Kuala Lumpur",
-          "Kuwait",
           "Kwajalein",
-          "Kyiv",
-          "La Paz",
           "Libya",
-          "Lima",
-          "Lisbon",
-          "Ljubljana",
-          "London",
           "MET",
           "MST",
           "MST7MDT",
-          "Madrid",
-          "Magadan",
-          "Marshall Is.",
-          "Mazatlan",
-          "Melbourne",
-          "Mexico City",
           "Mexico/BajaNorte",
           "Mexico/BajaSur",
           "Mexico/General",
-          "Mid-Atlantic",
-          "Midway Island",
-          "Minsk",
-          "Monrovia",
-          "Monterrey",
-          "Montevideo",
-          "Moscow",
-          "Mountain Time (US & Canada)",
-          "Mumbai",
-          "Muscat",
           "NZ",
           "NZ-CHAT",
-          "Nairobi",
           "Navajo",
-          "New Caledonia",
-          "New Delhi",
-          "Newfoundland",
-          "Novosibirsk",
-          "Nuku'alofa",
-          "Osaka",
           "PRC",
           "PST8PDT",
-          "Pacific Time (US & Canada)",
           "Pacific/Apia",
           "Pacific/Auckland",
           "Pacific/Bougainville",
@@ -3832,6 +4052,7 @@
           "Pacific/Guam",
           "Pacific/Honolulu",
           "Pacific/Johnston",
+          "Pacific/Kanton",
           "Pacific/Kiritimati",
           "Pacific/Kosrae",
           "Pacific/Kwajalein",
@@ -3858,45 +4079,11 @@
           "Pacific/Wake",
           "Pacific/Wallis",
           "Pacific/Yap",
-          "Paris",
-          "Perth",
           "Poland",
-          "Port Moresby",
           "Portugal",
-          "Prague",
-          "Pretoria",
-          "Puerto Rico",
-          "Quito",
           "ROC",
           "ROK",
-          "Rangoon",
-          "Riga",
-          "Riyadh",
-          "Rome",
-          "Samara",
-          "Samoa",
-          "Santiago",
-          "Sapporo",
-          "Sarajevo",
-          "Saskatchewan",
-          "Seoul",
           "Singapore",
-          "Skopje",
-          "Sofia",
-          "Solomon Is.",
-          "Srednekolymsk",
-          "Sri Jayawardenepura",
-          "St. Petersburg",
-          "Stockholm",
-          "Sydney",
-          "Taipei",
-          "Tallinn",
-          "Tashkent",
-          "Tbilisi",
-          "Tehran",
-          "Tijuana",
-          "Tokelau Is.",
-          "Tokyo",
           "Turkey",
           "UCT",
           "US/Alaska",
@@ -3910,26 +4097,12 @@
           "US/Michigan",
           "US/Mountain",
           "US/Pacific",
-          "US/Pacific-New",
           "US/Samoa",
           "UTC",
-          "Ulaanbaatar",
           "Universal",
-          "Urumqi",
-          "Vienna",
-          "Vilnius",
-          "Vladivostok",
-          "Volgograd",
           "W-SU",
           "WET",
-          "Warsaw",
-          "Wellington",
-          "West Central Africa",
-          "Yakutsk",
-          "Yerevan",
-          "Zagreb",
-          "Zulu",
-          "Zurich"
+          "Zulu"
         ]
       },
       "uuid": {
@@ -3950,7 +4123,7 @@
             "maxLength": 9
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -3978,7 +4151,7 @@
             "maxLength": 18
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -3988,7 +4161,7 @@
             "description": "last name"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -3998,7 +4171,7 @@
             "description": "middle initial"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -4013,7 +4186,7 @@
             "description": "first name"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -4023,7 +4196,7 @@
             "description": "last name"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -4033,7 +4206,7 @@
             "description": "middle initial"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },

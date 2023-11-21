@@ -9,5 +9,9 @@ properties:
     properties:
       jobId:
         type: string
-        description: job id of upload process
+        enum:
+          - success
+          - failure
+        example: 'success'
+        description: job status
 

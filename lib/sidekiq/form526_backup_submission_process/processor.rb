@@ -8,17 +8,31 @@ require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/non_breakered_service'
 require 'form526_backup_submission/service'
-require 'form526_backup_submission/utilities/convert_to_pdf'
 require 'decision_review_v1/utilities/form_4142_processor'
 require 'central_mail/datestamp_pdf'
 require 'pdf_fill/filler'
+require 'logging/third_party_transaction'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
     class Processor
+      extend Logging::ThirdPartyTransaction::MethodWrapper
+
       attr_reader :submission, :lighthouse_service, :zip, :initial_upload_location, :initial_upload_uuid,
-                  :initial_upload, :docs_gathered, :initial_upload_fetched, :ignore_expiration
+                  :initial_upload, :docs_gathered, :initial_upload_fetched, :ignore_expiration,
+                  :submission_id
       attr_accessor :docs
+
+      wrap_with_logging(
+        :get_form_from_external_api,
+        :instantiate_upload_info_from_lighthouse,
+        :get_from_non_breakered_service,
+        additional_instance_logs: [
+          submission_id: %i[submission_id],
+          initial_upload_uuid: %i[initial_upload_uuid],
+          initial_upload_location: %i[initial_upload_location]
+        ]
+      )
 
       FORM_526 = 'form526'
       FORM_526_DOC_TYPE = '21-526EZ'
@@ -51,6 +65,7 @@ module Sidekiq
       # Takes a submission id, assembles all needed docs from its payload, then sends it to central mail via
       # lighthouse benefits intake API - https://developer.va.gov/explore/benefits/docs/benefits?version=current
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
+        @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
         @docs = docs
         @docs_gathered = false
@@ -93,7 +108,7 @@ module Sidekiq
         params_docs = docs.map do |doc|
           doc_type = doc[:evssDocType] || doc[:metadata][:docType]
           {
-            file_path: lighthouse_service.get_file_path_from_objs(doc[:file]),
+            file_path: BenefitsIntakeService::Service.get_file_path_from_objs(doc[:file]),
             docType: DOCTYPE_MAPPING[doc_type] || doc_type,
             file_name: DOCTYPE_NAMES.include?(doc_type) ? "#{doc_type}.pdf" : "attachment#{i += 1}.pdf"
           }
@@ -106,10 +121,9 @@ module Sidekiq
       private
 
       def instantiate_upload_info_from_lighthouse
-        @initial_upload = get_upload_info
-        uuid_and_location = upload_location_to_location_and_uuid(initial_upload)
-        @initial_upload_uuid = uuid_and_location[:uuid]
-        @initial_upload_location = uuid_and_location[:location]
+        initial_upload = @lighthouse_service.get_location_and_uuid
+        @initial_upload_uuid = initial_upload[:uuid]
+        @initial_upload_location = initial_upload[:location]
         @initial_upload_fetched = true
       end
 
@@ -163,17 +177,6 @@ module Sidekiq
           uuid: upload_return.dig('data', 'id'),
           location: upload_return.dig('data', 'attributes', 'location')
         }
-      end
-
-      # Instantiates a new location and uuid via lighthouse
-      def get_upload_info
-        lighthouse_service.get_upload_location.body
-      end
-
-      # Combines instantiating a new location/uuid and returning the important bits
-      def get_upload_location_and_uuid
-        upload_info = get_upload_info
-        upload_location_to_location_and_uuid(upload_info)
       end
 
       def received_date
@@ -326,7 +329,7 @@ module Sidekiq
         form_json = JSON.parse(submission.form_json)[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        resp = EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json.to_json)
+        resp = get_form_from_external_api(headers, form_json.to_json)
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
         file = write_to_tmp_file(content)
@@ -334,6 +337,10 @@ module Sidekiq
           type: FORM_526_DOC_TYPE,
           file:
         }
+      end
+
+      def get_form_from_external_api(headers, form_json)
+        EVSS::DisabilityCompensationForm::Service.new(headers).get_form526(form_json)
       end
 
       def get_uploads
@@ -381,16 +388,37 @@ module Sidekiq
       end
 
       def convert_docs_to_pdf
-        klass = Form526BackupSubmission::Utilities::ConvertToPdf
-        docs.each do |doc|
-          actual_path_to_file = @lighthouse_service.get_file_path_from_objs(doc[:file])
-          file_type_extension = File.extname(actual_path_to_file).downcase
-          if klass::CAN_CONVERT.include?(file_type_extension)
-            doc[:file] = klass.new(actual_path_to_file).converted_filename
-            # delete old pulled down file after converted (in prod, dont delete spec/test files),
-            # dont care about it anymore, the converted file gets deleted later after successful submission
-            Common::FileHelpers.delete_file_if_exists(actual_path_to_file) if ::Rails.env.production?
-          end
+        ::Rails.logger.info(
+          'Begin 526 PDF Generating for Backup Submission',
+          { submission_id:, initial_upload_uuid: }
+        )
+
+        klass = BenefitsIntakeService::Utilities::ConvertToPdf
+        result = docs.each do |doc|
+          convert_doc_to_pdf(doc, klass)
+        end
+
+        ::Rails.logger.info(
+          'Complete 526 PDF Generating for Backup Submission',
+          { submission_id:, initial_upload_uuid: }
+        )
+
+        result
+      end
+
+      def convert_doc_to_pdf(doc, klass)
+        actual_path_to_file = @lighthouse_service.get_file_path_from_objs(doc[:file])
+        file_type_extension = File.extname(actual_path_to_file).downcase
+        if klass::CAN_CONVERT.include?(file_type_extension)
+          ::Rails.logger.info(
+            'Generating PDF document',
+            { actual_path_to_file:, file_type_extension: }
+          )
+
+          doc[:file] = klass.new(actual_path_to_file).converted_filename
+          # delete old pulled down file after converted (in prod, dont delete spec/test files),
+          # dont care about it anymore, the converted file gets deleted later after successful submission
+          Common::FileHelpers.delete_file_if_exists(actual_path_to_file) if ::Rails.env.production?
         end
       end
     end
@@ -402,7 +430,7 @@ module Sidekiq
         form_json = JSON.parse(submission.form_json)[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        resp = EVSS::DisabilityCompensationForm::NonBreakeredService.new(headers).get_form526(form_json.to_json)
+        resp = get_from_non_breakered_service(headers, form_json.to_json)
         b64_enc_body = resp.body['pdf']
         content = Base64.decode64(b64_enc_body)
         file = write_to_tmp_file(content)
@@ -413,9 +441,13 @@ module Sidekiq
       end
     end
 
+    def get_from_non_breakered_service(headers, form_json)
+      EVSS::DisabilityCompensationForm::NonBreakeredService.new(headers).get_form526(form_json)
+    end
+
     class NonBreakeredForm526BackgroundLoader
       extend ActiveSupport::Concern
-      include Sidekiq::Worker
+      include Sidekiq::Job
       sidekiq_options retry: false
       def perform(id)
         NonBreakeredProcessor.new(id, get_upload_location_on_instantiation: false,

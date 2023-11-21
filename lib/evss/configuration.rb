@@ -4,6 +4,9 @@ require 'common/client/configuration/rest'
 
 module EVSS
   class Configuration < Common::Client::Configuration::REST
+    self.read_timeout = 40
+    self.open_timeout = 40
+
     # :nocov:
     def client_cert
       OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)

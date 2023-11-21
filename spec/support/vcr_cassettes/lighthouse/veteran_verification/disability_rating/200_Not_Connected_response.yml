@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/disability_rating
+    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/disability_rating/123498767V234859
     body:
       encoding: US-ASCII
       string: ''
@@ -90,12 +90,14 @@ http_interactions:
       "legal_effective_date": "2018-03-27",
       "individual_ratings": [
         {
-          "description": "Not Service Connected",
           "decision": "Not Service Connected",
+          "disability_rating_id": "1",
           "effective_date": "2018-03-27",
+          "rating_end_date": null,
           "rating_percentage": 50,
-          "diagnostic_type_code": "5238",
-          "diagnostic_type_name": "Diabetes mellitus0"
+          "diagnostic_type_code": "1134",
+          "diagnostic_type_name": "Schizophrenia, disorganized type",
+          "diagnostic_text": "bilateral hearing loss"
         }
       ]
     }

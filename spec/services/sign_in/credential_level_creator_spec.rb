@@ -7,14 +7,13 @@ RSpec.describe SignIn::CredentialLevelCreator do
     subject do
       SignIn::CredentialLevelCreator.new(requested_acr:,
                                          type:,
-                                         id_token:,
+                                         logingov_acr:,
                                          user_info:).perform
     end
 
     let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
     let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
-    let(:id_token) { JWT.encode(id_token_payload, OpenSSL::PKey::RSA.new(2048), 'RS256') }
-    let(:id_token_payload) { 'some-id-token' }
+    let(:logingov_acr) { 'some-acr' }
     let(:verified_at) { Time.zone.now }
     let(:credential_ial) { SignIn::Constants::Auth::IAL_ONE }
     let(:level_of_assurance) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
@@ -88,15 +87,15 @@ RSpec.describe SignIn::CredentialLevelCreator do
         let(:verified_at) { Time.zone.now }
         let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
-        context 'and id token acr is defined as IAL 2' do
-          let(:id_token_payload) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+        context 'and logingov acr is defined as IAL 2' do
+          let(:logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
           let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
-        context 'and id token acr is not defined as IAL 2' do
-          let(:id_token_payload) { 'some-id-token-payload' }
+        context 'and logingov acr is not defined as IAL 2' do
+          let(:logingov_acr) { 'some-acr' }
 
           shared_examples 'an auto-uplevel capable credential' do
             context 'and user has previously authenticated as a verified user' do
@@ -153,15 +152,15 @@ RSpec.describe SignIn::CredentialLevelCreator do
         let(:verified_at) { nil }
         let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
-        context 'and id token acr is defined as IAL 2' do
-          let(:id_token_payload) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+        context 'and logingov acr is defined as IAL 2' do
+          let(:logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
           let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'invalid credential level error'
         end
 
-        context 'and id token acr is not defined as IAL 2' do
-          let(:id_token_payload) { 'some-id-token-payload' }
+        context 'and logingov acr is not defined as IAL 2' do
+          let(:logingov_acr) { 'some-id-token-payload' }
           let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'

@@ -20,6 +20,12 @@ module Mobile
     end
 
     def raise_access_denied
+      Rails.logger.info('SM ACCESS DENIED',
+                        account_type: current_user.mhv_account_type.presence || 'false',
+                        mhv_id: current_user.mhv_correlation_id.presence || 'false',
+                        sign_in_service: current_user.identity.sign_in[:service_name],
+                        va_facilities: current_user.va_treatment_facility_ids.length,
+                        va_patient: current_user.va_patient?)
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
     end
 
@@ -34,7 +40,7 @@ module Mobile
     def pagination_params
       {
         page: params[:page],
-        per_page: params[:per_page]
+        per_page: params[:per_page] || 100
       }
     end
   end

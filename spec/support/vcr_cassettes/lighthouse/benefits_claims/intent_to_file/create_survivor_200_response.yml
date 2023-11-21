@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/intent-to-file
+    body:
+      encoding: UTF-8
+      string: '{"data":{"type":"intent_to_file","attributes":{"type":"survivor","claimantSsn":"011223344"}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 25 May 2023 17:31:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '8'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 6ebccff8d7858ebdfc79da40bfd10fbcf7c11578
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 457efe4d-03ff-47c2-96df-3131cca0d1a7
+      X-Runtime:
+      - '0.078882'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+        "data": {
+          "id": "193685",
+          "type": "intent_to_file",
+          "attributes": {
+            "creationDate": "2021-03-16T19:15:21.000-05:00",
+            "expirationDate": "2022-03-16T19:15:20.000-05:00",
+            "type": "survivor",
+            "status": "active"
+          }
+        }
+      }'
+  recorded_at: Thu, 25 May 2023 17:31:52 GMT
+recorded_with: VCR 6.1.0

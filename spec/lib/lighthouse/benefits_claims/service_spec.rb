@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_claims/service'
+require 'evss/disability_compensation_form/form_submit_response'
 
 RSpec.describe BenefitsClaims::Service do
   before(:all) do
@@ -15,10 +16,26 @@ RSpec.describe BenefitsClaims::Service do
       end
 
       describe 'when requesting intent_to_file' do
+        # TODO-BDEX: Down the line, revisit re-generating cassettes using some local test credentials
+        # and actual interaction with LH
         it 'retrieves a intent to file from the Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
             response = @service.get_intent_to_file('compensation', '', '')
             expect(response['data']['id']).to eq('193685')
+          end
+        end
+
+        it 'creates intent to file using the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+            response = @service.create_intent_to_file('compensation', '', '')
+            expect(response['data']['attributes']['type']).to eq('compensation')
+          end
+        end
+
+        it 'creates intent to file with the survivor type' do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_survivor_200_response') do
+            response = @service.create_intent_to_file('survivor', '011223344', '', '')
+            expect(response['data']['attributes']['type']).to eq('survivor')
           end
         end
       end
@@ -35,6 +52,44 @@ RSpec.describe BenefitsClaims::Service do
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
             expect(response['data'].length).to eq(5)
+          end
+        end
+      end
+
+      describe 'when posting a form526' do
+        it 'when given a full request body, posts to the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            response = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
+            expect(response).to eq('1234567890')
+          end
+        end
+
+        it 'when given a only the form data in the request body, posts to the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            response = @service.submit526({}, '', '', { body_only: true })
+            expect(response).to eq('1234567890')
+          end
+        end
+
+        it 'returns only the response body' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            body = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
+            expect(body).to eq('1234567890')
+          end
+        end
+
+        it 'returns the whole response' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            raw_response = @service.submit526({}, '', '', { body_only: false })
+            raw_response_struct = OpenStruct.new({
+                                                   body: { claim_id: raw_response.body },
+                                                   status: raw_response.status
+                                                 })
+            response = EVSS::DisabilityCompensationForm::FormSubmitResponse
+                       .new(raw_response_struct.status, raw_response_struct)
+
+            expect(response.status).to eq(200)
+            expect(response.claim_id).to eq(1_234_567_890)
           end
         end
       end

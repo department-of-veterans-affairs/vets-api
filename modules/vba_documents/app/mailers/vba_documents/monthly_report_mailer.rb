@@ -24,27 +24,16 @@ module VBADocuments
 
     RECIPIENTS = fetch_recipients.freeze
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/ParameterLists
-    def build(monthly_totals, summary, still_processing, still_success,
-              monthly_grouping, rolling_elapsed_times, last_month_start, last_month_end)
-      @monthly_totals = monthly_totals
-      @summary_totals = summary
-      @last_month_still_processing = still_processing
-      @last_month_still_success = still_success
-      @monthly_grouping = monthly_grouping
-      @last_month_start = last_month_start
-      @last_month_end = last_month_end
-      @rolling_elapsed_times = rolling_elapsed_times
+    def build(stats)
+      sorted_stats = stats.sort_by { |h| [-h[:year], -h[:month]] }
+
+      @report_month = Date::MONTHNAMES[sorted_stats[0].month]
+      @report_year = sorted_stats[0].year.to_s
+      @stats = sorted_stats
       @environment = VBADocuments::Deployment.environment
 
-      path = VBADocuments::Engine.root.join(
-        'app',
-        'views',
-        'vba_documents',
-        'monthly_report_mailer',
-        'monthly_report.html.erb'
-      )
+      path = VBADocuments::Engine.root.join('app', 'views', 'vba_documents',
+                                            'monthly_report_mailer', 'monthly_report.html.erb')
       template = File.read(path)
       body = ERB.new(template).result(binding)
 
@@ -54,7 +43,5 @@ module VBADocuments
         body:
       )
     end
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/ParameterLists
   end
 end

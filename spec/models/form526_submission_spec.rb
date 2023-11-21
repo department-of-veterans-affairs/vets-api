@@ -14,6 +14,7 @@ RSpec.describe Form526Submission do
   end
 
   let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles') }
+  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -34,16 +35,8 @@ RSpec.describe Form526Submission do
 
   describe '#start' do
     context 'the submission is for hypertension' do
-      let(:hypertension_form_json) do
+      let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
-      end
-      let(:form_for_hypertension) do
-        Form526Submission.create(
-          user_uuid: user.uuid,
-          saved_claim_id: saved_claim.id,
-          auth_headers_json: auth_headers.to_json,
-          form_json: hypertension_form_json
-        )
       end
 
       it_behaves_like '#start_evss_submission'
@@ -51,6 +44,108 @@ RSpec.describe Form526Submission do
 
     context 'the submission is NOT for hypertension' do
       it_behaves_like '#start_evss_submission'
+    end
+
+    context 'CFI metric logging' do
+      let!(:in_progress_form) do
+        ipf = create(:in_progress_526_form, user_uuid: user.uuid)
+        fd = ipf.form_data
+        fd = JSON.parse(fd)
+        fd['rated_disabilities'] = rated_disabilities
+        ipf.update!(form_data: fd)
+        ipf
+      end
+
+      before do
+        allow(StatsD).to receive(:increment)
+        Flipper.disable(:disability_526_maximum_rating)
+      end
+
+      context 'the submission is for tinnitus' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526_tinnitus.json')
+        end
+        let(:rated_disabilities) do
+          [
+            { name: 'Tinnitus',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::TINNITUS,
+              rating_percentage:,
+              maximum_rating_percentage: 10 }
+          ]
+        end
+        let(:rating_percentage) { 0 }
+
+        context 'Max rating education enabled' do
+          before { Flipper.enable(:disability_526_maximum_rating, user) }
+
+          context 'Rated Tinnitus is at maximum' do
+            let(:rating_percentage) { 10 }
+
+            it 'logs CFI metric upon submission' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
+            end
+          end
+
+          context 'Rated Tinnitus is not at maximum' do
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
+            end
+          end
+        end
+
+        context 'Max rating education disabled' do
+          before { Flipper.disable(:disability_526_maximum_rating, user) }
+
+          context 'Rated Tinnitus is at maximum' do
+            let(:rating_percentage) { 10 }
+
+            it 'logs CFI metric upon submission' do
+              subject.start
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
+            end
+          end
+
+          context 'Rated Tinnitus is not at maximum' do
+            it 'does not log CFI metric upon submission' do
+              subject.start
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
+            end
+          end
+        end
+      end
+
+      context 'the submission is for hypertension with no max rating percentage' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+        end
+        let(:rated_disabilities) do
+          [
+            { name: 'Hypertension',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION,
+              rating_percentage: 20 }
+          ]
+        end
+
+        context 'Max rating education enabled' do
+          before { Flipper.enable(:disability_526_maximum_rating, user) }
+
+          it 'does not log CFI metric upon submission' do
+            subject.start
+            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+          end
+        end
+
+        context 'Max rating education disabled' do
+          before { Flipper.disable(:disability_526_maximum_rating, user) }
+
+          it 'does not log CFI metric upon submission' do
+            subject.start
+            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+          end
+        end
+      end
     end
   end
 
@@ -784,9 +879,12 @@ RSpec.describe Form526Submission do
   describe '#disabilities_not_service_connected?' do
     subject { form_526_submission.disabilities_not_service_connected? }
 
+    before { create(:idme_user_verification, idme_uuid: user.idme_uuid, user_account:) }
+
     let(:form_526_submission) do
       Form526Submission.create(
         user_uuid: user.uuid,
+        user_account: user.user_account,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: File.read("spec/support/disability_compensation_form/submissions/#{form_json_filename}")
@@ -798,7 +896,7 @@ RSpec.describe Form526Submission do
       after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
 
       context 'when all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_asthma.json' }
 
         it 'returns true' do
@@ -807,7 +905,7 @@ RSpec.describe Form526Submission do
       end
 
       context 'when some but not all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
 
         it 'returns false' do
@@ -816,7 +914,7 @@ RSpec.describe Form526Submission do
       end
 
       context 'when some disabilities do not have a ratedDisabilityId yet' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
 
         it 'returns false' do
@@ -827,13 +925,13 @@ RSpec.describe Form526Submission do
 
     context 'Lighthouse provider' do
       before do
-        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.insert_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
 
       after do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.eject_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
       end
 

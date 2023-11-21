@@ -55,7 +55,7 @@ module Mobile
         end
 
         def fetch_provider(provider_id)
-          mobile_ppms_service.get_provider(provider_id)
+          mobile_ppms_service.get_provider_with_cache(provider_id)
         rescue Common::Exceptions::BackendServiceException
           nil
         end

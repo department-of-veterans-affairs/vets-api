@@ -63,6 +63,7 @@ describe SignIn::Idme::Service do
   let(:last_name) { 'Twinkle' }
   let(:ssn) { '666798234' }
   let(:email) { 'tumults-vicious-0q@icloud.com' }
+  let(:operation) { 'some-operation' }
 
   before do
     Timecop.freeze(Time.zone.at(current_time))
@@ -73,12 +74,13 @@ describe SignIn::Idme::Service do
   end
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state:, acr:).to_s }
-    let(:configuration) { SignIn::Idme::Configuration }
+    let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
     let(:expected_authorization_page) { "#{base_path}/#{auth_path}" }
     let(:base_path) { 'some-base-path' }
     let(:auth_path) { 'oauth/authorize' }
-    let(:expected_log) { "[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}" }
+    let(:expected_log) do
+      "[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}, operation: #{operation}"
+    end
 
     before do
       allow(Settings.idme).to receive(:oauth_url).and_return(base_path)
@@ -89,12 +91,26 @@ describe SignIn::Idme::Service do
       response
     end
 
-    it 'renders the oauth_get_form template' do
-      expect(response).to include('form id="oauth-form"')
+    it 'renders the expected redirect uri' do
+      expect(response).to include(expected_authorization_page)
     end
 
-    it 'directs to the Id.me OAuth authorization page' do
-      expect(response).to include("action=\"#{expected_authorization_page}\"")
+    context 'when operation parameter equals Constants::Auth::SIGN_UP' do
+      let(:operation) { SignIn::Constants::Auth::SIGN_UP }
+      let(:expected_signup_param) { 'op=signup' }
+
+      it 'includes op=signup param in rendered form' do
+        expect(response).to include(expected_signup_param)
+      end
+    end
+
+    context 'when operation is arbitrary' do
+      let(:operation) { 'some-operation' }
+      let(:expected_signup_param) { 'op=signup' }
+
+      it 'does not include op=signup param in rendered form' do
+        expect(response).not_to include(expected_signup_param)
+      end
     end
   end
 
@@ -138,16 +154,15 @@ describe SignIn::Idme::Service do
   describe '#user_info' do
     let(:test_client_cert_path) { 'spec/fixtures/sign_in/oauth_test.crt' }
     let(:test_client_key_path) { 'spec/fixtures/sign_in/oauth_test.key' }
+    let(:expected_jwks_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
 
     before do
       allow(Settings.idme).to receive(:client_cert_path).and_return(test_client_cert_path)
       allow(Settings.idme).to receive(:client_key_path).and_return(test_client_key_path)
     end
 
-    it 'returns user attributes' do
-      VCR.use_cassette('identity/idme_200_responses') do
-        expect(subject.user_info(token)).to eq(user_info)
-      end
+    it 'returns user attributes', vcr: { cassette_name: 'identity/idme_200_responses' } do
+      expect(subject.user_info(token)).to eq(user_info)
     end
 
     context 'when log_credential is enabled in idme configuration' do
@@ -156,11 +171,10 @@ describe SignIn::Idme::Service do
         allow(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
       end
 
-      it 'makes a call to mocked authentication writer to save the credential' do
-        VCR.use_cassette('identity/idme_200_responses') do
-          expect(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
-          subject.user_info(token)
-        end
+      it 'makes a call to mocked authentication writer to save the credential',
+         vcr: { cassette_name: 'identity/idme_200_responses' } do
+        expect(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
+        subject.user_info(token)
       end
     end
 
@@ -182,6 +196,16 @@ describe SignIn::Idme::Service do
       end
     end
 
+    context 'when the JWT has expired' do
+      let(:current_time) { expiration_time + 100 }
+      let(:expected_error) { SignIn::Idme::Errors::JWTExpiredError }
+      let(:expected_error_message) { '[SignIn][Idme][Service] JWT has expired' }
+
+      it 'raises a jwe expired error with expected message', vcr: { cassette_name: 'identity/idme_200_responses' } do
+        expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
     context 'when an issue occurs with the JWE decryption' do
       let(:expected_error) { SignIn::Idme::Errors::JWEDecodeError }
       let(:expected_error_message) { '[SignIn][Idme][Service] JWE is malformed' }
@@ -199,45 +223,56 @@ describe SignIn::Idme::Service do
     context 'when the JWT decoding does not match expected verification' do
       let(:expected_error) { SignIn::Idme::Errors::JWTVerificationError }
       let(:expected_error_message) { '[SignIn][Idme][Service] JWT body does not match signature' }
-      let(:mismatched_public_key) { OpenSSL::PKey::RSA.generate(2048) }
-      let(:idme_configuration) { SignIn::Idme::Configuration }
 
-      before do
-        allow_any_instance_of(idme_configuration).to receive(:jwt_decode_public_key).and_return(mismatched_public_key)
-      end
-
-      it 'raises a jwe decode error with expected message' do
-        VCR.use_cassette('identity/idme_200_responses') do
-          expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
-        end
-      end
-    end
-
-    context 'when the JWT has expired' do
-      let(:current_time) { expiration_time + 100 }
-      let(:expected_error) { SignIn::Idme::Errors::JWTExpiredError }
-      let(:expected_error_message) { '[SignIn][Idme][Service] JWT has expired' }
-
-      it 'raises a jwe expired error with expected message' do
-        VCR.use_cassette('identity/idme_200_responses') do
-          expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
-        end
+      it 'raises a jwe decode error with expected message',
+         vcr: { cassette_name: 'identity/idme_jwks_mismatched_signature' } do
+        expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
       end
     end
 
     context 'when the JWT is malformed' do
-      let(:current_time) { expiration_time + 100 }
-      let(:jwt_decode_error) { JWT::DecodeError }
       let(:expected_error) { SignIn::Idme::Errors::JWTDecodeError }
       let(:expected_error_message) { '[SignIn][Idme][Service] JWT is malformed' }
 
+      it 'raises a jwt malformed error with expected message',
+         vcr: { cassette_name: 'identity/idme_jwks_jwt_malformed' } do
+        expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the JWK is malformed' do
+      let(:expected_error) { SignIn::Idme::Errors::PublicJWKError }
+      let(:expected_error_message) { '[SignIn][Idme][Service] Public JWK is malformed' }
+
+      it 'raises a jwt malformed error with expected message', vcr: { cassette_name: 'identity/idme_jwks_malformed' } do
+        expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the public JWK response is not cached' do
+      it 'logs information to rails logger' do
+        VCR.use_cassette('identity/idme_200_responses') do
+          expect(Rails.logger).to receive(:info).with(expected_jwks_log)
+          subject.user_info(token)
+        end
+      end
+    end
+
+    context 'when the public JWK response is cached' do
+      let(:cache_key) { 'idme_public_jwks' }
+      let(:cache_expiration) { 30.minutes }
+      let(:response) { double(body: 'some-body') }
+
       before do
-        allow(JWT).to receive(:decode).and_raise(jwt_decode_error)
+        allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: cache_expiration).and_return(response)
+        allow(JWT).to receive(:decode).and_return([])
+        allow(JWT::JWK::Set).to receive(:new).and_return([])
       end
 
-      it 'raises a jwt malformed error with expected message' do
+      it 'does not log expected_jwks_log' do
         VCR.use_cassette('identity/idme_200_responses') do
-          expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
+          expect(Rails.logger).not_to receive(:info).with(expected_jwks_log)
+          subject.user_info(token)
         end
       end
     end

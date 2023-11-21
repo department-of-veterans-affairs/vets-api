@@ -6,7 +6,7 @@ module Mobile
   module V0
     class BenefitInformation < Common::Resource
       attribute :award_effective_date, Types::DateTime
-      attribute :has_chapter_35_eligibility, Types::Bool
+      attribute :has_chapter35_eligibility, Types::Bool
       attribute :monthly_award_amount, Types::Float
       attribute :service_connected_percentage, Types::Integer
       attribute :has_death_result_of_disability, Types::Bool

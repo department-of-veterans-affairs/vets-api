@@ -26,7 +26,9 @@ module EMISRedis
 
     # @return [String] Title 38 status code
     def title38_status
-      validated_response&.title38_status_code
+      result = validated_response&.title38_status_code
+      Rails.logger.info "EMIS title38: #{result}" if Settings.vsp_enironment == 'staging'
+      result
     end
 
     # Returns boolean for user being/not being considered a military person, by eMIS,
@@ -78,7 +80,7 @@ module EMISRedis
     # @return [Hash] A hash of veteran status properties
     #
     def validated_response
-      raise VeteranStatus::NotAuthorized.new(status: 401) if !@user.loa3? || !@user.authorize(:emis, :access?)
+      raise VeteranStatus::NotAuthorized.new(status: 401) if !@user.loa3? || !@user.authorize(:va_profile, :access?)
 
       response = emis_response('get_veteran_status')
 

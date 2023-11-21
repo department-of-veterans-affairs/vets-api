@@ -5,6 +5,8 @@ require 'date'
 module V0
   module VirtualAgent
     class VirtualAgentAppealController < AppealsBaseController
+      service_tag 'virtual-agent'
+
       def index
         if Settings.vsp_environment == 'staging'
           Rails.logger.info 'Getting appeals from Lighthouse for staging environment'

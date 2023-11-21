@@ -25,6 +25,12 @@ Rails.application.routes.draw do
 
   get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
 
+  unless Settings.vsp_environment == 'production'
+    namespace :sign_in do
+      resources :client_configs
+    end
+  end
+
   get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
   get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
   get '/inherited_proofing/callback', to: 'inherited_proofing#callback'
@@ -42,12 +48,12 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
+    resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
+    resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
-
-    get 'user_transition_availabilities', to: 'user_transition_availabilities#index'
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
@@ -68,7 +74,7 @@ Rails.application.routes.draw do
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
-        get 'download/:id', to: 'letters_generator#download'
+        post 'download/:id', to: 'letters_generator#download'
       end
     end
 
@@ -94,7 +100,9 @@ Rails.application.routes.draw do
     resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
-    resource :user, only: [:show]
+    resource :user, only: [:show] do
+      get 'icn', to: 'users#icn'
+    end
     resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -109,6 +117,7 @@ Rails.application.routes.draw do
         get(:healthcheck)
         get(:enrollment_status)
         get(:rating_info)
+        post(:download_pdf)
       end
     end
 
@@ -134,7 +143,10 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
-    resources :benefits_claims, only: %i[index show]
+    resources :benefits_claims, only: %i[index show] do
+      post :submit5103, on: :member
+      post 'benefits_documents', to: 'benefits_documents#create'
+    end
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
@@ -147,7 +159,10 @@ Rails.application.routes.draw do
     end
 
     resources :evss_claims_async, only: %i[index show]
-    resources :evss_benefits_claims, only: %i[index show]
+    resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
+
+    resource :rated_disabilities, only: %i[show]
+    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
@@ -169,6 +184,8 @@ Rails.application.routes.draw do
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+    get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
+    get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
 
     get 'ppiu/payment_information', to: 'ppiu#index'
     put 'ppiu/payment_information', to: 'ppiu#update'
@@ -313,6 +330,7 @@ Rails.application.routes.draw do
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
       resources :communication_preferences, only: %i[index create update]
+      resources :contacts, only: %i[index]
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
@@ -333,11 +351,6 @@ Rails.application.routes.draw do
 
     resources :apidocs, only: [:index]
 
-    get 'terms_and_conditions', to: 'terms_and_conditions#index'
-    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
-    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
-    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
-
     get 'feature_toggles', to: 'feature_toggles#index'
 
     resource :mhv_opt_in_flags, only: %i[show create]
@@ -354,7 +367,15 @@ Rails.application.routes.draw do
       post 'submit_coe_claim'
       post 'document_upload'
     end
+
+    get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
+    post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
+    post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+    put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
+
+    resources :form1010_ezrs, only: %i[create]
   end
+  # end /v0
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]
@@ -405,10 +426,6 @@ Rails.application.routes.draw do
 
   root 'v0/example#index', module: 'v0'
 
-  scope '/internal' do
-    mount OpenidAuth::Engine, at: '/auth'
-  end
-
   scope '/services' do
     mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
@@ -421,13 +438,15 @@ Rails.application.routes.draw do
   end
 
   # Modules
+  mount AskVAApi::Engine, at: '/ask_va_api'
+  mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
-  mount FormsApi::Engine, at: '/forms_api'
+  mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'
   mount MebApi::Engine, at: '/meb_api'
@@ -437,7 +456,6 @@ Rails.application.routes.draw do
   # End Modules
 
   require 'sidekiq/web'
-  require 'sidekiq-scheduler/web'
   require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
   require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
   require 'github_authentication/sidekiq_web'
@@ -453,7 +471,8 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
+  get '/flipper/features/logout', to: 'flipper#logout'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
 
   if Rails.env.production?
     require 'coverband'

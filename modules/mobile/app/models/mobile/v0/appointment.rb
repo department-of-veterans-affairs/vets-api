@@ -12,16 +12,19 @@ module Mobile
     #   Mobile::V0::Adapters::Appointment.new(appointment_hash)
     #
     class Appointment < Common::Resource
+      CACHE_VERSION = 2
+
       include Mobile::V0::Concerns::RedisCaching
 
-      redis_config REDIS_CONFIG[:mobile_app_appointments_store]
+      redis_config REDIS_CONFIG[:mobile_app_appointments_store], CACHE_VERSION
 
       APPOINTMENT_TYPE = Types::String.enum(
         'COMMUNITY_CARE',
         'VA',
         'VA_VIDEO_CONNECT_ATLAS',
         'VA_VIDEO_CONNECT_GFE',
-        'VA_VIDEO_CONNECT_HOME'
+        'VA_VIDEO_CONNECT_HOME',
+        'VA_VIDEO_CONNECT_ONSITE'
       )
       STATUS_TYPE = Types::String.enum('BOOKED', 'CANCELLED', 'HIDDEN', 'SUBMITTED')
       STATUS_DETAIL_TYPE = Types::String.enum('CANCELLED BY CLINIC & AUTO RE-BOOK',
@@ -45,6 +48,7 @@ module Mobile
 
       attribute :id, Types::String
       attribute :appointment_type, APPOINTMENT_TYPE
+      attribute :appointment_ien, Types::String.optional
       attribute :cancel_id, Types::String.optional
       attribute :comment, Types::String.optional
       attribute :facility_id, Types::String.optional
@@ -52,6 +56,7 @@ module Mobile
       attribute :healthcare_provider, Types::String.optional
       attribute :healthcare_service, Types::String.optional
       attribute :location, Location.optional
+      attribute :physical_location, Types::String.optional
       attribute :minutes_duration, Types::Integer
       attribute :phone_only, Types::Bool
       attribute :start_date_local, Types::DateTime
@@ -69,6 +74,7 @@ module Mobile
       attribute :patient_email, Types::String.optional
       attribute :best_time_to_call, Types::Array.optional
       attribute :friendly_location_name, Types::String.optional
+      attribute :service_category_name, Types::String.optional
 
       # On staging, some upstream services use different facility ids for the same facility.
       # These methods convert between the two sets of ids.
@@ -82,7 +88,8 @@ module Mobile
         return id unless match
 
         return id.sub(match[0], '442') if match[0] == '983'
-        return id.sub(match[0], '552') if match[0] == '984'
+
+        id.sub(match[0], '552') if match[0] == '984'
       end
 
       def self.convert_to_non_prod_id!(id)
@@ -92,50 +99,8 @@ module Mobile
         return id unless match
 
         return id.sub(match[0], '983') if match[0] == '442'
-        return id.sub(match[0], '984') if match[0] == '552'
-      end
 
-      # VAOS appointments aren't cancelled by id but instead by a combination
-      # of clinic_id, facility_id, time, and service. The first half of the
-      # encoded string matches VEText cancel ids.
-      #
-      # @start_date_local DateTime the times of the appointment
-      # @clinic_id String the id of the clinic within the facility the appointment is scheduled at
-      # @facility_id the id of the facility the appointment is scheduled at
-      # @healthcare_service String the name of the service within the clinic
-      #
-      # @return String the combined cancel id
-      #
-      def self.encode_cancel_id(start_date_local:, clinic_id:, facility_id:, healthcare_service:)
-        string = "#{clinic_id};#{start_date_local.strftime('%Y%m%d.%H%S%M')};#{facility_id};#{healthcare_service}"
-        Base64.encode64(string)
-      end
-
-      # Takes an encoded cancel id and decodes it into a hash of params
-      # that can be used to perform the cancellation
-      #
-      # @cancel_id String the encoded cancel params
-      #
-      # @return Hash the decoded params
-      #
-      def self.decode_cancel_id(cancel_id)
-        decoded = Base64.decode64(cancel_id)
-        clinic_id, start_date_local, facility_id, healthcare_service = decoded.split(';')
-
-        {
-          appointmentTime: DateTime.strptime(start_date_local, '%Y%m%d.%H%S%M'),
-          clinicId: clinic_id,
-          facilityId: facility_id,
-          healthcareService: healthcare_service
-        }
-      rescue ArgumentError, TypeError
-        raise Mobile::V0::Exceptions::ValidationErrors, OpenStruct.new(
-          { errors: { cancelId: 'invalid cancel id' } }
-        )
-      end
-
-      def id_for_address
-        sta6aid || facility_id
+        id.sub(match[0], '984') if match[0] == '552'
       end
     end
   end

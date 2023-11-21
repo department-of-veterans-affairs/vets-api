@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
@@ -57,7 +58,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           before do |example|
             Timecop.freeze(Time.zone.parse('2022-01-01T08:00:00Z'))
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(bgs_response)
 
@@ -85,8 +86,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[system/claim.read] }
-
           before do |example|
             submit_request(example.metadata)
           end
@@ -105,36 +104,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
         end
       end
 
-      describe 'Getting a 403 response' do
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[system/claim.read] }
-
-          before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 403 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(
@@ -145,7 +114,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(nil)
 
@@ -228,7 +197,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
               stub_response
             )
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -264,7 +233,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -313,58 +282,19 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
         end
       end
 
-      describe 'Getting a 403 response' do
-        let(:veteranId) { 'not-the-same-id-as-tamara' } # rubocop:disable RSpec/VariableName
-
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:scopes) { %w[system/claim.write] }
-          let(:data) do
-            {
-              data: {
-                attributes: {
-                  type: 'compensation'
-                }
-              }
-            }
-          end
-
-          before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 403 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
           let(:scopes) { %w[system/claim.write] }
-          let(:data) { { data: { attributes: { type: 'survivor', claimantSsn: '796111863' } } } }
+          let(:data) { { data: { attributes: { type: 'survivor', claimantSsn: 'not-a-valid-ssn' } } } }
           let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -446,7 +376,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
               stub_response
             )
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -482,7 +412,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -530,44 +460,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           it 'returns a valid 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 403 response' do
-        let(:veteranId) { 'not-the-same-id-as-tamara' } # rubocop:disable RSpec/VariableName
-
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:scopes) { %w[system/claim.write] }
-          let(:data) do
-            {
-              data: {
-                attributes: {
-                  type: 'compensation'
-                }
-              }
-            }
-          end
-
-          before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

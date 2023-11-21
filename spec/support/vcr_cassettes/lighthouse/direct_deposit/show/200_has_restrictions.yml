@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 23 Feb 2023 21:47:59 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '7'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Content-Language:
+      - en-US
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '5345'
+      X-Kong-Proxy-Latency:
+      - '2'
+      Via:
+      - kong/3.0.2
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503","financialInstitutionName":"WELLS
+        FARGO BANK"},"controlInformation":{"canUpdateDirectDeposit":false,"isCorpAvailable":true,"isCorpRecFound":true,"hasNoBdnPayments":true,"hasIndentity":true,"hasIndex":true,"isCompetent":true,"hasMailingAddress":true,"hasNoFiduciaryAssigned":true,"isNotDeceased":true,"hasPaymentAddress":false}}'
+  recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
+recorded_with: VCR 6.1.0

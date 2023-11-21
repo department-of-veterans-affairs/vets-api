@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sign_in/logingov/configuration'
+require 'sign_in/logingov/errors'
 require 'mockdata/writer'
 
 module SignIn
@@ -10,8 +11,11 @@ module SignIn
 
       SCOPE = 'profile profile:verified_at address email social_security_number openid'
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::LOGIN_GOV_IAL1)
-        Rails.logger.info("[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}")
+      def render_auth(state: SecureRandom.hex,
+                      acr: Constants::Auth::LOGIN_GOV_IAL1,
+                      operation: Constants::Auth::AUTHORIZE)
+        Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
+                          "state: #{state}, acr: #{acr}, operation: #{operation}")
         RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
       end
 
@@ -31,7 +35,7 @@ module SignIn
           :post, config.token_path, token_params(code), { 'Content-Type' => 'application/json' }
         )
         Rails.logger.info("[SignIn][Logingov][Service] Token Success, code: #{code}")
-        response.body
+        parse_token_response(response.body)
       rescue Common::Client::Errors::ClientError => e
         raise_client_error(e, 'Token')
       end
@@ -104,6 +108,45 @@ module SignIn
         description = client_error.body && client_error.body[:error]
         raise client_error, "[SignIn][Logingov][Service] Cannot perform #{function_name} request, " \
                             "status: #{status}, description: #{description}"
+      end
+
+      def parse_token_response(response_body)
+        access_token = response_body[:access_token]
+        logingov_acr = jwt_decode(response_body[:id_token])['acr']
+        { access_token:, logingov_acr: }
+      end
+
+      def jwt_decode(encoded_jwt)
+        verify_expiration = true
+        JWT.decode(
+          encoded_jwt,
+          nil,
+          verify_expiration,
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: public_jwks }
+        ).first
+      rescue JWT::JWKError
+        raise Errors::PublicJWKError, '[SignIn][Logingov][Service] Public JWK is malformed'
+      rescue JWT::VerificationError
+        raise Errors::JWTVerificationError, '[SignIn][Logingov][Service] JWT body does not match signature'
+      rescue JWT::ExpiredSignature
+        raise Errors::JWTExpiredError, '[SignIn][Logingov][Service] JWT has expired'
+      rescue JWT::DecodeError
+        raise Errors::JWTDecodeError, '[SignIn][Logingov][Service] JWT is malformed'
+      end
+
+      def public_jwks
+        @public_jwks ||= Rails.cache.fetch(config.jwks_cache_key, expires_in: config.jwks_cache_expiration) do
+          response = perform(:get, config.public_jwks_path, nil, nil)
+          Rails.logger.info('[SignIn][Logingov][Service] Get Public JWKs Success')
+
+          parse_public_jwks(response:)
+        end
+      rescue Common::Client::Errors::ClientError => e
+        raise_client_error(e, 'Get Public JWKs')
+      end
+
+      def parse_public_jwks(response:)
+        JWT::JWK::Set.new(response.body).select { |key| key[:use] == 'sig' }
       end
 
       def get_authn_context(current_ial)

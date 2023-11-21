@@ -1,5 +1,4 @@
 common:
-   - drew.fisher@adhocteam.us
    - michael.hobson@adhocteam.us
    - michel.mcdonald@adhocteam.us
    - casey.williams@adhocteam.us
@@ -9,7 +8,17 @@ development:
 staging:
 sandbox:
 production:
-  - matthew.self2@va.gov
+  - annie.tran@coforma.io
+  - cory.sohrakoff@va.gov
+  - drew.fisher@adhocteam.us
+  - eugene.lynch@coforma.io
+  - jacob.worrell@va.gov
   - janet.coutinho@va.gov
   - kyle.soskin@adhocteam.us
-  - lee.helmer@adhocteam.us
+  - matthew.self2@va.gov
+  - premal.shah@va.gov
+  - robin.garrison@adhocteam.us
+  - rocio.de-santiago@coforma.io
+  - sade@coforma.io
+  - steve.albers@va.gov
+  - zachary.goldfine@va.gov

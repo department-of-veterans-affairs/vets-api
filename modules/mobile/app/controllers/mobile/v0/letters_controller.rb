@@ -4,20 +4,50 @@ require 'common/exceptions/record_not_found'
 require 'evss/letters/download_service'
 require 'evss/letters/service'
 require 'lighthouse/letters_generator/service'
+require 'lighthouse/letters_generator/veteran_sponsor_resolver'
 
 module Mobile
   module V0
     class LettersController < ApplicationController
-      before_action { authorize :evss, :access? unless Flipper.enabled?(:mobile_lighthouse_letters, @current_user) }
+      DOWNLOAD_PARAMS = %w[
+        militaryService
+        serviceConnectedDisabilities
+        serviceConnectedEvaluation
+        nonServiceConnectedPension
+        monthlyAward
+        unemployable
+        specialMonthlyCompensation
+        adaptedHousing
+        chapter35Eligibility
+        deathResultOfDisability
+        survivorsAward
+      ].freeze
+      DOWNLOAD_FORMATS = %w[json pdf].freeze
+
+      before_action do
+        if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
+      end
+      before_action :validate_format!, only: %i[download]
+      before_action :validate_letter_type!, only: %i[download]
+      after_action :increment_download_counter, only: %i[download], if: -> { response.successful? }
 
       # returns list of letters available for a given user. List includes letter display name and letter type
       def index
         response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
-                     lighthouse_service.get_eligible_letter_types(icn)[:letters]
+                     letters = lighthouse_service.get_eligible_letter_types(icn)[:letters]
+                     letters.map do |letter|
+                       Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name])
+                     end
                    else
-                     evss_service.get_letters.letters
+                     letters = evss_service.get_letters.letters
+                     letters.map { |letter| Mobile::V0::Letter.new(letter_type: letter.letter_type, name: letter.name) }
                    end
-        render json: Mobile::V0::LettersSerializer.new(@current_user, response)
+
+        render json: Mobile::V0::LettersSerializer.new(@current_user, response.select(&:displayable?))
       end
 
       # returns options and info needed to create user form required for benefit letter download
@@ -30,10 +60,15 @@ module Mobile
         render json: Mobile::V0::LettersBeneficiarySerializer.new(@current_user, response)
       end
 
-      # returns a pdf of the requested letter type given the user has that letter type available
+      # returns a pdf or json representation of the requested letter type given the user has that letter type available
       def download
+        if params[:format] == 'json'
+          letter = lighthouse_service.get_letter(icn, params[:type], download_options_hash)
+          return render json: Mobile::V0::LetterSerializer.new(current_user.uuid, letter)
+        end
+
         response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
-                     lighthouse_service.download_letter(icn, params[:type])
+                     download_lighthouse_letters(params)
                    else
                      unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:type]
                        Raven.tags_context(team: 'va-mobile-app') # tag sentry logs with team name
@@ -43,15 +78,84 @@ module Mobile
 
                      download_service.download_letter(params[:type], request.body.string)
                    end
-        StatsD.increment('mobile.letters.download.type', tags: ["type:#{params[:type]}"], sample_rate: 1.0)
         send_data response,
                   filename: "#{params[:type]}.pdf",
                   type: 'application/pdf',
                   disposition: 'attachment'
       end
 
+      private
+
+      def download_lighthouse_letters(params)
+        icns = { icn: }
+
+        if dependent_letter?(params[:type])
+          # Gets the sponsor's icn if one exists
+          sponsor_icn = Lighthouse::LettersGenerator::VeteranSponsorResolver.get_sponsor_icn(@current_user)
+          is_dependent = Lighthouse::LettersGenerator::VeteranSponsorResolver.dependent?(@current_user)
+
+          # This is an exceptional case.
+          # A Veteran who is not a dependent should not be able to access this endpoint.
+          # A dependent (Veteran or not) must have a Veteran sponsor.
+          if sponsor_icn.nil?
+            raise Common::Exceptions::BadRequest.new(
+              {
+                detail: "User #{@current_user.uuid} is #{is_dependent ? 'not' : ''} a Veteran and has no associated sponsor.", # rubocop:disable Layout/LineLength
+                source: self.class.name
+              }
+            )
+          else
+            icns[:sponsor_icn] = sponsor_icn
+          end
+        end
+
+        lighthouse_service.download_letter(icns, params[:type], download_options_hash)
+      end
+
       def icn
         @current_user.icn
+      end
+
+      def dependent_letter?(letter_type)
+        letter_type.downcase == 'benefit_summary_dependent'
+      end
+
+      def validate_letter_type!
+        unless lighthouse_service.valid_type?(params[:type])
+          raise Common::Exceptions::BadRequest.new(
+            {
+              detail: "Letter type of #{params[:type]} is not one of the expected options",
+              source: self.class.name
+            }
+          )
+        end
+      end
+
+      def validate_format!
+        if params[:format].present? && !params[:format].in?(DOWNLOAD_FORMATS)
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: "Format #{params[:format]} not in #{DOWNLOAD_FORMATS}",
+            source: 'Mobile::V0::LettersController'
+          )
+        end
+      end
+
+      def increment_download_counter
+        file_format = params[:format] || 'pdf'
+        StatsD.increment(
+          'mobile.letters.download.type',
+          tags: ["type:#{params[:type]}", "format:#{file_format}"],
+          sample_rate: 1.0
+        )
+      end
+
+      # body params appear in the params hash in specs but not in actual requests
+      def download_options_hash
+        body_string = request.body.string
+        return {} if body_string.blank?
+
+        body_params = JSON.parse(body_string)
+        body_params.keep_if { |k, _| k.in? DOWNLOAD_PARAMS }
       end
 
       def letter_info_adapter

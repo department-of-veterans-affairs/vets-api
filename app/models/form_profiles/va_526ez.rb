@@ -23,6 +23,7 @@ module VA526ez
     attribute :decision_code, String
     attribute :decision_text, String
     attribute :rating_percentage, Integer
+    attribute :maximum_rating_percentage, Integer
   end
 
   class FormRatedDisabilities
@@ -91,14 +92,19 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
 
-    settings = Settings.lighthouse.veteran_verification.form526
-    service = ApiProviderFactory.rated_disabilities_service_provider(
-      {
-        auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h),
-        icn: user.icn.to_s
-      }
+    api_provider = ApiProviderFactory.call(
+      type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+      provider: nil,
+      options: {
+        icn: user.icn.to_s,
+        auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      },
+      current_user: user,
+      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
     )
-    response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+
+    response = api_provider.get_rated_disabilities
+    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
@@ -207,8 +213,10 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_payment_information
     return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
-    service = EVSS::PPIU::Service.new(user)
-    response = service.get_payment_information
+    provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
+                                       current_user: user,
+                                       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
     if raw_account
@@ -222,8 +230,14 @@ class FormProfiles::VA526ez < FormProfile
       {}
     end
   rescue => e
-    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
+    log_ppiu_error(e, provider)
     {}
+  end
+
+  def log_ppiu_error(e, provider)
+    method_name = '#initialize_payment_information'
+    error_message = "#{method_name} Failed to retrieve PPIU data from #{provider.class}: #{e.message}"
+    Rails.logger.error(error_message)
   end
 
   def mask(number)

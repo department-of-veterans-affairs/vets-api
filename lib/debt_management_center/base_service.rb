@@ -6,7 +6,7 @@ module DebtManagementCenter
   class BaseService < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
-    def initialize(user)
+    def initialize(user = nil)
       @user = user
       @file_number = init_file_number if @user.present?
     end

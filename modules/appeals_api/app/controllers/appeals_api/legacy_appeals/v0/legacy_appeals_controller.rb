@@ -4,26 +4,17 @@ require 'appeals_api/form_schemas'
 
 module AppealsApi::LegacyAppeals::V0
   class LegacyAppealsController < AppealsApi::V2::DecisionReviews::LegacyAppealsController
+    include AppealsApi::Schemas
     include AppealsApi::OpenidAuth
 
-    FORM_NUMBER = 'LEGACY_APPEALS_HEADERS_WITH_SHARED_REFS'
-    HEADERS = JSON.parse(
-      File.read(
-        AppealsApi::Engine.root.join('config/schemas/v2/legacy_appeals_headers_with_shared_refs.json')
-      )
-    )['definitions']['legacyAppealsIndexParameters']['properties'].keys
+    SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'legacy_appeals' }.freeze
 
     OAUTH_SCOPES = {
       GET: %w[veteran/LegacyAppeals.read representative/LegacyAppeals.read system/LegacyAppeals.read]
     }.freeze
 
     def schema
-      render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-        AppealsApi::FormSchemas.new(
-          SCHEMA_ERROR_TYPE,
-          schema_version: 'v2'
-        ).schema(self.class::FORM_NUMBER)
-      )
+      render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(headers_schema)
     end
 
     private

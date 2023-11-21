@@ -1,0 +1,188 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://idp.int.identitysandbox.gov/api/openid_connect/certs
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '483'
+      Connection:
+      - keep-alive
+      Date:
+      - Tue, 22 Aug 2023 00:03:27 GMT
+      Status:
+      - 200 OK
+      Cache-Control:
+      - max-age=604800, public
+      Vary:
+      - Accept, Origin
+      Strict-Transport-Security:
+      - max-age=31556952; includeSubDomains; preload
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Request-Id:
+      - 5f14d1b5-4589-4a31-b17e-76cf843a00f2
+      X-Download-Options:
+      - noopen
+      X-Runtime:
+      - '0.002092'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Content-Security-Policy:
+      - 'frame-ancestors ''self''; default-src ''self''; child-src ''self''; form-action
+        ''self''; block-all-mixed-content; connect-src ''self'' *.nr-data.net; font-src
+        ''self'' data: https://idp.int.identitysandbox.gov; img-src ''self'' data:
+        login.gov https://idp.int.identitysandbox.gov https://s3.us-west-2.amazonaws.com;
+        media-src ''self''; object-src ''none''; script-src ''self'' js-agent.newrelic.com
+        *.nr-data.net https://idp.int.identitysandbox.gov ''nonce-''; style-src ''self''
+        https://idp.int.identitysandbox.gov ''unsafe-inline''; base-uri ''self'''
+      Set-Cookie:
+      - ahoy_track=true; path=/; SameSite=Lax; Secure; HttpOnly
+      - ahoy_visit=0ea2794c-9f89-4f22-8c33-aefbc882f45f; path=/; expires=Tue, 22 Aug
+        2023 00:18:27 GMT; SameSite=Lax; Secure; HttpOnly
+      - ahoy_visitor=0633ffe6-5dfb-4a8b-8249-6d7417508d78; path=/; expires=Fri, 22
+        Aug 2025 00:03:27 GMT; SameSite=Lax; Secure; HttpOnly
+      X-Cache:
+      - Miss from cloudfront
+      Via:
+      - 1.1 efe54e8b68e074d39b2ecd249f85100a.cloudfront.net (CloudFront)
+      X-Amz-Cf-Pop:
+      - HIO50-C1
+      Alt-Svc:
+      - h3=":443"; ma=86400
+      X-Amz-Cf-Id:
+      - 3CWeSgx1aR8NXxmRqpRykK403Y_ubZUAfI3EaL_3cE7SsSp0JC7sWQ==
+    body:
+      encoding: UTF-8
+      string: '{"keys":[{"alg":"RS256","use":"sig","n":"qRoNXLUugbenQTBHswfiGoKuhKkvUPP6A1GllxEZEAX86FiFSrXr7x_suHZ4cBytsmtFuYGymJZAGTk7DLzvMW0BHZpVtMZ3qvBDsYbNQGN4oLLxIy5-Q1rT1XTZhNkJwaj7gndbKHpQ33FqNQphhdchXB28N9GekDCJKzwEEThhxHkBxhq-hYAkd6rZ2fLiiyd5C4MSO0pMB-E_oGrNdYhCoydaFqVAhojn8am9za-JkjZIE9-Shlv_CQGt0yr91h3agVxeR2aeuZjQmvrhALJUeeJxG4D_Xl-w4v_O6nl0nllKXKHFxjP4ejDdNbht2a1L9BgJoYBjq6pUcWT49w","e":"AQAB","kid":"f5ce1239e39d3da836f963bccd85f85d57d4335cfdc6a17039f274361a18b13c"}]}'
+  recorded_at: Tue, 22 Aug 2023 00:03:27 GMT
+- request:
+    method: post
+    uri: 'https://idp.int.identitysandbox.gov/api/openid_connect/token'
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Token token=PUBLICDEMO123
+      X-VA-SSN:
+      - '872958715'
+      X-VA-Receipt-Date:
+      - '2019-12-01'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"d6bf72b7b802348bbd01a2bd9a2129c8"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Meta-Request-Version:
+      - 0.7.2
+      X-Request-Id:
+      - da12dfa2-d2ae-405f-a015-2aedfc7266c7
+      X-Runtime:
+      - '0.495623'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{ "access_token" : "mHO_gU3WooLm0xoDxIAulw", "token_type" : "Bearer", "expires_in" : 900, "id_token" : "eyJraWQiOiJmNWNlMTIzOWUzOWQzZGE4MzZmOTYzYmNjZDg1Zjg1ZDU3ZDQzMzVjZmRjNmExNzAzOWYyNzQzNjFhMThiMTNjIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJlYmYyZTZlZC01M2I2LTQwOWQtYTMwYS1jYzk4YWUyYWRjMDEiLCJpc3MiOiJodHRwczovL2lkcC5pbnQuaWRlbnRpdHlzYW5kYm94Lmdvdi8iLCJlbWFpbCI6ImpvZS5uaXF1ZXR0ZStsZ292aWFsMkBvZGRiYWxsLmlvIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImdpdmVuX25hbWUiOiJqb2VpYWwyIiwiZmFtaWx5X25hbWUiOiJ0ZXN0bGFzdG5hbWUiLCJiaXJ0aGRhdGUiOiIxOTgwLTA4LTE2Iiwic29jaWFsX3NlY3VyaXR5X251bWJlciI6IjEwMjk5ODc3NSIsImFkZHJlc3MiOnsiZm9ybWF0dGVkIjoiMjI4IE4gU3BlbmNlciBSZFxuUGF4dG9uLCBNQSAwMTYxMiIsInN0cmVldF9hZGRyZXNzIjoiMjI4IE4gU3BlbmNlciBSZCIsImxvY2FsaXR5IjoiUGF4dG9uIiwicmVnaW9uIjoiTUEiLCJwb3N0YWxfY29kZSI6IjAxNjEyIn0sInZlcmlmaWVkX2F0IjoxNjM2NDc4Nzg1LCJpYWwiOiJodHRwOi8vaWRtYW5hZ2VtZW50Lmdvdi9ucy9hc3N1cmFuY2UvaWFsLzIiLCJhYWwiOiJ1cm46Z292OmdzYTphYzpjbGFzc2VzOnNwOlBhc3N3b3JkUHJvdGVjdGVkVHJhbnNwb3J0OmR1byIsImFjciI6Imh0dHA6Ly9pZG1hbmFnZW1lbnQuZ292L25zL2Fzc3VyYW5jZS9pYWwvMiIsIm5vbmNlIjoiYzY0YzBjNzcyYjdiNDM1ZDdkZWVhMTM1ZDY3NDg2ZjgiLCJhdWQiOiJodHRwczovL3NxYS5lYXV0aC52YS5nb3YvaXNhbS9zcHMvc2FtbDIwc3Avc2FtbDIwIiwianRpIjoibW9rQ2xwV1FRSWZVdzNMTG1MM0F6dyIsImF0X2hhc2giOiJ4aW9Ubk9aVEFaZ2w5N0FqSHJ0Q0xBIiwiY19oYXNoIjoiWDdNMG00SnRwQlJDQTZzNk5jb243ZyIsImV4cCI6MTY5MjY2MzkzOCwiaWF0IjoxNjkyNjYzMDM4LCJuYmYiOjE2OTI2NjMwMzh9.pvy7yGYMewc-nLvcO7C-Wu1DIk58HaUSo9FloN8mOEuNPk8WqmXeV7el0jMUi7nwe_fyUn-yqvaGp7wJ11a3gAHbYGJWrfDfp4_nl6sL0B5ZX6wwlK-lppcSJcLMEQQbXW4LO8SzGSfQP07Mzp5IH35WTF3FZVaE-xBekGI4jj4dnsuCYGE13cOQpYMpfmJPKm4Pzpe6L257Mjzim50ufXSHlmxdxD5ldx_tA1AktRXtfHszrXXh7zdO2zmRvLe4VqZc13G1NJxP4HfNh_FPWJ5--Jn_BKp5HqroETr02Ubl2T0dzYqlH8qd3Z2_4cxblwkix6W8uo6VaoKYbZkDSQ" }'
+    http_version: 
+  recorded_at: Thu, 23 Dec 2021 16:09:22 GMT
+- request:
+    method: get
+    uri: 'https://idp.int.identitysandbox.gov/api/openid_connect/userinfo'
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer AmCGxDQzUAr5rPZ4NgFvUQ
+      X-VA-SSN:
+      - '872958715'
+      X-VA-Receipt-Date:
+      - '2019-12-01'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"d6bf72b7b802348bbd01a2bd9a2129c8"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Meta-Request-Version:
+      - 0.7.2
+      X-Request-Id:
+      - da12dfa2-d2ae-405f-a015-2aedfc7266c7
+      X-Runtime:
+      - '0.495623'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{ "sub" : "12345678-0990-10a1-f038-2839ab281f90", "iss" : "https://idp.int.identitysandbox.gov/",
+                 "email" : "user@test.com", "email_verified" : true, "given_name" : "Bob", "family_name" : "User",
+                 "birthdate" : "1993-01-01", "social_security_number" : "999-11-9999", "address" : { "formatted" : "1 Microsoft Way\nApt 3\nBayside, NY 11364",
+                 "street_address" : "1 Microsoft Way\nApt 3", "locality" : "Bayside", "region" : "NY", "postal_code" : "11364" }, "verified_at" : 1635465286 }'
+    http_version: 
+  recorded_at: Thu, 23 Dec 2021 16:09:22 GMT
+recorded_with: VCR 5.0.0

@@ -161,33 +161,25 @@ module AppealsApi
         end
         # rubocop:enable Layout/LineLength
 
-        # rubocop:disable Metrics/MethodLength
+        MAX_ISSUES_ON_MAIN_FORM = 5
+
         def insert_issues_into_text_boxes(pdf, text_opts)
-          form_data
-            .contestable_issues
-            .take(5)
-            .each_with_index do |issue, index|
-              ypos = 273 - (35 * index)
-              pdf.text_box issue['attributes']['issue'],
-                           text_opts.merge(
-                             at: [0, ypos],
-                             width: 444,
-                             height: 19,
-                             valign: :top
-                           )
+          form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).each_with_index do |issue, i|
+            if issue.text_exists?
+              full_text = issue.text.strip
 
-              next unless issue['attributes']['disagreementArea']
+              if (disagreement_area = issue['attributes']['disagreementArea'])
+                full_text += "\nArea of Disagreement: #{disagreement_area.strip}"
+              end
 
-              pdf.text_box "Area of Disagreement: #{issue['attributes']['disagreementArea']}",
-                           text_opts.merge(
-                             at: [0, ypos - 11],
-                             width: 444,
-                             height: 19,
-                             valign: :bottom
-                           )
+              y_pos = 279 - (35 * i)
+              pdf.text_box(
+                full_text,
+                text_opts.merge({ at: [0, y_pos], width: 444, height: 33, valign: :center })
+              )
             end
+          end
         end
-        # rubocop:enable Metrics/MethodLength
       end
     end
   end

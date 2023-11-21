@@ -4,29 +4,36 @@ module Mobile
   module V0
     module Adapters
       class FacilityInfo
-        def parse(facility, user, params)
-          user_location = params[:sort] == 'current' ? current_coords(params) : home_coords(user)
-
-          facility_parse(facility, user, user_location)
-        end
-
-        private
-
-        def facility_parse(facility, user, user_location)
+        def parse(facility:, user:, sort: nil, lat: nil, long: nil)
           Mobile::V0::FacilityInfo.new(
             id: facility.id,
             name: facility[:name],
             city: facility[:physical_address][:city],
             state: facility[:physical_address][:state],
             cerner: user.cerner_facility_ids.include?(facility.id),
-            miles: Mobile::FacilitiesHelper.haversine_distance(user_location, [facility.lat, facility.long]).to_s
+            miles: distance(facility, user, sort, lat, long)
           )
         end
 
-        def current_coords(params)
-          params.require(:lat)
-          params.require(:long)
-          [params[:lat].to_f, params[:long].to_f]
+        private
+
+        def distance(facility, user, sort, lat, long)
+          if (location = user_location(user, sort, lat, long))
+            Mobile::FacilitiesHelper.haversine_distance(location, [facility.lat, facility.long]).to_s
+          end
+        end
+
+        def user_location(user, sort, lat, long)
+          case sort
+          when 'current'
+            current_coords(lat, long)
+          when 'home'
+            home_coords(user)
+          end
+        end
+
+        def current_coords(lat, long)
+          [lat.to_f, long.to_f]
         end
 
         def home_coords(user)

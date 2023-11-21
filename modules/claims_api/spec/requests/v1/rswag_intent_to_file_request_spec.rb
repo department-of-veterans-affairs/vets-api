@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
 describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
@@ -76,9 +77,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -110,10 +110,10 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+                allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
             end
@@ -143,9 +143,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::IntentToFileController
               ).to receive(:veteran_submitting_burial_itf?).and_return(true)
@@ -179,9 +178,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -246,10 +244,9 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
             Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -282,10 +279,10 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+                allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
             end
@@ -317,9 +314,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
             allow_any_instance_of(BGS::IntentToFileWebService)
               .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return([])
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -350,9 +346,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -418,9 +413,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -452,10 +446,10 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+                allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                 submit_request(example.metadata)
               end
             end
@@ -485,9 +479,8 @@ describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_a
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end

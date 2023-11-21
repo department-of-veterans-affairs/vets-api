@@ -1,27 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'military_information', type: :request do
   include JsonSchemaMatchers
 
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
   describe 'GET /mobile/v0/military-service-history' do
-    context 'with a user who has a cached iam session' do
-      before { iam_sign_in }
+    let!(:user) { sis_user(edipi: '1005079124') }
 
+    context 'with a user who has a cached session' do
       let(:expected_body_multi) do
         {
           'data' => {
-            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+            'id' => user.uuid,
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' =>
@@ -31,21 +24,27 @@ RSpec.describe 'military_information', type: :request do
                         'beginDate' => '2002-02-02',
                         'endDate' => '2008-12-01',
                         'formattedBeginDate' => 'February 02, 2002',
-                        'formattedEndDate' => 'December 01, 2008'
+                        'formattedEndDate' => 'December 01, 2008',
+                        'characterOfDischarge' => 'Dishonorable',
+                        'honorableServiceIndicator' => 'N'
                       },
                       {
                         'branchOfService' => 'United States Navy',
                         'beginDate' => '2009-03-01',
                         'endDate' => '2012-12-31',
                         'formattedBeginDate' => 'March 01, 2009',
-                        'formattedEndDate' => 'December 31, 2012'
+                        'formattedEndDate' => 'December 31, 2012',
+                        'characterOfDischarge' => 'Unknown',
+                        'honorableServiceIndicator' => 'Z'
                       },
                       {
                         'branchOfService' => 'United States Army',
                         'beginDate' => '2012-03-02',
                         'endDate' => '2018-10-31',
                         'formattedBeginDate' => 'March 02, 2012',
-                        'formattedEndDate' => 'October 31, 2018'
+                        'formattedEndDate' => 'October 31, 2018',
+                        'characterOfDischarge' => 'Honorable',
+                        'honorableServiceIndicator' => 'Y'
                       }
                     ]
             }
@@ -56,7 +55,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_single) do
         {
           'data' => {
-            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+            'id' => user.uuid,
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' =>
@@ -66,7 +65,9 @@ RSpec.describe 'military_information', type: :request do
                         'beginDate' => '2002-02-02',
                         'endDate' => '2008-12-01',
                         'formattedBeginDate' => 'February 02, 2002',
-                        'formattedEndDate' => 'December 01, 2008'
+                        'formattedEndDate' => 'December 01, 2008',
+                        'characterOfDischarge' => 'Under honorable conditions (general)',
+                        'honorableServiceIndicator' => 'Y'
                       }
                     ]
             }
@@ -77,7 +78,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_no_end_date) do
         {
           'data' => {
-            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+            'id' => user.uuid,
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' =>
@@ -87,21 +88,27 @@ RSpec.describe 'military_information', type: :request do
                         'beginDate' => '2002-02-02',
                         'endDate' => nil,
                         'formattedBeginDate' => 'February 02, 2002',
-                        'formattedEndDate' => nil
+                        'formattedEndDate' => nil,
+                        'characterOfDischarge' => 'DoD provided a value not in the reference table',
+                        'honorableServiceIndicator' => 'Z'
                       },
                       {
                         'branchOfService' => 'United States Navy',
                         'beginDate' => '2009-03-01',
                         'endDate' => '2012-12-31',
                         'formattedBeginDate' => 'March 01, 2009',
-                        'formattedEndDate' => 'December 31, 2012'
+                        'formattedEndDate' => 'December 31, 2012',
+                        'characterOfDischarge' => 'Bad conduct',
+                        'honorableServiceIndicator' => 'N'
                       },
                       {
                         'branchOfService' => 'United States Army',
                         'beginDate' => '2012-03-02',
                         'endDate' => '2018-10-31',
                         'formattedBeginDate' => 'March 02, 2012',
-                        'formattedEndDate' => 'October 31, 2018'
+                        'formattedEndDate' => 'October 31, 2018',
+                        'characterOfDischarge' => 'Honorable (Assumed) - GRAS periods only',
+                        'honorableServiceIndicator' => 'Y'
                       }
                     ]
             }
@@ -112,7 +119,7 @@ RSpec.describe 'military_information', type: :request do
       let(:expected_body_empty) do
         {
           'data' => {
-            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+            'id' => user.uuid,
             'type' => 'militaryInformation',
             'attributes' => {
               'serviceHistory' => []
@@ -121,10 +128,47 @@ RSpec.describe 'military_information', type: :request do
         }
       end
 
+      let(:expected_no_discharge) do
+        { 'data' =>
+          { 'id' => user.uuid,
+            'type' => 'militaryInformation',
+            'attributes' =>
+            { 'serviceHistory' =>
+              [{ 'branchOfService' => 'United States Army',
+                 'beginDate' => '2002-02-02',
+                 'endDate' => '2008-12-01',
+                 'formattedBeginDate' => 'February 02, 2002',
+                 'formattedEndDate' => 'December 01, 2008',
+                 'characterOfDischarge' => nil,
+                 'honorableServiceIndicator' => nil },
+               { 'branchOfService' => 'United States Army',
+                 'beginDate' => '2012-03-02',
+                 'endDate' => '2018-10-31',
+                 'formattedBeginDate' => 'March 02, 2012',
+                 'formattedEndDate' => 'October 31, 2018',
+                 'characterOfDischarge' => nil,
+                 'honorableServiceIndicator' => nil }] } } }
+      end
+
+      let(:expected_unknown_discharge) do
+        { 'data' =>
+          { 'id' => user.uuid,
+            'type' => 'militaryInformation',
+            'attributes' =>
+            { 'serviceHistory' =>
+              [{ 'branchOfService' => 'United States Army',
+                 'beginDate' => '2012-03-02',
+                 'endDate' => '2018-10-31',
+                 'formattedBeginDate' => 'March 02, 2012',
+                 'formattedEndDate' => 'October 31, 2018',
+                 'characterOfDischarge' => nil,
+                 'honorableServiceIndicator' => nil }] } } }
+      end
+
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_histories_200') do
-            get '/mobile/v0/military-service-history', headers: iam_headers
+          VCR.use_cassette('mobile/va_profile/post_read_service_histories_200') do
+            get '/mobile/v0/military-service-history', headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_multi)
             expect(response.body).to match_json_schema('mobile_service_history_response')
@@ -134,8 +178,8 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with one military service episode' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_history_200') do
-            get '/mobile/v0/military-service-history', headers: iam_headers
+          VCR.use_cassette('mobile/va_profile/post_read_service_history_200') do
+            get '/mobile/v0/military-service-history', headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_single)
             expect(response.body).to match_json_schema('mobile_service_history_response')
@@ -145,8 +189,8 @@ RSpec.describe 'military_information', type: :request do
 
       context 'military service episode with no end date' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_histories_200_no_end_date') do
-            get '/mobile/v0/military-service-history', headers: iam_headers
+          VCR.use_cassette('mobile/va_profile/post_read_service_histories_200_no_end_date') do
+            get '/mobile/v0/military-service-history', headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_no_end_date)
             expect(response.body).to match_json_schema('mobile_service_history_response')
@@ -156,10 +200,33 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with an empty military service episode' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_history_200_empty') do
-            get '/mobile/v0/military-service-history', headers: iam_headers
+          VCR.use_cassette('mobile/va_profile/post_read_service_history_200_empty') do
+            get '/mobile/v0/military-service-history', headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_empty)
+            expect(response.body).to match_json_schema('mobile_service_history_response')
+          end
+        end
+      end
+
+      context 'when military history discharge codes are missing or null' do
+        it 'sets discharge values to nil' do
+          VCR.use_cassette('mobile/va_profile/post_read_service_histories_200_no_discharge_code') do
+            get '/mobile/v0/military-service-history', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(expected_no_discharge)
+            expect(response.body).to match_json_schema('mobile_service_history_response')
+          end
+        end
+      end
+
+      context 'when military history discharge code is unknown' do
+        it 'logs an error and sets discharge values to nil' do
+          VCR.use_cassette('mobile/va_profile/post_read_service_histories_200_unknown_discharge_code') do
+            expect(Rails.logger).to receive(:error).with('Invalid discharge code', { code: 'Unknown' })
+            get '/mobile/v0/military-service-history', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(expected_unknown_discharge)
             expect(response.body).to match_json_schema('mobile_service_history_response')
           end
         end
@@ -177,10 +244,10 @@ RSpec.describe 'military_information', type: :request do
     end
 
     context 'with a user not authorized' do
+      let!(:user) { sis_user(edipi: nil) }
+
       it 'returns a forbidden response' do
-        user = FactoryBot.build(:iam_user, :no_edipi_id)
-        iam_sign_in(user)
-        get '/mobile/v0/military-service-history', headers: iam_headers
+        get '/mobile/v0/military-service-history', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
       end
     end

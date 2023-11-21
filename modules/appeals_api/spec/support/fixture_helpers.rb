@@ -1,15 +1,23 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module FixtureHelpers
-  def fixture_to_s(filename, version: '')
-    File.read fixture_filepath(filename, version:)
+  extend Forwardable
+
+  def self.fixture_filepath(path_within_fixtures)
+    AppealsApi::Engine.root.join('spec', 'fixtures', path_within_fixtures)
   end
 
-  def fixture_as_json(filename, version: '')
-    JSON.parse fixture_to_s(filename, version:)
+  def self.fixture_to_s(path_within_fixtures)
+    File.read fixture_filepath(path_within_fixtures)
   end
 
-  def fixture_filepath(filename, version: '')
-    Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', version, filename)
+  def self.fixture_as_json(path_within_fixtures)
+    JSON.parse fixture_to_s(path_within_fixtures)
   end
+
+  def_delegator self, :fixture_filepath
+  def_delegator self, :fixture_to_s
+  def_delegator self, :fixture_as_json
 end

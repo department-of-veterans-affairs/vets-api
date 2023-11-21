@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for evidence submissions for VA Form 20-0995",
+  "type": "object",
+  "properties": {
+    "scId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Associated Supplemental Claim UUID",
+      "example": "7efd87fc-fac1-4851-a4dd-b9aa2533f57f"
+    },
+    "ssn": {
+      "allOf": [
+        { "$ref": "ssn.json" },
+        { "description": "Veteran's SSN" }
+      ]
+    }
+  },
+  "required": ["scId", "ssn"]
+}

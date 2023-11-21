@@ -1,0 +1,29 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://login.microsoftonline.us/6d4d703a-2d9a-4c2a-ac90-976e52eacb52/oauth2/v2.0/token
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Server:
+        - Server
+      Date:
+      - Mon, 29 Jun 2020 15:46:52 GMT
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "error":"invalid_scope",
+          "error_description":"AADSTS1002012: The provided value for scope 164a86c9-3b01-4a9f-a10d-94ffce76fc7b is not valid. Client credential flows must have a scope value with /.default suffixed to the resource identifier (application ID URI).\r\nTrace ID: 82cbfc9c-3f42-49cb-8fa5-8ba352b20100\r\nCorrelation ID: 66d70ebf-efa0-4152-9976-b567f47a1ded\r\nTimestamp: 2023-06-15 21:48:04Z",
+          "error_codes":[1002012],
+          "timestamp":"2023-06-15 21:48:04Z",
+          "trace_id":"82cbfc9c-3f42-49cb-8fa5-8ba352b20100",
+          "correlation_id":"66d70ebf-efa0-4152-9976-b567f47a1ded"
+        }
+  recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0

@@ -1,6 +1,24 @@
 ---
 :services:
 
+#Dynamics API GET endpoint
+- :name: "Dynamics API GET endpoint"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.base_url).host}:#{URI(Settings.ask_va_api.dynamics_api.base_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/ping" %>
+      :file_path: "/ask_va/dynamics_api"
+      :response_delay: 15
+
+#Dynamics Token post
+- :name: "Dynamics VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.auth_url).host}:#{URI(Settings.ask_va_api.dynamics_api.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/ask_va/token/default"
+      :response_delay: 0.3
+
 - :name: 'carma'
   :base_uri: <%= "#{URI(Settings['salesforce-carma'].url).host}:#{URI(Settings['salesforce-carma'].url).port}" %>
   :endpoints:
@@ -42,6 +60,26 @@
   - :method: :post
     :path: "/vbsapi/UploadFSRJsonDocument"
     :file_path: "vbs/fsr"
+
+- :name: 'VHA'
+  :base_uri: <%= "#{URI('https://' + Settings.vha.sharepoint.sharepoint_url).host}:#{URI('https://' + Settings.vha.sharepoint.sharepoint_url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.base_path}/_api/Web/GetFolderByServerRelativeUrl('#{Settings.vha.sharepoint.base_path}/Submissions')/Files/*" %>
+    :file_path: "vha/sharepoint/create"
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.base_path}/_api/Web/Lists/GetByTitle('Submissions')/items/*" %>
+    :file_path: "vha/sharepoint/create"
+  - :method: :get
+    :path: "/_api/Web/*"
+    :file_path: "vha/sharepoint/show"
+
+- :name: 'ACS'
+  :base_uri: <%= "#{URI(Settings.vha.sharepoint.authentication_url).host}:#{URI(Settings.vha.sharepoint.authentication_url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.tenant_id}/tokens/OAuth/2" %>
+    :file_path: "vha/sharepoint/authenticate"
 
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
@@ -369,6 +407,26 @@
       :uid_location: header
       :uid_locator: 'ssn'
 
+# EVSS Container
+- :name: 'EVSS Container'
+  :base_uri: <%= "#{URI(Settings.evss.dvp.url).host}:#{URI(Settings.evss.dvp.url).port}" %>
+  :endpoints:
+  # Disability Compensation Form
+  - :method: :post
+    :path: <%= "/#{Settings.evss.service_name}/rest/form526/v2/submit" %>
+    :file_path: "evss_container/disability_form/form526"
+    :symbolize_response: true
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: <%= "/#{Settings.evss.service_name}/rest/form526/v2/validate" %>
+    :file_path: "evss_container/disability_form/form526_validate"
+    :symbolize_response: true
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
 # MVI
 - :name: 'MVI'
   :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
@@ -457,7 +515,6 @@
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(.*)\^NI\^200DOD\^USDOD\^A"(?:root="2.16.840.1.113883.3.42.10001.100001.12")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
-
 
 # EMIS
 - :name: 'EMIS'
@@ -593,7 +650,13 @@
       :uid_location: header
       :uid_locator: ssn
   - :method: :get
-    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/compensation"
+    :path: "/api/v3/decision_reviews/supplemental_claims/contestable_issues/*"
+    :file_path: "modules_appeals_api/contestable_issues"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
+  - :method: :get
+    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/*"
     :file_path: "modules_appeals_api/contestable_issues"
     :cache_multiple_responses:
       :uid_location: header
@@ -601,12 +664,6 @@
   - :method: :get
     :path: "/api/v3/decision_reviews/appeals/contestable_issues"
     :file_path: "modules_appeals_api/notice_of_disagreements/contestable_issues"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: X-VA-SSN
-  - :method: :get
-    :path: "/api/v3/decision_reviews/supplemental_claims/contestable_issues/compensation"
-    :file_path: "modules_appeals_api/contestable_issues"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: X-VA-SSN
@@ -745,10 +802,10 @@
 
 #CHIP
 - :name: "CHIP"
-  :base_uri: <%= "#{URI(Settings.check_in.chip_api_v2.url).host}:#{URI(Settings.check_in.chip_api_v2.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.chip.url).host}:#{URI(Settings.chip.url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/token" %>
+      :path: <%= "/#{Settings.chip.base_path}/token" %>
       :file_path: "/chip/token/default"
       :response_delay: 0.2
     - :method: :post
@@ -779,10 +836,22 @@
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-precheckin/*" %>
       :file_path: "/chip/refresh-precheckin/default"
       :response_delay: 4
+    - :method: :post
+      :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-checkin" %>
+      :file_path: "/chip/authenticated-check-in/default"
+      :response_delay: 4
     - :method: :delete
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/deleteFromLorota/*" %>
       :file_path: "/chip/deleteFromLorota/default"
       :response_delay: 4
+    - :method: post
+      :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-demographics" %>
+      :file_path: "/chip/update-demographics/default"
+      :response_delay: 4
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/set-e-check-in-started" %>
+      :file_path: "/chip/set-echeckin-started/default"
+      :response_delay: 2
 
 # LGY: Certificate of Eligibility
 - :name: "LGY"
@@ -852,5 +921,73 @@
       :file_path: "/lighthouse/benefits_claims/submit_5103"
       :cache_multiple_responses:
         :uid_location: "url"
-        :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(?:.+)/5103"
+        :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
+    # Benefits Documents API
+    - :method: :post
+      :path: "/services/benefits-documents/v1/documents"
+      :file_path: "/lighthouse/claims_api/benefits_documents/upload"
+    - :method: :post
+      :path: "/services/benefits-documents/v1/documents/search"
+      :file_path: "/lighthouse/claims_api/benefits_documents/search/default"
 
+# Lighthouse Benefits Documents API
+- :name: "Lighthouse Benefits Documents"
+  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_documents.host).host}:#{URI(Settings.lighthouse.benefits_documents.host).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/benefits-documents/v1/documents"
+      :file_path: "/lighthouse/benefits_documents"
+
+# After Visit Summary API
+- :name: "AVS"
+  :base_uri: <%= "#{URI(Settings.avs.url).host}:#{URI(Settings.avs.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/avs-by-appointment/*/*"
+      :file_path: "/avs/index"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator:  '\/avs-by-appointment\/(.*)'
+    - :method: :get
+      :path: "/avs/*"
+      :file_path: "/avs/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator:  '\/avs\/(.*)'
+
+# Security Token Service API
+- :name: "MAP STS"
+  :base_uri: <%= "#{URI(Settings.map_services.oauth_url).host}:#{URI(Settings.map_services.oauth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/sts/oauth/v1/token"
+      :file_path: "map/secure_token_service/token"
+
+# Sign Up Service Terms API
+- :name: "MAP SUS"
+  :base_uri: <%= "#{URI(Settings.map_services.sign_up_service_url).host}:#{URI(Settings.map_services.sign_up_service_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/signup/v1/patients/*/status/summary"
+      :file_path: "map/sign_up_service/status"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)/status\/summary'
+    - :method: :post
+      :path: "/signup/v1/patients/*/agreements"
+      :file_path: "map/sign_up_service/agreements_accept"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/agreements'
+    - :method: :delete
+      :path: "/signup/v1/patients/*/agreements"
+      :file_path: "map/sign_up_service/agreements_delete"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/agreements'
+    - :method: :put
+      :path: "/signup/v1/patients/*/provisioning/cerner"
+      :file_path: "map/sign_up_service/update_provisioning"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'

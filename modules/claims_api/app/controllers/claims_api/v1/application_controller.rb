@@ -8,12 +8,17 @@ require 'mpi/errors/errors'
 
 module ClaimsApi
   module V1
-    class ApplicationController < ::OpenidApplicationController
+    class ApplicationController < ::ApplicationController
       include ClaimsApi::MPIVerification
       include ClaimsApi::HeaderValidation
       include ClaimsApi::JsonFormatValidation
+      include ClaimsApi::TokenValidation
       include ClaimsApi::CcgTokenValidation
-
+      include ClaimsApi::TargetVeteran
+      service_tag 'lighthouse-claims'
+      skip_before_action :verify_authenticity_token
+      skip_after_action :set_csrf_header
+      before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_veteran_identifiers
 
@@ -28,10 +33,8 @@ module ClaimsApi
       def validate_veteran_identifiers(require_birls: false) # rubocop:disable Metrics/MethodLength
         ids = target_veteran&.mpi&.participant_ids || []
         if ids.size > 1
-          ClaimsApi::Logger.log('multiple_ids',
-                                header_request: header_request?,
-                                ptcpnt_ids: ids.size,
-                                icn: target_veteran&.mpi_icn)
+          claims_v1_logging('multiple_ids', message: "multiple_ids: #{ids.size},
+                                            header_request: #{header_request?}")
 
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
@@ -57,14 +60,11 @@ module ClaimsApi
           )
         end
 
-        ClaimsApi::Logger.log('validate_identifiers',
-                              rid: request.request_id,
-                              require_birls:,
-                              header_request: header_request?,
-                              ptcpnt_id: target_veteran.participant_id.present?,
-                              icn: target_veteran&.mpi_icn,
-                              birls_id: target_veteran.birls_id.present?)
-
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, ' /
+                                'header_request: #{header_request?}, require_birls: #{require_birls}, ' /
+                                'birls_id: #{target_veteran&.birls_id.present?}, ' /
+                                'rid: #{request&.request_id}, ' /
+                                'ptcpnt_id: #{target_veteran&.participant_id.present?}")
         if target_veteran.icn.blank?
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
@@ -79,15 +79,16 @@ module ClaimsApi
         ids = target_veteran&.mpi&.participant_ids
         if ids.nil? || ids.size.zero?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            'Veteran missing Participant ID. ' \
+            "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
-        ClaimsApi::Logger.log('validate_identifiers',
-                              rid: request.request_id, mpi_res_ok: mpi_add_response.ok?,
-                              ptcpnt_id: target_veteran.participant_id.present?,
-                              birls_id: target_veteran.birls_id.present?,
-                              icn: target_veteran&.mpi_icn)
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, ' /
+                                                  'header_request: #{header_request?}, ' /
+                                                  'birls_id: #{target_veteran&.birls_id.present?}, ' /
+                                                  'rid: #{request&.request_id}, ' /
+                                                  'mpi_res_ok: #{mpi_add_response&.ok?}, ' /
+                                                  'ptcpnt_id: #{target_veteran&.participant_id.present?}")
       rescue MPI::Errors::ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
           "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
@@ -110,10 +111,29 @@ module ClaimsApi
 
       private
 
-      def claims_service
+      def authenticate
+        verify_access!
+      end
+
+      def claims_status_service
         edipi_check
 
+        if Flipper.enabled? :claims_status_v1_bgs_enabled
+          local_bgs_service
+        else
+          claims_service
+        end
+      end
+
+      def claims_service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
+      end
+
+      def local_bgs_service
+        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
       end
 
       def header(key)
@@ -132,10 +152,10 @@ module ClaimsApi
         if header_request?
           headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
           validate_headers(headers_to_validate)
-          validate_ccg_token! if token.client_credentials_token?
+          validate_ccg_token! if @is_valid_ccg_flow
           veteran_from_headers(with_gender:)
         else
-          ClaimsApi::Veteran.from_identity(identity: @current_user)
+          build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
         end
       end
 
@@ -147,7 +167,7 @@ module ClaimsApi
           last_name: header('X-VA-Last-Name'),
           va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
           last_signed_in: Time.now.utc,
-          loa: token.client_credentials_token? ? { current: 3, highest: 3 } : @current_user.loa
+          loa: @is_valid_ccg_flow ? { current: 3, highest: 3 } : @current_user.loa
         )
         vet.mpi_record?
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
@@ -155,12 +175,6 @@ module ClaimsApi
         vet.participant_id = vet.participant_id_mpi
         vet.icn = vet&.mpi_icn
         vet
-      end
-
-      def authenticate_token
-        super
-      rescue ::Common::Exceptions::TokenValidationError => e
-        raise ::Common::Exceptions::Unauthorized.new(detail: e.detail)
       end
 
       def set_tags_and_extra_context
@@ -174,6 +188,16 @@ module ClaimsApi
             "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
+      end
+
+      def claims_v1_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
+        ClaimsApi::Logger.log(tag,
+                              icn:,
+                              cid: token&.payload&.[]('cid'),
+                              current_user: @current_user&.uuid,
+                              message:,
+                              api_version: 'V1',
+                              level:)
       end
     end
   end

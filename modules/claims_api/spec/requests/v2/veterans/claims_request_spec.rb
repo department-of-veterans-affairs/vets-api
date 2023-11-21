@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
@@ -16,7 +17,7 @@ RSpec.describe 'Claims', type: :request do
   let(:scopes) { %w[system/claim.read] }
   let(:profile) do
     MPI::Responses::FindProfileResponse.new(
-      status: 'OK',
+      status: :ok,
       profile: FactoryBot.build(:mpi_profile,
                                 participant_id: nil,
                                 participant_ids: [])
@@ -25,24 +26,28 @@ RSpec.describe 'Claims', type: :request do
   let(:bcs) { ClaimsApi::LocalBGS }
   let(:profile_for_claimant_on_behalf_of_veteran) do
     MPI::Responses::FindProfileResponse.new(
-      status: 'OK',
+      status: :ok,
       profile: FactoryBot.build(:mpi_profile,
                                 participant_id: '8675309')
     )
   end
   let(:profile_erroneous_icn) do
     MPI::Responses::FindProfileResponse.new(
-      status: 'OK',
+      status: :not_found,
       profile: FactoryBot.build(:mpi_profile, icn: '667711332299')
     )
   end
 
   describe 'Claims' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
+    end
+
     describe 'index' do
       context 'auth header' do
         context 'when provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(bcs)
                 .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(
                   benefit_claims_dto: {
@@ -60,10 +65,8 @@ RSpec.describe 'Claims', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              get all_claims_path
-              expect(response.status).to eq(401)
-            end
+            get all_claims_path
+            expect(response.status).to eq(401)
           end
         end
       end
@@ -74,48 +77,28 @@ RSpec.describe 'Claims', type: :request do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-              expect_any_instance_of(bcs)
-                .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(
-                  benefit_claims_dto: {
-                    benefit_claim: []
-                  }
-                )
-              expect(ClaimsApi::AutoEstablishedClaim)
-                .to receive(:where).and_return([])
+              mock_ccg(scopes) do |auth_header|
+                expect_any_instance_of(bcs)
+                  .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(
+                    benefit_claims_dto: {
+                      benefit_claim: []
+                    }
+                  )
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:where).and_return([])
 
-              get all_claims_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-              expect(response.status).to eq(200)
+                get all_claims_path, headers: auth_header
+                expect(response.status).to eq(200)
+              end
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
-              get all_claims_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-              expect(response.status).to eq(403)
-            end
-          end
-        end
-      end
-
-      context 'forbidden access' do
-        context 'when current user is not the target veteran' do
-          context 'when current user is not a representative of the target veteran' do
-            it 'returns a 403' do
-              with_okta_user(scopes) do |auth_header|
-                expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                  .to receive(:user_is_target_veteran?).and_return(false)
-                expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                  .to receive(:user_represents_veteran?).and_return(false)
-
+            it 'returns a 401' do
+              mock_ccg(scopes) do |auth_header|
+                allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
                 get all_claims_path, headers: auth_header
-                expect(response.status).to eq(403)
+                expect(response.status).to eq(401)
               end
             end
           end
@@ -127,7 +110,7 @@ RSpec.describe 'Claims', type: :request do
           let(:veteran_id) { nil }
 
           it 'returns a 404 error code' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get all_claims_path, headers: auth_header
               expect(response.status).to eq(404)
             end
@@ -136,7 +119,7 @@ RSpec.describe 'Claims', type: :request do
 
         context 'when known veteran_id is provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(bcs)
                 .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(
                   benefit_claims_dto: {
@@ -153,14 +136,12 @@ RSpec.describe 'Claims', type: :request do
         end
 
         context 'when unknown veteran_id is provided' do
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-
-          it 'returns a 403 error code' do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          it 'returns a 404 error code' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(nil)
 
               get all_claims_path, headers: auth_header
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(404)
             end
           end
         end
@@ -195,7 +176,7 @@ RSpec.describe 'Claims', type: :request do
           lh_claims << lighthouse_claim
           lh_claims << lighthouse_claim_two
 
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
               expect_any_instance_of(bcs)
                 .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
@@ -224,6 +205,7 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claims_dto: {
                   benefit_claim: [
                     {
+                      base_end_prdct_type_cd: '400',
                       benefit_claim_id: '111111111',
                       claim_status: 'Preparation for notification'
                     }
@@ -242,7 +224,7 @@ RSpec.describe 'Claims', type: :request do
             end
 
             it "provides values for 'lighthouseId' and 'claimId' " do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
@@ -257,6 +239,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['baseEndProductCode']).to eq('400')
                   expect(claim['attributes']['status']).to eq('PREPARATION_FOR_NOTIFICATION')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
@@ -271,6 +254,7 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claims_dto: {
                   benefit_claim: [
                     {
+                      base_end_prdct_type_cd: '400',
                       benefit_claim_id: '111111111',
                       phase_type: 'claim received'
                     }
@@ -281,7 +265,7 @@ RSpec.describe 'Claims', type: :request do
             let(:lighthouse_claims) { [] }
 
             it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
@@ -295,6 +279,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['baseEndProductCode']).to eq('400')
                   expect(claim['attributes']['status']).to eq('CLAIM_RECEIVED')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to be nil
@@ -322,7 +307,7 @@ RSpec.describe 'Claims', type: :request do
             end
 
             it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' " do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
@@ -345,7 +330,7 @@ RSpec.describe 'Claims', type: :request do
             end
 
             it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' when bgs returns nil" do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(nil)
@@ -379,7 +364,7 @@ RSpec.describe 'Claims', type: :request do
             let(:lighthouse_claims) { [] }
 
             it 'returns an empty collection' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
                 expect(ClaimsApi::AutoEstablishedClaim)
@@ -399,24 +384,21 @@ RSpec.describe 'Claims', type: :request do
 
       describe 'participant ID' do
         context 'when missing' do
-          let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
           it 'returns a 422' do
-            allow(JWT).to receive(:decode).and_return(nil)
-            allow(Token).to receive(:new).and_return(ccg_token)
-            allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-            allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
-            allow_any_instance_of(MPIData)
-              .to receive(:mvi_response).and_return(profile)
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
+              allow_any_instance_of(MPIData)
+                .to receive(:mvi_response).and_return(profile)
 
-            get all_claims_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+              get all_claims_path, headers: auth_header
 
-            expect(response.status).to eq(422)
-            json_response = JSON.parse(response.body)
-            expect(json_response['errors'][0]['detail']).to eq(
-              "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
-              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
-            )
+              expect(response.status).to eq(422)
+              json_response = JSON.parse(response.body)
+              expect(json_response['errors'][0]['detail']).to eq(
+                "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+                'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              )
+            end
           end
         end
       end
@@ -429,7 +411,7 @@ RSpec.describe 'Claims', type: :request do
         it 'are listed' do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                      evss_id: '111111111')
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
               VCR.use_cassette('evss/documents/get_claim_documents') do
                 bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600061742'
@@ -459,7 +441,7 @@ RSpec.describe 'Claims', type: :request do
           bgs_claim_response = build(:bgs_response_claim_with_unmatched_ptcpnt_vet_id).to_h
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: '2023062086V8675309',
                                                      evss_id: '111111111')
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
               VCR.use_cassette('evss/documents/get_claim_documents') do
                 expect_any_instance_of(bcs)
@@ -495,7 +477,7 @@ RSpec.describe 'Claims', type: :request do
         it 'are listed' do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                      evss_id: '111111111')
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
               VCR.use_cassette('evss/documents/get_claim_documents') do
                 expect_any_instance_of(bcs)
@@ -517,28 +499,30 @@ RSpec.describe 'Claims', type: :request do
         end
       end
 
-      context 'when no auth header provided' do
-        it 'returns a 401 error code' do
-          with_okta_user(scopes) do
-            get claim_by_id_path
-            expect(response.status).to eq(401)
-          end
+      it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
+        allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
+        lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
+                                                   evss_id: '111111111')
+        mock_ccg(scopes) do |auth_header|
+          expect_any_instance_of(bcs)
+            .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
+          expect(ClaimsApi::AutoEstablishedClaim)
+            .to receive(:get_by_id_and_icn).and_return(lh_claim)
+          expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+            .to receive(:get_auth_token).and_return('some-value-here')
+
+          get claim_by_id_path, headers: auth_header
+          json_response = JSON.parse(response.body)
+
+          expect(response.status).to eq(200)
+          expect(json_response['data']['attributes']['supportingDocuments'].length).to eq(2)
         end
       end
 
-      context 'when current user is not the target veteran' do
-        context 'when current user is not a representative of the target veteran' do
-          it 'returns a 403' do
-            with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              get claim_by_id_path, headers: auth_header
-              expect(response.status).to eq(403)
-            end
-          end
+      context 'when no auth header provided' do
+        it 'returns a 401 error code' do
+          get claim_by_id_path
+          expect(response.status).to eq(401)
         end
       end
 
@@ -547,7 +531,7 @@ RSpec.describe 'Claims', type: :request do
 
         context 'when a Lighthouse claim does not exist' do
           it 'returns a 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
 
               get claim_by_id_path, headers: auth_header
@@ -575,7 +559,7 @@ RSpec.describe 'Claims', type: :request do
             end
 
             it 'returns a 404' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 get mismatched_claim_veteran_path, headers: auth_header
 
                 expect(response.status).to eq(404)
@@ -587,7 +571,7 @@ RSpec.describe 'Claims', type: :request do
             let(:bgs_claim) { nil }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -605,7 +589,7 @@ RSpec.describe 'Claims', type: :request do
 
             describe "handling 'lighthouseId' and 'claimId'" do
               it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' " do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                     expect_any_instance_of(bcs)
                       .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -628,7 +612,7 @@ RSpec.describe 'Claims', type: :request do
 
             describe "handling 'lighthouseId' and 'claimId'" do
               it "provides a value for 'lighthouseId' and 'claimId'" do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('evss/documents/get_claim_documents') do
                       expect(ClaimsApi::AutoEstablishedClaim)
@@ -657,7 +641,7 @@ RSpec.describe 'Claims', type: :request do
 
         context 'when a BGS claim does not exist' do
           it 'returns a 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(bcs)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 
@@ -682,7 +666,7 @@ RSpec.describe 'Claims', type: :request do
 
             describe "handling 'lighthouseId' and 'claimId'" do
               it "provides a value for 'lighthouseId' and 'claimId'" do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('evss/documents/get_claim_documents') do
                       expect_any_instance_of(bcs)
@@ -707,7 +691,7 @@ RSpec.describe 'Claims', type: :request do
 
           context 'and a Lighthouse claim does not exit' do
             it "provides a value for 'claimId', but 'lighthouseId' will be 'nil' " do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   VCR.use_cassette('evss/documents/get_claim_documents') do
                     expect_any_instance_of(bcs)
@@ -727,13 +711,52 @@ RSpec.describe 'Claims', type: :request do
               end
             end
           end
+
+          describe 'when there is no file number returned from BGS' do
+            context 'when the file_number is nil' do
+              it 'returns an empty array and not a 404' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                    VCR.use_cassette('evss/documents/get_claim_documents') do
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:benefits_documents_enabled?).and_return(true)
+
+                      local_bgs_service = double
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:local_bgs_service)
+                        .and_return(local_bgs_service)
+
+                      allow(local_bgs_service)
+                        .to receive(:find_benefit_claim_details_by_benefit_claim_id)
+                        .and_return(bgs_claim)
+
+                      allow(local_bgs_service)
+                        .to receive(:find_by_ssn)
+                        .and_return(nil)
+
+                      allow(local_bgs_service)
+                        .to receive(:find_tracked_items)
+                        .and_return({ dvlpmt_items: [] })
+
+                      get claim_by_id_path, headers: auth_header
+
+                      json_response = JSON.parse(response.body)
+
+                      expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
+                      expect(response.status).not_to eq(404)
+                    end
+                  end
+                end
+              end
+            end
+          end
         end
       end
 
       describe "handling the 'status'" do
         context 'when there is 1 status' do
           it "sets the 'status'" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -757,7 +780,7 @@ RSpec.describe 'Claims', type: :request do
           let(:bgs_claim) { build(:bgs_response_with_lc_status).to_h }
 
           it 'shows a closed date' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -781,7 +804,7 @@ RSpec.describe 'Claims', type: :request do
 
         context 'when a typical status is received' do
           it "the v2 mapper sets the correct 'status'" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -815,7 +838,7 @@ RSpec.describe 'Claims', type: :request do
           end
 
           it "the v2 mapper sets the 'status' correctly" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -839,7 +862,7 @@ RSpec.describe 'Claims', type: :request do
           let(:bgs_claim) { build(:bgs_response_with_under_review_lc_status).to_h }
 
           it "the v2 mapper sets the 'status' correctly" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -863,7 +886,7 @@ RSpec.describe 'Claims', type: :request do
           let(:bgs_claim) { build(:bgs_response_with_phaseback_lc_status).to_h }
 
           it "the v2 mapper sets the 'status' correctly" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -888,7 +911,7 @@ RSpec.describe 'Claims', type: :request do
 
         context 'it picks the newest status' do
           it "returns a claim with the 'claimId' and 'lighthouseId' set" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -917,7 +940,7 @@ RSpec.describe 'Claims', type: :request do
                                                        evss_id: '111111111')
             claim_contentions = bgs_claim_response
             claim_contentions[:benefit_claim_details_dto][:contentions] = ' c1 (New),  c2 (Old), c3 (Unknown)'
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -943,7 +966,7 @@ RSpec.describe 'Claims', type: :request do
             claim_contentions = bgs_claim_response
             claim_contentions[:benefit_claim_details_dto][:contentions] =
               'Low back strain (New), Knee, internal derangement (New)'
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -968,7 +991,7 @@ RSpec.describe 'Claims', type: :request do
       describe "handling the 'supporting_documents'" do
         context 'it has documents' do
           it "returns a claim with 'supporting_documents'" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -996,7 +1019,7 @@ RSpec.describe 'Claims', type: :request do
           it "returns a claim with 'suporting_documents' as an empty array" do
             bgs_claim[:benefit_claim_details_dto][:benefit_claim_id] = '222222222'
 
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   expect_any_instance_of(bcs)
@@ -1028,7 +1051,7 @@ RSpec.describe 'Claims', type: :request do
           let(:bgs_claim) { nil }
 
           it "returns a claim with 'suporting_documents' as an empty array" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -1063,7 +1086,7 @@ RSpec.describe 'Claims', type: :request do
           let(:claim_by_id_path) { "/services/claims/v2/veterans/#{claim.veteran_icn}/claims/#{claim.id}" }
 
           it "returns a claim with the 'errors' attribute populated" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 get claim_by_id_path, headers: auth_header
 
@@ -1083,22 +1106,20 @@ RSpec.describe 'Claims', type: :request do
           let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
 
           it 'returns a 404' do
-            allow(JWT).to receive(:decode).and_return(nil)
-            allow(Token).to receive(:new).and_return(ccg_token)
-            allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(MPIData)
+                .to receive(:mvi_response).and_return(profile_erroneous_icn)
 
-            allow_any_instance_of(MPIData)
-              .to receive(:mvi_response).and_return(profile_erroneous_icn)
+              get "/services/claims/v2/veterans/#{profile_erroneous_icn.profile.icn}/claims/#{claim_id}",
+                  headers: auth_header
 
-            get "/services/claims/v2/veterans/#{profile_erroneous_icn.profile.icn}/claims/#{claim_id}",
-                headers: { 'Authorization' => 'Bearer HelloWorld' }
-
-            expect(response.status).to eq(404)
-            json_response = JSON.parse(response.body)
-            expect(json_response['errors'][0]['detail']).to eq(
-              "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
-              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
-            )
+              expect(response.status).to eq(404)
+              json_response = JSON.parse(response.body)
+              expect(json_response['errors'][0]['detail']).to eq(
+                "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
+                'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              )
+            end
           end
         end
       end
@@ -1111,7 +1132,7 @@ RSpec.describe 'Claims', type: :request do
           end
 
           it "returns a claim with 'tracked_items'" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('evss/documents/get_claim_documents') do
                 VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
                   allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
@@ -1154,7 +1175,7 @@ RSpec.describe 'Claims', type: :request do
           let(:bgs_claim) { nil }
 
           it "returns a claim with 'tracked_items' as an empty array" do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
@@ -1186,39 +1207,26 @@ RSpec.describe 'Claims', type: :request do
           context 'when valid' do
             it 'returns a 200' do
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                allow(JWT).to receive(:decode).and_return(nil)
-                allow(Token).to receive(:new).and_return(
-                  OpenStruct.new(
-                    client_credentials_token?: true,
-                    payload: { 'scp' => [] }
-                  )
-                )
-                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-                expect(ClaimsApi::AutoEstablishedClaim)
-                  .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
-                expect_any_instance_of(bcs)
-                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
+                mock_ccg(scopes) do |auth_header|
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 
-                get claim_by_id_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-                expect(response.status).to eq(200)
+                  get claim_by_id_path, headers: auth_header
+                  expect(response.status).to eq(200)
+                end
               end
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                allow(JWT).to receive(:decode).and_return(nil)
-                allow(Token).to receive(:new).and_return(
-                  OpenStruct.new(
-                    client_credentials_token?: true,
-                    payload: { 'scp' => [] }
-                  )
-                )
-                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
+            it 'returns a 401' do
+              mock_ccg(scopes) do |auth_header|
+                allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
 
-                get claim_by_id_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-                expect(response.status).to eq(403)
+                get claim_by_id_path, headers: auth_header
+                expect(response.status).to eq(401)
               end
             end
           end

@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 504
+    headers:
+      Date:
+      - Wed, 14 Jun 2023 20:36:12 GMT
+      Content-Type:
+      - text/html; charset=utf-8
+      Content-Length:
+      - '75'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '50'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 1d89bb4a-8e45-4101-8304-47c149d59868
+      X-Runtime:
+      - '1.297684'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '1302'
+      X-Kong-Proxy-Latency:
+      - '14'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |
+        <html>
+        <head><title>504 Gateway Time-out</title></head>
+        <body>
+        <center><h1>504 Gateway Time-out</h1></center>
+        </body>
+        </html>
+  recorded_at: Wed, 14 Jun 2023 20:36:12 GMT
+recorded_with: VCR 6.1.0

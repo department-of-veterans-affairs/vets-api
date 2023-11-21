@@ -2,12 +2,17 @@
 
 require 'swagger_helper'
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
 describe 'Claims',
          swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
   let(:bcs) do
     ClaimsApi::LocalBGS
+  end
+
+  before do
+    Flipper.disable :claims_status_v2_lh_benefits_docs_service_enabled
   end
 
   path '/veterans/{veteranId}/claims' do
@@ -56,7 +61,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_response)
@@ -91,9 +96,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
+            submit_request(example.metadata)
           end
 
           after do |example|
@@ -105,36 +108,6 @@ describe 'Claims',
           end
 
           it 'returns a 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 403 response' do
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[system/claim.read] }
-
-          before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -208,7 +181,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   bgs_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = target_veteran.participant_id
@@ -245,9 +218,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
+            submit_request(example.metadata)
           end
 
           after do |example|
@@ -264,36 +235,6 @@ describe 'Claims',
         end
       end
 
-      describe 'Getting a 403 response' do
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[system/claim.read] }
-
-          before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 403 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(
@@ -305,7 +246,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
               expect_any_instance_of(bcs).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 

@@ -31,7 +31,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   it 'returns a list of appointments at the expected size' do
-    expect(adapted_appointments.size).to eq(13)
+    expect(adapted_appointments.size).to eq(14)
   end
 
   context 'with a cancelled VA appointment' do
@@ -44,6 +44,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_va[:is_pending]).to eq(false)
       expect(cancelled_va.as_json).to eq({ 'id' => '121133',
                                            'appointment_type' => 'VA',
+                                           'appointment_ien' => nil,
                                            'cancel_id' => nil,
                                            'comment' => 'This is a free form comment',
                                            'facility_id' => '442',
@@ -69,6 +70,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                              'url' => nil,
                                              'code' => nil
                                            },
+                                           'physical_location' => nil,
                                            'minutes_duration' => 30,
                                            'phone_only' => false,
                                            'start_date_local' => '2022-08-27T09:45:00.000-06:00',
@@ -76,7 +78,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                            'status' => 'CANCELLED',
                                            'status_detail' => 'CANCELLED BY PATIENT',
                                            'time_zone' => 'America/Denver',
-                                           'vetext_id' => nil,
+                                           'vetext_id' => '442;3220827.0945',
                                            'reason' => nil,
                                            'is_covid_vaccine' => false,
                                            'is_pending' => false,
@@ -85,7 +87,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                            'patient_phone_number' => nil,
                                            'patient_email' => nil,
                                            'best_time_to_call' => nil,
-                                           'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                           'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                           'service_category_name' => nil })
     end
   end
 
@@ -98,6 +101,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_va.as_json).to eq({
                                         'id' => '121133',
                                         'appointment_type' => 'VA',
+                                        'appointment_ien' => nil,
                                         'cancel_id' => nil,
                                         'comment' => nil,
                                         'facility_id' => '442',
@@ -123,14 +127,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'url' => nil,
                                           'code' => nil
                                         },
+                                        'physical_location' => nil,
                                         'minutes_duration' => 30,
                                         'phone_only' => false,
-                                        'start_date_local' => '2018-03-07T08:00:00.000-07:00',
-                                        'start_date_utc' => '2018-03-07T15:00:00.000+00:00',
+                                        'start_date_local' => '2018-03-07T00:00:00.000-07:00',
+                                        'start_date_utc' => '2018-03-07T07:00:00.000+00:00',
                                         'status' => 'BOOKED',
-                                        'status_detail' => nil,
+                                        'status_detail' => 'CANCELLED BY CLINIC',
                                         'time_zone' => 'America/Denver',
-                                        'vetext_id' => nil,
+                                        'vetext_id' => '442;3180307.0',
                                         'reason' => nil,
                                         'is_covid_vaccine' => false,
                                         'is_pending' => false,
@@ -139,7 +144,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'patient_phone_number' => nil,
                                         'patient_email' => nil,
                                         'best_time_to_call' => nil,
-                                        'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                        'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                        'service_category_name' => nil
                                       })
     end
   end
@@ -157,6 +163,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_cc.as_json).to eq({
                                         'id' => '72106',
                                         'appointment_type' => 'COMMUNITY_CARE',
+                                        'appointment_ien' => nil,
                                         'cancel_id' => '72106',
                                         'comment' => nil,
                                         'facility_id' => '552',
@@ -182,14 +189,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'url' => nil,
                                           'code' => nil
                                         },
+                                        'physical_location' => nil,
                                         'minutes_duration' => 60,
                                         'phone_only' => false,
                                         'start_date_local' => '2022-01-11T08:00:00.000-07:00',
                                         'start_date_utc' => '2022-01-11T15:00:00.000+00:00',
                                         'status' => 'BOOKED',
-                                        'status_detail' => nil,
+                                        'status_detail' => 'CANCELLED BY CLINIC',
                                         'time_zone' => 'America/Denver',
-                                        'vetext_id' => nil,
+                                        'vetext_id' => '552;3220111.08',
                                         'reason' => nil,
                                         'is_covid_vaccine' => false,
                                         'is_pending' => false,
@@ -198,7 +206,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'patient_phone_number' => nil,
                                         'patient_email' => nil,
                                         'best_time_to_call' => nil,
-                                        'friendly_location_name' => 'CC practice name'
+                                        'friendly_location_name' => 'CC practice name',
+                                        'service_category_name' => nil
                                       })
     end
   end
@@ -215,6 +224,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_cc.as_json).to eq({
                                           'id' => '72105',
                                           'appointment_type' => 'COMMUNITY_CARE',
+                                          'appointment_ien' => nil,
                                           'cancel_id' => '72105',
                                           'comment' => 'this is a comment',
                                           'facility_id' => '552',
@@ -240,14 +250,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             'url' => nil,
                                             'code' => nil
                                           },
+                                          'physical_location' => nil,
                                           'minutes_duration' => 60,
                                           'phone_only' => false,
                                           'start_date_local' => '2022-01-25T17:00:00.000-07:00',
                                           'start_date_utc' => '2022-01-26T00:00:00.000+00:00',
                                           'status' => 'SUBMITTED',
-                                          'status_detail' => nil,
+                                          'status_detail' => 'CANCELLED BY CLINIC',
                                           'time_zone' => 'America/Denver',
-                                          'vetext_id' => nil,
+                                          'vetext_id' => '552;3220125.17',
                                           'reason' => nil,
                                           'is_covid_vaccine' => false,
                                           'is_pending' => true,
@@ -263,7 +274,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'best_time_to_call' => [
                                             'Morning'
                                           ],
-                                          'friendly_location_name' => nil
+                                          'friendly_location_name' => nil,
+                                          'service_category_name' => nil
                                         })
     end
   end
@@ -281,6 +293,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_va.as_json).to eq({
                                           'id' => '50956',
                                           'appointment_type' => 'VA',
+                                          'appointment_ien' => nil,
                                           'cancel_id' => '50956',
                                           'comment' => nil,
                                           'facility_id' => '442',
@@ -306,14 +319,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             'url' => nil,
                                             'code' => nil
                                           },
+                                          'physical_location' => nil,
                                           'minutes_duration' => nil,
                                           'phone_only' => false,
                                           'start_date_local' => '2021-09-27T18:00:00.000-06:00',
                                           'start_date_utc' => '2021-09-28T00:00:00.000+00:00',
                                           'status' => 'SUBMITTED',
-                                          'status_detail' => nil,
+                                          'status_detail' => 'CANCELLED BY CLINIC',
                                           'time_zone' => 'America/Denver',
-                                          'vetext_id' => nil,
+                                          'vetext_id' => '442;3210927.18',
                                           'reason' => nil,
                                           'is_covid_vaccine' => false,
                                           'is_pending' => true,
@@ -326,7 +340,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'best_time_to_call' => [
                                             'Evening'
                                           ],
-                                          'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                          'service_category_name' => nil
                                         })
     end
   end
@@ -340,6 +355,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(phone_va.as_json).to eq({
                                        'id' => '53352',
                                        'appointment_type' => 'VA',
+                                       'appointment_ien' => nil,
                                        'cancel_id' => '53352',
                                        'comment' => nil,
                                        'facility_id' => '442',
@@ -365,14 +381,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                          'url' => nil,
                                          'code' => nil
                                        },
+                                       'physical_location' => nil,
                                        'minutes_duration' => nil,
                                        'phone_only' => true,
                                        'start_date_local' => '2021-10-01T06:00:00.000-06:00',
                                        'start_date_utc' => '2021-10-01T12:00:00.000+00:00',
                                        'status' => 'SUBMITTED',
-                                       'status_detail' => nil,
+                                       'status_detail' => 'CANCELLED BY CLINIC',
                                        'time_zone' => 'America/Denver',
-                                       'vetext_id' => nil,
+                                       'vetext_id' => '442;3211001.06',
                                        'reason' => nil,
                                        'is_covid_vaccine' => false,
                                        'is_pending' => true,
@@ -385,7 +402,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'best_time_to_call' => [
                                          'Morning'
                                        ],
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                       'service_category_name' => nil
                                      })
     end
   end
@@ -400,6 +418,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(home_va.as_json).to eq({ 'id' => '50094',
                                       'appointment_type' => 'VA_VIDEO_CONNECT_HOME',
+                                      'appointment_ien' => nil,
                                       'cancel_id' => '50094',
                                       'comment' => nil,
                                       'facility_id' => '442',
@@ -417,14 +436,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                       'extension' => nil },
                                          'url' => 'http://www.meeting.com',
                                          'code' => nil },
+                                      'physical_location' => nil,
                                       'minutes_duration' => nil,
                                       'phone_only' => false,
                                       'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                       'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                       'status' => 'SUBMITTED',
-                                      'status_detail' => nil,
+                                      'status_detail' => 'CANCELLED BY CLINIC',
                                       'time_zone' => 'America/Denver',
-                                      'vetext_id' => nil,
+                                      'vetext_id' => '442;3210908.06',
                                       'reason' => nil,
                                       'is_covid_vaccine' => false,
                                       'is_pending' => true,
@@ -433,7 +453,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                       'patient_phone_number' => '999-999-9992',
                                       'patient_email' => nil,
                                       'best_time_to_call' => nil,
-                                      'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                      'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                      'service_category_name' => nil })
     end
   end
 
@@ -452,6 +473,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(atlas_va.as_json).to eq({ 'id' => '50094',
                                        'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
+                                       'appointment_ien' => nil,
                                        'cancel_id' => '50094',
                                        'comment' => nil,
                                        'facility_id' => '442',
@@ -472,14 +494,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                        'extension' => nil },
                                           'url' => 'http://www.meeting.com',
                                           'code' => '420835' },
+                                       'physical_location' => nil,
                                        'minutes_duration' => nil,
                                        'phone_only' => false,
                                        'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                        'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                        'status' => 'SUBMITTED',
-                                       'status_detail' => nil,
+                                       'status_detail' => 'CANCELLED BY CLINIC',
                                        'time_zone' => 'America/Denver',
-                                       'vetext_id' => nil,
+                                       'vetext_id' => '442;3210908.06',
                                        'reason' => nil,
                                        'is_covid_vaccine' => false,
                                        'is_pending' => true,
@@ -488,7 +511,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'patient_phone_number' => '999-999-9992',
                                        'patient_email' => nil,
                                        'best_time_to_call' => nil,
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                       'service_category_name' => nil })
     end
   end
 
@@ -502,6 +526,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(gfe_va.as_json).to eq({ 'id' => '50094',
                                      'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
+                                     'appointment_ien' => nil,
                                      'cancel_id' => '50094',
                                      'comment' => nil,
                                      'facility_id' => '442',
@@ -518,14 +543,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'phone' => { 'area_code' => '307', 'number' => '778-7550', 'extension' => nil },
                                         'url' => 'http://www.meeting.com',
                                         'code' => nil },
+                                     'physical_location' => nil,
                                      'minutes_duration' => nil,
                                      'phone_only' => false,
                                      'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                      'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                      'status' => 'SUBMITTED',
-                                     'status_detail' => nil,
+                                     'status_detail' => 'CANCELLED BY CLINIC',
                                      'time_zone' => 'America/Denver',
-                                     'vetext_id' => nil,
+                                     'vetext_id' => '442;3210908.06',
                                      'reason' => nil,
                                      'is_covid_vaccine' => false,
                                      'is_pending' => true,
@@ -534,7 +560,63 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'patient_phone_number' => '999-999-9992',
                                      'patient_email' => nil,
                                      'best_time_to_call' => nil,
-                                     'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                     'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                     'service_category_name' => nil })
+    end
+  end
+
+  context 'with a telehealth on site appointment' do
+    let(:telehealth_onsite) { adapted_appointment[13] }
+
+    it 'has expected fields' do
+      expect(telehealth_onsite[:appointment_type]).to eq('VA_VIDEO_CONNECT_ONSITE')
+      expect(telehealth_onsite[:location][:name]).to eq('Cheyenne VA Medical Center')
+      expect(telehealth_onsite[:location][:url]).to eq(nil)
+
+      expect(telehealth_onsite.as_json).to eq({ 'id' => '50094',
+                                                'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
+                                                'appointment_ien' => nil,
+                                                'cancel_id' => '50094',
+                                                'comment' => nil,
+                                                'facility_id' => '442',
+                                                'sta6aid' => '442',
+                                                'healthcare_provider' => nil,
+                                                'healthcare_service' => nil,
+                                                'location' =>
+                                                  { 'id' => '442',
+                                                    'name' => 'Cheyenne VA Medical Center',
+                                                    'address' =>
+                                                     { 'street' => '2360 East Pershing Boulevard',
+                                                       'city' => 'Cheyenne',
+                                                       'state' => 'WY',
+                                                       'zip_code' => '82001-5356' },
+                                                    'lat' => 41.148026,
+                                                    'long' => -104.786255,
+                                                    'phone' =>
+                                                     { 'area_code' => '307',
+                                                       'number' => '778-7550',
+                                                       'extension' => nil },
+                                                    'url' => nil,
+                                                    'code' => nil },
+                                                'physical_location' => nil,
+                                                'minutes_duration' => nil,
+                                                'phone_only' => false,
+                                                'start_date_local' => '2021-09-08T06:00:00.000-06:00',
+                                                'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
+                                                'status' => 'SUBMITTED',
+                                                'status_detail' => 'CANCELLED BY CLINIC',
+                                                'time_zone' => 'America/Denver',
+                                                'vetext_id' => '442;3210908.06',
+                                                'reason' => nil,
+                                                'is_covid_vaccine' => false,
+                                                'is_pending' => true,
+                                                'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
+                                                'type_of_care' => 'Primary Care',
+                                                'patient_phone_number' => '999-999-9992',
+                                                'patient_email' => nil,
+                                                'best_time_to_call' => nil,
+                                                'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                                'service_category_name' => nil })
     end
   end
 
@@ -549,6 +631,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_requested_va_appt.as_json).to eq({
                                                           'id' => '53241',
                                                           'appointment_type' => 'VA',
+                                                          'appointment_ien' => nil,
                                                           'cancel_id' => nil,
                                                           'comment' => 'testing',
                                                           'facility_id' => '442',
@@ -574,6 +657,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                             'url' => nil,
                                                             'code' => nil
                                                           },
+                                                          'physical_location' => nil,
                                                           'minutes_duration' => nil,
                                                           'phone_only' => false,
                                                           'start_date_local' => '2017-05-15T18:00:00.000-06:00',
@@ -581,7 +665,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                           'status' => 'CANCELLED',
                                                           'status_detail' => 'CANCELLED BY CLINIC',
                                                           'time_zone' => 'America/Denver',
-                                                          'vetext_id' => nil,
+                                                          'vetext_id' => '442;3170515.18',
                                                           'reason' => 'Routine Follow-up',
                                                           'is_covid_vaccine' => false,
                                                           'is_pending' => true,
@@ -596,7 +680,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                           'best_time_to_call' => [
                                                             'Afternoon'
                                                           ],
-                                                          'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                                          'service_category_name' => nil
                                                         })
     end
   end
@@ -720,6 +805,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
         {
           'id' => '145078',
           'appointment_type' => 'VA',
+          'appointment_ien' => nil,
           'cancel_id' => '145078',
           'comment' => 'My leg!',
           'facility_id' => '552',
@@ -742,14 +828,15 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
             'url' => nil,
             'code' => nil
           },
+          'physical_location' => nil,
           'minutes_duration' => nil,
           'phone_only' => false,
           'start_date_local' => '2022-12-12T19:00:00.000-05:00',
           'start_date_utc' => '2022-12-13T00:00:00.000+00:00',
           'status' => 'SUBMITTED',
-          'status_detail' => nil,
+          'status_detail' => 'CANCELLED BY CLINIC',
           'time_zone' => 'America/New_York',
-          'vetext_id' => nil,
+          'vetext_id' => '552;3221212.19',
           'reason' => 'Routine Follow-up',
           'is_covid_vaccine' => false,
           'is_pending' => true,
@@ -759,7 +846,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
           'patient_phone_number' => '317-448-5062',
           'patient_email' => 'melissa.gra@va.gov',
           'best_time_to_call' => nil,
-          'friendly_location_name' => 'Dayton VA Medical Center'
+          'friendly_location_name' => 'Dayton VA Medical Center',
+          'service_category_name' => 'REGULAR'
         }
       )
     end

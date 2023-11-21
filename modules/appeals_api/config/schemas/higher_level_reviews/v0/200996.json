@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for VA Form 20-0996",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "type": { "type":  "string", "enum":  ["higherLevelReview"] },
+        "attributes": {
+          "description": "If informal conference requested (`informalConference: true`), contact (`informalConferenceContact`) and time (`informalConferenceTime`) must be specified.",
+          "type": "object",
+          "properties": {
+            "informalConference": { "type": "boolean" },
+            "benefitType": {
+              "type": "string",
+              "enum": [
+                "compensation",
+                "pensionSurvivorsBenefits",
+                "fiduciary",
+                "lifeInsurance",
+                "veteransHealthAdministration",
+                "veteranReadinessAndEmployment",
+                "loanGuaranty",
+                "education",
+                "nationalCemeteryAdministration"
+              ]
+            },
+            "veteran": {
+              "type": "object",
+              "properties": {
+                "ssn": {
+                  "allOf": [
+                    { "$ref": "ssn.json" },
+                    { "description": "Veteran's SSN" }
+                  ]
+                },
+                "icn": { "$ref": "icn.json" },
+                "firstName": {
+                  "allOf": [
+                    { "description": "Veteran's first name", "minLength": 1, "maxLength": 30 },
+                    { "$comment":  "can be whitespace, to accommodate those with 1 legal name" },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description": "Veteran's last name", "minLength": 1, "maxLength": 40 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "birthDate": {
+                  "description": "Veteran's birth date",
+                  "type": "string",
+                  "format": "date"
+                },
+                "fileNumber": {
+                  "$ref": "fileNumber.json"
+                },
+                "insurancePolicyNumber": {
+                  "allOf": [
+                    { "description": "Veteran's insurance policy number", "maxLength": 18 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "homeless": { "type": "boolean"},
+                "address":  { "$ref": "address.json" },
+                "phone":    { "$ref": "phone.json" },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "minLength": 6,
+                  "maxLength": 255
+                },
+                "timezone": { "$ref":  "timezone.json"}
+              },
+              "required": [ "ssn", "icn", "firstName", "lastName", "birthDate", "homeless" ],
+              "if": { "properties": { "homeless": { "const": false } } },
+              "then": { "required": ["address"] }
+            },
+            "claimant": {
+              "type": "object",
+              "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+              "properties": {
+                "ssn": {
+                  "allOf": [
+                    {"$ref": "ssn.json"},
+                    { "description": "Non-veteran claimant's SSN" }
+                  ]
+                },
+                "firstName": {
+                  "type": "string",
+                  "description": "Non-veteran claimant's first name",
+                  "maxLength": 30,
+                  "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "$ref": "nonBlankString.json" },
+                    { "description": "Non-veteran claimant's middle initial", "maxLength": 1 }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "$ref": "nonBlankString.json" },
+                    { "description": "Non-veteran claimant's last name", "maxLength": 40 }
+                  ]
+                },
+                "birthDate": {
+                  "description": "Non-veteran claimant's birth date",
+                  "type": "string",
+                  "format": "date"
+                },
+                "address":  { "$ref": "address.json" },
+                "phone":    { "$ref": "phone.json" },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "minLength": 6,
+                  "maxLength": 255
+                },
+                "timezone": { "$ref":  "timezone.json"}
+              },
+              "required": [ "ssn", "firstName", "lastName", "birthDate", "address", "phone" ]
+            },
+            "informalConferenceContact": { "type": "string", "enum": [ "veteran", "representative"] },
+            "informalConferenceTime":    { "type": "string", "enum": [ "800-1200 ET", "1200-1630 ET" ] },
+            "informalConferenceRep":     {
+              "type": "object",
+              "description" : "The Representative information listed MUST match the current Power of Attorney for the Veteran.  Any changes to the Power of Attorney must be submitted via a VA 21-22 form separately.",
+              "properties": {
+                "firstName": { "type": "string", "maxLength": 30 },
+                "lastName":  { "type": "string", "maxLength": 40 },
+                "phone": { "$ref": "phone.json" },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "minLength": 6,
+                  "maxLength": 255
+                }
+              },
+              "required": [ "firstName", "lastName", "phone" ]
+            }
+          },
+          "required": [
+            "informalConference",
+            "benefitType",
+            "veteran"
+          ],
+          "if": { "properties": { "informalConference": { "const":  true } } },
+          "then": { "required":  ["informalConferenceContact", "informalConferenceTime"] }
+        }
+      },
+      "required": [ "type", "attributes" ]
+    },
+    "included": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type":       { "type": "string", "enum": ["appealableIssue"] },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "issue":                     { "allOf": [ { "$ref": "nonBlankString.json" }, { "minLength": 1, "maxLength": 140 } ] },
+              "decisionDate":              { "type": "string", "format": "date" },
+              "decisionIssueId":           { "type": "integer" },
+              "ratingIssueReferenceId":    { "type": "string" },
+              "ratingDecisionReferenceId": { "type": "string" },
+              "socDate":                   { "type": "string", "format": "date" },
+              "disagreementArea":          { "type": "string", "maxLength": 90 }
+            },
+            "required": [ "issue", "decisionDate" ] }
+        },
+        "required": [ "type", "attributes" ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": ["data", "included"]
+}

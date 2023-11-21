@@ -14,13 +14,33 @@ RSpec.describe SavedClaim::EducationBenefits::VA1990 do
     let(:user) { create(:user) }
 
     describe 'confirmation email for the 1990' do
-      it 'is skipped when user is present' do
+      it 'is sent to authenticated users' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = create(:va1990_chapter33)
+        subject.after_submit(user)
+
+        expect(VANotify::EmailJob).to have_received(:perform_async)
+      end
+
+      it 'is sent to unauthenticated users' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = create(:va1990_chapter33)
+        subject.after_submit(nil)
+
+        expect(VANotify::EmailJob).to have_received(:perform_async)
+      end
+
+      it 'is skipped when feature flag is turned off' do
+        Flipper.disable(:form1990_confirmation_email)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         subject = create(:va1990_chapter33)
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        Flipper.enable(:form1990_confirmation_email)
       end
 
       it 'chapter 33' do

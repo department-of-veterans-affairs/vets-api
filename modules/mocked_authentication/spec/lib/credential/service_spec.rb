@@ -10,31 +10,33 @@ describe MockedAuthentication::Credential::Service do
   before { mock_credential_instance.type = type }
 
   describe '#render_auth' do
-    subject { mock_credential_instance.render_auth(state:, acr:) }
+    subject { mock_credential_instance.render_auth(state:, acr:, operation:) }
 
     let(:state) { 'some-state' }
     let(:acr) { 'some-acr' }
     let(:type) { 'some-type' }
+    let(:operation) { 'some-operation' }
     let(:expected_redirect_url) { Settings.sign_in.mock_auth_url }
+    let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
-    it 'renders the oauth_get_form template' do
-      expect(subject.to_s).to include('form id="oauth-form"')
+    it 'renders the oauth_get_form template with meta refresh tag' do
+      expect(subject.to_s).to include(meta_refresh_tag)
     end
 
     it 'renders state value' do
-      expect(subject.to_s).to include("value=\"#{state}\"")
+      expect(subject.to_s).to include(state)
     end
 
     it 'renders acr value' do
-      expect(subject.to_s).to include("value=\"#{acr}\"")
+      expect(subject.to_s).to include(acr)
     end
 
     it 'renders type value' do
-      expect(subject.to_s).to include("value=\"#{type}\"")
+      expect(subject.to_s).to include(type)
     end
 
     it 'directs to the Mocked Authorization frontend page' do
-      expect(subject.to_s).to include("action=\"#{expected_redirect_url}\"")
+      expect(subject.to_s).to include(expected_redirect_url)
     end
   end
 

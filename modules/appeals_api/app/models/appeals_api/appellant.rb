@@ -9,35 +9,39 @@ module AppealsApi
     end
 
     def first_name
-      auth_headers["X-VA#{header_prefix}-First-Name"]
+      find_datum("X-VA#{header_prefix}-First-Name", 'firstName')
     end
 
     def middle_initial
-      auth_headers["X-VA#{header_prefix}-Middle-Initial"]
+      find_datum("X-VA#{header_prefix}-Middle-Initial", 'middleInitial')
     end
 
     def last_name
-      auth_headers["X-VA#{header_prefix}-Last-Name"]
+      find_datum("X-VA#{header_prefix}-Last-Name", 'lastName')
+    end
+
+    def icn
+      find_datum('X-VA-ICN', 'icn')
     end
 
     def ssn
-      auth_headers["X-VA#{header_prefix}-SSN"]
+      find_datum("X-VA#{header_prefix}-SSN", 'ssn')
     end
 
     def birth_date_string
-      auth_headers["X-VA#{header_prefix}-Birth-Date"]
+      find_datum("X-VA#{header_prefix}-Birth-Date", 'birthDate')
     end
 
     def file_number
-      auth_headers['X-VA-File-Number']
+      find_datum('X-VA-File-Number', 'fileNumber')
     end
 
     def service_number
-      auth_headers['X-VA-Service-Number']
+      find_datum('X-VA-Service-Number', 'serviceNumber')
     end
 
     def insurance_policy_number
-      auth_headers['X-VA-Insurance-Policy-Number']
+      find_datum('X-VA-Insurance-Policy-Number', 'insurancePolicyNumber')
     end
 
     def birth_date
@@ -75,7 +79,16 @@ module AppealsApi
     end
 
     def country_code
-      address['countryCodeISO2']
+      # N.B. Decision Reviews uses a two-letter code, while segmented APIs use a three-letter code.
+      code = address['countryCodeISO2']
+      return code if code.present?
+
+      code = address['countryCodeIso3']
+      IsoCountryCodes.find(code).alpha2
+    rescue IsoCountryCodes::UnknownCodeError
+      # Model validations should have already rejected an invalid country code, but if the code is somehow invalid
+      # anyway, return it as-is:
+      code
     end
 
     def zip_code_5
@@ -116,9 +129,9 @@ module AppealsApi
 
     def signing_appellant?
       # claimant is signer if present
-      return true if claimant? && claimant_headers_present?
+      return true if claimant? && claimant_details_present?
 
-      veteran? && !claimant_headers_present?
+      veteran? && !claimant_details_present?
     end
 
     def veteran?
@@ -136,6 +149,12 @@ module AppealsApi
     private
 
     attr_accessor :auth_headers, :form_data, :type
+
+    # NOTE: Decision Reviews v2 uses auth_headers for a few form fields and form_data for the rest, while the segmented
+    # APIs use form_data for all the fields (no auth_headers) - this attempts to find a field's data in either place
+    def find_datum(header_name, *form_data_path)
+      auth_headers&.dig(header_name) || form_data&.dig(*form_data_path)
+    end
 
     def header_prefix
       @header_prefix ||= veteran? ? '' : '-NonVeteranClaimant'
@@ -155,8 +174,8 @@ module AppealsApi
       form_data['address'] || {}
     end
 
-    def claimant_headers_present?
-      auth_headers.include?('X-VA-NonVeteranClaimant-Last-Name')
+    def claimant_details_present?
+      form_data['lastName'].present? || auth_headers.include?('X-VA-NonVeteranClaimant-Last-Name')
     end
 
     def mpi_veteran

@@ -4,181 +4,176 @@
     "attributes": {
       "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-      "claimDate": "2020-12-18",
       "veteranIdentification": {
-          "mailingAddress": {
-            "numberAndStreet": "1234 Couch Street",
-            "apartmentOrUnitNumber": "Apt. 22",
-            "city": "Portland",
-            "country": "USA",
-            "zipFirstFive": "12345",
-            "zipLastFour": "6789",
-            "state": "OR"
-          },
-          "currentlyVAEmployee": false,
-          "serviceNumber": "123456789",
-          "emailAddress": {
-              "email": "claimant@example.com",
-              "agreeToEmailRelatedToClaim": true
-          },
-          "veteranNumber": {
-              "telephone": "555-5555",
-              "internationalTelephone": "555-5555"
-          },
-          "vaFileNumber": "12345678"
-      },
-      "changeOfAddress": {
-          "country": "USA",
-          "type": "INTERNATIONAL",
-          "addressLine1": "1234 Couch Street",
-          "dates": {
-            "beginningDate": "2018-11-31",
-            "endingDate": "2019-07-11"
-          },
-          "typeOfAddressChange": "Permanent",
-          "numberAndStreet": "1234 Couch Street",
-          "apartmentOrUnitNumber": "Apt. 22",
+        "currentVaEmployee": false,
+        "mailingAddress": {
+          "addressLine1": "123 Main Street",
+          "addressLine2": "Unit 1",
+          "addressLine3": "Room 2",
           "city": "Portland",
-          "zipFirstFive": "12345",
+          "country": "USA",
+          "zipFirstFive": "41726",
           "zipLastFour": "1234",
           "state": "OR"
+        },
+        "serviceNumber": "123456789",
+        "emailAddress": {
+          "email": "valid@somedomain.com",
+          "agreeToEmailRelatedToClaim": true
+        },
+        "veteranNumber": {
+          "telephone": "5555555555"
+        }
+      },
+      "changeOfAddress": {
+        "dates": {
+          "beginDate": "2025-06-04",
+          "endDate": "2026-06-04"
+        },
+        "typeOfAddressChange": "TEMPORARY",
+        "addressLine1": "456 Main Street",
+        "addressLine2": "Unit 3",
+        "addressLine3": "Room 4",
+        "city": "Atlanta",
+        "zipFirstFive": "42220",
+        "zipLastFour": "9897",
+        "state": "GA",
+        "country": "USA"
       },
       "homeless": {
-        "pointOfContact": "Jane Doe",
-        "pointOfContactNumber": "123-456-7890",
-        "currentlyHomeless": {
-          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-          "otherDescription": ""
+        "pointOfContact": "John Doe",
+        "pointOfContactNumber": {
+          "telephone": "5555555555"
         },
-        "riskOfBecomingHomeless": {
-          "livingSituationOptions": "other living situation",
-          "otherDescription": ""
+        "currentlyHomeless": {
+          "homelessSituationOptions": "OTHER",
+          "otherDescription": "Other living situation"
         }
       },
       "toxicExposure": {
-          "gulfWarHazard": {
-              "servedInGulfWarHazardLocations": true,
-              "serviceDates": {
-                  "startDate": "1999-07-21",
-                  "endDate": "2005-01-21"
-              }
-          },
-          "herbicideHazardService": {
-              "servedInHerbicideHazardLocations": true,
-              "otherLocationsServed": "Guam",
-              "serviceDates": {
-                  "startDate": "2002-03-07",
-                  "endDate": "2004-10-31"
-              }
-          },
-          "additionalHazardExposures": {
-              "additionalExposures": ["ASBESTOS","SHAD"],
-              "specifiyOtherExposures": "",
-              "exposureDates": {
-                  "startDate": "2011-07-30",
-                  "endDate": "2013-10-03"
-              }
-          },
-          "multipleExposures": {
-              "exposureDates": {
-                  "startDate": "2012-12-09",
-                  "endDate": "2013-07-27"
-              },
-              "exposureLocation": "Guam",
-              "hazardExposedTo": "RADIATION"
+        "gulfWarHazardService": {
+          "servedInGulfWarHazardLocations": "YES",
+          "serviceDates": {
+            "beginDate": "1999-07",
+            "endDate": "2005-01"
           }
+        },
+        "herbicideHazardService": {
+          "servedInHerbicideHazardLocations": "YES",
+          "otherLocationsServed": "Guam",
+          "serviceDates": {
+            "beginDate": "2002-03",
+            "endDate": "2004-10"
+          }
+        },
+        "additionalHazardExposures": {
+          "additionalExposures": [
+            "ASBESTOS",
+            "SHIPBOARD_HAZARD_AND_DEFENSE"
+          ],
+          "specifyOtherExposures": "Other exposure details",
+          "exposureDates": {
+            "beginDate": "2011-07",
+            "endDate": "2013-10"
+          }
+        },
+        "multipleExposures": [
+          {
+            "exposureDates": {
+              "beginDate": "2012-12",
+              "endDate": "2013-07"
+            },
+            "exposureLocation": "Guam",
+            "hazardExposedTo": "Hazard"
+          }
+        ]
       },
       "disabilities": [
         {
-          "disabilityActionType": "REOPEN",
-          "name": "PTSD (post traumatic stress disorder)",
-          "classificationCode": "249470",
-          "serviceRelevance": "Heavy equipment operator in service.",
-          "approximateDate": "2019-11-04",
-          "ratedDisabilityId": "1100583",
-          "diagnosticCode": 9999,
-          "secondaryDisabilities": [
-            {
-              "name": "PTSD personal trauma",
-              "disabilityActionType": "SECONDARY",
-              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
-              "classificationCode": "249470",
-              "approximateDate": "2018-01-03",
-              "exposureOrEventOrInjury": ""
-            }
-          ],
+          "disabilityActionType": "NEW",
+          "name": "Hearing Loss",
+          "serviceRelevance": "Heavy equipment operator in service",
+          "approximateDate": "1988-07",
           "isRelatedToToxicExposure": false,
-          "exposureOrEventOrInjury": ""
+          "exposureOrEventOrInjury": "Noise"
         }
       ],
       "treatments": [
         {
+          "treatedDisabilityNames": [
+            "Hearing Loss"
+          ],
           "center": {
-            "name": "Private Facility 2",
-            "state": "CO",
-            "city": "Pueblo"
+            "name": "Center One",
+            "state": "GA",
+            "city": "Decatur"
           },
-          "startDate": "2014-03-07",
-          "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)"]
+          "beginDate": "2009-04"
         },
         {
+          "treatedDisabilityNames": [
+            "Hearing Loss"
+          ],
           "center": {
-            "name": "Private Facility 3",
-            "state": "WA",
-            "city": "Seattle"
+            "name": "Center One",
+            "state": "GA",
+            "city": "Decatur"
           },
-          "startDate": null,
-          "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)", "Trauma"]
+          "beginDate": "2009-03"
         }
       ],
       "serviceInformation": {
-          "servicePeriods": [
-              {
-                "serviceBranch": "Public Health Service",
-                "activeDutyBeginDate": "2015-11-14",
-                "activeDutyEndDate": "2018-11-30",
-                "serviceComponent": "Active",
-                "separationLocationCode": "V01D"
-              }
-          ],
-          "confinements": {
-              "approximateBeginDate": "2016-11-06",
-              "approximateEndDate": "2016-11-09"
+        "servicePeriods": [
+          {
+            "serviceBranch": "Air Force",
+            "activeDutyBeginDate": "2008-11-14",
+            "activeDutyEndDate": "2023-10-30",
+            "serviceComponent": "Active",
+            "separationLocationCode": "98282"
+          }
+        ],
+        "confinements": [
+          {
+            "approximateBeginDate": "2016-06-11",
+            "approximateEndDate": "2016-09-11"
           },
-          "reservesNationalGuardService": {
-              "obligationTermsOfService": {
-                "startDate":"2016-11-24",
-                "endDate":"2017-11-17"
-              },
-              "unitName": "DonkeyPants",
-              "component": "National Guard",
-              "title10Activation": {
-                  "anticipatedSeparationDate": "2017-10-03",
-                  "title10ActivationDate": "2018-02-11"
-              },
-              "unitPhone": {
-                  "areaCode": "123",
-                  "phoneNumber": "456-7890"
-              },
-              "receivingInactiveDutyTrainingPay": true
+          {
+            "approximateBeginDate": "2019-06",
+            "approximateEndDate": "2019-07"
+          }
+        ],
+        "federalActivation": {
+          "anticipatedSeparationDate": "2025-10-03",
+          "activationDate": "2023-02-10"
+        },
+        "reservesNationalGuardService": {
+          "obligationTermsOfService": {
+            "beginDate": "2016-11-24",
+            "endDate": "2017-11-17"
           },
-          "alternateNames": [
-              "John Jacob Jingleheimer-Schmidt"
-          ],
-          "servedInActiveCombatSince911": false
+          "unitName": "National Guard Unit Name",
+          "unitAddress": "1243 pine court",
+          "component": "National Guard",
+          "unitPhone": {
+            "areaCode": "555",
+            "phoneNumber": "5555555"
+          },
+          "receivingInactiveDutyTrainingPay": "YES"
+        },
+        "servedInActiveCombatSince911": "NO"
       },
       "servicePay": {
         "favorTrainingPay": true,
         "favorMilitaryRetiredPay": false,
-        "receivingMilitaryRetiredPay": false,
-        "futureMilitaryRetiredPay": true,
-        "futureMilitaryRetiredPayExplanation": "",
+        "receivingMilitaryRetiredPay": "NO",
+        "futureMilitaryRetiredPay": "YES",
+        "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
         "militaryRetiredPay": {
-            "branchOfService": "Army",
-            "monthlyAmount": 840.75
+          "branchOfService": "Army",
+          "monthlyAmount": 840.75
         },
-        "retiredStatus": [],
-        "receivedSeparationOrSeverancePay": false,
+        "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+        "receivedSeparationOrSeverancePay": "NO",
         "separationSeverancePay": {
           "datePaymentReceived": "2018-07-31",
           "branchOfService": "Naval Academy",
@@ -187,9 +182,9 @@
       },
       "directDeposit": {
         "accountType": "CHECKING",
-        "accountNumber": "123456789",
+        "accountNumber": "123123123123",
         "routingNumber": "123456789",
-        "financialInstituteName": "Chase",
+        "financialInstitutionName": "Chase",
         "noAccount": false
       }
     }

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/client'
-
 module Mobile
   module V0
     module Claims
@@ -21,6 +19,28 @@ module Mobile
           claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
           appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
           data = claims_adapter.parse(full_list)
+
+          [data, errors]
+        end
+
+        def get_claims
+          claims = get_all_claims.call
+          data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
+
+          errors = []
+          errors.push(claims[:errors]) unless claims[:errors].nil?
+          errors.push({ service: 'appeals', error_details: 'Forbidden: User is not authorized for appeals' })
+
+          [data, errors]
+        end
+
+        def get_appeals
+          appeals = get_all_appeals.call
+          data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
+
+          errors = []
+          errors.push(appeals[:errors]) unless appeals[:errors].nil?
+          errors.push({ service: 'claims', error_details: 'Forbidden: User is not authorized for claims' })
 
           [data, errors]
         end

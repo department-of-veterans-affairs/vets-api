@@ -62,6 +62,7 @@ module AppealsApi
     # v2 validations
     validate :claimant_birth_date_is_in_the_past,
              :required_claimant_data_is_present,
+             :country_codes_valid,
              if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
@@ -99,29 +100,12 @@ module AppealsApi
     end
 
     # V2 End
-
-    def first_name
-      auth_headers['X-VA-First-Name']
-    end
-
-    def middle_initial
-      auth_headers['X-VA-Middle-Initial']
-    end
-
-    def last_name
-      auth_headers['X-VA-Last-Name']
-    end
+    delegate :birth_date, to: :veteran, prefix: :veteran
+    delegate :ssn, :file_number, :first_name, :middle_initial, :last_name,
+             :insurance_policy_number, :service_number, to: :veteran
 
     def full_name
       "#{first_name} #{middle_initial} #{last_name}".squeeze(' ').strip
-    end
-
-    def ssn
-      auth_headers['X-VA-SSN']
-    end
-
-    def file_number
-      auth_headers['X-VA-File-Number']
     end
 
     def veteran_birth_mm
@@ -136,30 +120,20 @@ module AppealsApi
       veteran_birth_date.strftime '%Y'
     end
 
-    def service_number
-      auth_headers['X-VA-Service-Number']
-    end
-
-    def insurance_policy_number
-      auth_headers['X-VA-Insurance-Policy-Number']
-    end
-
     def number_and_street
       address_combined || 'USE ADDRESS ON FILE'
     end
 
     def city
-      veteran_data.dig('address', 'city') || ''
+      veteran.city || ''
     end
 
     def state_code
-      veteran_data.dig('address', 'stateCode') || ''
+      veteran.state_code || ''
     end
 
     def country_code
-      return '' unless address_combined
-
-      veteran_data.dig('address', 'countryCodeISO2') || 'US'
+      veteran.country_code || 'US'
     end
 
     def zip_code
@@ -207,8 +181,10 @@ module AppealsApi
     end
 
     def soc_opt_in
-      # This is no longer optional as of v3 of the PDF
-      pdf_version&.downcase == 'v3' || data_attributes&.dig('socOptIn')
+      # This was removed from the form in PDF version v3 - it is no longer optional.
+      # - In Decision Reviews APIs, it can only be false if the pdf version is older than v3
+      # - In the Higher-Level Reviews API v0, it is no longer part of the schema
+      pdf_version&.downcase == 'v3' || api_version&.downcase == 'v0' || data_attributes&.dig('socOptIn')
     end
 
     def contestable_issues
@@ -270,7 +246,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -285,7 +261,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end
@@ -323,6 +299,9 @@ module AppealsApi
       self.metadata = { form_data: { benefit_type: } }
 
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     private
@@ -341,7 +320,7 @@ module AppealsApi
 
       icn = mpi_veteran.mpi_icn
 
-      return { id_type: 'ICN', id_value: icn } if icn.present?
+      { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes
@@ -350,14 +329,6 @@ module AppealsApi
 
     def veteran_data
       data_attributes&.dig('veteran')
-    end
-
-    def veteran_birth_date_string
-      auth_headers['X-VA-Birth-Date']
-    end
-
-    def veteran_birth_date
-      self.class.date_from_string veteran_birth_date_string
     end
 
     def veteran_phone

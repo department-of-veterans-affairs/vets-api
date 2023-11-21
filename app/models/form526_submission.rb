@@ -2,10 +2,30 @@
 
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
+require 'logging/third_party_transaction'
 
 class Form526Submission < ApplicationRecord
+  extend Logging::ThirdPartyTransaction::MethodWrapper
+
   include SentryLogging
-  include Form526RapidReadyForDecisionConcern
+  include Form526ClaimFastTrackingConcern
+
+  wrap_with_logging(:start_evss_submission_job,
+                    :enqueue_backup_submission,
+                    :submit_form_4142,
+                    :submit_uploads,
+                    :submit_form_0781,
+                    :submit_form_8940,
+                    :upload_bdd_instructions,
+                    :submit_flashes,
+                    :cleanup,
+                    additional_class_logs: {
+                      action: 'Begin as anciliary 526 submission'
+                    },
+                    additional_instance_logs: {
+                      saved_claim_id: %i[saved_claim id],
+                      user_uuid: %i[user_uuid]
+                    })
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
@@ -54,6 +74,7 @@ class Form526Submission < ApplicationRecord
   # one-time setup or workflow redirection (e.g. for Claims Fast-Tracking) needs to happen, it should
   # go here and call start_evss_submission_job when done.
   def start
+    log_max_cfi_metrics_on_submit
     start_evss_submission_job
   end
 
@@ -93,12 +114,7 @@ class Form526Submission < ApplicationRecord
   )
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
 
-    # If there are no more ids to try, queue backup (if enabled), and return. End of the road, do not retry.
-    unless untried_birls_id
-      # hits this when it has a non-retryable error and has exhausted all birls
-      queue_central_mail_backup_submission_for_non_retryable_error!
-      return
-    end
+    return unless untried_birls_id
 
     self.birls_id = untried_birls_id
     save!
@@ -110,11 +126,6 @@ class Form526Submission < ApplicationRecord
     # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
     # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
     # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
-
-    # If we error, we still need to attempt a backup submission, but we cannot use `ensure` here because
-    # we don't want to send a backup if it is proceeding on to trying the next birls id
-    queue_central_mail_backup_submission_for_non_retryable_error!(e)
-
     raise unless silence_errors_and_log_to_sentry
 
     log_exception_to_sentry e, extra_content_for_sentry
@@ -221,8 +232,8 @@ class Form526Submission < ApplicationRecord
     timestamp_string
   end
 
-  def mark_birls_id_as_tried!(*args, **kwargs)
-    timestamp_string = mark_birls_id_as_tried(*args, **kwargs)
+  def mark_birls_id_as_tried!(*, **)
+    timestamp_string = mark_birls_id_as_tried(*, **)
     save!
     timestamp_string
   end
@@ -349,7 +360,8 @@ class Form526Submission < ApplicationRecord
                              Flipper.enabled?(flipper_sym) &&
                              submitted_claim_id.nil? &&
                              backup_submitted_claim_id.nil?
-    backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id) if send_backup_submission
+
+    backup_job_jid = enqueue_backup_submission(id) if send_backup_submission
 
     log_message = {
       submission_id: id
@@ -358,6 +370,10 @@ class Form526Submission < ApplicationRecord
     log_message['error_message'] = e.message unless e.nil?
     log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
     ::Rails.logger.error('Form526 Exhausted or Errored (non-retryable-error-path)', log_message)
+  end
+
+  def enqueue_backup_submission(id)
+    Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
   def submit_uploads

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8080/v3/contention-classification/classifier
+    uri: http://localhost:8120/classifier
     body:
       encoding: UTF-8
       string: '{"diagnostic_code":5235,"claim_id":190,"form526_submission_id":179}'
@@ -30,7 +30,7 @@ http_interactions:
       - Thu, 11 May 2023 23:33:43 GMT
     body:
       encoding: UTF-8
-      string: '{"statusCode":200,"responseBody":{"classification_code":6602,"classification_name":"asthma"}}'
+      string: '{"classification_code":6602,"classification_name":"asthma"}'
   recorded_at: Thu, 11 May 2023 23:33:43 GMT
 - request:
     method: post
@@ -78,6 +78,6 @@ http_interactions:
       - nosniff
     body:
       encoding: UTF-8
-      string: '{"statusCode":200,"responseBody":{"classification_code":6602,"classification_name":"asthma"}}'
+      string: '{"classification_code":6602,"classification_name":"asthma"}'
   recorded_at: Thu, 11 May 2023 23:33:43 GMT
 recorded_with: VCR 6.1.0

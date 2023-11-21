@@ -2,26 +2,40 @@
 
 require 'rails_helper'
 require 'support/mr_client_helpers'
+require 'medical_records/client'
 
 RSpec.describe 'Medical Records Integration', type: :request do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 
-  it 'responds to GET #index' do
-    VCR.use_cassette('mr_client/get_a_list_of_allergies') do
-      get '/my_health/v1/medical_records/allergies?patient_id=30163'
-    end
+  let(:user_id) { '11898795' }
+  let(:va_patient) { true }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
-    expect(response).to be_successful
-    expect(response.body).to be_a(String)
+  before do
+    allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    sign_in_as(current_user)
   end
 
-  it 'responds to GET #show' do
-    VCR.use_cassette('mr_client/get_an_allergy') do
-      get '/my_health/v1/medical_records/allergies/30242'
+  context 'Premium User' do
+    let(:mhv_account_type) { 'Premium' }
+
+    it 'responds to GET #index' do
+      VCR.use_cassette('mr_client/get_a_list_of_allergies') do
+        get '/my_health/v1/medical_records/allergies'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
     end
 
-    expect(response).to be_successful
-    expect(response.body).to be_a(String)
+    it 'responds to GET #show' do
+      VCR.use_cassette('mr_client/get_an_allergy') do
+        get '/my_health/v1/medical_records/allergies/30242'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+    end
   end
 end

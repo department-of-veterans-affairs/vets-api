@@ -2,19 +2,19 @@
 
 require 'rails_helper'
 
-RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true do
+RSpec.describe VAOS::V2::SchedulingController, type: :request, skip_mvi: true do
   include SchemaMatchers
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+  let(:current_user) { build(:user, :vaos) }
+
   before do
+    Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
-
-  context 'vaos user' do
-    let(:current_user) { build(:user, :vaos) }
-
+  context 'with vaos user' do
     describe 'GET scheduling/configurations' do
       context 'has access and is given single facility id' do
         it 'returns a single scheduling configuration' do

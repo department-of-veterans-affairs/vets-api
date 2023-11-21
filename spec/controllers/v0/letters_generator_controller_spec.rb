@@ -8,6 +8,7 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
   # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/letter_generator_test_accounts.md
   let(:user) { build(:user, :loa3, icn: '1012666073V986297') }
   let(:user_error) { build(:user, :loa3, icn: '1012667145V762142') }
+  let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
 
   before do
     token = 'abcdefghijklmnop'
@@ -30,12 +31,35 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
   end
 
   describe '#download' do
+    context 'benefits_summary_dependent letter as a dependent' do
+      before { sign_in_as(dependent_user) }
+
+      it 'returns a benefits_summary_dependent pdf' do
+        VCR.use_cassette('lighthouse/letters_generator/download_dependent') do
+          post :download, params: { id: 'BENEFIT_SUMMARY_DEPENDENT' }
+          expect(response.header['Content-Type']).to eq('application/pdf')
+        end
+      end
+    end
+
+    context 'benefits_summary_dependent returns an error as a non-dependent' do
+      before { sign_in_as(user) }
+
+      it 'returns an error' do
+        VCR.use_cassette('lighthouse/letters_generator/download_dependent') do
+          post :download, params: { id: 'BENEFIT_SUMMARY_DEPENDENT' }
+          response_body = JSON.parse(response.body)
+          expect(response_body['errors'].first).to include('status' => '400')
+        end
+      end
+    end
+
     context 'without options' do
       before { sign_in_as(user) }
 
       it 'returns a pdf' do
         VCR.use_cassette('lighthouse/letters_generator/download') do
-          get :download, params: { id: 'BENEFIT_SUMMARY' }
+          post :download, params: { id: 'BENEFIT_SUMMARY' }
 
           expect(response.header['Content-Type']).to eq('application/pdf')
         end
@@ -45,13 +69,26 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
     context 'with options' do
       before { sign_in_as(user) }
 
+      let(:options) do
+        {
+          id: 'BENEFIT_SUMMARY',
+          'military_service' => true,
+          'service_connected_disabilities' => true,
+          'service_connected_evaluation' => false,
+          'non_service_connected_pension' => false,
+          'monthly_award' => false,
+          'unemployable' => false,
+          'special_monthly_compensation' => false,
+          'adapted_housing' => false,
+          'chapter35_eligibility' => false,
+          'death_result_of_disability' => false,
+          'survivors_award' => false
+        }
+      end
+
       it 'returns a pdf' do
         VCR.use_cassette('lighthouse/letters_generator/download_with_options') do
-          get :download, params: {
-            id: 'BENEFIT_SUMMARY',
-            militaryService: 'true',
-            serviceConnectedDisabilities: 'true'
-          }
+          post :download, params: options
           expect(response.header['Content-Type']).to eq('application/pdf')
         end
       end
@@ -60,9 +97,9 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
     context 'when an error occurs' do
       before { sign_in_as(user_error) }
 
-      it 'raises Lighthouse::LettersGenerator::ServiceError' do
+      it 'raises an unprocessable entity error if upstream cannot process request' do
         VCR.use_cassette('lighthouse/letters_generator/download_error') do
-          get :download, params: { id: 'BENEFIT_SUMMARY' }
+          post :download, params: { id: 'BENEFIT_SUMMARY' }
           response_body = JSON.parse(response.body)
           expect(response_body['errors'].first).to include('status' => '422')
         end

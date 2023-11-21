@@ -11,7 +11,7 @@ module Lighthouse
       ACCOUNT_NUM_REGEX = /\A\d*\z/
       ROUTING_NUM_REGEX = /\A\d{9}\z/
 
-      validates :account_type, inclusion: { in: %w[CHECKING SAVINGS] }, presence: true
+      validates :account_type, inclusion: { in: %w[Checking Savings] }, presence: true
       validates :account_number, presence: true
       validates :routing_number, presence: true
 
@@ -19,7 +19,7 @@ module Lighthouse
       validates_format_of :routing_number, with: ROUTING_NUM_REGEX
 
       def account_type
-        @account_type&.upcase
+        @account_type&.capitalize
       end
     end
   end

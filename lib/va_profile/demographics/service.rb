@@ -100,13 +100,15 @@ module VAProfile
 
       # For now, only valid if CSP (credential service provider) is id.me or login.gov
       def csp_id
-        return @user&.idme_uuid     if @user&.idme_uuid.present?
-        return @user&.logingov_uuid if @user&.logingov_uuid.present?
+        return @user&.idme_uuid if @user&.idme_uuid.present?
+
+        @user&.logingov_uuid.presence
       end
 
       def aaid
         return '^PN^200VIDM^USDVA' if @user&.idme_uuid.present?
-        return '^PN^200VLGN^USDVA' if @user&.logingov_uuid.present?
+
+        '^PN^200VLGN^USDVA' if @user&.logingov_uuid.present?
       end
     end
   end

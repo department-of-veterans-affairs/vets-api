@@ -7,7 +7,7 @@ module Mobile
         def parse(letter_info)
           Mobile::V0::LetterInfo.new(
             benefit_information: benefit_information(letter_info[:benefitInformation]),
-            military_service: letter_info[:militaryService]
+            military_service: military_service(letter_info[:militaryService])
           )
         end
 
@@ -16,7 +16,7 @@ module Mobile
         def benefit_information(benefits)
           BenefitInformation.new(
             award_effective_date: benefits[:awardEffectiveDate],
-            has_chapter_35_eligibility: benefits[:hasChapter35Eligibility],
+            has_chapter35_eligibility: benefits[:hasChapter35Eligibility],
             monthly_award_amount: benefits[:monthlyAwardAmount].to_f,
             service_connected_percentage: benefits[:serviceConnectedPercentage],
             has_death_result_of_disability: benefits[:hasDeathResultOfDisability],
@@ -28,6 +28,17 @@ module Mobile
             has_service_connected_disabilities: benefits[:hasServiceConnectedDisabilities],
             has_special_monthly_compensation: benefits[:hasSpecialMonthlyCompensation]
           )
+        end
+
+        def military_service(military_services)
+          military_services.map do |military_service|
+            {
+              branch: military_service[:branch],
+              character_of_service: military_service[:characterOfService],
+              entered_date: military_service[:enteredDate],
+              released_date: military_service[:releasedDate]
+            }
+          end
         end
       end
     end

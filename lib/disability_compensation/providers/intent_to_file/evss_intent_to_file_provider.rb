@@ -14,7 +14,7 @@ class EvssIntentToFileProvider
     @service.get_intent_to_file
   end
 
-  def create_intent_to_file(type)
+  def create_intent_to_file(type, _client_id, _rsa_key_path)
     @service.create_intent_to_file(type)
   end
 end

@@ -7,6 +7,8 @@
 # The account.uuid is intended to become the Vets-API user's uuid.
 #
 class Account < ApplicationRecord
+  ActiveSupport::Deprecation.warn('Account is deprecated and will be removed. Use UserAccount instead.')
+
   has_one  :login_stats,
            class_name: 'AccountLoginStat',
            dependent: :destroy,
@@ -73,7 +75,7 @@ class Account < ApplicationRecord
   end
 
   def unique?(new_uuid)
-    return true unless Account.exists?(uuid: new_uuid)
+    true unless Account.exists?(uuid: new_uuid)
   end
 
   def generate_uuid

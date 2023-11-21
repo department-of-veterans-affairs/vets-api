@@ -8,6 +8,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
   include AppealsApi::HeaderModification
+  include AppealsApi::Schemas
 
   skip_before_action :authenticate
   before_action :validate_json_format, if: -> { request.post? }
@@ -15,14 +16,9 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   before_action :new_notice_of_disagreement, only: %i[create validate]
   before_action :find_notice_of_disagreement, only: %i[show]
 
+  SCHEMA_OPTIONS = { schema_version: 'v1', api_name: 'decision_reviews' }.freeze
   FORM_NUMBER = '10182'
   MODEL_ERROR_STATUS = 422
-  HEADERS = JSON.parse(
-    File.read(
-      AppealsApi::Engine.root.join('config/schemas/v1/10182_headers.json')
-    )
-  )['definitions']['nodCreateHeadersRoot']['properties'].keys
-  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def create
     deprecate_headers
@@ -51,26 +47,18 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   def schema
     deprecate_headers
 
-    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new.schema(self.class::FORM_NUMBER)
-    )
+    render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
   end
 
   private
 
+  def header_names = headers_schema['definitions']['nodCreateHeadersRoot']['properties'].keys
+
   def validate_json_schema
-    validate_json_schema_for_headers
-    validate_json_schema_for_body
-  rescue SCHEMA_ERROR_TYPE => e
+    validate_headers(request_headers)
+    validate_form_data(@json_body)
+  rescue Common::Exceptions::DetailedSchemaErrors => e
     render json: { errors: e.errors }, status: :unprocessable_entity
-  end
-
-  def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", request_headers)
-  end
-
-  def validate_json_schema_for_body
-    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!(FORM_NUMBER, @json_body)
   end
 
   def validation_success
@@ -85,7 +73,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def request_headers
-    HEADERS.index_with { |key| request.headers[key] }.compact
+    header_names.index_with { |key| request.headers[key] }.compact
   end
 
   def new_notice_of_disagreement

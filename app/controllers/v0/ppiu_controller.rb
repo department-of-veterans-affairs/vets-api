@@ -4,6 +4,7 @@ require 'evss/ppiu/service'
 
 module V0
   class PPIUController < ApplicationController
+    service_tag 'direct-deposit'
     before_action { authorize :evss, :access? }
     before_action { authorize :ppiu, :access? }
     before_action :validate_pay_info, only: :update

@@ -14,19 +14,30 @@ Mobile::Engine.routes.draw do
     get '/appointments/facilities/:facility_id/clinics/:clinic_id/slots', to: 'clinics#slots'
     get '/appointments/preferences', to: 'appointment_preferences#show'
     put '/appointments/preferences', to: 'appointment_preferences#update'
+    post '/appointments/check-in', to: 'check_in#create'
+    patch '/appointments/check-in/demographics', to: 'check_in_demographics#update'
     post '/appointment', to: 'appointments#create'
+    get '/appointments/check-in/demographics', to: 'check_in_demographics#show'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claims/decision-letters', to: 'decision_letters#index'
     get '/claims/decision-letters/:document_id/download', to: 'decision_letters#download'
+    post '/claims/pre-need-burial', to: 'pre_need_burial#create'
+    get '/claims/pre-need-burial/cemeteries', to: 'cemeteries#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/community-care-providers', to: 'community_care_providers#index'
     get '/disability-rating', to: 'disability_rating#index'
-    get '/facilities-info/:sort', to: 'facilities_info#index'
+    get '/facilities-info', to: 'facilities_info#index'
+    get '/facilities-info/:sort', to: 'facilities_info#schedulable'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/locations/:id', to: 'locations#show'
+    scope :health do
+      get 'labs-and-tests', to: 'labs_and_tests#index'
+      resources :observations, only: %i[show]
+      get 'allergy-intolerances', to: 'allergy_intolerances#index'
+    end
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
@@ -41,6 +52,9 @@ Mobile::Engine.routes.draw do
     put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_pref'
     post '/push/send', to: 'push_notifications#send_notification'
     get '/user', to: 'users#show'
+    get '/user/authorized-services', to: 'authorized_services#index'
+    get '/user/contact-info', to: 'contact_info#show'
+    post '/user/logged-in', to: 'users#logged_in'
     get '/user/logout', to: 'users#logout'
     post '/user/addresses', to: 'addresses#create'
     put '/user/addresses', to: 'addresses#update'
@@ -55,6 +69,7 @@ Mobile::Engine.routes.draw do
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
     put '/user/preferred_name', to: 'preferred_names#update'
+    get '/user/demographics', to: 'demographics#index'
     get '/health/rx/prescriptions', to: 'prescriptions#index'
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
@@ -65,6 +80,7 @@ Mobile::Engine.routes.draw do
 
         resources :folders, only: %i[index show create destroy], defaults: { format: :json } do
           resources :messages, only: [:index], defaults: { format: :json }
+          resources :threads, only: %i[index]
         end
 
         resources :messages, only: %i[show create destroy], defaults: { format: :json } do
@@ -94,5 +110,9 @@ Mobile::Engine.routes.draw do
         end
       end
     end
+  end
+
+  namespace :v2 do
+    get '/user', to: 'users#show'
   end
 end

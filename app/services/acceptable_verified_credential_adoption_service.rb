@@ -8,15 +8,39 @@
 class AcceptableVerifiedCredentialAdoptionService
   attr_accessor :user
 
+  REACTIVATION_TEMPLATE_ID = Settings.vanotify.services.va_gov.template_id.login_reactivation_email
+  STATS_KEY = 'api.user_transition_availability'
+
   def initialize(user)
     @user = user
   end
 
   def perform
-    display_organic_modal_for_logingov_conversion
+    send_email if eligible_for_sending?
   end
 
   private
+
+  def send_email
+    email = user.email
+    legacy_credential = logged_in_with_dsl? ? 'DS Logon' : 'My HealtheVet'
+    modern_credential = user_avc&.acceptable_verified_credential_at ? 'Login.gov' : 'ID.me'
+
+    return if email.blank?
+
+    VANotify::EmailJob.perform_async(
+      email,
+      REACTIVATION_TEMPLATE_ID,
+      {
+        'name' => user.first_name,
+        'legacy_credential' => legacy_credential,
+        'modern_credential' => modern_credential
+      }
+    )
+
+    log_conversion_type_results('reactivation_email')
+    record_adoption_email_trigger_event
+  end
 
   def result
     @result ||= {}
@@ -26,16 +50,12 @@ class AcceptableVerifiedCredentialAdoptionService
     @credential_type ||= user.identity.sign_in[:service_name]
   end
 
-  def display_organic_modal_for_logingov_conversion
-    result[:organic_modal] =
-      Flipper.enabled?(:organic_conversion_experiment, user) && user_qualifies_for_conversion?
-    result[:credential_type] = credential_type
-    log_results('organic_modal') if result[:organic_modal] == true
-    result
-  end
+  def user_qualifies_for_reactivation?
+    # uncomment after test is complete
+    # (logged_in_with_dsl? || logged_in_with_mhv?) && verified_credential_at?
 
-  def user_qualifies_for_conversion?
-    (logged_in_with_dsl? || logged_in_with_mhv?) && !verified_credential_at?
+    # remove after test
+    logged_in_with_dsl? && verified_credential_at?
   end
 
   def logged_in_with_dsl?
@@ -46,16 +66,43 @@ class AcceptableVerifiedCredentialAdoptionService
     credential_type == SAML::User::MHV_ORIGINAL_CSID
   end
 
+  def user_avc
+    @user_avc ||= UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
+  end
+
   def verified_credential_at?
-    user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
-    user_avc&.acceptable_verified_credential_at || user_avc&.idme_verified_credential_at
+    # uncomment after test is complete
+    # user_avc&.acceptable_verified_credential_at || user_avc&.idme_verified_credential_at
+
+    # remove after test
+    user_avc&.acceptable_verified_credential_at
   end
 
-  def log_results(conversion_type)
-    StatsD.increment("#{stats_key}.#{conversion_type}.#{credential_type}")
+  def log_conversion_type_results(conversion_type)
+    StatsD.increment("#{STATS_KEY}.#{conversion_type}.#{credential_type}")
   end
 
-  def stats_key
-    'api.user_transition_availability'
+  def record_adoption_email_trigger_event
+    CredentialAdoptionEmailRecord.create(
+      icn: user.icn,
+      email_address: user.email,
+      email_template_id: REACTIVATION_TEMPLATE_ID,
+      email_triggered_at: DateTime.now
+    )
+  end
+
+  def check_for_email_adoption_records
+    CredentialAdoptionEmailRecord.where('email_triggered_at > ?', DateTime.now.days_ago(7)).where(icn: user.icn)
+  end
+
+  def recent_triggered_send?
+    check_for_email_adoption_records.any?
+  end
+
+  def eligible_for_sending?
+    # Thanks to Ruby's short circuit evaluation, our rate limiting via Flipper will only apply to eligible users.
+    user.email && user_qualifies_for_reactivation? && !recent_triggered_send? && Flipper.enabled?(
+      :reactivation_experiment_rate_limit, user
+    )
   end
 end

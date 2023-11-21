@@ -10,6 +10,10 @@ module Mobile
       class Proxy < Mobile::V0::Claims::Proxy
         delegate :get_claim, to: :claims_service
 
+        def request_decision(id)
+          claims_service.submit5103(id)
+        end
+
         private
 
         def claims_adapter

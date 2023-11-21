@@ -5,6 +5,7 @@ module VAOS
     class FacilitiesController < VAOS::BaseController
       def index
         response = mobile_facility_service.get_facilities(ids:,
+                                                          schedulable:,
                                                           children:,
                                                           type:)
         render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
@@ -27,8 +28,6 @@ module VAOS
 
       def facility_id
         params[:facility_id]
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('facility_id', params[:facility_id])
       end
 
       def ids
@@ -42,6 +41,15 @@ module VAOS
 
       def type
         params[:type]
+      end
+
+      def schedulable
+        if Flipper.enabled?('va_online_scheduling_required_schedulable_param')
+          # with this flag on, we will always want to return 'true' for this param per github issue #59503
+          params[:schedulable] = true
+        else
+          params[:schedulable]
+        end
       end
     end
   end

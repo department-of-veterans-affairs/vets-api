@@ -1,0 +1,124 @@
+---
+:method: :post
+:body: |-
+  <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <env:Header/>
+    <env:Body>
+      <idm:PRPA_IN201306UV02 xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov" ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd">
+        <id extension="WSDOC2306132014137341316615020" root="2.16.840.1.113883.4.349"/>
+        <creationTime value="20230613201414"/>
+        <versionCode code="4.1"/>
+        <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
+        <processingCode code="T"/>
+        <processingModeCode code="T"/>
+        <acceptAckCode code="NE"/>
+        <receiver typeCode="RCV">
+          <device classCode="DEV" determinerCode="INSTANCE">
+            <id extension="200VGOV" root="2.16.840.1.113883.4.349"/>
+          </device>
+        </receiver>
+        <sender typeCode="SND">
+          <device classCode="DEV" determinerCode="INSTANCE">
+            <id extension="200M" root="2.16.840.1.113883.4.349"/>
+          </device>
+        </sender>
+        <acknowledgement>
+          <typeCode code="AA"/>
+          <targetMessage>
+            <id extension="200VGOV-ba391f62-69c6-4b71-bfb3-d5fe2877b805" root="1.2.840.114350.1.13.0.1.7.1.1"/>
+          </targetMessage>
+        </acknowledgement>
+        <controlActProcess classCode="CACT" moodCode="EVN">
+          <code code="PRPA_TE201306UV02" codeSystem="2.16.840.1.113883.1.6"/>
+          <subject typeCode="SUBJ">
+            <registrationEvent classCode="REG" moodCode="EVN">
+              <id nullFlavor="NA"/>
+              <statusCode code="active"/>
+              <subject1 typeCode="SBJ">
+                <patient classCode="PAT">
+                  <id extension="1012667122V019349^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/>
+                  <id extension="1005329660^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12"/>
+                  <id extension="796126859^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="600043186^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="0000001012667122V019349000000^PI^200ESR^USVHA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="0000027766^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="15467^PI^200VETS^USDVA^H" root="2.16.840.1.113883.4.349"/>
+                  <id extension="88f572d491af46efa393cba6c351e252^PN^200VIDM^USDVA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="18677654^PI^200MHS^USVHA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="eb172e31-36a0-4266-aa7b-b44c939e6850^PN^200VLGN^USDVA^A" root="2.16.840.1.113883.4.349"/>
+                  <id extension="7260188^PI^442^USVHA^A" root="2.16.840.1.113883.4.349"/>
+                  <statusCode code="active"/>
+                  <patientPerson>
+                    <name use="L">
+                      <given>HECTOR</given>
+                      <given>J</given>
+                      <family>ALLEN</family>
+                    </name>
+                    <telecom use="HP" value="(315)922-3296"/>
+                    <administrativeGenderCode code="M"/>
+                    <birthTime value="19320205"/>
+                    <deceasedInd nullFlavor="TRC" value="false"/>
+                    <addr use="PHYS">
+                      <streetAddressLine>Sesame Street</streetAddressLine>
+                      <city>Franklin Park</city>
+                      <state>IL</state>
+                      <postalCode>60131</postalCode>
+                      <country>USA</country>
+                    </addr>
+                    <asOtherIDs classCode="SSN">
+                      <id extension="796126859" root="2.16.840.1.113883.4.1"/>
+                      <scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                        <id root="1.2.840.114350.1.13.99997.2.3412"/>
+                      </scopingOrganization>
+                    </asOtherIDs>
+                  </patientPerson>
+                  <subjectOf1>
+                    <queryMatchObservation classCode="COND" moodCode="EVN">
+                      <code code="IHE_PDQ"/>
+                      <value xsi:type="INT" nullFlavor="NA"/>
+                    </queryMatchObservation>
+                  </subjectOf1>
+                  <subjectOf2 typeCode="SBJ">
+                    <administrativeObservation classCode="VERIF">
+                      <code code="IIPT" codeSystem="2.16.840.1.113883.4.349" displayName="Identity Interoperability Person Type"/>
+                      <value code="V1" xsi:type="CD" displayName="Veteran (per VA)"/>
+                    </administrativeObservation>
+                  </subjectOf2>
+                  <subjectOf2 typeCode="SBJ">
+                    <administrativeObservation classCode="VERIF">
+                      <code code="PERSON_TYPE" codeSystem="2.16.840.1.113883.4.349" displayName="Person Type"/>
+                      <value code="PAT~VET" xsi:type="CD" displayName="Patient, Veteran"/>
+                    </administrativeObservation>
+                  </subjectOf2>
+                </patient>
+              </subject1>
+              <custodian typeCode="CST">
+                <assignedEntity classCode="ASSIGNED">
+                  <id root="2.16.840.1.113883.4.349"/>
+                </assignedEntity>
+              </custodian>
+            </registrationEvent>
+          </subject>
+          <queryAck>
+            <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+            <queryResponseCode code="OK"/>
+            <resultCurrentQuantity value="1"/>
+          </queryAck>
+          <queryByParameter>
+            <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+            <statusCode code="new"/>
+            <modifyCode code="MVI.COMP1.RMS"/>
+            <initialQuantity value="1"/>
+            <parameterList>
+              <id extension="1012667122V019349" root="2.16.840.1.113883.4.349"/>
+            </parameterList>
+          </queryByParameter>
+        </controlActProcess>
+      </idm:PRPA_IN201306UV02>
+    </env:Body>
+  </env:Envelope>
+:headers:
+  :connection: close
+  :date: Wed, 14 Jun 2023 00:14:14 UTC
+  content-type: text/xml
+:status: 200

@@ -8,47 +8,197 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
   let(:user_verification) { create(:dslogon_user_verification, dslogon_uuid: user.edipi) }
   let!(:user_account) { user_verification.user_account }
   let(:statsd_key) { 'api.user_transition_availability' }
+  let(:va_notify_log) { 'shared.sidekiq.default.VANotify_EmailJob.enqueue' }
+  let(:reactivation_template) { Settings.vanotify.services.va_gov.template_id.login_reactivation_email }
 
   before { allow(StatsD).to receive(:increment) }
 
   describe '.perform' do
-    context 'when Flipper organic_conversion_experiment is enabled' do
+    context 'when Flipper reactivation_experiment_rate_limit is enabled' do
       context 'User is dslogon authenticated' do
         context 'When user has avc' do
           let!(:user_acceptable_verified_credential) do
             create(:user_acceptable_verified_credential, :with_avc, user_account:)
           end
 
-          it 'hash returns false' do
-            expect(service.perform).to include(organic_modal: false)
-          end
+          it 'sends reactivation email' do
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'Login.gov'
+              }
+            )
 
-          it 'hash returns correct credential type - dslogon' do
-            expect(service.perform).to include(credential_type: SAML::User::DSLOGON_CSID)
-          end
-
-          it 'does not log attempt' do
             service.perform
-            expect(StatsD).to have_received(:increment).exactly(0).times
+          end
+
+          it 'logs attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).with(va_notify_log).exactly(1).times
+            expect(StatsD).to have_received(:increment).with("#{statsd_key}.reactivation_email.dslogon").exactly(1).time
           end
         end
 
-        context 'When user has ivc' do
+        context 'When user has avc and no recent triggered send' do
+          let!(:user_acceptable_verified_credential) do
+            create(:user_acceptable_verified_credential, :with_avc, user_account:)
+          end
+
+          let(:credential_adoption_email_record) do
+            create(:credential_adoption_email_record,
+                   email_address: user.email,
+                   icn: user.icn,
+                   email_triggered_at: DateTime.now.days_ago(8),
+                   email_template_id: reactivation_template)
+          end
+
+          it 'sends reactivation email and logs send event' do
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'Login.gov'
+              }
+            )
+
+            service.perform
+          end
+
+          it 'logs attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).with(va_notify_log).exactly(1).times
+            expect(StatsD).to have_received(:increment).with("#{statsd_key}.reactivation_email.dslogon").exactly(1).time
+          end
+        end
+
+        context 'When user has avc and one or more recent triggered sends' do
+          let!(:user_acceptable_verified_credential) do
+            create(:user_acceptable_verified_credential, :with_avc, user_account:)
+          end
+
+          let!(:credential_adoption_email_record) do
+            create(:credential_adoption_email_record,
+                   email_address: user.email,
+                   icn: user.icn,
+                   email_triggered_at: DateTime.now.days_ago(3),
+                   email_template_id: reactivation_template)
+          end
+
+          it 'does not send reactivation email' do
+            expect(VANotify::EmailJob).not_to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'Login.gov'
+              }
+            )
+
+            service.perform
+
+            expect(StatsD).not_to have_received(:increment).with(va_notify_log)
+            expect(StatsD).not_to have_received(:increment)
+              .with("#{statsd_key}.reactivation_email.dslogon")
+          end
+        end
+
+        context 'When user has ivc', pending: 'Temporary test to only dsl/avc users' do
+          let!(:user_acceptable_verified_credential) do
+            create(:user_acceptable_verified_credential,
+                   :with_ivc,
+                   acceptable_verified_credential_at: nil,
+                   user_account:)
+          end
+
+          it 'sends reactivation email' do
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'ID.me'
+              }
+            )
+
+            service.perform
+          end
+
+          it 'logs attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).with(va_notify_log).exactly(1).times
+            expect(StatsD).to have_received(:increment).with("#{statsd_key}.reactivation_email.dslogon").exactly(1).time
+          end
+        end
+
+        context 'When user has ivc and no recently triggered email send' do
           let!(:user_acceptable_verified_credential) do
             create(:user_acceptable_verified_credential, :with_ivc, user_account:)
           end
 
-          it 'hash returns false' do
-            expect(service.perform).to include(organic_modal: false)
+          let(:credential_adoption_email_record) do
+            create(:credential_adoption_email_record,
+                   email_address: user.email,
+                   icn: user.icn,
+                   email_triggered_at: DateTime.now.days_ago(9))
           end
 
-          it 'hash returns correct credential type - dslogon' do
-            expect(service.perform).to include(credential_type: SAML::User::DSLOGON_CSID)
-          end
+          it 'sends reactivation email' do
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'Login.gov'
+              }
+            )
 
-          it 'does not log attempt' do
             service.perform
-            expect(StatsD).to have_received(:increment).exactly(0).times
+          end
+
+          it 'logs attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).with(va_notify_log).exactly(1).times
+            expect(StatsD).to have_received(:increment).with("#{statsd_key}.reactivation_email.dslogon").exactly(1).time
+          end
+        end
+
+        context 'When user has ivc and one or more recently triggered email sends' do
+          let!(:user_acceptable_verified_credential) do
+            create(:user_acceptable_verified_credential, :with_ivc, user_account:)
+          end
+
+          let!(:credential_adoption_email_record) do
+            create(:credential_adoption_email_record,
+                   email_address: user.email,
+                   icn: user.icn,
+                   email_triggered_at: DateTime.now.days_ago(4),
+                   email_template_id: reactivation_template)
+          end
+
+          it 'does not send reactivation email' do
+            expect(VANotify::EmailJob).not_to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'ID.me'
+              }
+            )
+
+            service.perform
+
+            expect(StatsD).not_to have_received(:increment).with(va_notify_log)
+            expect(StatsD).not_to have_received(:increment)
+              .with("#{statsd_key}.reactivation_email.dslogon")
           end
         end
 
@@ -57,18 +207,14 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
             create(:user_acceptable_verified_credential, :without_avc_ivc, user_account:)
           end
 
-          it 'hash returns true' do
-            expect(service.perform).to include(organic_modal: true)
-          end
-
-          it 'hash returns correct credential type - dslogon' do
-            expect(service.perform).to include(credential_type: SAML::User::DSLOGON_CSID)
-          end
-
-          it 'logs attempt' do
+          it 'does not send an email' do
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
             service.perform
-            expect(StatsD).to have_received(:increment).exactly(1).times
-            expect(StatsD).to have_received(:increment).with("#{statsd_key}.organic_modal.dslogon").exactly(1).time
+          end
+
+          it 'does not log attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).exactly(0).times
           end
         end
       end
@@ -80,12 +226,9 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           create(:user_acceptable_verified_credential, :with_avc, user_account:)
         end
 
-        it 'hash returns false' do
-          expect(service.perform).to include(organic_modal: false)
-        end
-
-        it 'hash returns correct credential type - login.gov' do
-          expect(service.perform).to include(credential_type: SAML::User::LOGINGOV_CSID)
+        it 'does not send an email' do
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
+          service.perform
         end
 
         it 'does not log attempt' do
@@ -101,12 +244,9 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           create(:user_acceptable_verified_credential, :with_ivc, user_account:)
         end
 
-        it 'hash returns false' do
-          expect(service.perform).to include(organic_modal: false)
-        end
-
-        it 'hash returns correct credential type - idme' do
-          expect(service.perform).to include(credential_type: SAML::User::IDME_CSID)
+        it 'does not send an email' do
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
+          service.perform
         end
 
         it 'does not log attempt' do
@@ -115,7 +255,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         end
       end
 
-      context 'User is mhv authenticated' do
+      context 'User is mhv authenticated', pending: 'Temporary test to only dsl/avc users' do
         context 'When user has avc' do
           let(:user) { create(:user, :mhv, authn_context: SAML::User::MHV_ORIGINAL_CSID) }
           let(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
@@ -123,39 +263,53 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
             create(:user_acceptable_verified_credential, :with_avc, user_account:)
           end
 
-          it 'hash returns false' do
-            expect(service.perform).to include(organic_modal: false)
-          end
+          it 'sends reactivation email' do
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              user.email,
+              reactivation_template,
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'My HealtheVet',
+                'modern_credential' => 'Login.gov'
+              }
+            )
 
-          it 'hash returns correct credential type - mhv' do
-            expect(service.perform).to include(credential_type: SAML::User::MHV_ORIGINAL_CSID)
-          end
-
-          it 'does not log attempt' do
             service.perform
-            expect(StatsD).to have_received(:increment).exactly(0).times
+          end
+
+          it 'logs attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).with(va_notify_log).exactly(1).times
+            expect(StatsD).to have_received(:increment).with("#{statsd_key}.reactivation_email.mhv").exactly(1).time
           end
         end
       end
 
-      context 'When user has ivc' do
+      context 'When user has ivc', pending: 'Temporary test to only dsl/avc users' do
         let(:user) { create(:user, :mhv, authn_context: SAML::User::MHV_ORIGINAL_CSID) }
         let(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
         let!(:user_acceptable_verified_credential) do
-          create(:user_acceptable_verified_credential, :with_ivc, user_account:)
+          create(:user_acceptable_verified_credential, :with_ivc, acceptable_verified_credential_at: nil, user_account:)
         end
 
-        it 'hash returns false' do
-          expect(service.perform).to include(organic_modal: false)
-        end
+        it 'sends reactivation email' do
+          expect(VANotify::EmailJob).to receive(:perform_async).with(
+            user.email,
+            reactivation_template,
+            {
+              'name' => user.first_name,
+              'legacy_credential' => 'My HealtheVet',
+              'modern_credential' => 'ID.me'
+            }
+          )
 
-        it 'hash returns correct credential type - mhv' do
-          expect(service.perform).to include(credential_type: SAML::User::MHV_ORIGINAL_CSID)
-        end
-
-        it 'does not log attempt' do
           service.perform
-          expect(StatsD).to have_received(:increment).exactly(0).times
+        end
+
+        it 'logs attempt' do
+          service.perform
+          expect(StatsD).to have_received(:increment).with(va_notify_log).exactly(1).times
+          expect(StatsD).to have_received(:increment).with("#{statsd_key}.reactivation_email.mhv").exactly(1).time
         end
       end
 
@@ -166,18 +320,14 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           create(:user_acceptable_verified_credential, :without_avc_ivc, user_account:)
         end
 
-        it 'hash returns true' do
-          expect(service.perform).to include(organic_modal: true)
-        end
-
-        it 'hash returns correct credential type - mhv' do
-          expect(service.perform).to include(credential_type: SAML::User::MHV_ORIGINAL_CSID)
-        end
-
-        it 'logs attempt' do
+        it 'does not send an email' do
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
           service.perform
-          expect(StatsD).to have_received(:increment).exactly(1).times
-          expect(StatsD).to have_received(:increment).with("#{statsd_key}.organic_modal.mhv").exactly(1).time
+        end
+
+        it 'does not log attempt' do
+          service.perform
+          expect(StatsD).to have_received(:increment).exactly(0).times
         end
       end
     end
@@ -187,8 +337,30 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         Flipper.disable(:organic_conversion_experiment)
       end
 
-      it 'hash returns false' do
-        expect(service.perform).to include(organic_modal: false)
+      it 'does not send an email' do
+        expect(VANotify::EmailJob).not_to receive(:perform_async)
+        service.perform
+      end
+
+      it 'does not log attempt' do
+        service.perform
+        expect(StatsD).to have_received(:increment).exactly(0).times
+      end
+    end
+
+    context 'When Flipper reactivation_experiment_rate_limit is disabled' do
+      before do
+        Flipper.disable(:reactivation_experiment_rate_limit)
+      end
+
+      it 'does not send an email' do
+        expect(VANotify::EmailJob).not_to receive(:perform_async).with(
+          user.email,
+          reactivation_template,
+          {}
+        )
+
+        service.perform
       end
 
       it 'does not log attempt' do

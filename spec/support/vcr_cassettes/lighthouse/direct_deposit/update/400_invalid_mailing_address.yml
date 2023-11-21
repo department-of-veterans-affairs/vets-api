@@ -1,0 +1,72 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    body:
+      encoding: US-ASCII
+      string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sandbox-api.va.gov
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Thu, 23 Feb 2023 21:47:59 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '7'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Content-Language:
+      - en-US
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '5345'
+      X-Kong-Proxy-Latency:
+      - '2'
+      Via:
+      - kong/3.0.2
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "type": "https://api.va.gov/direct-deposit-management/errors/bad-request",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "No changes were made. Request was sent to Benefits Gateway Service (BGS), but BGS update failed. Unknown issue(s). Required field not entered for mailing address update",
+        "instance": "e48e3aeb-f312-11ec-88e8-f55e56a472a2"
+      }'
+  recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
+recorded_with: VCR 6.1.0

@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../support/form1010cg_helpers/build_claim_data_for'
+require 'common/file_helpers'
 
 RSpec.describe Form1010cg::Service do
   include Form1010cgHelpers
@@ -366,6 +367,19 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
+      it 'raises an error when the response has an error' do
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+          OpenStruct.new(
+            ok?: false,
+            error: StandardError
+          )
+        )
+
+        expect do
+          subject.icn_for('veteran')
+        end.to raise_error(StandardError)
+      end
+
       it 'will not log the search result when reading from cache' do
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
           create(:find_profile_response, profile: double(icn: :ICN_123))
@@ -385,204 +399,12 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe '#is_veteran' do
-    it 'returns false if the icn for the for the subject is "NOT_FOUND"' do
-      subject = described_class.new(
-        build(
-          :caregivers_assistance_claim,
-          form: {
-            'veteran' => build_claim_data_for(:veteran),
-            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-          }.to_json
-        )
-      )
-
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect_any_instance_of(EMIS::VeteranStatusService).not_to receive(:get_veteran_status)
-
-      expect(subject.is_veteran('veteran')).to eq(false)
-    end
-
-    describe 'searches eMIS and' do
-      context 'when title38_status_code is "V1"' do
-        it 'returns true' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: false,
-            items: [
-              double(
-                title38_status_code: 'V1'
-              )
-            ]
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(true)
-        end
-      end
-
-      context 'when title38_status_code is not "V1"' do
-        it 'returns false' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: false,
-            items: [
-              double(
-                title38_status_code: 'V4'
-              )
-            ]
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(false)
-        end
-      end
-
-      context 'when title38_status_code is not present' do
-        it 'returns false' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: false,
-            items: []
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(false)
-        end
-      end
-
-      context 'when the search fails' do
-        it 'returns false' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: true,
-            error: Common::Client::Errors::HTTPError.new('BadRequest', 400, nil),
-            items: []
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(false)
-        end
-      end
-    end
-
-    it 'returns a cached responses when called more than once for a given subject' do
-      subject = described_class.new(
-        build(
-          :caregivers_assistance_claim,
-          form: {
-            'veteran' => build_claim_data_for(:veteran),
-            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-          }.to_json
-        )
-      )
-
-      emis_service = double
-      expect(EMIS::VeteranStatusService).to receive(:new).with(no_args).and_return(emis_service)
-
-      # Only two calls should be made to eMIS for the six calls of :is_veteran below
-      2.times do |index|
-        expected_form_subject = index.zero? ? 'veteran' : 'primaryCaregiver'
-        expected_icn = "ICN_#{index}".to_sym
-
-        expect(subject).to receive(:icn_for).with(expected_form_subject).and_return(expected_icn)
-
-        emis_response_title38_value = index.zero? ? 'V1' : 'V4'
-        emis_response = double(
-          error?: false,
-          items: [
-            double(
-              title38_status_code: emis_response_title38_value
-            )
-          ]
-        )
-
-        expect(emis_service).to receive(:get_veteran_status).with(
-          icn: expected_icn
-        ).and_return(
-          emis_response
-        )
-      end
-
-      3.times do
-        expect(subject.is_veteran('veteran')).to eq(true)
-        expect(subject.is_veteran('primaryCaregiver')).to eq(false)
-      end
-    end
-  end
-
   describe '#build_metadata' do
     it 'returns the icn for each subject on the form and the veteran\'s status' do
       %w[veteran primaryCaregiver secondaryCaregiverOne].each_with_index do |form_subject, index|
         return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : "ICN_#{index}".to_sym
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
-
-      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.build_metadata).to eq(
         veteran: {
@@ -609,7 +431,6 @@ RSpec.describe Form1010cg::Service do
 
     it 'will not raise error if veteran\'s icn is found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.assert_veteran_status).to eq(nil)
     end
@@ -654,10 +475,10 @@ RSpec.describe Form1010cg::Service do
                'CARMA_Document_Type__c' => '10-10CG',
                'CARMA_Document_Date__c' => '2022-08-03',
                'VersionData' => 'Zm9v' },
-             { 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => 'POA' },
-               'Title' => 'POA_Jane Doe_Doe_08-03-2022',
+             { 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => 'Legal Representative' },
+               'Title' => 'Legal Representative_Jane Doe_Doe_08-03-2022',
                'PathOnClient' => 'poa.pdf',
-               'CARMA_Document_Type__c' => 'POA',
+               'CARMA_Document_Type__c' => 'Legal Representative',
                'CARMA_Document_Date__c' => '2022-08-03',
                'VersionData' => 'Zm9v' }]
           )

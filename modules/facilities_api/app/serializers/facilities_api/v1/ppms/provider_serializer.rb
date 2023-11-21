@@ -57,6 +57,8 @@ module FacilitiesApi
 
     attribute :pref_contact, &:contact_method
 
+    attribute :trainings
+
     attribute :unique_id, &:provider_identifier
   end
 end

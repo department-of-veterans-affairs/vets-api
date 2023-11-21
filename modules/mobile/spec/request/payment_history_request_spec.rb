@@ -1,26 +1,30 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'payment_history', type: :request do
   include JsonSchemaMatchers
 
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
-  before { iam_sign_in(FactoryBot.build(:iam_user, :no_email)) }
+  let!(:user) { sis_user(email: nil) }
 
   describe 'GET /mobile/v0/payment-history' do
+    context 'without bgs access' do
+      let!(:user) { sis_user(participant_id: nil) }
+
+      it 'returns 403' do
+        get '/mobile/v0/payment-history', headers: sis_headers, params: nil
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with successful response with the default (no) parameters' do
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: nil
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: sis_headers, params: nil
         end
       end
 
@@ -80,8 +84,9 @@ RSpec.describe 'payment_history', type: :request do
       end
 
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params:
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: sis_headers, params:
         end
       end
 
@@ -96,8 +101,9 @@ RSpec.describe 'payment_history', type: :request do
       let(:params) { { page: } }
 
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params:
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: sis_headers, params:
         end
       end
 
@@ -111,8 +117,9 @@ RSpec.describe 'payment_history', type: :request do
       let(:params) { { page: { number: 'one', size: 'ten' } } }
 
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params:
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: sis_headers, params:
         end
       end
 
@@ -150,8 +157,9 @@ RSpec.describe 'payment_history', type: :request do
       end
 
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params:
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: sis_headers, params:
         end
       end
 
@@ -186,8 +194,9 @@ RSpec.describe 'payment_history', type: :request do
       end
 
       before do
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params:
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/payment-history', headers: sis_headers, params:
         end
       end
 
@@ -221,7 +230,7 @@ RSpec.describe 'payment_history', type: :request do
       before do
         allow_any_instance_of(BGS::PaymentService)
           .to receive(:payment_history).and_return({ payments: { payment: [] } })
-        get '/mobile/v0/payment-history', headers: iam_headers
+        get '/mobile/v0/payment-history', headers: sis_headers
       end
 
       it 'returns a 200' do
@@ -241,7 +250,7 @@ RSpec.describe 'payment_history', type: :request do
       before do
         allow_any_instance_of(BGS::PaymentService)
           .to receive(:payment_history).and_return(nil)
-        get '/mobile/v0/payment-history', headers: iam_headers
+        get '/mobile/v0/payment-history', headers: sis_headers
       end
 
       it 'returns a 502' do
@@ -267,9 +276,9 @@ RSpec.describe 'payment_history', type: :request do
     context 'with an invalid date in payment history' do
       before do
         allow(Rails.logger).to receive(:warn)
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn_blank_date',
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn_blank_date',
                          match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers
+          get '/mobile/v0/payment-history', headers: sis_headers
         end
       end
 
@@ -281,9 +290,9 @@ RSpec.describe 'payment_history', type: :request do
     context 'with an only scheduled payments ' do
       before do
         allow(Rails.logger).to receive(:warn)
-        VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn_only_blank_dates',
+        VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn_only_blank_dates',
                          match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers
+          get '/mobile/v0/payment-history', headers: sis_headers
         end
       end
 

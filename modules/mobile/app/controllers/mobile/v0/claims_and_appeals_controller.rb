@@ -7,12 +7,15 @@ require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
 require 'mini_magick'
+require 'lighthouse/benefits_documents/service'
 
 module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      before_action(only: %i[index get_claim]) do
+      before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
+
+      before_action(only: %i[get_claim]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
           authorize :lighthouse, :access?
         else
@@ -20,18 +23,32 @@ module Mobile
         end
       end
 
-      before_action(except: %i[index get_claim]) do
-        authorize :evss, :access?
+      before_action(only: %i[request_decision]) do
+        if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
+      end
+
+      before_action(only: %i[upload_document upload_multi_image_document]) do
+        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
       end
 
       after_action only: :upload_multi_image_document do
-        evss_claims_proxy.cleanup_after_upload
+        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+          lighthouse_document_service.cleanup_after_upload
+        else
+          evss_claims_proxy.cleanup_after_upload
+        end
       end
 
       def index
-        validated_params = validate_params
-
-        json, status = fetch_all_cached_or_service(validated_params, params[:showCompleted])
+        json, status = prepare_claims_and_appeals
         render json:, status:
       end
 
@@ -50,46 +67,89 @@ module Mobile
       end
 
       def request_decision
-        jid = evss_claims_proxy.request_decision(params[:id])
+        jid = if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
+                response = lighthouse_claims_proxy.request_decision(params[:id])
+                adapt_response(response)
+              else
+                evss_claims_proxy.request_decision(params[:id])
+              end
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_document
-        jid = evss_claims_proxy.upload_document(params)
+        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                set_params
+                lighthouse_document_service.queue_document_upload(params)
+              else
+                evss_claims_proxy.upload_document(params)
+              end
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_multi_image_document
-        jid = evss_claims_proxy.upload_multi_image(params)
+        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                set_params
+                lighthouse_document_service.queue_multi_image_upload_document(params)
+              else
+                evss_claims_proxy.upload_multi_image(params)
+              end
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
 
-      def fetch_all_cached_or_service(validated_params, show_completed)
-        list = nil
-        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
-        list, errors = if list.nil?
-                         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-                           service_list, service_errors = lighthouse_claims_proxy.get_claims_and_appeals
-                         else
-                           service_list, service_errors = evss_claims_proxy.get_claims_and_appeals
-                         end
-                         Mobile::V0::ClaimOverview.set_cached(@current_user, list)
-                         [service_list, service_errors]
-                       else
-                         [list, []]
-                       end
+      def set_params
+        params[:claim_id] = params[:id]
+        params[:tracked_item_ids] = Array.wrap(tracked_item_id) if tracked_item_id.present?
+        params.delete(:tracked_item_id)
+        params.delete(:trackedItemId)
+      end
 
+      # It was found that FE is using both different casing between multi image upload and single image upload.
+      # This shouldn't matter due to the x-key-inflection: camel header being used but that header only works if the
+      # body payload is in json, which the single doc upload is not (at least in specs for both LH and EVSS).
+      def tracked_item_id
+        params[:trackedItemId] || params[:tracked_item_id]
+      end
+
+      def prepare_claims_and_appeals
+        list, errors = fetch_claims_and_appeals
         status = get_response_status(errors)
         list = filter_by_date(validated_params[:start_date], validated_params[:end_date], list)
-        list = filter_by_completed(list, show_completed) if show_completed.present?
+        list = filter_by_completed(list) if params[:showCompleted].present?
         list, meta = paginate(list, validated_params)
 
-        options = { meta: { errors:, pagination: meta.dig(:meta, :pagination) },
-                    links: meta[:links] }
+        options = {
+          meta: {
+            errors:, pagination: meta.dig(:meta, :pagination), active_claims_count: active_claims_count(list)
+          },
+          links: meta[:links]
+        }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
+      end
+
+      def fetch_claims_and_appeals
+        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
+        return [list, []] if list.present?
+
+        service_list, service_errors = get_accessible_claims_appeals
+        Mobile::V0::ClaimOverview.set_cached(@current_user, service_list) if service_errors.blank?
+        [service_list, service_errors]
+      end
+
+      def get_accessible_claims_appeals
+        if claims_access? && appeals_access?
+          service.get_claims_and_appeals
+        elsif claims_access?
+          service.get_claims
+        elsif appeals_access?
+          service.get_appeals
+        else
+          raise Pundit::NotAuthorizedError
+        end
       end
 
       def lighthouse_claims_adapter
@@ -104,8 +164,12 @@ module Mobile
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
       end
 
-      def validate_params
-        Mobile::V0::Contracts::ClaimsAndAppeals.new.call(pagination_params)
+      def lighthouse_document_service
+        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user)
+      end
+
+      def validated_params
+        @validated_params ||= Mobile::V0::Contracts::ClaimsAndAppeals.new.call(pagination_params)
       end
 
       def paginate(list, validated_params)
@@ -145,10 +209,39 @@ module Mobile
         end
       end
 
-      def filter_by_completed(list, filter)
+      def filter_by_completed(list)
         list.filter do |entry|
-          entry[:completed] == ActiveRecord::Type::Boolean.new.deserialize(filter)
+          entry[:completed] == ActiveRecord::Type::Boolean.new.deserialize(params[:showCompleted])
         end
+      end
+
+      def adapt_response(response)
+        response['success'] ? 'success' : 'failure'
+      end
+
+      def service
+        claim_status_lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
+      end
+
+      def claims_access?
+        if claim_status_lighthouse?
+          @current_user.authorize(:lighthouse,
+                                  :access?)
+        else
+          @current_user.authorize(:evss, :access?)
+        end
+      end
+
+      def appeals_access?
+        @current_user.authorize(:appeals, :access?)
+      end
+
+      def claim_status_lighthouse?
+        Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+      end
+
+      def active_claims_count(list)
+        list.count { |item| item.type == 'claim' && item.completed == false }
       end
     end
   end

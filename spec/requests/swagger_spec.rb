@@ -8,7 +8,7 @@ require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
-require 'support/stub_financial_status_report'
+require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'bgs/service'
@@ -73,8 +73,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           create(:code_container,
                  code:,
                  code_challenge:,
-                 user_verification_id:)
+                 user_verification_id:,
+                 client_id: client_config.client_id)
         end
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
 
         it 'validates the authorization_code & returns tokens' do
           expect(subject).to validate(
@@ -88,7 +90,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/refresh' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -126,7 +129,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -147,7 +151,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'GET v0/sign_in/revoke_all_sessions' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -961,7 +966,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider')
+        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
       end
 
       let(:form526v2) do
@@ -1088,11 +1093,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports getting rating info' do
-        expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+      context 'when calling EVSS' do
+        before do
+          # TODO: remove Flipper feature toggle when lighthouse provider is implemented
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, instance_of(User))
+                                              .and_return(false)
+        end
 
-        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
+        it 'supports getting rating info' do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+
+          VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+            expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
+          end
         end
       end
     end
@@ -1883,9 +1896,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    it 'supports getting the user data' do
-      expect(subject).to validate(:get, '/v0/user', 200, headers)
-      expect(subject).to validate(:get, '/v0/user', 401)
+    it 'supports getting the 200 user data' do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+                                                                                  allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 200, headers)
+      end
+    end
+
+    it 'supports getting the 401 user data' do
+      VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[body],
+                                                                                 allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 401)
+      end
     end
 
     context '/v0/user endpoint with some external service errors' do
@@ -1894,93 +1916,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting user with some external errors', skip_mvi: true do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
-      end
-    end
-
-    context 'terms and conditions routes' do
-      context 'with some terms and acceptances' do
-        let!(:terms) { create(:terms_and_conditions, latest: true) }
-        # The Faker in the factory will _sometimes_ return the same name. make sure it's different
-        # so that the association in terms_acc works as expected with these tests.
-        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
-        let!(:terms_acc) do
-          create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
-        end
-
-        it 'validates the routes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions',
-            200
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            200,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            200,
-            headers.merge('name' => terms.name)
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            422,
-            headers.merge('name' => terms.name)
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            200,
-            headers.merge('name' => terms2.name)
-          )
-        end
-
-        it 'validates auth errors' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            401,
-            'name' => terms.name
-          )
-        end
-      end
-
-      context 'with no terms and acceptances' do
-        it 'validates the routes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions',
-            200
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            404,
-            'name' => 'blat'
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            404,
-            headers.merge('name' => 'blat')
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            404,
-            headers.merge('name' => 'blat')
-          )
-        end
       end
     end
 
@@ -2246,36 +2181,53 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'GET' do
         it 'returns a 200' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/200_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 200, headers)
           end
         end
 
         it 'returns a 400' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/400_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_invalid_icn') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 400, headers)
           end
         end
 
         it 'returns a 401' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/401_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/401_invalid_token') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 401, headers)
           end
         end
 
         it 'returns a 404' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/404_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/404_response') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 404, headers)
           end
         end
+      end
 
-        it 'returns a 502' do
+      context 'PUT' do
+        it 'returns a 200' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/502_response') do
-            expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 502, headers)
+          params = { account_number: '1234567890', account_type: 'Checking', routing_number: '031000503' }
+          VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+            expect(subject).to validate(:put,
+                                        '/v0/profile/direct_deposits/disability_compensations',
+                                        200,
+                                        headers.merge('_data' => params))
+          end
+        end
+
+        it 'returns a 400' do
+          headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+          params = { account_number: '1234567890', account_type: 'Checking', routing_number: '031000503' }
+          VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_fraud') do
+            expect(subject).to validate(:put,
+                                        '/v0/profile/direct_deposits/disability_compensations',
+                                        400,
+                                        headers.merge('_data' => params))
           end
         end
       end
@@ -3041,7 +2993,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting connected applications' do
         with_okta_configured do
           expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
-          VCR.use_cassette('okta/grants') do
+          VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_200') do
             expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, headers)
           end
         end
@@ -3051,7 +3003,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         with_okta_configured do
           parameters = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
           expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, parameters)
-          VCR.use_cassette('okta/delete_grants', allow_playback_repeats: true) do
+          VCR.use_cassette('lighthouse/auth/client_credentials/revoke_consent_204', allow_playback_repeats: true) do
             expect(subject).to(
               validate(
                 :delete,
@@ -3553,6 +3505,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
             expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
           end
+        end
+      end
+    end
+
+    describe '/v0/profile/contacts' do
+      context 'unauthenticated user' do
+        it 'returns unauthorized status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 401)
+        end
+      end
+
+      context 'loa1 user' do
+        let(:mhv_user) { build(:user, :loa1) }
+
+        it 'returns forbidden status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 403, headers)
+        end
+      end
+
+      context 'loa3 user' do
+        let(:mhv_user) { build(:user, :loa3) }
+
+        it 'returns ok status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
         end
       end
     end

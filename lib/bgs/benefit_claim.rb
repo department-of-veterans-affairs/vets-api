@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require 'bgs/utilities/helpers'
 require_relative 'service'
-
 module BGS
   class BenefitClaim
     include SentryLogging
+    include BGS::Utilities::Helpers
 
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
       benefit_claim_type: '1',
@@ -50,8 +51,8 @@ module BGS
         ssn: @user[:ssn],
         ptcpnt_id_claimant: @user[:participant_id],
         end_product: @veteran[:benefit_claim_type_end_product],
-        first_name: @user[:first_name],
-        last_name: @user[:last_name],
+        first_name: normalize_name(@user[:first_name]),
+        last_name: normalize_name(@user[:last_name]),
         address_line1: @veteran[:address_line_one],
         address_line2: @veteran[:address_line_two],
         address_line3: @veteran[:address_line_three],
@@ -71,6 +72,10 @@ module BGS
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
     # rubocop:enable Metrics/MethodLength
+
+    def normalize_name(name)
+      remove_special_characters_from_name(normalize_composite_characters(name))
+    end
 
     def handle_error(error, method)
       bgs_service.update_manual_proc(@proc_id)

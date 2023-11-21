@@ -5,6 +5,7 @@ require 'bgs/service'
 module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
+      service_tag 'direct-deposit'
       before_action { authorize :ch33_dd, :access? }
 
       def index

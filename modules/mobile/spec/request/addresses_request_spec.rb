@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'address', type: :request do
   include JsonSchemaMatchers
 
-  before { iam_sign_in(user) }
-
-  let(:user) { FactoryBot.build(:iam_user) }
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let!(:user) { sis_user }
   let(:address) do
     address = build(:va_profile_address, vet360_id: user.vet360_id)
     # Some domestic addresses are coming in with province of string 'null'.
@@ -20,20 +17,13 @@ RSpec.describe 'address', type: :request do
   end
 
   describe 'update endpoints' do
-    before(:all) do
-      @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-      VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-    end
-
-    after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
     describe 'POST /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
-          VCR.use_cassette('profile/get_address_status_complete') do
-            VCR.use_cassette('profile/get_address_status_incomplete') do
-              VCR.use_cassette('profile/post_address_initial') do
-                post '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+          VCR.use_cassette('mobile/profile/get_address_status_complete') do
+            VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
+              VCR.use_cassette('mobile/profile/post_address_initial') do
+                post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
           end
@@ -58,11 +48,11 @@ RSpec.describe 'address', type: :request do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
             .to receive(:seconds_elapsed_since).and_return(61)
 
-          VCR.use_cassette('profile/get_address_status_complete') do
-            VCR.use_cassette('profile/get_address_status_incomplete_2') do
-              VCR.use_cassette('profile/get_address_status_incomplete') do
-                VCR.use_cassette('profile/post_address_initial') do
-                  post '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+          VCR.use_cassette('mobile/profile/get_address_status_complete') do
+            VCR.use_cassette('mobile/profile/get_address_status_incomplete_2') do
+              VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
+                VCR.use_cassette('mobile/profile/post_address_initial') do
+                  post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
                 end
               end
             end
@@ -78,7 +68,7 @@ RSpec.describe 'address', type: :request do
         before do
           address.address_line1 = ''
 
-          post('/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers))
+          post('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true))
         end
 
         it 'returns a 422' do
@@ -109,10 +99,10 @@ RSpec.describe 'address', type: :request do
     describe 'PUT /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
-          VCR.use_cassette('profile/get_address_status_complete') do
-            VCR.use_cassette('profile/get_address_status_incomplete') do
-              VCR.use_cassette('profile/put_address_initial') do
-                put '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+          VCR.use_cassette('mobile/profile/get_address_status_complete') do
+            VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
+              VCR.use_cassette('mobile/profile/put_address_initial') do
+                put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
           end
@@ -137,11 +127,11 @@ RSpec.describe 'address', type: :request do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
             .to receive(:seconds_elapsed_since).and_return(61)
 
-          VCR.use_cassette('profile/get_address_status_complete') do
-            VCR.use_cassette('profile/get_address_status_incomplete_2') do
-              VCR.use_cassette('profile/get_address_status_incomplete') do
-                VCR.use_cassette('profile/put_address_initial') do
-                  put '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+          VCR.use_cassette('mobile/profile/get_address_status_complete') do
+            VCR.use_cassette('mobile/profile/get_address_status_incomplete_2') do
+              VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
+                VCR.use_cassette('mobile/profile/put_address_initial') do
+                  put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
                 end
               end
             end
@@ -157,7 +147,7 @@ RSpec.describe 'address', type: :request do
         before do
           address.address_line1 = ''
 
-          put('/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers))
+          put('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true))
         end
 
         it 'returns a 422' do
@@ -188,10 +178,10 @@ RSpec.describe 'address', type: :request do
     describe 'DELETE /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
-          VCR.use_cassette('profile/get_address_status_complete') do
-            VCR.use_cassette('profile/get_address_status_incomplete') do
-              VCR.use_cassette('profile/put_address_initial') do
-                delete '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+          VCR.use_cassette('mobile/profile/get_address_status_complete') do
+            VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
+              VCR.use_cassette('mobile/profile/put_address_initial') do
+                delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
           end
@@ -216,11 +206,11 @@ RSpec.describe 'address', type: :request do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
             .to receive(:seconds_elapsed_since).and_return(61)
 
-          VCR.use_cassette('profile/get_address_status_complete') do
-            VCR.use_cassette('profile/get_address_status_incomplete_2') do
-              VCR.use_cassette('profile/get_address_status_incomplete') do
-                VCR.use_cassette('profile/put_address_initial') do
-                  delete '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+          VCR.use_cassette('mobile/profile/get_address_status_complete') do
+            VCR.use_cassette('mobile/profile/get_address_status_incomplete_2') do
+              VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
+                VCR.use_cassette('mobile/profile/put_address_initial') do
+                  delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
                 end
               end
             end
@@ -236,7 +226,7 @@ RSpec.describe 'address', type: :request do
         before do
           address.address_line1 = ''
 
-          put('/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers))
+          put('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true))
         end
 
         it 'returns a 422' do
@@ -271,7 +261,7 @@ RSpec.describe 'address', type: :request do
 
       before do
         post '/mobile/v0/user/addresses/validate',
-             params: invalid_address.to_json, headers: iam_headers(json_body_headers)
+             params: invalid_address.to_json, headers: sis_headers(json: true)
       end
 
       it 'returns a 422' do
@@ -334,7 +324,7 @@ RSpec.describe 'address', type: :request do
           VCR::MATCH_EVERYTHING
         ) do
           post '/mobile/v0/user/addresses/validate',
-               params: multiple_match_address.to_json, headers: iam_headers(json_body_headers)
+               params: multiple_match_address.to_json, headers: sis_headers(json: true)
         end
       end
 

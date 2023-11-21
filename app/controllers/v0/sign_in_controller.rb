@@ -4,7 +4,8 @@ require 'sign_in/logger'
 
 module V0
   class SignInController < SignIn::ApplicationController
-    skip_before_action :authenticate, only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+    skip_before_action :authenticate,
+                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -13,8 +14,9 @@ module V0
       code_challenge_method = params[:code_challenge_method].presence
       client_id = params[:client_id].presence
       acr = params[:acr].presence
+      operation = params[:operation].presence || SignIn::Constants::Auth::AUTHORIZE
 
-      validate_authorize_params(type, client_id, acr)
+      validate_authorize_params(type, client_id, acr, operation)
 
       delete_cookies if token_cookies
 
@@ -25,13 +27,14 @@ module V0
                                                  client_config: client_config(client_id),
                                                  type:,
                                                  client_state:).perform
-      context = { type:, client_id:, acr: }
+      context = { type:, client_id:, acr:, operation: }
 
       sign_in_logger.info('authorize', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
-                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
+                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}", "operation:#{operation}"])
 
-      render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type), content_type: 'text/html'
+      render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type, operation:),
+             content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
@@ -61,7 +64,7 @@ module V0
                                state_payload.client_id).user_info(service_token_response[:access_token])
       credential_level = SignIn::CredentialLevelCreator.new(requested_acr: state_payload.acr,
                                                             type: state_payload.type,
-                                                            id_token: service_token_response[:id_token],
+                                                            logingov_acr: service_token_response[:logingov_acr],
                                                             user_info:).perform
       if credential_level.can_uplevel_credential?
         render_uplevel_credential(state_payload)
@@ -81,28 +84,25 @@ module V0
       handle_pre_login_error(e, state_payload&.client_id)
     end
 
-    def token # rubocop:disable Metrics/MethodLength
+    def token
       code = params[:code].presence
       code_verifier = params[:code_verifier].presence
       grant_type = params[:grant_type].presence
       client_assertion = params[:client_assertion].presence
       client_assertion_type = params[:client_assertion_type].presence
+      assertion = params[:assertion].presence
 
-      validate_token_params(code, grant_type)
+      validate_token_params(grant_type)
 
-      validated_credential = SignIn::CodeValidator.new(code:,
-                                                       code_verifier:,
-                                                       client_assertion:,
-                                                       client_assertion_type:,
-                                                       grant_type:).perform
-      session_container = SignIn::SessionCreator.new(validated_credential:).perform
-      serializer_response = SignIn::TokenSerializer.new(session_container:,
-                                                        cookies: token_cookies).perform
+      response_body =
+        if grant_type == SignIn::Constants::Auth::JWT_BEARER
+          generate_service_account_token(assertion)
+        else
+          generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
+        end
 
-      sign_in_logger.token_log('token', session_container.access_token)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
-
-      render json: serializer_response, status: :ok
+      render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('token error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
@@ -121,7 +121,7 @@ module V0
       serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
 
-      sign_in_logger.token_log('refresh', session_container.access_token)
+      sign_in_logger.info('refresh', session_container.access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
       render json: serializer_response, status: :ok
@@ -144,7 +144,7 @@ module V0
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
       SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
 
-      sign_in_logger.token_log('revoke', decrypted_refresh_token)
+      sign_in_logger.info('revoke', decrypted_refresh_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
 
       render status: :ok
@@ -163,7 +163,7 @@ module V0
     def revoke_all_sessions
       SignIn::RevokeSessionsForUser.new(user_account: @current_user.user_account).perform
 
-      sign_in_logger.token_log('revoke all sessions', @access_token)
+      sign_in_logger.info('revoke all sessions', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
 
       render status: :ok
@@ -188,7 +188,7 @@ module V0
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
 
-      sign_in_logger.token_log('logout', @access_token)
+      sign_in_logger.info('logout', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
       logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
@@ -231,12 +231,15 @@ module V0
 
     private
 
-    def validate_authorize_params(type, client_id, acr)
+    def validate_authorize_params(type, client_id, acr, operation)
       if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
       unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
-        raise SignIn::Errors::AuthorizeInvalidType.new message: 'Type is not valid'
+        raise SignIn::Errors::MalformedParamsError.new message: 'Type is not valid'
+      end
+      unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
+        raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
       end
       unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
@@ -248,9 +251,27 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
     end
 
-    def validate_token_params(code, grant_type)
-      raise SignIn::Errors::MalformedParamsError.new message: 'Code is not defined' unless code
-      raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not defined' unless grant_type
+    def validate_token_params(grant_type)
+      unless SignIn::Constants::Auth::GRANT_TYPES.include?(grant_type)
+        raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not valid'
+      end
+    end
+
+    def generate_service_account_token(assertion)
+      service_account_access_token = SignIn::AssertionValidator.new(assertion:).perform
+      sign_in_logger.info('token', service_account_access_token.to_s)
+      serialized_access_token = SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
+      { data: { access_token: serialized_access_token } }
+    end
+
+    def generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
+      validated_credential = SignIn::CodeValidator.new(code:,
+                                                       code_verifier:,
+                                                       client_assertion:,
+                                                       client_assertion_type:).perform
+      session_container = SignIn::SessionCreator.new(validated_credential:).perform
+      sign_in_logger.info('token', session_container.access_token.to_s)
+      SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
     end
 
     def handle_pre_login_error(error, client_id)
@@ -289,8 +310,7 @@ module V0
                                                  client_config: client_config(state_payload.client_id),
                                                  type: state_payload.type,
                                                  client_state: state_payload.client_state).perform
-      render body: auth_service(state_payload.type,
-                                state_payload.client_id).render_auth(state:, acr: acr_for_type),
+      render body: auth_service(state_payload.type, state_payload.client_id).render_auth(state:, acr: acr_for_type),
              content_type: 'text/html'
     end
 
@@ -306,7 +326,10 @@ module V0
         type: state_payload.type,
         client_id: state_payload.client_id,
         ial: credential_level.current_ial,
-        acr: state_payload.acr
+        acr: state_payload.acr,
+        icn: verified_icn,
+        uuid: user_info.sub,
+        authentication_time: Time.zone.now.to_i - state_payload.created_at
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
@@ -318,6 +341,8 @@ module V0
       params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
 
       render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
+                                                    terms_code: user_code_map.terms_code,
+                                                    terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
                                                     params_hash:).perform,
              content_type: 'text/html'
     end

@@ -125,6 +125,25 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
   end
 
+  describe '.not_from_appeals_api' do
+    subject { described_class.not_from_appeals_api }
+
+    it 'returns records without "appeals_api" in the consumer_name' do
+      upload = create(:upload_submission, consumer_name: 'not an appeals consumer')
+      expect(subject).to include(upload)
+    end
+
+    it 'does not return records with "appeals_api" in the consumer_name' do
+      upload = create(:upload_submission, consumer_name: 'appeals_api_nod_evidence_submission')
+      expect(subject).not_to include(upload)
+    end
+
+    it 'returns records where the consumer_name is nil' do
+      upload = create(:upload_submission, consumer_name: nil)
+      expect(subject).to include(upload)
+    end
+  end
+
   describe 'consumer_name' do
     it 'returns unknown when no name is set' do
       upload = FactoryBot.create(:upload_submission, consumer_name: nil)
@@ -323,40 +342,6 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(StatsD).to receive(:increment)
       upload_processing.status = 'error'
       upload_processing.save
-    end
-
-    context 'averages' do
-      before do
-        time = Time.zone.now
-        consumer_1 = VBADocuments::UploadSubmission.new
-        consumer_1.consumer_name = 'consumer_1'
-        @num_times = 5
-        @num_times.times do |index|
-          Timecop.freeze(time)
-          upload = VBADocuments::UploadSubmission.new
-          upload.consumer_name = "consumer_#{index}"
-          Timecop.freeze(time + 1.minute)
-          upload.status = 'uploaded'
-          upload.save
-        end
-        consumer_1.status = 'uploaded'
-        consumer_1.save
-      end
-
-      #  rspec ./modules/vba_documents/spec/models/upload_submission_spec.rb
-      it 'calculates status averages' do
-        avg_times = VBADocuments::UploadSubmission.status_elapsed_times(1.year.ago, 1.minute.from_now).first
-        avg_times_c1 = VBADocuments::UploadSubmission
-                       .status_elapsed_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
-        expect(avg_times['avg_secs'].to_i).to be == 60
-        expect(avg_times['min_secs'].to_i).to be == 60
-        expect(avg_times['max_secs'].to_i).to be == 60
-        expect(avg_times['rowcount'].to_i).to be == @num_times + 1
-        expect(avg_times['status']).to eq('pending')
-        expect(avg_times_c1['avg_secs'].to_i).to be == 60
-        expect(avg_times_c1['rowcount'].to_i).to be == 2
-        expect(avg_times_c1['status']).to eq('pending')
-      end
     end
 
     it 'records status change times properly' do

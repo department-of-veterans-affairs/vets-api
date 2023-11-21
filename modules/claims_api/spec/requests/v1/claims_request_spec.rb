@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../rails_helper'
 
-RSpec.describe 'EVSS Claims management', type: :request do
+RSpec.describe 'BGS Claims management', type: :request do
   include SchemaMatchers
 
   let(:request_headers) do
@@ -16,16 +17,40 @@ RSpec.describe 'EVSS Claims management', type: :request do
   let(:camel_inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:request_headers_camel) { request_headers.merge(camel_inflection_header) }
   let(:scopes) { %w[claim.read] }
+  let(:target_veteran) do
+    OpenStruct.new(
+      icn: '1012832025V743496',
+      first_name: 'Wesley',
+      last_name: 'Ford',
+      loa: { current: 3, highest: 3 },
+      edipi: '1007697216',
+      ssn: '796043735',
+      participant_id: '600061742',
+      mpi: OpenStruct.new(
+        icn: '1012832025V743496',
+        profile: OpenStruct.new(ssn: '796043735')
+      )
+    )
+  end
+  let(:claims_service) do
+    if Flipper.enabled? :claims_status_v1_bgs_enabled
+      ClaimsApi::LocalBGS
+    else
+      ClaimsApi::UnsynchronizedEVSSClaimService
+    end
+  end
+  let(:bgs_claim_id) { '600118851' }
 
   before do
     stub_poa_verification
-    stub_mpi
   end
 
   context 'index' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claims') do
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claims') do
+          allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+            .to receive(:target_veteran).and_return(target_veteran)
           get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
           expect(response).to match_response_schema('claims_api/claims')
         end
@@ -33,8 +58,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'lists all Claims when camel-inflection', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claims') do
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claims') do
+          allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+            .to receive(:target_veteran).and_return(target_veteran)
           get '/services/claims/v1/claims', params: nil, headers: request_headers_camel.merge(auth_header)
           expect(response).to match_camelized_response_schema('claims_api/claims')
         end
@@ -43,8 +70,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     context 'with errors' do
       it 'shows a errored Claims not found error message' do
-        with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claims_with_errors') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('bgs/claims/claims_with_errors') do
             get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
             expect(response.status).to eq(404)
           end
@@ -55,18 +82,19 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'for a single claim' do
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claim') do
-          get '/services/claims/v1/claims/600118851', params: nil, headers: request_headers.merge(auth_header)
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claim') do
+          get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
           expect(response).to match_response_schema('claims_api/claim')
         end
       end
     end
 
     it 'shows a single Claim when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claim') do
-          get '/services/claims/v1/claims/600118851', params: nil, headers: request_headers_camel.merge(auth_header)
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claim') do
+          get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil,
+                                                            headers: request_headers_camel.merge(auth_header)
           expect(response).to match_camelized_response_schema('claims_api/claim')
         end
       end
@@ -75,38 +103,38 @@ RSpec.describe 'EVSS Claims management', type: :request do
     context 'when source matches' do
       context 'when evss_id is provided' do
         it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             create(:auto_established_claim,
                    source: 'abraham lincoln',
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('evss/claims/claim') do
+            VCR.use_cassette('bgs/claims/claim') do
               get(
-                '/services/claims/v1/claims/600118851',
+                "/services/claims/v1/claims/#{bgs_claim_id}",
                 params: nil, headers: request_headers.merge(auth_header)
               )
               expect(response).to match_response_schema('claims_api/claim')
-              expect(JSON.parse(response.body)['data']['id']).to eq('600118851')
+              expect(JSON.parse(response.body)['data']['id']).to eq(bgs_claim_id)
             end
           end
         end
 
         it 'shows a single Claim through auto established claims when camel-inflected',
            run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             create(:auto_established_claim,
                    source: 'abraham lincoln',
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('evss/claims/claim') do
+            VCR.use_cassette('bgs/claims/claim') do
               get(
-                '/services/claims/v1/claims/600118851',
+                "/services/claims/v1/claims/#{bgs_claim_id}",
                 params: nil, headers: request_headers_camel.merge(auth_header)
               )
               expect(response).to match_camelized_response_schema('claims_api/claim')
-              expect(JSON.parse(response.body)['data']['id']).to eq('600118851')
+              expect(JSON.parse(response.body)['data']['id']).to eq(bgs_claim_id)
             end
           end
         end
@@ -114,13 +142,13 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
       context 'when uuid is provided' do
         it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             create(:auto_established_claim,
                    source: 'abraham lincoln',
                    auth_headers: { some: 'data' },
                    evss_id: 600_118_851,
                    id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-            VCR.use_cassette('evss/claims/claim') do
+            VCR.use_cassette('bgs/claims/claim') do
               get(
                 '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
                 params: nil, headers: request_headers.merge(auth_header)
@@ -135,17 +163,17 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     context 'when source does not match' do
       it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           create(:auto_established_claim,
                  source: 'oddball',
                  auth_headers: { some: 'data' },
                  evss_id: 600_118_851,
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-          expect_any_instance_of(ClaimsApi::UnsynchronizedEVSSClaimService).to receive(:update_from_remote)
+          expect_any_instance_of(claims_service).to receive(:update_from_remote)
             .and_raise(StandardError.new('no claim found'))
-          VCR.use_cassette('evss/claims/claim') do
+          VCR.use_cassette('bgs/claims/claim') do
             get(
-              '/services/claims/v1/claims/600118851',
+              "/services/claims/v1/claims/#{bgs_claim_id}",
               params: nil, headers: request_headers.merge(auth_header)
             )
             expect(response.code.to_i).to eq(404)
@@ -156,8 +184,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     context 'with errors' do
       it '404s' do
-        with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claim_with_errors') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('bgs/claims/claim_with_errors') do
             get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
             expect(response.status).to eq(404)
           end
@@ -165,8 +193,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
 
       it 'missing MPI Record' do
-        with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claim_with_errors') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('bgs/claims/claim_with_errors') do
             vet = ClaimsApi::Veteran.new(
               uuid: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
               ssn: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
@@ -194,8 +222,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
 
       it 'missing an ICN' do
-        with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/claims/claim_with_errors') do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('bgs/claims/claim_with_errors') do
             vet = ClaimsApi::Veteran.new(
               uuid: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
               ssn: request_headers['X-VA-SSN']&.gsub(/[^0-9]/, ''),
@@ -220,7 +248,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
 
       it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           create(:auto_established_claim,
                  source: 'abraham lincoln',
                  auth_headers: auth_header,
@@ -228,7 +256,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
                  evss_response: [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }])
-          VCR.use_cassette('evss/claims/claim') do
+          VCR.use_cassette('bgs/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
             expect(response.status).to eq(422)
@@ -237,7 +265,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
 
       it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           create(:auto_established_claim,
                  source: 'abraham lincoln',
                  auth_headers: auth_header,
@@ -245,7 +273,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
                  evss_response: nil)
-          VCR.use_cassette('evss/claims/claim') do
+          VCR.use_cassette('bgs/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
             expect(response.status).to eq(422)
@@ -257,13 +285,13 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'POA verifier' do
     it 'users the poa verifier when the header is present' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claim') do
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claim') do
           verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
           allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
-          get('/services/claims/v1/claims/600118851', params: nil, headers:)
+          get("/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers:)
           expect(response.status).to eq(200)
         end
       end
@@ -272,11 +300,13 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'with oauth user and no headers' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      with_okta_user(scopes) do |auth_header|
+      mock_acg(scopes) do |auth_header|
         verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
         allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
-        VCR.use_cassette('evss/claims/claims') do
+        VCR.use_cassette('bgs/claims/claims') do
+          allow_any_instance_of(ClaimsApi::V1::ApplicationController)
+            .to receive(:target_veteran).and_return(target_veteran)
           get '/services/claims/v1/claims', params: nil, headers: auth_header
           expect(response).to match_response_schema('claims_api/claims')
         end
@@ -284,11 +314,11 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      with_okta_user(scopes) do |auth_header|
+      mock_acg(scopes) do |auth_header|
         verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
         allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
-        VCR.use_cassette('evss/claims/claims') do
+        VCR.use_cassette('bgs/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)
           expect(response).to match_camelized_response_schema('claims_api/claims')
         end
@@ -298,17 +328,28 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context "when a 'Token Validation Error' is received" do
     it "raises a 'Common::Exceptions::Unauthorized' exception", run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-      expect_any_instance_of(Token).to receive(:initialize).and_raise(
-        Common::Exceptions::TokenValidationError.new(detail: 'Some Error')
-      )
+      auth = { Authorization: 'Bearer The-quick-brown-fox-jumped-over-the-lazy-dog' }
+      VCR.use_cassette('bgs/claims/claims') do
+        get '/services/claims/v1/claims', params: nil,
+                                          headers: request_headers.merge(auth)
+        parsed_response = JSON.parse(response.body)
 
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claims') do
-          get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
-          parsed_response = JSON.parse(response.body)
+        expect(response.status).to eq(401)
+        expect(parsed_response['errors'].first['title']).to eq('Not authorized')
+      end
+    end
+  end
 
-          expect(response.status).to eq(401)
-          expect(parsed_response['errors'].first['title']).to eq('Not authorized')
+  context 'events timeline' do
+    it 'maps BGS data to match previous logic with EVSS data' do
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claim') do
+          get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
+          body = JSON.parse(response.body)
+          events_timeline = body['data']['attributes']['events_timeline']
+          expect(response.status).to eq(200)
+          expect(events_timeline[1]['type']).to eq('completed')
+          expect(events_timeline[2]['type']).to eq('filed')
         end
       end
     end

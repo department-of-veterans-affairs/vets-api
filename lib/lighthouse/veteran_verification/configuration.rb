@@ -8,8 +8,7 @@ module VeteranVerification
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.veteran_verification.timeout || 20
 
-    API_SCOPES = %w[disability_rating.read enrolled_benefits.read flashes.read launch service_history.read
-                    veteran_status.read].freeze
+    API_SCOPES = %w[disability_rating.read].freeze
     VETERAN_VERIFICATION_PATH = 'services/veteran_verification/v2'
     TOKEN_PATH = 'oauth2/veteran-verification/system/v1/token'
 
@@ -50,7 +49,7 @@ module VeteranVerification
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     #   such as the launch context
     # @option options [string] :host a base host for the Lighthouse API call
-    def get(path, lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+    def get(path, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       connection
         .get(
           path,
@@ -99,7 +98,7 @@ module VeteranVerification
       !use_mocks? || Settings.betamocks.recording
     end
 
-    def access_token(lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+    def access_token(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       if get_access_token?
         token_service(
           lighthouse_client_id,
@@ -111,12 +110,16 @@ module VeteranVerification
     end
 
     def token_service(lighthouse_client_id, lighthouse_rsa_key_path, aud_claim_url = nil, host = nil)
+      # default client id and rsa key is used from the form526 block
+      lighthouse_client_id = settings.form526.access_token.client_id if lighthouse_client_id.nil?
+      lighthouse_rsa_key_path = settings.form526.access_token.rsa_key if lighthouse_rsa_key_path.nil?
+
       host ||= base_path(host)
       url = "#{host}/#{TOKEN_PATH}"
       aud_claim_url ||= settings.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path
+        url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path, 'veteran-verification'
       )
     end
   end

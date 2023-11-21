@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
+# delete
+
 require 'rails_helper'
-require 'support/stub_financial_status_report'
+require_relative '../../../modules/debts_api/spec/support/stub_financial_status_report'
 require 'support/financial_status_report_helpers'
 
 RSpec.describe V0::FinancialStatusReportsController, type: :controller do
-  let(:service_class) { DebtManagementCenter::FinancialStatusReportService }
+  let(:service_class) { DebtsApi::V0::FinancialStatusReportService }
   let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
   let(:user) { build(:user, :loa3) }
   let(:filenet_id) { '93631483-E9F9-44AA-BB55-3552376400D8' }
 
   before do
+    Flipper.disable(:financial_status_report_debts_api_module)
     sign_in_as(user)
     mock_pdf_fill
   end
@@ -44,6 +47,25 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
         VCR.use_cassette('bgs/people_service/person_data') do
           post(:create, params: valid_form_data.to_h, as: :json)
           expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    context 'with module flipper on' do
+      before do
+        Flipper.enable(:financial_status_report_debts_api_module)
+      end
+
+      after do
+        Flipper.disable(:financial_status_report_debts_api_module)
+      end
+
+      it 'successfullfy redirects to debts-api module' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            post(:create, params: valid_form_data.to_h, as: :json)
+            expect(response.code).to eq('200')
+          end
         end
       end
     end

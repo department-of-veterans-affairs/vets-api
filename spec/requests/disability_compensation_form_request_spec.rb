@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/auth/client_credentials/service'
 require 'lighthouse/service_exception'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe 'Disability compensation form' do
   include SchemaMatchers
@@ -10,9 +11,12 @@ RSpec.describe 'Disability compensation form' do
   let(:user) { build(:disabilities_compensation_user) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
-  let(:feature_toggle_rated_disabilities) { 'disability_compensation_lighthouse_rated_disabilities_provider' }
+  let(:feature_toggle_rated_disabilities) do
+    'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
+  end
 
   before do
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
     sign_in_as(user)
   end
 
@@ -42,14 +46,15 @@ RSpec.describe 'Disability compensation form' do
       end
 
       context 'error handling tests' do
+        cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
+
         Lighthouse::ServiceException::ERROR_MAP.each do |status, _error_class|
-          error_status = status.to_s.to_i
-          cassette_path = "lighthouse/veteran_verification/disability_rating/#{status == :'404' ? '404_ICN' : status}" \
-                          '_response'
+          cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
+
           it "returns #{status} response" do
             expect(test_error(
                      cassette_path,
-                     error_status,
+                     status,
                      headers
                    )).to be(true)
           end
@@ -57,7 +62,7 @@ RSpec.describe 'Disability compensation form' do
           it "returns a #{status} response with camel-inflection" do
             expect(test_error(
                      cassette_path,
-                     error_status,
+                     status,
                      headers_with_camel
                    )).to be(true)
           end

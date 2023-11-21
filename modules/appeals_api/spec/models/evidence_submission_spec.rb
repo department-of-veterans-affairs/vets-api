@@ -21,4 +21,35 @@ describe AppealsApi::EvidenceSubmission, type: :model do
   it 'has an association with the upload submission' do
     expect(evidence_submission.upload_submission).to eq(upload_submission)
   end
+
+  describe '#submit_to_central_mail!' do
+    before { allow(VBADocuments::UploadProcessor).to receive(:perform_async) }
+
+    context 'when the evidence status is "uploaded' do
+      let(:upload_submission) { create(:upload_submission, status: 'uploaded') }
+      let(:evidence_submission) do
+        create :evidence_submission, supportable: notice_of_disagreement, upload_submission:
+      end
+
+      it 'triggers the UploadProcessor' do
+        evidence_submission.submit_to_central_mail!
+
+        expect(VBADocuments::UploadProcessor).to have_received(:perform_async)
+                                             .with(upload_submission.guid, caller: evidence_submission.class.name)
+      end
+    end
+
+    context 'when the evidence status is not "uploaded"' do
+      let(:upload_submission) { create(:upload_submission, status: 'received') }
+      let(:evidence_submission) do
+        create :evidence_submission, supportable: notice_of_disagreement, upload_submission:
+      end
+
+      it 'does not trigger the UploadProcessor' do
+        evidence_submission.submit_to_central_mail!
+
+        expect(VBADocuments::UploadProcessor).not_to have_received(:perform_async)
+      end
+    end
+  end
 end

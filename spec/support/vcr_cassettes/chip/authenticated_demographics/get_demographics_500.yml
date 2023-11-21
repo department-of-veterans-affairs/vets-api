@@ -1,0 +1,26 @@
+http_interactions:
+  - request:
+      method: get
+      uri:  https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-demographics?patientDfn=<%= patient_dfn %>&stationNo=<%= station_no %>
+    response:
+      status:
+        code: 500
+        message: Internal Server Error
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2020 15:46:52 GMT
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "errors": [{
+              "status": "500",
+              "title": "Error getting demographics from VistA API: Request failed with status code 500"
+            }]
+          }
+    recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0

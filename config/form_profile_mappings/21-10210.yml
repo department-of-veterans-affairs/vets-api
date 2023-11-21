@@ -1,7 +1,0 @@
-veteran:
-  fullName: [identity_information, full_name]
-  ssn: [identity_information, ssn]
-  dateOfBirth: [identity_information, date_of_birth]
-  homePhone: [contact_information, home_phone]
-  email: [contact_information, email]
-  address: [contact_information, address]

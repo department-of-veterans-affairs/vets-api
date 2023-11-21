@@ -5,29 +5,6 @@ require 'sign_in/logingov/service'
 
 describe SignIn::Logingov::Service do
   let(:code) { '6805c923-9f37-4b47-a5c9-214391ddffd5' }
-  let(:token) do
-    {
-      access_token: 'AmCGxDQzUAr5rPZ4NgFvUQ',
-      token_type: 'Bearer',
-      expires_in: 900,
-      id_token: 'eyJraWQiOiJmNWNlMTIzOWUzOWQzZGE4MzZmOTYzYmNjZDg1Zjg1ZDU3ZDQzMzVjZmRjNmExNzAzOWYLOL' \
-                'QzNjFhMThiMTNjIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI2NWY5ZjNiNS01NDQ5LTQ3YTYtYjI3Mi05Z' \
-                'DYwMTllN2MyZTMiLCJpc3MiOiJodHRwczovL2lkcC5pbnQuaWRlbnRpdHlzYW5kYm94Lmdvdi8iLCJlbWF' \
-                'pbCPzPmpvaG4uYnJhbWxleUBhZGhvY3RlYW0udXMiLCJlbHqZbF92ZXJpZmllZCI6dHJ1ZSwiZ2l2ZW5fb' \
-                'mFtZSI6IkpvaG4iLCJmYW1pb1bRfbmFtZSI6IkJyYW1sZXkiLCJiaXJ0aGRhdGUiOiIxOTg5LTAzLTI4Ii' \
-                'wic29jaWFsX3NlY3VyaXR5X251bWJlciI6IjA1Ni03Ni03MTQ5IiwidmVyaWZpZWRfYXQiOjE2MzU0NjUy' \
-                'ODYsImFjciI6Imh0dHA6Ly9pZG1hbmFnZW1lbnQuZ292L25zL2Fzc3VyYW5jZS9pYWwvMiIsIm5vbmNlIj' \
-                'oiYjIwNjc1ZjZjYmYwYWQ5M2YyNGEwMzE3YWU3Njk5OTQiLCJhdWQiOiJ1cm46Z292OmdzYTpvcGVuaWRj' \
-                'b25uZWN0LnByb2ZpbGVzOnNwOnNzbzp2YTpkZXZfc2lnbmluIiwianRpIjoicjA1aWJSenNXSjVrRnloM1' \
-                'ZuVlYtZyIsImF0X2hhc2giOiJsX0dnQmxPc2dkd0tKemc2SEFDYlJBIiwiY19oYXNoIjoiY1otX2F3OERj' \
-                'SUJGTEVpTE9QZVNFUSIsImV4cCI6MTY0NTY0MTY0NSwiaWF0IjoxNjQ1NjQwNzQ1LCJuYmYiOjE2NDU2ND' \
-                'A3NDV9.S3-8X9clNcwlH2RU5sNoYf9HXpcgVK9UGUJumhL2-3rvznrt6yGvkXvY4FuUzWEcI22muxUjbbs' \
-                'ZHjCfDImZ869NTWsI-DKohSNmNnyOom29LJRymJTn3htI5MNmpGwbmNWNuK5HgerPZblL44N1a_rqfTF4l' \
-                'ANQX0u52iIVDarcexpX0e9yS1rEPqi3PDdcwN_1tUYox4us9rgzRZaaoa4iTlFfovY7dfgo_ewqv2EDh7J' \
-                'SfJJQhFhyabkJ9HgNkkc4m0SHqztterZ6lHgIoiJdQot6wsL9pQTYzFzgHV830ltpjVUcLG5vMXw4Kqs3B' \
-                'N9tdSToHdB50Paxyfq9kg'
-    }
-  end
   let(:user_info) do
     OpenStruct.new({
                      sub: user_uuid,
@@ -65,24 +42,26 @@ describe SignIn::Logingov::Service do
   let(:user_uuid) { '12345678-0990-10a1-f038-2839ab281f90' }
   let(:success_callback_url) { 'http://localhost:3001/auth/login/callback?type=logingov' }
   let(:failure_callback_url) { 'http://localhost:3001/auth/login/callback?auth=fail&code=007' }
+  let(:expected_authorization_page) { 'https://idp.int.identitysandbox.gov/openid_connect/authorize' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
+  let(:operation) { 'some-operation' }
+  let(:current_time) { 1_692_663_038 }
+  let(:expiration_time) { 1_692_663_938 }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state:, acr:).to_s }
-    let(:expected_log) { "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}" }
+    let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
+    let(:expected_log) do
+      "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}, operation: #{operation}"
+    end
 
     it 'logs information to rails logger' do
       expect(Rails.logger).to receive(:info).with(expected_log)
       response
     end
 
-    it 'renders the oauth_get_form template' do
-      expect(response).to include('form id="oauth-form"')
-    end
-
-    it 'directs to the Login.gov OAuth authorization page' do
-      expect(response).to include('action="https://idp.int.identitysandbox.gov/openid_connect/authorize"')
+    it 'renders the expected redirect uri' do
+      expect(response).to include(expected_authorization_page)
     end
   end
 
@@ -127,29 +106,57 @@ describe SignIn::Logingov::Service do
     let(:seed) { 'some-seed' }
     let(:client_logout_redirect_uri) { 'some-client-logout-redirect-uri' }
 
-    it 'renders the oauth_get_form template' do
-      expect(subject.render_logout_redirect(encoded_state)).to include('form id="oauth-form"')
-    end
-
     it 'directs to the expected logout redirect uri' do
       expect(subject.render_logout_redirect(encoded_state)).to include(client_logout_redirect_uri)
     end
   end
 
   describe '#token' do
-    context 'when the request is successful' do
-      let(:expected_log) { "[SignIn][Logingov][Service] Token Success, code: #{code}" }
+    before do
+      Timecop.freeze(Time.zone.at(current_time))
+    end
 
-      it 'logs information to rails logger' do
-        VCR.use_cassette('identity/logingov_200_responses') do
-          expect(Rails.logger).to receive(:info).with(expected_log)
-          subject.token(code)
-        end
+    after do
+      Timecop.return
+    end
+
+    context 'when the request is successful' do
+      let(:expected_jwks_log) { '[SignIn][Logingov][Service] Get Public JWKs Success' }
+      let(:expected_token_log) { "[SignIn][Logingov][Service] Token Success, code: #{code}" }
+      let(:expected_access_token) { 'mHO_gU3WooLm0xoDxIAulw' }
+      let(:expected_logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
+
+      it 'logs information to rails logger', vcr: { cassette_name: 'identity/logingov_200_responses' } do
+        expect(Rails.logger).to receive(:info).with(expected_jwks_log)
+        expect(Rails.logger).to receive(:info).with(expected_token_log)
+        subject.token(code)
       end
 
-      it 'returns an access token' do
-        VCR.use_cassette('identity/logingov_200_responses') do
-          expect(subject.token(code)).to eq(token)
+      it 'returns an access token', vcr: { cassette_name: 'identity/logingov_200_responses' } do
+        expect(subject.token(code)[:access_token]).to eq(expected_access_token)
+      end
+
+      it 'returns a logingov acr', vcr: { cassette_name: 'identity/logingov_200_responses' } do
+        expect(subject.token(code)[:logingov_acr]).to eq(expected_logingov_acr)
+      end
+
+      context 'when the public JWK response is cached' do
+        let(:cache_key) { 'logingov_public_jwks' }
+        let(:cache_expiration) { 30.minutes }
+        let(:response) { double(body: 'some-body') }
+
+        before do
+          allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: cache_expiration).and_return(response)
+          allow(JWT).to receive(:decode).and_return([{ 'acr' => 'some-acr' }])
+          allow(JWT::JWK::Set).to receive(:new).and_return([])
+        end
+
+        it 'does not log expected_jwks_log' do
+          VCR.use_cassette('identity/logingov_200_responses') do
+            expect(Rails.logger).to receive(:info).with(expected_token_log)
+            expect(Rails.logger).not_to receive(:info).with(expected_jwks_log)
+            subject.token(code)
+          end
         end
       end
     end
@@ -171,13 +178,61 @@ describe SignIn::Logingov::Service do
         expect { subject.token(code) }.to raise_error(expected_error, expected_error_message)
       end
     end
+
+    context 'when the JWT decoding does not match expected verification' do
+      let(:expected_error) { SignIn::Logingov::Errors::JWTVerificationError }
+      let(:expected_error_message) { '[SignIn][Logingov][Service] JWT body does not match signature' }
+
+      it 'raises a jwe decode error with expected message',
+         vcr: { cassette_name: 'identity/logingov_jwks_mismatched_signature' } do
+        expect { subject.token(code) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the JWT has expired' do
+      let(:current_time) { expiration_time + 100 }
+      let(:expected_error) { SignIn::Logingov::Errors::JWTExpiredError }
+      let(:expected_error_message) { '[SignIn][Logingov][Service] JWT has expired' }
+
+      it 'raises a jwe expired error with expected message',
+         vcr: { cassette_name: 'identity/logingov_200_responses' } do
+        expect { subject.token(code) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the JWT is malformed' do
+      let(:expected_error) { SignIn::Logingov::Errors::JWTDecodeError }
+      let(:expected_error_message) { '[SignIn][Logingov][Service] JWT is malformed' }
+
+      it 'raises a jwt malformed error with expected message',
+         vcr: { cassette_name: 'identity/logingov_jwks_jwt_malformed' } do
+        expect { subject.token(code) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the JWK is malformed' do
+      let(:expected_error) { SignIn::Logingov::Errors::PublicJWKError }
+      let(:expected_error_message) { '[SignIn][Logingov][Service] Public JWK is malformed' }
+
+      it 'raises a jwt malformed error with expected message',
+         vcr: { cassette_name: 'identity/logingov_jwks_malformed' } do
+        expect { subject.token(code) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
   end
 
   describe '#user_info' do
-    it 'returns user attributes' do
-      VCR.use_cassette('identity/logingov_200_responses') do
-        expect(subject.user_info(token)).to eq(user_info)
-      end
+    before do
+      Timecop.freeze(Time.zone.at(current_time))
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it 'returns user attributes', vcr: { cassette_name: 'identity/logingov_200_responses' } do
+      token = subject.token(code)
+      expect(subject.user_info(token)).to eq(user_info)
     end
 
     context 'when log_credential is enabled in idme configuration' do
@@ -186,11 +241,11 @@ describe SignIn::Logingov::Service do
         allow(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
       end
 
-      it 'makes a call to mocked authentication writer to save the credential' do
-        VCR.use_cassette('identity/logingov_200_responses') do
-          expect(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
-          subject.user_info(token)
-        end
+      it 'makes a call to mocked authentication writer to save the credential',
+         vcr: { cassette_name: 'identity/logingov_200_responses' } do
+        expect(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
+        token = subject.token(code)
+        subject.user_info(token)
       end
     end
 
@@ -202,6 +257,7 @@ describe SignIn::Logingov::Service do
       let(:status) { 'some-status' }
       let(:description) { 'some-description' }
       let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error: description }) }
+      let(:token) { 'some-token' }
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)

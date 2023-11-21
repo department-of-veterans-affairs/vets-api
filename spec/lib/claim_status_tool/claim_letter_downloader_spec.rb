@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'claim_letters/claim_letter_downloader'
 
 describe ClaimStatusTool::ClaimLetterDownloader do
-  let(:doc_type_allowlist) { ClaimStatusTool::ClaimLetterDownloader::DOC_TYPE_ALLOWLIST }
   let(:doc_id) { '{99DA7758-A10A-43F4-A056-C961C76A2DDF}' }
   let(:current_user) do
     create(:evss_user)
@@ -25,7 +24,7 @@ describe ClaimStatusTool::ClaimLetterDownloader do
       letters = @downloader.get_letters
       doc_types = letters.pluck(:doc_type).uniq
 
-      expect(doc_types).to match_array(doc_type_allowlist)
+      expect(doc_types).to match_array(@downloader.allowed_doctypes)
     end
   end
 
@@ -56,6 +55,35 @@ describe ClaimStatusTool::ClaimLetterDownloader do
 
     it 'raises a RecordNotFound exception when it cannot find a document' do
       expect { @downloader.get_letter('{0}') }.to raise_error(Common::Exceptions::RecordNotFound)
+    end
+  end
+
+  describe 'Board Of Appeals Letter functionality' do
+    before do
+      @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user)
+    end
+
+    context 'BOA Letters enabled' do
+      before do
+        Flipper.enable(:cst_include_ddl_boa_letters)
+      end
+
+      it 'only shows BOA letters older than 2 days' do
+        letters = @downloader.get_letters
+        boa_letters = letters.select { |l| l[:doc_type] == '27' }
+        expect(boa_letters.length).to eq(1)
+      end
+    end
+
+    context 'BOA Letters disabled' do
+      before do
+        Flipper.disable(:cst_include_ddl_boa_letters)
+      end
+
+      it 'does not show BOA letters' do
+        letters = @downloader.get_letters
+        expect(letters.any? { |l| l[:doc_type] == '27' }).to be false
+      end
     end
   end
 end

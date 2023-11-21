@@ -1,0 +1,46 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+  type:
+    type: string
+    example: "contact_info"
+  attributes:
+    type: object
+    required:
+      - residentialAddress
+      - mailingAddress
+      - homePhone
+      - mobilePhone
+      - workPhone
+    properties:
+      residentialAddress:
+        $ref: "./UserContactInfoAddress.yml"
+      mailingAddress:
+        $ref: "./UserContactInfoAddress.yml"
+      homePhone:
+        $ref: "./UserContactInfoPhone.yml"
+      mobilePhone:
+        $ref: "./UserContactInfoPhone.yml"
+      workPhone:
+        $ref: "./UserContactInfoPhone.yml"
+      contactEmail:
+        type: object
+        nullable: true
+        required:
+          - id
+          - emailAddress
+        properties:
+          id:
+            type: integer
+            example: 157032
+          contactEmail:
+            type: string
+            example: "person@example.com"
+
+

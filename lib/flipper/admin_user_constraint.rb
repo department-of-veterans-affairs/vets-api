@@ -2,38 +2,45 @@
 
 module Flipper
   class AdminUserConstraint
-    def current_user_rack(request)
-      access_token_jwt = request.cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
-      user_uuid = access_token_jwt ? sis_user_uuid(access_token_jwt) : ssoe_user_uuid(request)
-      if (user = User.find(user_uuid))
-        # We've set this in a thread because we want to log who has made a change in
-        # Flipper::Instrumentation::EventSubscriber but at that point we don't have access to the request or session
-        # objects at that point and the request goint to a simple rack app.
-        RequestStore.store[:flipper_user_email_for_log] = user&.email
-        user
-      else
-        RequestStore.store[:flipper_user_email_for_log] = nil
-        nil
+    def self.matches?(request)
+      # Confirm that requests to toggle (POST to /boolean) are authorized
+      url_pattern = %r{\A/flipper/features/[^/]+/boolean\z}
+      if request.method == 'POST' && request.path.match?(url_pattern)
+        return true if authorized?(request.session[:flipper_user])
+
+        raise Common::Exceptions::Forbidden
       end
+
+      # If Authenticated through GitHub, check authorization to determine what can be shown in views
+      if request.session[:flipper_user].present?
+        user = request.session[:flipper_user]
+        RequestStore.store[:flipper_user_email_for_log] =
+          user&.email || "Email not found for: #{user&.name || '<no name>'}, #{user&.company || '<no company>'}"
+        RequestStore.store[:flipper_authorized] = authorized?(user)
+
+        return true
+      end
+
+      # allow GET requests (minus the callback, which needs to pass through to finish auth flow)
+      return true if (request.method == 'GET' && request.path.exclude?('/callback')) || Rails.env.development?
+
+      authenticate(request)
+      true
     end
 
-    def matches?(request)
-      current_user = current_user_rack(request)
-      (current_user && Settings.flipper.admin_user_emails.include?(current_user.email) && current_user.loa3?) ||
-        request.method == 'GET' || Rails.env.development?
+    def self.authenticate(request)
+      RequestStore.store[:flipper_user_email_for_log] = nil
+      warden = request.env['warden']
+      warden.authenticate!(scope: :flipper)
     end
 
-    private
+    def self.authorized?(user)
+      return true if Rails.env.development?
 
-    def sis_user_uuid(access_token_jwt)
-      access_token = SignIn::AccessTokenJwtDecoder.new(access_token_jwt:).perform
-      access_token&.user_uuid
-    end
+      org_name = Settings.flipper.github_organization
+      team_id = Settings.flipper.github_team
 
-    def ssoe_user_uuid(request)
-      session_token = request.session[:token]
-      session = Session.find(session_token)
-      session&.uuid
+      user&.organization_member?(org_name) && user&.team_member?(team_id)
     end
   end
 end

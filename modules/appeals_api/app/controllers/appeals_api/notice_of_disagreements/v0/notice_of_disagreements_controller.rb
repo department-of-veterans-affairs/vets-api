@@ -5,15 +5,18 @@ require 'appeals_api/form_schemas'
 module AppealsApi::NoticeOfDisagreements::V0
   class NoticeOfDisagreementsController < AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController
     include AppealsApi::OpenidAuth
+    include AppealsApi::PdfDownloads
 
-    FORM_NUMBER = '10182_WITH_SHARED_REFS'
+    skip_before_action :new_notice_of_disagreement
+    skip_before_action :find_notice_of_disagreement
+    skip_before_action :validate_icn_header
+    skip_before_action :validate_json_format
+
+    prepend_before_action :validate_json_body, if: -> { request.post? }
+    before_action :validate_icn_parameter, only: %i[download]
+
     API_VERSION = 'V0'
-    SCHEMA_VERSION = 'v2'
-    HEADERS = JSON.parse(
-      File.read(
-        AppealsApi::Engine.root.join('config/schemas/v2/10182_with_shared_refs_headers.json')
-      )
-    )['definitions']['nodCreateParameters']['properties'].keys
+    SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'notice_of_disagreements' }.freeze
 
     OAUTH_SCOPES = {
       GET: %w[
@@ -33,18 +36,87 @@ module AppealsApi::NoticeOfDisagreements::V0
       ]
     }.freeze
 
-    def schema
-      response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-        AppealsApi::FormSchemas.new(
-          SCHEMA_ERROR_TYPE,
-          schema_version: self.class::SCHEMA_VERSION
-        ).schema(self.class::FORM_NUMBER)
+    def show
+      nod = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS).find(params[:id])
+      nod = with_status_simulation(nod) if status_requested_and_allowed?
+
+      render_notice_of_disagreement(nod)
+    rescue ActiveRecord::RecordNotFound
+      render_notice_of_disagreement_not_found(params[:id])
+    end
+
+    def create
+      nod = AppealsApi::NoticeOfDisagreement.new(
+        auth_headers: request_headers,
+        form_data: @json_body,
+        source: request_headers['X-Consumer-Username'].presence&.strip,
+        board_review_option: @json_body.dig('data', 'attributes', 'boardReviewOption'),
+        api_version: self.class::API_VERSION,
+        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
       )
 
-      render json: response
+      return render_model_errors(nod) unless nod.validate
+
+      nod.save
+      AppealsApi::PdfSubmitJob.perform_async(nod.id, 'AppealsApi::NoticeOfDisagreement', 'v3')
+
+      render_notice_of_disagreement(nod, status: :created)
+    end
+
+    def download
+      id = params[:id]
+      notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(id)
+
+      render_appeal_pdf_download(
+        notice_of_disagreement,
+        "#{FORM_NUMBER}-notice-of-disagreement-#{id}.pdf",
+        params[:icn]
+      )
+    rescue ActiveRecord::RecordNotFound
+      render_notice_of_disagreement_not_found(params[:id])
+    end
+
+    def schema
+      render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
     end
 
     private
+
+    def validate_icn_parameter
+      detail = nil
+
+      if params[:icn].blank?
+        detail = "'icn' parameter is required"
+      elsif !ICN_REGEX.match?(params[:icn])
+        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
+      end
+
+      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
+    end
+
+    def render_notice_of_disagreement(nod, **)
+      render(json: NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
+    end
+
+    def render_notice_of_disagreement_not_found(id)
+      render(
+        status: :not_found,
+        json: {
+          errors: [
+            {
+              code: '404',
+              detail: I18n.t('appeals_api.errors.not_found', type: 'NoticeOfDisagreement', id:),
+              status: '404',
+              title: 'Record not found'
+            }
+          ]
+        }
+      )
+    end
+
+    def render_model_errors(nod)
+      render json: model_errors_to_json_api(nod), status: MODEL_ERROR_STATUS
+    end
 
     def token_validation_api_key
       Settings.dig(:modules_appeals_api, :token_validation, :notice_of_disagreements, :api_key)

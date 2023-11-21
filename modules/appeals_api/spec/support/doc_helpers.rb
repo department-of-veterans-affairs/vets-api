@@ -2,15 +2,32 @@
 
 # rubocop:disable Metrics/ModuleLength
 module DocHelpers
+  NORMALIZED_DATE = '2020-01-02T03:04:05.067Z'
+
+  def normalize_created_at_updated_at(data)
+    if data.dig(:data, :attributes, :updatedAt).present?
+      data[:data][:attributes][:updatedAt] = NORMALIZED_DATE
+    elsif data.dig(:data, :attributes, :updateDate).present?
+      data[:data][:attributes][:updateDate] = NORMALIZED_DATE
+    end
+
+    if data.dig(:data, :attributes, :createdAt).present?
+      data[:data][:attributes][:createdAt] = NORMALIZED_DATE
+    elsif data.dig(:data, :attributes, :createDate).present?
+      data[:data][:attributes][:createDate] = NORMALIZED_DATE
+    end
+
+    data
+  end
+
   # Makes UUIDs and timestamps constant, to reduce cognitive overhead when working with rswag output files
   def normalize_appeal_response(response)
     data = JSON.parse(response.body, symbolize_names: true)
     return data unless data[:data]
 
     data[:data][:id] = '00000000-1111-2222-3333-444444444444'
-    data[:data][:attributes][:updatedAt] = '2020-01-02T03:04:05.067Z'
-    data[:data][:attributes][:createdAt] = '2020-01-02T03:04:05.067Z'
-    data
+
+    normalize_created_at_updated_at(data)
   end
 
   def normalize_evidence_submission_response(response)
@@ -19,9 +36,8 @@ module DocHelpers
 
     data[:data][:id] = '55555555-6666-7777-8888-999999999999'
     data[:data][:attributes][:appealId] = '00000000-1111-2222-3333-444444444444'
-    data[:data][:attributes][:createdAt] = '2020-01-02T03:04:05.067Z'
-    data[:data][:attributes][:updatedAt] = '2020-01-02T03:04:05.067Z'
-    data
+
+    normalize_created_at_updated_at(data)
   end
 
   def raw_body(response)
@@ -141,6 +157,73 @@ module DocHelpers
 
   def self.doc_suffix
     ENV['RSWAG_ENV'] == 'dev' ? '_dev' : ''
+  end
+
+  def self.doc_url_prefix
+    ENV['RSWAG_ENV'] == 'dev' ? 'dev-' : ''
+  end
+
+  # Given a JSON schema hash and a path to a value inside it, find it and resolve any +$ref+s by merging them in
+  # @param [Object] parent_schema - Full JSON schema as a hash
+  # @param [Array<String>] value_keys - Path to dig for the value to resolve within the +parent_schema+
+  # @return [Hash] - JSON schema for the given value without any $refs
+  def _resolve_value_schema(parent_schema, *value_keys)
+    value_schema = parent_schema.dig(*value_keys)
+    raise "Unable to resolve schema at path #{value_keys.join('/')}" if value_schema.blank?
+
+    if (parts = value_schema['allOf'])
+      value_schema = parts.reduce(:merge)
+    end
+
+    return value_schema unless (ref = value_schema.delete('$ref'))
+
+    if ref.end_with? '.json' # shared schema
+      shared_schema = JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', ref)))
+      shared_schema.dig('properties', ref.gsub('.json', '')).merge(value_schema)
+    elsif ref.start_with? '#/' # reference within parent schema
+      _resolve_value_schema(parent_schema, *ref.slice(2..).split('/')).merge(value_schema)
+    else
+      raise "Unable to resolve schema at #/#{value_keys.join('/')}"
+    end
+  end
+
+  HOISTED_OAS_KEYS = %w[description required deprecated allowEmptyValue example].freeze
+
+  # Generates a swagger parameter configuration based on the JSON schema for a value. See formats:
+  # - JSON schema object: https://json-schema.org/understanding-json-schema/reference/object.html
+  # - Swagger parameter config: https://swagger.io/specification/#parameter-object
+  # @param [String] json_schema_path - Path to a JSON schema file within the appeals_api's schemas directory
+  # @param [Array<String>] value_keys - Path to dig for the parameter value within the JSON schema
+  # @return [Hash] - Rswag parameter config for the given value
+  def parameter_from_schema(json_schema_path, *value_keys)
+    parent_schema = JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', json_schema_path)))
+    value_schema = _resolve_value_schema(parent_schema, *value_keys)
+    name = value_keys.last
+    param_config = { name: }
+    HOISTED_OAS_KEYS.each { |key| param_config[key] = value_schema.delete(key) if value_schema[key] }
+    param_config[:required] = true if parent_schema['required']&.include? name
+    param_config[:schema] = value_schema
+    param_config.deep_symbolize_keys
+  end
+
+  # Renames all keys in a hash from the +old_key+ to the +new_key+
+  # This is here only to facilitate reuse of schemas in rswag docs before segmented APIs are split to the LHDI project
+  # @param [Hash] hash - The hash
+  # @param [String] old_key - Key to rename
+  # @param [String] new_key - New name
+  # @return [Hash] - An updated copy of the hash
+  def deep_replace_key(hash, old_key, new_key)
+    result = {}
+    hash.each do |key, value|
+      if key == old_key
+        result[new_key] = value
+      elsif value.is_a?(Hash) || (value.is_a?(Array) && value.any? { |v| v.is_a? Hash })
+        result[key] = deep_replace_key(value, old_key, new_key)
+      else
+        result[key] = value
+      end
+    end
+    result
   end
 end
 # rubocop:enable Metrics/ModuleLength

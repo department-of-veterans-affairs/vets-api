@@ -7,8 +7,6 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
-        before_action :verify_access!
-
         def index
           bgs_claims = find_bgs_claims!
 
@@ -16,7 +14,6 @@ module ClaimsApi
 
           render json: [] && return unless bgs_claims || lighthouse_claims
           mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
-
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
@@ -27,6 +24,7 @@ module ClaimsApi
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           if lighthouse_claim.blank? && bgs_claim.blank?
+            claims_v2_logging('claims_show', level: :warn, message: 'Claim not found.')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
@@ -176,6 +174,7 @@ module ClaimsApi
 
         def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
+            base_end_prdct_type_cd: data[:base_end_prdct_type_cd],
             claim_date: date_present(data[:claim_dt]),
             claim_id: upstream_id,
             claim_phase_dates: build_claim_phase_attributes(data, 'index'),
@@ -259,6 +258,8 @@ module ClaimsApi
         def get_bgs_phase_completed_dates(data)
           lc_status_array =
             [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.compact
+          return {} if lc_status_array.first.nil?
+
           max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').first
           return {} if max_completed_phase.downcase.eql?('n')
 
@@ -493,33 +494,74 @@ module ClaimsApi
           date_present(item[:date_open] || tracked_item[:req_dt] || tracked_item[:create_dt])
         end
 
+        def get_evss_documents(claim_id)
+          evss_docs_service.get_claim_documents(claim_id).body
+        rescue => e
+          claims_v2_logging('evss_doc_service', level: 'error',
+                                                message: "getting docs failed in claims controller with e.message: ' \
+                            '#{e.message}, rid: #{request.request_id}")
+          {}
+        end
+
+        # rubocop:disable Metrics/MethodLength
         def build_supporting_docs(bgs_claim)
           return [] if bgs_claim.nil?
 
-          docs = if sandbox?
+          @supporting_documents = []
+
+          docs = if benefits_documents_enabled?
+                   file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
+
+                   if file_number.nil?
+                     claims_v2_logging('benefits_documents',
+                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
+                                                'returned a nil file number in claims controller v2')
+
+                     return []
+                   end
+
+                   claims_v2_logging('benefits_documents',
+                                     message: "calling benefits documents api for claim_id #{params[:id]} " \
+                                              'in claims controller v2')
+                   supporting_docs_list = benefits_doc_api.search(params[:id],
+                                                                  file_number)&.dig(:data)
+                   # add with_indifferent_access so ['documents'] works below
+                   # we can remove when EVSS is gone and access it via it's symbol
+                   supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
+                 elsif sandbox?
                    { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
-                   evss_docs_service.get_claim_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id]).body
+                   get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
-          return [] if docs.nil? || docs['documents'].blank?
+          return [] if docs.nil? || docs&.dig('documents').blank?
 
           @supporting_documents = docs['documents']
 
           docs['documents'].map do |doc|
+            doc = doc.transform_keys(&:underscore) if benefits_documents_enabled?
+            upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
             {
               document_id: doc['document_id'],
               document_type_label: doc['document_type_label'],
               original_file_name: doc['original_file_name'],
               tracked_item_id: doc['tracked_item_id'],
-              upload_date: upload_date(doc['upload_date'])
+              upload_date:
             }
           end
         end
+        # rubocop:enable Metrics/MethodLength
 
+        # duplicating temporarily to bd_upload_date. remove when EVSS call is gone
         def upload_date(upload_date)
           return if upload_date.nil?
 
           Time.zone.at(upload_date / 1000).strftime('%Y-%m-%d')
+        end
+
+        def bd_upload_date(upload_date)
+          return if upload_date.nil?
+
+          Date.parse(upload_date).strftime('%Y-%m-%d')
         end
 
         def build_claim_phase_attributes(bgs_claim, view)
@@ -545,6 +587,10 @@ module ClaimsApi
 
         def sandbox?
           Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
+        end
+
+        def benefits_documents_enabled?
+          Flipper.enabled? :claims_status_v2_lh_benefits_docs_service_enabled
         end
       end
     end

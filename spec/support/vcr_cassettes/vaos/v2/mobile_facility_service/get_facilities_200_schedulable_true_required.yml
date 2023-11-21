@@ -1,0 +1,167 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=983,%20983GB,%20983GC,%20983GD&pageSize=0&schedulable=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Jun 2023 15:44:07 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3477'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.21.1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 4d56ca5
+      X-Vamf-Timestamp:
+      - '2023-06-16T18:31:57+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '12'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [ {
+            "id" : "983GD",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_health_facility",
+            "name" : "Loveland VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 40.412647,
+            "long" : -105.003815,
+            "website" : "https://www.cheyenne.va.gov/locations/Loveland.asp",
+            "phone" : {
+              "main" : "970-962-4900"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "5200 Hahns Peak Drive" ],
+              "city" : "Loveland",
+              "state" : "CO",
+              "postalCode" : "80538-8852"
+            },
+            "healthService" : [ "Audiology", "EmergencyCare", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Podiatry", "PrimaryCare", "SpecialtyCare", "WomensHealth" ]
+          }, {
+            "id" : "983GC",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Fort Collins VA Clinic",
+            "classification" : "Multi-Specialty CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 40.553875,
+            "long" : -105.08795,
+            "website" : "https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp",
+            "phone" : {
+              "main" : "970-224-1550"
+            },
+            "physicalAddress" : {
+              "line" : [ "2509 Research Boulevard" ],
+              "city" : "Fort Collins",
+              "state" : "CO",
+              "postalCode" : "80526-8108"
+            },
+            "healthService" : [ "Audiology", "EmergencyCare", "MentalHealthCare", "PrimaryCare", "SpecialtyCare" ]
+          }, {
+            "id" : "983GB",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Sidney VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 41.142464,
+            "long" : -102.97669,
+            "website" : "https://www.cheyenne.va.gov/locations/Sidney_VA_MSOC.asp",
+            "phone" : {
+              "main" : "308-254-6085"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "1116 10th Avenue" ],
+              "city" : "Sidney",
+              "state" : "NE",
+              "postalCode" : "69162-2001"
+            },
+            "healthService" : [ "EmergencyCare", "MentalHealthCare", "PrimaryCare" ]
+          }, {
+            "id" : "983",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Cheyenne VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 39.744507,
+            "long" : -104.830956,
+            "website" : "https://www.denver.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "307-778-7550",
+              "fax" : "307-778-7381",
+              "pharmacy" : "866-420-6337",
+              "afterHours" : "307-778-7550",
+              "patientAdvocate" : "307-778-7550 x7517",
+              "mentalHealthClinic" : "307-778-7349",
+              "enrollmentCoordinator" : "307-778-7550 x7579"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "2360 East Pershing Boulevard" ],
+              "city" : "Cheyenne",
+              "state" : "WY",
+              "postalCode" : "82001-5356"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            }
+          } ]
+        }
+  recorded_at: Thu, 22 Jun 2023 15:44:07 GMT
+recorded_with: VCR 6.1.0

@@ -27,8 +27,8 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
   end
 
   describe '#show' do
-    describe "schema type 'non_blank_string'" do
-      it_behaves_like 'successful schema request', 'non_blank_string', %w[nonBlankString]
+    describe "schema type 'nonBlankString'" do
+      it_behaves_like 'successful schema request', 'nonBlankString', %w[nonBlankString]
     end
 
     describe "schema type 'address'" do
@@ -40,7 +40,7 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
     end
 
     describe "schema type 'timezone'" do
-      it_behaves_like 'successful schema request', 'timezone', ['timezone', 'Abu Dhabi', 'Zurich']
+      it_behaves_like 'successful schema request', 'timezone', ['timezone', 'America/Ciudad_Juarez', 'Zulu']
     end
 
     context 'when unacceptable schema type provided' do

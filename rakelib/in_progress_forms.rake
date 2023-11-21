@@ -44,6 +44,17 @@ namespace :form_progress do
     puts data
   end
 
+  desc 'Get metadata for in-progress FSR forms that haven\'t been submitted'
+  task :pending_fsr, %i[start_date end_date] => [:environment] do |_, args|
+    start_date = args[:start_date]&.to_date || 31.days.ago.utc
+    end_date = args[:end_date]&.to_date || 1.day.ago
+    forms = InProgressForm.unsubmitted_fsr.where(updated_at: [start_date.beginning_of_day..end_date.end_of_day])
+    puts '------------------------------------------------------------'
+    puts "* #{forms.length} unsubmitted FSR form#{forms.length == 1 ? '' : 's'} from  #{start_date} to #{end_date} *"
+    puts '------------------------------------------------------------'
+    puts forms.pluck :metadata
+  end
+
   def forms_with_args(args)
     form_id = args[:form_id] || '21-526EZ'
     start_date = args[:start_date]&.to_date || 31.days.ago.utc

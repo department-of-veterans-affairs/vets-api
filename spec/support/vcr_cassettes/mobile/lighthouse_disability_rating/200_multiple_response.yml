@@ -1,0 +1,157 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/disability_rating/1008596379V859838
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Etag:
+      - W/"6571c42e57529000188d704a3cd1f46a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - d687047e-5004-43c1-babb-c2f52f2fda40
+      X-Runtime:
+      - '3.569014'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '3573'
+      X-Kong-Proxy-Latency:
+      - '24'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+  "data": {
+    "id": "1012592956V095840",
+    "type": "disability_ratings",
+    "attributes": {
+      "combined_disability_rating": 100,
+      "combined_effective_date": "2019-01-01",
+      "legal_effective_date": "2018-12-31",
+      "individual_ratings": [
+        {
+          "decision": "Service Connected",
+          "effective_date": "2005-01-01",
+          "rating_end_date": null,
+          "rating_percentage": 100,
+          "diagnostic_type_code": "6100",
+          "diagnostic_type_name": "6100-Hearing loss",
+          "diagnostic_text": "Hearing Loss",
+          "disability_rating_id": "1128271"
+        },
+        {
+          "decision": "Service Connected",
+          "effective_date": "2018-12-21",
+          "rating_end_date": "2018-12-31",
+          "rating_percentage": 10,
+          "diagnostic_type_code": "9201",
+          "diagnostic_type_name": "Schizophrenia, disorganized type",
+          "diagnostic_text": "mental disorder",
+          "disability_rating_id": "1129228"
+        },
+        {
+          "decision": "Service Connected",
+          "effective_date": "2012-05-01",
+          "rating_end_date": null,
+          "rating_percentage": 10,
+          "diagnostic_type_code": "5260",
+          "diagnostic_type_name": "Limitation of flexion, knee",
+          "diagnostic_text": "Allergies due to Hearing Loss",
+          "disability_rating_id": "1072414"
+        },
+        {
+          "decision": "Service Connected",
+          "effective_date": "2018-08-01",
+          "rating_end_date": null,
+          "rating_percentage": 0,
+          "diagnostic_type_code": "8540",
+          "diagnostic_type_name": "Soft tissue sarcoma (neurogenic origin)",
+          "diagnostic_text": "Sarcoma Soft-Tissue",
+          "disability_rating_id": "1124345"
+        },
+        {
+          "decision": "Not Service Connected",
+          "effective_date": null,
+          "rating_end_date": null,
+          "rating_percentage": null,
+          "diagnostic_type_code": "6260",
+          "diagnostic_type_name": "Tinnitus",
+          "diagnostic_text": "Tinnitus",
+          "disability_rating_id": "1046370"
+        },
+        {
+          "decision": "Not Service Connected",
+          "effective_date": null,
+          "rating_end_date": null,
+          "rating_percentage": null,
+          "diagnostic_type_code": "7913",
+          "diagnostic_type_name": "Diabetes mellitus",
+          "diagnostic_text": "Diabetes",
+          "disability_rating_id": "1090859"
+        }
+      ]
+    }
+  }
+}'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+recorded_with: VCR 6.1.0

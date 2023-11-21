@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe 'decision letters', type: :request do
   include JsonSchemaMatchers
 
+  let!(:user) { sis_user(icn: '24811694708759028') }
+
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(FakeVBMS.new)
-    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
-    iam_sign_in(build(:iam_user))
     Flipper.disable('mobile_filter_doc_27_decision_letters_out')
   end
 
@@ -28,7 +28,7 @@ RSpec.describe 'decision letters', type: :request do
         it 'returns expected decision letters' do
           Flipper.enable('mobile_filter_doc_27_decision_letters_out')
 
-          get '/mobile/v0/claims/decision-letters', headers: iam_headers
+          get '/mobile/v0/claims/decision-letters', headers: sis_headers
           expect(response).to have_http_status(:ok)
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
@@ -45,7 +45,7 @@ RSpec.describe 'decision letters', type: :request do
         it 'returns expected decision letters' do
           Flipper.disable('mobile_filter_doc_27_decision_letters_out')
 
-          get '/mobile/v0/claims/decision-letters', headers: iam_headers
+          get '/mobile/v0/claims/decision-letters', headers: sis_headers
           expect(response).to have_http_status(:ok)
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
@@ -64,9 +64,9 @@ RSpec.describe 'decision letters', type: :request do
     it 'retrieves a single letter based on document id' do
       doc_id = '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA87}'
 
-      VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
-        VCR.use_cassette('bgs/people_service/person_data') do
-          get "/mobile/v0/claims/decision-letters/#{CGI.escape(doc_id)}/download", headers: iam_headers
+      VCR.use_cassette('mobile/bgs/uploaded_document_service/uploaded_document_data') do
+        VCR.use_cassette('mobile/bgs/people_service/person_data') do
+          get "/mobile/v0/claims/decision-letters/#{CGI.escape(doc_id)}/download", headers: sis_headers
           expect(response).to have_http_status(:ok)
         end
       end
@@ -75,9 +75,9 @@ RSpec.describe 'decision letters', type: :request do
     it 'raises a RecordNotFound exception when it cannot find a document' do
       doc_id = '{37832B64-2D88-4DEE-9F6F-DF80E4CAAA87}'
 
-      VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
-        VCR.use_cassette('bgs/people_service/person_data') do
-          get "/mobile/v0/decision-letters/#{CGI.escape(doc_id)}", headers: iam_headers
+      VCR.use_cassette('mobile/bgs/uploaded_document_service/uploaded_document_data') do
+        VCR.use_cassette('mobile/bgs/people_service/person_data') do
+          get "/mobile/v0/decision-letters/#{CGI.escape(doc_id)}", headers: sis_headers
           expect(response).to have_http_status(:not_found)
         end
       end

@@ -1,0 +1,55 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "icn": "1234567890V123456",
+        "fileNumber": "987654321",
+        "firstName": "Jäñe",
+        "lastName": "Doe",
+        "birthDate": "1969-12-31",
+        "homeless": false,
+        "address": {
+          "addressLine1": "123 Main St",
+          "city": "North Pole",
+          "countryCodeIso3": "CAN",
+          "zipCode5": "00000"
+        },
+        "phone": {
+          "areaCode": "555",
+          "phoneNumber": "8001111"
+        },
+        "email": "jdoe@example.com",
+        "timezone": "America/Chicago"
+      },
+      "representative": {
+        "name": "First Last"
+      },
+      "boardReviewOption": "evidence_submission",
+      "requestingExtension": false,
+      "appealingVhaDenial": false
+    }
+  },
+  "included": [
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2",
+        "ratingDecisionReferenceId": "3",
+        "disagreementArea": "Effective Date"
+      }
+    },
+    {
+      "type": "appealableIssue",
+      "attributes": {
+        "issue": "left knee",
+        "decisionDate": "1900-01-02",
+        "decisionIssueId": 4,
+        "ratingIssueReferenceId": "5"
+      }
+    }
+  ]
+}

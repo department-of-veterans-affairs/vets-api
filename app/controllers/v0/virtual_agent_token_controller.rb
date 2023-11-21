@@ -4,6 +4,7 @@ require 'erb'
 
 module V0
   class VirtualAgentTokenController < ApplicationController
+    service_tag 'virtual-agent'
     skip_before_action :authenticate, only: [:create]
 
     rescue_from 'V0::VirtualAgentTokenController::ServiceException', with: :service_exception_handler
@@ -48,7 +49,11 @@ module V0
     end
 
     def bearer_token
-      secret = Settings.virtual_agent.webchat_secret
+      secret = if Flipper.enabled?(:virtual_agent_enable_pva2_chatbot, current_user)
+                 Settings.virtual_agent.webchat_pva2_secret
+               else
+                 Settings.virtual_agent.webchat_secret
+               end
       @bearer_token ||= "Bearer #{secret}"
     end
 

@@ -7,6 +7,7 @@ require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
+require 'pdf_fill/forms/va1010ez'
 require 'pdf_fill/forms/va686c674'
 require 'pdf_fill/forms/va281900'
 require 'pdf_fill/forms/va288832'
@@ -29,6 +30,7 @@ module PdfFill
       '21-0781' => PdfFill::Forms::Va210781,
       '21-8940' => PdfFill::Forms::Va218940,
       '10-10CG' => PdfFill::Forms::Va1010cg,
+      '10-10EZ' => PdfFill::Forms::Va1010ez,
       '686C-674' => PdfFill::Forms::Va686c674,
       '28-1900' => PdfFill::Forms::Va281900,
       '28-8832' => PdfFill::Forms::Va288832,

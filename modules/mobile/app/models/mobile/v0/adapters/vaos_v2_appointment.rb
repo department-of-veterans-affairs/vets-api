@@ -9,7 +9,8 @@ module Mobile
           cc: 'COMMUNITY_CARE',
           va_video_connect_home: 'VA_VIDEO_CONNECT_HOME',
           va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
-          va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS'
+          va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS',
+          va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
         }.freeze
 
         HIDDEN_STATUS = %w[
@@ -36,9 +37,18 @@ module Mobile
           email: 'email'
         }.freeze
 
-        VIDEO_GFE_CODE = 'MOBILE_GFE'
         PHONE_KIND = 'phone'
         COVID_SERVICE = 'covid'
+        VIDEO_CONNECT_AT_VA = %w[
+          STORE_FORWARD
+          CLINIC_BASED
+        ].freeze
+
+        # ADHOC is a staging value used in place of MOBILE_ANY
+        VIDEO_CODE = %w[
+          MOBILE_ANY
+          ADHOC
+        ].freeze
 
         # Only a subset of types of service that requires human readable conversion
         SERVICE_TYPES = {
@@ -83,6 +93,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
+            appointment_ien: extract_station_and_ien(appointment),
             cancel_id:,
             comment:,
             facility_id:,
@@ -90,14 +101,15 @@ module Mobile
             healthcare_provider: appointment[:healthcare_provider],
             healthcare_service:,
             location:,
+            physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
             phone_only: appointment[:kind] == PHONE_KIND,
-            start_date_local: start_date_utc&.in_time_zone(timezone),
+            start_date_local:,
             start_date_utc:,
             status:,
             status_detail: cancellation_reason(appointment[:cancelation_reason]),
             time_zone: timezone,
-            vetext_id: nil,
+            vetext_id:,
             reason:,
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
             is_pending: requested_periods.present?,
@@ -106,7 +118,8 @@ module Mobile
             patient_phone_number:,
             patient_email:,
             best_time_to_call: appointment[:preferred_times_for_phone_call],
-            friendly_location_name:
+            friendly_location_name:,
+            service_category_name: appointment.dig(:service_category, 0, :text)
           }
 
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
@@ -116,6 +129,17 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        def extract_station_and_ien(appointment)
+          return nil if appointment[:identifier].nil?
+
+          regex = %r{VistADefinedTerms/409_(84|85)}
+          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
+
+          return if identifier.nil?
+
+          identifier[:value]&.split(':', 2)&.second
+        end
 
         def friendly_location_name
           return location[:name] if va_appointment?
@@ -140,6 +164,16 @@ module Mobile
 
         def facility_id
           @facility_id ||= Mobile::V0::Appointment.convert_from_non_prod_id!(appointment[:location_id])
+        end
+
+        def vetext_id
+          @vetext_id ||= "#{facility_id};#{utc_to_fileman_date(start_date_local)}"
+        end
+
+        def utc_to_fileman_date(datetime)
+          fileman_date = "#{datetime.year - 1700}#{format('%02d', datetime.month)}#{format('%02d', datetime.day)}"
+          fileman_time = "#{format('%02d', datetime.hour)}#{format('%02d', datetime.min)}"
+          "#{fileman_date}.#{fileman_time}".gsub(/0+$/, '').gsub(/\.$/, '.0')
         end
 
         def timezone
@@ -168,7 +202,17 @@ module Mobile
         end
 
         def cancellation_reason(cancellation_reason)
-          return nil if cancellation_reason.nil?
+          if cancellation_reason.nil?
+            if status == STATUSES[:cancelled]
+              Rails.logger.info('cancelled appt missing cancellation reason with debug info',
+                                type: appointment_type,
+                                kind: appointment[:kind],
+                                vista_status: appointment.dig(:extension, :vista_status),
+                                facility_id:,
+                                clinic: appointment[:clinic])
+            end
+            return CANCELLATION_REASON[:prov]
+          end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)
           CANCELLATION_REASON[cancel_code&.to_sym]
@@ -230,6 +274,14 @@ module Mobile
           end
         end
 
+        def start_date_local
+          @start_date_local ||= begin
+            DateTime.parse(appointment[:local_start_time])
+          rescue
+            start_date_utc&.in_time_zone(timezone)
+          end
+        end
+
         def appointment_type
           case appointment[:kind]
           when 'phone', 'clinic'
@@ -237,15 +289,21 @@ module Mobile
           when 'cc'
             APPOINTMENT_TYPES[:cc]
           when 'telehealth'
-            if appointment.dig(:telehealth, :vvs_kind) == VIDEO_GFE_CODE
-              APPOINTMENT_TYPES[:va_video_connect_gfe]
-            elsif appointment.dig(:telehealth, :atlas)
-              APPOINTMENT_TYPES[:va_video_connect_atlas]
+            return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+
+            vvs_kind = appointment.dig(:telehealth, :vvs_kind)
+            if VIDEO_CODE.include?(vvs_kind)
+              if appointment.dig(:extension, :patient_has_mobile_gfe)
+                APPOINTMENT_TYPES[:va_video_connect_gfe]
+              else
+                APPOINTMENT_TYPES[:va_video_connect_home]
+              end
+            elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
+              APPOINTMENT_TYPES[:va_video_connect_onsite]
             else
-              APPOINTMENT_TYPES[:va_video_connect_home]
+              APPOINTMENT_TYPES[:va]
+
             end
-          else
-            APPOINTMENT_TYPES[:va]
           end
         end
 
@@ -319,6 +377,7 @@ module Mobile
             else
               location[:id] = appointment.dig(:location, :id)
               location[:name] = appointment.dig(:location, :name)
+
               address = appointment.dig(:location, :physical_address)
               if address.present?
                 location[:address] = {
@@ -381,7 +440,8 @@ module Mobile
           [APPOINTMENT_TYPES[:va],
            APPOINTMENT_TYPES[:va_video_connect_gfe],
            APPOINTMENT_TYPES[:va_video_connect_atlas],
-           APPOINTMENT_TYPES[:va_video_connect_home]].include?(appointment_type)
+           APPOINTMENT_TYPES[:va_video_connect_home],
+           APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type)
         end
 
         def comment

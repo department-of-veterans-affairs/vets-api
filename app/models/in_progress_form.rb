@@ -28,7 +28,9 @@ class InProgressForm < ApplicationRecord
                                }
   # the double quotes in return_url are part of the value
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), "\"#{url}\"") }
-
+  scope :for_form, ->(form_id) { where(form_id:) }
+  scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
+  scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
   attribute :user_uuid, CleanUUID.new
   serialize :form_data, JsonMarshal::Marshaller
   has_kms_key
@@ -39,6 +41,7 @@ class InProgressForm < ApplicationRecord
   before_save :serialize_form_data
   before_save :set_expires_at, unless: :skip_exipry_update
   after_save :log_hca_email_diff
+  MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
 
   def self.form_for_user(form_id, user)
     user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
@@ -66,6 +69,7 @@ class InProgressForm < ApplicationRecord
     data = super || {}
     last_accessed = updated_at || Time.current
     data.merge(
+      'createdAt' => created_at&.to_time.to_i,
       'expiresAt' => expires_at.to_i || (last_accessed + expires_after).to_i,
       'lastUpdated' => updated_at.to_i,
       'inProgressFormId' => id
@@ -89,7 +93,46 @@ class InProgressForm < ApplicationRecord
       end
   end
 
+  def log_cfi_metric(params)
+    return unless form_id == '21-526EZ'
+
+    # if the cfiMetric is present in the form already, then the disability education has been seen
+    if metadata['cfiMetric'].present?
+      params[:metadata]['cfiMetric'] = true
+      return
+    end
+
+    fd = params[:form_data] || params[:form_Data]
+    fd = JSON.parse(fd) if fd.is_a?(String)
+
+    return if fd.blank?
+
+    unless fd.dig('view:claim_type', 'view:claiming_increase') || fd.dig('view:claimType', 'view:claimingIncrease')
+      return
+    end
+
+    user = User.find(user_uuid)
+    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
+    rated_disabilities = fd['rated_disabilities'] || fd['ratedDisabilities'] || []
+    rated_disabilities.each do |dis|
+      log_cfi_metric_for_disability(params, dis, max_cfi_enabled)
+    end
+  rescue => e
+    # Log the exception but but do not fail, otherwise in-progress form will not update
+    log_exception_to_sentry(e)
+  end
+
   private
+
+  def log_cfi_metric_for_disability(params, disability, max_cfi_enabled)
+    maximum_rating_percentage = disability['maximum_rating_percentage'] || disability['maximumRatingPercentage']
+    rating_percentage = disability['rating_percentage'] || disability['ratingPercentage']
+    if maximum_rating_percentage.present? && maximum_rating_percentage == rating_percentage
+      diagnostic_code = disability['diagnosticCode'] || disability['diagnostic_code']
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.rated_disabilities.#{diagnostic_code}")
+      params[:metadata]['cfiMetric'] = true
+    end
+  end
 
   def log_hca_email_diff
     HCA::LogEmailDiffJob.perform_async(id, real_user_uuid) if form_id == '1010ez'

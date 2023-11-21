@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
+RSpec.describe 'Veteran Status API endpoint', if: !Flipper.enabled?(:veteran_status_updated), type: :request,
+                                              skip_emis: true do
   include SchemaMatchers
 
   let(:scopes) { %w[profile email openid veteran_status.read] }
@@ -38,10 +39,6 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformation).to receive(:for_user).and_return(nil)
-      end
-
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
           get '/services/veteran_verification/v1/status', params: nil, headers: auth_header
@@ -96,10 +93,6 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformation).to receive(:for_user).and_return(nil)
-      end
-
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
           get '/services/veteran_verification/v1/status', params: nil, headers: auth_header

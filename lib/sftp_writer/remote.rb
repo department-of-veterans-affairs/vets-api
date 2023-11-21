@@ -28,12 +28,18 @@ module SFTPWriter
       true
     end
 
-    def write_path
-      @config.relative_path || nil
+    def write_path(filename)
+      if filename.starts_with?('307_')
+        @config.relative_307_path || @config.relative_path || nil
+      elsif filename.starts_with?('351_')
+        @config.relative_351_path || @config.relative_path || nil
+      else
+        @config.relative_path || nil
+      end
     end
 
     def write(contents, filename)
-      path = File.join([write_path, sanitize(filename)].compact)
+      path = File.join([write_path(filename), sanitize(filename)].compact)
       @logger.info("Writing #{path}")
       mkdir_safe(path)
       sftp.upload!(StringIO.new(contents), path)

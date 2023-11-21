@@ -18,6 +18,8 @@ module Veteran
 
       validates :poa_codes, presence: true
 
+      before_save :set_full_name
+
       #
       # Find all representatives that matches the provided search criteria
       # @param first_name: [String] First name to search for, ignoring case
@@ -88,6 +90,42 @@ module Veteran
         return true if middle_initial.blank?
 
         rep.middle_initial.present? && rep.middle_initial == middle_initial
+      end
+
+      #
+      # Find all representatives that are located within a distance of a specific location
+      # @params long [Float] longitude of the location of interest
+      # @param lat [Float] latitude of the location of interest
+      # @param max_distance [Float] the maximum search distance in meters
+      #
+      # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
+      #   all representatives matching the search criteria
+      def self.find_within_max_distance(long, lat, max_distance = Constants::DEFAULT_MAX_DISTANCE)
+        query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
+        params = { long:, lat:, max_distance: }
+
+        where(query, params)
+      end
+
+      #
+      # Find all representatives with a full name with at least the FUZZY_SEARCH_THRESHOLD value of
+      #   word similarity. This gives us a way to fuzzy search for names.
+      # @param search_phrase [String] the word, words, or phrase we want representatives with full names similar to
+      #
+      # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
+      #   all representatives matching the search criteria
+      def self.find_with_name_similar_to(search_phrase)
+        where('word_similarity(?, full_name) >= ?', search_phrase, Constants::FUZZY_SEARCH_THRESHOLD)
+      end
+
+      #
+      # Set the full_name attribute for the representative
+      def set_full_name
+        self.full_name = "#{first_name} #{last_name}"
+      end
+
+      def self.max_per_page
+        Constants::MAX_PER_PAGE
       end
     end
   end

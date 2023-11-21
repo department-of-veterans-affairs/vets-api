@@ -1,0 +1,383 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?children=true&ids=688&pageSize=0&schedulable=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Jun 2023 17:08:53 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.21.1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 4d56ca5
+      X-Vamf-Timestamp:
+      - '2023-06-16T18:31:57+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '11'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [ {
+            "id" : "688",
+            "facilitiesApiId" : "vha_688",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Washington VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.9294,
+            "long" : -77.01119,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/washington-va-medical-center/",
+            "phone" : {
+              "main" : "202-745-8000",
+              "fax" : "202-745-8530",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8000",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "202-745-8000 x 58156",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "50 Irving Street, Northwest", null, null ],
+              "city" : "Washington",
+              "state" : "DC",
+              "postalCode" : "20422-0001"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Cardiology", "CaregiverSupport", "Covid19Vaccine", "DentalServices", "Dermatology", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "Urology", "WomensHealth" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688QA",
+            "facilitiesApiId" : "vha_688QA",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Franklin Street VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.926006,
+            "long" : -76.98363,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/franklin-street-va-clinic/",
+            "phone" : {
+              "main" : "202-745-3012",
+              "fax" : "202-636-7661",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "202-745-3012",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "1500 Franklin Street Northeast", "Community Resource & Referral Center (CRRC)", null ],
+              "city" : "Washington",
+              "state" : "DC",
+              "postalCode" : "20018-2000"
+            },
+            "mobile" : false,
+            "healthService" : [ "MentalHealthCare" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GD",
+            "facilitiesApiId" : "vha_688GD",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Charlotte Hall VA Clinic",
+            "classification" : "Multi-Specialty CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.483116,
+            "long" : -76.77509,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/charlotte-hall-va-clinic/",
+            "phone" : {
+              "main" : "301-884-7102",
+              "fax" : "301-884-7106",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "301-884-7102",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "29640 Three Notch Road", null, null ],
+              "city" : "Charlotte Hall",
+              "state" : "MD",
+              "postalCode" : "20622-3244"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Dermatology", "Gynecology", "MentalHealthCare", "Nutrition", "Optometry", "PrimaryCare" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GB",
+            "facilitiesApiId" : "vha_688GB",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Southeast Washington VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.82939,
+            "long" : -76.992485,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/southeast-washington-va-clinic/",
+            "phone" : {
+              "main" : "202-745-8685",
+              "fax" : "202-562-8789",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "202-745-8685",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "820 Chesapeake Street, Southeast", null, null ],
+              "city" : "Washington",
+              "state" : "DC",
+              "postalCode" : "20032-3428"
+            },
+            "mobile" : false,
+            "healthService" : [ "MentalHealthCare", "PrimaryCare" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GA",
+            "facilitiesApiId" : "vha_688GA",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Fort Belvoir VA Clinic",
+            "classification" : "Multi-Specialty CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.70479,
+            "long" : -77.14007,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/fort-belvoir-va-clinic/",
+            "phone" : {
+              "main" : "202-745-8640",
+              "fax" : "571-231-2230",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "202-745-8640",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "9300 Dewitt Loop", null, null ],
+              "city" : "Fort Belvoir",
+              "state" : "VA",
+              "postalCode" : "22060-5285"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Dermatology", "EmergencyCare", "Gynecology", "MentalHealthCare", "PrimaryCare" ],
+            "operatingStatus" : {
+              "code" : "NOTICE",
+              "additionalInfo" : "The Clinic is open for telehealth, phone appointments and limited face-to-face appointments at this time.  Phone 202-745-8000, option 2 to make a routine appointment."
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GG",
+            "facilitiesApiId" : "vha_688GG",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Lexington Park VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.259315,
+            "long" : -76.40501,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/lexington-park-va-clinic/",
+            "phone" : {
+              "main" : "240-237-1625",
+              "fax" : "240-237-1626",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "240-237-1625",
+              "enrollmentCoordinator" : "202-745-8247 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "45870 East Run Drive", "East Run Center", "Suite 300" ],
+              "city" : "Lexington Park",
+              "state" : "MD",
+              "postalCode" : "20653-2383"
+            },
+            "mobile" : false,
+            "healthService" : [ "Dermatology", "MentalHealthCare", "PrimaryCare" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GF",
+            "facilitiesApiId" : "vha_688GF",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Montgomery County VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 39.115063,
+            "long" : -77.19088,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/montgomery-county-va-clinic/",
+            "phone" : {
+              "main" : "301-591-5858",
+              "fax" : "301-963-5535",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "301-591-5858",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "15810 Gaither Drive", "Shady Grove Development Park", "Suite 130" ],
+              "city" : "Gaithersburg",
+              "state" : "MD",
+              "postalCode" : "20877-1429"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Dermatology", "Gynecology", "MentalHealthCare", "PrimaryCare", "Urology", "WomensHealth" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GE",
+            "facilitiesApiId" : "vha_688GE",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Southern Prince George's County VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 38.808407,
+            "long" : -76.89909,
+            "website" : "https://www.va.gov/washington-dc-health-care/locations/southern-prince-georges-county-va-clinic/",
+            "phone" : {
+              "main" : "301-423-3700",
+              "fax" : "301-423-8388",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "301-423-3700",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "5801 Allentown Road", null, "Suites 104 and 106" ],
+              "city" : "Camp Springs",
+              "state" : "MD",
+              "postalCode" : "20746-4563"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "DentalServices", "Dermatology", "MentalHealthCare", "Nutrition", "PrimaryCare" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          } ]
+        }
+  recorded_at: Thu, 22 Jun 2023 17:08:53 GMT
+recorded_with: VCR 6.1.0

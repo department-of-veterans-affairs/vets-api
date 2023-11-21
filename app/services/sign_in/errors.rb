@@ -36,9 +36,14 @@ module SignIn
     class ClientAssertionExpiredError < StandardError; end
     class ClientAssertionMalformedJWTError < StandardError; end
     class ClientAssertionAttributesError < StandardError; end
+    class ServiceAccountAssertionAttributesError < StandardError; end
+    class AssertionSignatureMismatchError < StandardError; end
+    class AssertionExpiredError < StandardError; end
+    class AssertionMalformedJWTError < StandardError; end
+    class ServiceAccountConfigNotFound < StandardError; end
+    class InvalidServiceAccountScope < StandardError; end
     class CodeInvalidError < StandardError; end
     class MalformedParamsError < StandardError; end
-    class AuthorizeInvalidType < StandardError; end
     class CodeVerifierMalformedError < StandardError; end
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
@@ -55,5 +60,8 @@ module SignIn
     class MHVMissingMPIRecordError < StandardError; end
     class UnverifiedCredentialBlockedError < StandardError; end
     class CredentialMissingAttributeError < StandardError; end
+    class InvalidAccessTokenAttributeError < StandardError; end
+    class TermsOfUseNotAcceptedError < StandardError; end
+    class CredentialLockedError < StandardError; end
   end
 end

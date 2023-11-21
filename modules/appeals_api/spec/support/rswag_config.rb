@@ -2,10 +2,11 @@
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
+# Allow use of DocHelpers outside of 'it' context
+RSpec.configure { |_config| include DocHelpers }
+
 # rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
-  include DocHelpers
-
   def rswag_doc_config(base_path_template:, description_file_path:, name:, tags:, version:)
     {
       # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
@@ -15,7 +16,6 @@ class AppealsApi::RswagConfig
         title: DOC_TITLES[name.to_sym],
         version:,
         contact: { name: 'developer.va.gov' },
-        termsOfService: 'https://developer.va.gov/terms-of-service',
         description: File.read(description_file_path)
       },
       tags:,
@@ -108,57 +108,30 @@ class AppealsApi::RswagConfig
     supplemental_claims: 'Supplemental Claims'
   }.freeze
 
-  DEFAULT_READ_SCOPE_DESCRIPTIONS = {
-    'veteran/appeals.read': 'Allows a veteran to see all their own decision review or appeal data',
-    'representative/appeals.read': 'Allows a veteran representative to see all decision review or appeal data for a veteran',
-    'system/appeals.read': 'Allows a system to see all decision review or appeal data for a veteran'
-  }.freeze
+  DEFAULT_READ_SCOPE = { 'appeals.read': 'Appeals info' }.freeze
+  DEFAULT_WRITE_SCOPE = { 'appeals.write': 'Ability to submit appeals' }.freeze
 
-  DEFAULT_WRITE_SCOPE_DESCRIPTIONS = {
-    'veteran/appeals.write': 'Allows a veteran to submit any type of appeal data for themselves',
-    'representative/appeals.write': 'Allows a veteran representative to submit any type of appeal data for a veteran',
-    'system/appeals.write': 'Allows a system to submit any type of appeal data for a veteran'
-  }.freeze
-
-  OAUTH_SCOPE_DESCRIPTIONS = {
+  OAUTH_SCOPES = {
     appeals_status: {
-      'veteran/AppealsStatus.read': 'Allows a veteran to see the status of their own VA decision reviews and appeals',
-      'representative/AppealsStatus.read': "Allows a veteran representative to see the status of a veteran's decision reviews and appeals",
-      'system/AppealsStatus.read': "Allows a system to see the status of a veteran's decision reviews and appeals"
+      'AppealsStatus.read': 'Status of appeals and decision reviews'
     },
     appealable_issues: {
-      'veteran/AppealableIssues.read': 'Allows a veteran to see their own appealable issues',
-      'representative/AppealableIssues.read': "Allows a veteran representative to see a veteran's appealable issues",
-      'system/AppealableIssues.read': "Allows a system to see a veteran's appealable issues"
+      'AppealableIssues.read': 'Appealable issues info'
     },
     higher_level_reviews: {
-      'veteran/HigherLevelReviews.read': 'Allows a veteran to see their own Higher-Level Reviews',
-      'representative/HigherLevelReviews.read': "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-      'system/HigherLevelReviews.read': "Allows a system to see a veteran's Higher-Level Reviews",
-      'veteran/HigherLevelReviews.write': 'Allows a veteran to submit Higher-Level Reviews for themselves',
-      'representative/HigherLevelReviews.write': 'Allows a veteran representative to submit Higher-Level Reviews for a veteran',
-      'system/HigherLevelReviews.write': 'Allows a system to submit Higher-Level Reviews for a veteran'
+      'HigherLevelReviews.read': 'Higher-Level Reviews info',
+      'HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews'
     },
     legacy_appeals: {
-      'veteran/LegacyAppeals.read': 'Allows a veteran to see their own legacy appeals',
-      'representative/LegacyAppeals.read': "Allows a veteran representative to see a veteran's legacy appeals",
-      'system/LegacyAppeals.read': "Allows a system to see a veteran's legacy appeals"
+      'LegacyAppeals.read': 'Legacy appeals info'
     },
     notice_of_disagreements: {
-      'veteran/NoticeOfDisagreements.read': 'Allows a veteran to see their Board Appeals',
-      'representative/NoticeOfDisagreements.read': "Allows a veteran representative to see a veteran's Board Appeals",
-      'system/NoticeOfDisagreements.read': "Allows a system to see a veteran's Board Appeals",
-      'veteran/NoticeOfDisagreements.write': 'Allows a veteran to submit Board Appeals for themselves',
-      'representative/NoticeOfDisagreements.write': 'Allows a veteran representative to submit Board Appeals for a veteran',
-      'system/NoticeOfDisagreements.write': 'Allows a system to submit Board Appeals for a veteran'
+      'NoticeOfDisagreements.read': 'Board Appeals info',
+      'NoticeOfDisagreements.write': 'Ability to submit Board Appeals'
     },
     supplemental_claims: {
-      'veteran/SupplementalClaims.read': 'Allows a veteran to see their Supplemental Claims',
-      'representative/SupplementalClaims.read': "Allows a veteran representative to see a veteran's Supplemental Claims",
-      'system/SupplementalClaims.read': "Allows a system to see a veteran's Supplemental Claims",
-      'veteran/SupplementalClaims.write': 'Allows a veteran to submit Supplemental Claims for themselves',
-      'representative/SupplementalClaims.write': 'Allows a veteran representative to submit Supplemental Claims for a veteran',
-      'system/SupplementalClaims.write': 'Allows a system to submit Supplemental Claims for a veteran'
+      'SupplementalClaims.read': 'Supplemental Claims info',
+      'SupplementalClaims.write': 'Ability to submit Supplemental Claims'
     }
   }.freeze
 
@@ -174,13 +147,24 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def oauth_security_schemes(api_name)
-    api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[api_name.to_sym]
-    scope_descriptions = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DESCRIPTIONS)
+  def scopes_for_user_type(scopes, user_type) = scopes.transform_keys { |k| "#{user_type}/#{k}" }
 
-    if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
-      scope_descriptions.merge!(DEFAULT_WRITE_SCOPE_DESCRIPTIONS)
-    end
+  def oauth_security_schemes(api_name)
+    api_specific_scopes = OAUTH_SCOPES[api_name.to_sym]
+    scopes = api_specific_scopes.merge(DEFAULT_READ_SCOPE)
+    scopes.merge!(DEFAULT_WRITE_SCOPE) if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
+
+    veteran_scopes = scopes_for_user_type(scopes, 'veteran')
+    representative_scopes = scopes_for_user_type(scopes, 'representative')
+    system_scopes = scopes_for_user_type(scopes, 'system')
+
+    authorization_code_scopes = veteran_scopes.merge(representative_scopes)
+    client_credentials_scopes = system_scopes
+
+    description = "The authentication model for the #{DOC_TITLES[api_name.to_sym]} API uses OAuth 2.0/OpenID Connect. " \
+                  'The following authorization models are supported: ' \
+                  "[Authorization code flow](https://#{DocHelpers.doc_url_prefix}developer.va.gov/explore/api/#{api_name.dasherize}/authorization-code) " \
+                  "and [Client Credentials Grant (CCG)](https://#{DocHelpers.doc_url_prefix}developer.va.gov/explore/api/#{api_name.dasherize}/client-credentials)."
 
     {
       bearer_token: {
@@ -190,23 +174,31 @@ class AppealsApi::RswagConfig
       },
       productionOauth: {
         type: :oauth2,
-        description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+        description:,
         flows: {
           authorizationCode: {
-            authorizationUrl: 'https://api.va.gov/oauth2/authorization',
-            tokenUrl: 'https://api.va.gov/oauth2/token',
-            scopes: scope_descriptions
+            authorizationUrl: 'https://api.va.gov/oauth2/appeals/v1/authorization',
+            tokenUrl: 'https://api.va.gov/oauth2/appeals/v1/token',
+            scopes: authorization_code_scopes
+          },
+          clientCredentials: {
+            tokenUrl: "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://#{DocHelpers.doc_url_prefix}developer.va.gov/support/contact-us).",
+            scopes: client_credentials_scopes
           }
         }
       },
       sandboxOauth: {
         type: :oauth2,
-        description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+        description:,
         flows: {
           authorizationCode: {
-            authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
-            tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
-            scopes: scope_descriptions
+            authorizationUrl: 'https://sandbox-api.va.gov/oauth2/appeals/v1/authorization',
+            tokenUrl: 'https://sandbox-api.va.gov/oauth2/appeals/v1/token',
+            scopes: authorization_code_scopes
+          },
+          clientCredentials: {
+            tokenUrl: 'https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token',
+            scopes: client_credentials_scopes
           }
         }
       }
@@ -216,44 +208,39 @@ class AppealsApi::RswagConfig
   def merge_schemas(*schema_parts) = schema_parts.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
 
   def schemas(api_name: nil)
-    nbs_key = api_name == 'decision_reviews' ? 'nonBlankString' : 'non_blank_string'
-
     case api_name
     when 'higher_level_reviews'
       merge_schemas(
         hlr_create_schemas,
         hlr_response_schemas,
         generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID documentUploadMetadata]),
-        shared_schemas
+        shared_schemas.slice(*%w[address phone timezone nonBlankString])
       )
     when 'notice_of_disagreements'
       merge_schemas(
         nod_create_schemas,
         nod_response_schemas,
-        contestable_issues_schema.slice(*%i[contestableIssue]),
-        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-ID X-Consumer-Username X-VA-Insurance-Policy-Number X-VA-NonVeteranClaimant-SSN X-VA-SSN]),
-        shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
+        appealable_issues_response_schemas.slice(*%i[appealableIssue]),
+        generic_schemas.slice(*%i[errorModel uuid])
       )
     when 'supplemental_claims'
       merge_schemas(
         sc_create_schemas,
         sc_response_schemas,
-        sc_alt_signer_schemas,
-        contestable_issues_schema.slice(*%i[contestableIssue]),
-        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp uuid X-Consumer-ID X-Consumer-Username X-VA-NonVeteranClaimant-SSN X-VA-NonVeteranClaimant-Birth-Date]),
-        shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
+        appealable_issues_response_schemas.slice(*%i[appealableIssue]),
+        generic_schemas.slice(*%i[errorModel documentUploadMetadata]),
+        shared_schemas.slice(*%w[address icn phone ssn timezone nonBlankString])
       )
     when 'appealable_issues'
       merge_schemas(
-        appealable_issues_schema,
-        generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%W[#{nbs_key}])
+        appealable_issues_response_schemas,
+        generic_schemas.slice(*%i[errorModel])
       )
     when 'legacy_appeals'
       merge_schemas(
         legacy_appeals_schema,
         generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%W[#{nbs_key}])
+        shared_schemas.slice(*%w[nonBlankString])
       )
     when 'appeals_status'
       merge_schemas(
@@ -271,16 +258,15 @@ class AppealsApi::RswagConfig
         decision_reviews_sc_alt_signer_schemas,
         contestable_issues_schema,
         legacy_appeals_schema,
-        generic_schemas(nbs_key:),
-        shared_schemas(nbs_key:)
+        generic_schemas
       )
     else
       raise "Don't know how to build schemas for '#{api_name}'"
     end
   end
 
-  def generic_schemas(nbs_key: 'non_blank_string')
-    nbs_ref = "#/components/schemas/#{nbs_key}"
+  def generic_schemas
+    nbs_ref = '#/components/schemas/nonBlankString'
 
     {
       'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
@@ -400,7 +386,7 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def appealable_issues_schema
+  def appealable_issues_response_schemas
     {
       'appealableIssues': {
         'type': 'object',
@@ -413,12 +399,7 @@ class AppealsApi::RswagConfig
           }
         }
       },
-      'appealableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json'))),
-      'X-VA-Receipt-Date': {
-        "description": '(yyyy-mm-dd) Date to limit the appealable issues',
-        "type": 'string',
-        "format": 'date'
-      }
+      'appealableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json')))
     }
   end
 
@@ -444,10 +425,10 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def decision_reviews_hlr_create_schemas = parse_create_schema 'v2', '200996.json'
+  def decision_reviews_hlr_create_schemas = parse_create_schema('decision_reviews', 'v2', '200996.json')
 
   def hlr_create_schemas
-    hlr_schema = parse_create_schema('v2', '200996_with_shared_refs.json', return_raw: true)
+    hlr_schema = parse_create_schema('higher_level_reviews', 'v0', '200996.json', return_raw: true)
     {
       hlrCreate: { type: 'object' }.merge!(hlr_schema.slice(*%w[description properties required]))
     }
@@ -455,6 +436,8 @@ class AppealsApi::RswagConfig
 
   def decision_reviews_hlr_response_schemas
     schemas = hlr_response_schemas
+    schemas = deep_replace_key(schemas, :createDate, :createdAt)
+    schemas = deep_replace_key(schemas, :updateDate, :updatedAt)
 
     # ContestableIssuesShow is not part of the segmented HLR api, so we only add it for Decision Reviews
     schemas['hlrContestableIssuesShow'] = {
@@ -618,14 +601,14 @@ class AppealsApi::RswagConfig
                     'example': AppealsApi::HlrStatus::V2_STATUSES.first,
                     'enum': AppealsApi::HlrStatus::V2_STATUSES
                   },
-                  'updatedAt': {
+                  'updateDate': {
                     'description': 'The last time the submission was updated',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
                   },
-                  'createdAt': {
-                    'description': 'The last time the submission was updated',
+                  'createDate': {
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -641,12 +624,14 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def decision_reviews_nod_create_schemas = parse_create_schema 'v2', '10182.json'
+  def decision_reviews_nod_create_schemas = parse_create_schema('decision_reviews', 'v2', '10182.json')
 
   def nod_create_schemas
-    nod_schema = parse_create_schema('v2', '10182_with_shared_refs.json', return_raw: true)
+    nod_schema = parse_create_schema('notice_of_disagreements', 'v0', '10182.json', return_raw: true)
+    evidence_schema = parse_create_schema('notice_of_disagreements', 'v0', 'evidence_submission.json', return_raw: true)
     {
-      nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
+      nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required])),
+      nodEvidenceSubmissionCreate: { type: 'object' }.merge!(evidence_schema.slice(*%w[description properties required]))
     }
   end
 
@@ -728,7 +713,7 @@ class AppealsApi::RswagConfig
                     'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    'description': 'The last time the submission was updated',
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -798,7 +783,7 @@ class AppealsApi::RswagConfig
                     'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    'description': 'The last time the submission was updated',
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -814,10 +799,68 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def nod_response_schemas = decision_reviews_nod_response_schemas
+  def nod_response_schemas
+    schemas = decision_reviews_nod_response_schemas
+    schemas = deep_replace_key(schemas, :createdAt, :createDate)
+    schemas = deep_replace_key(schemas, :updatedAt, :updateDate)
+    schemas.merge(
+      {
+        'nodCreateResponse': {
+          'description': 'Successful response of a 10182 form submission',
+          'type': 'object',
+          'properties': {
+            'data': {
+              'properties': {
+                'id': {
+                  'type': 'string',
+                  'description': 'Unique ID of created NOD',
+                  'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+                },
+                'type': {
+                  'type': 'string',
+                  'description': 'Name of record class',
+                  'example': 'noticeOfDisagreement'
+                },
+                'attributes': {
+                  'type': 'object',
+                  'properties': {
+                    'status': {
+                      'type': 'string',
+                      'description': 'Status of NOD',
+                      'example': AppealsApi::NodStatus::STATUSES.first,
+                      'enum': AppealsApi::NodStatus::STATUSES
+                    },
+                    'createDate': {
+                      'type': 'string',
+                      'description': 'Created timestamp of the NOD',
+                      'example': '2020-12-16T19:52:23.909Z'
+                    },
+                    'updateDate': {
+                      'type': 'string',
+                      'description': 'Updated timestamp of the NOD',
+                      'example': '2020-12-16T19:52:23.909Z'
+                    }
+                  }
+                },
+                'formData': {
+                  '$ref': '#/components/schemas/nodCreate'
+                }
+              }
+            },
+            'included': {
+              'type': 'array',
+              'items': {
+                '$ref': '#/components/schemas/appealableIssue'
+              }
+            }
+          }
+        }
+      }
+    )
+  end
 
   def decision_reviews_sc_create_schemas
-    sc_schema = parse_create_schema 'v2', '200995.json'
+    sc_schema = parse_create_schema('decision_reviews', 'v2', '200995.json')
     return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
 
     # Removes 'potentialPactAct' from schema for production docs
@@ -827,7 +870,7 @@ class AppealsApi::RswagConfig
   end
 
   def sc_create_schemas
-    sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
+    sc_schema = parse_create_schema('supplemental_claims', 'v0', '200995.json', return_raw: true)
 
     # Removes 'potentialPactAct' from schema for production docs
     unless wip_doc_enabled?(:sc_v2_potential_pact_act)
@@ -837,7 +880,8 @@ class AppealsApi::RswagConfig
     end
 
     {
-      scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
+      scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required])),
+      scEvidenceSubmissionCreate: parse_create_schema('supplemental_claims', 'v0', 'evidence_submission.json', return_raw: true)
     }
   end
 
@@ -948,7 +992,7 @@ class AppealsApi::RswagConfig
                     'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    'description': 'The last time the submission was updated',
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -964,9 +1008,65 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def sc_response_schemas = decision_reviews_sc_response_schemas
+  def sc_response_schemas
+    schemas = decision_reviews_sc_response_schemas
+    schemas = deep_replace_key(schemas, :createdAt, :createDate)
+    schemas = deep_replace_key(schemas, :updatedAt, :updateDate)
+    schemas.merge(
+      {
+        'scCreateResponse': {
+          'description': 'Successful response of a 200995 form submission',
+          'type': 'object',
+          'properties': {
+            'data': {
+              'properties': {
+                'id': {
+                  'type': 'string',
+                  'description': 'Unique ID of created supplemental claim',
+                  'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+                },
+                'type': {
+                  'type': 'string',
+                  'description': 'Type of record',
+                  'example': 'supplementalClaim'
+                },
+                'attributes': {
+                  'type': 'object',
+                  'properties': {
+                    'status': {
+                      'type': 'string',
+                      'description': 'Status of created supplemental claim',
+                      'example': AppealsApi::SupplementalClaim::STATUSES.first,
+                      'enum': AppealsApi::SupplementalClaim::STATUSES
+                    },
+                    'createDate': {
+                      'type': 'string',
+                      'description': 'Created timestamp of the supplemental claim',
+                      'example': '2020-12-16T19:52:23.909Z'
+                    },
+                    'updateDate': {
+                      'type': 'string',
+                      'description': 'Updated timestamp of the supplemental claim',
+                      'example': '2020-12-16T19:52:23.909Z'
+                    }
+                  }
+                },
+                'formData': { '$ref': '#/components/schemas/scCreate' }
+              }
+            },
+            'included': {
+              'type': 'array',
+              'items': {
+                '$ref': '#/components/schemas/appealableIssue'
+              }
+            }
+          }
+        }
+      }
+    )
+  end
 
-  def decision_reviews_sc_alt_signer_schemas(nbs_key: 'nonBlankString')
+  def decision_reviews_sc_alt_signer_schemas
     # Taken from 200995_headers.json
     {
       'X-Alternate-Signer-First-Name': {
@@ -979,18 +1079,18 @@ class AppealsApi::RswagConfig
         'description': 'Alternate signer\'s middle initial',
         'minLength': 1,
         'maxLength': 1,
-        '$ref': "#/components/schemas/#{nbs_key}"
+        '$ref': '#/components/schemas/nonBlankString'
       },
       'X-Alternate-Signer-Last-Name': {
         'description': 'Alternate signer\'s last name',
         'minLength': 1,
         'maxLength': 40,
-        '$ref': "#/components/schemas/#{nbs_key}"
+        '$ref': '#/components/schemas/nonBlankString'
       }
     }
   end
 
-  def sc_alt_signer_schemas = decision_reviews_sc_alt_signer_schemas(nbs_key: 'non_blank_string')
+  def sc_alt_signer_schemas = decision_reviews_sc_alt_signer_schemas
 
   def legacy_appeals_schema
     {
@@ -1129,18 +1229,20 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def shared_schemas(nbs_key: 'non_blank_string')
+  def shared_schemas
     # Keys are strings to override older, non-shared-schema definitions
     {
-      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
-      nbs_key => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
-      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'phone.json')))['properties']['phone'],
-      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'timezone.json')))['properties']['timezone']
+      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'address.json')))['properties']['address'],
+      'icn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'icn.json')))['properties']['icn'],
+      'nonBlankString' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'nonBlankString.json')))['properties']['nonBlankString'],
+      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],
+      'ssn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'ssn.json')))['properties']['ssn'],
+      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'timezone.json')))['properties']['timezone']
     }
   end
 
-  def parse_create_schema(version, schema_file, return_raw: false)
-    file = File.read(AppealsApi::Engine.root.join('config', 'schemas', version, schema_file))
+  def parse_create_schema(api_name, api_version, schema_file, return_raw: false)
+    file = File.read(AppealsApi::Engine.root.join('config', 'schemas', api_name, api_version, schema_file))
     file.gsub! '#/definitions/', '#/components/schemas/'
     schema = JSON.parse file
 

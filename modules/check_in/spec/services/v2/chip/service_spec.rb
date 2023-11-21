@@ -186,6 +186,82 @@ describe V2::Chip::Service do
     end
   end
 
+  describe '#set_echeckin_started' do
+    let(:appointment_ien) { 'test_appt_ien' }
+    let(:station_no) { '500' }
+    let(:appointment_identifiers) do
+      {
+        data: {
+          id: :id,
+          type: :appointment_identifier,
+          attributes: { patientDFN: '123', stationNo: :station_no, appointmentIen: :appointment_ien }
+        }
+      }
+    end
+
+    context 'when token is present and CHIP returns success response' do
+      let(:response_body) do
+        {
+          'id' => 'appointment_ien',
+          'message' => "SetECheckInStarted success with appointmentIen: #{appointment_ien}, stationNo: #{station_no}",
+          'type' => 'SetECheckInStartedResponse'
+        }
+      end
+
+      let(:set_echeckin_resp) { Faraday::Response.new(body: response_body.to_json, status: 200) }
+      let(:resp) { { data: response_body, status: 200 } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:set_echeckin_started).and_return(set_echeckin_resp)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
+      end
+
+      it 'returns success response' do
+        response = subject.build(check_in: valid_check_in).set_echeckin_started
+        expect(response).to eq(resp)
+      end
+    end
+
+    context 'when token is present but CHIP returns error' do
+      let(:set_echeckin_resp_body) { { 'title' => 'An error was encountered.' } }
+      let(:set_echeckin_resp) { Faraday::Response.new(body: set_echeckin_resp_body.to_json, status: 500) }
+      let(:resp) { { data: { error: true, message: 'Something went wrong' }, status: 500 } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:set_echeckin_started).and_return(set_echeckin_resp)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
+      end
+
+      it 'returns the original response' do
+        response = subject.build(check_in: valid_check_in).set_echeckin_started
+        expect(response).to eq(resp)
+      end
+    end
+
+    context 'when token is not present' do
+      let(:resp) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns unauthorized message' do
+        response = subject.build(check_in: valid_check_in).set_echeckin_started
+        expect(response).to eq(resp)
+      end
+    end
+  end
+
   describe '#token' do
     context 'when it exists in redis' do
       before do
@@ -576,6 +652,45 @@ describe V2::Chip::Service do
       it 'returns patientDfn and stationNo as string' do
         expect(subject.build(check_in: valid_check_in, params: {})
                       .identifier_params).to eq(hsh)
+      end
+    end
+  end
+
+  describe '#travel_params' do
+    let(:params_without_travel_attributes) { { appointment_ien: 'test-appt-ien' } }
+    let(:params_with_travel_attributes) do
+      {
+        appointment_ien: 'test-appt-ien',
+        is_travel_enabled: true,
+        travel_submitted: false
+      }
+    end
+
+    context 'when called without travel parameters' do
+      let(:hsh_without_travel_attributes) do
+        {
+          isTravelEnabled: nil,
+          travelSubmitted: nil
+        }
+      end
+
+      it 'returns hash with travel attributes set with nil' do
+        expect(subject.build(check_in: valid_check_in, params: params_without_travel_attributes)
+                      .travel_params).to eq(hsh_without_travel_attributes)
+      end
+    end
+
+    context 'when called with travel parameters' do
+      let(:hsh_with_travel_attributes) do
+        {
+          isTravelEnabled: true,
+          travelSubmitted: false
+        }
+      end
+
+      it 'returns hash with travel attributes set with nil' do
+        expect(subject.build(check_in: valid_check_in, params: params_with_travel_attributes)
+                      .travel_params).to eq(hsh_with_travel_attributes)
       end
     end
   end

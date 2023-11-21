@@ -54,45 +54,69 @@ RSpec.describe 'prescriptions', type: :request do
       end
 
       it 'responds to GET #show' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-          get '/my_health/v1/prescriptions/13651310'
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
+          get '/my_health/v1/prescriptions/12284508'
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescription')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_single')
       end
 
       it 'responds to GET #show with camel-inlfection' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-          get '/my_health/v1/prescriptions/13651310', headers: inflection_header
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription_v1') do
+          get '/my_health/v1/prescriptions/12284508', headers: inflection_header
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescription')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescription_single')
       end
 
       it 'responds to GET #index with no parameters' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/my_health/v1/prescriptions'
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescriptions')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
       it 'responds to GET #index with no parameters when camel-inflected' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/my_health/v1/prescriptions', headers: inflection_header
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescriptions')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
+      end
+
+      it 'responds to GET #index with pagination parameters' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
+          get '/my_health/v1/prescriptions?page=1&per_page=10'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(JSON.parse(response.body)['meta']['pagination']['current_page']).to eq(1)
+        expect(JSON.parse(response.body)['meta']['pagination']['per_page']).to eq(10)
+      end
+
+      it 'responds to GET #index with pagination parameters when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
+          get '/my_health/v1/prescriptions?page=2&per_page=20', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(JSON.parse(response.body)['meta']['pagination']['currentPage']).to eq(2)
+        expect(JSON.parse(response.body)['meta']['pagination']['perPage']).to eq(20)
       end
 
       it 'responds to GET #index with refill_status=active' do
@@ -102,39 +126,39 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescriptions')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
       it 'responds to GET #index with refill_status=active when camel-inflected' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions_v1') do
           get '/my_health/v1/prescriptions?refill_status=active', headers: inflection_header
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescriptions')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
       end
 
       it 'responds to GET #index with filter' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_filtered_v1') do
           get '/my_health/v1/prescriptions?filter[[refill_status][eq]]=refillinprocess'
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescriptions_filtered')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_list_filtered')
       end
 
       it 'responds to GET #index with filter when camel-inflected' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_filtered_v1') do
           get '/my_health/v1/prescriptions?filter[[refill_status][eq]]=refillinprocess', headers: inflection_header
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescriptions_filtered')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescription_list_filtered')
       end
 
       it 'responds to POST #refill' do

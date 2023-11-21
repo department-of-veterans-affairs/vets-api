@@ -4,6 +4,8 @@ require 'pension_burial/tag_sentry'
 
 module V0
   class BurialClaimsController < ClaimsBaseController
+    service_tag 'burial-application'
+
     def create
       PensionBurial::TagSentry.tag_sentry
       claim = claim_class.new(form: filtered_params[:form])

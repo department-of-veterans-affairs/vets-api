@@ -11,7 +11,7 @@ module VirtualRegionalOffice
     self.read_timeout = Settings.virtual_regional_office&.read_timeout || 60
 
     def base_path
-      "#{Settings.virtual_regional_office.url}/#{API_VERSION}"
+      Settings.virtual_regional_office.url.to_s
     end
 
     def service_name

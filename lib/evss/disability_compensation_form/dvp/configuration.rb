@@ -7,7 +7,7 @@ module EVSS
       # points to the Digital Veterans Platform
       class Configuration < EVSS::DisabilityCompensationForm::Configuration
         def base_path
-          "#{Settings.evss.dvp.url}/#{Settings.evss.dvp.service_name}/rest/form526/v2"
+          "#{Settings.evss.dvp.url}/#{Settings.evss.service_name}/rest/form526/v2"
         end
       end
     end

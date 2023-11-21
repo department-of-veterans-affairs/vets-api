@@ -19,10 +19,30 @@ RSpec.describe LighthouseIntentToFileProvider do
 
   it_behaves_like 'intent to file provider'
 
+  # TODO-BDEX: Down the line, revisit re-generating cassettes using some local test credentials
+  # and actual interaction with LH
   it 'retrieves intent to file from the Lighthouse API' do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
       response = provider.get_intent_to_file('compensation', '', '')
       expect(response['intent_to_file'].length).to eq(1)
+    end
+  end
+
+  it 'creates intent to file using the Lighthouse API' do
+    VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+      response = provider.create_intent_to_file('compensation', '', '')
+      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
+      expect(response['intent_to_file'][0]['type']).to eq('compensation')
+      expect(response['intent_to_file'][0]['id']).to be_present
+    end
+  end
+
+  it 'creates intent to file with the survivor type' do
+    VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_survivor_200_response') do
+      response = provider.create_intent_to_file('survivor', '', '')
+      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
+      expect(response['intent_to_file'][0]['type']).to eq('survivor')
+      expect(response['intent_to_file'][0]['id']).to be_present
     end
   end
 

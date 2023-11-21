@@ -1,0 +1,86 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:8120/classifier
+    body:
+      encoding: UTF-8
+      string: '{"diagnostic_code":5235,"claim_id":738,"form526_submission_id":696}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      X-Api-Key:
+      - 9d3868d1-ec15-4889-8002-2bff1b50ba62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Date:
+      - Thu, 08 Jun 2023 19:37:40 GMT
+      Server:
+      - uvicorn
+      Content-Length:
+      - '4'
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: 'null'
+  recorded_at: Thu, 08 Jun 2023 19:37:41 GMT
+- request:
+    method: post
+    uri: https://viccs-api-test.ibm-intelligent-automation.com/pca/api/test/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=openid&client_id=va_gov_test&client_<DMC_TOKEN>=<LIGHTHOUSE_API_KEY>
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Thu, 08 Jun 2023 19:37:42 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '75'
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-store
+      X-Xss-Protection:
+      - 1; mode=block
+      Pragma:
+      - no-cache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Referrer-Policy:
+      - no-referrer
+      Apigw-Requestid:
+      - GNwg_jF9PHMEJGQ=
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+    body:
+      encoding: UTF-8
+      string: '{"error":"unauthorized_client","error_description":"Invalid client
+        <DMC_TOKEN>"}'
+  recorded_at: Thu, 08 Jun 2023 19:37:42 GMT
+recorded_with: VCR 6.1.0

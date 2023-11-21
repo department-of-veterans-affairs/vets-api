@@ -37,6 +37,17 @@ module Rx
     end
 
     ##
+    # Get a list of active Prescriptions using new model PrescriptionDetails
+    #
+    # @return [Common::Collection[PrescriptionDetails]]
+    #
+    def get_active_rxs_with_details
+      Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
+        perform(:get, 'prescription/getactiverx', nil, token_headers).body
+      end
+    end
+
+    ##
     # Get a list of all Prescriptions
     #
     # @return [Common::Collection[Prescription]]
@@ -48,6 +59,18 @@ module Rx
     end
 
     ##
+    # Get a list of all Prescriptions using different api endpoint that returns additional
+    # data per rx compared to /gethistoryrx
+    #
+    # @return [Common::Collection[PrescriptionDetails]]
+    #
+    def get_all_rxs
+      Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
+        perform(:get, 'prescription/medications', nil, token_headers).body
+      end
+    end
+
+    ##
     # Get a single Prescription
     #
     # @param id [Fixnum] An Rx id
@@ -55,6 +78,17 @@ module Rx
     #
     def get_rx(id)
       collection = get_history_rxs
+      collection.find_first_by('prescription_id' => { 'eq' => id })
+    end
+
+    ##
+    # Get a single Prescription using different api endpoint that returns additional data compared to /gethistoryrx
+    #
+    # @param id [Fixnum] An Rx id
+    # @return [Prescription]
+    #
+    def get_rx_details(id)
+      collection = get_all_rxs
       collection.find_first_by('prescription_id' => { 'eq' => id })
     end
 

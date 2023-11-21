@@ -7,6 +7,7 @@ require 'evss/error_middleware'
 require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
+require 'evss_service/base' # docker container
 
 module ClaimsApi
   module V1
@@ -63,6 +64,7 @@ module ClaimsApi
           end
 
           if auto_claim.errors.present?
+            claims_v1_logging('526_submit', message: auto_claim.errors.messages.to_s)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
@@ -70,7 +72,6 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
           end
 
-          ClaimsApi::Logger.log('526', detail: '526 - Request Completed')
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
@@ -78,7 +79,7 @@ module ClaimsApi
         # Required if first ever claim for Veteran.
         #
         # @return [JSON] Claim record
-        def upload_form_526
+        def upload_form_526 # rubocop:disable Metrics/MethodLength
           validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
@@ -96,11 +97,13 @@ module ClaimsApi
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
             message = <<-MESSAGE
-              Claim submission requires that the "autoCestPDFGenerationDisabled" field
-              must be set to "true" in order to allow a 526 PDF to be uploaded
+            Claim submission requires that the "autoCestPDFGenerationDisabled" field
+            must be set to "true" in order to allow a 526 PDF to be uploaded
             MESSAGE
+            claims_v1_logging('526_upload', message:)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
           else
+            claims_v1_logging('526_upload', message: 'Resource not found')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
           end
         end
@@ -113,13 +116,12 @@ module ClaimsApi
           validate_documents_page_size
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
-
-          ClaimsApi::Logger.log(
-            '526',
-            claim_id: claim.id,
-            detail: "/attachments called with #{documents.length} #{'attachment'.pluralize(documents.length)}"
-          )
+          unless claim
+            claims_v1_logging('526_attachments',
+                              message: "/attachments called with
+                              #{documents.length} #{'attachment'.pluralize(documents.length)}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+          end
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
@@ -146,7 +148,9 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
 
           service =
-            if Flipper.enabled? :form526_legacy
+            if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
+              ClaimsApi::EVSSService::Base.new
+            elsif Flipper.enabled? :form526_legacy
               EVSS::DisabilityCompensationForm::Service.new(auth_headers)
             else
               EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
@@ -159,16 +163,27 @@ module ClaimsApi
             flashes:,
             special_issues: special_issues_per_disability
           )
-          service.validate_form526(auto_claim.to_internal)
+
+          if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
+            service.validate(auto_claim, auto_claim.to_internal)
+          else
+            service.validate_form526(auto_claim.to_internal)
+          end
+
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
+
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
           error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
           track_526_validation_errors(error_details)
           raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
+        rescue ::Common::Exceptions::BackendServiceException => e
+          error_details = e&.original_body&.[](:messages)
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
         rescue ::Common::Exceptions::GatewayTimeout,
                ::Timeout::Error,
                ::Faraday::TimeoutError,
+               Faraday::Error::ParsingError,
                Breakers::OutageException => e
           req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
           PersonalInformationLog.create(
@@ -219,7 +234,8 @@ module ClaimsApi
         end
 
         def validate_initial_claim
-          if claims_service.claims_count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
+          if local_bgs_service.claims_count(target_veteran.participant_id).zero? &&
+             form_attributes['autoCestPDFGenerationDisabled'] == false
             message = 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
           end
@@ -252,7 +268,7 @@ module ClaimsApi
         end
 
         def unprocessable_response(e)
-          log_message_to_sentry('Upload error in 526', :error, body: e.message)
+          log_message_to_sentry('Upload error in 526', :warning, body: e.message)
 
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]

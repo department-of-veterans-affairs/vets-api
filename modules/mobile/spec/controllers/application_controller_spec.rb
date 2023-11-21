@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 
 RSpec.describe Mobile::ApplicationController, type: :controller do
   controller do
@@ -98,22 +98,6 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           get :index
 
           expect(response).to have_http_status(:ok)
-        end
-      end
-
-      context 'with a user without vet360 id' do
-        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
-
-        it 'returns returns ok' do
-          get :index
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'calls async linking job on first call and does not on second after redis lock is in place' do
-          expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
-          get :index
-          expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
-          get :index
         end
       end
 

@@ -8,8 +8,8 @@ class LighthouseIntentToFileProvider
   include IntentToFileProvider
 
   def initialize(current_user)
-    icn = current_user.icn
-    @service = BenefitsClaims::Service.new(icn)
+    @current_user = current_user
+    @service = BenefitsClaims::Service.new(current_user.icn)
   end
 
   def get_intent_to_file(type, lighthouse_client_id, lighthouse_rsa_key_path)
@@ -17,11 +17,10 @@ class LighthouseIntentToFileProvider
     transform(data)
   end
 
-  def create_intent_to_file(type)
-    # Will implement in 57064
-    # data = @service.get_intent_to_file(type)['data']
-    # return 401 response if something is missing?
-    # transform(data)
+  def create_intent_to_file(type, lighthouse_client_id, lighthouse_rsa_key_path)
+    data = @service.create_intent_to_file(type, @current_user.ssn, lighthouse_client_id,
+                                          lighthouse_rsa_key_path)['data']
+    transform(data)
   end
 
   private

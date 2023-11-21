@@ -19,6 +19,7 @@ module AppealsApi
     attr_readonly :form_data
 
     before_create :assign_metadata
+    before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_success? && delay_evidence_enabled? }
 
     scope :pii_expunge_policy, lambda {
       where(
@@ -65,6 +66,7 @@ module AppealsApi
     # V2 validations
     validate  :required_claimant_data_is_present,
               :claimant_birth_date_is_in_the_past,
+              :country_codes_valid,
               if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
     validate :validate_requesting_extension, if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
@@ -129,21 +131,8 @@ module AppealsApi
     end
     # V2 End
 
-    def veteran_first_name
-      header_field_as_string 'X-VA-First-Name'
-    end
-
-    def veteran_last_name
-      header_field_as_string 'X-VA-Last-Name'
-    end
-
-    def ssn
-      header_field_as_string 'X-VA-SSN'
-    end
-
-    def file_number
-      header_field_as_string 'X-VA-File-Number'
-    end
+    delegate :first_name, :last_name, :birth_date, to: :veteran, prefix: :veteran
+    delegate :ssn, :file_number, to: :veteran
 
     def consumer_name
       header_field_as_string 'X-Consumer-Username'
@@ -216,6 +205,9 @@ module AppealsApi
 
     def assign_metadata
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     def accepts_evidence?
@@ -264,7 +256,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -279,7 +271,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end
@@ -288,6 +280,10 @@ module AppealsApi
 
     def update_status!(status:, code: nil, detail: nil)
       update_status(status:, code:, detail:, raise_on_error: true)
+    end
+
+    def submit_evidence_to_central_mail!
+      evidence_submissions&.each(&:submit_to_central_mail!)
     end
 
     private
@@ -359,10 +355,6 @@ module AppealsApi
       !board_review_hearing_selected? && includes_hearing_type_preference?
     end
 
-    def veteran_birth_date
-      self.class.date_from_string header_field_as_string 'X-VA-Birth-Date'
-    end
-
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
     end
@@ -379,6 +371,14 @@ module AppealsApi
 
     def email_present?
       claimant.email.present? || email_identifier.present?
+    end
+
+    def status_changed_to_success?
+      status_changed? && status == 'success'
+    end
+
+    def delay_evidence_enabled?
+      Flipper.enabled?(:decision_review_delay_evidence)
     end
 
     def clear_memoized_values

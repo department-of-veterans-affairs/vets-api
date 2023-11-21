@@ -72,6 +72,17 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to match_camelized_response_schema('category')
     end
 
+    it 'returns message signature preferences' do
+      VCR.use_cassette('sm_client/messages/gets_message_signature') do
+        get '/my_health/v1/messaging/messages/signature', headers: inflection_header
+      end
+
+      result = JSON.parse(response.body)
+      expect(result['data']['includeSignature']).to eq(true)
+      expect(result['data']['signatureTitle']).to eq('test-api title')
+      expect(result['data']['signatureName']).to eq('test-api Name')
+    end
+
     it 'responds to GET #show' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
         get "/my_health/v1/messaging/messages/#{message_id}"

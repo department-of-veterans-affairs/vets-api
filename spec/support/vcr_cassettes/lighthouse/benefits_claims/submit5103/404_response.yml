@@ -1,0 +1,78 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims/600397108/5103
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Thu, 01 Jun 2023 18:20:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '8'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Custom-Response-Header:
+      - eks-staging
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 6e7211ba39afc48551d417bbfeb8a6a251585bda
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 05134f3f-0a86-49ac-be5f-a3d23ed786aa
+      X-Runtime:
+      - '0.034137'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"title":"Resource not found","detail":"Unable to locate
+        Veteran''s ID/ICN in Master Person Index (MPI). Please submit an issue at
+        ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."}]}'
+  recorded_at: Thu, 01 Jun 2023 18:20:52 GMT
+recorded_with: VCR 6.1.0

@@ -1,24 +1,41 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 
-RSpec.describe 'claims decision request', type: :request do
+RSpec.describe 'lighthouse claims decision request', type: :request do
   describe 'GET /v0/claim/:id/request-decision' do
+    let!(:user) { sis_user(icn: '1008596379V859838') }
+
     before do
-      iam_sign_in
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a')
+      token = 'abcdefghijklmnop'
+      allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+      Flipper.enable_actor(:mobile_lighthouse_request_decision, user)
     end
 
-    it 'returns jid with 202 status' do
-      post '/mobile/v0/claim/600117255/request-decision', headers: iam_headers
-      expect(response.status).to eq(202)
-      expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::RequestDecision.jobs.first['jid'])
+    after { Flipper.disable_actor(:mobile_lighthouse_request_decision, user) }
+
+    it 'returns success with 202 status' do
+      VCR.use_cassette('mobile/lighthouse_claims/request_decision/200_response') do
+        post '/mobile/v0/claim/600397108/request-decision', headers: sis_headers
+      end
+      expect(response).to have_http_status(:accepted)
+      expect(response.parsed_body.dig('data', 'jobId')).to eq('success')
     end
 
-    it 'returns 500 for non-existent record' do
-      post '/mobile/v0/claim/3242233/request-decision', headers: iam_headers
-      expect(response.status).to eq(500)
+    it 'returns failure with 202 status' do
+      VCR.use_cassette('mobile/lighthouse_claims/request_decision/200_failure_response') do
+        post '/mobile/v0/claim/600397108/request-decision', headers: sis_headers
+      end
+      expect(response).to have_http_status(:accepted)
+      expect(response.parsed_body.dig('data', 'jobId')).to eq('failure')
+    end
+
+    it 'returns 404 for non-existent record' do
+      VCR.use_cassette('mobile/lighthouse_claims/request_decision/404_response') do
+        post '/mobile/v0/claim/600397108/request-decision', headers: sis_headers
+      end
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

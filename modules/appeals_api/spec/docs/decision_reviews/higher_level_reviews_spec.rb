@@ -5,6 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
 def swagger_doc
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
@@ -13,6 +14,7 @@ end
 # rubocop:disable RSpec/VariableName, Layout/LineLength
 describe 'Higher-Level Reviews', swagger_doc:, type: :request do
   include DocHelpers
+  include FixtureHelpers
   let(:apikey) { 'apikey' }
 
   path '/higher_level_reviews' do
@@ -31,10 +33,10 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_minimum.json')))
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200996_minimum.json')
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200996_extra.json')
         }
       }
 
@@ -42,6 +44,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       let(:'X-VA-SSN') { '000000000' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      let(:'X-VA-ICN') { '1234567890V987654' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }
@@ -67,9 +70,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
 
       response '200', 'Info about a single Higher-Level Review' do
-        let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_minimum.json')))
-        end
+        let(:hlr_body) { fixture_as_json('decision_reviews/v2/valid_200996_minimum.json') }
 
         schema '$ref' => '#/components/schemas/hlrShow'
 
@@ -80,9 +81,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       end
 
       response '200', 'Info about a single Higher-Level Review' do
-        let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
-        end
+        let(:hlr_body) { fixture_as_json('decision_reviews/v2/valid_200996_extra.json') }
         let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
@@ -100,7 +99,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:hlr_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996.json')))
+          request_body = fixture_as_json('decision_reviews/v2/valid_200996.json')
           request_body['data']['attributes'].delete('informalConference')
           request_body
         end
@@ -144,6 +143,19 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       end
 
       it_behaves_like 'rswag 500 response'
+    end
+  end
+
+  path '/higher_level_reviews/{uuid}/download' do
+    get 'Download a watermarked copy of a submitted Higher-Level Review' do
+      tags 'Higher-Level Reviews'
+      operationId 'downloadHlr'
+      security DocHelpers.decision_reviews_security_config
+
+      include_examples 'decision reviews PDF download docs', {
+        factory: :extra_higher_level_review_v2,
+        appeal_type_display_name: 'Higher-Level Review'
+      }
     end
   end
 
@@ -250,10 +262,10 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
 
       parameter in: :body, examples: {
         'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_minimum.json')))
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200996_minimum.json')
         },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
+          value: FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200996_extra.json')
         }
       }
 
@@ -261,6 +273,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       let(:'X-VA-SSN') { '000000000' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      let(:'X-VA-ICN') { '1234567890V987654' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }
@@ -286,9 +299,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
 
       response '200', 'Valid' do
-        let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_minimum.json')))
-        end
+        let(:hlr_body) { fixture_as_json('decision_reviews/v2/valid_200996_minimum.json') }
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'hlr_validate.json')))
 
@@ -298,9 +309,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       end
 
       response '200', 'Valid' do
-        let(:hlr_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
-        end
+        let(:hlr_body) { fixture_as_json('decision_reviews/v2/valid_200996_extra.json') }
         let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
@@ -317,7 +326,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:hlr_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200996_extra.json')))
+          request_body = fixture_as_json('decision_reviews/v2/valid_200996_extra.json')
           request_body['data']['attributes'].delete('informalConference')
           request_body
         end

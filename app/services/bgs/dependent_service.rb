@@ -26,12 +26,16 @@ module BGS
       @email = user.email
       @icn = user.icn
       @participant_id = user.participant_id
+      @va_profile_email = user.va_profile_email
     end
 
     def get_dependents
+      return { persons: [] } if participant_id.blank?
+
       service.claimant.find_dependents_by_participant_id(participant_id, ssn) || { persons: [] }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def submit_686c_form(claim)
       Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       bgs_person = service.people.find_person_by_ptcpnt_id(participant_id) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
@@ -49,13 +53,25 @@ module BGS
       # This is because we are currently relying on the presence of a PDF and
       # absence of a BGS-established claim to identify cases where Form 686c-674
       # submission failed.
-      VBMS::SubmitDependentsPdfJob.perform_async(
-        claim.id,
-        form_hash_686c,
-        claim.submittable_686?,
-        claim.submittable_674?
-      )
-      if claim.submittable_686?
+
+      if Flipper.enabled?(:dependents_encrypt_jobs)
+        encrypted_vet_info = KmsEncrypted::Box.new.encrypt(form_hash_686c.to_json)
+        VBMS::SubmitDependentsPdfEncryptedJob.perform_async(
+          claim.id,
+          encrypted_vet_info,
+          claim.submittable_686?,
+          claim.submittable_674?
+        )
+      else
+        VBMS::SubmitDependentsPdfJob.perform_async(
+          claim.id,
+          form_hash_686c,
+          claim.submittable_686?,
+          claim.submittable_674?
+        )
+      end
+
+      if claim.submittable_686? || claim.submittable_674?
         # Previously, we would wait until `BGS::Service#create_person`'s call to
         # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
         # or file number / SSN mismatch. Unfortunately, BGS's error response is
@@ -65,13 +81,34 @@ module BGS
         # why I am deliberately raising these errors here.
         validate_file_number_format!(file_number:)
         validate_file_number_matches_ssn!(file_number:)
-        BGS::SubmitForm686cJob.perform_async(uuid, claim.id, form_hash_686c)
+        if claim.submittable_686?
+          if Flipper.enabled?(:dependents_encrypt_jobs)
+            BGS::SubmitForm686cEncryptedJob.perform_async(
+              uuid, @icn, claim.id, encrypted_vet_info
+            )
+          else
+            BGS::SubmitForm686cJob.perform_async(
+              uuid, @icn, claim.id, form_hash_686c
+            )
+          end
+        else
+          if Flipper.enabled?(:dependents_encrypt_jobs) # rubocop:disable Style/IfInsideElse
+            BGS::SubmitForm674EncryptedJob.perform_async(
+              uuid, @icn, claim.id, encrypted_vet_info
+            )
+          else
+            BGS::SubmitForm674Job.perform_async(
+              uuid, @icn, claim.id, form_hash_686c
+            )
+          end
+        end
         Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
     rescue => e
       Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -94,9 +131,15 @@ module BGS
             'middle' => middle_name,
             'last' => last_name
           },
+          'common_name' => common_name,
+          'va_profile_email' => @va_profile_email,
+          'email' => email,
+          'participant_id' => participant_id,
           'ssn' => ssn,
           'va_file_number' => file_number,
-          'birth_date' => birth_date
+          'birth_date' => birth_date,
+          'uuid' => uuid,
+          'icn' => icn
         }
       }
     end
@@ -108,7 +151,7 @@ module BGS
       # tell BGS the kinds of file numbers we are seeing.
       if file_number.length < 8 || file_number.length > 9
         file_number_pattern = file_number.gsub(/[0-9]/, 'X')
-        raise "Aborting Form 686c submission: BGS file_nbr has invalid format! (#{file_number_pattern})"
+        raise "Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (#{file_number_pattern})"
       end
     end
 
@@ -118,7 +161,7 @@ module BGS
       # we can inform MPI and others of instances where veteran account data is
       # screwed up.
       if file_number.length == 9 && file_number != ssn
-        raise 'Aborting Form 686c submission: VA.gov SSN does not match BGS file_nbr!'
+        raise 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!'
       end
     end
   end

@@ -3,6 +3,7 @@
 module FacilitiesApi
   class ApidocsController < ApplicationController
     include Swagger::Blocks
+    service_tag 'facility-locator'
 
     swagger_root do
       key :swagger, '2.0'

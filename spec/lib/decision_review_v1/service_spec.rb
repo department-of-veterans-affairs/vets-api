@@ -112,8 +112,7 @@ describe DecisionReviewV1::Service do
                                                       zipCode: '20500',
                                                       fileNumber: '212222112',
                                                       source: 'va.gov',
-                                                      businessLine: 'BVA',
-                                                      skipDimensionCheck: true
+                                                      businessLine: 'BVA'
                                                     })
       end
     end
