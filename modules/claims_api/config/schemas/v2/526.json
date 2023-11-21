@@ -123,13 +123,13 @@
               "example": "USA"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) for the Veteran's current mailing address.",
+              "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
             "zipLastFour": {
-              "description": "Zipcode (Last 4 digits) for the Veteran's current mailing address.",
+              "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
@@ -146,7 +146,7 @@
     },
     "changeOfAddress": {
       "type": "object",
-      "description": "If 'changeOfAddress' is included, then following attributes are required: 'dates.beginDate', 'addressLine1', 'typeOfAddressChange', 'country'.",
+      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
       "additionalProperties": false,
       "properties": {
         "dates": {
@@ -205,13 +205,13 @@
           "example": "USA"
         },
         "zipFirstFive": {
-          "description": "Zipcode (First 5 digits) for the Veteran's new address.",
+          "description": "Zip code (First 5 digits) for the Veteran's new address.",
           "type": "string",
           "pattern": "^$|^\\d{5}?$",
           "example": "12345"
         },
         "zipLastFour": {
-          "description": "Zipcode (Last 4 digits) for the Veteran's new address.",
+          "description": "Zip code (Last 4 digits) for the Veteran's new address.",
           "type": "string",
           "pattern": "^$|^\\d{4}?$",
           "example": "6789"
@@ -229,7 +229,7 @@
       "additionalProperties": false,
       "properties": {
         "pointOfContact": {
-          "description": "Point of contact in direct contact with Veteran.",
+          "description": "Individual in direct contact with Veteran.",
           "type": "string",
           "minLength": 1,
           "maxLength": 100,
@@ -241,7 +241,7 @@
           "additionalProperties": false,
           "properties": {
             "telephone": {
-              "description": "Primary phone of Point of Contact.",
+              "description": "Primary phone of point of contact.",
               "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
               "example": "5555555",
@@ -250,7 +250,7 @@
               "nullable": true
             },
             "internationalTelephone": {
-              "description": "international phone of Point of Contact.",
+              "description": "international phone of point of contact.",
               "type": ["string", "null"],
               "example": "+44 20 1234 5678",
               "nullable": true
@@ -262,7 +262,7 @@
           "additionalProperties": false,
           "properties": {
             "homelessSituationOptions": {
-              "description": "Current state of the veteran's homelessness.",
+              "description": "Veteran's living situation.",
               "type": "string",
               "default": "other",
               "enum": [
@@ -314,7 +314,7 @@
           "properties": {
             "servedInGulfWarHazardLocations": {
               "type": ["string", "null"],
-              "description": "Did the Veteran serve in any of the following Gulf War hazard locations? Iraq; Kuwait; Saudi Arabia; the neutral zone between Iraq and Saudi Arabia; Bahrain; Qatar; the United Arab Emirates; Oman; Yemen; Lebanon; Somalia; Afghanistan; Israel; Egypt; Turkey; Syria; Jordan; Djibouti; Uzbekistan; the Gulf of Aden; the Gulf of Oman; the Persian Gulf; the Arabian Sea; and the Red Sea.",
+              "description": "Set to true if the Veteran served in any of the following Gulf War hazard locations: Iraq; Kuwait; Saudi Arabia; the neutral zone between Iraq and Saudi Arabia; Bahrain; Qatar; the United Arab Emirates; Oman; Yemen; Lebanon; Somalia; Afghanistan; Israel; Egypt; Turkey; Syria; Jordan; Djibouti; Uzbekistan; the Gulf of Aden; the Gulf of Oman; the Persian Gulf; the Arabian Sea; and the Red Sea.",
               "example": "YES",
               "enum": ["NO", "YES"],
               "nullable": true
@@ -341,11 +341,11 @@
         },
         "herbicideHazardService": {
           "type": "object",
-          "description": "Toxic exposure related to herbicide hazards.",
+          "description": "Toxic exposure related to herbicide (Agent Orange) hazards.",
           "properties": {
             "servedInHerbicideHazardLocations": {
               "type": ["string", "null"],
-              "description": "Did the Veteran serve in any of the following Herbicide (e.g., Agent Orange) locations? These locations include: Republic of Vietnam to include the 12 nautical mile territorial waters; Thailand at any United States or Royal Thai base; Laos; Cambodia at Mimot or Krek; Kampong Cham Province; Guam or American Samoa; or in the territorial waters thereof; Johnston Atoll or a ship that called at Johnston Atoll; Korean demilitarized zone; aboard (to include repeated operations and maintenance with) a C-123 aircraft known to have been used to spray an herbicide agent (during service in the Air Force and Air Force Reserves).",
+              "description": "Set to true if the Veteran served in any of the following herbicide/Agent Orange locations: Republic of Vietnam to include the 12 nautical mile territorial waters; Thailand at any United States or Royal Thai base; Laos; Cambodia at Mimot or Krek; Kampong Cham Province; Guam or American Samoa; or in the territorial waters thereof; Johnston Atoll or a ship that called at Johnston Atoll; Korean demilitarized zone; aboard (to include repeated operations and maintenance with) a C-123 aircraft known to have been used to spray an herbicide agent (during service in the Air Force and Air Force Reserves).",
               "example": "YES",
               "enum": ["NO", "YES"],
               "nullable": true
@@ -357,7 +357,7 @@
             },
             "serviceDates": {
               "type": "object",
-              "description": "Date range for when the exposure happened.",
+              "description": "Date range for exposure in herbicide hazard location.",
               "properties": {
                 "beginDate": {
                   "type": "string",
@@ -451,12 +451,12 @@
               "exposureLocation": {
                 "type": "string",
                 "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                "description": "Other location(s) where Veteran served"
+                "description": "Location where the exposure happened."
               },
               "hazardExposedTo": {
                 "type": "string",
                 "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                "description": "The hazard or event that created the exposure."
+                "description": "Hazard the Veteran was exposed to."
               }
             }
           }
@@ -474,7 +474,7 @@
         "required": ["disabilityActionType", "name"],
         "properties": {
           "name": {
-            "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
+            "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
             "type": "string",
             "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
             "example": "PTSD (post traumatic stress disorder)",
@@ -482,7 +482,7 @@
           },
           "classificationCode": {
             "type": ["string", "null"],
-            "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
+            "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
             "example": "249470",
             "nullable": true
           },
@@ -525,7 +525,7 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
+                  "description": "Name of the disability. The /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible disability names.",
                   "type": "string",
                   "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                   "example": "PTSD (post traumatic stress disorder)",
@@ -544,7 +544,7 @@
                 },
                 "classificationCode": {
                   "type": ["string", "null"],
-                  "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
+                  "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                   "example": "249470",
                   "nullable": true
                 },
@@ -651,7 +651,7 @@
             "required": ["serviceBranch", "serviceComponent"],
             "properties": {
               "serviceBranch": {
-                "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
+                "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                 "type": "string",
                 "example": "Air Force"
               },
@@ -661,13 +661,13 @@
                 "enum": ["Active", "Reserves", "National Guard"]
               },
               "activeDutyBeginDate": {
-                "description": "Date Started Active Duty.",
+                "description": "Date started Active Duty.",
                 "type": "string",
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"
               },
               "activeDutyEndDate": {
-                "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                "description": "Date completed Active Duty.  If in the future, 'separationLocationCode' is required.",
                 "type": "string",
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"
@@ -682,7 +682,6 @@
         },
         "confinements": {
           "type": "array",
-          "description": "If 'confinements' is included, the following attributes are required: 'approximateBeginDate',  'approximateEndDate'. The confinement dates must fall within one of the service period dates.",
           "uniqueItems": true,
           "items": {
             "additionalProperties": false,
@@ -845,7 +844,7 @@
           "description": "",
           "properties": {
             "branchOfService": {
-              "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
+              "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
               "type": "string",
               "example": "Air Force"
             },
@@ -885,7 +884,7 @@
               "example": "2018-03-02 or 2018-03 or 2018"
             },
             "branchOfService": {
-              "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
+              "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
               "type": "string",
               "example": "Air Force"
             },

@@ -172,6 +172,47 @@
                   "type": "integer"
                 }
               }
+            },
+            "messageCounts": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "sort",
+            "pagination"
+          ],
+          "properties": {
+            "sort": {
+              "type": "object"
+            },
+            "pagination": {
+              "type": "object",
+              "required": [
+                "currentPage",
+                "perPage",
+                "totalPages",
+                "totalEntries"
+              ],
+              "properties": {
+                "currentPage": {
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                },
+                "totalEntries": {
+                  "type": "integer"
+                }
+              }
+            },
+            "messageCounts": {
+              "type": "object"
             }
           }
         },

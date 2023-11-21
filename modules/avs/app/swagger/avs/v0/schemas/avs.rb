@@ -53,6 +53,11 @@ module Avs
         end
         property :patientInstructions, type: :string
         property :patientEducation, type: :string
+        property :pharmacyTerms, type: :array do
+          items do
+            key :$ref, :pharmacyTerm
+          end
+        end
         property :primaryCareProviders, type: :array do
           items type: :string
         end
@@ -60,6 +65,11 @@ module Avs
         property :primaryCareTeamMembers, type: :array do
           items do
             key :$ref, :primaryCareTeamMember
+          end
+        end
+        property :problems, type: :array do
+          items do
+            key :$ref, :problem
           end
         end
         property :allergiesReactions, type: :object do
@@ -155,10 +165,43 @@ module Avs
       property :physicalLocation, type: :string
     end
 
+    swagger_schema :pharmacyTerm do
+      property :type, type: :string
+      property :term, type: :string
+      property :aka, type: :string
+      property :explanation, type: :string
+      property :patientActions, type: :string
+    end
+
     swagger_schema :primaryCareTeamMember do
       property :T, type: :string
       property :name, type: :string
       property :title, type: :string
+    end
+
+    swagger_schema :problem do
+      property :dfn, type: :string
+      property :ien, type: :string
+      property :status, type: :string
+      property :description, type: :string
+      property :code, type: :string
+      property :onsetDateStr, type: :string
+      property :onsetDate, type: :string
+      property :lastUpdatedStr, type: :string
+      property :lastUpdated, type: :string
+      property :scStatus, type: :string
+      property :scConditions, type: :string
+      property :detailRpc, type: :string
+      property :transcribed, type: :boolean
+      property :locationIen, type: :number
+      property :location, type: :string
+      property :locationType, type: :string
+      property :providerIen, type: :string
+      property :provider, type: :string
+      property :serviceIen, type: :string
+      property :service, type: :string
+      property :version, type: :string
+      property :comments, type: :string
     end
 
     swagger_schema :allergy do
