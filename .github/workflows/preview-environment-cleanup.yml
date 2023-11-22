@@ -14,25 +14,12 @@ jobs:
     name: Clean Up Deleted Branch and Expired Preview Environments
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: latest
-
-      - name: Install dependencies
-        run: |
-          npm install fs
-          npm install @actions/core
-          npm install js-yaml
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::008577686731:role/GHA_OIDC_ECRandSSMRole
           aws-region: us-gov-west-1
+          role-session-name: PreviewEnvCleanupSession
 
       - name: Get GitHub Bot Token
         uses: marvinpinto/action-inject-ssm-secrets@v1.2.1

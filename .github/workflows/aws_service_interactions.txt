@@ -1,0 +1,69 @@
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build_atlas_codeowners.yml:          aws-region: "us-gov-west-1"
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build_atlas_codeowners.yml:        uses: department-of-veterans-affairs/action-inject-ssm-secrets@latest
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build_atlas_codeowners.yml:          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:name: Build & Push to ECR
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:          aws-region: us-gov-west-1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:      - name: Login to ECR
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:        id: login-ecr
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:        uses: aws-actions/amazon-ecr-login@v1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/build.yml:          cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        aws-access-key-id: ${{ secrets.aws_access_key_id }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        aws-region: "us-gov-west-1"
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:      uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        aws-access-key-id: ${{ secrets.aws_access_key_id }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        aws-region: "us-gov-west-1"
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:      uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/check_codeowners.yml:        ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/code_checks.yml:      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/code_checks.yml:      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/code_checks.yml:          username: ${{ secrets.DOCKERHUB_USER }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/code_checks.yml:          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/code_checks.yml:          github_token: ${{ secrets.GITHUB_TOKEN }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/code_checks.yml:          token: ${{ secrets.GITHUB_TOKEN }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/danger.yml:      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/danger.yml:      DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/datadog_service_catalog_update.yml:          --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/datadog_service_catalog_update.yml:          --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/labeler.yml:        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-cleanup.yml:          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-cleanup.yml:          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-cleanup.yml:          aws-region: us-gov-west-1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-cleanup.yml:        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-cleanup.yml:          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:          aws-region: us-gov-west-1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:      - name: Login to ECR # Update ECR credentials if necessary
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:        id: login-ecr
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:        uses: aws-actions/amazon-ecr-login@v1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:          # Update tags and ECR Repository
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:            ${{ steps.login-ecr.outputs.registry }}/dsva/preview-environment/vets-api:${{ env.SOURCE_REF_SANITIZED }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview_environment_deployment.yml:          # cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:          aws-region: us-gov-west-1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:      - name: Login to ECR # Update ECR credentials if necessary
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:        id: login-ecr
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:        uses: aws-actions/amazon-ecr-login@v1
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:          # Update tags and ECR Repository
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:            ${{ steps.login-ecr.outputs.registry }}/dsva/preview-environment/vets-api:latest
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/preview-environment-update-main.yml:          # cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_branch.yml:          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_branch.yml:          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_branch.yml:          aws-region: "us-gov-west-1"
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_branch.yml:        uses: marvinpinto/action-inject-ssm-secrets@latest
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_branch.yml:          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_preview_env_k8s.yml:          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_preview_env_k8s.yml:          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_preview_env_k8s.yml:          aws-region: "us-gov-west-1"
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_preview_env_k8s.yml:        uses: marvinpinto/action-inject-ssm-secrets@latest
+/home/keenanschouten/Documents/Jobs/Oddball/VA/VA_Platform/vets-api/.github/workflows/sync_preview_env_k8s.yml:          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN

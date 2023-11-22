@@ -1,0 +1,2549 @@
+[33mcommit 357d003195b71255c55186897f732508d22e5a4b[m[33m ([m[1;36mHEAD -> [m[1;32mOICD-authentication[m[33m, [m[1;32mmaster[m[33m)[m
+Author: schout6 <schout6@gmail.com>
+Date:   Fri Nov 17 15:38:01 2023 -0700
+
+    switched from secrets to OIDC using role-to-assume
+
+[33mcommit 16790936b96d91f5b10432b111ad3fe782fbbcb9[m
+Author: Michael Marchand <35391349+MarchandMD@users.noreply.github.com>
+Date:   Fri Nov 17 13:42:43 2023 -0700
+
+    Form 21 0845 trigger alteration (#14581)
+    
+    * invokes correct method on current user for delivery of notification in a scenario
+    
+    * updates test to mock usage of exernal method
+    
+    * applies linting fixes to spec file
+    
+    * applies linting fix to spec file
+
+[33mcommit 0c77ad48c8e431ac1cbd37d38041a8fe8e01303b[m
+Author: Aurora <aurora.hampton@agile6.com>
+Date:   Fri Nov 17 09:23:28 2023 -0800
+
+    dbex/65954: add targeted logging for form526 PPIU/DirectDeposit failures (#14576)
+    
+    * dbex/65954: add targeted logging for form526 PPIU/DirectDeposit failures
+    
+    * dbex/65954: add targeted logging for form526 PPIU/DirectDeposit failures
+
+[33mcommit 82101d635dac732a89ba83c90699d2916ab80a43[m
+Author: Eric Boehs <eric@boehs.com>
+Date:   Fri Nov 17 11:18:17 2023 -0600
+
+    Removes unused Farady middleware (check-in) (#14579)
+
+[33mcommit 17541607e73158c0fdb6214f096bf1c07c98d639[m
+Author: Khoa Nguyen <134089461+Khoa-V-Nguyen@users.noreply.github.com>
+Date:   Fri Nov 17 09:51:05 2023 -0700
+
+    Created `AddressValidationController` (#14572)
+    
+    created endpoint to validate user's address and
+    make suggestions.
+    
+    Issue #444
+    
+    Co-authored-by: khoa-v-nguyen <khoa.nguyen@oddball.io>
+
+[33mcommit 7aec4a2e5ab16dea199b10ff950c74002970292c[m
+Author: Tai Wilkin-Corraggio <taicorraggio@gmail.com>
+Date:   Fri Nov 17 11:28:31 2023 -0500
+
+    Retry SubmitSavedClaimJob (#14467)
+    
+    Co-authored-by: Wayne Weibel <waynehw23@hotmail.com>
+
+[33mcommit 69b2e6d974ba306bffca03f41646ca60961b34a4[m
+Author: Riley Anderson <riley.anderson@oddball.io>
+Date:   Fri Nov 17 08:25:00 2023 -0700
+
+    Update SignUpServiceUpdaterJob to process using latest agreement (#14570)
+
+[33mcommit 558c6295e2129f80432bf08e48cb3d5ec7809abe[m
+Author: Lindsey Hattamer <lindsey.hattamer@oddball.io>
+Date:   Fri Nov 17 09:46:19 2023 -0500
+
+    Revert "put back broken version (#14569)" (#14577)
+    
+    This reverts commit 0d6d86a8eea5166b66bf76688124175ead8024f2.
+
+[33mcommit 68ddfa05cbd00d1c7f75340c25429e4e74a233e3[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Fri Nov 17 09:20:14 2023 -0500
+
+    remove ignred_columns declaration on model (#14527)
+
+[33mcommit 0d6d86a8eea5166b66bf76688124175ead8024f2[m
+Author: Lindsey Hattamer <lindsey.hattamer@oddball.io>
+Date:   Fri Nov 17 08:11:29 2023 -0500
+
+    put back broken version (#14569)
+
+[33mcommit ab1bde0efb1437ac0a6735f4b12417f6bea243b0[m
+Author: Kris Pethtel <kris.pethtel@gmail.com>
+Date:   Thu Nov 16 18:04:58 2023 -0600
+
+    7213 claims status counting (#14539)
+    
+    * 7213: active claims count
+
+[33mcommit d7f05fd821698ce0a1df2d46475e9328f8b22a8e[m
+Author: Chris Kim <42885441+chriskim2311@users.noreply.github.com>
+Date:   Thu Nov 16 15:53:37 2023 -0800
+
+    VACMS-15835: Income limits api fix by changing query to find FIPS instead of county name (#14432)
+    
+    * fix income limits api by updating query to find FIPS id instead of county name
+    
+    
+    ---------
+    
+    Co-authored-by: Chris Kim
+
+[33mcommit 609524feb4d21610a58ec1e614e9605e9d7bef89[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Thu Nov 16 17:51:37 2023 -0500
+
+    Fix zip code in metadata for 21-0966 (#14571)
+
+[33mcommit a549118e6f5fe74680afc51553417412d6b35c01[m
+Author: Eric Boehs <eric@boehs.com>
+Date:   Thu Nov 16 15:55:41 2023 -0600
+
+    Docker changed it's packages again (#14573)
+    
+    * Docker changed it's packages again
+    
+    We need to get on stable asap
+    
+    * Add Dockerfile to CODEOWNERS
+
+[33mcommit ffd6f228c64db6a2e5167c4411a62926b3a0ab38[m
+Author: Jason C <jasonconig@me.com>
+Date:   Thu Nov 16 10:35:48 2023 -0800
+
+    Mobile: Message Counts (#14553)
+    
+    * Update all message index endpoints to include counts of read/unread messages
+    
+    * Fix spec
+    
+    * Fix spec
+    
+    * Fix spec
+    
+    * Fix conflict
+
+[33mcommit 45cf2534c69600a793f9e585cb0b27c5bd59369b[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Thu Nov 16 13:33:29 2023 -0500
+
+    remove old address_line_X columns (#14526)
+    
+    Co-authored-by: Eric Boehs <eric@boehs.com>
+
+[33mcommit 07f25392eee1d8efc414c1f38937d1a45926a775[m
+Author: kanchanasuriya <89944361+kanchanasuriya@users.noreply.github.com>
+Date:   Thu Nov 16 09:02:19 2023 -0800
+
+    68166 Passing travel claims params to check-in API (#14548)
+    
+    Co-authored-by: kanchanasuriya <ksuriyamoorthy@kindsys.us>
+
+[33mcommit e8bc04e0b6b3335a54aa659234c475a3d9667277[m
+Author: AJ Magdub <ahmed.magdub@va.gov>
+Date:   Wed Nov 15 14:06:16 2023 -0700
+
+    test(vaos):  added tests to increase code coverage
+    
+    va.gov-team#68953
+
+[33mcommit 27f286f4d1f0bd5c7dc39089d7db516ec14d14a6[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Wed Nov 15 13:28:12 2023 -0700
+
+    Removes claim date from json files, docs, and tests. Adds constant to mapper, and test. (#14543)
+
+[33mcommit 64aee44943222f90207c874501aaa04fbbd90987[m
+Author: allisonlu <allisonlu820@gmail.com>
+Date:   Wed Nov 15 14:52:56 2023 -0500
+
+    add feature flag to remove Cerner alerts under (#14557)
+    
+    Health care section
+
+[33mcommit 59be1fe70a4e4d5a92f7b1df2c4b5ad069492e50[m
+Author: lihan li <frankieteardrop@gmail.com>
+Date:   Wed Nov 15 11:31:46 2023 -0800
+
+    remove is_veteran method (#14542)
+
+[33mcommit 9af3896bd985b2c43579ec8946b29fd1e09ac0e9[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 15 11:16:45 2023 -0800
+
+    Adds trace service tags for miscellaneous health domain controllers (#14485)
+    
+    * Adds trace service tags for misc health domain controllers
+
+[33mcommit 69a5bc72eafbc892a976779593f0234cfe6731a0[m
+Author: Jayson Perkins <jayson.perkins@adhocteam.us>
+Date:   Wed Nov 15 13:59:56 2023 -0500
+
+    add enum to v2 signinService (#14562)
+    
+    * add enum to v2 signinService
+    
+    * fix formatting, ran docs
+
+[33mcommit 79d2b71c51014bfed91a747337dac29377c2c01a[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Wed Nov 15 13:55:42 2023 -0500
+
+    fix return value of add_vha_specific_data method (#14563)
+
+[33mcommit a59f516247be9c82ccbe21d7740c984ea3a8f08e[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Wed Nov 15 13:50:54 2023 -0500
+
+    Add flipper for 21-0966 (#14442)
+
+[33mcommit 9fa8d29d30afecaa0aa89b97d046a5c3b1a5af32[m
+Author: Drew Fisher <142862+cilestin@users.noreply.github.com>
+Date:   Wed Nov 15 09:50:41 2023 -0800
+
+    Updated mailing lists for Drew Fisher (#14534)
+
+[33mcommit 96b2eaccb0196484c7dd2dfbac75f5cdde877f5a[m
+Author: Dick Davis <dick@hey.com>
+Date:   Wed Nov 15 11:10:37 2023 -0600
+
+    Update service account seed for chatbot (#14489)
+
+[33mcommit 971773f11315995accc0e2e99dc03073baa10466[m
+Author: Eric Boehs <eric@boehs.com>
+Date:   Wed Nov 15 10:51:09 2023 -0600
+
+    Restore "API-31027 - Add LocalBGS to breakers (#14444)" (#14560)
+    
+    * Revert "Revert "API-31027 - Add LocalBGS to breakers (#14444)" (#14558)"
+    
+    This reverts commit 308cc4d15281ae441e179907e4227d46e62889e9.
+    
+    * Add bgs.url
+    
+    ---------
+    
+    Co-authored-by: Austin Covrig <austin.covrig@oddball.io>
+
+[33mcommit 308cc4d15281ae441e179907e4227d46e62889e9[m
+Author: Eric Boehs <eric@boehs.com>
+Date:   Wed Nov 15 10:23:48 2023 -0600
+
+    Revert "API-31027 - Add LocalBGS to breakers (#14444)" (#14558)
+    
+    This reverts commit aa74c9c32cd89567c31eb8b27acd4d73e6f2cbe3.
+
+[33mcommit 2ca9f101b6df271448dc20ce1cf0e9e4f77cb5cb[m
+Author: Michael Marchand <35391349+MarchandMD@users.noreply.github.com>
+Date:   Wed Nov 15 08:36:27 2023 -0700
+
+    should_authenticate method added for 21-0845 uploads_controller (#14545)
+    
+    * adds config/settings/development.yml changes
+    
+    * adds should_authenticate to simple_forms uploads_controller
+    
+    * removes call to debugger
+    
+    * reverts a change to config/settins/development made during local setup
+
+[33mcommit aa74c9c32cd89567c31eb8b27acd4d73e6f2cbe3[m
+Author: Austin Covrig <acovrig@users.noreply.github.com>
+Date:   Wed Nov 15 09:35:59 2023 -0600
+
+    API-31027 - Add LocalBGS to breakers (#14444)
+    
+    * Add LocalBGS to breakers
+    
+    * Add spec
+    
+    ---------
+    
+    Co-authored-by: Austin Covrig <austin.covrig@oddball.io>
+
+[33mcommit bea032418845148367c8e89490c91451eb329db7[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Wed Nov 15 10:21:53 2023 -0500
+
+    Update address_line_X references to address_lineX (#14525)
+    
+    * update address_line_X references to address_lineX
+    
+    * ignored_columns model declaration
+
+[33mcommit 0b844628ba33ddff0fc59a45bfbb735624b15151[m
+Author: Rebecca Tolmach <10993987+rmtolmach@users.noreply.github.com>
+Date:   Wed Nov 15 10:00:35 2023 -0500
+
+    add error handling and logging (#14501)
+
+[33mcommit 6d961aca65a45db94de766aa335342b0742e26fa[m
+Author: mchristiansonVA <95487885+mchristiansonVA@users.noreply.github.com>
+Date:   Wed Nov 15 09:46:21 2023 -0500
+
+    API-27012 Raise limit on attachment parameters to 10 (#14479)
+    
+    * Raise limit on attachment parameters to 10
+    
+    * Add rspec test for more than 10 attachments
+    
+    * Fix for rubocop line length
+
+[33mcommit 64f0cfa91fa043705f8b410fc9f72280da942c79[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Tue Nov 14 16:11:08 2023 -0800
+
+    Adds trace service tags for third party apps controller (#14530)
+
+[33mcommit 6711dd02740cb908dae7f6d2a3d30fda030a2601[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Tue Nov 14 15:55:25 2023 -0800
+
+    Adds trace service tags for dependency verification (#14531)
+    
+    * Adds trace service tags for dependency verification
+
+[33mcommit d86238dc50f3b45dd31b906801df053b221fffd8[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 14 16:08:41 2023 -0700
+
+    Bump blueprinter to 0.30.0 (#14551)
+
+[33mcommit 4b731e7186fb40e687c3f5dda755e0a08c2b51e9[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 14 16:01:53 2023 -0700
+
+    Bump config to 5.0 (#14550)
+
+[33mcommit fa518cdbbc05c9118d6ff72a3e91e9f5dd114d4f[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 14 15:48:29 2023 -0700
+
+    Replace faraday adapter socks (#14544)
+    
+    * Replace faraday_adapter_socks gem with local version
+    
+    * remove gem from gemfile
+    
+    * properly organize/require files
+    
+    * rubocop
+    
+    * codeowners
+
+[33mcommit c544366f1a8c9badeb1dc1ded17b7eecc4047a23[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Tue Nov 14 16:45:27 2023 -0600
+
+    Bump rubocop-rails from 2.20.2 to 2.21.2 (#13997)
+    
+    * Bump rubocop-rails from 2.20.2 to 2.21.1
+    
+    ---
+    updated-dependencies:
+    - dependency-name: rubocop-rails
+      dependency-type: direct:development
+      update-type: version-update:semver-minor
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    
+    * Return AR relation in daily maintenance spec
+    
+    * RuboCop Auto-Correct: Rails/FindEach
+    
+    * RuboCop Auto-Correct: Layout/MultilineMethodCallIndentation
+    
+    * RuboCop Auto-Correct: Rails/HttpStatus
+    
+    * RuboCop Auto-Correct: Rails/FindBy
+    
+    * RuboCop Auto-Correct: Style/RedundantDoubleSplatHashBraces
+    
+    ---------
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+    Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+    Co-authored-by: Eric Boehs <eric@boehs.com>
+
+[33mcommit 355cc8905d55319c70aa271bfd3f4a838692b6f6[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 14 15:39:22 2023 -0700
+
+    Bump fugit (#14547)
+
+[33mcommit 4906c335e484b1bb392526e482f14d1850a065e3[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 14 15:39:07 2023 -0700
+
+    Bump google-apis-discovery_v1 (#14546)
+
+[33mcommit 355d8ed1722935725d2162ccec20323432aa74b3[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Tue Nov 14 14:38:11 2023 -0700
+
+    API-31162-526-v2-doc-file-name-cleanup (#14427)
+    
+    * Changes file name for BD upload
+    
+    * Adds claim_id to file name
+    
+    * Rubocop
+    
+    * adds variable to shorten line length
+    
+    * Adds .pdf to file name
+
+[33mcommit be3f3b44a5ef5834f408b27105780f1497e7d05f[m
+Author: Riley Anderson <riley.anderson@oddball.io>
+Date:   Tue Nov 14 14:22:25 2023 -0700
+
+    Create Terms of Use provisioning route (#14455)
+
+[33mcommit facb4f9e1322f9e66dd2869acade3136445b5590[m
+Author: Jennie McGibney <54327023+jenniemc@users.noreply.github.com>
+Date:   Tue Nov 14 13:00:38 2023 -0800
+
+    Remove back link toggle flag (#14538)
+
+[33mcommit 9b58116353b8d0ad85b3af74dfeeba27217c59bb[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Tue Nov 14 15:23:22 2023 -0500
+
+    69334 add formbuilder to fsr service (#14499)
+    
+    * FsrForm becomes FsrFormBuilder
+    
+    * Draft 1 - FormBuilder used in FSR service
+    
+    * draft 2 handle streamlind and combined logic for vha
+    
+    * linting
+    
+    * move streamlined and combined logic out of FSR service
+
+[33mcommit 7608aea719fd596a19a6602059973901c4b59b5b[m
+Author: Seth Darr <92405130+sethdarragile6@users.noreply.github.com>
+Date:   Tue Nov 14 12:08:19 2023 -0800
+
+    added factory type to logging (#14540)
+
+[33mcommit 3ee801e2547431ea71f31bce1dd10f79ffe112df[m
+Author: John Bramley <John.Bramley@va.gov>
+Date:   Tue Nov 14 13:46:12 2023 -0600
+
+    removes terms and conditions and related acceptances tables (#14516)
+
+[33mcommit 80e5b64ef58f083d5674edac99c8a9ccda126c3f[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Tue Nov 14 11:36:13 2023 -0800
+
+    Adds trace service tags to various deprecated controllers (#14532)
+    
+    * Adds trace service tags to various deprecated controllers
+
+[33mcommit eb9dab93668deee25ae56c211fc5926ac8d27779[m
+Author: Austin Covrig <acovrig@users.noreply.github.com>
+Date:   Tue Nov 14 13:26:30 2023 -0600
+
+    API-31639 Parse swagger as JSON (#14536)
+    
+    * Parse swagger as JSON
+    
+    * Fix typo and add swagger.json
+    
+    * Update 526 schema in swagger
+    
+    ---------
+    
+    Co-authored-by: Austin Covrig <austin.covrig@oddball.io>
+
+[33mcommit a94b6b65be131924e37bdb630013d2d8d934742a[m
+Author: Andrew Herzberg <andrew.herzberg@adhocteam.us>
+Date:   Tue Nov 14 12:09:00 2023 -0700
+
+    Mobile: add preneed burial create application endpoint (#14498)
+
+[33mcommit fc5d05cf4dc6166fe8d2774e530667d6b8fae1fc[m
+Author: Jason C <jasonconig@me.com>
+Date:   Tue Nov 14 10:05:51 2023 -0800
+
+    Add meta data that counts the number of prescriptions with various statuses (#14528)
+
+[33mcommit 839ab1117163ded981f67b919c7e903268adaad1[m
+Author: gia-lexa <103389320+gia-lexa@users.noreply.github.com>
+Date:   Tue Nov 14 09:49:01 2023 -0800
+
+    Removes flipper toggle around service_episodes_by_date attribute (#14537)
+    
+    * Removes flipper toggle around service_episodes_by_date attribute
+    
+    * Removes commented out line
+
+[33mcommit b782785277edc0acd3d77520882d13308d4cfdf1[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Tue Nov 14 09:17:22 2023 -0800
+
+    Adds trace service tag for MHV apidocs (#14533)
+
+[33mcommit 76f566a4e36c56475ddc76ca4e36e5743cde87b0[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Tue Nov 14 09:13:38 2023 -0800
+
+    Adds trace service tags for education-related controllers (#14505)
+    
+    * Adds trace service tags for education-related controllers
+
+[33mcommit 0442affe816b1f3ee457de674ca24aee817a6d93[m
+Author: John Bramley <John.Bramley@va.gov>
+Date:   Tue Nov 14 10:58:41 2023 -0600
+
+    [69551] removes terms and conditions (#14495)
+    
+    * removes terms and conditions
+    
+    * updates codeowners and rubocop files
+
+[33mcommit 6c4a77e18a0be00b82c17986981aaedd488e854e[m
+Author: John Bramley <John.Bramley@va.gov>
+Date:   Tue Nov 14 10:57:16 2023 -0600
+
+    [68682] validates UserVerification.locked to prevent authentication (#14352)
+    
+    * implements credential lock in user_verifier
+    
+    * changes csp to credential in naming
+    
+    * moves logingov spec to non-uplevel context
+    
+    * lint fix
+    
+    * moves credential lock checks into authentication_and_sso_concerns, session creator & refresher
+    
+    * updates
+    
+    * remove breakpoint
+    
+    * updates
+    
+    * typo fixes
+    
+    * updates
+    
+    * spec fix
+    
+    * updates
+    
+    * spec update
+
+[33mcommit 6de91d4357e6dd0b930a7d1cd68b79d238dd1062[m
+Author: Sam Stuckey <sam.n.stuckey@gmail.com>
+Date:   Tue Nov 14 11:16:40 2023 -0500
+
+    [DBX-68839] bump number retries for 526 backup to 10 (#14515)
+
+[33mcommit ea446955b8c5789ae67188dd75968b66ee5d3f17[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Tue Nov 14 09:05:53 2023 -0700
+
+    API-31212-improve-logging-part-2 (#14340)
+    
+    * V2 logging updates
+    
+    * Updates logging based on PR comments
+    
+    * Fixes quotes and return in logging message
+    
+    * Removes space from loggin output
+
+[33mcommit 5a8659c2434b9e7407e788ef89c8521ce23966f6[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Tue Nov 14 08:28:42 2023 -0500
+
+    add new address_lineX columns (#14524)
+
+[33mcommit ca993ca691b4913a0a9bb680d61af7344883f8a4[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Tue Nov 14 05:16:09 2023 -0800
+
+    Adds trace service tags for onsite notifications API (#14529)
+
+[33mcommit 2d98dbcbbeed73b3a89c821905fd61474e172938[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 13 16:51:52 2023 -0800
+
+    Adds trace service tags for miscellaneous benefits-domain controllers (#14503)
+    
+    * Adds trace service tags for miscellaneous benefits-domain controllers
+
+[33mcommit de936f30af0865ef4585f4434599513d448f9c0c[m
+Author: Khoa Nguyen <134089461+Khoa-V-Nguyen@users.noreply.github.com>
+Date:   Mon Nov 13 16:17:43 2023 -0700
+
+    Updated `sec_id` to `icn` (#14523)
+    
+    Co-authored-by: khoa-v-nguyen <khoa.nguyen@oddball.io>
+
+[33mcommit f190f91c81012a904e89981cc77d86d0102157c6[m
+Author: Rockwell Windsor Rice <129893414+rockwellwindsor-va@users.noreply.github.com>
+Date:   Mon Nov 13 16:27:24 2023 -0600
+
+    API-25632 form 526 handling error retries (#14338)
+    
+    * API-25632 form 526 handling error retries
+    
+    * Will not retry for two errors that could be retruned
+    * Adds RSpec tests for scenario
+    * Updates some missed logging labels to accurately reflect the name of the Job they are in
+    On branch API-25632-form-526-handling-error-retries-2
+    Changes to be committed:
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_benefits_documents_uploader.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_service_base.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_docker_container_upload.rb
+            modified:   modules/claims_api/spec/sidekiq/v2/disability_compensation_docker_container_upload_spec.rb
+    
+    * Fixes case for InProcess
+    
+    * Fixes logic for testing the two non retry error key values
+    
+    * Fixes evss_response response formatting and writes a test to verify it
+    
+    * API-25632 form 526 handling error retries
+    Addresses PR feedback
+    * Adds underscores to log tags to make  searching for them easier
+    * Updates error message retrieval in BD Uploader, faraday specific error raise since the bodies inside each raise matched.
+    
+    Changes to be committed:
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_benefits_documents_uploader.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_service_base.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_docker_container_upload.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_pdf_generator.rb
+    
+    * API-25632-form-526-handling-error-retries
+    Updates based on feedback
+    * Fixes typos in comments
+    * adds back in status_code method (in base file)
+    * Adds methode for getting key and text returned from the error messages
+    Changes to be committed:
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_benefits_documents_uploader.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_service_base.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_docker_container_upload.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_pdf_generator.rb
+    
+    * Updates based on PR feedback
+    
+    * Cleans up some unessecary code
+    
+    * API-25632-form-526-handling-error-retries
+    
+    Updates from PR feedback
+    * fixes missed `error` variable that should have been `e`
+    * Updates string check and moves it from the `get_error_message` to just returning in the two methods `get_error_key` and `get_error_text`
+    Changes to be committed:
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_service_base.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_pdf_generator.rb
+    
+    * Fixing up missed e/error variable mixup
+    
+    * Adding the error class to the message and removing the claimId from the detail since it is already in the logging
+
+[33mcommit 44eaa92c60b38f83ebfd5e9870033f8f83a243f7[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 13 14:45:09 2023 -0700
+
+    Bump rswag-specs rswag-ui (#14521)
+
+[33mcommit 6126e9d3dcf1fd982b6d842c07a7501deb048ec0[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 13 14:44:53 2023 -0700
+
+    Bump ddtrace 1.10.1 -> 1.16.2 (#14520)
+
+[33mcommit 12aabd4b846e737ac21bbc2629c92fdb95c127f4[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 13 14:44:07 2023 -0700
+
+    Bump net-smtp to 0.4.0 (#14519)
+
+[33mcommit 0a92908c2edcb0420e5d1ecab8f6e7ed68735284[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 13 14:43:44 2023 -0700
+
+    Bump net-ssh to 7.2 (#14517)
+
+[33mcommit ffd259fae18498aad3b1f9727b18597714edc418[m
+Author: allisonlu <allisonlu820@gmail.com>
+Date:   Mon Nov 13 14:13:18 2023 -0500
+
+    My VA - add feature flag for enabling downtime message (#14494)
+    
+    * add feature flag for enabling downtime message for
+    upcoming VBA maintenance
+    
+    * update feature name to include Profile
+    
+    ---------
+    
+    Co-authored-by: Patrick Saxton <patrick@urban-intellect.com>
+
+[33mcommit 76860e4f4e103357d27467f1224faa5b0ecf7720[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 13 11:04:09 2023 -0800
+
+    Adds trace service tags for appeals controllers (#14483)
+    
+    * Adds trace service tags for appeals controllers
+
+[33mcommit 6c27955c1ec8d93d5b17bb46279bf8bd4ab33a06[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Mon Nov 13 13:54:35 2023 -0500
+
+    add 200 response swagger doc workaround (#14522)
+
+[33mcommit ca21df80cae557f939323b496d0b7a3309045c0c[m
+Author: Eric Boehs <eric@boehs.com>
+Date:   Mon Nov 13 12:20:47 2023 -0600
+
+    Ignore mobile docs file in codeql analysis (#14518)
+
+[33mcommit 8de48b15dd3aae8eb49f8df4d3fedd744d72736f[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 13 10:14:41 2023 -0800
+
+    Adds trace service tags for medical supplies controller (#14507)
+
+[33mcommit d5f4d5f3f76a121ced124b9aec8c071127d55fd3[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Mon Nov 13 12:30:28 2023 -0500
+
+    Add more backup zipCodes for metadata in 21-0845 (#14513)
+
+[33mcommit d11d411ea8e4557cf38847ee5b0d1e7d3949e8c9[m
+Author: evansmith <evan.smith@oddball.io>
+Date:   Mon Nov 13 12:20:33 2023 -0500
+
+    alter sidekiq retries exhausted to rebuild attrs (#14414)
+    
+    * alter sidekiq retries exhausted to rebuild attrs
+    
+    * rubocop fixes
+    
+    * ref in progress copy correctly
+    
+    * forcing a commit to restart build process
+    
+    * build failed for unknown reasons, trying again
+    
+    * temporarily set retries to 2
+    
+    * change call to inline struct
+    
+    * rework salvage, only send notifications in retries exhausted
+    
+    * rubocop fixes
+    
+    * rework user struct to a class method for each form
+    
+    * move back to 14 retries
+    
+    * undo last commit
+    
+    ---------
+    
+    Co-authored-by: Thomas Blackwell <thomas.blackwell@coforma.io>
+
+[33mcommit ccb7b785b22392bf968e34afa38329d84d114918[m
+Author: Kristen Brown <11942904+kristen-brown@users.noreply.github.com>
+Date:   Mon Nov 13 11:35:05 2023 -0500
+
+    API-30883: Improvements to the 'hold back' appeals evidence feature, especially excluding appeals evidence from VBADocuments::RunUnsuccessfulSubmissions (#14512)
+
+[33mcommit 27e5acb8a656bad59f541cc6716afe4c3a33be8f[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Mon Nov 13 09:12:23 2023 -0700
+
+    API-29676-update-docs-526-generate-pdf (#14390)
+    
+    * Adds response to getPdf endpoint. Corrects getPdf endpint documentation
+    
+    * Rubocop
+    
+    * Changes method to post. changes name to generatePdf.
+    
+    * Removes extra vcr line
+    
+    * Rubocop
+
+[33mcommit 5ae83d8b665e8fcb2832f3806fb48d00bb93f0d9[m
+Author: lihan li <frankieteardrop@gmail.com>
+Date:   Mon Nov 13 07:58:33 2023 -0800
+
+    Fix 1010EZR missing require statement (#14496)
+    
+    * add require statement in controller
+    
+    * lint
+
+[33mcommit 561ebd442ea2d9a85a7778857b589dac9abbb52a[m
+Author: Randi Mays <randimays1024@gmail.com>
+Date:   Mon Nov 13 09:46:37 2023 -0600
+
+    15868 Update codeowners with Public Websites (#14504)
+
+[33mcommit c3be9837b2b7c0291f3a054f1acc6bab904256d2[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Fri Nov 10 15:56:36 2023 -0500
+
+    add find a rep swagger docs (#14509)
+
+[33mcommit 82888d3fbfaf87bc029b2ee44ce9be9b6f9ac177[m
+Author: Jason C <jasonconig@me.com>
+Date:   Fri Nov 10 12:17:40 2023 -0800
+
+    Update Flipper.enable to Flipper.enable_actor when necessary in specs (#14497)
+
+[33mcommit e9b1a1727e4c29c2fb8e28fb0f631956c2ad978c[m
+Author: Tze-chiu Lei <tze@adhocteam.us>
+Date:   Fri Nov 10 10:52:20 2023 -0700
+
+    Add feature-flag for form 40-0247 (#14409)
+
+[33mcommit caa008977925c753d3ee36814461c86960d51758[m
+Author: Chikaodi Adibemma <53785439+cadibemma@users.noreply.github.com>
+Date:   Fri Nov 10 12:38:31 2023 -0500
+
+    7187 expose appts physical location in its own field (#14502)
+    
+    * added physical_location to model
+    
+    * added physical_location to serializer
+    
+    * updated docs to include physicalLocation
+    
+    * updated specs
+    
+    * updated specs
+    
+    * rerendered docs
+    
+    * incremented redis version
+
+[33mcommit e48ed9faf5aedac5cfc18e2d893a51acbb5b4af4[m
+Author: Khoa Nguyen <134089461+Khoa-V-Nguyen@users.noreply.github.com>
+Date:   Fri Nov 10 10:17:01 2023 -0700
+
+    Update `StaticData#Index` (#14477)
+    
+    Change `index` action to testing `/ping`
+    endpoint.
+    
+    Issue#418
+    
+    Co-authored-by: khoa-v-nguyen <khoa.nguyen@oddball.io>
+
+[33mcommit 65273641de9bffa04db19a0924afd9d05811ccd1[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Thu Nov 9 14:31:27 2023 -0800
+
+    Adds trace service tags for Legacy MHV controllers (#14484)
+
+[33mcommit 12499be53d2b3816e46afc0bdb2717ec68d0751c[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Thu Nov 9 14:30:38 2023 -0800
+
+    Adds trace service tags for Ask VA module (#14486)
+    
+    * Adds trace service tags for Ask VA module
+
+[33mcommit 51aa461f311d0b55afc51336054631cda7d8c0df[m
+Author: lihan li <frankieteardrop@gmail.com>
+Date:   Thu Nov 9 13:24:37 2023 -0800
+
+    10-10EZR - Prefill Marital Status (#14481)
+    
+    * add marital status
+    
+    * lint
+
+[33mcommit 2e9894fe97bd775a6be3ad5f6222cf8273484383[m
+Author: Patrick Saxton <patrick@urban-intellect.com>
+Date:   Thu Nov 9 11:57:09 2023 -0600
+
+    Fix errors on requiring DataDog file validation (#14480)
+    
+    * add duplicate name check
+    
+    * fix name
+    
+    * make array
+    
+    * use readme to explain
+    
+    * use comment instead of description tag
+
+[33mcommit c74a3b2946d0e646b51f077741aa13f913218af7[m
+Author: Austin Covrig <acovrig@users.noreply.github.com>
+Date:   Thu Nov 9 11:52:44 2023 -0600
+
+    Api 31498 526 v2 response schema (#14468)
+    
+    * Add serializer
+    
+    * Switch to blueprinter
+    
+    * Update response for attachments also
+    
+    * Update swagger
+    
+    * Remove ID from request schema
+    
+    ---------
+    
+    Co-authored-by: Austin Covrig <austin.covrig@oddball.io>
+
+[33mcommit d7d2e8d466d695171525f64de419c73f63cbb244[m
+Author: samcoforma <105806934+samcoforma@users.noreply.github.com>
+Date:   Thu Nov 9 09:31:55 2023 -0800
+
+    created feature toggle for new claim details (#14416)
+
+[33mcommit 48b4f578d3c08af0d4f64c721c2fadff6139f73f[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Thu Nov 9 10:18:26 2023 -0700
+
+    API-31453-526-v2-remove-claim-date (#14447)
+    
+    * Sets the claim_date to today in the form_attributes so that gets saved to the DB. Updates the pdf_mapper, and removes tests for the claim_date.
+    
+    * Changes where we set the claim date.
+    
+    * Adds test for date back
+
+[33mcommit 9fcb19e69b177cfd82adea2d27ddfc8f3a92b11a[m
+Author: Matt Long <longmd@me.com>
+Date:   Thu Nov 9 12:16:19 2023 -0500
+
+    Add feature flag for 10-10EZR application (#14488)
+
+[33mcommit 577c52e8c184464dc22b33c2efce2fab20768fe8[m
+Author: Dakota Larson <133443504+DLarson-Oddball@users.noreply.github.com>
+Date:   Thu Nov 9 09:08:35 2023 -0800
+
+    Add logs to burial submission flow (#14464)
+    
+    Co-authored-by: Patrick Saxton <patrick@urban-intellect.com>
+
+[33mcommit c49842b14ec5b86815b370e1168bfb84e8462632[m
+Author: Rockwell Windsor Rice <129893414+rockwellwindsor-va@users.noreply.github.com>
+Date:   Thu Nov 9 11:03:23 2023 -0600
+
+    Reverts hotfix changes made for testing in staging (#14487)
+
+[33mcommit d2833d0020c2d9b4b16ef55b7a31d5dec64bc05b[m
+Author: Chapley Watson <jadon1979@yahoo.com>
+Date:   Thu Nov 9 11:00:02 2023 -0600
+
+    69422 Limit the retries for EZ for submissions (#14492)
+
+[33mcommit 6a33a0a7a55e0c98ea38cc4dd6480662bd18ebe7[m
+Author: Tommasina Miller <144388524+tommasina-va@users.noreply.github.com>
+Date:   Thu Nov 9 10:56:27 2023 -0600
+
+    [bdex/57392 Disability Benefits team] Make phone number optional for form 526EZ (#14407)
+
+[33mcommit 36cb42c7694ab3254cd1a6af31139974c8cad428[m
+Author: Trevor Bosaw <bosawt@gmail.com>
+Date:   Wed Nov 8 18:55:00 2023 -0800
+
+    [69421] Adding check_in application for map security token service (#14459)
+    
+    Co-authored-by: Trevor Bosaw <trevor.bosaw@oddball.io>
+
+[33mcommit 9349f6a55053f05b466bfe928214c02cb5f8f382[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 18:33:22 2023 -0800
+
+    Adds trace service tags for LH APIs owned by team pivot (#14368)
+    
+    * Adds trace service tags for LH APIs owned by team pivot
+
+[33mcommit 43cffbaca1d2bee48bb194c53e674df1b70b2f03[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 18:32:06 2023 -0800
+
+    Adds trace service tags for LH claims API owned by team dash (#14367)
+
+[33mcommit b6b7e187c093e9f7104824fa514e6af39f290fa5[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 14:45:33 2023 -0800
+
+    Adds trace service tags for public websites API controllers (#14296)
+    
+    * Adds trace service tags for public-websites API controllers
+
+[33mcommit 309f0bf0f692e452e4e1d1e0345cf5d9dfc50aeb[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 14:23:01 2023 -0800
+
+    Adds trace service tags for virtual agent controllers (#14463)
+    
+    * Adds trace service tags for virtual agent controllers
+
+[33mcommit db618bfd073473e47b72ae2edb3a1adc4922ca47[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 14:22:47 2023 -0800
+
+    Adds trace service tags for facility locator (#14462)
+
+[33mcommit 7cd183773cd1249778cc979cf940c43aa8632d86[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 14:22:36 2023 -0800
+
+    Adds trace service tags for GI Bill Feedback (#14461)
+
+[33mcommit ab8141b307342fa9b2f9c62868d97e5a1776d134[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 8 14:22:25 2023 -0800
+
+    Adds trace service tags for GIBCT application (#14460)
+
+[33mcommit 621cc0e1392ab3794943f3fccfaaa77d0ccaa981[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Wed Nov 8 17:16:01 2023 -0500
+
+    Always use statement_of_truth_signature for form mappings (#14471)
+    
+    Co-authored-by: Patrick Saxton <patrick@urban-intellect.com>
+
+[33mcommit af144d4566e0d6e5b2ba1c40041d4ab6cc1b4613[m
+Author: Dick Davis <dick@hey.com>
+Date:   Wed Nov 8 15:59:35 2023 -0600
+
+    Add service account config for chatbot to seeds (#14449)
+
+[33mcommit 87484bef2b65c3fb97d2349729e3ccd97e64e851[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Wed Nov 8 14:47:23 2023 -0700
+
+    Bump Flipper to 1.0.0 (#14482)
+
+[33mcommit 5d51c79dcea8a4b4f4c06543484f05f2da05942b[m
+Author: Tom Harrison <tom.harrison@adhocteam.us>
+Date:   Wed Nov 8 16:42:56 2023 -0500
+
+    Refactor Direct Deposit update logging (#14437)
+    
+    * Refactor Direct Deposit update logging
+    
+    * Refactor log_sso_info method
+    
+    * Linting related changes
+
+[33mcommit 0052710b286cc9f8786f021dd3f4cd4d172ef051[m
+Author: Gaurav Gupta <randomsync@users.noreply.github.com>
+Date:   Wed Nov 8 13:39:29 2023 -0800
+
+    68333 Add logging for initiated_by based on reminder text (#14425)
+    
+    * 68333 Add logging for initiated_by based on reminder text
+    
+    * 68333 improve code
+    
+    * Adding rspecs
+    
+    * Renaming rspecs
+    
+    * Updating variable name
+    
+    ---------
+    
+    Co-authored-by: kanchanasuriya <ksuriyamoorthy@kindsys.us>
+    Co-authored-by: kanchanasuriya <89944361+kanchanasuriya@users.noreply.github.com>
+
+[33mcommit 74ce25811095e3b63fde7dc0a0746284ed77f47c[m
+Author: Tyler Fink <tfink419@gmail.com>
+Date:   Wed Nov 8 14:36:00 2023 -0700
+
+    Shift Logging For Retryable 686/674 Jobs (#14405)
+    
+    * Lower current logging to warning and add error log after exhausted retries
+    
+    * Clean up lines/lint
+    
+    * Fix var typo
+    
+    * Fix test failing due to duplicate code deleted
+    
+    ---------
+    
+    Co-authored-by: Eric Boehs <eric@boehs.com>
+
+[33mcommit 8fee24606a63baef835f2583894c1897a8b36cc9[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Wed Nov 8 13:24:57 2023 -0700
+
+    Let's break Flipper UI in Staging again. But hopefully dev works 🤞  (#14478)
+    
+    * Update gemfile
+    
+    * Use local stylesheet to fix error
+
+[33mcommit fe70cb404d6ee0ff95467e2ce22eedd556b0f7da[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Wed Nov 8 12:31:44 2023 -0700
+
+    Revert "Flipper update - THIS WILL BREAK FLIPPER UI (#14470)" (#14473)
+    
+    This reverts commit a02341357a125c05a48b46603553373f27e04997.
+
+[33mcommit 0a80ac89df132319e8806f8ca903398431080fc1[m
+Author: Patrick Saxton <patrick@urban-intellect.com>
+Date:   Wed Nov 8 13:15:52 2023 -0600
+
+    add name (#14472)
+
+[33mcommit ce2fe64e10fccba05749b7c312924e615f0a65ac[m
+Author: Andrew Herzberg <andrew.herzberg@adhocteam.us>
+Date:   Wed Nov 8 12:05:25 2023 -0700
+
+    Mobile: Claims event timeline sort logic update (#14448)
+
+[33mcommit e72134807c9dd5ad2a5c87069f93e42b1047e3ba[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Wed Nov 8 13:48:40 2023 -0500
+
+    Add find a rep search controller (#14320)
+    
+    * add find a rep search controller
+    
+    * use within matcher for distance calculation and add no results test case
+    
+    * remove unnecessary memoization
+
+[33mcommit 31fdac7f5cfb2605000fe4ac1e4fc03080045d21[m
+Author: Patrick Saxton <patrick@urban-intellect.com>
+Date:   Wed Nov 8 12:36:22 2023 -0600
+
+    Validate datadog files (#14429)
+    
+    * init for test
+    
+    * GH action
+    
+    * test deleted file filter
+    
+    * Revert "test deleted file filter"
+    
+    This reverts commit ec437a5a1615b3a52c2530a27953f7e28d50583f.
+    
+    * update filter
+    
+    * test validation for bad schema
+    
+    * need to get master.
+    
+    * gotta fetch master
+    
+    * test extra attr
+    
+    * fix validation output to std.err
+    
+    * multiple errors on one run
+    
+    * correct yml file
+    
+    * add space
+    
+    * remove space
+    
+    * update step name
+    
+    * change dir name
+    
+    * add readme
+
+[33mcommit a02341357a125c05a48b46603553373f27e04997[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Wed Nov 8 11:31:05 2023 -0700
+
+    Flipper update - THIS WILL BREAK FLIPPER UI (#14470)
+    
+    * Update gemfile
+    
+    * Use local stylesheet to fix error
+
+[33mcommit 8753f0215054cba190a98b2318300f52ae6be4c2[m
+Author: Kevin Duensing <kevin.duensing@adhocteam.us>
+Date:   Wed Nov 8 13:17:21 2023 -0500
+
+    Fix bsd letter (#13990)
+    
+    * Updates code to make correct request after LH API changes
+    
+    * Work in progress
+    
+    * Add cassette for bsd letter type, fix resolver tests
+    
+    * Fix tests & code for using new lighthouse endpoint for downloads
+    
+    * fixed rubocop warnings
+    
+    * fixed argument error issue in rspec test for veteran_sponsor_resolver_spec.rb
+    
+    * fixed letters generator service rspec test
+    
+    * updated Mobile Letters Generator controller to handle updated benefit_summary_dependent endpoint with sponsor icns
+    
+    * added letters generator controller spec to codeowners file
+    
+    * added letters generator vcr cassettes to codeowners
+    
+    * fixed rubocop errors on mobile letters controller
+    
+    ---------
+    
+    Co-authored-by: Samuel Cormier <sam.cormier@coforma.io>
+    Co-authored-by: samcoforma <105806934+samcoforma@users.noreply.github.com>
+
+[33mcommit 94725c5e17159d5f0e6ab317337d0b3cd9f14092[m
+Author: Rockwell Windsor Rice <129893414+rockwellwindsor-va@users.noreply.github.com>
+Date:   Wed Nov 8 12:11:32 2023 -0600
+
+    Api 31144 swagger improvements (#14341)
+    
+    * API-31144-swagger-improvements
+    
+    * removes submission.json
+    * updates rswag_disability_compensation_request_spec.rb to use 526.json as the schema
+    
+    On branch API-31144-swagger-improvements
+     Changes to be committed:
+            modified:   modules/claims_api/spec/requests/v2/veterans/rswag_disability_compensation_request_spec.rb
+            deleted:    spec/support/schemas/claims_api/v2/forms/disability/submission.json
+    
+    * API-31144-swagger-improvements
+    
+    * Removes request.json and submission.json (v2) so only one schema JSON file is used
+    * Updates v2.rb to display the 526.json schema file correctly
+    Changes to be committed:
+            modified:   modules/claims_api/app/swagger/claims_api/v2/dev/swagger.json
+            modified:   modules/claims_api/config/schemas/v2/526.json
+            deleted:    modules/claims_api/config/schemas/v2/request_bodies/disability_compensation/request.json
+            modified:   modules/claims_api/spec/support/rswag_config.rb
+            modified:   modules/claims_api/spec/support/swagger_shared_components/v2.rb
+    
+    * WIP
+    
+    * Removes oneOf and compiles swagger again
+    
+    * Tapping into the compile process to remove null values in the 526 documentation
+    
+    * Fixes 526.json for the compile
+    
+    * reverts gemfile.lock commit
+    
+    * reverts gemfile.lock commit
+    
+    * Rubocop fixes
+
+[33mcommit 585ecd163c9acae872b0da49dea2e49d02b56910[m
+Author: Riley Anderson <riley.anderson@oddball.io>
+Date:   Wed Nov 8 10:44:03 2023 -0700
+
+    Redirect to Terms of Use delcined page on decline logout (#14469)
+
+[33mcommit f8bf4c039f2604e5fc307fd33e19ea6ad891a273[m
+Author: Tyler Fink <tfink419@gmail.com>
+Date:   Wed Nov 8 10:18:42 2023 -0700
+
+    DB Migration to Add Uploaded Forms Column to Saved Claims (#13907)
+    
+    * Pulled code from other PR
+    
+    * undo schema file
+    
+    * Wrong commit spot
+
+[33mcommit 59703c803509f5796c5eedea59fa6148402d2ac2[m
+Author: jvcAdHoc <144135615+jvcAdHoc@users.noreply.github.com>
+Date:   Wed Nov 8 11:58:07 2023 -0500
+
+    Add find a rep serializers and fixups to prep for controller (#14400)
+    
+    * add find a rep serializers and fixups to prep for controller
+    
+    * place distance and search constants in constants file
+
+[33mcommit e2d48b971f70e4dee7cb5ea63889a5bebb9abf9d[m
+Author: Kristen Brown <11942904+kristen-brown@users.noreply.github.com>
+Date:   Wed Nov 8 11:52:18 2023 -0500
+
+    API-31504: Log When a `VBADocuments::UploadSubmission` Progresses to the "uploaded" Status (#14457)
+    
+    * API-31504: Log (to :info) when an UploadSubmission progresses to the 'uploaded' status
+    
+    * API-31504: Remove change committed by mistake
+    
+    * API-31504: Resolve failing spec in CI from timing of object instantiation
+    
+    * API-31504: Combine specs to attempt to fix CI-related spec issue
+    
+    * API-31504: Improvements to specs
+    
+    * API-31504: Fix timestamp discrepancy issue with logging specs by modifying log message
+
+[33mcommit 80ff9124e0679faeb14aa86ea80a688a5183938d[m
+Author: Chapley Watson <jadon1979@yahoo.com>
+Date:   Wed Nov 8 10:47:49 2023 -0600
+
+    68917 update json schema (#14445)
+    
+    * 68917 update json schema
+
+[33mcommit ba0286b522f62ae48b1f5b0271965837202d2b8a[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Wed Nov 8 09:22:01 2023 -0700
+
+    Revert "Bump flipper/flipper-ui (#14431)" (#14466)
+    
+    This reverts commit 3102436616acdf34b3e4ce4f7e5e39226aee5124.
+
+[33mcommit 3102436616acdf34b3e4ce4f7e5e39226aee5124[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Wed Nov 8 08:44:28 2023 -0700
+
+    Bump flipper/flipper-ui (#14431)
+    
+    * Update gemfile
+    
+    * Use local stylesheet to fix error
+
+[33mcommit a2273e0d0e3ee2c469558e1b32e195ab278be4f3[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Wed Nov 8 10:40:11 2023 -0500
+
+    Fix typo on file number for metadata for 21-0966 (#14465)
+
+[33mcommit 4d03a1c56a9967af48064ee2bfe7dd1dd0e67241[m
+Author: mchristiansonVA <95487885+mchristiansonVA@users.noreply.github.com>
+Date:   Wed Nov 8 09:28:22 2023 -0500
+
+    Api 31436 Conditionally require service relevance (#14453)
+    
+    * Work in progress
+    
+    * Incremental commit
+    
+    * Update json docs
+    
+    * Add generate swagger, add test
+
+[33mcommit cec409871bf735bb0b930ed517ca20a3643b99f8[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Tue Nov 7 17:19:42 2023 -0500
+
+    Add a Datadog tag for a form's uuid (#14456)
+
+[33mcommit 3cb4bebac41e40a08b4da554106bdf8f8a947312[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Tue Nov 7 17:07:00 2023 -0500
+
+    Handle nil in zipCode with empty string in metadata (#14454)
+
+[33mcommit f47a591ae91ce55b6b5e512302e913f485c584bd[m
+Author: Riley Anderson <riley.anderson@oddball.io>
+Date:   Tue Nov 7 14:01:51 2023 -0700
+
+    Add new logout URL for SLO Terms of Use decline (#14394)
+
+[33mcommit 14925c8c0968f49524ac3ccc96cd52ef0389dc1a[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Tue Nov 7 13:47:30 2023 -0500
+
+    Fix bug in 21-4142 where a Veteran's signature would not appear (#14446)
+
+[33mcommit 4f935ac7c0339178c3eda63c873cc3b861035acf[m
+Author: Richard Davis <richard.davis@agile6.com>
+Date:   Tue Nov 7 11:37:16 2023 -0500
+
+    Updates mock data in preparation for research sessions (#14443)
+
+[33mcommit 6c7bfd9714e5499b9662496015507ab08611e821[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 7 09:27:45 2023 -0700
+
+    Bump various gem patch versions (#14438)
+
+[33mcommit e26f55bea5bff61531feb961efc7e6c870181e4c[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 7 09:27:29 2023 -0700
+
+    Bump dry-* dependencies (#14436)
+
+[33mcommit 66deb906f51b7a2b790ddb2f876085b6407d7b83[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 7 09:27:11 2023 -0700
+
+    Bump guard gem and dependencies (#14435)
+
+[33mcommit baf1ec74fd3933ce2288028ce6a078d6ce005243[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 7 09:26:56 2023 -0700
+
+    Bump mime-types (#14434)
+
+[33mcommit d3a37023096e58b7699c8bba9837bbb93ff1ad4c[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Tue Nov 7 09:26:47 2023 -0700
+
+    Bump git (#14433)
+
+[33mcommit 12568d3ef7961e121d9632f22d8823380fa042d3[m
+Author: Lindsey Hattamer <lindsey.hattamer@oddball.io>
+Date:   Tue Nov 7 10:40:52 2023 -0500
+
+    Revert "Revert "Revert "update to 5.6.1 to send flare to datadog (#14353)" (#14412)" (#14439)" (#14440)
+    
+    This reverts commit 1b7daeb2cedbd8c032214e376f2edb36932a2876.
+
+[33mcommit 7d5dbacf56523ab8f0f790b7821bd2132a2ccbad[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Tue Nov 7 08:00:13 2023 -0700
+
+    API-31212-improve-logging-part-1 (#14323)
+    
+    * Improves v1 logging. Removes excess logging in v1.
+    
+    * Adds v2_logger. Rubocop.
+    
+    * Adds e.class to logging in claim_uploader
+    
+    * Reverts removal of poa exception
+    
+    * Removes extra logging. Adds template. Removes Sentry logging.
+    
+    * Gets default tag working again.
+    
+    * Removes poa param since it is only useful in one place
+    
+    * Implements PR comments and suggestions
+
+[33mcommit 1b7daeb2cedbd8c032214e376f2edb36932a2876[m
+Author: Lindsey Hattamer <lindsey.hattamer@oddball.io>
+Date:   Tue Nov 7 09:53:49 2023 -0500
+
+    Revert "Revert "update to 5.6.1 to send flare to datadog (#14353)" (#14412)" (#14439)
+    
+    This reverts commit 8ede9324634f0f670c28af94ab37b5220c6d9325.
+
+[33mcommit 3107435b9dab1566a6706f87d1447d56d5db21d8[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Tue Nov 7 09:41:36 2023 -0500
+
+    Handle third party preparer roles for 21-0966 (#14423)
+
+[33mcommit 4d8c1fb5fdbea529f460309491b9c23636a913fb[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Tue Nov 7 09:39:37 2023 -0500
+
+    Add confirmation code in authenticated responses for 21-0966 (#14415)
+
+[33mcommit 7ad87781c33089ee431110d638ddd9cadfd64392[m
+Author: Mike Moyer <87040148+mmoyer-va@users.noreply.github.com>
+Date:   Mon Nov 6 20:41:13 2023 -0500
+
+    MHV-51019 Implement session locking (#14359)
+    
+    * MHV-50917 Split MHV JWT/FHIR Session mixin into two modules
+    
+    * MHV-50917 Removed a print statement
+    
+    * MHV-50917 Fixed tests for MHVJwtSessionClient
+    
+    * MHV-50917 Moved MhvFhirSessionClient tests into their own spec
+    
+    * MHV-50917 Updated CODEOWNERS
+    
+    * MHV-50917 Added ICN for spec tests
+    
+    * MHV-51019 Implement session locking
+    
+    * Revert "MHV-51019 Implement session locking"
+    
+    This reverts commit 5a2abd0dd1bb657405523e085286bfd0754b8e2f.
+    
+    * MHV-51019 Implemented session locking
+    
+    * MHV-51019 Modified locking to reduce bottlenecks
+    
+    * MHV-51019 Added redis config entry and removed unneeded check
+    
+    * MHV-51019 Refactored slightly
+    
+    * MHV-51019 Added some spec tests
+    
+    * MHV-51019 Modified constants
+    
+    * MHV-51019 Modified exception details
+    
+    * MHV-51019 Improved comments and removed unneeded statements
+
+[33mcommit 0805eaeca12891f0978071a7c5b9467baa779001[m
+Author: Alexander Wilson <fonzmp@gmail.com>
+Date:   Mon Nov 6 16:39:32 2023 -0700
+
+    update to use existing var for now (#14430)
+
+[33mcommit f98cfd42c1e96d54c3f277f21c85b2f5b634e7da[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 6 15:17:01 2023 -0700
+
+    Bump http-cookie kms_encrypted lumberjack msgpack racc (#14422)
+
+[33mcommit f9510dae6979867e87dc56207b12d79aaadaeaaa[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 6 14:48:12 2023 -0700
+
+    Bump pry (#14418)
+
+[33mcommit e5330122de84c923bf1fef19807ee5be174d69f5[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 6 14:47:18 2023 -0700
+
+    Bump pg (#14419)
+
+[33mcommit 5619c8e4075810d4f7c3d1a63d68c73d505ac360[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Mon Nov 6 14:47:06 2023 -0700
+
+    Bump optimist (#14421)
+
+[33mcommit cc2be83435a1066f5ab82d4b0573ad9ed593f1c1[m
+Author: Kristen Brown <11942904+kristen-brown@users.noreply.github.com>
+Date:   Mon Nov 6 16:29:09 2023 -0500
+
+    API-31018: Remove Appeals Evidence from Some Benefits Intake API Reporting (#14411)
+    
+    * API-31018 Resolve rubocop offenses
+    
+    * API-31018: Put appeals evidence reporting changes behind existing feature flag
+    
+    * API-31018: Exclude appeals evidence from 'uploaded' section of Slack summary notification
+
+[33mcommit bdf14e017b0d1fe6356b1b74714c424562e3a9a2[m
+Author: Kristen Brown <11942904+kristen-brown@users.noreply.github.com>
+Date:   Mon Nov 6 16:29:00 2023 -0500
+
+    API-30883: `EvidenceSubmissionBackup` Job for Evidence Submissions Submitted "Late" (#14410)
+    
+    * API-30883: Adds a backup job called AppealsApi::EvidenceSubmissionBackup that ensures all evidence is eventually submitted to Central Mail Portal
+    
+    * API-30883: Update comment
+
+[33mcommit c704747237abf264a2976c7d2124dd7ad263ab8d[m
+Author: Aurora <aurora.hampton@agile6.com>
+Date:   Mon Nov 6 13:15:58 2023 -0800
+
+    Dbex/65051 (#14393)
+    
+    * dbex/65051: update transform service
+    
+    * dbex/65051: update transform service
+    
+    * dbex/65051: update transform service
+    
+    * dbex/65051: add nullable bool comment
+
+[33mcommit 3a9890fd351c01ff4bb01cca121ce1f7a8893684[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:11:24 2023 -0800
+
+    Adds trace service tags for debt-resolution controllers (#14358)
+
+[33mcommit 7699673d95af9ef89240bdc09713bd68ba121eee[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:10:46 2023 -0800
+
+    Adds trace service tags for save in progress and feature flags (#14349)
+    
+    * Adds trace service tags for save in progress and feature flags
+
+[33mcommit 07d7e6ee44ef9f8cbf3bada2d94f80c1a996487c[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:10:07 2023 -0800
+
+    Adds trace service tag for pension application (#14362)
+    
+    * Adds trace service tag for pension application
+
+[33mcommit cf1992d38e26b1361fc4dc0c07bf14c44b01752d[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:09:45 2023 -0800
+
+    Adds trace service tags for financial report controllers (#14360)
+
+[33mcommit 427604ae6f1a9ee5060440927ff5970a672f1d89[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:08:58 2023 -0800
+
+    Adds trace service tags for Lighthouse APIs owned by Banana Peels (#14365)
+    
+    * Adds trace service tags for Lighthouse APIs owned by Banana Peels
+    
+    * Update codeowners for va_forms module
+    
+    * Update codeowners for va_forms module
+
+[33mcommit 26a7b06e390f3fbd5f413e98a1d2ec23bbffab95[m
+Author: Chikaodi Adibemma <53785439+cadibemma@users.noreply.github.com>
+Date:   Mon Nov 6 16:08:40 2023 -0500
+
+    7112 update appts logic to pass appointment ien to fe (#14378)
+    
+    * added appt ien to appt data
+    
+    * added appt ien to appt data
+    
+    * updated build appt model to include ien
+    
+    * added ien to appt model
+    
+    * proxy cleanup
+    
+    * updated serializer
+    
+    * added cassette for appt with ien
+    
+    * added clinic data to clinics cassette
+    
+    * updated uri
+    
+    * added specs to test ien
+    
+    * rubocop fixes
+    
+    * specs fixes
+    
+    * updated docs
+    
+    * updated cassette name used
+    
+    * docs rerendered
+    
+    * updated system string needed
+    
+    * moved ien logic to adapter
+    
+    * removed duplicate entry of 'appointmentIen' in docs
+    
+    * rerendered docs
+
+[33mcommit 307246a0d41c3fd75f9e10af090d9b5f5a086460[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:08:24 2023 -0800
+
+    Adds trace service tag for intent-to-file controller (#14361)
+
+[33mcommit 0caba5ff3806cd0b43f4c9eceeea1290b55c8e07[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:07:45 2023 -0800
+
+    Adds trace service tags for veteran confirmation/verification modules (#14369)
+    
+    * Adds trace service tags for veteran confirmation/verification modules
+
+[33mcommit 84135239fe1ce9ace84621847c415d92f1afeacd[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:07:00 2023 -0800
+
+    Adds trace service tags for VAOS module (#14370)
+
+[33mcommit 79417dff93ec1bd81ce678b766226d64cd6cf2eb[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Mon Nov 6 13:06:01 2023 -0800
+
+    Adds trace service tags for check-in module (#14371)
+
+[33mcommit 85586f3537f25c4c7a0458ddc93aa5b96156a475[m
+Author: Gregg P <117232882+GcioGregg@users.noreply.github.com>
+Date:   Mon Nov 6 13:04:00 2023 -0800
+
+    remove flag to turn it on in production (#14374)
+    
+    Co-authored-by: nfstern02 <Noah.Stern@va.gov>
+
+[33mcommit 050979a882b9864770f848bc6ea4bac05825554a[m
+Author: Patrick Saxton <patrick@urban-intellect.com>
+Date:   Mon Nov 6 14:19:09 2023 -0600
+
+    DataDog Service Catalog Meta Data now in source control and updated with PR merge (#14344)
+    
+    * init
+    
+    * remove test-10-10-cg entry
+    
+    * change action name
+    
+    * move into folder
+    
+    * add codeowner
+    
+    ---------
+    
+    Co-authored-by: Adrian Rollett <acrollet@gmail.com>
+
+[33mcommit 8e7087ade70b2661fa599fd74a289b8f3a2f2d5d[m
+Author: Casey Williams <caseywilliams@users.noreply.github.com>
+Date:   Mon Nov 6 10:56:09 2023 -0800
+
+    Three new recipients for Decision Reviews daily report (#14417)
+
+[33mcommit c052b79815c2cb24618b567bb1a465b2cfc874d1[m
+Author: Andrew Herzberg <andrew.herzberg@adhocteam.us>
+Date:   Mon Nov 6 11:35:02 2023 -0700
+
+    update uploaded logic (#14406)
+
+[33mcommit c53bc9da8cb8a2463247dcd30221e121132290fe[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Mon Nov 6 12:59:24 2023 -0500
+
+    63653 add statsD calls for sharepoint uploads (#14413)
+    
+    * add statsD calls for sharepoint uploads
+    
+    * specs pass
+
+[33mcommit 3ce6e7ce3428408a661be2ecb7958b1eb43e54a2[m
+Author: Rockwell Windsor Rice <129893414+rockwellwindsor-va@users.noreply.github.com>
+Date:   Mon Nov 6 11:05:24 2023 -0600
+
+    API-31426-invalid-date-errors (#14401)
+    
+    * Updates REGEX pattern for approximate dates on disabilities and secondaryDisabilities to more strongly enforce the value.
+        * Previous version allowed `July 2017` through
+    * Adds two RSpec tests to verify the example and make sure it does not revert in the future
+    * Updates 526.json and related JSON files to reflect updated REGEX pattern for the two fields
+    Changes to be committed:
+            modified:   modules/claims_api/app/swagger/claims_api/v2/dev/swagger.json
+            modified:   modules/claims_api/config/schemas/v2/526.json
+            modified:   modules/claims_api/config/schemas/v2/request_bodies/disability_compensation/request.json
+            modified:   modules/claims_api/spec/requests/v2/veterans/disability_compensation_request_spec.rb
+            modified:   spec/support/schemas/claims_api/v2/forms/disability/submission.json
+
+[33mcommit 87e49a4f914db4b171b3a03258d7b18cd4425f1c[m
+Author: John Bramley <John.Bramley@va.gov>
+Date:   Mon Nov 6 10:56:30 2023 -0600
+
+    [67028] adds common_name validation to ToU acceptor/decliner (#14198)
+    
+    * adds common_name validation to ToU acceptor/decliner
+    
+    * spec updates
+    
+    * spec update
+    
+    * updates
+    
+    * improves ToU common_name validator error messaging
+    
+    * spec improvements
+
+[33mcommit abb1b641b728c1eec9aab623c9d064415173d3d7[m
+Author: Joshua Drumm <34111449+JoshingYou1@users.noreply.github.com>
+Date:   Mon Nov 6 11:24:47 2023 -0500
+
+    Updated vets_json_schema gem (#14403)
+
+[33mcommit 8ede9324634f0f670c28af94ab37b5220c6d9325[m
+Author: Lindsey Hattamer <lindsey.hattamer@oddball.io>
+Date:   Mon Nov 6 10:59:43 2023 -0500
+
+    Revert "update to 5.6.1 to send flare to datadog (#14353)" (#14412)
+    
+    This reverts commit 6f2ba5026737ed3ff81766fa4da61fd4da218ef4.
+
+[33mcommit 0f1a96c28b06a67c91940a45ba2dd3eecbea219b[m
+Author: Jayson Perkins <jayson.perkins@adhocteam.us>
+Date:   Mon Nov 6 10:57:44 2023 -0500
+
+    return prov by default (#14397)
+    
+    * return prov by default
+    
+    Updated nil return to return provider cancel instead so that web and mobile match while we use the added debugging to figure out what exactly is happening.
+    
+    * lint
+
+[33mcommit 724f2f5f08a78fc153507d466fabc4bfb36aa8f2[m
+Author: Austin Covrig <acovrig@users.noreply.github.com>
+Date:   Mon Nov 6 09:53:30 2023 -0600
+
+    Api 31321 fix doc type bd (#14389)
+    
+    * Add doc_type to BD uploader
+    
+    * Add specs
+    
+    * Rename test and remove extra cassette
+    
+    ---------
+    
+    Co-authored-by: Austin Covrig <austin.covrig@oddball.io>
+
+[33mcommit 680d22fe36a045cee7870f14c645fc292c3785e4[m
+Author: Rebecca Tolmach <10993987+rmtolmach@users.noreply.github.com>
+Date:   Mon Nov 6 10:35:52 2023 -0500
+
+    2nd try: military information emis to va profile migration (#14327)
+
+[33mcommit 6f2ba5026737ed3ff81766fa4da61fd4da218ef4[m
+Author: Lindsey Hattamer <lindsey.hattamer@oddball.io>
+Date:   Mon Nov 6 09:06:21 2023 -0500
+
+    update to 5.6.1 to send flare to datadog (#14353)
+
+[33mcommit b1210afcb3f04655547b004e51653f322d849158[m
+Author: kanchanasuriya <89944361+kanchanasuriya@users.noreply.github.com>
+Date:   Sun Nov 5 22:18:36 2023 -0800
+
+    68333 Passing SetECheckInStartedCalled field in PatientCheckIns GET (#14408)
+    
+    * 68333 Passing SetECheckInStartedCalled field in PatientCheckInsController GET
+    
+    * Changing variable name
+    
+    ---------
+    
+    Co-authored-by: kanchanasuriya <ksuriyamoorthy@kindsys.us>
+
+[33mcommit c7773a91299714a892eb28a50b5acd9b2335bac4[m
+Author: Tyler Fink <tfink419@gmail.com>
+Date:   Fri Nov 3 14:37:54 2023 -0600
+
+    Retryable/Idempotent SubmitDependentPdfJob (#13843)
+    
+    * Possible solution for retryable/idempotent submit pdf job
+    
+    * Fix lint issues
+    
+    * Typo and add schema file
+    
+    * Update specs
+    
+    * Fix lint
+    
+    * Update db migration to conform to standards
+    
+    * revert db changes for separate PR
+    
+    * Undo schema file changes
+    
+    * Clean up changes for retry and encrypted job
+    
+    * Change error to warning
+    
+    * Fix lint
+
+[33mcommit bea9b09e3c838fb024c409d72ff1e5d28e5cdefe[m
+Author: lihan li <frankieteardrop@gmail.com>
+Date:   Fri Nov 3 13:33:52 2023 -0700
+
+    1010EZR Pre-fill Dependent/Spouse Info (#14339)
+    
+    * add dep vcr
+    
+    * fix new vcr
+    
+    * dependent full name
+    
+    * dep suffix
+    
+    * dep ssn
+    
+    * dep dob
+    
+    * dep startdate
+    
+    * disabled before 18
+    
+    * attended school
+    
+    * cohabitate
+    
+    * spouse name
+    
+    * spouse ssn
+    
+    * spouse dob
+    
+    * date of marriage
+    
+    * cohabitate
+    
+    * add child relationship
+    
+    * get ezr data dep spec
+    
+    * fix old ezr data spec
+    
+    * spouse fields
+    
+    * date of marriage
+    
+    * cohabitate
+    
+    * dependent prefill
+    
+    * lint
+    
+    * lint
+    
+    * disable providers and dependents prefill
+
+[33mcommit 578280a5e1f215022aebb92fef274576572ac748[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Fri Nov 3 15:48:30 2023 -0400
+
+    Fix pluralization of survivor for 21-0966 (#14402)
+
+[33mcommit 001306300661cbc5fa9d92e9ae3bdca279d296c5[m
+Author: Tom Harrison <tom.harrison@adhocteam.us>
+Date:   Fri Nov 3 14:58:36 2023 -0400
+
+    Add response handling for non-json content types (#13945)
+    
+    * Add response handling for non-json content types
+    
+    * Update check for content-type
+    
+    * Updated CODEOWNERS file
+    
+    * Update check for status code
+    
+    * Rename 'error_status' to 'status_code'
+    
+    * Renamed 'error_status' to 'status_code' across all methods
+    
+    * Cleaned up status code data type conversions
+    
+    * Update CODEOWNERS file
+    
+    * Update CODEOWNERS file - vcr cassettes
+    
+    * Remove lighthouse-banana-peels ownership of lib/lighthouse directory
+    
+    * Update error title and fix failing spec
+    
+    * Fix another failing spec
+
+[33mcommit bb759550ed550c010bd5ecdbf083ec20034e1877[m[33m ([m[1;31morigin/bugfix/dex-fix-middle-name-char-limit-67214[m[33m)[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Fri Nov 3 12:36:44 2023 -0400
+
+    add vha statsd call (#14375)
+
+[33mcommit 1f060b9cac41bb34cb814df70ae637fc4ccb2d50[m
+Author: Dakota Larson <133443504+DLarson-Oddball@users.noreply.github.com>
+Date:   Fri Nov 3 09:35:49 2023 -0700
+
+    Add Logs to ch36 Workflow (#14392)
+    
+    * Add logs to ch36 workflow
+    
+    * warn => error
+
+[33mcommit e7a2ff0680cb2c5db10923531e0d7501dfc37f0b[m
+Author: aaronyoung-tw <aaron.young@thoughtworks.com>
+Date:   Fri Nov 3 12:33:05 2023 -0400
+
+    [#1178] Add feature flag to enable detection of params errors for chatbot (#14363)
+    
+    [department-of-veterans-affairs/va-virtual-agent#1178]
+    
+       Co-authored-by: Alexander Mendoza <alex.mendoza@thoughtworks.com>
+
+[33mcommit 1c480195e5df77f4cc8113c75414db0053a34b6e[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Fri Nov 3 10:33:22 2023 -0400
+
+    add statsd incrementors for debts KPIs (#14354)
+
+[33mcommit e73a2c3cb6bd4074d61a4840c17708a8aebfdea2[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Fri Nov 3 10:33:10 2023 -0400
+
+    63657 Add FsrForm class (#14318)
+    
+    * create a class that handles all of the presubmission form manipulation of FSR service
+    
+    * draft 2
+    
+    * add specs
+
+[33mcommit fda2d51b0ae7d869caf632793155e9eb5cd57a94[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Fri Nov 3 09:04:14 2023 -0400
+
+    Add third party role to data mapping for 21-0966 (#14376)
+
+[33mcommit 1995ce3070406f356d92b2c7ac0c69868eda093c[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 12:18:31 2023 -0600
+
+    Bump rb-fsevent (#14388)
+
+[33mcommit dfa19d4bea024e79f2c8ece9e387447cd973c15d[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 12:07:29 2023 -0600
+
+    Bump rspec-mocks (#14387)
+
+[33mcommit a1b7c2abb2faffa643275309113d1e0bc5b02ed6[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:54:46 2023 -0600
+
+    Bump semantic_logger (#14386)
+
+[33mcommit 63908f8d0ed8724a142e048a1ef023b7f0e1be35[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:49:27 2023 -0600
+
+    Bump ssrf-filter (#14385)
+
+[33mcommit 9533e2294f196d7cc05401ac59b78e667566f9c9[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:38:15 2023 -0600
+
+    Bump ruby-saml (#14384)
+
+[33mcommit 2cf1d8c6564411279af5f260c41cf77fd21f53c2[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:34:41 2023 -0600
+
+    Bump rgeo (#14383)
+
+[33mcommit fec33f75e0abe846a3a1aef6fc88f1204d0365b5[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:32:59 2023 -0600
+
+    bump-tzinfo-data (#14382)
+
+[33mcommit 6a631d6c6d1fc84909300de57642d058747ce1f8[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:19:16 2023 -0600
+
+    bump ruby-vips (#14381)
+
+[33mcommit 12a110e5711fe51d92dcb0d522cd6e567281bd6c[m
+Author: Jill Adams <85581471+jilladams@users.noreply.github.com>
+Date:   Thu Nov 2 10:09:49 2023 -0700
+
+    Fix PW team name since we changed it (#14380)
+
+[33mcommit cd606949b56f7025a26e9cb58025cb8f6b3ecc67[m
+Author: Ryan McNeil <ryan.mcneil@oddball.io>
+Date:   Thu Nov 2 11:05:41 2023 -0600
+
+    bump web-console (#14379)
+
+[33mcommit 9f9802d12f9d87113f177324e8c89aa47be28d07[m
+Author: Jayson Perkins <jayson.perkins@adhocteam.us>
+Date:   Thu Nov 2 13:01:26 2023 -0400
+
+    update logging criteria (#14377)
+    
+    * update logging criteria
+    
+    Only log when status is cancelled
+    
+    * remove pry
+    
+    * lint fix
+
+[33mcommit adb1e03db65794ce424f54eb1c03c94e64d19774[m
+Author: mchristiansonVA <95487885+mchristiansonVA@users.noreply.github.com>
+Date:   Thu Nov 2 11:03:23 2023 -0400
+
+    Api 30979 separation location name (#14329)
+    
+    * Add logic to map location description in pdf
+    
+    * Handle no match case
+    
+    * Fix pdf mapper spec tests
+    
+    * Add require for BRD
+    
+    * Add additional cassette entry for intake-sites
+    
+    * Add vcr repeat playback, remove extra entry from yml
+    
+    * Add shared module for BRD calls
+    
+    * Add instance variable and accessor method, remove allow_playback_repeats
+    
+    * Add VCR cassette for tests with calls to generator
+    
+    * Remove extraneous variable
+    
+    * Fix bug, misc cleanup
+    
+    * Add check for location
+    
+    * Fix handling for nil location
+    
+    * Placate the rubocop
+
+[33mcommit 631f7b92d699c442de9683cba14febe0a31ea350[m
+Author: Alexander Wilson <fonzmp@gmail.com>
+Date:   Thu Nov 2 08:44:02 2023 -0600
+
+    Claims api resolve null 526 (#14366)
+
+[33mcommit 83b744b1a1c89c0c2d6ff2c473f89015852b3dc6[m
+Author: Alexander Mendoza <137556584+lealmendozaalexander@users.noreply.github.com>
+Date:   Thu Nov 2 09:41:33 2023 -0500
+
+    [#1233] Add feature toggle for Upgrade Webchat for accessibility (#14335)
+    
+    Co-authored-by: Aaron Young <aaron.young@thoughtworks.com>
+        Co-authored-by: Evan Ubiera <evan.ubiera@thoughtworks.com>
+
+[33mcommit deda285b1f6df4afad15201543bf23cbba87153e[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Thu Nov 2 10:35:09 2023 -0400
+
+    Fix another nil + string possibility in 21-0845 (#14350)
+
+[33mcommit 45e6405a69f5669a442897e4f29db3118713091f[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Thu Nov 2 08:26:01 2023 -0600
+
+    Api 31298 v2 526 separation date validation (#14356)
+    
+    * Adds validation for last activeDutyEndDate and claimDate. Adds tests.
+    
+    * Rubocop
+    
+    * Changes dates on json files and fixes corresponding tests
+
+[33mcommit ba6a73882c4c1bf9927c319d1d85baa6a99ab7a4[m
+Author: Trevor Bosaw <bosawt@gmail.com>
+Date:   Thu Nov 2 07:20:53 2023 -0700
+
+    [67908] Refactoring settings to 'map_services' (#14209)
+    
+    Co-authored-by: Trevor Bosaw <trevor.bosaw@oddball.io>
+
+[33mcommit ee4afa74fbccffe595ca1c0657622cc46b0d26cb[m
+Author: Andrew Herzberg <andrew.herzberg@adhocteam.us>
+Date:   Wed Nov 1 15:46:04 2023 -0700
+
+    expect both snake and camel casing for mobile doc upload (#14342)
+
+[33mcommit 09800055c7748f88d587c918d82a211f8bd7b19b[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 1 12:46:22 2023 -0700
+
+    Adds trace service tags for PPIU direct deposit controller (#14357)
+
+[33mcommit e816323dba7deb3e70b46fce8025c5aaebb5a473[m
+Author: samcoforma <105806934+samcoforma@users.noreply.github.com>
+Date:   Wed Nov 1 12:23:57 2023 -0700
+
+    #65770 delay appeal letters (#14027)
+    
+    * added appeals letter filtering by date (48 hour delay) to DDL
+    
+    * modified DDL to only show BOA letters if they're older than 2 days
+    
+    * fixed rubocop errors
+
+[33mcommit bcba24f7ede8e7e59c0a337847311449939d6f3e[m
+Author: Mike Moyer <87040148+mmoyer-va@users.noreply.github.com>
+Date:   Wed Nov 1 15:06:03 2023 -0400
+
+    MHV-50917 Split JWT/FHIR session files (#14337)
+    
+    * MHV-50917 Split MHV JWT/FHIR Session mixin into two modules
+    
+    * MHV-50917 Removed a print statement
+    
+    * MHV-50917 Fixed tests for MHVJwtSessionClient
+    
+    * MHV-50917 Moved MhvFhirSessionClient tests into their own spec
+    
+    * MHV-50917 Updated CODEOWNERS
+    
+    * MHV-50917 Added ICN for spec tests
+    
+    * MHV-51019 Implement session locking
+    
+    * Revert "MHV-51019 Implement session locking"
+    
+    This reverts commit 5a2abd0dd1bb657405523e085286bfd0754b8e2f.
+
+[33mcommit 1235a7e908185417b2f4b033bcbde44432d92715[m
+Author: YANG YANG <yangyang@navapbc.com>
+Date:   Wed Nov 1 13:18:52 2023 -0400
+
+    Add call to VRO EP400 merge endpoint after 526 establishment (#14343)
+    
+    * Add call to VRO EP400 merge endpoint after 526 establishment
+    
+    * Fix linting error
+
+[33mcommit 4320a9f27bdbd4fe153051a74addeea50c233539[m
+Author: Jayson Perkins <jayson.perkins@adhocteam.us>
+Date:   Wed Nov 1 13:18:02 2023 -0400
+
+    add log (#14355)
+    
+    Log when appt is missing cancellation reason to confirm if it's happening in prod or not
+
+[33mcommit 2f54c962ed60bb36477bd540f583feeb64f3f6ff[m
+Author: Kevin Suarez <kjsuarez94@gmail.com>
+Date:   Wed Nov 1 13:00:21 2023 -0400
+
+    add statsd incrementors for FSR KPIs (#14333)
+
+[33mcommit d3b917c55ce26edf8e014423911d6294b4aa77e1[m
+Author: Tom Harrison <tom.harrison@adhocteam.us>
+Date:   Wed Nov 1 12:19:43 2023 -0400
+
+    Use Lighthouse policy for user profile permissions (#14267)
+
+[33mcommit 5856b3ea723f66ecfd6d415995d39475df9766fc[m
+Author: Patrick Vinograd <Patrick.Vinograd@va.gov>
+Date:   Wed Nov 1 09:05:30 2023 -0700
+
+    Adds trace service tags for 1010 API controllers (#14298)
+    
+    * Adds trace service tags for 1010 API controllers
+
+[33mcommit 25b27124aa3adff5ceac54a5008fdb62eec90acd[m
+Author: Patrick Vinograd <patrick@adhocteam.us>
+Date:   Tue Oct 31 17:38:18 2023 -0700
+
+    Adds trace service tags to my_health controllers (#14345)
+    
+    * Adds trace service tags to my_health controllers
+
+[33mcommit a47d87e58c5af0c17d9a30bf22244b599a78b602[m
+Author: Eric Tillberg <Thrillberg@users.noreply.github.com>
+Date:   Tue Oct 31 17:13:44 2023 -0400
+
+    Fix nil conversion to String errors on two forms (#14346)
+
+[33mcommit 1269b8da00f83b046b41d7083b5ba2f8a1e2251b[m
+Author: Kris Pethtel <kris.pethtel@gmail.com>
+Date:   Tue Oct 31 15:00:51 2023 -0500
+
+    7025 use checkin vcr cassettes (#14331)
+    
+    * 7025: use checkin vcr cassettes
+
+[33mcommit 5e8bde954ebbe01fb9f9b7181106f10f93624f11[m
+Author: Jayson Perkins <jayson.perkins@adhocteam.us>
+Date:   Tue Oct 31 12:29:48 2023 -0400
+
+    vetextid logic (#14325)
+    
+    * vetextid logic
+    
+    - convert utc to fileman format
+    - add facility id
+    - add expect to tests
+    
+    * lint fixes
+    
+    * update adapter tests
+    
+    * fixes to fileman expected formatting
+    
+    also switched to use local time instead of general UTC time
+
+[33mcommit 81f3ceee9f11516cd6a6df78bfedf4d52776530b[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Tue Oct 31 09:48:49 2023 -0600
+
+    API-30783-526-v2-response-attributes (#14315)
+    
+    * Changes 526 v2 submit response to be the form attributes. Changes how the claim id is retrieved in tests based on the response change.
+    
+    * Rubocop
+    
+    * Adds data to response for 526 v2 submit
+    
+    * Switches json and data
+
+[33mcommit e0a70738b5f0e6372e623fe96aa2de39c1926781[m
+Author: Kristen Brown <11942904+kristen-brown@users.noreply.github.com>
+Date:   Tue Oct 31 09:46:39 2023 -0400
+
+    API-31299: Update Appeals API timezone enums to IANA TZ Database Version 2023c (#14328)
+
+[33mcommit 158ac08407e1df35024ffd4f398d34db9692de2a[m
+Author: evansmith <evan.smith@oddball.io>
+Date:   Mon Oct 30 16:30:15 2023 -0400
+
+    Dex 68123 check for participant (#14272)
+    
+    * check for participant id, update unit tests with user that has no participant id
+    
+    * fix linting
+    
+    * refactor after review
+    
+    * rubocop fix
+
+[33mcommit d985f88aa95ae86c9bdf72d48a76c7f1cee44a11[m
+Author: Adrian Rollett <acrollet@gmail.com>
+Date:   Mon Oct 30 13:25:28 2023 -0600
+
+    Bug/mdot missing order error (#14309)
+    
+    * Add test for missing order property
+    
+    * Update order presence condition
+    
+    * Update CODEOWNERS for mdot
+
+[33mcommit 21e46397a49bd24f1d1b90dbe8830a841a022ba9[m
+Author: Tyler Fink <tfink419@gmail.com>
+Date:   Mon Oct 30 13:20:04 2023 -0600
+
+     Retryable SubmitForm686cJob and SubmitForm674Job (Pending Full Idempotence) (#13874)
+    
+    * Retryable jobs on errors with moved salvage form and email
+    
+    * Lint and other cleanup
+    
+    * Fix lint again
+    
+    * remove unused argument
+    
+    * Make user an instance var
+    
+    * Move user assignment to top
+    
+    * Update specs to work
+    
+    * Clean up extra lint
+    
+    * Additional changes post merge-conflict
+    
+    * Fix encrypted jobs and specs not touched by merge conflict
+    
+    * Fix lint
+    
+    * Fix valid_claim_data for 686c
+    
+    * method name
+    
+    * Remove excess log lines
+
+[33mcommit 98ee31fa32cc07f7e7b11868bd2b23bdc3da3f5d[m
+Author: Rockwell Windsor Rice <129893414+rockwellwindsor-va@users.noreply.github.com>
+Date:   Mon Oct 30 14:08:23 2023 -0500
+
+    Api 27191 extract background services 2 (#14173)
+    
+    * WIP
+    
+    * WIP
+    
+    * WIP
+    
+    * WIP
+    
+    * WIP
+    
+    * WIP
+    
+    * WIP, jobs added building out and refactoring tests where needed
+    
+    * Adds test files for parent class
+    
+    * Adds first tests, full test suite still red with KMS errors
+    
+    * Cleans out comments and other lingering uneeded notes
+    
+    * Reverts Gemfile.lock update
+    
+    * Removes default setting of middle inital value for testing, adds reschedule to pdf mapper job
+    
+    * WIP
+    
+    * Getting job through to VBMS upload but moving over to master for some debugging
+    
+    * Revert changed fixutre file
+    
+    * Updates service spec teests, still working on filling out pdf generator, docker upload and vbms specs
+    
+    * Fixes placement for callng vbms uploder job, still building out specs
+    
+    * Adds more tests for PDf generator, cleans out ::V2 from removed controller
+    
+    * Adds a few tests for docker container file
+    
+    * Revmoes uneeded var in docker test before I forget about it and leave it in
+    
+    * Cleans up file before adding more tests
+    
+    * Moves out parent file which does not work with async, adds establisher file to handle claim specific finishing touches
+    
+    * Fixes gemfle.lock inclusion
+    
+    * Updates to reset claim status when job restarts
+    
+    * Fixes unwanted inclusions
+    
+    * Cleans up files, works through from begning to end, adds more test for each file
+    
+    * Adds more explanation to comment
+    
+    * Adds base class back in, cleans up naming and positoning in files
+    
+    * Cleans up tests and merges master
+    
+    * Rubocop fix
+    
+    * Cleans out comment and test fix
+    
+    * Rubocop removed method length disable on submit method
+    
+    * Updates typo in PDF logging
+    
+    * Removes missed methods that had moved out into base service
+    
+    * Updates based on PR feedback
+    * Removes making the call when setting the claim state and instead just passes the claim to save
+    * Removes the file_number from the sidekiq params to avoid exposing PII
+    * Updates tests to reflect new params being sent to methods and jobs
+    * Alters file_number so now it is being grabbed from the claim's auth_headers
+    Changes to be committed:
+            modified:   modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_establisher.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_service_base.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_docker_container_upload.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_pdf_generator.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_vbms_uploader.rb
+            modified:   modules/claims_api/spec/sidekiq/v2/disability_compensation_claim_service_base_spec.rb
+            modified:   modules/claims_api/spec/sidekiq/v2/disability_compensation_docker_container_upload_spec.rb
+            modified:   modules/claims_api/spec/sidekiq/v2/disability_compensation_pdf_generator_spec.rb
+            modified:   modules/claims_api/spec/sidekiq/v2/disability_compensation_vbms_uploader_spec.rb
+    
+    * Cleans out some comments
+    
+    * Improvemenets based on PR feedback
+    * renames VBMS uplaoder to Bnenfits Documents uploader to make name more suited to function
+            * Adjsuts tests in regards to this point
+    * Sets logging TAGS as constants
+    * Cleans out some missed comments and uneeded variables in the PDF mapper
+    Changes to be committed:
+            modified:   modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb
+            renamed:    modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_vbms_uploader.rb -> modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_benefits_documents_uploader.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_claim_establisher.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_docker_container_upload.rb
+            modified:   modules/claims_api/app/sidekiq/claims_api/v2/disability_compensation_pdf_generator.rb
+            modified:   modules/claims_api/lib/claims_api/v2/disability_compensation_pdf_mapper.rb
+            modified:   modules/claims_api/spec/lib/claims_api/v2/disability_compensation_pdf_mapper_spec.rb
+            renamed:    modules/claims_api/spec/sidekiq/v2/disability_compensation_vbms_uploader_spec.rb -> modules/claims_api/spec/sidekiq/v2/disability_compensation_benefits_documents_uploader_spec.rb
+            modified:   modules/claims_api/spec/sidekiq/v2/disability_compensation_docker_container_upload_spec.rb
+    
+    * Reverts new.perform back to perform_async in dis comp controller
+    
+    * Fix typo in base service class
+    
+    * Makes updates to the workflow, specifically keeping the pending state throughout until the very end after BD upload
+
+[33mcommit 094b1909b6cdd3de44ab6c8683abe77a03bda443[m
+Author: Sam Stuckey <sam.n.stuckey@gmail.com>
+Date:   Mon Oct 30 14:43:25 2023 -0400
+
+    [DBX-68468] prevent no method chain use case error in logging wrapper (#14310)
+    
+    * [DBX-68468] prevent no method chain usecase error in logging wrapper
+    
+    * general save
+    
+    * general save
+    
+    * general save
+    
+    * general save
+
+[33mcommit 39d0bee58ae32147b9d02268b5e07c856b1d15e5[m
+Author: Richard Davis <richard.davis@agile6.com>
+Date:   Mon Oct 30 13:31:40 2023 -0400
+
+    Profile contacts configuration update (#14306)
+    
+    * pass current_user to Flipper.enabled?
+    * fix configuration for va_profile/health_benefit client
+    * add 403 status code to swagger specs
+
+[33mcommit 9d723be47cd23792730fab92ff84e6103d322333[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Mon Oct 30 11:01:24 2023 -0600
+
+    API-30748-526-v2-ISO-part-2-docs (#14326)
+    
+    * Adds v2 dev doc updates
+    
+    * Remedies failing test. Removes extra method
+
+[33mcommit 007c9f7ac8c108832cee0082296ab1807f506abf[m
+Author: Andrew Herzberg <andrew.herzberg@adhocteam.us>
+Date:   Mon Oct 30 09:32:22 2023 -0700
+
+    Mobile LH doc upload: adjust tracked item id param (#14316)
+
+[33mcommit 9454e6671c9f21d35786942c06a12d069050f63d[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Mon Oct 30 10:06:57 2023 -0600
+
+    Api 30748 526 v2 iso date formatting part 2 (#14250)
+    
+    * Changes schema files to have the ISO format
+    
+    * Changes example files to have the ISO format
+    
+    * WIP - fixing date logic and tests. changes formatting in json files, and adds logic to handle date conversion
+    
+    * WIP
+    
+    * Adjusts date formats to ISO
+    
+    * Removes comments
+    
+    * Fixes tests
+    
+    * Corrects date formats from merge conflict
+
+[33mcommit 7ed1f3c3d8e9314a14127ede7f3cebb403f622c0[m
+Author: Jennica Stiehl <25069483+stiehlrod@users.noreply.github.com>
+Date:   Mon Oct 30 09:08:17 2023 -0600
+
+    API-31112-handle-null-pdf-values (#14313)
+    
+    * Adds methods to eliminate null values on the pdf
+    
+    * Adds tests and another case in the exists method
+    
+    * Fixes test

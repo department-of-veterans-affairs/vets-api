@@ -6,6 +6,10 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   sync-branch:
     runs-on: ubuntu-20.04
@@ -15,9 +19,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          role-to-assume: arn:aws:iam::008577686731:role/GHA_OIDC_SSMReadOnlyRole
           aws-region: "us-gov-west-1"
+          role-session-name: SyncMasterToK8sSession
 
       - name: Get bot token from Parameter Store
         uses: marvinpinto/action-inject-ssm-secrets@latest
@@ -32,5 +36,3 @@ jobs:
           source_ref: 'master'
           target_branch: 'k8s'
           commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
-
-
