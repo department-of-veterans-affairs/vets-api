@@ -1,6 +1,12 @@
 name: Delete Datadog service from Datadog
 on:
   pull_request:
+    types:
+      - merged
+    branches:
+      - master
+    paths:
+      - "datadog-service-catalog/**.yml"
 
 jobs:
   get_deleted_services:
@@ -52,8 +58,7 @@ jobs:
               service=${{steps.parse_service_name.outputs.result}}
               schema=${{steps.parse_schema_version.outputs.result}}
               echo "Deleting $service@$schema from Datadog Service Catalog"
-              echo "curl url is https://api.ddog-gov.com/api/v2/services/definitions/$service?schema_version=$schema"
-#              curl --location --request DELETE 'https://api.ddog-gov.com/api/v2/services/definitions/$service?schema_version=$schema' \
-#              --header 'Accept: application/json' \
-#              --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
-#              --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \
+              curl --location --request DELETE 'https://api.ddog-gov.com/api/v2/services/definitions/$service?schema_version=$schema' \
+              --header 'Accept: application/json' \
+              --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
+              --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \
