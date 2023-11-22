@@ -24,7 +24,7 @@ jobs:
         name: 'Git diff for changes and output matrix of file names'
         run: |
               git fetch origin master
-              arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=d --name-only origin/master... -- "datadog-service-catalog/**.yml"))
+              arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=d --name-only delete-ddog-service... -- "datadog-service-catalog/**.yml"))
               out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml")| [.]')
               echo ::set-output name=files::$out
   update_dd:
