@@ -800,7 +800,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    restforce (6.2.4)
+    restforce (7.0.0)
       faraday (>= 1.1.0, < 2.8.0)
       faraday-follow_redirects (<= 0.3.0, < 1.0.0)
       faraday-multipart (>= 1.0.0, < 2.0.0)
@@ -1176,7 +1176,7 @@ DEPENDENCIES
   redis
   redis-namespace
   request_store
-  restforce (~> 6.0)
+  restforce
   rgeo-geojson
   rspec-instrumentation-matcher
   rspec-its
