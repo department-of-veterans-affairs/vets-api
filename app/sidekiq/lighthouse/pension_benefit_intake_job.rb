@@ -14,6 +14,14 @@ module Lighthouse
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
 
+    # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+    # :nocov:
+    sidekiq_retries_exhausted do |msg|
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob exhausted!',
+                         { saved_claim_id: @saved_claim_id, error: msg })
+    end
+    # :nocov:
+
     # Process claim pdfs and upload to Benefits Intake API
     # https://developer.va.gov/explore/api/benefits-intake/docs
     #
@@ -22,6 +30,7 @@ module Lighthouse
     #
     # @param [Integer] saved_claim_id
     def perform(saved_claim_id)
+      @saved_claim_id = saved_claim_id
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
