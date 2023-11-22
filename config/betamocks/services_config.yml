@@ -9,6 +9,10 @@
       :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/inquiries/new" %>
+      :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :response_delay: 0.3
 
 #Dynamics Token post
 - :name: "Dynamics VEIS Auth Service"

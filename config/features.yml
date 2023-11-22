@@ -620,17 +620,37 @@ features:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
     enable_in_development: true
+  mhv_landing_page_personalization:
+    actor_type: user
+    description: Enables personalized content on the My HealtheVet landing page.
+    enable_in_development: true
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
-    description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
+    description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
-    description: Enables/disbales Secure Messaging Phase 1 on VA.gov
+    description: Enables/disables Secure Messaging Phase 1 on VA.gov
+    enable_in_development: true
+  mhv_medical_records_allow_txt_downloads:
+    actor_type: user
+    description: Allows users to download Medical Records data in TXT format
+    enable_in_development: true
+  mhv_medical_records_display_domains:
+    actor_type: user
+    description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_sidenav:
+    actor_type: user
+    description: Show/hide the Medical Records side navigation
+    enable_in_development: true
+  mhv_medical_records_display_vaccines:
+    actor_type: user
+    description: Show/hide content related to Vaccines in Medical Records
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
-    description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
   mhv_medical_records_redact_fhir_client_logs:
     actor_type: user
@@ -638,19 +658,11 @@ features:
     enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
-    description: Enables/disbales Medical Records on VA.gov (intial transition from MHV to VA.gov)
-    enable_in_development: true
-  mhv_medical_records_display_domains:
-    actor_type: user
-    description: Show/hide in-progress Medical Records domains
-    enable_in_development: true
-  mhv_medical_records_allow_txt_downloads:
-    actor_type: user
-    description: Allows users to download Medical Records data in TXT format
+    description: Enables/disables Medical Records on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
-    description: Enables/disbales Medications on VA.gov (intial transition from MHV to VA.gov)
+    description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
@@ -814,8 +826,9 @@ features:
     description: Show the My VA link on the global site header
   rated_disabilities_detect_discrepancies:
     actor_type: user
-    description: When enabled, the rated disabilities application will check for discrepancies between
-      the number of rated disabilities returned by EVSS and Lighthouse 
+    description:
+      When enabled, the rated disabilities application will check for discrepancies between
+      the number of rated disabilities returned by EVSS and Lighthouse
     enable_in_development: true
   rated_disabilities_sort_ab_test:
     actor_type: user
