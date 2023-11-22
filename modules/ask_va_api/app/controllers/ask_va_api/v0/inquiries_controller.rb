@@ -7,6 +7,7 @@ module AskVAApi
       before_action :get_inquiries_by_icn, only: [:index]
       before_action :get_inquiry_by_inquiry_number, only: [:show]
       skip_before_action :authenticate, only: [:unauth_create]
+      skip_before_action :verify_authenticity_token, only: [:unauth_create]
 
       def index
         render json: @user_inquiries.payload, status: @user_inquiries.status
