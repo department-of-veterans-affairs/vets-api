@@ -126,6 +126,17 @@ module EVSS
         )
 
         response = service.get_payment_information
+
+        begin
+          set_account(response)
+        rescue => e
+          method_name = '#get_banking_info'
+          Rails.logger.error "#{method_name} Failed to retrieve PPIU data from #{service.class}: #{e.message}"
+          raise Common::Exceptions::BadRequest.new(errors: [e.message])
+        end
+      end
+
+      def set_account(response)
         account = response.responses.first.payment_account
 
         if can_set_direct_deposit?(account)
