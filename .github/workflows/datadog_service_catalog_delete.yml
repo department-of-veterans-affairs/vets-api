@@ -1,0 +1,43 @@
+name: Delete Datadog service from Datadog
+on:
+  pull_request:
+
+jobs:
+  get_deleted_services:
+    name: 'Get deleted service filenames'
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{steps.one.outputs.files}}
+    steps:
+      - name: 'Checkout repo'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: one
+        name: 'Check for deleted DataDog service files'
+        run: |
+          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only ${{github.head_ref}}.. -- "datadog-service-catalog/**.yml"))
+          out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.] | map(select(length > 0))')
+          echo "files=$out" >> $GITHUB_OUTPU
+
+  delete_services:
+    name: 'Delete services from Datadog'
+    runs-on: ubuntu-latest
+    needs: get_deleted_services
+    strategy:
+      matrix:
+        file: ${{fromJSON(needs.get_deleted_services.outputs.files)}}
+    steps:
+      - name: 'Checkout master branch'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+      - name: 'Get service names from file'
+        id: parse_file
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.name' ${{matrix.file}}
+      - name: 'Delete service'
+        run: |
+              echo ${{steps.parse_file.outputs.result}}
