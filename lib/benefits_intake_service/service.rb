@@ -26,10 +26,10 @@ module BenefitsIntakeService
 
     # Validate a file satisfies Benefits Intake specifications. File must be a PDF.
     # @param [String] doc_path
-    def validate_document(pdf_path:)
+    def validate_document(doc_path:)
       # TODO: allow headers: to be passed to function if/when other file types are allowed
       headers = { 'Content-Type': 'application/pdf' }
-      request_body = File.read(pdf_path, mode: 'rb')
+      request_body = File.read(doc_path, mode: 'rb')
       perform :post, 'uploads/validate_document', request_body, headers
     end
 
