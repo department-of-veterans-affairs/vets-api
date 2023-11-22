@@ -7,7 +7,7 @@ jobs:
     name: 'Get deleted service filenames'
     runs-on: ubuntu-latest
     outputs:
-      services: ${{steps.one.outputs.files}}
+      files: ${{steps.one.outputs.files}}
     steps:
       - name: 'Checkout repo'
         uses: actions/checkout@v4
@@ -16,14 +16,16 @@ jobs:
       - id: one
         name: 'Check for deleted DataDog service files'
         run: |
-          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only ${{github.head_ref}}.. -- "datadog-service-catalog/**.yml"))
-          out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.] | map(select(length > 0))')
-          echo "files=$out" >> $GITHUB_OUTPU
+          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only origin/master.. -- "datadog-service-catalog/**.yml"))
+          out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.]')
+          echo $out
+          echo ::set-output name=files::$out
 
   delete_services:
     name: 'Delete services from Datadog'
     runs-on: ubuntu-latest
-    needs: get_deleted_services
+    needs:
+      - get_deleted_services
     strategy:
       matrix:
         file: ${{fromJSON(needs.get_deleted_services.outputs.files)}}
