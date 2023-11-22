@@ -1,25 +1,25 @@
 ---
 :services:
 
-#Dynamics API GET endpoint
-- :name: "Dynamics API GET endpoint"
-  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.base_url).host}:#{URI(Settings.ask_va_api.dynamics_api.base_url).port}" %>
+#CRM API GET endpoint
+- :name: "CRM API GET endpoint"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>
   :endpoints:
     - :method: :get
-      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/ping" %>
+      :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
     - :method: :post
-      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/inquiries/new" %>
+      :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
       :response_delay: 0.3
 
-#Dynamics Token post
-- :name: "Dynamics VEIS Auth Service"
-  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.auth_url).host}:#{URI(Settings.ask_va_api.dynamics_api.auth_url).port}" %>
+#CRM Token post
+- :name: "CRM VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.auth_url).host}:#{URI(Settings.ask_va_api.crm_api.auth_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.ask_va_api.dynamics_api.tenant_id}/oauth2/v2.0/token" %>
+      :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
       :file_path: "/ask_va/token/default"
       :response_delay: 0.3
 

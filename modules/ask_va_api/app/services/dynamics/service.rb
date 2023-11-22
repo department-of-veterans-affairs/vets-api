@@ -20,7 +20,7 @@ module Dynamics
                    :service_name
 
     def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
-      @settings = Settings.ask_va_api.dynamics_api
+      @settings = Settings.ask_va_api.crm_api
       @base_uri = base_uri
       @icn = icn
       @logger = logger
