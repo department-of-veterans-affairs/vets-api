@@ -10,6 +10,7 @@ module SignIn
     validates :access_token_duration,
               presence: true,
               inclusion: { in: Constants::AccessToken::VALIDITY_LENGTHS, allow_nil: false }
+    validates :access_token_user_attributes, inclusion: { in: Constants::ServiceAccountAccessToken::USER_ATTRIBUTES }
 
     def assertion_public_keys
       @assertion_public_keys ||= certificates.compact.map do |certificate|
