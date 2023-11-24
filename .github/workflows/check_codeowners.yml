@@ -27,7 +27,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        role-to-assume: arn:aws:iam::<account-id>:role/GHA_OIDC_SSMReadOnlyRole
+        role-to-assume: arn:aws:iam::008577686731:role/GHA_OIDC_SSMReadOnlyRole
         aws-region: "us-gov-west-1"
         role-session-name: SSMParameterCheckSession
 
