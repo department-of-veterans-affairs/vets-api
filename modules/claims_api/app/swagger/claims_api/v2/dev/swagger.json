@@ -95,7 +95,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "1012667145V762142"
+                  "id": "1013062086V794840"
                 },
                 "schema": {
                   "additionalProperties": false,
@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "efc82b51-93fd-4fb9-aa2a-117a7281ab55",
+                    "id": "5b714d93-88d6-487a-950c-e7286f4ede83",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,7 +1329,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-11-22",
+                          "anticipatedSeparationDate": "2023-11-29",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -1885,14 +1885,12 @@
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                           "example": "2018-06 or 2018"
                                         },
                                         "endDate": {
                                           "type": "string",
                                           "nullable": true,
                                           "description": "Approximate end date for serving in Gulf War hazard location.",
-                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                           "example": "2018-06 or 2018"
                                         }
                                       }
@@ -3117,14 +3115,12 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -3985,7 +3981,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-10-03",
+                          "anticipatedSeparationDate": "2023-12-03",
                           "activationDate": "2023-02-10"
                         },
                         "reservesNationalGuardService": {
@@ -4622,14 +4618,12 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -5490,7 +5484,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-10-03",
+                          "anticipatedSeparationDate": "2023-12-03",
                           "activationDate": "2023-02-10"
                         },
                         "reservesNationalGuardService": {
@@ -5599,7 +5593,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d582875d-33d5-42d0-bb0f-662bc59e1d5b",
+                    "id": "7710571e-2465-4f39-8e72-570aba566f3c",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6252,14 +6246,12 @@
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
                                         "type": "string",
                                         "nullable": true,
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
-                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                         "example": "2018-06 or 2018"
                                       }
                                     }
@@ -7120,7 +7112,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-10-03",
+                          "anticipatedSeparationDate": "2023-12-03",
                           "activationDate": "2023-02-10"
                         },
                         "reservesNationalGuardService": {
@@ -7580,8 +7572,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-20",
-                      "expirationDate": "2024-11-20",
+                      "creationDate": "2023-11-27",
+                      "expirationDate": "2024-11-27",
                       "type": "compensation",
                       "status": "active"
                     }

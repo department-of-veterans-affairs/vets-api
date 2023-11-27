@@ -26,6 +26,8 @@ module ClaimsApi
         validate_form_526_disabilities!
         # ensure homeless information is valid
         validate_form_526_veteran_homelessness!
+        # ensure toxic exposure info is valid
+        validate_form_526_gulf_service!
         # ensure new address is valid
         validate_form_526_change_of_address!
         # ensure military service pay information is valid
@@ -344,6 +346,20 @@ module ClaimsApi
       def international_phone_too_long?
         phone = form_attributes.dig('homeless', 'pointOfContactNumber', 'internationalTelephone')
         phone.length > 25 if phone
+      end
+
+      def validate_form_526_gulf_service!
+        gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
+        return if gulf_war_service&.dig('servedInGulfWarHazardLocations') == 'NO'
+
+        gulf_regex = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'
+        begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')&.match(gulf_regex)
+        end_date = gulf_war_service&.dig('serviceDates', 'endDate')&.match(gulf_regex)
+        if begin_date.nil? || end_date.nil?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Both begin and end dates must be in the format of yyyy-mm or yyyy'
+          )
+        end
       end
 
       def validate_form_526_service_pay!
