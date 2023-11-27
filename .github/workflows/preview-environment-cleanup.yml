@@ -17,7 +17,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::008577686731:role/GHA_OIDC_ECRandSSMRole
+          role-to-assume: arn:aws-us-gov:iam::008577686731:role/GHA_OIDC_ECRandSSMRole
           aws-region: us-gov-west-1
           role-session-name: PreviewEnvCleanupSession
 
