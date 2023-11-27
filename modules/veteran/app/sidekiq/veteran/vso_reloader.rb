@@ -53,7 +53,8 @@ module Veteran
           poa: vso_rep['POA'].gsub(/\W/, ''),
           name: vso_rep['Organization Name'],
           phone: vso_rep['Org Phone'],
-          state: vso_rep['Org State']
+          state: vso_rep['Org State'],
+          representative_number: vso_rep['Registration Num']
         }
       end.compact.uniq
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
