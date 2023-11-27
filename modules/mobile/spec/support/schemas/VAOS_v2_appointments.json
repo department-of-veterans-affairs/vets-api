@@ -230,7 +230,8 @@
     },
     "meta": {
       "required": [
-        "pagination"
+        "pagination",
+        "upcomingAppointmentsCount"
       ],
       "properties": {
         "errors": {
@@ -258,6 +259,9 @@
               "type": "integer"
             }
           }
+        },
+        "upcomingAppointmentsCount": {
+          "type": "number"
         }
       }
     }
