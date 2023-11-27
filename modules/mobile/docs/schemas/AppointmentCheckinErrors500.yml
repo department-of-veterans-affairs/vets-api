@@ -1,0 +1,49 @@
+type: object
+required:
+  - errors
+properties:
+  errors:
+    type: array
+    items:
+      type: object
+      required:
+        - title
+        - detail
+        - code
+        - status
+      properties:
+        title:
+          type: string
+          example: 'Internal Server Error'
+        detail:
+          type: array
+          description: Detail status and title can be found at either errors[0]['detail'][0] or errors[0]['detail'][0]['errors'][0].
+          items:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                        - '500'
+                    title:
+                      type: string
+                      example: 'Authenticated Check-in vista error'
+              status:
+                type: string
+                enum:
+                  - '500'
+              title:
+                type: string
+                example: 'Authenticated Check-in vista error'
+        code:
+          type: string
+          example: 'CHIP_500'
+        status:
+          type: string
+          enum:
+            - '500'
