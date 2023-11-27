@@ -217,23 +217,32 @@ module Avs
       property :verifiedDate, type: :string
     end
 
+    # cf. https://github.com/department-of-veterans-affairs/avs/blob/270474ec00f140ca315499525a42f80a0fb31bbb/ll-avs-service/src/main/java/gov/va/med/lom/avs/model/RemoteMedication.java#L5
     swagger_schema :vaMedication do
-      property :T, type: :string
+      property :medId, type: :string
       property :name, type: :string
       property :type, type: :string
       property :sig, type: :string
       property :source, type: :string
       property :totalNumRefills, type: :integer
       property :refillsRemaining, type: :integer
+      property :startDate, type: :string
+      property :stopDate, type: :string
       property :dateExpires, type: :string
+      property :dateLastFilled, type: :string
       property :dateLastReleased, type: :string
-      property :fmDateLastReleased, type: :number
+      property :fmDateLastReleased, type: :integer
       property :stationName, type: :string
       property :stationNo, type: :string
+      property :provider, type: :string
+      property :description, type: :string
       property :ndc, type: :string
       property :statusIen, type: :string
       property :status, type: :string
       property :fmDiscontinuedDate, type: :integer
+      property :comment, type: :string
+      property :documentor, type: :string
+      property :documentingFacility, type: :string
       property :quantity, type: :integer
       property :daysSupply, type: :integer
       property :orderingProvider, type: :string
@@ -242,7 +251,10 @@ module Avs
       property :rxNumber, type: :string
       property :prescriptionType, type: :string
       property :patientTaking, type: :boolean
-      property :fmIssueDate, type: :number
+      property :current, type: :boolean
+      property :remote, type: :boolean
+      property :dateDocumented, type: :string
+      property :fmIssueDate, type: :integer
     end
 
     swagger_schema :labResult do
