@@ -1,5 +1,5 @@
 type: string
-description: Required for VA and CC Requests
+description: Required for VA and CC Requests. Documentation at https://hl7.org/fhir/R4/valueset-appointmentstatus.html
 enum:
   - proposed
   - cancelled

@@ -9,6 +9,7 @@ module Avs
     attribute :id, String
     attribute :icn, String
     attribute :meta, Object
+    attribute :patient_info, Object
     attribute :appointment_iens, Array
     attribute :clinics_visited, Array
     attribute :providers, Array
@@ -20,9 +21,11 @@ module Avs
     attribute :appointments, Array
     attribute :patient_instructions, String
     attribute :patient_education, String
+    attribute :pharmacy_terms, Array
     attribute :primary_care_providers, Array
     attribute :primary_care_team, String
     attribute :primary_care_team_members, Array
+    attribute :problems, Array
     attribute :allergies_reactions, Object
     attribute :va_medications, Array
     attribute :lab_results, Array
@@ -34,11 +37,14 @@ module Avs
       set_attributes(data['data'])
 
       self.id = data['sid']
-      self.icn = data['data']['patientInfo']['icn']
+      self.icn = data.dig('data', 'patientInfo', 'icn')
       self.appointment_iens = data['appointmentIens']
       self.meta = {
         generated_date: data['generatedDate'],
-        time_zone: data['data']['header']['timeZone']
+        time_zone: data.dig('data', 'header', 'timeZone')
+      }
+      self.patient_info = {
+        smoking_status: data.dig('data', 'patientInfo', 'smokingStatus') || ''
       }
     end
 

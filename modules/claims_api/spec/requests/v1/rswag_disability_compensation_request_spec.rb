@@ -103,7 +103,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
@@ -146,7 +145,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
@@ -182,7 +180,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           def make_stubbed_request(example)
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
@@ -309,7 +306,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
@@ -340,7 +336,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               submit_request(example.metadata)
@@ -375,7 +370,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
@@ -413,7 +407,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
@@ -451,7 +444,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
@@ -526,7 +518,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
             stub_claims_api_auth_token
 
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
@@ -576,7 +567,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
               mock_acg(scopes) do
@@ -613,7 +603,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
@@ -710,7 +699,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
@@ -752,7 +740,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
@@ -793,7 +780,6 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
