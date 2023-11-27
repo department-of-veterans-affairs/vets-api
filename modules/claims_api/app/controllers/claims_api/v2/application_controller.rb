@@ -67,7 +67,7 @@ module ClaimsApi
       end
 
       def benefits_doc_api
-        ClaimsApi::BD.new(request:)
+        ClaimsApi::BD.new
       end
 
       def bgs_service
