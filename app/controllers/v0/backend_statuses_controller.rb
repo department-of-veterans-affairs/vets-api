@@ -5,6 +5,7 @@ require 'backend_services'
 
 module V0
   class BackendStatusesController < ApplicationController
+    service_tag 'maintenance-windows'
     skip_before_action :authenticate
 
     # NOTE: this endpoint is somewhat misleading.  Index gets data from PagerDuty and
