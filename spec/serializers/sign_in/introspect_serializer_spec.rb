@@ -58,10 +58,6 @@ RSpec.describe SignIn::IntrospectSerializer do
     expect(attributes['logingov_uuid']).to be_present
   end
 
-  it 'returns serialized #ssn data' do
-    expect(attributes['ssn']).to be_present
-  end
-
   it 'returns serialized #icn data' do
     expect(attributes['icn']).to be_present
   end

@@ -15,7 +15,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         Veteran::VSOReloader.new.perform
         expect(Veteran::Service::Representative.count).to eq 435
         expect(Veteran::Service::Organization.count).to eq 3
-        expect(Veteran::Service::Organization.pluck(:representative_number).all?(&:present?)).to be true
         expect(Veteran::Service::Representative.attorneys.count).to eq 241
         expect(Veteran::Service::Representative.veteran_service_officers.count).to eq 152
         expect(Veteran::Service::Representative.claim_agents.count).to eq 42
@@ -43,15 +42,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       VCR.use_cassette('veteran/ogc_vso_rep_data') do
         Veteran::VSOReloader.new.reload_vso_reps
         expect(Veteran::Service::Representative.last.poa_codes).to include('091')
-        expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
-      end
-    end
-
-    it 'loads a vso rep with the poa code and sets representative_number' do
-      VCR.use_cassette('veteran/ogc_vso_rep_data') do
-        Veteran::VSOReloader.new.reload_vso_reps
-        expect(Veteran::Service::Representative.first.poa_codes).to include('091')
-        expect(Veteran::Service::Organization.first.representative_number).to eq('8239')
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
