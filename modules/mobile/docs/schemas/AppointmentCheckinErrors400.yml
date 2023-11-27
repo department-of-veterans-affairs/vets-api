@@ -1,0 +1,56 @@
+type: object
+required:
+  - errors
+properties:
+  errors:
+    type: array
+    items:
+      type: object
+      required:
+        - title
+        - detail
+        - code
+        - status
+      properties:
+        title:
+          type: string
+          example: 'Unsuccessful Operation'
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: '12345'
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                        - '400'
+                    title:
+                      type: string
+                      enum:
+                        - 'patient-contact-info-needs-update'
+                        - 'patient-emergency-contact-needs-update'
+                        - 'patient-next-of-kin-needs-update'
+                        - 'patient-insurance-needs-update'
+                        - 'appointment-check-in-too-late'
+              message:
+                type: string
+                example: 'Check-in unsuccessful with appointmentIen: 38846, patientDfn: 366, stationNo: 530'
+              type:
+                type: string
+                example: 'AuthenticatedCheckinResponse'
+        code:
+          type: string
+          example: 'CHIP_400'
+        status:
+          type: string
+          enum:
+            - '400'
+
