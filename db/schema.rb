@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_24_161640) do
+ActiveRecord::Schema.define(version: 2023_11_24_162244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -936,31 +936,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.string "updated_by"
   end
 
-  create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
-    t.string "name"
-    t.string "title"
-    t.text "terms_content"
-    t.text "header_content"
-    t.string "yes_content"
-    t.string "no_content"
-    t.string "footer_content"
-    t.string "version"
-    t.boolean "latest", default: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["name", "latest"], name: "index_terms_and_conditions_on_name_and_latest"
-  end
-
-  create_table "terms_and_conditions_acceptances", id: false, force: :cascade do |t|
-    t.string "user_uuid"
-    t.integer "terms_and_conditions_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.uuid "user_account_id"
-    t.index ["user_account_id"], name: "index_terms_and_conditions_acceptances_on_user_account_id"
-    t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
-  end
-
   create_table "terms_of_use_agreements", force: :cascade do |t|
     t.uuid "user_account_id", null: false
     t.string "agreement_version", null: false
@@ -1154,9 +1129,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.string "state", limit: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1172,8 +1144,13 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.float "long"
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.jsonb "raw_address"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
+    t.string "representative_number"
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
+    t.index ["poa", "representative_number"], name: "index_veteran_organizations_on_poa_and_representative_number", unique: true
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
   end
 
@@ -1191,9 +1168,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.text "dob_ciphertext"
     t.text "encrypted_kms_key"
     t.string "middle_initial"
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1210,6 +1184,9 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.jsonb "raw_address"
     t.string "full_name"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
@@ -1284,7 +1261,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
-  add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"

@@ -43,6 +43,8 @@ class ApiProviderFactory
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
 
+  attr_reader :type
+
   wrap_with_logging(
     :rated_disabilities_service_provider,
     :intent_to_file_service_provider,
@@ -52,7 +54,8 @@ class ApiProviderFactory
       action: 'disability compensation factory choosing API Provider'
     },
     additional_instance_logs: {
-      provider: %i[api_provider]
+      provider: %i[api_provider],
+      factory: %i[type]
     }
   )
 

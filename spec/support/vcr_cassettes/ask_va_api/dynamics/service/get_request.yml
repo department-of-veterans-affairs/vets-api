@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://run.mocky.io/v3/ada58e23-c461-4baf-9c03-ee36ba55c8cf?sec_id=test_sec_id
+    uri: https://run.mocky.io/v3/ada58e23-c461-4baf-9c03-ee36ba55c8cf?icn=test_icn
     body:
       encoding: US-ASCII
       string: ''
@@ -45,7 +45,7 @@ http_interactions:
                 "date_sent": "08/7/23"
                 }
               ],
-              "sec_id": "0001740097"
+              "icn": "0001740097"
             },
             {
               "respond_reply_id": "R-1",
@@ -60,7 +60,7 @@ http_interactions:
                 "date_sent": "08/7/23"
                 }
               ],
-              "sec_id": "0001740097"
+              "icn": "0001740097"
             },
             {
               "inquiryNumber": "A-3",
@@ -74,7 +74,7 @@ http_interactions:
                 "date_sent": "08/7/23"
                 }
               ],
-              "sec_id": "0001741122"
+              "icn": "0001741122"
             }
           ]
         }

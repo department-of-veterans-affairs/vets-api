@@ -3,6 +3,7 @@
 module V1
   class ApidocsController < ApplicationController
     include Swagger::Blocks
+    service_tag 'platform-base'
 
     skip_before_action :authenticate
 

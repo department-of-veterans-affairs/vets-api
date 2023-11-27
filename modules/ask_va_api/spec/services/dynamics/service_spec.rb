@@ -3,25 +3,19 @@
 require 'rails_helper'
 
 RSpec.describe Dynamics::Service do
-  let(:sec_id) { 'test_sec_id' }
-  let(:service) { described_class.new(sec_id:) }
+  let(:icn) { 'test_icn' }
+  let(:base_uri) { 'https://run.mocky.io/v3/' }
+  let(:service) { described_class.new(icn:, base_uri:) }
 
   describe '#call' do
     let(:endpoint) { 'ada58e23-c461-4baf-9c03-ee36ba55c8cf' }
 
-    Dynamics::Service::SUPPORTED_METHODS.each do |method|
-      context "with #{method.upcase} method" do
-        it 'makes a successful API call' do
-          VCR.use_cassette("ask_va_api/dynamics/service/#{method}_request") do
-            expect { service.call(endpoint:, method:) }.not_to raise_error
-          end
+    context 'with GET method' do
+      it 'makes a successful API call' do
+        VCR.use_cassette('ask_va_api/dynamics/service/get_request') do
+          expect { service.call(endpoint:, method: :get) }.not_to raise_error
         end
       end
-    end
-
-    it 'raises an ArgumentError for unsupported HTTP methods' do
-      expect { service.call(endpoint:, method: :unsupported) }
-        .to raise_error(ArgumentError, 'Unsupported HTTP method: unsupported')
     end
 
     context 'server response' do
@@ -55,7 +49,7 @@ RSpec.describe Dynamics::Service do
                 date_sent: '08/7/23'
               }
             ],
-            sec_id: '0001740097'
+            icn: '0001740097'
           }]
         end
 

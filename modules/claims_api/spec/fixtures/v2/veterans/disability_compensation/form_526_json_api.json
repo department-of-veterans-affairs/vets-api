@@ -45,8 +45,8 @@
           }
         ],
         "federalActivation": {
-          "anticipatedSeparationDate": "2027-10-31",
-          "activationDate": "2025-10-01"
+          "anticipatedSeparationDate": "2023-10-31",
+          "activationDate": "2023-10-01"
         },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
@@ -112,7 +112,6 @@
       ],
       "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-      "claimDate": "2023-02-18",
       "changeOfAddress": {
         "dates": {
           "beginDate": "2023-06-04",

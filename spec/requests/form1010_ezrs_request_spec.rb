@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'form1010_ezr/service'
 
 RSpec.describe 'Form1010 Ezrs', type: :request do
   let(:form) do
@@ -46,13 +45,13 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
         end
         let(:body) do
           {
-            'formSubmissionId' => 432_236_891,
-            'timestamp' => '2023-10-23T18:12:24.628-05:00',
+            'formSubmissionId' => 432_775_981,
+            'timestamp' => '2023-11-21T14:42:44.858-06:00',
             'success' => true
           }
         end
 
-        it 'renders a successful response and deletes the saved form', run_at: 'Mon, 23 Oct 2023 23:09:43 GMT' do
+        it 'renders a successful response and deletes the saved form', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
             { match_requests_on: %i[method uri body], erb: true }
@@ -75,14 +74,14 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           end
           let(:body) do
             {
-              'formSubmissionId' => 432_236_923,
-              'timestamp' => '2023-10-23T18:42:52.975-05:00',
+              'formSubmissionId' => 432_777_930,
+              'timestamp' => '2023-11-21T16:29:52.432-06:00',
               'success' => true
             }
           end
 
           it "overrides the original province 'state' with the correct province initial and renders a " \
-             'successful response', run_at: 'Mon, 23 Oct 2023 23:42:13 GMT' do
+             'successful response', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_mexican_province',
               { match_requests_on: %i[method uri body], erb: true }

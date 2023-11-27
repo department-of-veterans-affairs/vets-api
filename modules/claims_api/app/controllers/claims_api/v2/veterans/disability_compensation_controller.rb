@@ -56,7 +56,7 @@ module ClaimsApi
         end
 
         def attachments
-          if params.keys.select { |key| key.include? 'attachment' }.count > 3
+          if params.keys.select { |key| key.include? 'attachment' }.count > 10
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.')
           end
 
@@ -70,8 +70,9 @@ module ClaimsApi
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
         end
 
-        def get_pdf
+        def generate_pdf
           # Returns filled out 526EZ form as PDF
+          render json: { data: { attributes: {} } } # place holder
         end
 
         private

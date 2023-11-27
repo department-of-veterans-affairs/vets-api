@@ -5,6 +5,7 @@ require 'logging/third_party_transaction'
 module V0
   class UploadSupportingEvidencesController < ApplicationController
     extend Logging::ThirdPartyTransaction::MethodWrapper
+    service_tag 'disability-application'
 
     VALID_FILE_CLASSES = [ActionDispatch::Http::UploadedFile, Rack::Test::UploadedFile].freeze
 

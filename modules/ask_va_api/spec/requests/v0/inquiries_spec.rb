@@ -6,7 +6,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
-  let(:authorized_user) { build(:user, :accountable_with_sec_id, sec_id: '0001740097') }
+  let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
   end
@@ -172,5 +172,32 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       it { expect(response).to have_http_status(:unauthorized) }
     end
+  end
+
+  describe 'POST #unauth_create' do
+    let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+    before do
+      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint:, method: :post,
+                                                                      payload: { params: }).and_return('success')
+      post inquiry_path, params:
+    end
+
+    it { expect(response).to have_http_status(:created) }
+  end
+
+  describe 'POST #create' do
+    let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+    before do
+      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint:, method: :post,
+                                                                      payload: { params: }).and_return('success')
+      sign_in(authorized_user)
+      post '/ask_va_api/v0/inquiries/auth', params:
+    end
+
+    it { expect(response).to have_http_status(:created) }
   end
 end

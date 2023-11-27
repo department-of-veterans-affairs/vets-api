@@ -52,10 +52,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           context 'when Veteran has all necessary identifiers' do
-            before do
-              stub_mpi
-            end
-
             it 'assigns a source' do
               mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
@@ -184,10 +180,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
               'X-VA-Gender': 'M' }
           end
 
-          before do
-            stub_mpi
-          end
-
           it 'responds with a 422' do
             mock_acg(scopes) do |auth_header|
               allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
@@ -203,10 +195,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         context 'when poa code is not associated with current user' do
-          before do
-            stub_mpi
-          end
-
           it 'responds with invalid poa code message' do
             mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
@@ -217,10 +205,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       context 'when poa code is not valid' do
-        before do
-          stub_mpi
-        end
-
         it 'responds with invalid poa code message' do
           mock_acg(scopes) do |auth_header|
             post path, params: data, headers: headers.merge(auth_header)
@@ -247,10 +231,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       context 'request schema validations' do
-        before do
-          stub_mpi
-        end
-
         let(:json_data) { JSON.parse data }
 
         it 'requires poa_code subfield' do
@@ -279,10 +259,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#status' do
-      before do
-        stub_mpi
-      end
-
       let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
 
       it 'return the status of a POA based on GUID' do
@@ -297,10 +273,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#upload' do
-      before do
-        stub_mpi
-      end
-
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
         { attachment: Rack::Test::UploadedFile.new(::Rails.root.join(
@@ -436,7 +408,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     describe '#validate' do
       before do
-        stub_mpi
         Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
                                              first_name: 'Abraham', last_name: 'Lincoln').save!
       end
@@ -468,10 +439,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#active' do
-      before do
-        stub_mpi
-      end
-
       let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
       context 'when there is no BGS active power of attorney' do
