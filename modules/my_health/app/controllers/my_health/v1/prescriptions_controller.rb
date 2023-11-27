@@ -14,8 +14,14 @@ module MyHealth
       def index
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-        resource = resource.sort(params[:sort])
-        resource = last_refill_date_filter(resource) if params[0] == '-dispensed date'
+        sorting_key_primary = params[:sort]&.first
+        if sorting_key_primary == 'prescription_name'
+          sort_by_prescription_name(resource)
+        elsif sorting_key_primary == '-dispensed date'
+          resource = last_refill_date_filter(resource)
+        else
+          resource = resource.sort(params[:sort])
+        end
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         render json: resource.data,
@@ -58,6 +64,23 @@ module MyHealth
         end
 
         Collection.new(Prescription, data: resource, metadata:, errors:)
+      end
+
+      def sort_by_prescription_name(resource)
+        resource.data = resource.data.sort_by do |item|
+          sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name
+                                  item.orderable_item
+                                else
+                                  item.prescription_name
+                                end
+          sorting_key_secondary = item.dispensed_date || Date.new(9999, 12, 31) # If nil, need to use distant Date
+          [sorting_key_primary, sorting_key_secondary]
+        end
+        sort_metadata = {
+          'prescription_name' => 'ASC',
+          'dispensed_date' => 'ASC'
+        }
+        resource.metadata = resource.metadata.merge('sort' => sort_metadata)
       end
     end
   end
