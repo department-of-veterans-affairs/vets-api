@@ -63,33 +63,33 @@ jobs:
           sudo apt update
           sudo apt install yq -y
 
-      # - name: Check out Manifest Repo
-      #   uses: actions/checkout@v3
-      #   with:
-      #     repository: department-of-veterans-affairs/vsp-infra-application-manifests
-      #     token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-      #     fetch-depth: 1
-      #     path: vsp-infra-application-manifests
-      #
-      # - name: Update vets-api image name in Manifest repo for parent helm
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
-      #   run: |
-      #     cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
-      #     envs=( ${{ needs.prepare-values.outputs.environments }} )
-      #     for env in ${envs[*]};
-      #     do
-      #       yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
-      #     done
-      #     git diff
-      #
-      # - name: Add and Commit file
-      #   uses: EndBug/add-and-commit@v9
-      #   with:
-      #     branch: main
-      #     add: "*"
-      #     cwd: vsp-infra-application-manifests/apps
-      #     author_name: va-vsp-bot
-      #     author_email: devops@va.gov
-      #     message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
+      - name: Check out Manifest Repo
+        uses: actions/checkout@v3
+        with:
+          repository: department-of-veterans-affairs/vsp-infra-application-manifests
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          fetch-depth: 1
+          path: vsp-infra-application-manifests
+
+      - name: Update vets-api image name in Manifest repo for parent helm
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
+        run: |
+          cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
+          envs=( ${{ needs.prepare-values.outputs.environments }} )
+          for env in ${envs[*]};
+          do
+            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+          done
+          git diff
+
+      - name: Add and Commit file
+        uses: EndBug/add-and-commit@v9
+        with:
+          branch: main
+          add: "*"
+          cwd: vsp-infra-application-manifests/apps
+          author_name: va-vsp-bot
+          author_email: devops@va.gov
+          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
