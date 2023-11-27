@@ -1481,6 +1481,9 @@ chip:
     password: '12345'
 
 check_in:
+  map_api:
+    url: https://veteran.apps-staging.va.gov
+    service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
