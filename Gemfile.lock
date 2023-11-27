@@ -1026,7 +1026,6 @@ DEPENDENCIES
   addressable
   apivore!
   appeals_api!
-  apps_api!
   ask_va_api!
   avs!
   awesome_print
