@@ -6,6 +6,8 @@ require 'pdf_fill/filler'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    include IgnoreNotFound
+
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
@@ -18,7 +20,6 @@ module V0
     def rating_info
       service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
-
       render(
         json: {
           user_percent_of_disability: disability_rating

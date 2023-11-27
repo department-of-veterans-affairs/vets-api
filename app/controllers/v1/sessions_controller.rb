@@ -10,6 +10,7 @@ require 'login/after_login_actions'
 
 module V1
   class SessionsController < ApplicationController
+    service_tag 'identity'
     skip_before_action :verify_authenticity_token
 
     REDIRECT_URLS = %w[signup mhv mhv_verified dslogon dslogon_verified idme idme_verified idme_signup
