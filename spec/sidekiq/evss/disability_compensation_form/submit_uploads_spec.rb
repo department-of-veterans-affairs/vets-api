@@ -17,7 +17,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       Sidekiq::Worker.clear_all
     end
 
-    # EVSS Document Upload flow
+    # Legacy EVSS upload flow
     context 'when the disability_compensation_lighthouse_document_service_provider flipper is disabled' do
       before do
         Flipper.disable(:disability_compensation_lighthouse_document_service_provider)

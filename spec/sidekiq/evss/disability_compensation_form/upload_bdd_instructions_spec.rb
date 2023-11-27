@@ -70,6 +70,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
     end
   end
 
+  # Lighthouse Document Upload flow
   context 'when the disability_compensation_lighthouse_document_service_provider switch is enabled' do
     before do
       Flipper.enable(:disability_compensation_lighthouse_document_service_provider)
