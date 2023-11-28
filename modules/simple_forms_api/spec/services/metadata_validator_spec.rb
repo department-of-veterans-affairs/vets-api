@@ -35,9 +35,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError, 'veteran first name is missing')
+        end.to raise_error(ArgumentError, 'veteran first name is missing')
       end
     end
 
@@ -53,9 +53,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError,
+        end.to raise_error(ArgumentError,
                          'veteran first name is not a string')
       end
     end
@@ -133,9 +133,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError, 'veteran last name is missing')
+        end.to raise_error(ArgumentError, 'veteran last name is missing')
       end
     end
 
@@ -151,9 +151,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError,
+        end.to raise_error(ArgumentError,
                          'veteran last name is not a string')
       end
     end
@@ -231,9 +231,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError, 'file number is missing')
+        end.to raise_error(ArgumentError, 'file number is missing')
       end
     end
 
@@ -242,16 +242,16 @@ describe SimpleFormsApi::MetadataValidator do
         metadata = {
           'veteranFirstName' => 'John',
           'veteranLastName' => 'Doe',
-          'fileNumber' => 444444444,
+          'fileNumber' => 444_444_444,
           'zipCode' => '12345',
           'source' => 'VA Platform Digital Forms',
           'docType' => '21-0845',
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError,
+        end.to raise_error(ArgumentError,
                          'file number is not a string')
       end
     end
@@ -268,9 +268,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect {
+        expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        }.to raise_error(ArgumentError,
+        end.to raise_error(ArgumentError,
                          'file number is invalid. It must be 8 or 9 digits')
       end
     end
