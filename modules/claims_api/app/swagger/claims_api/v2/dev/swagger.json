@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "efc82b51-93fd-4fb9-aa2a-117a7281ab55",
+                    "id": "f8b0016b-e28b-4312-93b8-41053b136479",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,7 +1329,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-11-22",
+                          "anticipatedSeparationDate": "2023-11-29",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -2047,7 +2047,6 @@
                               "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                               "type": "array",
                               "minItems": 1,
-                              "uniqueItems": true,
                               "items": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -2107,7 +2106,6 @@
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
-                                    "uniqueItems": true,
                                     "items": {
                                       "type": "object",
                                       "additionalProperties": false,
@@ -3279,7 +3277,6 @@
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
-                            "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -3339,7 +3336,6 @@
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -4784,7 +4780,6 @@
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
-                            "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -4844,7 +4839,6 @@
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -5599,7 +5593,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d582875d-33d5-42d0-bb0f-662bc59e1d5b",
+                    "id": "2ba8a852-49f4-4989-af19-c493b30a1998",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6414,7 +6408,6 @@
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
-                            "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -6474,7 +6467,6 @@
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -7580,8 +7572,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-20",
-                      "expirationDate": "2024-11-20",
+                      "creationDate": "2023-11-27",
+                      "expirationDate": "2024-11-27",
                       "type": "compensation",
                       "status": "active"
                     }
