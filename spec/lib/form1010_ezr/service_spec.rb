@@ -6,6 +6,10 @@ require 'form1010_ezr/service'
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
+  before do
+    Flipper.disable(:ezr_async)
+  end
+
   let(:form) { get_fixture('form1010_ezr/valid_form') }
   let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
   let(:service) { described_class.new(current_user) }
@@ -57,13 +61,12 @@ RSpec.describe Form1010Ezr::Service do
           erb: true,
           allow_unused_http_interactions: false
         ) do
-          submit_form(form)
+          expect { submit_form(form) }.to change {
+            HCA::EzrSubmissionJob.jobs.size
+          }.by(1)
+
           HCA::EzrSubmissionJob.drain
         end
-      end
-
-      after do
-        Flipper.disable(:ezr_async)
       end
     end
 
