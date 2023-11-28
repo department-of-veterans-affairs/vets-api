@@ -45,6 +45,28 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   describe '#submit_form' do
+    context 'with ezr_async on' do
+      before do
+        Flipper.enable(:ezr_async)
+      end
+
+      it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          match_requests_on: %i[method uri body],
+          erb: true,
+          allow_unused_http_interactions: false
+        ) do
+          submit_form(form)
+          HCA::EzrSubmissionJob.drain
+        end
+      end
+
+      after do
+        Flipper.disable(:ezr_async)
+      end
+    end
+
     context 'when successful' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
