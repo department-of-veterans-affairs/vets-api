@@ -121,7 +121,7 @@ module ClaimsApi
         end
 
         def track_pact_counter(claim)
-          return unless form_attributes['disabilities']&.map { |d| d['isRelatedToToxicExposure'] }&.include? true
+          return unless valid_pact_act_claim?
 
           # Fetch the claim by md5 if it doesn't have an ID (given duplicate md5)
           if claim.id.nil? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
@@ -130,6 +130,12 @@ module ClaimsApi
           if claim.id
             ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
                                               consumer_label: token.payload['label'] || token.payload['cid']
+          end
+        end
+
+        def valid_pact_act_claim?
+          form_attributes['disabilities'].any? do |d|
+            d['isRelatedToToxicExposure'] && d['disabilityActionType'] == 'NEW'
           end
         end
 
