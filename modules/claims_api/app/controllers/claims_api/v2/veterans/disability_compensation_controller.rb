@@ -35,7 +35,7 @@ module ClaimsApi
             existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
-          auto_claim.save!
+          save_auto_claim!(auto_claim)
 
           if auto_claim.errors.present?
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
@@ -131,6 +131,11 @@ module ClaimsApi
             ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
                                               consumer_label: token.payload['label'] || token.payload['cid']
           end
+        end
+
+        def save_auto_claim!(auto_claim)
+          auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
+          auto_claim.save!
         end
       end
     end
