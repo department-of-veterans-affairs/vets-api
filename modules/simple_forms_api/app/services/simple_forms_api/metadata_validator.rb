@@ -3,13 +3,38 @@
 module SimpleFormsApi
   class MetadataValidator
     def self.validate(metadata)
-      raise ArgumentError, 'veteran first name is missing' unless metadata['veteranFirstName']
-      raise ArgumentError, 'veteran first name is not a string' if metadata['veteranFirstName'].class != String
+      validate_first_name(metadata)
+        .then { |m| validate_last_name(m) }
+        .then { |m| validate_file_number(m) }
+    end
 
+    def self.validate_first_name(metadata)
+      validate_presence_and_stringiness(metadata['veteranFirstName'], 'veteran first name')
       metadata['veteranFirstName'] = metadata['veteranFirstName'][0..49]
       metadata['veteranFirstName'] = metadata['veteranFirstName'].gsub(/[^a-zA-Z\-\/\s]/, '')
 
       metadata
+    end
+
+    def self.validate_last_name(metadata)
+      validate_presence_and_stringiness(metadata['veteranLastName'], 'veteran last name')
+      metadata['veteranLastName'] = metadata['veteranLastName'][0..49]
+      metadata['veteranLastName'] = metadata['veteranLastName'].gsub(/[^a-zA-Z\-\/\s]/, '')
+
+      metadata
+    end
+
+    def self.validate_file_number(metadata)
+      validate_presence_and_stringiness(metadata['fileNumber'], 'file number')
+      raise ArgumentError,
+            'file number is invalid. It must be 8 or 9 digits' unless metadata['fileNumber'].match? /^\d{8,9}$/
+
+      metadata
+    end
+
+    def self.validate_presence_and_stringiness(value, error_label)
+      raise ArgumentError, "#{error_label} is missing" unless value
+      raise ArgumentError, "#{error_label} is not a string" if value.class != String
     end
   end
 end
