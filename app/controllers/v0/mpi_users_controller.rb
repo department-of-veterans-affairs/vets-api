@@ -3,6 +3,7 @@
 module V0
   # Formerly MviUsersController
   class MPIUsersController < ApplicationController
+    service_tag 'identity'
     before_action { authorize :mpi, :access_add_person_proxy? }
 
     def submit
