@@ -35,7 +35,9 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect { SimpleFormsApi::MetadataValidator.validate(metadata) }.to raise_error(ArgumentError, 'veteran first name is missing')
+        expect {
+          SimpleFormsApi::MetadataValidator.validate(metadata)
+        }.to raise_error(ArgumentError, 'veteran first name is missing')
       end
     end
 
@@ -51,17 +53,21 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        expect { SimpleFormsApi::MetadataValidator.validate(metadata) }.to raise_error(ArgumentError, 'veteran first name is not a string')
+        expect {
+          SimpleFormsApi::MetadataValidator.validate(metadata)
+        }.to raise_error(ArgumentError,
+                         'veteran first name is not a string')
       end
     end
 
     describe 'too long' do
       it 'returns metadata with first 50 characters of veteran first name' do
         metadata = {
-          'veteranFirstName' => 'Wolfeschlegelsteinhausenbergerdorffwelchevoralternwarengewissenhaftschaferswessenschafewarenwohlgepflegeundsorg \
-            faltigkeitbeschutzenvonangreifendurchihrraubgierigfeindewelchevoralternzwolftausendjahresvorandieerscheinenvanderersteerdemenschderraum \
-            schiffgebrauchlichtalsseinursprungvonkraftgestartseinlangefahrthinzwischensternartigraumaufdersuchenachdiesternwelchegehabtbewohnbar \
-            planetenkreisedrehensichundwohinderneurassevonverstandigmenschlichkeitkonntefortpflanzenundsicherfreuenanlebenslanglichfreudeundruhemit \
+          'veteranFirstName' => 'Wolfeschlegelsteinhausenbergerdorffwelchevoralternwarengewissenhaftschaferswessenschafe
+            warenwohlgepflegeundsorgfaltigkeitbeschutzenvonangreifendurchihrraubgierigfeindewelchevoralternzwolftausend
+            jahresvorandieerscheinenvanderersteerdemenschderraumschiffgebrauchlichtalsseinursprungvonkraftgestartsein
+            langefahrthinzwischensternartigraumaufdersuchenachdiesternwelchegehabtbewohnbarplanetenkreisedrehensichund
+            wohinderneurassevonverstandigmenschlichkeitkonntefortpflanzenundsicherfreuenanlebenslanglichfreudeundruhemit
             nichteinfurchtvorangreifenvonandererintelligentgeschopfsvonhinzwischensternartigraum',
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
