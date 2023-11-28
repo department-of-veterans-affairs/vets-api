@@ -506,7 +506,6 @@
       "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
       "type": "array",
       "minItems": 1,
-      "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -559,7 +558,6 @@
           "secondaryDisabilities": {
             "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
             "type": "array",
-            "uniqueItems": true,
             "items": {
               "type": "object",
               "additionalProperties": false,
