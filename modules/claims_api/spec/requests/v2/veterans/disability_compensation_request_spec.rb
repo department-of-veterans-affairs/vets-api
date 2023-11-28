@@ -1764,6 +1764,41 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the activeDutyBeginDate is not an actual date' do
+          let(:active_duty_begin_date) { '2005-02-30' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                active_duty_begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              # make sure it is failing for the expected reason, do not need the whole text
+              expect(response_body['errors'][0]['detail']).to include(
+                "#{active_duty_begin_date} is not a valid date for servicePeriod.activeDutyBeginDate."
+              )
+            end
+          end
+        end
+
+        context 'when the activeDutyBeginDate is Feb 29 in a leap year' do
+          let(:active_duty_begin_date) { '2000-02-29' }
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                active_duty_begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context "when the activeDutyBeginDate is on or before the Veteran's 13th birthday" do
           let(:active_duty_begin_date) { '1904-01-01' }
 
@@ -1805,6 +1840,41 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the activeDutyEndDate is not an actual date' do
+          let(:active_duty_end_date) { '2023-02-30' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              # make sure it is failing for the expected reason, do not need the whole text
+              expect(response_body['errors'][0]['detail']).to include(
+                "#{active_duty_end_date} is not a valid date for servicePeriod.activeDutyBeginDate."
+              )
+            end
+          end
+        end
+
+        context 'when the activeDutyEndDate is Feb 29 in a leap year' do
+          let(:active_duty_end_date) { '2024-02-29' }
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
             end
           end
         end

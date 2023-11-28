@@ -8,6 +8,7 @@ require 'inherited_proofing/user_attributes_fetcher'
 require 'inherited_proofing/errors'
 
 class InheritedProofingController < ApplicationController
+  service_tag 'identity'
   skip_before_action :verify_authenticity_token, :authenticate, only: [:user_attributes]
   before_action :authenticate_auth_code_access_token, only: [:user_attributes]
 
