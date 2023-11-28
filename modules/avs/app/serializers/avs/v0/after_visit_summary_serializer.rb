@@ -17,11 +17,14 @@ module Avs
     attribute :orders
     attribute :immunizations
     attribute :appointments
+    attribute :patient_info
     attribute :patient_instructions
     attribute :patient_education
+    attribute :pharmacy_terms
     attribute :primary_care_providers
     attribute :primary_care_team
     attribute :primary_care_team_members
+    attribute :problems
     attribute :allergies_reactions
     attribute :va_medications
     attribute :lab_results

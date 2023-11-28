@@ -6,7 +6,8 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
+                                   vcr: 'claims_api/disability_comp' do
   let(:scopes) { %w[system/claim.read system/claim.write] }
 
   path '/veterans/{veteranId}/526' do
@@ -26,12 +27,12 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
         This endpoint generates a filled and electronically signed 526EZ form, establishes the disability claim in VBMS, and#{' '}
         submits the form to the Veteran's eFolder.
 
-        A 200 response indicates the API submission was successful. The claim has not reached VBMS until it has a CLAIM_RECEIVED status.#{' '}
+        A 202 response indicates the API submission was accepted. The claim has not reached VBMS until it has a CLAIM_RECEIVED status.#{' '}
         Check claim status using the GET veterans/{veteranId}/claims/{id} endpoint.
 
         **A substantially complete 526EZ claim must include:**
         * Veteran's name
-        * Sufficient service information for VA to verify the claimed service, if applicable
+        * Sufficient service information for VA to verify the claimed service
         * At least one claimed disability or medical condition and how it relates to service
         * Veteran and/or Representative signature
 
@@ -55,28 +56,30 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
 
+      let(:scopes) { %w[system/claim.read system/claim.write] }
+
       parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
 
       describe 'Getting a successful response' do
         response '202', 'Successful response with disability' do
           schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
-          let(:scopes) { %w[system/claim.read system/claim.write] }
+          let(:claim_date) { (Time.zone.today - 1.day).to_s }
+          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
-
+            attributes = temp['data']['attributes']
+            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+              anticipated_separation_date
+            temp['data']['attributes'] = attributes
+            temp.to_json
             temp
           end
 
           before do |example|
-            stub_poa_verification
-            stub_mpi
-
             mock_ccg(scopes) do
-              VCR.use_cassette('claims_api/disability_comp') do
-                submit_request(example.metadata)
-              end
+              submit_request(example.metadata)
             end
           end
 
@@ -90,6 +93,96 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
           it 'returns a valid 202 response' do |example|
             assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting an unauthorized reponse' do
+        response '401', 'Unauthorized' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            temp
+          end
+
+          before do |example|
+            # skip ccg authorization to fail authorization
+            submit_request(example.metadata)
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting an unprocessable entity response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api',
+                                            'errors', 'default_with_source.json').read)
+          # Build the dropdown for examples
+          def append_example_metadata(example, response)
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                examples: {
+                  example.metadata[:example_group][:description] => {
+                    value: JSON.parse(response.body, symbolize_names: true)
+                  }
+                }
+              }
+            }
+          end
+
+          def make_request(example)
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          context 'Violates JSON Schema' do
+            let(:data) { { data: { attributes: nil } } }
+
+            before do |example|
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+
+          context 'Not a JSON Object' do
+            let(:data) do
+              'This is not valid JSON'
+            end
+
+            before do |example|
+              make_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
         end
       end
@@ -122,21 +215,102 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
 
       describe 'Getting a successful response' do
-        response '200', '526 Response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+        response '200', 'Successful response with disability' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'validate.json').read)
+          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            attributes = temp['data']['attributes']
+            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+              anticipated_separation_date
+            temp['data']['attributes'] = attributes
+            temp.to_json
+            temp
+          end
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+          let(:Authorization) { nil }
+
+          before do |example|
+            mock_acg(scopes) do
+              allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 422 response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
+          let(:data) { { data: { attributes: nil } } }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 422 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
@@ -158,6 +332,9 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
         Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.
       VERBIAGE
       description put_description
+
+      parameter name: :id, in: :path, required: true, type: :string,
+                description: 'UUID given when Disability Claim was submitted'
 
       parameter name: 'veteranId',
                 in: :path,
@@ -188,20 +365,124 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
                   }
                 }
 
-      describe 'Getting a successful response' do
-        response '200', 'upload response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+      describe 'Getting an accepted response' do
+        response '202', 'upload response' do
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+
+          let(:scopes) { %w[system/claim.write] }
+          let(:auto_claim) { create(:auto_established_claim) }
+          let(:attachment1) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:attachment2) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:id) { auto_claim.id }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 202 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a 401 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+
+          let(:scopes) { %w[system/claim.write] }
+          let(:auto_claim) { create(:auto_established_claim) }
+          let(:attachment1) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:attachment2) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:id) { auto_claim.id }
+          let(:Authorization) { nil }
+
+          before do |example|
+            submit_request(example.metadata)
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:scopes) { %w[claim.write] }
+          let(:attachment1) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:attachment2) do
+            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                    .to_s)
+          end
+          let(:id) { 999_999_999 }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
@@ -247,9 +528,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
           before do |example|
-            stub_poa_verification
-            stub_mpi
-
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -274,9 +552,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
           let(:Authorization) { nil }
 
           before do |example|
-            stub_poa_verification
-            stub_mpi
-
             mock_acg(scopes) do
               allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)

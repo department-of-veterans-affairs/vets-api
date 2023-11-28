@@ -4,8 +4,10 @@ require 'terms_of_use/exceptions'
 
 module V0
   class TermsOfUseAgreementsController < ApplicationController
-    skip_before_action :authenticate
+    service_tag 'terms-of-use'
 
+    skip_before_action :verify_authenticity_token, only: [:update_provisioning]
+    skip_before_action :authenticate
     before_action :terms_authenticate
 
     def latest
@@ -19,7 +21,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
+    rescue TermsOfUse::Errors::AcceptorError => e
       render_error(e.message)
     end
 
@@ -29,7 +31,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
+    rescue TermsOfUse::Errors::DeclinerError => e
       render_error(e.message)
     end
 
