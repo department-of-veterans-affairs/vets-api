@@ -29,7 +29,7 @@ module SimpleFormsApi
 
     def self.validate_file_number(metadata)
       validate_presence_and_stringiness(metadata['fileNumber'], 'file number')
-      unless metadata['fileNumber'].match?(%r/^\d{8,9}$/)
+      unless metadata['fileNumber'].match?(/^\d{8,9}$/)
         raise ArgumentError, 'file number is invalid. It must be 8 or 9 digits'
       end
 
@@ -38,7 +38,7 @@ module SimpleFormsApi
 
     def self.validate_zip_code(metadata)
       validate_presence_and_stringiness(metadata['zipCode'], 'zip code')
-      metadata['zipCode'] = '00000' unless metadata['zipCode'].match?(%r/\A\d{5}(-\d{4})?\z/)
+      metadata['zipCode'] = '00000' unless metadata['zipCode'].match?(/\A\d{5}(-\d{4})?\z/)
 
       metadata
     end
