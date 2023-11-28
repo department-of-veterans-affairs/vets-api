@@ -24,7 +24,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws-us-gov:iam::008577686731:role/GHA_OIDC_ECRPowerUser
-          aws-region: us-gov-west-1
+          aws-region: us-gov-east-1
           role-session-name: ECRSession
 
       - name: Login to ECR
