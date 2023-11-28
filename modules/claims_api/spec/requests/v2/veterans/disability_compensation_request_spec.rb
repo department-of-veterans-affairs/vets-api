@@ -200,7 +200,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'The number and street is required for change of address.'
+                  '"changeOfAddress.dates.endDate" cannot be included when typeOfAddressChange is PERMANENT'
                 )
               end
             end
@@ -231,10 +231,10 @@ RSpec.describe 'Disability Claims', type: :request do
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:bad_request)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'The country is required for change of address.'
+                  '"2012-11-31" is not a valid value for "changeOfAddress.dates.beginDate"'
                 )
               end
             end

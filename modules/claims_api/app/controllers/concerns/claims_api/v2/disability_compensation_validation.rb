@@ -6,7 +6,6 @@ module ClaimsApi
   module V2
     module DisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
       include DisabilityCompensationSharedServiceModule
-
       DATE_FORMATS = {
         10 => 'yyyy-mm-dd',
         7 => 'yyyy-mm',
@@ -51,22 +50,10 @@ module ClaimsApi
       def validate_form_526_change_of_address_required_fields!
         change_of_address = form_attributes['changeOfAddress']
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
-        coa_type_of_address_change = change_of_address&.dig('typeOfAddressChange')
-        coa_number_and_street = change_of_address&.dig('addressLine1')
-        coa_country = change_of_address&.dig('country')
 
         form_object_desc = 'change of address'
 
         raise_exception_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
-        if coa_type_of_address_change.blank?
-          raise_exception_if_value_not_present('type of address change',
-                                               form_object_desc)
-        end
-        if coa_number_and_street.blank?
-          raise_exception_if_value_not_present('number and street',
-                                               form_object_desc)
-        end
-        raise_exception_if_value_not_present('country', form_object_desc) if coa_country.blank?
       end
 
       def validate_form_526_change_of_address_beginning_date!
@@ -102,10 +89,10 @@ module ClaimsApi
       end
 
       def validate_form_526_change_of_address_country!
-        change_of_address = form_attributes['changeOfAddress']
-        return if valid_countries.include?(change_of_address['country'])
+        country = form_attributes.dig('changeOfAddress', 'country')
+        return if country.nil? || valid_countries.include?(country)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', change_of_address['country'])
+        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', country)
       end
 
       def validate_form_526_claimant_certification!
@@ -440,7 +427,7 @@ module ClaimsApi
       def collect_treated_disability_names(treatments)
         names = []
         treatments.each do |treatment|
-          treatment['treatedDisabilityNames'].each do |disability_name|
+          treatment['treatedDisabilityNames']&.each do |disability_name|
             names << disability_name.strip.downcase
           end
         end
@@ -819,6 +806,7 @@ module ClaimsApi
 
       def validate_account_values!
         direct_deposit_account_vals = form_attributes['directDeposit']
+        return if direct_deposit_account_vals['noAccount']
 
         valid_account_types = %w[CHECKING SAVINGS]
         account_type = direct_deposit_account_vals&.dig('accountType')
