@@ -73,7 +73,7 @@ module DebtsApi
       Rails.logger.info('Submitting Combined FSR')
       create_vba_fsr(fsr_builder)
       create_vha_fsr(fsr_builder)
-      user_form = fsr_builder.user_form
+      user_form = fsr_builder.user_form.form_data
 
       {
         content: Base64.encode64(
@@ -188,9 +188,9 @@ module DebtsApi
     end
 
     def persist_vha_form_submission(fsr_builder)
-      fsr_builder.vha_forms.map do |form_set|
-        form = form_set[:form]
-        copays = form_set[:copays]
+      fsr_builder.vha_forms.map do |form_obj|
+        form = form_obj.form_data
+        copays = form_obj.copays
         metadata = { copays: }.to_json
 
         public_metadata = build_public_metadata(fsr_builder, form, copays)
@@ -207,8 +207,8 @@ module DebtsApi
     end
 
     def persist_vba_form_submission(fsr_builder)
-      form = fsr_builder.vba_form
-      debts = fsr_builder.vba_debts
+      form = fsr_builder.vba_form.form_data
+      debts = fsr_builder.vba_form.debts
       metadata = { debts: }.to_json
 
       public_metadata = build_public_metadata(fsr_builder, form, debts)
