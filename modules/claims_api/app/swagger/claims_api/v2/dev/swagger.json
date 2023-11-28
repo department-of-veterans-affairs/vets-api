@@ -1701,6 +1701,7 @@
                                     "endDate": {
                                       "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                       "type": "string",
+                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-04"
                                     }
@@ -1756,6 +1757,7 @@
                                 "zipLastFour": {
                                   "description": "Zip code (Last 4 digits) for the Veteran's new address.",
                                   "type": "string",
+                                  "nullable": true,
                                   "pattern": "^$|^\\d{4}?$",
                                   "example": "6789"
                                 },
@@ -2933,6 +2935,7 @@
                                   "endDate": {
                                     "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
+                                    "nullable": true,
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "example": "2018-06-04"
                                   }
@@ -2988,6 +2991,7 @@
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
                                 "type": "string",
+                                "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
                               },
@@ -4438,6 +4442,7 @@
                                   "endDate": {
                                     "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
+                                    "nullable": true,
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "example": "2018-06-04"
                                   }
@@ -4493,6 +4498,7 @@
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
                                 "type": "string",
+                                "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
                               },
@@ -6068,6 +6074,7 @@
                                   "endDate": {
                                     "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
+                                    "nullable": true,
                                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "example": "2018-06-04"
                                   }
@@ -6123,6 +6130,7 @@
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
                                 "type": "string",
+                                "nullable": true,
                                 "pattern": "^$|^\\d{4}?$",
                                 "example": "6789"
                               },
