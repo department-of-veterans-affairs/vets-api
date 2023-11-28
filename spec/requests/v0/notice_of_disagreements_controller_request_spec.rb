@@ -47,6 +47,17 @@ RSpec.describe V0::NoticeOfDisagreementsController do
         expect(previous_appeal_submission_ids).not_to include id
         appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
         expect(appeal_submission.board_review_option).to eq('evidence_submission')
+        expect(appeal_submission.upload_metadata).to eq({
+          'veteranFirstName' => user.first_name,
+          'veteranLastName' => user.last_name,
+          'zipCode' => user.postal_code,
+          'fileNumber' => user.ssn.to_s.strip,
+          'source' => 'Vets.gov',
+          'businessLine' => 'BVA'
+        }.to_json)
+        appeal_submission_uploads = AppealSubmissionUpload.where(appeal_submission:)
+        expect(appeal_submission_uploads.count).to eq 1
+        expect(DecisionReview::SubmitUpload).to have_enqueued_sidekiq_job(appeal_submission_uploads.first.id)
       end
     end
 
