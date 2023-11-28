@@ -61,7 +61,7 @@ module ClaimsApi
           msg.append "#{k}: #{v}"
         end
       else
-        msg.append(params.to_json)
+        msg.append(params)
       end
       called_from = caller_locations(2, 1).first
       msg.append("Location: #{called_from.path}:#{called_from.lineno}")
