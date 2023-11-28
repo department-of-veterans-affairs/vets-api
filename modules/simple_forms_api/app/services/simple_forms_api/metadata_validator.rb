@@ -6,6 +6,9 @@ module SimpleFormsApi
       validate_first_name(metadata)
         .then { |m| validate_last_name(m) }
         .then { |m| validate_file_number(m) }
+        .then { |m| validate_zip_code(m) }
+        .then { |m| validate_source(m) }
+        .then { |m| validate_doc_type(m) }
     end
 
     def self.validate_first_name(metadata)
@@ -29,6 +32,27 @@ module SimpleFormsApi
       unless metadata['fileNumber'].match?(%r{^\d{8,9}$})
         raise ArgumentError, 'file number is invalid. It must be 8 or 9 digits'
       end
+
+      metadata
+    end
+
+    def self.validate_zip_code(metadata)
+      validate_presence_and_stringiness(metadata['zipCode'], 'zip code')
+      unless metadata['zipCode'].match?(%r{\A\d{5}(-\d{4})?\z})
+        metadata['zipCode'] = '00000'
+      end
+
+      metadata
+    end
+
+    def self.validate_source(metadata)
+      validate_presence_and_stringiness(metadata['source'], 'source')
+
+      metadata
+    end
+
+    def self.validate_doc_type(metadata)
+      validate_presence_and_stringiness(metadata['docType'], 'doc type')
 
       metadata
     end

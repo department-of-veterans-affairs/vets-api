@@ -22,44 +22,23 @@ describe SimpleFormsApi::MetadataValidator do
     end
   end
 
+  describe 'metadata key has a missing value' do
+    it 'raises a missing exception' do
+      expect do
+        SimpleFormsApi::MetadataValidator.validate_presence_and_stringiness(nil, 'veteran first name')
+      end.to raise_error(ArgumentError, 'veteran first name is missing')
+    end
+  end
+
+  describe 'metadata key has a non-string value' do
+    it 'raises a non-string exception' do
+      expect do
+        SimpleFormsApi::MetadataValidator.validate_presence_and_stringiness(12, 'veteran first name')
+      end.to raise_error(ArgumentError, 'veteran first name is not a string')
+    end
+  end
+
   describe 'veteran first name is malformed' do
-    describe 'missing' do
-      it 'raises a missing exception' do
-        metadata = {
-          'veteranFirstName' => nil,
-          'veteranLastName' => 'Doe',
-          'fileNumber' => '444444444',
-          'zipCode' => '12345',
-          'source' => 'VA Platform Digital Forms',
-          'docType' => '21-0845',
-          'businessLine' => 'CMP'
-        }
-
-        expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError, 'veteran first name is missing')
-      end
-    end
-
-    describe 'non-string' do
-      it 'raises a non-string exception' do
-        metadata = {
-          'veteranFirstName' => 12,
-          'veteranLastName' => 'Doe',
-          'fileNumber' => '444444444',
-          'zipCode' => '12345',
-          'source' => 'VA Platform Digital Forms',
-          'docType' => '21-0845',
-          'businessLine' => 'CMP'
-        }
-
-        expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError,
-                         'veteran first name is not a string')
-      end
-    end
-
     describe 'too long' do
       it 'returns metadata with first 50 characters of veteran first name' do
         metadata = {
@@ -121,43 +100,6 @@ describe SimpleFormsApi::MetadataValidator do
   end
 
   describe 'veteran last name is malformed' do
-    describe 'missing' do
-      it 'raises a missing exception' do
-        metadata = {
-          'veteranFirstName' => 'John',
-          'veteranLastName' => nil,
-          'fileNumber' => '444444444',
-          'zipCode' => '12345',
-          'source' => 'VA Platform Digital Forms',
-          'docType' => '21-0845',
-          'businessLine' => 'CMP'
-        }
-
-        expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError, 'veteran last name is missing')
-      end
-    end
-
-    describe 'non-string' do
-      it 'raises a non-string exception' do
-        metadata = {
-          'veteranFirstName' => 'John',
-          'veteranLastName' => 13,
-          'fileNumber' => '444444444',
-          'zipCode' => '12345',
-          'source' => 'VA Platform Digital Forms',
-          'docType' => '21-0845',
-          'businessLine' => 'CMP'
-        }
-
-        expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError,
-                         'veteran last name is not a string')
-      end
-    end
-
     describe 'too long' do
       it 'returns metadata with first 50 characters of veteran last name' do
         metadata = {
@@ -218,44 +160,7 @@ describe SimpleFormsApi::MetadataValidator do
     end
   end
 
-  describe 'veteran file number is malformed' do
-    describe 'missing' do
-      it 'raises a missing exception' do
-        metadata = {
-          'veteranFirstName' => 'John',
-          'veteranLastName' => 'Doe',
-          'fileNumber' => nil,
-          'zipCode' => '12345',
-          'source' => 'VA Platform Digital Forms',
-          'docType' => '21-0845',
-          'businessLine' => 'CMP'
-        }
-
-        expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError, 'file number is missing')
-      end
-    end
-
-    describe 'non-string' do
-      it 'raises a non-string exception' do
-        metadata = {
-          'veteranFirstName' => 'John',
-          'veteranLastName' => 'Doe',
-          'fileNumber' => 444_444_444,
-          'zipCode' => '12345',
-          'source' => 'VA Platform Digital Forms',
-          'docType' => '21-0845',
-          'businessLine' => 'CMP'
-        }
-
-        expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError,
-                         'file number is not a string')
-      end
-    end
-
+  describe 'file number is malformed' do
     describe 'too long' do
       it 'raises an exception' do
         metadata = {
@@ -270,9 +175,35 @@ describe SimpleFormsApi::MetadataValidator do
 
         expect do
           SimpleFormsApi::MetadataValidator.validate(metadata)
-        end.to raise_error(ArgumentError,
-                         'file number is invalid. It must be 8 or 9 digits')
+        end.to raise_error(ArgumentError, 'file number is invalid. It must be 8 or 9 digits')
       end
+    end
+  end
+
+  describe 'zip code is malformed' do
+    it 'defaults to 00000' do
+      metadata = {
+        'veteranFirstName' => 'John',
+        'veteranLastName' => 'Doe',
+        'fileNumber' => '444444444',
+        'zipCode' => '1234567890',
+        'source' => 'VA Platform Digital Forms',
+        'docType' => '21-0845',
+        'businessLine' => 'CMP'
+      }
+      expected_metadata = {
+        'veteranFirstName' => 'John',
+        'veteranLastName' => 'Doe',
+        'fileNumber' => '444444444',
+        'zipCode' => '00000',
+        'source' => 'VA Platform Digital Forms',
+        'docType' => '21-0845',
+        'businessLine' => 'CMP'
+      }
+
+      validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+
+      expect(validated_metadata).to eq expected_metadata
     end
   end
 end
