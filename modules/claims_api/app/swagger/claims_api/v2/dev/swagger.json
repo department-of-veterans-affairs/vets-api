@@ -2583,11 +2583,13 @@
                                   "description": "Account number for the direct deposit.",
                                   "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                   "type": "string",
+                                  "nullable": true,
                                   "example": "123123123123"
                                 },
                                 "routingNumber": {
                                   "description": "Routing number for the direct deposit.",
                                   "type": "string",
+                                  "nullable": true,
                                   "pattern": "^(?:\\d{9})?$",
                                   "example": "123123123"
                                 },
@@ -2595,6 +2597,7 @@
                                   "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
                                   "maxLength": 35,
                                   "type": "string",
+                                  "nullable": true,
                                   "example": "Some Bank"
                                 },
                                 "noAccount": {
@@ -3817,11 +3820,13 @@
                                 "description": "Account number for the direct deposit.",
                                 "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                 "type": "string",
+                                "nullable": true,
                                 "example": "123123123123"
                               },
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "nullable": true,
                                 "pattern": "^(?:\\d{9})?$",
                                 "example": "123123123"
                               },
@@ -3829,6 +3834,7 @@
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
                                 "maxLength": 35,
                                 "type": "string",
+                                "nullable": true,
                                 "example": "Some Bank"
                               },
                               "noAccount": {
@@ -5324,11 +5330,13 @@
                                 "description": "Account number for the direct deposit.",
                                 "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                 "type": "string",
+                                "nullable": true,
                                 "example": "123123123123"
                               },
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "nullable": true,
                                 "pattern": "^(?:\\d{9})?$",
                                 "example": "123123123"
                               },
@@ -5336,6 +5344,7 @@
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
                                 "maxLength": 35,
                                 "type": "string",
+                                "nullable": true,
                                 "example": "Some Bank"
                               },
                               "noAccount": {
@@ -6956,11 +6965,13 @@
                                 "description": "Account number for the direct deposit.",
                                 "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                 "type": "string",
+                                "nullable": true,
                                 "example": "123123123123"
                               },
                               "routingNumber": {
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
+                                "nullable": true,
                                 "pattern": "^(?:\\d{9})?$",
                                 "example": "123123123"
                               },
@@ -6968,6 +6979,7 @@
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
                                 "maxLength": 35,
                                 "type": "string",
+                                "nullable": true,
                                 "example": "Some Bank"
                               },
                               "noAccount": {
