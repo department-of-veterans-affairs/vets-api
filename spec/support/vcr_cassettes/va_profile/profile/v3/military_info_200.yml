@@ -1,0 +1,114 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1100377582%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"militaryPerson.adminDecisions"},{"bioPath":"militaryPerson.adminEpisodes"},{"bioPath":"militaryPerson.dentalIndicators"},{"bioPath":"militaryPerson.militaryOccupations","parameters":{"scope":"all"}},{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}},{"bioPath":"militaryPerson.militarySummary"},{"bioPath":"militaryPerson.militarySummary.customerType.dodServiceSummary"},{"bioPath":"militaryPerson.payGradeRanks","parameters":{"scope":"highest"}},{"bioPath":"militaryPerson.prisonerOfWars"},{"bioPath":"militaryPerson.transferOfEligibility"},{"bioPath":"militaryPerson.retirements"},{"bioPath":"militaryPerson.separationPays"},{"bioPath":"militaryPerson.retirementPays"},{"bioPath":"militaryPerson.combatPays"},{"bioPath":"militaryPerson.unitAssignments"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-46572860", dtSInfo;desc="0"
+      - dtRpid;desc="754728321", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 58c5510a-9c61-4f99-a705-c72783d6b60c
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 22 Nov 2023 18:45:48 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '9985'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"PRO130","key":"BioRetrievalError","text":"An
+        error occurred while attempting to retrieve bio: militaryPerson.adminDecisions","severity":"ERROR"},{"code":"PRO130","key":"BioRetrievalError","text":"An
+        error occurred while attempting to retrieve bio: militaryPerson.adminEpisodes","severity":"ERROR"},{"code":"PRO130","key":"BioRetrievalError","text":"An
+        error occurred while attempting to retrieve bio: militaryPerson.prisonerOfWars","severity":"ERROR"}],"profile":{"militaryPerson":{"militarySummary":{"activeDutyStatus":"N","combatServiceIndicator":true,"post911DeploymentIndicator":true,"pre911DeploymentIndicator":false,"title38StatusText":"Title
+        38 Veteran","title38StatusCode":"V1","dutyStatusText":"Military not DoD-Affiliated:
+        service member not retired and no longer affiliated with any military service","dutyStatusCode":"12","totalNumberOfRegularActiveDutyDays":2474,"totalNumberOfReserveActiveDutyDays":0,"totalNumberOfGuardActiveDutyDays":0,"totalNumberOfTrainingDays":0,"customerType":{"dodServiceSummary":{"dodServiceSummaryCode":"A1","calculationModelVersion":"2021.10.05","effectiveStartDate":"2023-05-01T00:00:00Z"}}},"militaryOccupations":[{"serviceSegmentSequence":1,"occupationSegmentSequence":1,"occupationTypeCode":"P","occupationTypeText":"Primary","dodProvidedCode":"125000","dodOccupationCode":"125000","dodOccupationText":"Combat
+        Operations Control, General","serviceProvidedCode":"DVU","serviceSpecificOccupationCode":"DVU","serviceSpecificOccupationText":"DoD
+        provided a value not in the reference table","effectiveDate":"2007-01-24"},{"serviceSegmentSequence":1,"occupationSegmentSequence":2,"occupationTypeCode":"P","occupationTypeText":"Primary","dodProvidedCode":"183000","dodOccupationCode":"183000","dodOccupationText":"Law
+        Enforcement, General","serviceProvidedCode":"DVU","serviceSpecificOccupationCode":"DVU","serviceSpecificOccupationText":"DoD
+        provided a value not in the reference table","effectiveDate":"2010-07-07"},{"serviceSegmentSequence":2,"occupationSegmentSequence":1,"occupationTypeCode":"P","occupationTypeText":"Primary","dodProvidedCode":"183000","dodOccupationCode":"183000","dodOccupationText":"Law
+        Enforcement, General","serviceProvidedCode":"DVU","serviceSpecificOccupationCode":"DVU","serviceSpecificOccupationText":"DoD
+        provided a value not in the reference table","effectiveDate":"2012-11-20"}],"payGradeRanks":[{"serviceRankText":"Major
+        General","serviceRankCode":"MAJGEN","payPlanText":"Officer","payPlanCode":"MO","payGradeText":"Civil
+        Service, Enlisted, or Officer pay plan","payGradeCode":"08","payGradeDate":"2012-11-20","personnelCategoryCode":"A","episodeIdentifier":"442569"}],"militaryServiceHistory":{"releaseFromActiveDutyDate":"2014-06-05","militaryServiceEpisodes":[{"serviceEpisodeIdentifier":442568,"branchOfServiceText":"Air
+        Force","branchOfServiceCode":"F","organizationText":"Air Force MILPERCEN DEERS
+        Population: Eligible Air Force Active Duty","organizationCode":"12","episodeSequenceNumber":1,"periodOfServiceTypeText":"Active
+        duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"2007-01-24","periodOfServiceEndDate":"2011-08-16","characterOfDischargeText":"Under
+        honorable conditions (general)","characterOfDischargeCode":"B","narrativeReasonForSeparationText":"UNKNOWN","narrativeReasonForSeparationCode":"999","narrativeReasonForSeparationFamilyText":"Unknown/Not
+        Applicable","narrativeReasonForSeparationFamilyCode":"Z","projectedDateOfSeparationCertaintyText":"DoD
+        provided a NULL or blank value","projectedDateOfSeparationCertaintyCode":"DVN","terminationReasonText":"Separation
+        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":1,"deployments":[{"deploymentSequenceNumber":1,"deploymentBeginDate":"2009-01-24","deploymentEndDate":"2009-07-28","deploymentProjectText":"Overseas
+        Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
+        from personnel category or organization","deploymentTerminationReasonCode":"S","deploymentLocations":[{"deploymentLocationSequenceNumber":1,"deploymentCountryText":"Afghanistan","deploymentCountryCode":"AF","deploymentLocationBodyOfWaterText":"DoD
+        provided a NULL or blank value","deploymentLocationBodyOfWaterCode":"DVN","deploymentLocationBeginDate":"2009-01-24","deploymentLocationEndDate":"2009-07-28","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"}]},{"deploymentSequenceNumber":2,"deploymentBeginDate":"2010-07-07","deploymentEndDate":"2011-01-16","deploymentProjectText":"Overseas
+        Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
+        from personnel category or organization","deploymentTerminationReasonCode":"S","deploymentLocations":[{"deploymentLocationSequenceNumber":2,"deploymentCountryText":"Kyrgyzstan
+        -- Added January 1992; formerly part of Union of Soviet Socialist Republics
+        (UR).","deploymentCountryCode":"KG","deploymentLocationBodyOfWaterText":"DoD
+        provided a NULL or blank value","deploymentLocationBodyOfWaterCode":"DVN","deploymentLocationBeginDate":"2011-01-14","deploymentLocationEndDate":"2011-01-16","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"},{"deploymentLocationSequenceNumber":1,"deploymentCountryText":"Kyrgyzstan
+        -- Added January 1992; formerly part of Union of Soviet Socialist Republics
+        (UR).","deploymentCountryCode":"KG","deploymentLocationBodyOfWaterText":"DoD
+        provided a NULL or blank value","deploymentLocationBodyOfWaterCode":"DVN","deploymentLocationBeginDate":"2010-07-07","deploymentLocationEndDate":"2011-01-09","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"}]}],"serviceComponentCode":"DVN","serviceComponentText":"DoD
+        provided a NULL or blank value"},{"serviceEpisodeIdentifier":442569,"branchOfServiceText":"Air
+        Force","branchOfServiceCode":"F","organizationText":"Air Force MILPERCEN DEERS
+        Population: Eligible Air Force Active Duty","organizationCode":"12","episodeSequenceNumber":2,"periodOfServiceTypeText":"Active
+        duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"2012-03-20","periodOfServiceEndDate":"2014-06-05","characterOfDischargeText":"Under
+        honorable conditions (general)","characterOfDischargeCode":"B","narrativeReasonForSeparationText":"UNKNOWN","narrativeReasonForSeparationCode":"999","narrativeReasonForSeparationFamilyText":"Unknown/Not
+        Applicable","narrativeReasonForSeparationFamilyCode":"Z","projectedDateOfSeparationCertaintyText":"DoD
+        provided a NULL or blank value","projectedDateOfSeparationCertaintyCode":"DVN","terminationReasonText":"Separation
+        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":1,"deployments":[{"deploymentSequenceNumber":3,"deploymentBeginDate":"2012-11-20","deploymentEndDate":"2013-06-05","deploymentProjectText":"Overseas
+        Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
+        from personnel category or organization","deploymentTerminationReasonCode":"S","deploymentLocations":[{"deploymentLocationSequenceNumber":1,"deploymentCountryText":"Kuwait","deploymentCountryCode":"KU","deploymentLocationBodyOfWaterText":"DoD
+        provided a NULL or blank value","deploymentLocationBodyOfWaterCode":"DVN","deploymentLocationBeginDate":"2012-11-20","deploymentLocationEndDate":"2013-06-05","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"}]}],"serviceComponentCode":"DVN","serviceComponentText":"DoD
+        provided a NULL or blank value"}]},"unitAssignments":[{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":1,"militaryUnitTypeCode":"S","militaryUnitTypeText":"Assigned","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"NO UIC","effectiveDate":"2002-10-22","lastUpdate":"2008-03-22"},{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":1,"militaryUnitTypeCode":"T","militaryUnitTypeText":"Attached","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"RF0DFBWL","effectiveDate":"2004-12-31","lastUpdate":"2008-03-22"},{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":2,"militaryUnitTypeCode":"S","militaryUnitTypeText":"Assigned","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"ZB0JFQLB","effectiveDate":"2002-10-22","lastUpdate":"2008-03-22"},{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":2,"militaryUnitTypeCode":"T","militaryUnitTypeText":"Attached","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"NJ1CFM5T","effectiveDate":"2005-07-15","lastUpdate":"2008-03-22"},{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":3,"militaryUnitTypeCode":"S","militaryUnitTypeText":"Assigned","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"SQ0JFGW1","effectiveDate":"2002-12-31","lastUpdate":"2008-03-22"},{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":4,"militaryUnitTypeCode":"S","militaryUnitTypeText":"Assigned","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"RF0DFBWL","effectiveDate":"2003-07-31","lastUpdate":"2008-03-22"},{"episodeId":442568,"personnelCategoryCode":"A","assignmentSequence":5,"militaryUnitTypeCode":"S","militaryUnitTypeText":"Assigned","militaryUnitCode":"DVU","militaryUnitText":"DoD
+        provided a value not in the reference table","dodProvidedUnitCode":"NJ1CFM5T","effectiveDate":"2005-07-15","lastUpdate":"2008-03-22"}]}}}'
+  recorded_at: Wed, 22 Nov 2023 18:45:49 GMT
+recorded_with: VCR 6.2.0
