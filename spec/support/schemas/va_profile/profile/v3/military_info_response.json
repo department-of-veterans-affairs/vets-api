@@ -1,0 +1,1249 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "messages": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "key",
+            "text",
+            "severity"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "key",
+            "text",
+            "severity"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "key",
+            "text",
+            "severity"
+          ]
+        }
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "militaryPerson": {
+          "type": "object",
+          "properties": {
+            "militarySummary": {
+              "type": "object",
+              "properties": {
+                "activeDutyStatus": {
+                  "type": "string"
+                },
+                "combatServiceIndicator": {
+                  "type": "boolean"
+                },
+                "post911DeploymentIndicator": {
+                  "type": "boolean"
+                },
+                "pre911DeploymentIndicator": {
+                  "type": "boolean"
+                },
+                "title38StatusText": {
+                  "type": "string"
+                },
+                "title38StatusCode": {
+                  "type": "string"
+                },
+                "dutyStatusText": {
+                  "type": "string"
+                },
+                "dutyStatusCode": {
+                  "type": "string"
+                },
+                "totalNumberOfRegularActiveDutyDays": {
+                  "type": "integer"
+                },
+                "totalNumberOfReserveActiveDutyDays": {
+                  "type": "integer"
+                },
+                "totalNumberOfGuardActiveDutyDays": {
+                  "type": "integer"
+                },
+                "totalNumberOfTrainingDays": {
+                  "type": "integer"
+                },
+                "customerType": {
+                  "type": "object",
+                  "properties": {
+                    "dodServiceSummary": {
+                      "type": "object",
+                      "properties": {
+                        "dodServiceSummaryCode": {
+                          "type": "string"
+                        },
+                        "calculationModelVersion": {
+                          "type": "string"
+                        },
+                        "effectiveStartDate": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "dodServiceSummaryCode",
+                        "calculationModelVersion",
+                        "effectiveStartDate"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "dodServiceSummary"
+                  ]
+                }
+              },
+              "required": [
+                "activeDutyStatus",
+                "combatServiceIndicator",
+                "post911DeploymentIndicator",
+                "pre911DeploymentIndicator",
+                "title38StatusText",
+                "title38StatusCode",
+                "dutyStatusText",
+                "dutyStatusCode",
+                "totalNumberOfRegularActiveDutyDays",
+                "totalNumberOfReserveActiveDutyDays",
+                "totalNumberOfGuardActiveDutyDays",
+                "totalNumberOfTrainingDays",
+                "customerType"
+              ]
+            },
+            "militaryOccupations": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "serviceSegmentSequence": {
+                      "type": "integer"
+                    },
+                    "occupationSegmentSequence": {
+                      "type": "integer"
+                    },
+                    "occupationTypeCode": {
+                      "type": "string"
+                    },
+                    "occupationTypeText": {
+                      "type": "string"
+                    },
+                    "dodProvidedCode": {
+                      "type": "string"
+                    },
+                    "dodOccupationCode": {
+                      "type": "string"
+                    },
+                    "dodOccupationText": {
+                      "type": "string"
+                    },
+                    "serviceProvidedCode": {
+                      "type": "string"
+                    },
+                    "serviceSpecificOccupationCode": {
+                      "type": "string"
+                    },
+                    "serviceSpecificOccupationText": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "serviceSegmentSequence",
+                    "occupationSegmentSequence",
+                    "occupationTypeCode",
+                    "occupationTypeText",
+                    "dodProvidedCode",
+                    "dodOccupationCode",
+                    "dodOccupationText",
+                    "serviceProvidedCode",
+                    "serviceSpecificOccupationCode",
+                    "serviceSpecificOccupationText",
+                    "effectiveDate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "serviceSegmentSequence": {
+                      "type": "integer"
+                    },
+                    "occupationSegmentSequence": {
+                      "type": "integer"
+                    },
+                    "occupationTypeCode": {
+                      "type": "string"
+                    },
+                    "occupationTypeText": {
+                      "type": "string"
+                    },
+                    "dodProvidedCode": {
+                      "type": "string"
+                    },
+                    "dodOccupationCode": {
+                      "type": "string"
+                    },
+                    "dodOccupationText": {
+                      "type": "string"
+                    },
+                    "serviceProvidedCode": {
+                      "type": "string"
+                    },
+                    "serviceSpecificOccupationCode": {
+                      "type": "string"
+                    },
+                    "serviceSpecificOccupationText": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "serviceSegmentSequence",
+                    "occupationSegmentSequence",
+                    "occupationTypeCode",
+                    "occupationTypeText",
+                    "dodProvidedCode",
+                    "dodOccupationCode",
+                    "dodOccupationText",
+                    "serviceProvidedCode",
+                    "serviceSpecificOccupationCode",
+                    "serviceSpecificOccupationText",
+                    "effectiveDate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "serviceSegmentSequence": {
+                      "type": "integer"
+                    },
+                    "occupationSegmentSequence": {
+                      "type": "integer"
+                    },
+                    "occupationTypeCode": {
+                      "type": "string"
+                    },
+                    "occupationTypeText": {
+                      "type": "string"
+                    },
+                    "dodProvidedCode": {
+                      "type": "string"
+                    },
+                    "dodOccupationCode": {
+                      "type": "string"
+                    },
+                    "dodOccupationText": {
+                      "type": "string"
+                    },
+                    "serviceProvidedCode": {
+                      "type": "string"
+                    },
+                    "serviceSpecificOccupationCode": {
+                      "type": "string"
+                    },
+                    "serviceSpecificOccupationText": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "serviceSegmentSequence",
+                    "occupationSegmentSequence",
+                    "occupationTypeCode",
+                    "occupationTypeText",
+                    "dodProvidedCode",
+                    "dodOccupationCode",
+                    "dodOccupationText",
+                    "serviceProvidedCode",
+                    "serviceSpecificOccupationCode",
+                    "serviceSpecificOccupationText",
+                    "effectiveDate"
+                  ]
+                }
+              ]
+            },
+            "payGradeRanks": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "serviceRankText": {
+                      "type": "string"
+                    },
+                    "serviceRankCode": {
+                      "type": "string"
+                    },
+                    "payPlanText": {
+                      "type": "string"
+                    },
+                    "payPlanCode": {
+                      "type": "string"
+                    },
+                    "payGradeText": {
+                      "type": "string"
+                    },
+                    "payGradeCode": {
+                      "type": "string"
+                    },
+                    "payGradeDate": {
+                      "type": "string"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "episodeIdentifier": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "serviceRankText",
+                    "serviceRankCode",
+                    "payPlanText",
+                    "payPlanCode",
+                    "payGradeText",
+                    "payGradeCode",
+                    "payGradeDate",
+                    "personnelCategoryCode",
+                    "episodeIdentifier"
+                  ]
+                }
+              ]
+            },
+            "militaryServiceHistory": {
+              "type": "object",
+              "properties": {
+                "releaseFromActiveDutyDate": {
+                  "type": "string"
+                },
+                "militaryServiceEpisodes": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "serviceEpisodeIdentifier": {
+                          "type": "integer"
+                        },
+                        "branchOfServiceText": {
+                          "type": "string"
+                        },
+                        "branchOfServiceCode": {
+                          "type": "string"
+                        },
+                        "organizationText": {
+                          "type": "string"
+                        },
+                        "organizationCode": {
+                          "type": "string"
+                        },
+                        "episodeSequenceNumber": {
+                          "type": "integer"
+                        },
+                        "periodOfServiceTypeText": {
+                          "type": "string"
+                        },
+                        "periodOfServiceTypeCode": {
+                          "type": "string"
+                        },
+                        "periodOfServiceBeginDate": {
+                          "type": "string"
+                        },
+                        "periodOfServiceEndDate": {
+                          "type": "string"
+                        },
+                        "characterOfDischargeText": {
+                          "type": "string"
+                        },
+                        "characterOfDischargeCode": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationText": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationCode": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationFamilyText": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationFamilyCode": {
+                          "type": "string"
+                        },
+                        "projectedDateOfSeparationCertaintyText": {
+                          "type": "string"
+                        },
+                        "projectedDateOfSeparationCertaintyCode": {
+                          "type": "string"
+                        },
+                        "terminationReasonText": {
+                          "type": "string"
+                        },
+                        "terminationReasonCode": {
+                          "type": "string"
+                        },
+                        "enlistedServiceYears": {
+                          "type": "integer"
+                        },
+                        "deployments": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "deploymentSequenceNumber": {
+                                  "type": "integer"
+                                },
+                                "deploymentBeginDate": {
+                                  "type": "string"
+                                },
+                                "deploymentEndDate": {
+                                  "type": "string"
+                                },
+                                "deploymentProjectText": {
+                                  "type": "string"
+                                },
+                                "deploymentProjectCode": {
+                                  "type": "string"
+                                },
+                                "deploymentTerminationReasonText": {
+                                  "type": "string"
+                                },
+                                "deploymentTerminationReasonCode": {
+                                  "type": "string"
+                                },
+                                "deploymentLocations": {
+                                  "type": "array",
+                                  "items": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "deploymentLocationSequenceNumber": {
+                                          "type": "integer"
+                                        },
+                                        "deploymentCountryText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentCountryCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBeginDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationEndDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonCode": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "deploymentLocationSequenceNumber",
+                                        "deploymentCountryText",
+                                        "deploymentCountryCode",
+                                        "deploymentLocationBodyOfWaterText",
+                                        "deploymentLocationBodyOfWaterCode",
+                                        "deploymentLocationBeginDate",
+                                        "deploymentLocationEndDate",
+                                        "deploymentLocationTerminationReasonText",
+                                        "deploymentLocationTerminationReasonCode"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "deploymentSequenceNumber",
+                                "deploymentBeginDate",
+                                "deploymentEndDate",
+                                "deploymentProjectText",
+                                "deploymentProjectCode",
+                                "deploymentTerminationReasonText",
+                                "deploymentTerminationReasonCode",
+                                "deploymentLocations"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "deploymentSequenceNumber": {
+                                  "type": "integer"
+                                },
+                                "deploymentBeginDate": {
+                                  "type": "string"
+                                },
+                                "deploymentEndDate": {
+                                  "type": "string"
+                                },
+                                "deploymentProjectText": {
+                                  "type": "string"
+                                },
+                                "deploymentProjectCode": {
+                                  "type": "string"
+                                },
+                                "deploymentTerminationReasonText": {
+                                  "type": "string"
+                                },
+                                "deploymentTerminationReasonCode": {
+                                  "type": "string"
+                                },
+                                "deploymentLocations": {
+                                  "type": "array",
+                                  "items": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "deploymentLocationSequenceNumber": {
+                                          "type": "integer"
+                                        },
+                                        "deploymentCountryText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentCountryCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBeginDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationEndDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonCode": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "deploymentLocationSequenceNumber",
+                                        "deploymentCountryText",
+                                        "deploymentCountryCode",
+                                        "deploymentLocationBodyOfWaterText",
+                                        "deploymentLocationBodyOfWaterCode",
+                                        "deploymentLocationBeginDate",
+                                        "deploymentLocationEndDate",
+                                        "deploymentLocationTerminationReasonText",
+                                        "deploymentLocationTerminationReasonCode"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "deploymentLocationSequenceNumber": {
+                                          "type": "integer"
+                                        },
+                                        "deploymentCountryText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentCountryCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBeginDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationEndDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonCode": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "deploymentLocationSequenceNumber",
+                                        "deploymentCountryText",
+                                        "deploymentCountryCode",
+                                        "deploymentLocationBodyOfWaterText",
+                                        "deploymentLocationBodyOfWaterCode",
+                                        "deploymentLocationBeginDate",
+                                        "deploymentLocationEndDate",
+                                        "deploymentLocationTerminationReasonText",
+                                        "deploymentLocationTerminationReasonCode"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "deploymentSequenceNumber",
+                                "deploymentBeginDate",
+                                "deploymentEndDate",
+                                "deploymentProjectText",
+                                "deploymentProjectCode",
+                                "deploymentTerminationReasonText",
+                                "deploymentTerminationReasonCode",
+                                "deploymentLocations"
+                              ]
+                            }
+                          ]
+                        },
+                        "serviceComponentCode": {
+                          "type": "string"
+                        },
+                        "serviceComponentText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "serviceEpisodeIdentifier",
+                        "branchOfServiceText",
+                        "branchOfServiceCode",
+                        "organizationText",
+                        "organizationCode",
+                        "episodeSequenceNumber",
+                        "periodOfServiceTypeText",
+                        "periodOfServiceTypeCode",
+                        "periodOfServiceBeginDate",
+                        "periodOfServiceEndDate",
+                        "characterOfDischargeText",
+                        "characterOfDischargeCode",
+                        "narrativeReasonForSeparationText",
+                        "narrativeReasonForSeparationCode",
+                        "narrativeReasonForSeparationFamilyText",
+                        "narrativeReasonForSeparationFamilyCode",
+                        "projectedDateOfSeparationCertaintyText",
+                        "projectedDateOfSeparationCertaintyCode",
+                        "terminationReasonText",
+                        "terminationReasonCode",
+                        "enlistedServiceYears",
+                        "deployments",
+                        "serviceComponentCode",
+                        "serviceComponentText"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "serviceEpisodeIdentifier": {
+                          "type": "integer"
+                        },
+                        "branchOfServiceText": {
+                          "type": "string"
+                        },
+                        "branchOfServiceCode": {
+                          "type": "string"
+                        },
+                        "organizationText": {
+                          "type": "string"
+                        },
+                        "organizationCode": {
+                          "type": "string"
+                        },
+                        "episodeSequenceNumber": {
+                          "type": "integer"
+                        },
+                        "periodOfServiceTypeText": {
+                          "type": "string"
+                        },
+                        "periodOfServiceTypeCode": {
+                          "type": "string"
+                        },
+                        "periodOfServiceBeginDate": {
+                          "type": "string"
+                        },
+                        "periodOfServiceEndDate": {
+                          "type": "string"
+                        },
+                        "characterOfDischargeText": {
+                          "type": "string"
+                        },
+                        "characterOfDischargeCode": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationText": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationCode": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationFamilyText": {
+                          "type": "string"
+                        },
+                        "narrativeReasonForSeparationFamilyCode": {
+                          "type": "string"
+                        },
+                        "projectedDateOfSeparationCertaintyText": {
+                          "type": "string"
+                        },
+                        "projectedDateOfSeparationCertaintyCode": {
+                          "type": "string"
+                        },
+                        "terminationReasonText": {
+                          "type": "string"
+                        },
+                        "terminationReasonCode": {
+                          "type": "string"
+                        },
+                        "enlistedServiceYears": {
+                          "type": "integer"
+                        },
+                        "deployments": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "deploymentSequenceNumber": {
+                                  "type": "integer"
+                                },
+                                "deploymentBeginDate": {
+                                  "type": "string"
+                                },
+                                "deploymentEndDate": {
+                                  "type": "string"
+                                },
+                                "deploymentProjectText": {
+                                  "type": "string"
+                                },
+                                "deploymentProjectCode": {
+                                  "type": "string"
+                                },
+                                "deploymentTerminationReasonText": {
+                                  "type": "string"
+                                },
+                                "deploymentTerminationReasonCode": {
+                                  "type": "string"
+                                },
+                                "deploymentLocations": {
+                                  "type": "array",
+                                  "items": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "deploymentLocationSequenceNumber": {
+                                          "type": "integer"
+                                        },
+                                        "deploymentCountryText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentCountryCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBodyOfWaterCode": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationBeginDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationEndDate": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonText": {
+                                          "type": "string"
+                                        },
+                                        "deploymentLocationTerminationReasonCode": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "deploymentLocationSequenceNumber",
+                                        "deploymentCountryText",
+                                        "deploymentCountryCode",
+                                        "deploymentLocationBodyOfWaterText",
+                                        "deploymentLocationBodyOfWaterCode",
+                                        "deploymentLocationBeginDate",
+                                        "deploymentLocationEndDate",
+                                        "deploymentLocationTerminationReasonText",
+                                        "deploymentLocationTerminationReasonCode"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "deploymentSequenceNumber",
+                                "deploymentBeginDate",
+                                "deploymentEndDate",
+                                "deploymentProjectText",
+                                "deploymentProjectCode",
+                                "deploymentTerminationReasonText",
+                                "deploymentTerminationReasonCode",
+                                "deploymentLocations"
+                              ]
+                            }
+                          ]
+                        },
+                        "serviceComponentCode": {
+                          "type": "string"
+                        },
+                        "serviceComponentText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "serviceEpisodeIdentifier",
+                        "branchOfServiceText",
+                        "branchOfServiceCode",
+                        "organizationText",
+                        "organizationCode",
+                        "episodeSequenceNumber",
+                        "periodOfServiceTypeText",
+                        "periodOfServiceTypeCode",
+                        "periodOfServiceBeginDate",
+                        "periodOfServiceEndDate",
+                        "characterOfDischargeText",
+                        "characterOfDischargeCode",
+                        "narrativeReasonForSeparationText",
+                        "narrativeReasonForSeparationCode",
+                        "narrativeReasonForSeparationFamilyText",
+                        "narrativeReasonForSeparationFamilyCode",
+                        "projectedDateOfSeparationCertaintyText",
+                        "projectedDateOfSeparationCertaintyCode",
+                        "terminationReasonText",
+                        "terminationReasonCode",
+                        "enlistedServiceYears",
+                        "deployments",
+                        "serviceComponentCode",
+                        "serviceComponentText"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "releaseFromActiveDutyDate",
+                "militaryServiceEpisodes"
+              ]
+            },
+            "unitAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "episodeId": {
+                      "type": "integer"
+                    },
+                    "personnelCategoryCode": {
+                      "type": "string"
+                    },
+                    "assignmentSequence": {
+                      "type": "integer"
+                    },
+                    "militaryUnitTypeCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitTypeText": {
+                      "type": "string"
+                    },
+                    "militaryUnitCode": {
+                      "type": "string"
+                    },
+                    "militaryUnitText": {
+                      "type": "string"
+                    },
+                    "dodProvidedUnitCode": {
+                      "type": "string"
+                    },
+                    "effectiveDate": {
+                      "type": "string"
+                    },
+                    "lastUpdate": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "episodeId",
+                    "personnelCategoryCode",
+                    "assignmentSequence",
+                    "militaryUnitTypeCode",
+                    "militaryUnitTypeText",
+                    "militaryUnitCode",
+                    "militaryUnitText",
+                    "dodProvidedUnitCode",
+                    "effectiveDate",
+                    "lastUpdate"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "militarySummary",
+            "militaryOccupations",
+            "payGradeRanks",
+            "militaryServiceHistory",
+            "unitAssignments"
+          ]
+        }
+      },
+      "required": [
+        "militaryPerson"
+      ]
+    }
+  },
+  "required": [
+    "messages",
+    "profile"
+  ]
+}
