@@ -289,11 +289,8 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: ./schemas/AppointmentCheckin400Insurance.yml
-                  - $ref: ./schemas/AppointmentCheckin400Demographics.yml
-                  - $ref: ./schemas/AppointmentCheckin400Appointment.yml
-
+                $ref: ./schemas/AppointmentCheckinErrors400.yml
+          description: Bad request.
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -305,7 +302,11 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
+          description: An internal API error occurred.
         '502':
           $ref: '#/components/responses/502'
         '503':

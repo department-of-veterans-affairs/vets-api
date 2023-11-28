@@ -7,11 +7,8 @@ module ClaimsApi
   ##
   # Class to interact with the BRD API
   #
-  # Takes an optional request parameter
-  # @param [] rails request object
   class BD
-    def initialize(request: nil)
-      @request = request
+    def initialize
       @multipart = false
       @use_mock = Settings.claims_api.benefits_documents.use_mocks || false
     end
@@ -82,12 +79,10 @@ module ClaimsApi
     #
     # @return Faraday client
     def client
-      base_name = if !Settings.claims_api.benefits_documents&.host.nil?
-                    "#{Settings.claims_api.benefits_documents.host}/services"
-                  elsif @request&.host_with_port.nil?
-                    'api.va.gov/services'
+      base_name = if Settings.claims_api&.benefits_documents&.host.nil?
+                    'https://api.va.gov/services'
                   else
-                    "#{@request&.host_with_port}/services"
+                    "#{Settings.claims_api&.benefits_documents&.host}/services"
                   end
 
       @token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
