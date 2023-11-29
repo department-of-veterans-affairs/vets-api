@@ -10,7 +10,7 @@ module MebApi
 
         def initialize(response = nil)
           attributes = {
-            exclusion_periods: ["ROTC", "NoPayDate"]  #response.body
+            exclusion_periods: response.body
           }
 
           super(response.status, attributes)
