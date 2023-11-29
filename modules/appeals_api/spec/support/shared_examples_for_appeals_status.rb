@@ -156,6 +156,25 @@ shared_examples 'appeals status endpoints' do |opts|
       end
     end
 
+    context 'with a response where "aod" is null instead of a boolean' do
+      it 'returns a successful response' do
+        VCR.use_cassette('caseflow/appeals_null_aod') do
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint,
+                params: nil,
+                headers: auth_header.merge(
+                  {
+                    'X-VA-SSN' => '111223333',
+                    'X-Consumer-Username' => 'TestConsumer',
+                    'X-VA-User' => 'adhoc.test.user'
+                  }
+                )
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
     if opts[:oauth_scopes].present?
       context 'with oauth' do
         it_behaves_like 'an endpoint with OpenID auth', scopes: opts[:oauth_scopes] do
