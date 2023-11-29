@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 
-
 RSpec.describe 'Claim Document Attachment', type: :request do
   before do
     allow(Rails.logger).to receive(:info)
