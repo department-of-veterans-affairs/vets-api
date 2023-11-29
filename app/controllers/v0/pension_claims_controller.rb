@@ -15,10 +15,9 @@ module V0
     def create
       PensionBurial::TagSentry.tag_sentry
 
+      claim = claim_class.new(form: filtered_params[:form])
       user_uuid = current_user&.uuid
       Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{user_uuid}"
-
-      claim = claim_class.new(form: filtered_params[:form])
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
