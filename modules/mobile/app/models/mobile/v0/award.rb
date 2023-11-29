@@ -5,6 +5,7 @@ require 'common/models/resource'
 module Mobile
   module V0
     class Award < Common::Resource
+      attribute :id, Types::String
       attribute :aportn_recip_id, Types::Integer
       attribute :award_amt, Types::Decimal
       attribute :award_cmpsit_id, Types::String

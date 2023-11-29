@@ -8,7 +8,7 @@ RSpec.describe Mobile::V0::AwardsController, type: :request do
   include JsonSchemaMatchers
 
   before do
-    sis_user(participant_id: 600061742)
+    sis_user(participant_id: 600_061_742)
   end
 
   describe 'GET /mobile/v0/awards' do
@@ -19,20 +19,49 @@ RSpec.describe Mobile::V0::AwardsController, type: :request do
         end
       end
 
-      binding.pry
-
-      # expect(response).to be_successful
-      # expect(response.parsed_body['data'][0, 2]).to eq(
-      #                                                 [{ 'id' => '915',
-      #                                                    'type' => 'cemetery',
-      #                                                    'attributes' => { 'name' => 'ABRAHAM LINCOLN NATIONAL CEMETERY',
-      #                                                                      'type' => 'N' } },
-      #                                                  { 'id' => '400',
-      #                                                    'type' => 'cemetery',
-      #                                                    'attributes' => { 'name' => 'ALABAMA STATE VETERANS MEMORIAL CEMETERY',
-      #                                                                      'type' => 'S' } }]
-      #                                               )
-      # expect(response.body).to match_json_schema('cemetery', strict: true)
+      expect(response).to be_successful
+      expect(response.parsed_body['data']['attributes']).to eq(
+        { 'id' => sis_user.uuid,
+          'aportnRecipId' => '2810777',
+          'awardAmt' => '541.83',
+          'awardCmpsitId' => '10976',
+          'awardCurntStatusCd' => 'A',
+          'awardEventId' => '13724',
+          'awardLineReportId' => '37898',
+          'awardLineTypeCd' => 'C',
+          'awardStnNbr' => '317',
+          'awardTypeCd' => 'CPL',
+          'combndDegreePct' => '30',
+          'depHlplsThisNbr' => '0',
+          'depHlplsTotalNbr' => '0',
+          'depSchoolThisNbr' => '0',
+          'depSchoolTotalNbr' => '0',
+          'depThisNbr' => '12',
+          'depTotalNbr' => '12',
+          'efctvDt' => '2020-08-01T00:00:00.000-05:00',
+          'entlmtTypeCd' => '41',
+          'fileNbr' => '796121200',
+          'futureEfctvDt' => '2021-07-15T00:00:00.000-05:00',
+          'grossAdjsmtAmt' => '0.0',
+          'grossAmt' => '541.83',
+          'ivapAmt' => '0.0',
+          'jrnDt' => '2020-08-03T18:15:02.000-05:00',
+          'jrnLctnId' => '281',
+          'jrnObjId' => 'AWARD COMPOSITE',
+          'jrnStatusTypeCd' => 'I',
+          'jrnUserId' => 'BATCH',
+          'netAmt' => '541.83',
+          'payeeTypeCd' => '00',
+          'priorEfctvDt' => '2020-07-01T00:00:00.000-05:00',
+          'ptcpntBeneId' => '2810777',
+          'ptcpntVetId' => '2810777',
+          'reasonOneTxt' => '21',
+          'spouseTxt' => 'Spouse',
+          'veteranId' => 600_061_742,
+          'isEligibleForPension' => true,
+          'isInReceiptOfPension' => true,
+          'netWorthLimit' => 129_094 }
+      )
     end
   end
 end
