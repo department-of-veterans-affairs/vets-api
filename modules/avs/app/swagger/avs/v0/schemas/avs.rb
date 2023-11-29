@@ -72,6 +72,11 @@ module Avs
             key :$ref, :problem
           end
         end
+        property :clinicalReminders, type: :array do
+          items do
+            key :$ref, :clinicalReminder
+          end
+        end
         property :allergiesReactions, type: :object do
           property :T, type: :string
           property :noAllergyAssessment, type: :boolean
@@ -202,6 +207,14 @@ module Avs
       property :service, type: :string
       property :version, type: :string
       property :comments, type: :string
+    end
+
+    swagger_schema :clinicalReminder do
+      property :ien, type: :string
+      property :whenDue, type: :string
+      property :lastOccurrence, type: :string
+      property :name, type: :string
+      property :frequency, type: :string
     end
 
     swagger_schema :allergy do
