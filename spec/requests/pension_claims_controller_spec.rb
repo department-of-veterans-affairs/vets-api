@@ -3,6 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
+  before do
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+  end
+
   let(:full_claim) do
     build(:pension_claim).parsed_form
   end
@@ -37,6 +42,12 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
           )
         ).to eq(true)
       end
+
+      it 'logs the attempted submission' do
+        expect(Rails.logger).to receive(:info).with(/^Begin ClaimGUID=\S+ Form=21P-527EZ UserID=/)
+        expect(Rails.logger).to receive(:error).with('Validation error.')
+        subject
+      end
     end
 
     context 'with valid params' do
@@ -52,6 +63,12 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
           .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
+      end
+
+      it 'logs the successful submission' do
+        expect(Rails.logger).to receive(:info).with(/^Begin ClaimGUID=\S+ Form=21P-527EZ UserID=/)
+        expect(Rails.logger).to receive(:info).with(/Submitted job ClaimID=\S+ Form=21P-527EZ UserID=/)
+        subject
       end
     end
   end
