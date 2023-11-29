@@ -102,7 +102,8 @@ module ClaimsApi
 
         def shared_validation
           validate_json_schema
-          validate_form_526_submission_values!(target_veteran)
+          valid = validate_form_526_submission_values!(target_veteran)
+          render json: @errors unless valid.nil?
         end
 
         def documents_service(params, claim)
