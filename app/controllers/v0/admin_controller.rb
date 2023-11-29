@@ -2,6 +2,7 @@
 
 module V0
   class AdminController < ApplicationController
+    service_tag 'platform-base'
     skip_before_action :authenticate, only: :status
 
     def status

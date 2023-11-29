@@ -7,7 +7,7 @@ require 'evss_service/base'
 module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < DisabilityCompensationClaimServiceBase
-      LOG_TAG = '526 v2 Docker Container job'
+      LOG_TAG = '526_v2_Docker_Container_job'
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(LOG_TAG,
@@ -40,27 +40,37 @@ module ClaimsApi
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
+        error_status = get_error_status_code(e)
+        error_message = get_error_message(e)
+
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+                         "Docker container job errored #{e.class}: #{error_status} #{error_message}")
+
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
+        error_message = get_error_message(e)
+
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Submit failed for claimId #{auto_claim&.id}: #{e.original_body}")
+                         "Docker container job errored #{e.class}: #{error_message}")
         log_exception_to_sentry(e)
-
-        raise e
+        # if will_retry?
+        if will_retry?(e)
+          raise e
+        else # form526.submit.noRetryError OR form526.InProcess error retruned
+          {}
+        end
       rescue => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Submit failed for claimId #{auto_claim&.id}: #{e.detailed_message}")
+                         "Docker container job errored #{e.class}: #{e&.detailed_message}")
         log_exception_to_sentry(e)
 
         raise e
@@ -75,20 +85,18 @@ module ClaimsApi
       end
 
       def set_evss_response(auto_claim, error)
-        error_status = get_error_status_code(error)
         error_message = get_error_message(error)
+        error_key = get_error_key(error_message)
+        error_text = get_error_text(error_message)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.evss_response = [{ 'key' => error_status, 'severity' => 'FATAL', 'text' => error_message }]
-        auto_claim.save!
-      end
+        auto_claim.evss_response = [
+          { 'key' => error_key,
+            'severity' => 'FATAL',
+            'text' => error_text }
+        ]
 
-      def get_error_status_code(error)
-        if error.respond_to? :status_code
-          error.status_code
-        else
-          "No status code for error: #{error}"
-        end
+        save_auto_claim!(auto_claim, auto_claim.status)
       end
 
       def start_bd_uploader_job(auto_claim)

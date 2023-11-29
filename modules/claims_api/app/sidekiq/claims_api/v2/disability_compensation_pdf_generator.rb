@@ -7,7 +7,7 @@ module ClaimsApi
   module V2
     class DisabilityCompensationPdfGenerator < DisabilityCompensationClaimServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
-      LOG_TAG = '526 v2 PDF Generator job'
+      LOG_TAG = '526_v2_PDF_Generator_job'
 
       def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
         log_job_progress(LOG_TAG,
@@ -47,7 +47,7 @@ module ClaimsApi
                            "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
           auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
-          auto_claim.save!
+          save_auto_claim!(auto_claim, auto_claim.status)
 
           ::Common::FileHelpers.delete_file_if_exists(path)
         end
@@ -59,25 +59,32 @@ module ClaimsApi
         start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
+        error_message = get_error_message(e)
+        error_status = get_error_status_code(e)
+
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator faraday errored #{e.status_code} #{e.original_body}")
+                         "526EZ PDF generator faraday error #{e.class}: #{error_status} #{error_message}")
         log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_errored_state_on_claim(auto_claim)
+        error_message = get_error_message(e)
+        error_status = get_error_status_code(e)
+
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+                         "526EZ PDF generator errored #{e.class}: #{error_status} #{error_message}")
         log_exception_to_sentry(e)
 
         raise e
       rescue => e
         set_errored_state_on_claim(auto_claim)
+
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e}")
+                         "526EZ PDF generator errored #{e.class}: #{e}")
         log_exception_to_sentry(e)
 
         raise e

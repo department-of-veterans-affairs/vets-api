@@ -15,6 +15,9 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  auth_exp_vba_downtime_message:
+    actor_type: user
+    description: Show downtime message on Profile and My VA for planned VBA maintenance
   avs_enabled:
     actor_type: user
     description: Enables the After Visit Summary API.
@@ -456,6 +459,10 @@ features:
     actor_type: user
     description: Enables the Find a Rep search endpoint
     enable_in_development: true
+  find_a_representative:
+    actor_type: user
+    description: Enables frontend of Find a Representative
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -518,6 +525,9 @@ features:
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
+  form210966:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-0966
   form210972:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0972
@@ -533,6 +543,9 @@ features:
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
+  form400247:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 40-0247
   fsr_confirmation_email:
     actor_type: user
     description: Enables notifications to be sent via email upon FSR submission
@@ -611,17 +624,37 @@ features:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
     enable_in_development: true
+  mhv_landing_page_personalization:
+    actor_type: user
+    description: Enables personalized content on the My HealtheVet landing page.
+    enable_in_development: true
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
-    description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
+    description: Enables/disables Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_secure_messaging_to_phase_1:
     actor_type: user
-    description: Enables/disbales Secure Messaging Phase 1 on VA.gov
+    description: Enables/disables Secure Messaging Phase 1 on VA.gov
+    enable_in_development: true
+  mhv_medical_records_allow_txt_downloads:
+    actor_type: user
+    description: Allows users to download Medical Records data in TXT format
+    enable_in_development: true
+  mhv_medical_records_display_domains:
+    actor_type: user
+    description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_sidenav:
+    actor_type: user
+    description: Show/hide the Medical Records side navigation
+    enable_in_development: true
+  mhv_medical_records_display_vaccines:
+    actor_type: user
+    description: Show/hide content related to Vaccines in Medical Records
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
-    description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
   mhv_medical_records_redact_fhir_client_logs:
     actor_type: user
@@ -629,19 +662,11 @@ features:
     enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
-    description: Enables/disbales Medical Records on VA.gov (intial transition from MHV to VA.gov)
-    enable_in_development: true
-  mhv_medical_records_display_domains:
-    actor_type: user
-    description: Show/hide in-progress Medical Records domains
-    enable_in_development: true
-  mhv_medical_records_allow_txt_downloads:
-    actor_type: user
-    description: Allows users to download Medical Records data in TXT format
+    description: Enables/disables Medical Records on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
-    description: Enables/disbales Medications on VA.gov (intial transition from MHV to VA.gov)
+    description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
@@ -707,6 +732,9 @@ features:
   show_authenticated_menu_enhancements:
     actor_type: user
     description: Exposes new links for dependents and letters in the header dropdown for authenticated users
+  profile_enhanced_military_info:
+    actor_type: user
+    description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
@@ -794,6 +822,9 @@ features:
   my_va_notification_dot_indicator:
     actor_type: user
     description: Enable dot indicator for notifications
+  my_va_remove_cerner_message:
+    actor_type: user
+    description: Remove Cerner alerts under Health care section
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
@@ -802,8 +833,9 @@ features:
     description: Show the My VA link on the global site header
   rated_disabilities_detect_discrepancies:
     actor_type: user
-    description: When enabled, the rated disabilities application will check for discrepancies between
-      the number of rated disabilities returned by EVSS and Lighthouse 
+    description:
+      When enabled, the rated disabilities application will check for discrepancies between
+      the number of rated disabilities returned by EVSS and Lighthouse
     enable_in_development: true
   rated_disabilities_sort_ab_test:
     actor_type: user
@@ -894,6 +926,10 @@ features:
     enable_in_development: true
   show_meb_service_history_categorize_disagreement:
     actor_type: user
+    enable_in_development: false
+  meb_exclusion_period_enabled:
+    actor_type: user
+    description: enables exclusion period checks
     enable_in_development: false
   show_forms_app:
     actor_type: user
@@ -1038,10 +1074,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the print list initiative
-  va_online_scheduling_descriptive_back_link:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the descriptive back link
   va_online_scheduling_use_dsot:
     actor_type: user
     enable_in_development: true

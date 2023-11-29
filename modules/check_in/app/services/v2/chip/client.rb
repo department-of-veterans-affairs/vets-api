@@ -67,10 +67,10 @@ module V2
       #
       # @return [Faraday::Response]
       #
-      def check_in_appointment(token:, appointment_ien:)
+      def check_in_appointment(token:, appointment_ien:, travel_params:)
         connection.post("/#{base_path}/actions/check-in/#{check_in_session.uuid}") do |req|
           req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
-          req.body = { appointmentIEN: appointment_ien }.to_json
+          req.body = { appointmentIEN: appointment_ien }.merge(travel_params).to_json
         end
       end
 

@@ -3,6 +3,7 @@
 module TestUserDashboard
   class TudAccountsController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
+    service_tag 'test-user-dashboard'
     before_action :require_jwt
 
     def index

@@ -655,4 +655,43 @@ describe V2::Chip::Service do
       end
     end
   end
+
+  describe '#travel_params' do
+    let(:params_without_travel_attributes) { { appointment_ien: 'test-appt-ien' } }
+    let(:params_with_travel_attributes) do
+      {
+        appointment_ien: 'test-appt-ien',
+        is_travel_enabled: true,
+        travel_submitted: false
+      }
+    end
+
+    context 'when called without travel parameters' do
+      let(:hsh_without_travel_attributes) do
+        {
+          isTravelEnabled: nil,
+          travelSubmitted: nil
+        }
+      end
+
+      it 'returns hash with travel attributes set with nil' do
+        expect(subject.build(check_in: valid_check_in, params: params_without_travel_attributes)
+                      .travel_params).to eq(hsh_without_travel_attributes)
+      end
+    end
+
+    context 'when called with travel parameters' do
+      let(:hsh_with_travel_attributes) do
+        {
+          isTravelEnabled: true,
+          travelSubmitted: false
+        }
+      end
+
+      it 'returns hash with travel attributes set with nil' do
+        expect(subject.build(check_in: valid_check_in, params: params_with_travel_attributes)
+                      .travel_params).to eq(hsh_with_travel_attributes)
+      end
+    end
+  end
 end

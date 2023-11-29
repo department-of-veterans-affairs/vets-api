@@ -21,6 +21,8 @@ Mobile::Engine.routes.draw do
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claims/decision-letters', to: 'decision_letters#index'
     get '/claims/decision-letters/:document_id/download', to: 'decision_letters#download'
+    post '/claims/pre-need-burial', to: 'pre_need_burial#create'
+    get '/claims/pre-need-burial/cemeteries', to: 'cemeteries#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'

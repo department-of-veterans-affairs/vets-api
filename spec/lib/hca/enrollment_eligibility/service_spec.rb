@@ -25,6 +25,7 @@ describe HCA::EnrollmentEligibility::Service do
                            cohabitedLastYear: true,
                            dateOfBirth: '2020-10-01' }],
             spouseFullName: { first: 'VSDV', last: 'SDVSDV' },
+            maritalStatus: 'Married',
             dateOfMarriage: '2000-10-15',
             cohabitedLastYear: true,
             spouseDateOfBirth: '1950-02-17',
@@ -58,6 +59,7 @@ describe HCA::EnrollmentEligibility::Service do
             'medicareClaimNumber' => '873462432',
             'isEnrolledMedicarePartA' => true,
             'medicarePartAEffectiveDate' => '1999-10-16',
+            'maritalStatus' => 'Married',
             'isMedicaidEligible' => true }
         )
       end
