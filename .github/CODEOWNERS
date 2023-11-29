@@ -281,7 +281,6 @@ app/models/okta_redis/model.rb @department-of-veterans-affairs/lighthouse-banana
 app/models/okta_redis/profile.rb @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/lighthouse-pivot
 app/models/old_email.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/onsite_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/opaque_token.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/openid_user_identity.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/openid_user.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
