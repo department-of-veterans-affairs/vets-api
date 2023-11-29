@@ -38,7 +38,7 @@ module RepOrgAddresses
     # Fetches the GitHub access token from application configuration.
     # @return [String] The GitHub access token.
     def fetch_github_access_token
-      Rails.application.config_for(:settings)['xlsx_file_fetcher']['github_access_token']
+      Settings.xlsx_file_fetcher.github_access_token
     end
 
     # Retrieves the file information for the XLSX file from GitHub.
