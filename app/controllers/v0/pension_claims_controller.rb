@@ -31,7 +31,9 @@ module V0
       end
 
       StatsD.increment("#{stats_key}.success")
-      Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
+      logs = ["Submitted job ClaimID=#{claim.confirmation_number}",
+              "Form=#{claim.class::FORM} UserID=#{user_uuid}"]
+      Rails.logger.info logs.join(' ')
 
       clear_saved_form(claim.form_id)
       render(json: claim)
