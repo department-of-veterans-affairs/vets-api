@@ -2421,6 +2421,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
+                puts "#{response.pretty_inspect}"
                 expect(response).to have_http_status(:bad_request)
               end
             end

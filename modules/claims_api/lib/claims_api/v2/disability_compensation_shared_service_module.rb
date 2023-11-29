@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'brd/brd'
+require 'claims_api/v2/common/exceptions/unprocessable_entity'
 
 module ClaimsApi
   module V2
