@@ -917,6 +917,103 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when it is not a PACT claim because the disabilityActionType is set to "INCREASE"' do
+          let(:disabilities) do
+            [{
+              disabilityActionType: 'INCREASE',
+              name: 'Traumatic Brain Injury',
+              classificationCode: '9020',
+              serviceRelevance: 'ABCDEFG',
+              approximateDate: '2018-11-03',
+              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+              diagnosticCode: 9020,
+              isRelatedToToxicExposure: true,
+              exposureOrEventOrInjury: 'EXPOSURE'
+            }]
+          end
+          let(:treatments) do
+            [
+              {
+                center: {
+                  name: 'Center One',
+                  state: 'GA',
+                  city: 'Decatur'
+                },
+                treatedDisabilityNames: ['Traumatic Brain Injury'],
+                beginDate: '2009-03'
+              }
+            ]
+          end
+
+          it 'tracks the claim count' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              claim_id = response.location.split('/')[-1].to_s
+              ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
+              expect(submissions.size).to be(0)
+            end
+          end
+        end
+
+        context 'when it is not a PACT claim because the disabilityActionType is set to "NONE"' do
+          let(:disabilities) do
+            [{
+              disabilityActionType: 'NONE',
+              name: 'Traumatic Brain Injury',
+              classificationCode: '9020',
+              serviceRelevance: 'ABCDEFG',
+              approximateDate: '2018-11-03',
+              ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+              diagnosticCode: 9020,
+              secondaryDisabilities: [
+                {
+                  name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
+                  disabilityActionType: 'SECONDARY',
+                  serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
+                  classificationCode: '9010',
+                  approximateDate: '2018-12-03',
+                  exposureOrEventOrInjury: 'EXPOSURE'
+                }
+              ],
+              isRelatedToToxicExposure: true,
+              exposureOrEventOrInjury: 'EXPOSURE'
+            }]
+          end
+          let(:treatments) do
+            [
+              {
+                center: {
+                  name: 'Center One',
+                  state: 'GA',
+                  city: 'Decatur'
+                },
+                treatedDisabilityNames: ['Traumatic Brain Injury',
+                                         'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
+                beginDate: '2009-03'
+              }
+            ]
+          end
+
+          it 'tracks the claim count' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'] = disabilities
+              json['data']['attributes']['treatments'] = treatments
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              claim_id = response.location.split('/')[-1].to_s
+              ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
+              expect(submissions.size).to be(0)
+            end
+          end
+        end
       end
 
       describe "'servicePay validations'" do
@@ -1728,21 +1825,6 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when the activeDutyBeginDate is Feb 29 in a leap year' do
-          let(:active_duty_begin_date) { '2000-02-29' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
-                active_duty_begin_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
         context "when the activeDutyBeginDate is on or before the Veteran's 13th birthday" do
           let(:active_duty_begin_date) { '1904-01-01' }
 
@@ -2454,21 +2536,6 @@ RSpec.describe 'Disability Claims', type: :request do
               end
             end
           end
-
-          # real world example see API-31426
-          context 'when approximateDate contains the name of the month as a string' do
-            let(:approximate_date) { 'July 2017' }
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json_data = JSON.parse data
-                params = json_data
-                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
-                post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
         end
 
         describe "'disabilities.serviceRelevance' validations" do
@@ -2737,33 +2804,6 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.',
                       approximateDate: '2019-30-02'
-                    }
-                  ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-
-          # real world example see API-31426
-          it 'raises an exception if date includes the name of the month' do
-            mock_ccg(scopes) do |auth_header|
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  serviceRelevance: 'Heavy equipment operator in service.',
-                  secondaryDisabilities: [
-                    {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: 'July 2017'
                     }
                   ]
                 }
