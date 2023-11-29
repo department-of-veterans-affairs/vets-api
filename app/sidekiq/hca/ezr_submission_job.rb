@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'hca/soap_parser'
+require 'form1010_ezr/service'
 
 module HCA
   class EzrSubmissionJob
