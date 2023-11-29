@@ -173,4 +173,43 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       it { expect(response).to have_http_status(:unauthorized) }
     end
   end
+
+  describe 'POST #unauth_create' do
+    let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+    before do
+      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint:, method: :post,
+                                                                      payload: { params: }).and_return('success')
+      post inquiry_path, params:
+    end
+
+    it { expect(response).to have_http_status(:created) }
+  end
+
+  describe 'POST #upload_attachment' do
+    let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
+    let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
+    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}" } }
+
+    before do
+      post '/ask_va_api/v0/upload_attachment', params:
+    end
+
+    it { expect(response).to have_http_status(:ok) }
+  end
+
+  describe 'POST #create' do
+    let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+    before do
+      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint:, method: :post,
+                                                                      payload: { params: }).and_return('success')
+      sign_in(authorized_user)
+      post '/ask_va_api/v0/inquiries/auth', params:
+    end
+
+    it { expect(response).to have_http_status(:created) }
+  end
 end

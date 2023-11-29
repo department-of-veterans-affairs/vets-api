@@ -63,10 +63,8 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a successful response' do
         response '202', 'Successful response with disability' do
           schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
-
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -76,7 +74,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
               anticipated_separation_date
             temp['data']['attributes'] = attributes
             temp.to_json
-
             temp
           end
 
@@ -218,21 +215,102 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
 
       describe 'Getting a successful response' do
-        response '200', '526 Response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+        response '200', 'Successful response with disability' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'validate.json').read)
+          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            attributes = temp['data']['attributes']
+            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+              anticipated_separation_date
+            temp['data']['attributes'] = attributes
+            temp.to_json
+            temp
+          end
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+          let(:Authorization) { nil }
+
+          before do |example|
+            mock_acg(scopes) do
+              allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 422 response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                            'default_with_source.json').read)
+          let(:data) { { data: { attributes: nil } } }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 422 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
@@ -450,9 +528,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
           before do |example|
-            stub_poa_verification
-            stub_mpi
-
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -477,9 +552,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
           let(:Authorization) { nil }
 
           before do |example|
-            stub_poa_verification
-            stub_mpi
-
             mock_acg(scopes) do
               allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)

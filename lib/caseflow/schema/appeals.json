@@ -93,7 +93,7 @@
                 }
               },
               "aod": {
-                "type": "boolean"
+                "type": ["boolean", "null"]
               },
               "location": {
                 "type": {

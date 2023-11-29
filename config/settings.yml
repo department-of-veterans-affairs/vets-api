@@ -250,6 +250,11 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
+  veteran_status:
+    cache_enabled: true
+    enabled: true
+    timeout: 30
+    mock: false
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
@@ -646,11 +651,12 @@ vba_documents:
 
 #Settings for Ask VA Api Module
 ask_va_api:
-  dynamics_api:
+  crm_api:
     auth_url: https://login.microsoftonline.us
     base_url: https://dev.integration.d365.va.gov
     client_id: client_id
     client_secret: secret
+    resource: resource
     veis_api_path: veis/vagov.lob.ava/api
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     ocp_apim_subscription_key: subscription_key
@@ -1472,6 +1478,9 @@ chip:
     password: '12345'
 
 check_in:
+  map_api:
+    url: https://veteran.apps-staging.va.gov
+    service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
@@ -1677,3 +1686,6 @@ avs:
 brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
+
+xlsx_file_fetcher:
+  github_access_token: ~
