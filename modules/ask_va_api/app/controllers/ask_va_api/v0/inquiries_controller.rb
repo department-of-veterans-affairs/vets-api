@@ -28,7 +28,9 @@ module AskVAApi
       end
 
       def upload_attachment
-        render json: { message: 'Attachment has been received' }, status: :ok
+        uploader = AttachmentUploader.new(params[:attachment])
+        result = uploader.call
+        render json: { message: result[:message] || result[:error] }, status: result[:status]
       end
 
       private
