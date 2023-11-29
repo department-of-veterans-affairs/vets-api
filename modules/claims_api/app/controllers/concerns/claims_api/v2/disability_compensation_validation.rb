@@ -79,8 +79,8 @@ module ClaimsApi
         begin
           nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
-          collect_error_messages('Missing the begin date for change of address.',
-                                 'changeOfAddress.dates.beginDate')
+          collect_error_messages(detail: 'Missing the begin date for change of address.',
+                                 source: 'changeOfAddress.dates.beginDate')
         end
       end
 
@@ -101,7 +101,7 @@ module ClaimsApi
         return if date && begin_date && Date.strptime(date,
                                                       '%Y-%m-%d') > Date.strptime(begin_date, '%Y-%m-%d')
 
-        collect_error_messages(detail: 'Missing endDate',
+        collect_error_messages(detail: 'End date must be after the begin date.',
                                source: 'changeOfAddress.dates.endDate')
       end
 
@@ -109,14 +109,17 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         return if valid_countries.include?(change_of_address['country'])
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', change_of_address['country'])
+        collect_error_messages(detail: 'Country must match an active code returned from the /countries ' \
+                                       "endpoint of the Benefits Reference Data API, #{change_of_address['country']}",
+                               source: 'changeOfAddress.country')
       end
 
       def validate_form_526_claimant_certification!
         return unless form_attributes['claimantCertification'] == false
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
-                                                          form_attributes['claimantCertification'])
+        collect_error_messages(detail: "claimantCertification',
+                                                          #{form_attributes['claimantCertification']}",
+                               source: 'claimantCertification')
       end
 
       def validate_form_526_identification!
@@ -127,8 +130,10 @@ module ClaimsApi
       def validate_form_526_service_number!
         service_num = form_attributes.dig('veteranIdentification', 'serviceNumber')
         return if service_num.nil?
+
         if service_num.length > 9
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: "serviceNumber, #{service_num} is too long")
+          collect_error_messages(detail: "serviceNumber, #{service_num} is too long",
+                                 source: 'veteranIdentification.serviceNumber')
         end
       end
 
@@ -136,7 +141,9 @@ module ClaimsApi
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if valid_countries.include?(mailing_address['country'])
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('country', mailing_address['country'])
+        collect_error_messages(detail: 'Country must match an active code returned from the /countries ' \
+                                       "endpoint of the Benefits Reference Data API, #{mailing_address['country']}",
+                               source: 'veteranIdentification.mailingAddress.country')
       end
 
       def validate_form_526_disabilities!
@@ -155,11 +162,10 @@ module ClaimsApi
           if brd_classification_ids.include?(disability['classificationCode'].to_i)
             validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i)
           else
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.classificationCode' must match an active code " \
-                      'returned from the /disabilities endpoint of the Benefits ' \
-                      'Reference Data API.'
-            )
+            collect_error_messages(detail: "'disabilities.classificationCode' must match an active code " \
+                                           'returned from the /disabilities endpoint of the Benefits ' \
+                                           'Reference Data API.',
+                                   source: 'disabilities.classificationCode')
           end
         end
       end
@@ -170,9 +176,8 @@ module ClaimsApi
         return if end_date_time.nil?
 
         if Date.parse(end_date_time) < Time.zone.today
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "'disabilities.classificationCode' is no longer active."
-          )
+          collect_error_messages(detail: "'disabilities.classificationCode' is no longer active.",
+                                 source: 'disabilities.classificationCode')
         end
       end
 
@@ -186,7 +191,8 @@ module ClaimsApi
 
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
-          raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
+          collect_error_messages(detail: "Disability approximateDate is not formatted correctly, #{approx_begin_date}",
+                                 source: 'disabilities.approximateDate')
         end
       end
 

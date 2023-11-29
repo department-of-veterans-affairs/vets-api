@@ -123,7 +123,10 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:bad_request)
+              result = JSON.parse(response.body)
+              expect(result[0]['status']).to eq(422)
+              expect(result[0]['detail']).to eq('Country must match an active code returned from the /countries " \
+                "endpoint of the Benefits Reference Data API, United States of Nada')
             end
           end
         end
@@ -187,7 +190,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 zipFirstFive: '42220',
                 zipLastFour: '',
                 state: '',
-                country: 'USA'
+                country: ''
               }
             end
 
@@ -320,25 +323,13 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when the country is invalid' do
           let(:country) { 'United States of Nada' }
-
-          it 'responds with bad request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:bad_request)
-            end
-          end
-        end
-
-        context 'when the begin date is after the end date' do
           let(:begin_date) { '2023-01-01' }
           let(:end_date) { '2022-01-01' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['country'] = country
               json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
               json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
               data = json.to_json
@@ -347,8 +338,11 @@ RSpec.describe 'Disability Claims', type: :request do
 
               expect(res[0]['title']).to eq('Unprocessable')
               expect(res[0]['status']).to eq(422)
-              expect(res[0]['detail']).to eq('Missing endDate')
+              expect(res[0]['detail']).to eq('End date must be after the begin date.')
               expect(res[0]['source']).to eq({ 'pointer' => 'changeOfAddress.dates.endDate' })
+              expect(res[1]['detail']).to eq('Country must match an active code returned from the /countries " \
+                "endpoint of the Benefits Reference Data API, United States of Nada')
+              expect(res[1]['source']).to eq({ 'pointer' => 'changeOfAddress.country' })
             end
           end
         end
@@ -525,7 +519,10 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['veteranIdentification']['serviceNumber'] = service_number
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              result = JSON.parse(response.body)
+              expect(result[0]['detail']).to eq('serviceNumber, ' \
+                                                "1234567890abcdefghijklmnopqrstuvwxyz!@\#$&*()_+-= is too long")
+              expect(result[0]['title']).to eq('Unprocessable')
             end
           end
         end
@@ -2275,7 +2272,10 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['classificationCode'] = '1111'
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
+                result = JSON.parse(response.body)
+                expect(result[0]['detail']).to eq("'disabilities.classificationCode' must match " \
+                                                  'an active code returned from the /disabilities " \
+                                                  "endpoint of the Benefits Reference Data API.')
               end
             end
           end
@@ -2468,7 +2468,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:bad_request)
+                result = JSON.parse(response.body)
+                expect(result[0]['status']).to eq(422)
+                expect(result[0]['detail']).to eq('Disability approximateDate is not formatted correctly, 2024-11-29')
               end
             end
           end
@@ -2508,7 +2510,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:bad_request)
+                result = JSON.parse(response.body)
+                expect(result[0]['status']).to eq(422)
+                expect(result[0]['detail']).to eq('Disability approximateDate is not formatted correctly, 2024-11')
               end
             end
           end
