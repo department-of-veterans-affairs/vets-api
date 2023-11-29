@@ -6,15 +6,21 @@ module AskVAApi
       include JSONAPI::Serializer
       set_type :inquiry
 
-      attributes :attachments,
-                 :inquiry_number,
+      attributes :inquiry_number,
+                 :attachments,
+                 :correspondences,
+                 :has_attachments,
+                 :has_been_split,
+                 :level_of_authentication,
+                 :last_update,
+                 :status,
+                 :submitter_question,
+                 :school_facility_code,
                  :topic,
-                 :question,
-                 :processing_status,
-                 :last_update
+                 :veteran_relationship
 
-      attribute :reply do |obj|
-        AskVAApi::Correspondences::Serializer.new(obj.reply).serializable_hash
+      attribute :correspondences do |obj|
+        AskVAApi::Correspondences::Serializer.new(obj.correspondences).serializable_hash
       end
     end
   end

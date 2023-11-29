@@ -37,38 +37,37 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       context 'when everything is okay' do
         let(:json_response) do
-          { 'data' => [
-            {
-              'id' => nil,
-              'type' => 'inquiry',
-              'attributes' => {
-                'attachments' => nil,
-                'inquiry_number' => 'A-1',
-                'topic' => 'Topic',
-                'question' => 'When is Sergeant Joe Smith birthday?',
-                'processing_status' => 'Close',
-                'last_update' => '08/07/23',
-                'reply' => {
-                  'data' => nil
-                }
-              }
-            },
-            {
-              'id' => nil,
-              'type' => 'inquiry',
-              'attributes' => {
-                'attachments' => nil,
-                'inquiry_number' => 'A-2',
-                'topic' => 'Topic',
-                'question' => 'How long was Sergeant Joe Smith overseas for?',
-                'processing_status' => 'In Progress',
-                'last_update' => '08/07/23',
-                'reply' => {
-                  'data' => nil
-                }
-              }
-            }
-          ] }
+          { 'data' =>
+            [{ 'id' => 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+               'type' => 'inquiry',
+               'attributes' =>
+               { 'inquiry_number' => 'A-123456',
+                 'attachments' => [{ 'id' => '012345', 'name' => 'File A.pdf' }],
+                 'correspondences' => { 'data' => nil },
+                 'has_attachments' => true,
+                 'has_been_split' => true,
+                 'level_of_authentication' => 'Personal',
+                 'last_update' => '1/1/1900',
+                 'status' => 'In Progress',
+                 'submitter_question' => 'My question is... ',
+                 'school_facility_code' => '0123',
+                 'topic' => 'topic',
+                 'veteran_relationship' => 'self' } },
+             { 'id' => 'a6c3ad5t-ec8c-ee11-8178-001dd804e709',
+               'type' => 'inquiry',
+               'attributes' =>
+               { 'inquiry_number' => 'A-23456',
+                 'attachments' => [{ 'id' => '45678', 'name' => 'inquiry_attachment.pdf' }],
+                 'correspondences' => { 'data' => nil },
+                 'has_attachments' => true,
+                 'has_been_split' => true,
+                 'level_of_authentication' => 'Personal',
+                 'last_update' => '1/1/1900',
+                 'status' => 'In Progress',
+                 'submitter_question' => 'When is Seargant Joe Smith Birthday?',
+                 'school_facility_code' => '0123',
+                 'topic' => 'topic',
+                 'veteran_relationship' => 'self' } }] }
         end
 
         before { get inquiry_path, params: { mock: true } }
@@ -119,21 +118,23 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     let(:inquiry_number) { valid_inquiry_number }
     let(:expected_response) do
       { 'data' =>
-        { 'id' => nil,
+        { 'id' => 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
           'type' => 'inquiry',
           'attributes' =>
-          { 'attachments' => [{ 'activity' => 'activity_1', 'date_sent' => '08/7/23' }],
-            'inquiry_number' => 'A-1',
-            'topic' => 'Topic',
-            'question' => 'When is Sergeant Joe Smith birthday?',
-            'processing_status' => 'Close',
-            'last_update' => '08/07/23',
-            'reply' =>
-            { 'data' =>
-              { 'id' => 'R-1',
-                'type' => 'correspondence',
-                'attributes' => { 'inquiry_number' => 'A-1',
-                                  'correspondence' => 'Sergeant Joe Smith birthday is July 4th, 1980' } } } } } }
+          { 'inquiry_number' => 'A-123456',
+            'attachments' => [{ 'id' => '012345', 'name' => 'File A.pdf' }],
+            'correspondences' =>
+            { 'data' => { 'id' => nil, 'type' => 'correspondence',
+                          'attributes' => { 'inquiry_number' => nil, 'correspondence' => nil } } },
+            'has_attachments' => true,
+            'has_been_split' => true,
+            'level_of_authentication' => 'Personal',
+            'last_update' => '1/1/1900',
+            'status' => 'In Progress',
+            'submitter_question' => 'My question is... ',
+            'school_facility_code' => '0123',
+            'topic' => 'topic',
+            'veteran_relationship' => 'self' } } }
     end
 
     context 'when user is signed in' do

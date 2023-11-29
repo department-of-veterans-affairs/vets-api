@@ -6,21 +6,31 @@ module AskVAApi
       attr_reader :id,
                   :inquiry_number,
                   :attachments,
-                  :topic,
-                  :question,
-                  :processing_status,
+                  :correspondences,
+                  :has_attachments,
+                  :has_been_split,
+                  :level_of_authentication,
                   :last_update,
-                  :reply
+                  :status,
+                  :submitter_question,
+                  :school_facility_code,
+                  :topic,
+                  :veteran_relationship
 
-      def initialize(info, reply = nil)
-        @id = nil
+      def initialize(info, correspondences = nil)
+        @id = info[:id]
         @inquiry_number = info[:inquiryNumber]
-        @attachments = info[:attachments]
-        @topic = info[:inquiryTopic]
-        @question = info[:submitterQuestions]
-        @processing_status = info[:inquiryProcessingStatus]
+        @attachments = info[:attachmentNames]
+        @correspondences = correspondences
+        @has_attachments = info[:inquiryHasAttachments]
+        @has_been_split = info[:inquiryHasBeenSplit]
+        @level_of_authentication = info[:inquiryLevelOfAuthentication]
         @last_update = info[:lastUpdate]
-        @reply = reply
+        @status = info[:inquiryStatus]
+        @school_facility_code = info[:schoolFacilityCode]
+        @submitter_question = info[:submitterQuestion]
+        @topic = info[:inquiryTopic]
+        @veteran_relationship = info[:veteranRelationship]
       end
     end
   end

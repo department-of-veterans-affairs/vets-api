@@ -1,47 +1,44 @@
-{ "data": [
+{
+  "data": [
     {
-      "respond_reply_id": "Original Question",
-      "inquiryNumber": "A-1",
-      "inquiryTopic": "Topic",
-      "inquiryProcessingStatus": "Close",
-      "lastUpdate": "08/07/23",
-      "submitterQuestions": "When is Sergeant Joe Smith birthday?",
-      "attachments": [
+      "icn": "1008709396V637156",
+      "id": "a6c3af1b-ec8c-ee11-8178-001dd804e106",
+      "inquiryNumber": "A-123456",
+      "inquiryStatus": "In Progress",
+      "submitterQuestion": "My question is... ",
+      "lastUpdate": "1/1/1900",
+      "inquiryHasAttachments": true,
+      "inquiryHasBeenSplit": true,
+      "veteranRelationship": "self",
+      "schoolFacilityCode": "0123",
+      "inquiryTopic": "topic",
+      "inquiryLevelOfAuthentication": "Personal",
+      "attachmentNames": [
         {
-        "activity": "activity_1",
-        "date_sent": "08/7/23"
+          "id": "012345",
+          "name": "File A.pdf"
         }
-      ],
-      "icn": "1008709396V637156"
+      ]
     },
     {
-      "respond_reply_id": "R-1",
-      "inquiryNumber": "A-2",
-      "inquiryTopic": "Topic",
-      "submitterQuestions": "How long was Sergeant Joe Smith overseas for?",
-      "inquiryProcessingStatus": "In Progress",
-      "lastUpdate": "08/07/23",
-      "attachments": [
+      "icn": "1008709396V637156",
+      "id": "a6c3ad5t-ec8c-ee11-8178-001dd804e709",
+      "inquiryNumber": "A-23456",
+      "inquiryStatus": "In Progress",
+      "submitterQuestion": "When is Seargant Joe Smith Birthday?",
+      "lastUpdate": "1/1/1900",
+      "inquiryHasAttachments": true,
+      "inquiryHasBeenSplit": true,
+      "veteranRelationship": "self",
+      "schoolFacilityCode": "0123",
+      "inquiryTopic": "topic",
+      "inquiryLevelOfAuthentication": "Personal",
+      "attachmentNames": [
         {
-        "activity": "activity_2",
-        "date_sent": "08/7/23"
+          "id": "45678",
+          "name": "inquiry_attachment.pdf"
         }
-      ],
-      "icn": "1008709396V637156"
-    },
-    {
-      "inquiryNumber": "A-3",
-      "inquiryTopic": "Topic",
-      "submitterQuestions": "Where was LT Bard Simpson stationed at in 1992?",
-      "inquiryProcessingStatus": "In Progress",
-      "lastUpdate": "08/07/23",
-      "attachments": [
-        {
-        "activity": "activity_2",
-        "date_sent": "08/7/23"
-        }
-      ],
-      "icn": "0001741122"
+      ]
     }
   ]
 }
