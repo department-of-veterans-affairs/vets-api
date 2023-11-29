@@ -83,11 +83,10 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     end
   end
 
-  context 'error with central submission flipper on' do
+  context 'error with central submission' do
     before do
       allow(OpenStruct).to receive(:new).and_call_original
       InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
-      Flipper.enable(:dependents_central_submission)
     end
 
     it 'raises error' do
