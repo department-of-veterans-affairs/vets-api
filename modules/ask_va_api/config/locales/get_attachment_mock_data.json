@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "id": "123456",
+      "inquiry_id": "654321",
+      "fileContent": "base64_encoded_string",
+      "fileName": "inquiry.pdf"
+    },
+    {
+      "id": "2345",
+      "correspondence_id": "43212",
+      "fileContent": "base64_encoded_string",
+      "fileName": "correspondence.pdf"
+    }
+  ]
+}
