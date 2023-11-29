@@ -459,6 +459,10 @@ features:
     actor_type: user
     description: Enables the Find a Rep search endpoint
     enable_in_development: true
+  find_a_representative:
+    actor_type: user
+    description: Enables frontend of Find a Representative
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -728,6 +732,9 @@ features:
   show_authenticated_menu_enhancements:
     actor_type: user
     description: Exposes new links for dependents and letters in the header dropdown for authenticated users
+  profile_enhanced_military_info:
+    actor_type: user
+    description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
