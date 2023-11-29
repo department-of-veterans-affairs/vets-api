@@ -176,9 +176,11 @@ module ClaimsApi
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
-        disabilities.each do |disability|
+        disabilities.each_with_index do |disability, idx|
           approx_begin_date = disability['approximateDate']
           next if approx_begin_date.blank?
+
+          date_is_valid?(approx_begin_date, "disability/#{idx}/approximateDate")
 
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
@@ -250,6 +252,8 @@ module ClaimsApi
       end
 
       def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+        date_is_valid?(secondary_disability['approximateDate'], 'disabilities.secondaryDisabilities.approximateDate')
+
         return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
 
         raise ::Common::Exceptions::InvalidFieldValue.new(
@@ -938,6 +942,8 @@ module ClaimsApi
       # Will check for a real date including leap year
       def date_is_valid?(date, property)
         return if date.blank?
+
+        raise_date_error(date, property) unless /^[\d-]+$/ =~ date # check for something like 'July 2017'
         return true unless date.length == 10
 
         date_y, date_m, date_d = date.split('-').map(&:to_i)
