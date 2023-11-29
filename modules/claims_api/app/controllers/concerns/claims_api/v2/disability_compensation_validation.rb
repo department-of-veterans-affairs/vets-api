@@ -37,6 +37,8 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
+        # raise collection of errors
+        raise_error_collection
       end
 
       def validate_form_526_change_of_address!
@@ -77,28 +79,30 @@ module ClaimsApi
         begin
           nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
-          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
+          collect_error_messages('Missing the begin date for change of address.',
+                                 'changeOfAddress.dates.beginDate')
         end
       end
 
       def validate_form_526_change_of_address_ending_date!
         change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'endDate')
+        date = change_of_address&.dig('dates', 'endDate')
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: '"changeOfAddress.dates.endDate" cannot be included when typeOfAddressChange is PERMANENT'
-          )
+          collect_error_messages(detail: "'changeOfAddress.dates.endDate' " \
+                                         'cannot be included when typeOfAddressChange is PERMANENT',
+                                 source: 'changeOfAddress.dates.endDate')
         end
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
 
         form_object_desc = 'a TEMPORARY change of address'
 
         raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
+        begin_date = change_of_address&.dig('dates', 'beginDate')
+        return if date && begin_date && Date.strptime(date,
+                                                      '%Y-%m-%d') > Date.strptime(begin_date, '%Y-%m-%d')
 
-        return if Date.strptime(date,
-                                '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
+        collect_error_messages(detail: 'Missing endDate',
+                               source: 'changeOfAddress.dates.endDate')
       end
 
       def validate_form_526_change_of_address_country!

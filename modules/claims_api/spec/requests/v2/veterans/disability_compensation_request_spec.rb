@@ -343,7 +343,12 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:bad_request)
+              res = JSON.parse(response.body)
+
+              expect(res[0]['title']).to eq('Unprocessable')
+              expect(res[0]['status']).to eq(422)
+              expect(res[0]['detail']).to eq('Missing endDate')
+              expect(res[0]['source']).to eq({ 'pointer' => 'changeOfAddress.dates.endDate' })
             end
           end
         end
