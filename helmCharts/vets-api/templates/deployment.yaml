@@ -54,5 +54,5 @@ spec:
             name: settings-local-yml
             items:
               - key: "settings.local.yml"
-                path: "production.local.yml"
+                path: "production.yml"
 
