@@ -9,8 +9,9 @@ module VBMS
     sidekiq_options retry: 14
     attr_reader :claim
 
-    sidekiq_retries_exhausted do |msg|
-      Rails.logger.error('VBMS::SubmitDependentsPdfJob failed!', { saved_claim_id: @saved_claim_id, error: msg })
+    sidekiq_retries_exhausted do |msg, error|
+      Rails.logger.error('VBMS::SubmitDependentsPdfJob failed, retries exhausted!',
+                         { saved_claim_id: msg['args'][0], error: })
     end
 
     # Generates PDF for 686c form and uploads to VBMS
@@ -27,7 +28,7 @@ module VBMS
       generate_pdf(submittable_686_form, submittable_674_form)
       Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
     rescue => e
-      Rails.logger.warn('VBMS::SubmitDependentsPdfJob received error!', { saved_claim_id:, error: e.message })
+      Rails.logger.warn('VBMS::SubmitDependentsPdfJob failed, retrying...', { saved_claim_id:, error: e.message })
       send_error_to_sentry(e, saved_claim_id)
       @saved_claim_id = saved_claim_id
       raise
