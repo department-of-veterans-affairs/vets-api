@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
 require 'debt_management_center/payments_service'
+require 'rails_helper'
 
 describe DebtManagementCenter::PaymentsService do
   let(:user) { build(:user, :loa3) }

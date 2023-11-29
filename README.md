@@ -12,8 +12,6 @@ This project provides common APIs for applications that live on VA.gov (formerly
 
 [API Docs](https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/)
 
-
-
 For frontend, see [vets-website](https://github.com/department-of-veterans-affairs/vets-website) and [vets-content](https://github.com/department-of-veterans-affairs/vagov-content) repos.
 
 ## Base setup

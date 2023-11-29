@@ -69,6 +69,8 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         sign_in
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
       end
 
       it 'makes the request with an intent to file' do
@@ -91,10 +93,14 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     def self.test_submit_supporting_documents
+      let(:file) do
+        fixture_file_upload('doctors-note.pdf')
+      end
+
       it 'renders the attachment as json' do
-        allow(ClamScan::Client).to receive(:scan)
-          .and_return(instance_double(ClamScan::Response, safe?: true))
-        file = fixture_file_upload('doctors-note.gif')
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
         data = { form_id: '40-0247', file: }
 
         expect do

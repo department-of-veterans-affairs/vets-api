@@ -4,7 +4,6 @@ require 'json_schema/form_schemas'
 
 module ClaimsApi
   class FormSchemas < JsonSchema::FormSchemas
-    # rubocop:disable Lint/MissingSuper
     def initialize(schema_version: 'v1')
       @schema_version = schema_version
     end

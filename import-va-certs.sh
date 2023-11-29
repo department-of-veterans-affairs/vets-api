@@ -4,7 +4,9 @@ set -euo pipefail
 
 (
     cd /usr/local/share/ca-certificates/
-    
+
+    curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
+
     wget \
         --level=1 \
         --quiet \
@@ -15,7 +17,7 @@ set -euo pipefail
         --accept="VA*.cer" \
         http://aia.pki.va.gov/PKI/AIA/VA/
 
-    for cert in VA-*.cer
+    for cert in *.{cer,pem}
     do
         if file "${cert}" | grep 'PEM'
         then
@@ -30,5 +32,5 @@ set -euo pipefail
 
     # Display VA Internal certificates that are now trusted
     awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < /etc/ssl/certs/ca-certificates.crt \
-    | grep -i 'VA-Internal'
+    | grep -iE '(VA-Internal|DigiCert)'
 )

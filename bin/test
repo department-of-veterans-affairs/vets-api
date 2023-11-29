@@ -1,0 +1,1 @@
+docker-compose run --rm --service-ports -e RAILS_ENV=test web bash -c "bin/rspec $@"

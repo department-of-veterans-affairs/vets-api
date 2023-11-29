@@ -6,10 +6,6 @@ envs = %w[development staging sandbox production]
 
 Datadog.configure do |c|
   if envs.include? Settings.vsp_environment
-    # Talk to DD agent in neighboring container
-    c.agent.host = 'datadog-agent'
-    c.agent.port = 8126
-
     # Namespace our app
     c.service = 'vets-api'
     c.env = Settings.vsp_environment unless ENV['DD_ENV']

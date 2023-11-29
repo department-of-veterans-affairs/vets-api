@@ -12,3 +12,4 @@
 # NOTE: This file is excluded by railsconfig in the test env.
 # Use config/settings/test.local.yml instead.
 # See "Note" at https://github.com/rubyconfig/config#developer-specific-config-files
+
