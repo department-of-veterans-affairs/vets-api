@@ -31,7 +31,6 @@ path 'modules' do
   gem 'vba_documents'
   gem 'veteran'
   gem 'veteran_confirmation'
-  gem 'veteran_verification'
 end
 
 gem 'rails', github: 'rails/rails', branch: '6-1-stable'
@@ -58,7 +57,7 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby', '5.6.0'
+gem 'dogstatsd-ruby'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
@@ -130,6 +129,7 @@ gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
+gem 'roo'
 gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'

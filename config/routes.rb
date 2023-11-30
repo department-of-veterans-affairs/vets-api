@@ -380,6 +380,10 @@ Rails.application.routes.draw do
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]
 
+    namespace :profile do
+      resource :military_info, only: :show, defaults: { format: :json }
+    end
+
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
@@ -433,7 +437,6 @@ Rails.application.routes.draw do
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
     mount VAForms::Engine, at: '/va_forms'
-    mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 

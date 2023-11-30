@@ -112,6 +112,7 @@ def format_for_swagger(version, env = nil)
 
   remove_base_path!(oas)
   clear_null_types!(oas) if version == 'v2'
+  clear_null_enums!(oas) if version == 'v2'
   File.write(swagger_file_path, JSON.pretty_generate(oas))
 end
 
@@ -145,6 +146,17 @@ def clear_null_types!(data)
     if k == 'type' && v.is_a?(Array) && root[0] == 'paths'
       r = v.excluding('null')
       r.size > 1 ? r : r[0]
+    else
+      v
+    end
+  end
+  data.replace deep_transform(data, transformer:)
+end
+
+def clear_null_enums!(data)
+  transformer = lambda do |k, v, root|
+    if k == 'enum' && v.is_a?(Array) && root.include?('schema')
+      v.compact
     else
       v
     end

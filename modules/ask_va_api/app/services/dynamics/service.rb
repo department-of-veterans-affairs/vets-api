@@ -17,10 +17,11 @@ module Dynamics
                    :veis_api_path,
                    :tenant_id,
                    :ocp_apim_subscription_key,
-                   :service_name
+                   :service_name,
+                   :resource
 
     def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
-      @settings = Settings.ask_va_api.dynamics_api
+      @settings = Settings.ask_va_api.crm_api
       @base_uri = base_uri
       @icn = icn
       @logger = logger
@@ -39,6 +40,7 @@ module Dynamics
       Faraday.new(url:) do |f|
         f.headers['Content-Type'] = 'application/json'
         f.request :url_encoded
+        f.use :breakers
         f.response :raise_error, error_prefix: service_name
         f.response :betamocks if settings.mock && !Rails.env.production?
         f.adapter Faraday.default_adapter
@@ -102,7 +104,7 @@ module Dynamics
       {
         client_id:,
         client_secret:,
-        resource: 'resource',
+        resource:,
         grant_type: 'client_credentials'
       }
     end
