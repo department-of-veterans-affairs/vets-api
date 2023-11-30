@@ -617,8 +617,8 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "Must define only one of 'homeless/currentlyHomeless' or " \
-                "'homeless/riskOfBecomingHomeless'"
+                "Must define only one of 'homeless.currentlyHomeless' or " \
+                "'homeless.riskOfBecomingHomeless'"
               )
             end
           end
@@ -643,8 +643,8 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "If 'homeless/pointOfContact' is defined, then one of " \
-                "'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless'" \
+                "If 'homeless.pointOfContact' is defined, then one of " \
+                "'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless'" \
                 ' is required'
               )
             end
@@ -666,8 +666,8 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "If one of 'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless' is" \
-                " defined, then 'homeless/pointOfContact' is required"
+                "If one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is" \
+                " defined, then 'homeless.pointOfContact' is required"
               )
             end
           end
