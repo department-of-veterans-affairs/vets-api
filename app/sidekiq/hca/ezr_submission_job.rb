@@ -12,8 +12,11 @@ module HCA
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
-      form = decrypt_form(msg['args'][0])
-      Form1010Ezr::Service.new(nil).log_submission_failure(form)
+      log_submission_failure(decrypt_form(msg['args'][0]))
+    end
+
+    def self.log_submission_failure(parsed_form)
+      Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
     end
 
     def self.decrypt_form(encrypted_form)
@@ -21,10 +24,10 @@ module HCA
     end
 
     def perform(encrypted_form, user_identifier)
-      form = self.class.decrypt_form(encrypted_form)
-      Form1010Ezr::Service.new(user_identifier).submit_sync(form)
+      parsed_form = self.class.decrypt_form(encrypted_form)
+      Form1010Ezr::Service.new(user_identifier).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
-      PersonalInformationLog.create!(data: { form: }, error_class: 'EzrValidationError')
+      self.class.log_submission_failure(parsed_form)
       log_exception_to_sentry(e)
     end
   end

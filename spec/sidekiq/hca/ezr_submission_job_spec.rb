@@ -42,17 +42,18 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
       before do
         expect(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
+        expect(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
       end
 
       context 'with a validation error' do
         let(:error) { HCA::SOAPParser::ValidationError }
 
-        it 'creates a pii log and logs exception to sentry' do
+        it 'logs the submission failure and logs exception to sentry' do
           expect_any_instance_of(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
+          expect(ezr_service).to receive(:log_submission_failure).with(
+            form
+          )
           subject
-
-          log = PersonalInformationLog.where(error_class: 'EzrValidationError').last
-          expect(log.data['form']).to eq(form)
         end
       end
     end
