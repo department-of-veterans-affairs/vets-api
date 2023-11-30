@@ -617,8 +617,8 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "Must define only one of 'homeless.currentlyHomeless' or " \
-                "'homeless.riskOfBecomingHomeless'"
+                "Must define only one of 'homeless/currentlyHomeless' or " \
+                "'homeless/riskOfBecomingHomeless'"
               )
             end
           end

@@ -1,6 +1,7 @@
 # frozen_string_literal: false
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
+require 'claims_api/v2/disability_compensation_shared_error_module'
 
 module ClaimsApi
   module V2
@@ -296,8 +297,8 @@ module ClaimsApi
         if too_many_homelessness_attributes_provided?
           raise ClaimsApi::V2::Common::Exceptions::UnprocessableEntity.new(
             source: 'homeless/',
-            detail: "Must define only one of 'homeless.currentlyHomeless' or " \
-                    "'homeless.riskOfBecomingHomeless'"
+            detail: "Must define only one of 'homeless/currentlyHomeless' or " \
+                    "'homeless/riskOfBecomingHomeless'"
           )
         end
 
