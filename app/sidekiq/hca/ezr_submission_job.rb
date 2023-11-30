@@ -11,6 +11,11 @@ module HCA
 
     sidekiq_options retry: 14
 
+    sidekiq_retries_exhausted do |msg, _e|
+      form = decrypt_form(msg['args'][0])
+      Form1010Ezr::Service.new(nil).log_submission_failure(form)
+    end
+
     def self.decrypt_form(encrypted_form)
       JSON.parse(HealthCareApplication::LOCKBOX.decrypt(encrypted_form))
     end

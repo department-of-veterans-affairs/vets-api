@@ -13,6 +13,21 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   end
   let(:ezr_service) { double }
 
+  describe 'when job has failed' do
+    let(:msg) do
+      {
+        'args' => [encrypted_form, nil]
+      }
+    end
+
+    it 'passes unencrypted form to 1010ezr service' do
+      expect_any_instance_of(Form1010Ezr::Service).to receive(:log_submission_failure).with(
+        form
+      )
+      described_class.new.sidekiq_retries_exhausted_block.call(msg)
+    end
+  end
+
   describe '#perform' do
     subject do
       described_class.new.perform(encrypted_form, user_identifier)

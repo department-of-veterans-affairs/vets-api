@@ -64,6 +64,28 @@ module Form1010Ezr
       raise e
     end
 
+    def log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+
+      if parsed_form.present?
+        PersonalInformationLog.create!(
+          data: parsed_form,
+          error_class: 'Form1010Ezr FailedWontRetry'
+        )
+
+        log_message_to_sentry(
+          '1010EZR total failure',
+          :error,
+          {
+            first_initial: parsed_form['veteranFullName']['first'][0],
+            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
+            last_initial: parsed_form['veteranFullName']['last'][0]
+          },
+          ezr: :total_failure
+        )
+      end
+    end
+
     private
 
     # Compare the 'parsed_form' to the JSON form schema in vets-json-schema
@@ -111,28 +133,6 @@ module Form1010Ezr
         data: parsed_form,
         error_class: 'Form1010Ezr ValidationError'
       )
-    end
-
-    def log_submission_failure(parsed_form)
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
-
-      if parsed_form.present?
-        PersonalInformationLog.create!(
-          data: parsed_form,
-          error_class: 'Form1010Ezr FailedWontRetry'
-        )
-
-        log_message_to_sentry(
-          '1010EZR total failure',
-          :error,
-          {
-            first_initial: parsed_form['veteranFullName']['first'][0],
-            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-            last_initial: parsed_form['veteranFullName']['last'][0]
-          },
-          ezr: :total_failure
-        )
-      end
     end
   end
 end
