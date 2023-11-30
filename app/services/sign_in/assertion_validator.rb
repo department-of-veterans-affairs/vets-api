@@ -13,6 +13,7 @@ module SignIn
       validate_iss
       validate_audience
       validate_scopes
+      validate_user_attributes
       create_new_access_token
     end
 
@@ -39,6 +40,12 @@ module SignIn
     def validate_scopes
       unless decoded_assertion_scopes_are_defined_in_config?
         raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion scopes are not valid'
+      end
+    end
+
+    def validate_user_attributes
+      if (user_attributes.keys.map(&:to_s) - service_account_config.access_token_user_attributes).any?
+        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion user attributes are not valid'
       end
     end
 

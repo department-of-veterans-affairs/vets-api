@@ -140,7 +140,9 @@ RSpec.describe SignIn::AssertionValidator do
       end
 
       context 'and user_attributes claim is provided' do
-        let(:user_attributes) { { 'foo' => 'bar' } }
+        let(:service_account_config) do
+          create(:service_account_config, certificates: [assertion_certificate], access_token_user_attributes: ['icn'])
+        end
         let(:assertion_payload) do
           {
             iss: service_account_audience,
@@ -154,8 +156,22 @@ RSpec.describe SignIn::AssertionValidator do
           }
         end
 
-        it 'returns the service account access token with the user attributes' do
-          expect(subject.user_attributes).to eq(user_attributes)
+        context 'and contains attributes that are not allowed for the service account' do
+          let(:user_attributes) { { 'some-attribute' => 'some-value' } }
+          let(:expected_error) { SignIn::Errors::ServiceAccountAssertionAttributesError }
+          let(:expected_error_message) { 'Assertion user attributes are not valid' }
+
+          it 'raises service account assertion attributes error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and does not contain attributes that are not allowed for the service account' do
+          let(:user_attributes) { { 'icn' => 'some-value' } }
+
+          it 'returns the service account access token with the user attributes' do
+            expect(subject.user_attributes).to eq(user_attributes)
+          end
         end
       end
     end
