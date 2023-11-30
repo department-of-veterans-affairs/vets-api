@@ -42,10 +42,27 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
       before do
         expect(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
-        expect(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
+      end
+
+      context 'with a random error' do
+        let(:error) { ArgumentError }
+
+        it 'logs the retry' do
+          expect do
+            subject
+          rescue error
+            nil
+          end.to trigger_statsd_increment(
+            'api.1010ezr.async.retries'
+          )
+        end
       end
 
       context 'with a validation error' do
+        before do
+          expect(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
+        end
+
         let(:error) { HCA::SOAPParser::ValidationError }
 
         it 'logs the submission failure and logs exception to sentry' do

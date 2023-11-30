@@ -23,12 +23,19 @@ module HCA
       JSON.parse(HealthCareApplication::LOCKBOX.decrypt(encrypted_form))
     end
 
+    def log_retry
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.async.retries")
+    end
+
     def perform(encrypted_form, user_identifier)
       parsed_form = self.class.decrypt_form(encrypted_form)
       Form1010Ezr::Service.new(user_identifier).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
       self.class.log_submission_failure(parsed_form)
       log_exception_to_sentry(e)
+    rescue
+      log_retry
+      raise
     end
   end
 end
