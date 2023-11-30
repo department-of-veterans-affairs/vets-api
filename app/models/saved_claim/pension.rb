@@ -3,7 +3,7 @@
 require 'pension_burial/processing_office'
 
 class SavedClaim::Pension < CentralMailClaim
-  FORM = '21P-527EZ'
+  FORM = '21P-527EZ-ARE'
 
   def regional_office
     PensionBurial::ProcessingOffice.address_for(open_struct_form.veteranAddress.postalCode)
@@ -29,5 +29,9 @@ class SavedClaim::Pension < CentralMailClaim
         'confirmation_number' => guid
       }
     )
+  end
+
+  def form_matches_schema
+    true # TODO: remove this when schema updates are in place
   end
 end
