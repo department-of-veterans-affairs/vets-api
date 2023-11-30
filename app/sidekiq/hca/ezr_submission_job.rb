@@ -9,6 +9,8 @@ module HCA
     include SentryLogging
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
+    sidekiq_options retry: 14
+
     def self.decrypt_form(encrypted_form)
       JSON.parse(HealthCareApplication::LOCKBOX.decrypt(encrypted_form))
     end
