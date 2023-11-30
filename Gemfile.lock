@@ -156,6 +156,9 @@ PATH
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
+    apps_api (0.0.1)
+      faraday
+      sidekiq
     ask_va_api (0.1.0)
     avs (0.1.0)
     check_in (0.1.0)
@@ -786,9 +789,6 @@ GEM
       rgeo (>= 1.0.0)
     rgeo-geojson (2.1.1)
       rgeo (>= 1.0.0)
-    roo (2.10.0)
-      nokogiri (~> 1)
-      rubyzip (>= 1.3.0, < 3.0.0)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
@@ -1026,6 +1026,7 @@ DEPENDENCIES
   addressable
   apivore!
   appeals_api!
+  apps_api!
   ask_va_api!
   avs!
   awesome_print
@@ -1150,7 +1151,6 @@ DEPENDENCIES
   request_store
   restforce
   rgeo-geojson
-  roo
   rspec-instrumentation-matcher
   rspec-its
   rspec-rails
