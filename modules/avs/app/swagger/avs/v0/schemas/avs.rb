@@ -84,7 +84,12 @@ module Avs
         end
         property :vaMedications, type: :array do
           items do
-            key :$ref, :vaMedication
+            key :$ref, :medication
+          end
+        end
+        property :nonvaMedications, type: :array do
+          items do
+            key :$ref, :medication
           end
         end
         property :labResults, type: :array do
@@ -217,32 +222,44 @@ module Avs
       property :verifiedDate, type: :string
     end
 
-    swagger_schema :vaMedication do
-      property :T, type: :string
-      property :name, type: :string
-      property :type, type: :string
-      property :sig, type: :string
-      property :source, type: :string
-      property :totalNumRefills, type: :integer
-      property :refillsRemaining, type: :integer
-      property :dateExpires, type: :string
-      property :dateLastReleased, type: :string
-      property :fmDateLastReleased, type: :number
-      property :stationName, type: :string
-      property :stationNo, type: :string
-      property :ndc, type: :string
-      property :statusIen, type: :string
-      property :status, type: :string
-      property :fmDiscontinuedDate, type: :integer
-      property :quantity, type: :integer
-      property :daysSupply, type: :integer
-      property :orderingProvider, type: :string
-      property :fillingPharmacy, type: :string
-      property :facilityPhone, type: :string
-      property :rxNumber, type: :string
-      property :prescriptionType, type: :string
-      property :patientTaking, type: :boolean
-      property :fmIssueDate, type: :number
+    swagger_schema :medication do
+      property medId, type: :string
+      property name, type: :string
+      property type, type: :string
+      property sig, type: :string
+      property source, type: :string
+      property totalNumRefills, type: :integer
+      property refillsRemaining, type: :integer
+      property startDate, type: :string
+      property stopDate, type: :string
+      property dateExpires, type: :string
+      property dateLastFilled, type: :string
+      property dateLastReleased, type: :string
+      property fmDateLastReleased, type: :integer
+      property stationName, type: :string
+      property stationNo, type: :string
+      property provider, type: :string
+      property description, type: :string
+      property ndc, type: :string
+      property statusIen, type: :string
+      property status, type: :string
+      property discontinuedDate, type: :string
+      property fmDiscontinuedDate, type: :integer
+      property comment, type: :string
+      property documentor, type: :string
+      property documentingFacility, type: :string
+      property quantity, type: :integer
+      property daysSupply, type: :integer
+      property orderingProvider, type: :string
+      property fillingPharmacy, type: :string
+      property facilityPhone, type: :string
+      property rxNumber, type: :string
+      property prescriptionType, type: :string
+      property patientTaking, type: :boolean
+      property current, type: :string
+      property remote, type: :string
+      property dateDocumented, type: :string
+      property fmIssueDate, type: :integer
     end
 
     swagger_schema :labResult do

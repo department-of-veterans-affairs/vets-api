@@ -27,6 +27,7 @@ module Avs
     attribute :problems
     attribute :allergies_reactions
     attribute :va_medications
+    attribute :nonva_medications
     attribute :lab_results
     attribute :radiology_reports1_yr
     attribute :discrete_data
