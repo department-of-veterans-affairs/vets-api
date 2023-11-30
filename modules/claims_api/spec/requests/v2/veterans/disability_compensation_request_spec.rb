@@ -643,8 +643,8 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "If 'homeless.pointOfContact' is defined, then one of " \
-                "'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless'" \
+                "If 'homeless/pointOfContact' is defined, then one of " \
+                "'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless'" \
                 ' is required'
               )
             end
@@ -666,8 +666,8 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "If one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is" \
-                " defined, then 'homeless.pointOfContact' is required"
+                "If one of 'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless' is" \
+                " defined, then 'homeless/pointOfContact' is required"
               )
             end
           end
@@ -2503,7 +2503,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                puts "#{response.pretty_inspect}"
                 expect(response).to have_http_status(:bad_request)
               end
             end
