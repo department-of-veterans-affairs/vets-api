@@ -29,7 +29,7 @@ module Form1010Ezr
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
       begin
-        configure_and_validate_form(parsed_form)
+        parsed_form = configure_and_validate_form(parsed_form)
 
         formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
         content = Gyoku.xml(formatted)
@@ -81,6 +81,15 @@ module Form1010Ezr
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
       override_parsed_form(parsed_form)
+      add_financial_flag(parsed_form)
+    end
+
+    def add_financial_flag(parsed_form)
+      if parsed_form['veteranGrossIncome'].present?
+        parsed_form.merge('discloseFinancialInformation' => true)
+      else
+        parsed_form
+      end
     end
 
     def log_validation_errors(parsed_form)

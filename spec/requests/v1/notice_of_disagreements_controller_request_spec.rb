@@ -24,8 +24,13 @@ RSpec.describe V1::NoticeOfDisagreementsController do
 
     subject do
       post '/v1/notice_of_disagreements',
-           params: VetsJsonSchema::EXAMPLES.fetch('NOD-CREATE-REQUEST-BODY_V1').to_json,
+           params: test_request_body.to_json,
            headers:
+    end
+
+    let(:test_request_body) do
+      JSON.parse Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                 'valid_NOD_create_request.json').read
     end
 
     it 'creates an NOD and logs to StatsD and logger' do
@@ -57,6 +62,11 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         expect(previous_appeal_submission_ids).not_to include id
         appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
         expect(appeal_submission.type_of_appeal).to eq('NOD')
+        # AppealSubmissionUpload should be created for each form attachment
+        appeal_submission_uploads = AppealSubmissionUpload.where(appeal_submission:)
+        expect(appeal_submission_uploads.count).to eq 1
+        # Evidence upload job should have been enqueued
+        expect(DecisionReview::SubmitUpload).to have_enqueued_sidekiq_job(appeal_submission_uploads.first.id)
         # InProgressForm should be destroyed after successful submission
         in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '10182')
         expect(in_progress_form).to be_nil
@@ -92,6 +102,22 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         %w[message backtrace key response_values original_status original_body]
           .each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['additional_data']['request']['body']).not_to be_empty
+
+        # check that transaction rolled back / records were not persisted / evidence upload job was not queued up
+        expect(AppealSubmission.count).to eq 0
+        expect(AppealSubmissionUpload.count).to eq 0
+        expect(DecisionReview::SubmitUpload).not_to have_enqueued_sidekiq_job(anything)
+      end
+    end
+
+    it 'properly rollsback transaction if error occurs in wrapped code' do
+      allow_any_instance_of(AppealSubmission).to receive(:save!).and_raise(ActiveModel::Error) # stub a model error
+      VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
+        subject
+        # check that transaction rolled back / records were not persisted / evidence upload job was not queued up
+        expect(AppealSubmission.count).to eq 0
+        expect(AppealSubmissionUpload.count).to eq 0
+        expect(DecisionReview::SubmitUpload).not_to have_enqueued_sidekiq_job(anything)
       end
     end
   end

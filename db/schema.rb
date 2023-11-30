@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_13_202956) do
+ActiveRecord::Schema.define(version: 2023_11_24_162244) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1129,9 +1129,6 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.string "state", limit: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1150,8 +1147,10 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.string "representative_number"
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
+    t.index ["poa", "representative_number"], name: "index_veteran_organizations_on_poa_and_representative_number", unique: true
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
   end
 
@@ -1169,9 +1168,6 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.text "dob_ciphertext"
     t.text "encrypted_kms_key"
     t.string "middle_initial"
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"

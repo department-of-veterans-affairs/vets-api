@@ -365,7 +365,7 @@ class User < Common::RedisStore
 
   def veteran_status
     @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
-                          VAProfile::VeteranStatus::Service.new(self)
+                          VAProfileRedis::VeteranStatus.for_user(self)
                         else
                           EMISRedis::VeteranStatus.for_user(self)
                         end
