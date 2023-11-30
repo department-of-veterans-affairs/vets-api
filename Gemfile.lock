@@ -196,7 +196,6 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
-    veteran_verification (0.0.1)
 
 GEM
   remote: https://enterprise.contribsys.com/
@@ -347,7 +346,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    dogstatsd-ruby (5.6.0)
+    dogstatsd-ruby (5.6.1)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     down (5.4.1)
@@ -1062,7 +1061,7 @@ DEPENDENCIES
   ddtrace
   debts_api!
   dhp_connected_devices!
-  dogstatsd-ruby (= 5.6.0)
+  dogstatsd-ruby
   dry-struct
   dry-types
   ethon (>= 0.13.0)
@@ -1200,7 +1199,6 @@ DEPENDENCIES
   vcr
   veteran!
   veteran_confirmation!
-  veteran_verification!
   vets_json_schema!
   virtus
   warden-github
