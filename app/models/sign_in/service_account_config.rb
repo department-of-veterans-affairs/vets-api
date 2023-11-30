@@ -9,7 +9,7 @@ module SignIn
     validates :access_token_audience, presence: true
     validates :access_token_duration,
               presence: true,
-              inclusion: { in: Constants::AccessToken::VALIDITY_LENGTHS, allow_nil: false }
+              inclusion: { in: Constants::ServiceAccountAccessToken::VALIDITY_LENGTHS, allow_nil: false }
     validates :access_token_user_attributes, inclusion: { in: Constants::ServiceAccountAccessToken::USER_ATTRIBUTES }
 
     def assertion_public_keys
