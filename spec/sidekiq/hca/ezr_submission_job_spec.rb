@@ -32,7 +32,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
       context 'with a validation error' do
         let(:error) { HCA::SOAPParser::ValidationError }
 
-        it 'creates a pii log' do
+        it 'creates a pii log and logs exception to sentry' do
+          expect_any_instance_of(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
           subject
 
           log = PersonalInformationLog.where(error_class: 'EzrValidationError').last
