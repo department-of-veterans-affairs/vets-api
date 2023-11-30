@@ -19,27 +19,41 @@ RSpec.describe Sidekiq::TracingMiddleware do
   let(:worker_instance) { mock_worker_class.new }
   let(:job) { { 'class' => mock_worker_class.to_s } }
   let(:queue) { 'default' }
-  let(:active_span) { double('active_span') }
+  let(:trace) { double('trace') }
 
   before do
-    allow(Datadog::Tracing).to receive(:active_span).and_return(active_span)
-    allow(active_span).to receive(:service=)
+    allow(Datadog::Tracing).to receive(:trace).and_return(trace)
   end
 
-  it 'sets the service tag on the active span to the worker’s trace_service_tag' do
-    middleware.call(worker_instance, job, queue) do
-      # simulate job execution
-    end
+  context 'when the worker defines a trace_service_tag' do
+    it 'sets the service tag on the active span to the worker’s trace_service_tag' do
+      middleware.call(worker_instance, job, queue) do
+        # simulate job execution
+      end
 
-    expect(Datadog::Tracing).to have_received(:active_span).at_least(:once)
-    expect(active_span).to have_received(:service=).with(:test_service).at_least(:once)
+      expect(Datadog::Tracing).to have_received(:trace).with(
+        'sidekiq.job', { resource: nil, service: :test_service, span_type: 'worker' }
+      ).at_least(:once)
+    end
   end
 
-  it 'resets the service tag on the active span after the job is processed' do
-    middleware.call(worker_instance, job, queue) do
-      # simulate job execution
+  context 'when the worker does not define a trace_service_tag' do
+    let(:mock_worker_class) do
+      Class.new do
+        include Sidekiq::Job
+
+        def perform; end
+      end
     end
 
-    expect(active_span).to have_received(:service=).with(nil).at_least(:once)
+    it 'sets the service tag on the active span to the default service tag' do
+      middleware.call(worker_instance, job, queue) do
+        # simulate job execution
+      end
+
+      expect(Datadog::Tracing).to have_received(:trace).with(
+        'sidekiq.job', { resource: nil, service: 'vets-api-sidekiq', span_type: 'worker' }
+      ).at_least(:once)
+    end
   end
 end
