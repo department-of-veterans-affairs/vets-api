@@ -5,6 +5,7 @@ require 'lgy/tag_sentry'
 
 module V0
   class ClaimDocumentsController < ApplicationController
+    service_tag 'claims-shared'
     skip_before_action(:authenticate)
 
     def create

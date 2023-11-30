@@ -196,7 +196,6 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
-    veteran_verification (0.0.1)
 
 GEM
   remote: https://enterprise.contribsys.com/
@@ -1200,7 +1199,6 @@ DEPENDENCIES
   vcr
   veteran!
   veteran_confirmation!
-  veteran_verification!
   vets_json_schema!
   virtus
   warden-github

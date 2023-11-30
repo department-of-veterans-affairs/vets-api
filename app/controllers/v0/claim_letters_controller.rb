@@ -5,6 +5,7 @@ require 'claim_letters/claim_letter_downloader'
 module V0
   class ClaimLettersController < ApplicationController
     Raven.tags_context(feature: 'claim-letters')
+    service_tag 'claim-status'
 
     def index
       docs = service.get_letters

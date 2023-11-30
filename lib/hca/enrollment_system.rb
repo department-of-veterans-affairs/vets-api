@@ -587,6 +587,16 @@ module HCA
       end
     end
 
+    def veteran_contacts_to_association(contact)
+      {
+        'contactType' => relationship_to_contact_type(contact['contactType']),
+        'relationship' => contact['relationship'],
+        'address' => format_address(contact['address']),
+        'primaryPhone' => contact['primaryPhone'],
+        'alternatePhone' => contact['alternatePhone']
+      }.merge(convert_full_name_alt(contact['fullName']))
+    end
+
     def veteran_to_association_collection(veteran)
       associations = []
 
@@ -598,7 +608,13 @@ module HCA
 
       spouse = spouse_to_association(veteran)
 
-      associations += dependents
+      # Next of kin and emergency contacts
+      contacts_list = veteran['veteranContacts'] || []
+      contacts = contacts_list.map do |contact|
+        veteran_contacts_to_association(contact)
+      end.compact
+
+      associations += dependents.concat(contacts)
       associations << spouse if spouse.present?
 
       return if associations.blank?

@@ -4,6 +4,8 @@ require 'form1010_ezr/service'
 
 module V0
   class Form1010EzrsController < ApplicationController
+    service_tag 'health-information-update'
+
     def create
       parsed_form = parse_form(params[:form])
 

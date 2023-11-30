@@ -18,7 +18,7 @@ module EVSS
       # Changed from 15 -> 14 ~ Jan 19, 2023
       # This change reduces the run-time from ~36 hours to ~24 hours
       RETRY = 14
-      STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
+      STATSD_KEY = 'worker.evss.submit_form526.exhausted'
 
       wrap_with_logging(
         :submit_complete_form,
@@ -40,7 +40,7 @@ module EVSS
 
         # log, mark Form526JobStatus for submission as "exhausted"
         begin
-          job_exhausted(msg, STATSD_KEY_PREFIX)
+          job_exhausted(msg, STATSD_KEY)
         rescue => e
           log_exception_to_sentry(e)
         end
