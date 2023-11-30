@@ -30,4 +30,30 @@ describe Map::Service do
       expect(subject.build(opts).redis_client).to be_a(Map::RedisClient)
     end
   end
+
+  describe '#token' do
+    let(:access_token) { 'test-token-123' }
+    let(:expiration) { Time.zone.now + 20 }
+
+    context 'when it exists in redis' do
+      before do
+        allow_any_instance_of(Map::RedisClient).to receive(:token).and_return(access_token)
+      end
+
+      it 'returns token from redis' do
+        expect(subject.build.token).to eq(access_token)
+      end
+    end
+
+    context 'when it does not exist in redis' do
+      before do
+        expect_any_instance_of(MAP::SecurityToken::Service).to receive(:token)
+          .and_return({ access_token:, expiration: })
+      end
+
+      it 'returns token by calling client' do
+        expect(subject.build.token).to eq(access_token)
+      end
+    end
+  end
 end

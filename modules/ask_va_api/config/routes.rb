@@ -10,6 +10,7 @@ AskVAApi::Engine.routes.draw do
     get '/inquiries/:inquiry_number', to: 'inquiries#show'
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
+    post '/upload_attachment', to: 'inquiries#upload_attachment'
 
     # static_data
     get '/categories', to: 'static_data#categories'
