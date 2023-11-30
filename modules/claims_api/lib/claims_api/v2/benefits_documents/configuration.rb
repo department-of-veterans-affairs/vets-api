@@ -10,7 +10,7 @@ module ClaimsApi
       ##
       #
       class Configuration < ::Common::Client::Configuration::REST
-        API_SCOPES = %w[documents.read documents.write].freeze
+        API_SCOPES = %w[documents.write documents.read].freeze
         TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
 
         ##
