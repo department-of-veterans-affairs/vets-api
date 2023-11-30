@@ -96,7 +96,11 @@ module MedicalRecords
     end
 
     def list_vaccines
-      bundle = fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::Immunization,
+                           {
+                             search: { parameters: { patient: patient_fhir_id } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
