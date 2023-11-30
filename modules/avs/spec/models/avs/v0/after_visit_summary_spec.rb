@@ -74,6 +74,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           problems: [],
           allergies_reactions: nil,
           va_medications: [],
+          nonva_medications: [],
           lab_results: [],
           radiology_reports1_yr: nil,
           discrete_data: {
@@ -123,6 +124,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           problems: [],
           allergies_reactions: nil,
           va_medications: [],
+          nonva_medications: [],
           lab_results: [],
           radiology_reports1_yr: nil,
           discrete_data: nil
