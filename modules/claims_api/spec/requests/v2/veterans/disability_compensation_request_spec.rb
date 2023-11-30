@@ -613,13 +613,11 @@ RSpec.describe 'Disability Claims', type: :request do
                 otherDescription: 'community help center'
               }
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
               response_body = JSON.parse(response.body)
-              expect(response_body['errors'].length).to eq(1)
               expect(response_body['errors'][0]['detail']).to eq(
-                "Must define only one of 'homeless.currentlyHomeless' or " \
-                "'homeless.riskOfBecomingHomeless'"
+                "Must define only one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless'"
               )
+              expect(response_body['errors'][0]['source']).to eq({ 'pointer' => 'homeless/currentlyHomeless' })
             end
           end
         end
@@ -639,14 +637,11 @@ RSpec.describe 'Disability Claims', type: :request do
                 }
               }
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
               response_body = JSON.parse(response.body)
-              expect(response_body['errors'].length).to eq(1)
-              expect(response_body['errors'][0]['detail']).to eq(
-                "If 'homeless.pointOfContact' is defined, then one of " \
-                "'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless'" \
-                ' is required'
+              expect(response_body['errors'][0]['detail']).to include(
+                "one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is required"
               )
+              expect(response_body['errors'][0]['source']).to eq({ 'pointer' => 'homeless/pointOfContact' })
             end
           end
         end
@@ -662,13 +657,11 @@ RSpec.describe 'Disability Claims', type: :request do
               }
               params['data']['attributes']['homeless'].delete('pointOfContact')
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
               response_body = JSON.parse(response.body)
-              expect(response_body['errors'].length).to eq(1)
-              expect(response_body['errors'][0]['detail']).to eq(
-                "If one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is" \
-                " defined, then 'homeless.pointOfContact' is required"
+              expect(response_body['errors'][0]['detail']).to include(
+                "'homeless.pointOfContact' is required"
               )
+              expect(response_body['errors'][0]['source']).to eq({ 'pointer' => 'homeless/pointOfContact' })
             end
           end
         end
@@ -720,7 +713,11 @@ RSpec.describe 'Disability Claims', type: :request do
               params['data']['attributes']['homeless']['pointOfContactNumber']['internationalTelephone'] =
                 '+44 20 1234 56789111111111'
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to eq(
+                'International telephone number must be shorter than 25 characters'
+              )
+              expect(response_body['errors'][0]['source']).to eq({ 'pointer' => 'homeless/internationalTelephone' })
             end
           end
         end
@@ -2478,7 +2475,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:bad_request)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end

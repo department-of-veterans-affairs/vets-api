@@ -109,6 +109,29 @@ module ClaimsApi
                               api_version: 'V2',
                               level:)
       end
+
+      def collect_error_messages(detail: nil, source: nil, title: 'Unprocessable', status: 422)
+        error_object = build_error_object(detail, source, title, status)
+        @errors ||= []
+        return if error_object.nil?
+
+        @errors.push(error_object)
+      end
+
+      def raise_error_collection
+        return if @errors.nil?
+
+        { errors: @errors }
+      end
+
+      def build_error_object(detail, source, title, status)
+        {
+          title:,
+          status:,
+          source: { pointer: source },
+          detail:
+        }
+      end
     end
   end
 end

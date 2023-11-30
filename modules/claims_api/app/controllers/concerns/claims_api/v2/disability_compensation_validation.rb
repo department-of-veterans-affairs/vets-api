@@ -37,6 +37,8 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
+        # raise collection of errors
+        raise_error_collection
       end
 
       def validate_form_526_change_of_address!
@@ -267,30 +269,28 @@ module ClaimsApi
         handle_empty_other_description
 
         if too_many_homelessness_attributes_provided?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "Must define only one of 'homeless.currentlyHomeless' or " \
-                    "'homeless.riskOfBecomingHomeless'"
-          )
+          collect_error_messages(detail: "Must define only one of 'homeless.currentlyHomeless' or " \
+                                         "'homeless.riskOfBecomingHomeless'",
+                                 source: 'homeless/currentlyHomeless')
         end
 
         if unnecessary_homelessness_point_of_contact_provided?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "If 'homeless.pointOfContact' is defined, then one of " \
-                    "'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is required"
-          )
+          collect_error_messages(detail: "If 'homeless.pointOfContact' is defined, then one of " \
+                                         "'homeless.currentlyHomeless' or " \
+                                         "'homeless.riskOfBecomingHomeless' is required",
+                                 source: 'homeless/pointOfContact')
         end
 
         if missing_point_of_contact?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "If one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is " \
-                    "defined, then 'homeless.pointOfContact' is required"
-          )
+          collect_error_messages(detail: "If one of 'homeless.currentlyHomeless' or " \
+                                         "'homeless.riskOfBecomingHomeless' is " \
+                                         "defined, then 'homeless.pointOfContact' is required",
+                                 source: 'homeless/pointOfContact')
         end
 
         if international_phone_too_long?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'International telephone number must be shorter than 25 characters'
-          )
+          collect_error_messages(detail: 'International telephone number must be shorter than 25 characters',
+                                 source: 'homeless/internationalTelephone')
         end
       end
 

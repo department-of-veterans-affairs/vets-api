@@ -65,7 +65,11 @@ module ClaimsApi
 
             itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]
             claims_v2_logging('itf_submit', message: "ending itf submit, ift_id: #{itf_id}, type: #{type}")
-            render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
+            if @errors.present?
+              render json: { errors: @errors, status: 422 }
+            else
+              render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
+            end
           end
         end
 
@@ -74,15 +78,20 @@ module ClaimsApi
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
           type = get_bgs_type(params)
           build_options_and_validate(type)
+
           claims_v2_logging('itf_validate', message: "ending itf validate, type: #{type}")
-          render json: {
-            data: {
-              type: 'intent_to_file_validation',
-              attributes: {
-                status: 'valid'
+          if @errors.present?
+            render json: { errors: @errors, status: 422 }
+          else
+            render json: {
+              data: {
+                type: 'intent_to_file_validation',
+                attributes: {
+                  status: 'valid'
+                }
               }
             }
-          }
+          end
         end
 
         private
@@ -128,25 +137,21 @@ module ClaimsApi
 
         def validate_ssn(ssn)
           regex = /^(\d{9})$/
-          unless regex.match?(ssn)
+          unless regex.match?(ssn) || !ssn.empty?
             error_detail = 'Invalid claimantSsn parameter'
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+            collect_error_messages(detail: error_detail, source: 'claimantSsn')
           end
         end
 
         def check_for_invalid_survivor_submission(options)
           error_detail = "claimantSsn parameter cannot be blank for type 'survivor'"
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail) if claimant_ssn_blank?(options)
+          collect_error_messages(detail: error_detail, source: 'claimantSsn') if claimant_ssn_blank?(options)
 
           error_detail = "Veteran cannot file for type 'survivor'"
-          if claimant_id_equals_vet_id?(options)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
-          end
+          collect_error_messages(detail: error_detail) if claimant_id_equals_vet_id?(options)
 
           error_detail = "Claimant SSN cannot be the same as veteran SSN for type 'survivor'"
-          if claimant_ssn_equals_vet_ssn?(options)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
-          end
+          collect_error_messages(detail: error_detail) if claimant_ssn_equals_vet_ssn?(options)
         end
 
         def claimant_ssn_blank?(options)
