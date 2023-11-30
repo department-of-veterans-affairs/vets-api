@@ -24,7 +24,7 @@ class AppealsApi::RswagConfig
       basePath: base_path_template.gsub('{version}', version),
       components: {
         securitySchemes: name == 'decision_reviews' ? decision_reviews_security_schemes : oauth_security_schemes(name),
-        schemas: schemas(api_name: name)
+        schemas: schemas(api_name: name, version:)
       },
       servers: [
         {
@@ -207,13 +207,13 @@ class AppealsApi::RswagConfig
 
   def merge_schemas(*schema_parts) = schema_parts.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
 
-  def schemas(api_name: nil)
+  def schemas(api_name:, version:)
     case api_name
     when 'higher_level_reviews'
       merge_schemas(
         hlr_create_schemas,
         hlr_response_schemas,
-        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID documentUploadMetadata]),
+        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID X-VA-User documentUploadMetadata]),
         shared_schemas.slice(*%w[address phone timezone nonBlankString])
       )
     when 'notice_of_disagreements'
@@ -245,7 +245,8 @@ class AppealsApi::RswagConfig
     when 'appeals_status'
       merge_schemas(
         appeals_status_response_schemas,
-        generic_schemas.slice(*%i[errorModel X-VA-SSN])
+        generic_schemas.slice(*(version == 'v0' ? %i[errorModel X-VA-SSN X-VA-User] : %i[errorModel X-VA-User])),
+        shared_schemas.slice(*(version == 'v0' ? nil : %w[icn]))
       )
     when 'decision_reviews'
       merge_schemas(
@@ -258,7 +259,7 @@ class AppealsApi::RswagConfig
         decision_reviews_sc_alt_signer_schemas,
         contestable_issues_schema,
         legacy_appeals_schema,
-        generic_schemas
+        generic_schemas.except(*%i[X-VA-User])
       )
     else
       raise "Don't know how to build schemas for '#{api_name}'"
@@ -361,6 +362,10 @@ class AppealsApi::RswagConfig
           { "description": "Veteran's insurance policy number", "maxLength": 18 },
           { "$ref": nbs_ref }
         ]
+      },
+      'X-VA-User': {
+        'description': 'VA username of the person making the request',
+        'type': 'string'
       },
       'X-Consumer-Username': {
         'allOf': [
