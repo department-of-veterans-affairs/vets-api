@@ -52,18 +52,16 @@ module Form1010Ezr
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
-      begin
-        parsed_form = configure_and_validate_form(parsed_form)
-        if Flipper.enabled?(:ezr_async, @user)
-          submit_async(parsed_form)
-        else
-          submit_sync(parsed_form)
-        end
-      rescue => e
-        log_submission_failure(parsed_form)
-        Rails.logger.error "10-10EZR form submission failed: #{e.message}"
-        raise e
+      parsed_form = configure_and_validate_form(parsed_form)
+      if Flipper.enabled?(:ezr_async, @user)
+        submit_async(parsed_form)
+      else
+        submit_sync(parsed_form)
       end
+    rescue => e
+      log_submission_failure(parsed_form)
+      Rails.logger.error "10-10EZR form submission failed: #{e.message}"
+      raise e
     end
 
     private
