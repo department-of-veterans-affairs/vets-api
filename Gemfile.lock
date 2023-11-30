@@ -156,9 +156,6 @@ PATH
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
-    apps_api (0.0.1)
-      faraday
-      sidekiq
     ask_va_api (0.1.0)
     avs (0.1.0)
     check_in (0.1.0)
@@ -196,16 +193,6 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
-
-GEM
-  remote: https://enterprise.contribsys.com/
-  specs:
-    sidekiq-ent (2.5.3)
-      einhorn (>= 0.7.4)
-      sidekiq (>= 6.5.0, < 7)
-      sidekiq-pro (>= 5.5.0, < 6)
-    sidekiq-pro (5.5.8)
-      sidekiq (~> 6.0, >= 6.5.6)
 
 GEM
   remote: https://rubygems.org/
@@ -388,7 +375,6 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
@@ -1029,7 +1015,6 @@ DEPENDENCIES
   addressable
   apivore!
   appeals_api!
-  apps_api!
   ask_va_api!
   avs!
   awesome_print
@@ -1176,8 +1161,6 @@ DEPENDENCIES
   sentry-raven
   shrine
   sidekiq (>= 6.4.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sidekiq_alive
   simple_forms_api!
   simplecov
