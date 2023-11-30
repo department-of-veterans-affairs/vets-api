@@ -26,11 +26,11 @@ module Sidekiq
       service_tag = worker.respond_to?(:trace_service_tag) ? worker.trace_service_tag : 'vets-api-sidekiq'
 
       Datadog::Tracing.trace('sidekiq.job', service: service_tag,
-        resource: worker.class.name,
-        span_type: 'worker') do |_span|
+                                            resource: worker.class.name,
+                                            span_type: 'worker') do |_span|
         yield
       end
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("Error setting service tag in Sidekiq::TracingMiddleware for #{worker.class.name}")
       raise e
     end
