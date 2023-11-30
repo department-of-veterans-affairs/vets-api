@@ -15,9 +15,10 @@ module V0
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
     def create
-      Rails.logger.info("Creating #{short_name} claim for user #{current_user&.uuid}")
       PensionBurial::TagSentry.tag_sentry
       claim = claim_class.new(form: filtered_params[:form])
+      user_uuid = current_user&.uuid
+      Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{user_uuid}"
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.itf_datetime = in_progress_form.created_at if in_progress_form
       unless claim.save
@@ -26,7 +27,9 @@ module V0
       end
       claim.process_attachments!
       StatsD.increment("#{stats_key}.success")
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      Rails.logger.info(
+        "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
+      )
       clear_saved_form(claim.form_id)
       render(json: claim)
     end
