@@ -14,9 +14,8 @@ module Sidekiq
   class TracingMiddleware
     # Called by Sidekiq to perform the job.
     # It sets the service tag on the active Datadog span based on the worker's defined tag.
-    # In case of an error during this process, the error is logged and job execution continues.
-    # The service tag is ensured to be cleared after job execution to avoid cross-contamination
-    # across different jobs.
+    # In case of an error during this process, the error is logged and re-raised so that
+    # the job is retried by Sidekiq if applicable..
     #
     # @param worker [Object] The worker instance executing the job.
     # @param _job [Hash] The job data (unused in method but required for middleware interface).
@@ -24,14 +23,16 @@ module Sidekiq
     # @yield The block to perform the actual job.
     # @return [void]
     def call(worker, _job, _queue)
-      begin
-        Datadog::Tracing.active_span&.service = worker.trace_service_tag
-      rescue => e
-        ::Rails.logger.error 'Error setting service tag in tracing middleware', message: e.message
+      service_tag = worker.respond_to?(:trace_service_tag) ? worker.trace_service_tag : 'vets-api-sidekiq'
+
+      Datadog::Tracing.trace('sidekiq.job', service: service_tag,
+        resource: worker.class.name,
+        span_type: 'worker') do |_span|
+        yield
       end
-      yield
-    ensure
-      Datadog::Tracing.active_span&.service = nil
+    rescue StandardError => e
+      Rails.logger.error("Error setting service tag in Sidekiq::TracingMiddleware for #{worker.class.name}")
+      raise e
     end
   end
 end
