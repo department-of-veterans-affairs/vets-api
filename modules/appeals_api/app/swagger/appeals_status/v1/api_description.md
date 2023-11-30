@@ -11,7 +11,7 @@ To file an appeal or decision review, use one of these APIs:
 
 ## Background
 
-The Appeals API passes data through to Caseflow, a case management system. Caseflow accepts a header with the Veteran’s SSN and returns the current status of their decision reviews and/or benefits appeals.
+The Appeals API passes data through to Caseflow, a case management system. Caseflow returns the current status of the Veteran’s decision reviews and/or benefits appeals.
 
 Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
 
