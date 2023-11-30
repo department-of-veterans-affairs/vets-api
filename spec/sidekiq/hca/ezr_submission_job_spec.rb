@@ -11,17 +11,22 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   let(:encrypted_form) do
     HealthCareApplication::LOCKBOX.encrypt(form.to_json)
   end
+  let(:ezr_service) { double }
 
   describe '#perform' do
     subject do
       described_class.new.perform(encrypted_form, user_identifier)
     end
 
+    before do
+      expect(Form1010Ezr::Service).to receive(:new).with(user_identifier).once.and_return(ezr_service)
+    end
+
     context 'when submission has an error' do
       let(:error) { Common::Client::Errors::HTTPError }
 
       before do
-        expect(hca_service).to receive(:submit_form).with(form).once.and_raise(error)
+        expect(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
       end
 
       context 'with a validation error' do
@@ -30,7 +35,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
         it 'creates a pii log' do
           subject
 
-          log = PersonalInformationLog.where(error_class: 'HCA::SOAPParser::ValidationError').last
+          log = PersonalInformationLog.where(error_class: 'EzrValidationError').last
           expect(log.data['form']).to eq(form)
         end
       end
@@ -38,8 +43,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
     context 'with a successful submission' do
       it 'calls the service' do
-        expect(Form1010Ezr::Service).to receive(:new).with(user_identifier).and_call_original
-        expect_any_instance_of(Form1010Ezr::Service).to receive(:submit_sync).with(form)
+        expect(ezr_service).to receive(:submit_sync).with(form)
 
         subject
       end
