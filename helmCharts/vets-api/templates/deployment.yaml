@@ -14,6 +14,18 @@ spec:
       labels:
         app: vets-api
     spec:
+      initContainers:
+        - name: db-create
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: [ "bundle" ]
+          args: [ "exec", "rails", "db:setup" ]
+          env:
+            - name: "Settings.database_url"
+              value: "{{ .Values.databaseUrl }}"
+            - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
+              value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
+            - name: "KMS_KEY_ID"
+              value: "insecure-test-key"
       containers:
         - name: vets-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
