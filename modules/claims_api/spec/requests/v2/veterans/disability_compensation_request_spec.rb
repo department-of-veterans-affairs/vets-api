@@ -123,10 +123,11 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              result = JSON.parse(response.body)
-              expect(result[0]['status']).to eq(422)
-              expect(result[0]['detail']).to eq('Country must match an active code returned from the /countries " \
-                "endpoint of the Benefits Reference Data API, United States of Nada')
+              response_body = JSON.parse(response.body)
+              expect(response_body[0]['status']).to eq(422)
+              expect(response_body[0]['detail']).to include(
+                'Country must match an active code returned from the /countries'
+              )
             end
           end
         end
@@ -339,10 +340,9 @@ RSpec.describe 'Disability Claims', type: :request do
               expect(res[0]['title']).to eq('Unprocessable')
               expect(res[0]['status']).to eq(422)
               expect(res[0]['detail']).to eq('End date must be after the begin date.')
-              expect(res[0]['source']).to eq({ 'pointer' => 'changeOfAddress.dates.endDate' })
-              expect(res[1]['detail']).to eq('Country must match an active code returned from the /countries " \
-                "endpoint of the Benefits Reference Data API, United States of Nada')
-              expect(res[1]['source']).to eq({ 'pointer' => 'changeOfAddress.country' })
+              expect(res[0]['source']).to eq({ 'pointer' => 'changeOfAddress/dates/endDate' })
+              expect(res[1]['detail']).to include('endpoint of the Benefits Reference Data API, United States of Nada')
+              expect(res[1]['source']).to eq({ 'pointer' => 'changeOfAddress/country' })
             end
           end
         end
@@ -519,10 +519,10 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['veteranIdentification']['serviceNumber'] = service_number
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              result = JSON.parse(response.body)
-              expect(result[0]['detail']).to eq('serviceNumber, ' \
-                                                "1234567890abcdefghijklmnopqrstuvwxyz!@\#$&*()_+-= is too long")
-              expect(result[0]['title']).to eq('Unprocessable')
+              response_body = JSON.parse(response.body)
+              expect(response_body[0]['detail']).to eq('serviceNumber, ' \
+                                                       "1234567890abcdefghijklmnopqrstuvwxyz!@\#$&*()_+-= is too long")
+              expect(response_body[0]['title']).to eq('Unprocessable')
             end
           end
         end
@@ -1474,7 +1474,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 not_treated_disability_name
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body[0]['detail']).to eq('The treated disability must match a disability listed above')
+              expect(response_body[0]['source']).to eq({ 'pointer' => 'treatments/treatedDisabilityNames' })
             end
           end
         end
@@ -2272,10 +2274,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['classificationCode'] = '1111'
                 post submit_path, params: params.to_json, headers: auth_header
-                result = JSON.parse(response.body)
-                expect(result[0]['detail']).to eq("'disabilities.classificationCode' must match " \
-                                                  'an active code returned from the /disabilities " \
-                                                  "endpoint of the Benefits Reference Data API.')
+                response_body = JSON.parse(response.body)
+                expect(response_body[0]['detail']).to include("'disabilities.classificationCode' must match")
+                expect(response_body[0]['source']).to include({ 'pointer' => 'disabilities/classificationCode' })
               end
             end
           end
@@ -2468,9 +2469,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                result = JSON.parse(response.body)
-                expect(result[0]['status']).to eq(422)
-                expect(result[0]['detail']).to eq('Disability approximateDate is not formatted correctly, 2024-11-29')
+                response_body = JSON.parse(response.body)
+                expect(response_body[0]['status']).to eq(422)
+                expect(response_body[0]['detail']).to include('Disability approximateDate is not formatted correctly')
               end
             end
           end
@@ -2510,9 +2511,11 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                result = JSON.parse(response.body)
-                expect(result[0]['status']).to eq(422)
-                expect(result[0]['detail']).to eq('Disability approximateDate is not formatted correctly, 2024-11')
+                response_body = JSON.parse(response.body)
+                expect(response_body[0]['status']).to eq(422)
+                expect(response_body[0]['detail']).to eq(
+                  'Disability approximateDate is not formatted correctly, 2024-11'
+                )
               end
             end
           end
@@ -2563,7 +2566,11 @@ RSpec.describe 'Disability Claims', type: :request do
                   ]
                   params['data']['attributes']['disabilities'] = disabilities
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body[0]['detail']).to eq(
+                    'ServiceRelevance is required if disabilityActionType is NEW.'
+                  )
+                  expect(response_body[0]['source']).to eq({ 'pointer' => 'disabilities/serviceRelevance' })
                 end
               end
             end
@@ -2597,11 +2604,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 ]
                 params['data']['attributes']['disabilities'] = disabilities
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The name is required for secondary disability.'
-                )
+                expect(response_body[0]['detail']).to eq('The name is required for secondary disability')
+                expect(response_body[0]['source']).to eq({ 'pointer' => 'disabilities/secondaryDisabilities/name' })
               end
             end
           end
@@ -2664,11 +2669,12 @@ RSpec.describe 'Disability Claims', type: :request do
                 ]
                 params['data']['attributes']['disabilities'] = disabilities
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
+                expect(response_body[0]['detail']).to eq(
                   'The service relevance is required for secondary disability.'
                 )
+                expect(response_body[0]['source']).to eq({ 'pointer' =>
+                  'disabilities/secondaryDisabilities/serviceRelevance' })
               end
             end
           end
@@ -2753,16 +2759,22 @@ RSpec.describe 'Disability Claims', type: :request do
                   secondaryDisabilities: [
                     {
                       disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
+                      name: 'Cancer - Musculoskeletal - Wrist',
                       serviceRelevance: 'Caused by a service-connected disability.',
-                      classificationCode: '2222'
+                      classificationCode: '2'
                     }
                   ]
                 }
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body[0]['detail']).to include(
+                'ClassificationCode must match an active code returned from the /disabilities'
+              )
+              expect(response_body[0]['source']).to eq(
+                { 'pointer' => 'disabilities/secondaryDisabilities/classificationCode' }
+              )
             end
           end
         end
@@ -2781,16 +2793,18 @@ RSpec.describe 'Disability Claims', type: :request do
                   secondaryDisabilities: [
                     {
                       disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
+                      name: 'Musculoskeletal - Shoulder',
                       serviceRelevance: 'Caused by a service-connected disability.',
-                      classificationCode: '1111'
+                      classificationCode: '9002'
                     }
                   ]
                 }
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body[0]['detail']).to eq('The treated disability must match a disability listed above')
+              expect(response_body[0]['source']).to eq({ 'pointer' => 'treatments/treatedDisabilityNames' })
             end
           end
         end
@@ -2861,7 +2875,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          it 'returns an exception if date is approximate and in the future' do
+          it 'returns an exception if approximate date is in the future' do
             mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
@@ -2883,33 +2897,13 @@ RSpec.describe 'Disability Claims', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:bad_request)
-            end
-          end
-
-          it 'raises an exception if date is not in the past' do
-            mock_ccg(scopes) do |auth_header|
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  serviceRelevance: 'Heavy equipment operator in service.',
-                  secondaryDisabilities: [
-                    {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD (post traumatic stress disorder)',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: "#{Time.zone.now.year + 1}-01-11"
-                    }
-                  ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body[0]['detail']).to include(
+                "Either the approximateDate is not formatted correctly, or it is later than today's date"
+              )
+              expect(response_body[0]['source']).to include(
+                { 'pointer' => 'disabilities/secondaryDisabilities/approximateDate' }
+              )
             end
           end
 

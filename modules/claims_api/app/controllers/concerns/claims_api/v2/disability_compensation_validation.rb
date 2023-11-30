@@ -80,7 +80,7 @@ module ClaimsApi
           nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
           collect_error_messages(detail: 'Missing the begin date for change of address.',
-                                 source: 'changeOfAddress.dates.beginDate')
+                                 source: 'changeOfAddress/dates/beginDate')
         end
       end
 
@@ -90,7 +90,7 @@ module ClaimsApi
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
           collect_error_messages(detail: "'changeOfAddress.dates.endDate' " \
                                          'cannot be included when typeOfAddressChange is PERMANENT',
-                                 source: 'changeOfAddress.dates.endDate')
+                                 source: 'changeOfAddress/dates/endDate')
         end
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
 
@@ -102,7 +102,7 @@ module ClaimsApi
                                                       '%Y-%m-%d') > Date.strptime(begin_date, '%Y-%m-%d')
 
         collect_error_messages(detail: 'End date must be after the begin date.',
-                               source: 'changeOfAddress.dates.endDate')
+                               source: 'changeOfAddress/dates/endDate')
       end
 
       def validate_form_526_change_of_address_country!
@@ -111,7 +111,7 @@ module ClaimsApi
 
         collect_error_messages(detail: 'Country must match an active code returned from the /countries ' \
                                        "endpoint of the Benefits Reference Data API, #{change_of_address['country']}",
-                               source: 'changeOfAddress.country')
+                               source: 'changeOfAddress/country')
       end
 
       def validate_form_526_claimant_certification!
@@ -133,7 +133,7 @@ module ClaimsApi
 
         if service_num.length > 9
           collect_error_messages(detail: "serviceNumber, #{service_num} is too long",
-                                 source: 'veteranIdentification.serviceNumber')
+                                 source: 'veteranIdentification/serviceNumber')
         end
       end
 
@@ -143,7 +143,7 @@ module ClaimsApi
 
         collect_error_messages(detail: 'Country must match an active code returned from the /countries ' \
                                        "endpoint of the Benefits Reference Data API, #{mailing_address['country']}",
-                               source: 'veteranIdentification.mailingAddress.country')
+                               source: 'veteranIdentification/mailingAddress/country')
       end
 
       def validate_form_526_disabilities!
@@ -165,19 +165,19 @@ module ClaimsApi
             collect_error_messages(detail: "'disabilities.classificationCode' must match an active code " \
                                            'returned from the /disabilities endpoint of the Benefits ' \
                                            'Reference Data API.',
-                                   source: 'disabilities.classificationCode')
+                                   source: 'disabilities/classificationCode')
           end
         end
       end
 
       def validate_form_526_disability_code_enddate!(classification_code)
         reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
-        end_date_time = reference_disability[:endDateTime]
+        end_date_time = reference_disability&.dig('endDateTime')
         return if end_date_time.nil?
 
         if Date.parse(end_date_time) < Time.zone.today
           collect_error_messages(detail: "'disabilities.classificationCode' is no longer active.",
-                                 source: 'disabilities.classificationCode')
+                                 source: 'disabilities/classificationCode')
         end
       end
 
@@ -192,7 +192,7 @@ module ClaimsApi
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
           collect_error_messages(detail: "Disability approximateDate is not formatted correctly, #{approx_begin_date}",
-                                 source: 'disabilities.approximateDate')
+                                 source: 'disabilities/approximateDate')
         end
       end
 
@@ -204,9 +204,9 @@ module ClaimsApi
           disability_action_type = disability&.dig('disabilityActionType')
           service_relevance = disability&.dig('serviceRelevance')
           if disability_action_type == 'NEW' && service_relevance.blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.serviceRelevance' is required if 'disabilities.disabilityActionType' is NEW."
-            )
+            collect_error_messages(detail: 'ServiceRelevance is required if ' \
+                                           'disabilityActionType is NEW.',
+                                   source: 'disabilities/serviceRelevance')
           end
         end
       end
@@ -236,16 +236,17 @@ module ClaimsApi
           sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
           sd_service_relevance = secondary_disability&.dig('serviceRelevance')
 
-          form_object_desc = 'secondary disability'
-
-          raise_exception_if_value_not_present('name', form_object_desc) if sd_name.blank?
+          if sd_name.blank?
+            collect_error_messages(detail: 'The name is required for secondary disability',
+                                   source: 'disabilities/secondaryDisabilities/name')
+          end
           if sd_disability_action_type.blank?
-            raise_exception_if_value_not_present('disability action type',
-                                                 form_object_desc)
+            collect_error_messages(detail: 'The disability action type is required for secondary disability',
+                                   source: 'disabilities/secondaryDisabilities/disabilityActionType')
           end
           if sd_service_relevance.blank?
-            raise_exception_if_value_not_present('service relevance',
-                                                 form_object_desc)
+            collect_error_messages(detail: 'The service relevance is required for secondary disability.',
+                                   source: 'disabilities/secondaryDisabilities/serviceRelevance')
           end
         end
       end
@@ -253,24 +254,17 @@ module ClaimsApi
       def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
         return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'disabilities.secondaryDisabilities.classificationCode' must match an active code " \
-                  'returned from the /disabilities endpoint of the Benefits Reference Data API.'
-        )
+        collect_error_messages(detail: 'ClassificationCode must match an active code returned from ' \
+                                       'the /disabilities endpoint of the Benefits Reference Data API.',
+                               source: 'disabilities/secondaryDisabilities/classificationCode')
       end
 
       def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
         return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
 
-        raise ::Common::Exceptions::InvalidFieldValue.new(
-          'disabilities.secondaryDisabilities.approximateDate',
-          secondary_disability['approximateDate']
-        )
-      rescue ArgumentError
-        raise ::Common::Exceptions::InvalidFieldValue.new(
-          'disabilities.secondaryDisabilities.approximateDate',
-          secondary_disability['approximateDate']
-        )
+        collect_error_messages(detail: 'Either the approximateDate is not formatted correctly, or it is ' \
+                                       "later than today's date, #{secondary_disability['approximateDate']}",
+                               source: 'disabilities/secondaryDisabilities/approximateDate')
       end
 
       def validate_form_526_veteran_homelessness! # rubocop:disable Metrics/MethodLength
@@ -441,8 +435,9 @@ module ClaimsApi
         treated_disability_names.each do |treatment|
           next if declared_disability_names.include?(treatment)
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The treated disability must match a disability listed above'
+          collect_error_messages(
+            detail: 'The treated disability must match a disability listed above',
+            source: 'treatments/treatedDisabilityNames'
           )
         end
       end
@@ -971,6 +966,7 @@ module ClaimsApi
         return if error_object.nil?
 
         @errors.push(error_object)
+        { errors: @errors }
       end
 
       def raise_error_collection
