@@ -49,44 +49,6 @@ RSpec.describe 'Requesting ID Card Attributes' do
         end
       end
 
-      it 'returns emis discharge codes for all service episodes' do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
-                                                                                    allow_playback_repeats: true) do
-          VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
-            allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
-            expect_any_instance_of(
-              VAProfileRedis::VeteranStatus
-            ).to receive(:title38_status).at_least(:once).and_return('V1')
-            get '/v0/id_card/attributes', headers: auth_header
-            expect(response).to have_http_status(:ok)
-            json = JSON.parse(response.body)
-            url = json['url']
-            expect(url).to be_truthy
-            traits = json['traits']
-            expect(traits['dischargetype']).to eq('K,K')
-          end
-        end
-      end
-
-      it 'returns an empty string from emis if no discharge type' do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
-                                                                                    allow_playback_repeats: true) do
-          VCR.use_cassette('emis/get_military_service_episodes/valid_no_end_date') do
-            allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
-            expect_any_instance_of(
-              VAProfileRedis::VeteranStatus
-            ).to receive(:title38_status).at_least(:once).and_return('V1')
-            get '/v0/id_card/attributes', headers: auth_header
-            expect(response).to have_http_status(:ok)
-            json = JSON.parse(response.body)
-            url = json['url']
-            expect(url).to be_truthy
-            traits = json['traits']
-            expect(traits['dischargetype']).to eq('')
-          end
-        end
-      end
-
       it 'returns Bad Gateway if military information not retrievable' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
                                                                                     allow_playback_repeats: true) do

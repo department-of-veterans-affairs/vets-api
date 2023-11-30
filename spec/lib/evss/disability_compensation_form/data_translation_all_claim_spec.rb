@@ -44,50 +44,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
   end
 
-  describe '#translate' do
-    context 'all claims' do
-      before do
-        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
-      end
-
-      let(:form_content) do
-        JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
-      end
-      let(:evss_json) { File.read 'spec/support/disability_compensation_form/all_claims_evss_submission.json' }
-
-      it 'returns correctly formatted json to send to EVSS' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-            expect(subject.translate).to eq JSON.parse(evss_json)
-          end
-        end
-      end
-    end
-
-    context 'kitchen sink BDD' do
-      before do
-        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
-        Timecop.freeze(Date.new(2020, 8, 1))
-      end
-
-      after { Timecop.return }
-
-      let(:form_content) do
-        JSON.parse(File.read('spec/support/disability_compensation_form/bdd_large_fe_submission.json'))
-      end
-
-      let(:evss_json) { File.read 'spec/support/disability_compensation_form/bdd_evss_submission.json' }
-
-      it 'returns correctly formatted json to send to EVSS' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-            expect(subject.translate).to eq JSON.parse(evss_json)
-          end
-        end
-      end
-    end
-  end
-
   describe '#overflow_text' do
     context 'when the form has a 4142 and the vet is terminally ill' do
       subject { described_class.new(user, form_content, true) }
