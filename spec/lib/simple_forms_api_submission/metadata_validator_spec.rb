@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api_submission/metadata_validator'
 
-describe SimpleFormsApi::MetadataValidator do
+describe SimpleFormsApiSubmission::MetadataValidator do
   describe 'metadata is valid' do
     it 'returns unmodified metadata' do
       metadata = {
@@ -16,7 +16,7 @@ describe SimpleFormsApi::MetadataValidator do
         'businessLine' => 'CMP'
       }
 
-      validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
 
       expect(validated_metadata).to eq(metadata)
     end
@@ -25,7 +25,7 @@ describe SimpleFormsApi::MetadataValidator do
   describe 'metadata key has a missing value' do
     it 'raises a missing exception' do
       expect do
-        SimpleFormsApi::MetadataValidator.validate_presence_and_stringiness(nil, 'veteran first name')
+        SimpleFormsApiSubmission::MetadataValidator.validate_presence_and_stringiness(nil, 'veteran first name')
       end.to raise_error(ArgumentError, 'veteran first name is missing')
     end
   end
@@ -33,7 +33,7 @@ describe SimpleFormsApi::MetadataValidator do
   describe 'metadata key has a non-string value' do
     it 'raises a non-string exception' do
       expect do
-        SimpleFormsApi::MetadataValidator.validate_presence_and_stringiness(12, 'veteran first name')
+        SimpleFormsApiSubmission::MetadataValidator.validate_presence_and_stringiness(12, 'veteran first name')
       end.to raise_error(ArgumentError, 'veteran first name is not a string')
     end
   end
@@ -65,7 +65,7 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
 
         expect(validated_metadata).to eq expected_metadata
       end
@@ -92,7 +92,7 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
 
         expect(validated_metadata).to eq expected_metadata
       end
@@ -126,7 +126,7 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
 
         expect(validated_metadata).to eq expected_metadata
       end
@@ -153,7 +153,7 @@ describe SimpleFormsApi::MetadataValidator do
           'businessLine' => 'CMP'
         }
 
-        validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
 
         expect(validated_metadata).to eq expected_metadata
       end
@@ -174,7 +174,7 @@ describe SimpleFormsApi::MetadataValidator do
         }
 
         expect do
-          SimpleFormsApi::MetadataValidator.validate(metadata)
+          SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
         end.to raise_error(ArgumentError, 'file number is invalid. It must be 8 or 9 digits')
       end
     end
@@ -201,7 +201,7 @@ describe SimpleFormsApi::MetadataValidator do
         'businessLine' => 'CMP'
       }
 
-      validated_metadata = SimpleFormsApi::MetadataValidator.validate(metadata)
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
 
       expect(validated_metadata).to eq expected_metadata
     end
