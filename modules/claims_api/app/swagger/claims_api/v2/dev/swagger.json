@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b714d93-88d6-487a-950c-e7286f4ede83",
+                    "id": "f8b0016b-e28b-4312-93b8-41053b136479",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,7 +1329,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-11-29",
+                          "anticipatedSeparationDate": "2023-11-30",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -1796,7 +1796,7 @@
                                       "nullable": true
                                     },
                                     "internationalTelephone": {
-                                      "description": "international phone of point of contact.",
+                                      "description": "International phone of point of contact.",
                                       "type": "string",
                                       "example": "+44 20 1234 5678",
                                       "nullable": true
@@ -2045,7 +2045,6 @@
                               "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                               "type": "array",
                               "minItems": 1,
-                              "uniqueItems": true,
                               "items": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -2105,7 +2104,6 @@
                                   "secondaryDisabilities": {
                                     "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                     "type": "array",
-                                    "uniqueItems": true,
                                     "items": {
                                       "type": "object",
                                       "additionalProperties": false,
@@ -2274,14 +2272,14 @@
                                         ]
                                       },
                                       "activeDutyBeginDate": {
-                                        "description": "Date started Active Duty.",
+                                        "description": "Date started active duty.",
                                         "type": "string",
                                         "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                        "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                         "type": "string",
                                         "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
@@ -3026,7 +3024,7 @@
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
-                                    "description": "international phone of point of contact.",
+                                    "description": "International phone of point of contact.",
                                     "type": "string",
                                     "example": "+44 20 1234 5678",
                                     "nullable": true
@@ -3275,7 +3273,6 @@
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
-                            "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -3335,7 +3332,6 @@
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -3504,14 +3500,14 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date started Active Duty.",
+                                      "description": "Date started active duty.",
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
@@ -4529,7 +4525,7 @@
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
-                                    "description": "international phone of point of contact.",
+                                    "description": "International phone of point of contact.",
                                     "type": "string",
                                     "example": "+44 20 1234 5678",
                                     "nullable": true
@@ -4778,7 +4774,6 @@
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
-                            "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -4838,7 +4833,6 @@
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -5007,14 +5001,14 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date started Active Duty.",
+                                      "description": "Date started active duty.",
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
@@ -5593,7 +5587,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7710571e-2465-4f39-8e72-570aba566f3c",
+                    "id": "2ba8a852-49f4-4989-af19-c493b30a1998",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6157,7 +6151,7 @@
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
-                                    "description": "international phone of point of contact.",
+                                    "description": "International phone of point of contact.",
                                     "type": "string",
                                     "example": "+44 20 1234 5678",
                                     "nullable": true
@@ -6406,7 +6400,6 @@
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
                             "minItems": 1,
-                            "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -6466,7 +6459,6 @@
                                 "secondaryDisabilities": {
                                   "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -6635,14 +6627,14 @@
                                       ]
                                     },
                                     "activeDutyBeginDate": {
-                                      "description": "Date started Active Duty.",
+                                      "description": "Date started active duty.",
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
@@ -7572,8 +7564,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-27",
-                      "expirationDate": "2024-11-27",
+                      "creationDate": "2023-11-28",
+                      "expirationDate": "2024-11-28",
                       "type": "compensation",
                       "status": "active"
                     }
