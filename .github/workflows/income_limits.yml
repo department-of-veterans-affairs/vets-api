@@ -21,6 +21,6 @@ jobs:
 
       - run: java -version
 
-      - run: curl https://sitewide-public-websites-income-limits-data.s3.us-gov-west-1.amazonaws.com/9CKQBp6H7n/ConnectionTest.jar --output /temp/ConnectionTest.jar
+      - run: curl https://sitewide-public-websites-income-limits-data.s3.us-gov-west-1.amazonaws.com/9CKQBp6H7n/ConnectionTest.jar --output ./ConnectionTest.jar
 
-      - run: java -jar /temp/ConnectionTest.jar
+      - run: java -jar ./ConnectionTest.jar
