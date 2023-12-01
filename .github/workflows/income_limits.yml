@@ -1,0 +1,26 @@
+name: Income Limits VES DB Connection
+on:
+  push:
+  workflow_dispatch: null
+
+env:
+  NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Install Java
+        uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0 #v3.13.0
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - run: java -version
+
+      - run: curl https://sitewide-public-websites-income-limits-data.s3.us-gov-west-1.amazonaws.com/9CKQBp6H7n/ConnectionTest.jar --output /temp/ConnectionTest.jar
+
+      - run: java -jar /temp/ConnectionTest.jar
