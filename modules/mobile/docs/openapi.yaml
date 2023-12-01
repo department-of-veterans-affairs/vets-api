@@ -798,7 +798,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/AppointmentCheckin.yml
+                $ref: ./schemas/Awards.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
