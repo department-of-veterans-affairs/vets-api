@@ -1,10 +1,28 @@
 { 
   "data": [
-    { 
-      "inquiryNumber": "A-1",
-      "replyId": "R-1",
-      "reply": "Sergeant Joe Smith birthday is July 4th, 1980",
-      "sec_id": "0001740097"
+    {   
+        "inquiryId": "a6c3af1b-ec8c-ee11-8178-001dd804e106",
+        "id": "123456-asdf-456",
+        "modifiedon": "1/2/23",
+        "status_reason": "Completed/Sent",
+        "description": "description",
+        "message_type": "Sergeant Joe Smith birthday is July 4th, 1980",
+        "enable_reply": true,
+        "attachmentNames": [
+            {
+                "id": "012345", 
+                "name": "File A.pdf"
+            }
+        ]
+    },
+    {   
+        "inquiryId": "a6c3af1b-ec8c-ee11-8178-001dd804e106",
+        "id": "09876-asdf-123",
+        "modifiedon": "1/2/23",
+        "status_reason": "Completed/Sent",
+        "description": "description",
+        "message_type": "What is your question?",
+        "enable_reply": true
     }
-  ]
+]
 }
