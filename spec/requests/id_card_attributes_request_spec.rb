@@ -15,11 +15,12 @@ RSpec.describe 'Requesting ID Card Attributes' do
   end
 
   describe '#show /v0/id_card/attributes' do
-    context 'Feature flipper military_information_vaprofile=false' do
+    context 'Feature flipper military_information_vaprofile=false and military_information_vaprofile_vic=false' do
       let(:service_episodes) { [build(:service_episode)] }
 
       before do
         Flipper.disable(:military_information_vaprofile)
+        Flipper.disable(:military_information_vaprofile_vic)
       end
 
       it 'returns a signed redirect URL' do
@@ -62,11 +63,12 @@ RSpec.describe 'Requesting ID Card Attributes' do
       end
     end
 
-    context 'Feature flipper military_information_vaprofile=true' do
+    context 'Feature flipper military_information_vaprofile=true and military_information_vaprofile=true' do
       let(:service_episodes) { [build(:prefill_service_episode)] }
 
       before do
         Flipper.enable(:military_information_vaprofile)
+        Flipper.enable(:military_information_vaprofile_vic)
       end
 
       it 'returns a signed redirect URL' do
@@ -90,6 +92,65 @@ RSpec.describe 'Requesting ID Card Attributes' do
           expect(traits).to be_key('dischargetype')
           expect(traits).to be_key('timestamp')
           expect(traits).to be_key('signature')
+        end
+      end
+
+      it 'returns VA Profile discharge codes for all service episodes' do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
+                                                                                    allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                           allow_playback_repeats: true) do
+            allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
+            expect_any_instance_of(
+              VAProfileRedis::VeteranStatus
+            ).to receive(:title38_status).at_least(:once).and_return('V1')
+            get '/v0/id_card/attributes', headers: auth_header
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+            url = json['url']
+            expect(url).to be_truthy
+            traits = json['traits']
+            expect(traits['dischargetype']).to eq('B')
+          end
+        end
+      end
+
+      it 'returns an empty string from VA Profile if no discharge type' do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
+                                                                                    allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+            allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
+            expect_any_instance_of(
+              VAProfileRedis::VeteranStatus
+            ).to receive(:title38_status).at_least(:once).and_return('V1')
+            get '/v0/id_card/attributes', headers: auth_header
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+            url = json['url']
+            expect(url).to be_truthy
+            traits = json['traits']
+            expect(traits['dischargetype']).to eq('')
+          end
+        end
+      end
+
+      it 'returns VA Profile discharge codes for single service episode' do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method],
+                                                                                    allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
+                           allow_playback_repeats: true) do
+            allow(VAProfile::Configuration::SETTINGS.veteran_status).to receive(:cache_enabled).and_return(true)
+            expect_any_instance_of(
+              VAProfileRedis::VeteranStatus
+            ).to receive(:title38_status).at_least(:once).and_return('V1')
+            get '/v0/id_card/attributes', headers: auth_header
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+            url = json['url']
+            expect(url).to be_truthy
+            traits = json['traits']
+            expect(traits['dischargetype']).to eq('B')
+          end
         end
       end
 
