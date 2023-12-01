@@ -42,7 +42,9 @@ module V0
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
 
-      File.delete(source_file_path)
+      # rubocop:disable Lint/NonAtomicFileOperation
+      File.delete(source_file_path) if File.exist?(source_file_path)
+      # rubocop:enable Lint/NonAtomicFileOperation
 
       auditor.record(:pdf_download)
 
