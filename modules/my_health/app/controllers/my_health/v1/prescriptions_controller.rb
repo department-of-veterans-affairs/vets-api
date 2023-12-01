@@ -17,7 +17,7 @@ module MyHealth
         sorting_key_primary = params[:sort]&.first
         if sorting_key_primary == 'prescription_name'
           sort_by_prescription_name(resource)
-        elsif sorting_key_primary == '-dispensed date'
+        elsif sorting_key_primary == '-dispensed_date'
           resource = last_refill_date_filter(resource)
         else
           resource = resource.sort(params[:sort])
@@ -57,13 +57,13 @@ module MyHealth
       end
 
       def last_refill_date_filter(resource)
-        resource = resource.sort_by do |x|
-          x.rx_rf_records?.rf_record.find do |rf_record|
-            rf_record[:dispensed_date].present?
-          end.present? || x[:dispensed_date].present?
-        end
-
-        Collection.new(Prescription, data: resource, metadata:, errors:)
+        sorted_data = resource.data.sort_by { |r| r[:sorted_dispensed_date] }.reverse
+        sort_metadata = {
+          'dispensed_date' => 'DESC',
+          'prescription_name' => 'ASC'
+        }
+        new_metadata = resource.metadata.merge('sort' => sort_metadata)
+        Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
       end
 
       def sort_by_prescription_name(resource)
@@ -73,7 +73,7 @@ module MyHealth
                                 else
                                   item.prescription_name
                                 end
-          sorting_key_secondary = item.dispensed_date || Date.new(9999, 12, 31) # If nil, need to use distant Date
+          sorting_key_secondary = item.sorted_dispensed_date
           [sorting_key_primary, sorting_key_secondary]
         end
         sort_metadata = {
