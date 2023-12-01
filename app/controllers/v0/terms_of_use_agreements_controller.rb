@@ -62,7 +62,7 @@ module V0
         value: TermsOfUse::Constants::PROVISIONER_COOKIE_VALUE,
         expires: TermsOfUse::Constants::PROVISIONER_COOKIE_EXPIRATION.from_now,
         path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
-        domain: Settings.terms_of_use.provisioner_cookie_domain
+        domain: TermsOfUse::Constants::PROVISIONER_COOKIE_DOMAIN
       }
     end
 
