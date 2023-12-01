@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppsApi
-  class ApplicationController < ::OpenidApplicationController
+  class ApplicationController < ::ApplicationController
     service_tag 'lighthouse-apps'
     before_action { set_default_format_to_json }
 
