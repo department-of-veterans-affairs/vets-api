@@ -102,10 +102,6 @@ module RepOrgAddresses
     # @param meta [Hash] Metadata about the address from the validation response.
     # @return [Hash] The attributes to update the record with.
     def build_record_attributes(address, geocode, meta)
-      # The address validation service response does not include county name and code for some records.
-      county_name = address['county'].nil? ? nil : address['county']['name']
-      county_code = address['county'].nil? ? nil : address['county']['county_fips_code']
-
       {
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
@@ -114,8 +110,8 @@ module RepOrgAddresses
         city: address['city'],
         country_code_iso3: address['country']['iso3_code'],
         country_name: address['country']['name'],
-        county_name:,
-        county_code:,
+        county_name: address.dig('county', 'name'),
+        county_code: address.dig('county', 'county_fips_code'),
         province: address['state_province']['name'],
         state_code: address['state_province']['code'],
         zip_code: address['zip_code5'],
