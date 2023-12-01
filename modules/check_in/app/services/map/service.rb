@@ -50,5 +50,14 @@ module Map
 
       token_response[:access_token]
     end
+
+    def get_appointments(token:, patient_identifier:, time_period:)
+      resp = if token.present?
+               client.get_appointments(token:, patient_identifier:, time_period:)
+             else
+               Faraday::Response.new(body: { message: 'Unauthorized' }, status: 401)
+             end
+      response.build(response: resp).handle
+    end
   end
 end
