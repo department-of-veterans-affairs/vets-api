@@ -9,7 +9,7 @@ require 'bgs_service/local_bgs'
 require 'claims_api/form_schemas'
 require 'claims_api/v2/benefits_documents/service'
 require 'bd/bd'
-require 'claims_api/v2/params_validation/intent_to_file'
+
 module ClaimsApi
   module V2
     class ApplicationController < ::ApplicationController
