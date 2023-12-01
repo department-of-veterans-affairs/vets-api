@@ -688,6 +688,10 @@ features:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
+  military_information_vaprofile_vic:
+    actor_type: user
+    description: Enables the post-EMIS military information of VAProfile for the VIC form
+    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -732,6 +736,9 @@ features:
   show_authenticated_menu_enhancements:
     actor_type: user
     description: Exposes new links for dependents and letters in the header dropdown for authenticated users
+  profile_enhanced_military_info:
+    actor_type: user
+    description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
