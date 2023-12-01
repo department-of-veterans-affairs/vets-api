@@ -29,6 +29,7 @@ module MyHealth
       attribute :rx_rf_records
       attribute :tracking
       attribute :orderable_item
+      attribute :sorted_dispensed_date
     end
   end
 end
