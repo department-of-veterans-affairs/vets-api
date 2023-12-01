@@ -197,6 +197,24 @@ RSpec.describe 'prescriptions', type: :request do
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
         end
 
+        it 'responds to GET #index with sorted_dispensed_date' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_sorted_by_custom_field_list_of_all_prescriptions_v1') do
+            get '/my_health/v1/prescriptions?sort[]=-dispensed_date&sort[]=prescription_name', headers: inflection_header
+          end
+
+          res = JSON.parse(response.body)
+
+          dates = res['data'].map { |d| DateTime.parse(d['attributes']['sortedDispensedDate']) }
+          is_sorted = dates.each_cons(2).all? { |item1, item2| item1 >= item2 }
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(is_sorted).to be_truthy
+          expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
+
+          metadata = { 'prescriptionName' => 'ASC', 'dispensedDate' => 'DESC' }
+          expect(JSON.parse(response.body)['meta']['sort']).to eq(metadata)
+        end
+
         it 'responds to GET #show of nested tracking resource when camel-inflected' do
           VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
             get '/my_health/v1/prescriptions/13650541/trackings', headers: inflection_header
