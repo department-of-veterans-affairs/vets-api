@@ -13,6 +13,7 @@ class Account < ApplicationRecord
            class_name: 'AccountLoginStat',
            dependent: :destroy,
            inverse_of: :account
+  has_many :form_submissions
 
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, uniqueness: true, allow_nil: true

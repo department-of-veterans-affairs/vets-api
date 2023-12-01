@@ -171,6 +171,7 @@ group :test do
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
   gem 'simplecov', require: false
+  gem 'shoulda-matchers'
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick'

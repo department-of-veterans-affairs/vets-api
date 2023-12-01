@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_24_162244) do
+ActiveRecord::Schema.define(version: 2023_12_05_185526) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -573,7 +573,7 @@ ActiveRecord::Schema.define(version: 2023_11_24_162244) do
     t.jsonb "bgjob_errors", default: {}
     t.index ["bgjob_errors"], name: "index_form526_job_statuses_on_bgjob_errors", using: :gin
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
-    t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
+    t.index ["job_id"], name: "index_form526_job_statuses_on_job_id"
   end
 
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
@@ -620,6 +620,35 @@ ActiveRecord::Schema.define(version: 2023_11_24_162244) do
     t.text "encrypted_kms_key"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
+  end
+
+  create_table "form_submission_attempts", force: :cascade do |t|
+    t.bigint "form_submission_id", null: false
+    t.jsonb "response"
+    t.string "aasm_state"
+    t.string "error_message"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
+  end
+
+  create_table "form_submissions", force: :cascade do |t|
+    t.integer "form_type", default: 0, null: false
+    t.uuid "benefits_intake_uuid", null: false
+    t.uuid "submitted_claim_uuid"
+    t.jsonb "form_data", default: {}
+    t.uuid "user_account_id"
+    t.bigint "saved_claim_id"
+    t.bigint "in_progress_form_id"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
+    t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
+    t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
+    t.index ["submitted_claim_uuid"], name: "index_form_submissions_on_submitted_claim_uuid"
+    t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
 
   create_table "gibs_not_found_users", id: :serial, force: :cascade do |t|
@@ -838,7 +867,7 @@ ActiveRecord::Schema.define(version: 2023_11_24_162244) do
     t.string "type"
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
-    t.string "uploaded_forms", default: [], array: true
+    t.string "uploaded_forms", array: true
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -1255,6 +1284,10 @@ ActiveRecord::Schema.define(version: 2023_11_24_162244) do
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
+  add_foreign_key "form_submission_attempts", "form_submissions"
+  add_foreign_key "form_submissions", "in_progress_forms"
+  add_foreign_key "form_submissions", "saved_claims"
+  add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
