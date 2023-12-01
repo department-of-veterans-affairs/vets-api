@@ -111,7 +111,7 @@ module Dynamics
 
     def token(method, endpoint)
       logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
-        response = conn(url: auth_url).post("/#{tenant_id}/oauth2/v2.0/token") do |req|
+        response = conn(url: auth_url).post("/#{tenant_id}/oauth2/token") do |req|
           req.headers = token_headers
           req.body = URI.encode_www_form(auth_params)
         end
