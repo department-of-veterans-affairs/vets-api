@@ -20,7 +20,7 @@ module Sidekiq
       include SentryLogging
       include Sidekiq::Job
 
-      sidekiq_options retry: 10
+      sidekiq_options retry: 14
       STATSD_KEY_PREFIX = 'worker.evss.form526_backup_submission_process.exhausted'
 
       sidekiq_retries_exhausted do |msg, _ex|
