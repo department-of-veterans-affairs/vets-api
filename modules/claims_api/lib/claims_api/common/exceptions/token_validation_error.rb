@@ -5,17 +5,16 @@ module ClaimsApi
     class TokenValidationError < StandardError
       def errors
         [
-          ::Common::Exceptions::SerializableError.new(
+          {
             title: 'Not authorized',
             detail: 'Not authorized.',
-            status: '401',
-            source: '/token_validation.rb:35'
-          )
+            status: '401'
+          }
         ]
       end
 
       def status_code
-        401
+        :unauthorized
       end
     end
   end

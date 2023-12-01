@@ -17,7 +17,7 @@
           },
           "status": {
             "type": "string",
-            "description": "401"
+            "description": "HTTP error status code"
           },
           "source": {
             "type": "object",

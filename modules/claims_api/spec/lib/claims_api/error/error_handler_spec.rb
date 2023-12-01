@@ -42,7 +42,6 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'].size).to eq(1)
       expect(parsed_body['errors'][0]['title']).to eq('Not authorized')
       expect(parsed_body['errors'][0]['detail']).to eq('Not authorized.')
-      expect(parsed_body['errors'][0]['source']['pointer']).to eq('/token_validation.rb:35')
     end
   end
 
@@ -58,7 +57,6 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'].size).to eq(1)
       expect(parsed_body['errors'][0]['title']).to eq('Not authorized')
       expect(parsed_body['errors'][0]['detail']).to eq('Not authorized.')
-      expect(parsed_body['errors'][0]['source']['pointer']).to eq('/token_validation.rb:35')
     end
   end
 end
