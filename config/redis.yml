@@ -193,6 +193,9 @@ development: &defaults
   va_profile_veteran_status:
     namespace: va_profile_veteran_status
     each_ttl: 86400
+  sidekiq_attr_package:
+    namespace: sidekiq_attr_package
+    each_ttl: 604800
 test:
   <<: *defaults
   redis:
