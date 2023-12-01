@@ -24,9 +24,22 @@ module ClaimsApi
       private
 
       def render_error(error)
-        render json: { errors: error.errors.map do |e|
-                                 e.as_json.slice('title', 'detail')
-                               end }, status: error.status_code
+        render json: {
+          errors: error.errors.map do |e|
+            error_hash = e.as_json.slice('title', 'status', 'detail')
+            error_hash['source'] = format_source(e.source) unless e&.source.nil?
+            error_hash
+          end
+        }, status: error.status_code
+      end
+
+      def format_source(err_source)
+        { pointer: err_source.to_s }
+      end
+
+      # returns the file name and line number where the raise was called
+      def get_source
+        "#{File.basename(caller_locations.first.path)}:#{caller_locations.first.lineno}"
       end
     end
   end
