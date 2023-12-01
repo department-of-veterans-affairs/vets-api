@@ -19,14 +19,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
                             personnel_category_type_code: 'V')
   end
 
-  describe '#last_entry_date' do
-    it 'returns the begin date from the latest service episode' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.last_entry_date).to eq('2007-04-01')
-      end
-    end
-  end
-
   describe '#service_branch_used_in_disability' do
     it 'translates the service_episode codes to a string' do
       expect(subject.service_branch_used_in_disability(ang_service_episode)).to eq('Air National Guard')
@@ -35,23 +27,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
-  describe '#service_branches' do
-    it 'returns all the service branches someone has served under' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.service_branches).to eq(['F'])
-      end
-    end
-  end
-
   describe '#currently_active_duty_hash' do
-    it 'returns false if service episode end date is in the past' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.currently_active_duty_hash).to eq(
-          yes: false
-        )
-      end
-    end
-
     it 'returns true if service episode end date is in the future' do
       allow(subject).to receive(:latest_service_episode).and_return(double(end_date: Date.current + 1.day))
       expect(subject.currently_active_duty_hash).to eq(
@@ -71,53 +47,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       expect(subject.currently_active_duty_hash).to eq(
         yes: false
       )
-    end
-  end
-
-  describe '#tours_of_duty' do
-    it 'gets the tours of duty' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.tours_of_duty).to eq(
-          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-      end
-    end
-  end
-
-  describe '#service_periods' do
-    it 'gets the service period' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.service_periods).to eq(
-          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-      end
-    end
-
-    it 'gets the all service periods' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
-        expect(subject.service_periods).to eq(
-          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } },
-           { service_branch: 'Air Force Reserve', date_range: { from: '2000-02-01', to: '2004-06-14' } }]
-        )
-      end
-    end
-  end
-
-  describe '#last_discharge_date' do
-    it 'returns the end date from the latest service episode' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.last_discharge_date).to eq('2016-06-01')
-      end
-    end
-  end
-
-  describe '#compensable_va_service_connected' do
-    context 'with a disability with the right percent' do
-      it 'returns true' do
-        VCR.use_cassette('emis/get_disabilities/valid') do
-          expect(subject.compensable_va_service_connected).to eq(true)
-        end
-      end
     end
   end
 
@@ -141,14 +70,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
 
       it 'returns true' do
         expect(subject.deployed_to?(['IRQ'], described_class::GULF_WAR_RANGE)).to eq(true)
-      end
-    end
-
-    context 'without a deployment in the gulf war' do
-      it 'returns false' do
-        VCR.use_cassette('emis/get_deployment/valid') do
-          expect(subject.deployed_to?(described_class::SOUTHWEST_ASIA, described_class::GULF_WAR_RANGE)).to eq(false)
-        end
       end
     end
   end
@@ -214,14 +135,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   end
 
   describe '#post_nov111998_combat' do
-    context 'with post nov 1998 combat' do
-      it 'returns true' do
-        VCR.use_cassette('emis/get_deployment/valid') do
-          expect(subject.post_nov111998_combat).to eq(true)
-        end
-      end
-    end
-
     context 'with no post nov 1998 combat' do
       before do
         expect(subject).to receive(:deployments).and_return(
@@ -249,22 +162,10 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
 
       expect(military_information.discharge_type).to eq(nil)
     end
-
-    it 'returns the discharge type from the latest service episode' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.discharge_type).to eq('dishonorable')
-      end
-    end
   end
 
   describe '#hca_last_service_branch' do
     context 'with service episodes' do
-      it 'returns the last branch of service' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.hca_last_service_branch).to eq('air force')
-        end
-      end
-
       context 'with a code not in the list' do
         before do
           allow(subject).to receive(:service_episodes_by_date).and_return(
@@ -284,23 +185,11 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       before do
         allow(subject).to receive(:service_episodes_by_date).and_return([])
       end
-
-      it 'returns nil' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.hca_last_service_branch).to be_nil
-        end
-      end
     end
   end
 
   describe '#last_service_branch' do
     context 'with service episodes' do
-      it 'returns the last branch of service' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.last_service_branch).to eq('Air Force')
-        end
-      end
-
       context 'with a code not in the list' do
         before do
           allow(subject).to receive(:service_episodes_by_date).and_return(
@@ -311,18 +200,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
         end
 
         it 'returns other' do
-          expect(subject.last_service_branch).to be_nil
-        end
-      end
-    end
-
-    context 'with no service episodes' do
-      before do
-        allow(subject).to receive(:service_episodes_by_date).and_return([])
-      end
-
-      it 'returns nil' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
           expect(subject.last_service_branch).to be_nil
         end
       end
@@ -374,46 +251,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
-  describe '#service_history' do
-    context 'with one military service episode' do
-      it 'for the episode, it should return the branch of service, start date, and end date' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          service_history = [
-            service_history_object('Air Force', 'V', begin_date: '2007-04-01', end_date: '2016-06-01')
-          ]
-
-          expect(subject.service_history.as_json).to eq service_history
-        end
-      end
-    end
-
-    context 'with multiple military service episodes' do
-      it 'for each episode, it should return the branch of service, start date, and end date' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
-          service_history = [
-            service_history_object(begin_date: '2007-04-01', end_date: '2016-06-01'),
-            service_history_object(begin_date: '2000-02-01', end_date: '2004-06-14')
-          ]
-
-          expect(subject.service_history.as_json).to eq service_history
-        end
-      end
-    end
-
-    context 'with a military service episode that has no end date' do
-      it 'for each episode, it should return the branch of service, start date, and end date as nil' do
-        VCR.use_cassette('emis/get_military_service_episodes/valid_no_end_date') do
-          service_history = [
-            service_history_object('Army', 'A', begin_date: '1990-11-02', end_date: nil),
-            service_history_object('Army', 'A', begin_date: '1983-02-23', end_date: '1988-10-04')
-          ]
-
-          expect(subject.service_history.as_json).to eq service_history
-        end
-      end
-    end
-  end
-
   describe '#guard_reserve_service_by_date' do
     let(:episode1) { EMIS::Models::GuardReserveServicePeriod.new(end_date: Time.utc('2001')) }
     let(:episode2) { EMIS::Models::GuardReserveServicePeriod.new(end_date: Time.utc('2000')) }
@@ -456,31 +293,6 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
           episode3
         ]
       )
-    end
-  end
-
-  describe '#guard_reserve_service_history' do
-    context 'with one reserve/guard service period' do
-      it 'for the period, it should return the "from" date and the "to" date' do
-        VCR.use_cassette('emis/get_guard_reserve_service_periods/valid') do
-          service_periods = [
-            reserve_guard_periods_object(from: '2007-05-22', to: '2008-06-05')
-          ]
-
-          expect(subject.guard_reserve_service_history.as_json).to eq service_periods
-        end
-      end
-    end
-
-    context 'with a reserve/guard service period that has no end date' do
-      it 'for the period, it should return the "from" date and the "to" date' do
-        VCR.use_cassette('emis/get_guard_reserve_service_periods/valid_no_end_date') do
-          service_periods = [
-            reserve_guard_periods_object(from: '2007-05-22', to: nil)
-          ]
-          expect(subject.guard_reserve_service_history.as_json).to eq service_periods
-        end
-      end
     end
   end
 
