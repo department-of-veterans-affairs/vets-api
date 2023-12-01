@@ -6,8 +6,7 @@ module Common
   module Client
     module Concerns
       ##
-      # Module mixin for overriding session logic when making MHV FHIR-based client connections. This mixin itself
-      # includes another mixin for handling the JWT-based session logic.
+      # Module mixin for overriding session logic when making MHV JWT/FHIR-based client connections.
       #
       # All refrences to "session" in this module refer to the upstream MHV/FHIR session.
       #
@@ -18,8 +17,9 @@ module Common
       #
       module MhvFhirSessionClient
         extend ActiveSupport::Concern
-        include SentryLogging
         include MHVJwtSessionClient
+
+        protected
 
         LOCK_RETRY_DELAY = 1 # Number of seconds to wait between attempts to acquire a session lock
         RETRY_ATTEMPTS = 10 # How many times to attempt to acquire a session lock
@@ -30,62 +30,6 @@ module Common
 
         def invalid?(session)
           session.expired? || incomplete?(session)
-        end
-
-        ##
-        # Ensure the upstream MHV/FHIR-based session is not expired or incomplete.
-        #
-        # @return [MhvFhirSessionClient] instance of `self`
-        #
-        def authenticate
-          raise 'ICN is required for session creation' unless session&.icn
-
-          iteration = 0
-
-          # Loop unless a complete, valid MHV/FHIR session exists, or until max_iterations is reached
-          while invalid?(session) && iteration < RETRY_ATTEMPTS
-            break if lock_and_get_session # Break out of the loop once a new session is created.
-
-            sleep(LOCK_RETRY_DELAY)
-
-            # Refresh the MHV/FHIR session reference in case another thread has updated it.
-            refresh_session(session)
-            iteration += 1
-          end
-          self
-        end
-
-        ##
-        # Attempt to acquire a redis lock, then create a new MHV/FHIR session. Once the session is created,
-        # release the lock.
-        #
-        # return [Boolean] true if a session was created, otherwise false
-        #
-        def lock_and_get_session
-          redis_lock = obtain_redis_lock(session.icn)
-          if redis_lock
-            begin
-              @session = get_session
-              return true
-            ensure
-              release_redis_lock(redis_lock, session.icn)
-            end
-          end
-          false
-        end
-
-        def obtain_redis_lock(user_key)
-          lock_key = "mhv_fhir_session_lock:#{user_key}"
-          redis_lock = Redis::Namespace.new(REDIS_CONFIG[:mhv_mr_fhir_session_lock][:namespace], redis: $redis)
-          success = redis_lock.set(lock_key, 1, nx: true, ex: REDIS_CONFIG[:mhv_mr_fhir_session_lock][:each_ttl])
-          return redis_lock if success
-
-          nil
-        end
-
-        def release_redis_lock(redis_lock, user_key)
-          lock_key = "mhv_fhir_session_lock:#{user_key}"
-          redis_lock.del(lock_key)
         end
 
         ##
@@ -119,6 +63,8 @@ module Common
 
           new_session
         end
+
+        private
 
         ##
         # Checks to see if a PHR refresh is necessary, performs the refresh, and updates the refresh timestamp.
@@ -179,18 +125,6 @@ module Common
                                            refresh_time: session.refresh_time)
           new_session.save
           new_session
-        end
-
-        ##
-        # Override client_session method to use extended ::ClientSession classes
-        #
-        module ClassMethods
-          ##
-          # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
-          #
-          def client_session(klass = nil)
-            @client_session ||= klass
-          end
         end
       end
     end
