@@ -2,6 +2,7 @@
 
 require 'ddtrace'
 require 'simple_forms_api_submission/service'
+require 'simple_forms_api_submission/metadata_validator'
 
 module SimpleFormsApi
   module V1
@@ -75,7 +76,7 @@ module SimpleFormsApi
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
-        metadata = filler.metadata
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(filler.metadata)
 
         SimpleFormsApi::VBA400247.new(parsed_form_data).handle_attachments(file_path) if form_id == 'vba_40_0247'
 
