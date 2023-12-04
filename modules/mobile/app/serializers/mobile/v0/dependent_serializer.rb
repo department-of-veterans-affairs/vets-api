@@ -11,10 +11,12 @@ module Mobile
                  :email_address,
                  :first_name,
                  :last_name,
+                 :middle_name,
                  :proof_of_dependency,
                  :ptcpnt_id,
                  :related_to_vet,
                  :relationship,
+                 :ssn,
                  :veteran_indicator
 
       def initialize(dependents)
@@ -24,10 +26,12 @@ module Mobile
                               dependent[:email_address],
                               dependent[:first_name],
                               dependent[:last_name],
+                              dependent[:middle_name],
                               dependent[:proof_of_dependency],
                               dependent[:ptcpnt_id],
                               dependent[:related_to_vet],
                               dependent[:relationship],
+                              dependent[:ssn],
                               dependent[:veteran_indicator])
         end
 
@@ -40,10 +44,12 @@ module Mobile
                                  :email_address,
                                  :first_name,
                                  :last_name,
+                                 :middle_name,
                                  :proof_of_dependency,
                                  :ptcpnt_id,
                                  :related_to_vet,
                                  :relationship,
+                                 :ssn,
                                  :veteran_indicator)
   end
 end
