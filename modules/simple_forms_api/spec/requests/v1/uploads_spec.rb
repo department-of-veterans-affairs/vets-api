@@ -94,7 +94,14 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       it 'generates the right PDF' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_4142_resubmission.json')
+            fixture_path = Rails.root.join(
+              'modules',
+              'simple_forms_api',
+              'spec',
+              'fixtures',
+              'form_json',
+              'vba_21_4142_resubmission.json'
+            )
             data = JSON.parse(fixture_path.read)
 
             post '/simple_forms_api/v1/simple_forms', params: data
