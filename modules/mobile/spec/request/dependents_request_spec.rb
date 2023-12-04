@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require_relative '../support/helpers/sis_session_helper'
+
+RSpec.describe 'dependents', type: :request do
+  let!(:user) { sis_user }
+
+  describe '#show' do
+    it 'shows a list of dependents' do
+      expected_data = [{ 'id' => be_a(String),
+                         'type' => 'dependents',
+                         'attributes' =>
+                          { 'awardIndicator' => 'N',
+                            'dateOfBirth' => '01/02/1960',
+                            'emailAddress' => 'test@email.com',
+                            'firstName' => 'JANE',
+                            'lastName' => 'WEBB',
+                            'middleName' => 'M',
+                            'ptcpntId' => '600140899',
+                            'relatedToVet' => 'Y',
+                            'relationship' => 'Spouse',
+                            'ssn' => '222883214',
+                            'veteranIndicator' => 'N' } },
+                       {
+                         'id' => be_a(String),
+                         'type' => 'dependents',
+                         'attributes' => {
+                           'awardIndicator' => 'N',
+                           'dateOfBirth' => '02/04/2002',
+                           'emailAddress' => 'test@email.com',
+                           'firstName' => 'MARK',
+                           'lastName' => 'WEBB',
+                           'proofOfDependency' => 'N',
+                           'ptcpntId' => '600280661',
+                           'relatedToVet' => 'Y',
+                           'relationship' => 'Child',
+                           'veteranIndicator' => 'N'
+                         }
+                       }]
+
+      VCR.use_cassette('bgs/claimant_web_service/dependents') do
+        get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data']).to eq(expected_data)
+      end
+    end
+
+    context 'with an erroneous bgs response' do
+      it 'returns no content' do
+        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
+        get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+  end
+end
