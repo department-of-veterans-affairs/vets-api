@@ -24,14 +24,13 @@ module ClaimsApi
     end
 
     def self.get_error(**params)
-      params.key?(:error_class) ? params[:error_class] : ''
+      params.key?(:error) ? params[:error] : ''
     end
 
     # rubocop:disable Metrics/MethodLength
     def self.format_msg(tag, **params) # rubocop:disable Metrics/AbcSize
       msg = ['ClaimsApi', tag]
       msg.append("RID: #{params[:rid]}") if params[:rid].present?
-      msg.append(params[:error].trace.as_json) if params[:error].present?
       case tag
       when '526'
         msg.append("Claim ID: #{params[:claim_id]}") if params[:claim_id].present?
