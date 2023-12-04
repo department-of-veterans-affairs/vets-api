@@ -2563,7 +2563,7 @@
                               "type": "object",
                               "nullable": true,
                               "additionalProperties": false,
-                              "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber, and financialInstitutionName.",
+                              "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
                               "properties": {
                                 "accountType": {
                                   "description": "Account type for the direct deposit.",
@@ -3796,7 +3796,7 @@
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
-                            "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber, and financialInstitutionName.",
+                            "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
                             "properties": {
                               "accountType": {
                                 "description": "Account type for the direct deposit.",
@@ -5302,7 +5302,7 @@
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
-                            "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber, and financialInstitutionName.",
+                            "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
                             "properties": {
                               "accountType": {
                                 "description": "Account type for the direct deposit.",
@@ -6933,7 +6933,7 @@
                             "type": "object",
                             "nullable": true,
                             "additionalProperties": false,
-                            "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber, and financialInstitutionName.",
+                            "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
                             "properties": {
                               "accountType": {
                                 "description": "Account type for the direct deposit.",
