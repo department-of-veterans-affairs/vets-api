@@ -8,6 +8,7 @@ FactoryBot.define do
     audience { SecureRandom.hex }
     version { SignIn::Constants::ServiceAccountAccessToken::CURRENT_VERSION }
     scopes { [Faker::Internet.url] }
+    user_attributes { {} }
     user_identifier { Faker::Internet.email }
     expiration_time { Time.zone.now + SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
     created_time { Time.zone.now }
@@ -16,6 +17,7 @@ FactoryBot.define do
       new(service_account_id:,
           audience:,
           scopes:,
+          user_attributes:,
           user_identifier:,
           version:,
           expiration_time:,
