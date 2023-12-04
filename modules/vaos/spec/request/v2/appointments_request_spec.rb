@@ -435,7 +435,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
         end
 
-        # TODO: verify this cc request spec with NPI changes
         it 'has access and returns appointment - cc proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed_with_facility_200',
                            match_requests_on: %i[method path query]) do
