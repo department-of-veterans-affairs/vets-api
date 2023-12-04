@@ -73,7 +73,6 @@ module VAOS
       attribute :preferredTimesForPhoneCall do |object|
         object['preferredTimesForPhoneCall']
       end
-
     end
   end
 end

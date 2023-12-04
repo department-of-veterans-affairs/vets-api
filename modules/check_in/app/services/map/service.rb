@@ -59,6 +59,5 @@ module Map
              end
       render json: VAOS::V2::AppointmentsCheckInSerializer.new(resp[:data], meta: resp[:meta])
     end
-
   end
 end
