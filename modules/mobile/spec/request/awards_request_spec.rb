@@ -2,11 +2,8 @@
 
 require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe Mobile::V0::AwardsController, type: :request do
-  include JsonSchemaMatchers
-
   before do
     sis_user(participant_id: 600_061_742)
   end
