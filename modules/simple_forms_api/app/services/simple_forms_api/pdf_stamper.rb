@@ -13,13 +13,6 @@ module SimpleFormsApi
         send(stamp_method, stamped_template_path, data)
       end
 
-      # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
-      if data['in_progress_form_created_at'] && data['form_number'] == '21-4142'
-        date_title = 'Application Submitted:'
-        date_text = data['in_progress_form_created_at']
-        stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
-      end
-
       current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
@@ -44,6 +37,13 @@ module SimpleFormsApi
       ]
 
       multistamp(stamped_template_path, signature_text, page_configuration)
+
+      # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
+      if data['in_progress_form_created_at']
+        date_title = 'Application Submitted:'
+        date_text = data['in_progress_form_created_at']
+        stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
+      end
     end
 
     def self.stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
