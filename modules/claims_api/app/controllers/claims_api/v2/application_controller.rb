@@ -96,8 +96,7 @@ module ClaimsApi
 
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
-            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.',
-                                                              source: get_error_source)
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
       end
 

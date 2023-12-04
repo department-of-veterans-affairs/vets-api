@@ -130,7 +130,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       describe 'Getting an unprocessable entity response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api',
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
                                             'errors', 'default_with_source.json').read)
           # Build the dropdown for examples
           def append_example_metadata(example, response)
@@ -291,7 +291,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                             'default_with_source.json').read)
           let(:data) { { data: { attributes: nil } } }
 

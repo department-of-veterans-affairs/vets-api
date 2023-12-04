@@ -20,7 +20,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit # rubocop:disable Metrics/MethodLength
+        def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
@@ -38,8 +38,7 @@ module ClaimsApi
           save_auto_claim!(auto_claim)
 
           if auto_claim.errors.present?
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s,
-                                                                source: get_error_source)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           track_pact_counter auto_claim
@@ -58,14 +57,11 @@ module ClaimsApi
 
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.',
-                                                                source: get_error_source)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.')
           end
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          unless claim
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found', source: get_error_source)
-          end
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
 
           documents_service(params, claim).process_documents
 
