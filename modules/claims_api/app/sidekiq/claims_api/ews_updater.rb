@@ -44,7 +44,7 @@ module ClaimsApi
       error_message = "Failed to update suspense dates for claim #{ews.claim_id}: #{e.message}"
       ClaimsApi::Logger.log('ews_updater', ews_id: ews.id,
                                            detail: error_message,
-                                           error_class: e.class)
+                                           error: e)
       ClaimsApi::EvidenceWaiverSubmission::ERRORED
     end
 

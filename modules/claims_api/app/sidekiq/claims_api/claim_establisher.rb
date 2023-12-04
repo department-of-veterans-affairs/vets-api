@@ -29,7 +29,7 @@ module ClaimsApi
           ClaimsApi::Logger.log('claims_establisher',
                                 retry: true,
                                 detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}",
-                                error_class: e.class)
+                                error: e)
           raise e
         end
 
@@ -60,7 +60,7 @@ module ClaimsApi
     rescue ::Common::Exceptions::BackendServiceException => e
       ClaimsApi::Logger.log('claims_establisher',
                             retry: false,
-                            error_class: e.class,
+                            error: e,
                             detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}")
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]

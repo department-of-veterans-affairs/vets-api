@@ -101,7 +101,7 @@ module ClaimsApi
       end
 
       def claims_v2_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn,
-                            error_class: nil)
+                            error: nil)
         ClaimsApi::Logger.log(tag,
                               icn:,
                               cid: token&.payload&.[]('cid'),
@@ -109,7 +109,7 @@ module ClaimsApi
                               message:,
                               api_version: 'V2',
                               level:,
-                              error_class:)
+                              error:)
       end
     end
   end
