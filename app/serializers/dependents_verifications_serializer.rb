@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class DependentsVerificationsSerializer < ActiveModel::Serializer
-  type :dependency_decs
+  type :dependency_request_decisions
 
   attribute :dependency_verifications
   attribute :prompt_renewal
