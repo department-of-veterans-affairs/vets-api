@@ -18,15 +18,15 @@ describe VAOS::Middleware::Response::Errors do
   }
 
   let(:url) { URI.parse('url') }
-  let(:success) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 200) }
-  let(:env_400) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 400) }
-  let(:env_403) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 403) }
-  let(:env_404) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 404) }
-  let(:env_409) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 409) }
-  let(:env_500) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 500) }
-  let(:env_other) { Faraday::Env.new(:get, 'body', url, nil, nil, nil, nil, nil, nil, nil, 600) }
-  let(:env_with_error) { Faraday::Env.new(:get, JSON[error], url, nil, nil, nil, nil, nil, nil, nil, 400) }
-  let(:env_with_errors) { Faraday::Env.new(:get, JSON[errors], url, nil, nil, nil, nil, nil, nil, nil, 400) }
+  let(:success) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 200, nil, 'response_body') }
+  let(:env_400) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 400, nil, 'response_body') }
+  let(:env_403) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 403, nil, 'response_body') }
+  let(:env_404) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 404, nil, 'response_body') }
+  let(:env_409) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 409, nil, 'response_body') }
+  let(:env_500) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 500, nil, 'response_body') }
+  let(:env_other) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 600, nil, 'response_body') }
+  let(:env_with_error) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 400, nil, JSON[error]) }
+  let(:env_with_errors) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 400, nil, JSON[errors]) }
 
   describe 'on complete' do
     context 'with success' do
@@ -41,9 +41,9 @@ describe VAOS::Middleware::Response::Errors do
         err = VAOS::Middleware::Response::Errors.new
         expect { err.on_complete(env_400) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_400')
-          expect(e.response_values[:detail]).to equal('body')
+          expect(e.response_values[:detail]).to equal('response_body')
           expect(e.response_values[:source][:vamf_url]).to equal(url)
-          expect(e.response_values[:source][:vamf_body]).to equal('body')
+          expect(e.response_values[:source][:vamf_body]).to equal('response_body')
           expect(e.response_values[:source][:vamf_status]).to equal(400)
         }
       end
@@ -54,9 +54,9 @@ describe VAOS::Middleware::Response::Errors do
         err = VAOS::Middleware::Response::Errors.new
         expect { err.on_complete(env_403) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_403')
-          expect(e.response_values[:detail]).to equal('body')
+          expect(e.response_values[:detail]).to equal('response_body')
           expect(e.response_values[:source][:vamf_url]).to equal(url)
-          expect(e.response_values[:source][:vamf_body]).to equal('body')
+          expect(e.response_values[:source][:vamf_body]).to equal('response_body')
           expect(e.response_values[:source][:vamf_status]).to equal(403)
         }
       end
@@ -67,9 +67,9 @@ describe VAOS::Middleware::Response::Errors do
         err = VAOS::Middleware::Response::Errors.new
         expect { err.on_complete(env_404) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_404')
-          expect(e.response_values[:detail]).to equal('body')
+          expect(e.response_values[:detail]).to equal('response_body')
           expect(e.response_values[:source][:vamf_url]).to equal(url)
-          expect(e.response_values[:source][:vamf_body]).to equal('body')
+          expect(e.response_values[:source][:vamf_body]).to equal('response_body')
           expect(e.response_values[:source][:vamf_status]).to equal(404)
         }
       end
@@ -80,9 +80,9 @@ describe VAOS::Middleware::Response::Errors do
         err = VAOS::Middleware::Response::Errors.new
         expect { err.on_complete(env_409) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_409A')
-          expect(e.response_values[:detail]).to equal('body')
+          expect(e.response_values[:detail]).to equal('response_body')
           expect(e.response_values[:source][:vamf_url]).to equal(url)
-          expect(e.response_values[:source][:vamf_body]).to equal('body')
+          expect(e.response_values[:source][:vamf_body]).to equal('response_body')
           expect(e.response_values[:source][:vamf_status]).to equal(409)
         }
       end
@@ -93,9 +93,9 @@ describe VAOS::Middleware::Response::Errors do
         err = VAOS::Middleware::Response::Errors.new
         expect { err.on_complete(env_500) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_502')
-          expect(e.response_values[:detail]).to equal('body')
+          expect(e.response_values[:detail]).to equal('response_body')
           expect(e.response_values[:source][:vamf_url]).to equal(url)
-          expect(e.response_values[:source][:vamf_body]).to equal('body')
+          expect(e.response_values[:source][:vamf_body]).to equal('response_body')
           expect(e.response_values[:source][:vamf_status]).to equal(500)
         }
       end
@@ -106,9 +106,9 @@ describe VAOS::Middleware::Response::Errors do
         err = VAOS::Middleware::Response::Errors.new
         expect { err.on_complete(env_other) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VA900')
-          expect(e.response_values[:detail]).to equal('body')
+          expect(e.response_values[:detail]).to equal('response_body')
           expect(e.response_values[:source][:vamf_url]).to equal(url)
-          expect(e.response_values[:source][:vamf_body]).to equal('body')
+          expect(e.response_values[:source][:vamf_body]).to equal('response_body')
           expect(e.response_values[:source][:vamf_status]).to equal(600)
         }
       end
