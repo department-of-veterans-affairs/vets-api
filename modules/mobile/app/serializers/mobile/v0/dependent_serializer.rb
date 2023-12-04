@@ -21,7 +21,8 @@ module Mobile
 
       def initialize(dependents)
         resource = dependents.map do |dependent|
-          DependentStruct.new(SecureRandom.uuid, dependent[:award_indicator],
+          DependentStruct.new(SecureRandom.uuid,
+                              dependent[:award_indicator],
                               dependent[:date_of_birth],
                               dependent[:email_address],
                               dependent[:first_name],
@@ -39,7 +40,8 @@ module Mobile
       end
     end
 
-    DependentStruct = Struct.new(:id, :award_indicator,
+    DependentStruct = Struct.new(:id,
+                                 :award_indicator,
                                  :date_of_birth,
                                  :email_address,
                                  :first_name,

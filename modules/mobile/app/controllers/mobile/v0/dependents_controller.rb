@@ -3,11 +3,10 @@
 module Mobile
   module V0
     class DependentsController < ApplicationController
-      def show
+      def index
         dependents_response = dependent_service.get_dependents
 
         render json: DependentSerializer.new(dependents_response[:persons])
-        # render json: dependents, serializer: Mobile::V0::DependentSerializer
       rescue => e
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message) # converts 500 to 400
       end
