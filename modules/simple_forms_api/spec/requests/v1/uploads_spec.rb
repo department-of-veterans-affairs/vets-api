@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Dynamic forms uploader', type: :request do
   describe 'form request' do
@@ -18,10 +19,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', test_payload)
             data = JSON.parse(fixture_path.read)
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
+            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
           ensure
             metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
             Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
@@ -85,6 +88,31 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
                 expect(response).to have_http_status(:ok)
               end
             end
+          end
+        end
+      end
+    end
+
+    describe '21-4142 form resubmission' do
+      it 'generates the right PDF' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join(
+              'modules',
+              'simple_forms_api',
+              'spec',
+              'fixtures',
+              'form_json',
+              'vba_21_4142_resubmission.json'
+            )
+            data = JSON.parse(fixture_path.read)
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+          ensure
+            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
       end
