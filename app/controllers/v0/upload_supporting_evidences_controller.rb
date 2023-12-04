@@ -26,7 +26,6 @@ module V0
       validate_file_upload_class!
       save_attachment_to_cloud!(form_attachment)
       save_attachment_to_db!
-      save_lighthouse_attachment
 
       render(json: form_attachment)
     end
@@ -51,18 +50,6 @@ module V0
 
     def form_attachment
       @form_attachment ||= SupportingEvidenceAttachment.new
-    end
-
-    # Form526 Document Uploads are being migrated to post to Lighthouse instead of EVSS
-    # LighthouseSupportingEvidenceAttachment will replace SupportingEvidenceAttachment as the model for these documents
-    # To ensure attachments uploaded before Lighthouse support is fully enabled are retreiveable on Form 526 Submissions
-    # that occur _after_ the feature is enabled, we need to create a LighthouseSupportingEvidenceAttachment record in
-    # addition to a SupportingEvidenceAttachment for now
-    def save_lighthouse_attachment
-      lighthouse_attachment = LighthouseSupportingEvidenceAttachment.new
-      save_attachment_to_cloud!(lighthouse_attachment)
-
-      lighthouse_attachment.save!
     end
 
     def attachment_params

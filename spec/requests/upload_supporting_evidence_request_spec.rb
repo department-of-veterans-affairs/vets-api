@@ -28,14 +28,6 @@ RSpec.describe 'Upload supporting evidence' do
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
         expect(sea.get_file&.read).not_to be_nil
       end
-
-      it 'creates a LighthouseSupportingEvidenceAttachment as well' do
-        post '/v0/upload_supporting_evidence', params: { supporting_evidence_attachment: { file_data: pdf_file } }
-
-        expect(response).to have_http_status(:ok)
-        lsea = LighthouseSupportingEvidenceAttachment.last
-        expect(lsea.get_file&.read).not_to be_nil
-      end
     end
 
     context 'with valid encrypted parameters' do
