@@ -73,13 +73,13 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
 
   describe '#log_job_progress' do
     let(:detail) { 'PDF mapper succeeded' }
-    let(:error_class) { nil }
+    let(:error) { nil }
 
     it 'logs job progress' do
       service = described_class.new
-      expect(ClaimsApi::Logger).to receive(:log).with('compensation_job', claim_id: claim.id, detail:, error_class:)
+      expect(ClaimsApi::Logger).to receive(:log).with('compensation_job', claim_id: claim.id, detail:, error:)
 
-      service.send(:log_job_progress, 'compensation_job', claim.id, detail, error_class)
+      service.send(:log_job_progress, 'compensation_job', claim.id, detail, error)
     end
   end
 end
