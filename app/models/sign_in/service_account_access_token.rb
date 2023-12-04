@@ -9,6 +9,7 @@ module SignIn
       :service_account_id,
       :audience,
       :scopes,
+      :user_attributes,
       :user_identifier,
       :version,
       :expiration_time,
@@ -33,12 +34,14 @@ module SignIn
                    audience:,
                    user_identifier:,
                    scopes: [],
+                   user_attributes: {},
                    uuid: nil,
                    version: nil,
                    expiration_time: nil,
                    created_time: nil)
       @uuid = uuid || create_uuid
       @service_account_id = service_account_id
+      @user_attributes = user_attributes
       @user_identifier = user_identifier
       @scopes = scopes
       @audience = audience
@@ -58,6 +61,7 @@ module SignIn
       {
         uuid:,
         service_account_id:,
+        user_attributes:,
         user_identifier:,
         scopes:,
         audience:,
