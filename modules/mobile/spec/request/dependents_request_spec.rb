@@ -7,7 +7,7 @@ RSpec.describe 'dependents', type: :request do
   let!(:user) { sis_user }
 
   describe '#index' do
-    it 'shows a list of dependents' do
+    it 'returns a list of dependents' do
       expected_data = [
         {
           'type' => 'dependents',
@@ -54,7 +54,7 @@ RSpec.describe 'dependents', type: :request do
     end
 
     context 'with an erroneous bgs response' do
-      it 'returns no content' do
+      it 'returns error response' do
         expected_response = {
           'errors' => [
             { 'title' => 'Operation failed',
