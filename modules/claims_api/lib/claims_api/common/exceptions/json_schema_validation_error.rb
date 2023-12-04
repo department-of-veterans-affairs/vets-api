@@ -4,7 +4,7 @@ module ClaimsApi
   module Error
     class JsonSchemaValidationError < StandardError
       def initialize(error)
-        @title = 'Unprocessable Entity'
+        @title = error[:errors][0][:title] || 'Unprocessable Entity'
         @source = error[:errors][0][:source]
         @status = error[:errors][0][:status]
         @detail = error[:errors][0][:detail]
