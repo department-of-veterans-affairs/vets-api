@@ -853,6 +853,7 @@ ActiveRecord::Schema.define(version: 2023_12_01_160018) do
     t.string "certificates", array: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "access_token_user_attributes", default: [], array: true
     t.index ["service_account_id"], name: "index_service_account_configs_on_service_account_id", unique: true
   end
 
