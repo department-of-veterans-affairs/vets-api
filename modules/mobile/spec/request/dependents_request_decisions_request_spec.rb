@@ -1,0 +1,45 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require_relative '../support/helpers/sis_session_helper'
+require_relative '../support/matchers/json_schema_matcher'
+
+RSpec.describe 'dependents request decisions', type: :request do
+  include JsonSchemaMatchers
+
+  describe 'GET /dependents/request-decisions' do
+    let!(:user) { sis_user }
+    let(:attributes) { response.parsed_body.dig('data', 'attributes') }
+
+    it 'returns expected response' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries', match_requests_on: %i[method uri]) do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
+      end
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
+    end
+
+    context 'when no diaries exist' do
+      it 'returns an empty diaries array' do
+        VCR.use_cassette('bgs/diaries_service/read_empty_diaries') do
+          allow(user).to receive(:participant_id).and_return('123')
+          get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
+        end
+        expect(response).to have_http_status(:ok)
+        expect(attributes['diaries']).to eq([])
+      end
+    end
+
+    context 'when one dependency verification exists' do
+      it 'returns one dependency verification' do
+        VCR.use_cassette('bgs/diaries_service/read_diaries_one_entry') do
+          allow(user).to receive(:participant_id).and_return('13014883')
+          get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
+        end
+        expect(response).to have_http_status(:ok)
+        expect(attributes['dependencyVerifications'].count).to eq(1)
+      end
+    end
+  end
+end
