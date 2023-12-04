@@ -1277,7 +1277,6 @@ paths:
       security:
         - Bearer: []
       summary: /v0/community-care-providers
-
   /v0/dependents:
     get:
       description: Returns a list of user's dependents.
@@ -1313,7 +1312,6 @@ paths:
       security:
         - Bearer: []
       summary: /v0/dependents
-
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user

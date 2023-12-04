@@ -12,21 +12,8 @@ properties:
     example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
   attributes:
     type: object
-    required:
-      - awardIndicator
-      - dateOfBirth
-      - emailAddress
-      - firstName
-      - lastName
-      - middleName
-      - proofOfDependency
-      - ptcpntId
-      - relatedToVet
-      - relationship
-      - ssn
-      - veteranIndicator
     properties:
-      award_indicator:
+      awardIndicator:
         type: string
         example: 'N'
       dateOfBirth:

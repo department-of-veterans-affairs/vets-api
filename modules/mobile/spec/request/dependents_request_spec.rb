@@ -55,9 +55,16 @@ RSpec.describe 'dependents', type: :request do
 
     context 'with an erroneous bgs response' do
       it 'returns no content' do
+        expected_response = {
+          'errors' => [
+            { 'title' => 'Operation failed',
+              'detail' => 'wrong number of arguments (given 0, expected 1..2)', 'code' => 'VA900', 'status' => '400' }
+          ]
+        }
         allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
         expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq(expected_response)
       end
     end
   end
