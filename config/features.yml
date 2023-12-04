@@ -688,6 +688,10 @@ features:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
+  military_information_vaprofile_vic:
+    actor_type: user
+    description: Enables the post-EMIS military information of VAProfile for the VIC form
+    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -822,9 +826,9 @@ features:
   my_va_notification_dot_indicator:
     actor_type: user
     description: Enable dot indicator for notifications
-  my_va_remove_cerner_message:
+  my_va_enable_mhv_link:
     actor_type: user
-    description: Remove Cerner alerts under Health care section
+    description: Enables the "Visit MHV" CTA link under Health care section
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)

@@ -4,6 +4,7 @@ module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
     class Organization < ApplicationRecord
+      self.ignored_columns += ['representative_number']
       self.primary_key = :poa
 
       validates :poa, presence: true
