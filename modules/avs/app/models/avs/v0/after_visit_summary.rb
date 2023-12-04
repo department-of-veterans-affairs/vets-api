@@ -29,9 +29,11 @@ module Avs
     attribute :clinical_reminders, Array
     attribute :allergies_reactions, Object
     attribute :va_medications, Array
+    attribute :nonva_medications, Array
     attribute :lab_results, Array
     attribute :radiology_reports1_yr, String
     attribute :discrete_data, Object
+    attribute :more_help_and_information, String
 
     def initialize(data)
       super(data)
