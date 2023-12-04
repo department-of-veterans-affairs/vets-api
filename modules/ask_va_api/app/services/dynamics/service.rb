@@ -41,8 +41,8 @@ module Dynamics
         f.headers['Content-Type'] = 'application/json'
         f.request :url_encoded
         f.use :breakers
-        f.response :raise_error, error_prefix: service_name
-        f.response :betamocks if settings.mock && !Rails.env.production?
+        # f.response :raise_error, error_prefix: service_name
+        # f.response :betamocks if settings.mock && !Rails.env.production?
         f.adapter Faraday.default_adapter
       end
     end

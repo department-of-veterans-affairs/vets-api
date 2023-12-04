@@ -19,12 +19,12 @@ module AskVAApi
 
       def create
         response = Inquiries::Creator.new(icn: current_user.icn).call(params: inquiry_params)
-        render json: { message: response }, status: :created
+        render json: { message: response[:message] }, status: :created
       end
 
       def unauth_create
         response = Inquiries::Creator.new(icn: nil).call(params: inquiry_params)
-        render json: { message: response }, status: :created
+        render json: { message: response[:message] }, status: :created
       end
 
       def upload_attachment
