@@ -44,7 +44,13 @@ module ClaimsApi
           itf_id = response.is_a?(Array) ? response[0][:intent_to_file_id] : response[:intent_to_file_id]
           claims_v2_logging('itf_type',
                             message: "ending itf type, itf_id: #{itf_id}, type: #{get_bgs_type(params)}")
-          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(active_itf, root: :data)
+          if @errors.present?
+            render_json_error(ClaimsApi::Error::JsonSchemaValidationError.new(errors: @errors))
+          else
+            render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(
+              active_itf, root: :data
+            )
+          end
         end
 
         def submit
@@ -66,7 +72,7 @@ module ClaimsApi
             itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]
             claims_v2_logging('itf_submit', message: "ending itf submit, ift_id: #{itf_id}, type: #{type}")
             if @errors.present?
-              render json: { errors: @errors, status: 422 }
+              render_json_error(ClaimsApi::Error::JsonSchemaValidationError.new(errors: @errors))
             else
               render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
             end
@@ -81,7 +87,7 @@ module ClaimsApi
 
           claims_v2_logging('itf_validate', message: "ending itf validate, type: #{type}")
           if @errors.present?
-            render json: { errors: @errors, status: 422 }
+            render_json_error(ClaimsApi::Error::JsonSchemaValidationError.new(errors: @errors))
           else
             render json: {
               data: {
@@ -99,7 +105,7 @@ module ClaimsApi
         def validate_request_format
           if params[:data].nil? || params[:data][:attributes].nil?
             message = 'Request body is not in the correct format.'
-            raise ::Common::Exceptions::BadRequest.new(detail: message)
+            collect_error_messages(title: 'Invalid field', detail: message, status: 400)
           end
         end
 
@@ -122,7 +128,7 @@ module ClaimsApi
 
         # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'
         def handle_claimant_fields(options:, params:, target_veteran:)
-          claimant_ssn = params[:data][:attributes][:claimantSsn]
+          claimant_ssn = params&.dig('data', 'attributes', 'claimantSsn')
           if claimant_ssn.present?
             claimant_ssn = claimant_ssn.delete('^0-9')
             validate_ssn(claimant_ssn)
@@ -139,19 +145,27 @@ module ClaimsApi
           regex = /^(\d{9})$/
           unless regex.match?(ssn) || !ssn.empty?
             error_detail = 'Invalid claimantSsn parameter'
-            collect_error_messages(detail: error_detail, source: 'claimantSsn')
+            collect_error_messages(title: 'Invalid field', detail: error_detail, source: 'claimantSsn', status: 422)
           end
         end
 
         def check_for_invalid_survivor_submission(options)
           error_detail = "claimantSsn parameter cannot be blank for type 'survivor'"
-          collect_error_messages(detail: error_detail, source: 'claimantSsn') if claimant_ssn_blank?(options)
+          if claimant_ssn_blank?(options)
+            collect_error_messages(title: 'Invalid field', detail: error_detail, source: 'claimantSsn', status: 422)
+          end
 
           error_detail = "Veteran cannot file for type 'survivor'"
-          collect_error_messages(detail: error_detail) if claimant_id_equals_vet_id?(options)
+          if claimant_id_equals_vet_id?(options)
+            collect_error_messages(title: 'Invalid field', detail: error_detail, status: 422,
+                                   source: 'type')
+          end
 
           error_detail = "Claimant SSN cannot be the same as veteran SSN for type 'survivor'"
-          collect_error_messages(detail: error_detail) if claimant_ssn_equals_vet_ssn?(options)
+          if claimant_ssn_equals_vet_ssn?(options)
+            collect_error_messages(title: 'Invalid field', detail: error_detail, status: 422,
+                                   source: 'claimantSsn')
+          end
         end
 
         def claimant_ssn_blank?(options)
