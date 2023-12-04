@@ -136,7 +136,11 @@ module MebApi
         MebApi::DGI::Enrollment::Service.new(@current_user)
       end
 
+<<<<<<< HEAD
       def exclusion_periods_service
+=======
+      def exclusion_periods
+>>>>>>> 48081e3eccf8cedd38ca8e9909550dccf17a9971
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
       end
     end

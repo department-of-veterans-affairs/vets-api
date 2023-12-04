@@ -17,7 +17,6 @@ module MebApi
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-
             response = perform(:get, exclusion_periods_url(claimant_id), {}, headers, options)
 
             MebApi::DGI::ExclusionPeriod::Response.new(response)
