@@ -186,8 +186,12 @@ module ClaimsApi
 
       # rubocop:disable Layout/LineLength
       def gulfwar_hazard
-        gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService).present?
-        if gulf
+        gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService)
+        if gulf.present?
+          served_gulf_loc = @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
+          served_gulf_loc == 'NO' || served_gulf_loc.blank? ? 'NO' : 'YES'
+        end
+        if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:start] =
             regex_date_conversion(gulfwar_service_dates_begin)
@@ -196,9 +200,6 @@ module ClaimsApi
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:end] =
             regex_date_conversion(gulfwar_service_dates_end)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates].delete(:endDate)
-          served_in_gulf_war_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations] =
-            served_in_gulf_war_hazard_locations ? 'YES' : 'NO'
         end
       end
 
