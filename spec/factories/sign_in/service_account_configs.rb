@@ -6,7 +6,8 @@ FactoryBot.define do
     description { SecureRandom.hex }
     scopes { [Faker::Internet.url] }
     access_token_audience { SecureRandom.hex }
-    access_token_duration { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
+    access_token_duration { SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
+    access_token_user_attributes { [] }
     certificates { [] }
   end
 end
