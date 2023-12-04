@@ -6,7 +6,7 @@ require_relative '../support/helpers/sis_session_helper'
 RSpec.describe 'dependents', type: :request do
   let!(:user) { sis_user }
 
-  describe '#show' do
+  describe '#index' do
     it 'shows a list of dependents' do
       expected_data = [
         {
