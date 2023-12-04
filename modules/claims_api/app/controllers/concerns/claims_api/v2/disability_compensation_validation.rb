@@ -16,6 +16,7 @@ module ClaimsApi
       BDD_UPPER_LIMIT = 180
 
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
+      YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
 
       def validate_form_526_submission_values!(target_veteran)
         validate_claim_process_type_bdd! if bdd_claim?
@@ -27,6 +28,8 @@ module ClaimsApi
         validate_form_526_disabilities!
         # ensure homeless information is valid
         validate_form_526_veteran_homelessness!
+        # ensure toxic exposure info is valid
+        validate_form_526_gulf_service!
         # ensure new address is valid
         validate_form_526_change_of_address!
         # ensure military service pay information is valid
@@ -346,6 +349,19 @@ module ClaimsApi
         phone.length > 25 if phone
       end
 
+      def validate_form_526_gulf_service!
+        gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
+        return if gulf_war_service&.dig('servedInGulfWarHazardLocations') == 'NO'
+
+        begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')&.match(YYYY_YYYYMM_REGEX)
+        end_date = gulf_war_service&.dig('serviceDates', 'endDate')&.match(YYYY_YYYYMM_REGEX)
+        if begin_date.nil? || end_date.nil?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Both begin and end dates must be in the format of yyyy-mm or yyyy'
+          )
+        end
+      end
+
       def validate_form_526_service_pay!
         validate_form_526_military_retired_pay!
         validate_form_526_future_military_retired_pay!
@@ -460,9 +476,9 @@ module ClaimsApi
         treatments.each do |treatment|
           next if treatment['beginDate'].nil?
 
-          treatment_begin_date = if type_of_date_format?(treatment['beginDate']) == 'yyyy-mm'
+          treatment_begin_date = if type_of_date_format(treatment['beginDate']) == 'yyyy-mm'
                                    Date.strptime(treatment['beginDate'], '%Y-%m')
-                                 elsif type_of_date_format?(treatment['beginDate']) == 'yyyy'
+                                 elsif type_of_date_format(treatment['beginDate']) == 'yyyy'
                                    Date.strptime(treatment['beginDate'], '%Y')
 
                                  else
@@ -869,16 +885,16 @@ module ClaimsApi
       # Either date could be in MM-YYYY or MM-DD-YYYY format
       def begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
         # figure out if either has the day and remove it to compare
-        if type_of_date_format?(begin_date) == 'yyyy-mm-dd'
+        if type_of_date_format(begin_date) == 'yyyy-mm-dd'
           begin_date = remove_chars(begin_date.dup)
-        elsif type_of_date_format?(end_date) == 'yyyy-mm-dd'
+        elsif type_of_date_format(end_date) == 'yyyy-mm-dd'
           end_date = remove_chars(end_date.dup)
         end
         Date.strptime(begin_date, '%Y-%m') > Date.strptime(end_date, '%Y-%m') # only > is an issue
       end
 
       def date_is_valid_against_current_time_after_check_on_format?(date)
-        case type_of_date_format?(date)
+        case type_of_date_format(date)
         when 'yyyy-mm-dd'
           param_date = Date.strptime(date, '%Y-%m-%d')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m-%d'), '%Y-%m-%d')
@@ -898,7 +914,7 @@ module ClaimsApi
       end
 
       # which of the three types are we dealing with
-      def type_of_date_format?(date)
+      def type_of_date_format(date)
         DATE_FORMATS[date.length]
       end
 

@@ -913,5 +913,22 @@ preferred dates:12/13/2022 PM|pager number:8675309"
         expect(result.reason).to be_nil
       end
     end
+
+    context 'when some acheron field keys are camel case' do
+      it 'parses both camel case and non camel case fields' do
+        appointment = appointment_data[12]
+        appointment[:reason_code][:coding] = [{ code: 'will not be used' }]
+        appointment[:contact] = { telecom: { email: 'will not be used', phone: '1112223333' } }
+        appointment[:comment] = 'will not be used'
+        appointment[:reason_code][:text] =
+          'email:melissa.gra@va.gov|preferred dates:12/13/2022 AM|reasonCode:ROUTINEVISIT|comments:My leg!'
+
+        result = subject.parse([appointment]).first
+        expect(result.patient_email).to eq('melissa.gra@va.gov')
+        expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
+        expect(result.comment).to eq('My leg!')
+        expect(result.reason).to eq('Routine Follow-up')
+      end
+    end
   end
 end
