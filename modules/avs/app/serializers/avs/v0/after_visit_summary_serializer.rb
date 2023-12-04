@@ -31,5 +31,6 @@ module Avs
     attribute :lab_results
     attribute :radiology_reports1_yr
     attribute :discrete_data
+    attribute :more_help_and_information
   end
 end
