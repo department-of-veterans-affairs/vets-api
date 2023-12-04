@@ -98,6 +98,10 @@ module HCA
           priority_group: get_xpath(
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
+          ),
+          financial_income_year: get_xpath(
+            response,
+            "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
           )
         }
       end
