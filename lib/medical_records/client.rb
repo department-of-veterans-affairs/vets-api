@@ -274,27 +274,25 @@ module MedicalRecords
     end
 
     def handle_api_errors(result)
-      body = JSON.parse(result.body)
-      diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
-      diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
+      if result.code.present? && result.code >= 400
+        body = JSON.parse(result.body)
+        diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
+        diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
 
-      exception_class = case result.code
-                        when 401
-                          Common::Exceptions::Unauthorized
-                        when 403
-                          Common::Exceptions::Forbidden
-                        when 500
-                          if diagnostics.include? 'HAPI-1363'
-                            # HAPI-1363: Either No patient or multiple patient found
-                            Common::Exceptions::ResourceNotFound
-                          else
-                            Common::Exceptions::BadRequest
-                          end
-                        else
-                          Common::Exceptions::BadRequest
-                        end
+        # Special-case exception handling
+        if result.code == 500 && diagnostics.include?('HAPI-1363')
+          # "HAPI-1363: Either No patient or multiple patient found"
+          raise PatientNotFound
+        end
 
-      raise exception_class, { detail: diagnostics } if exception_class
+        # Default exception handling
+        raise Common::Exceptions::BackendServiceException.new(
+          "MEDICALRECORDS_#{result.code}",
+          status: result.code,
+          detail: diagnostics,
+          source: self.class
+        )
+      end
     end
 
     ##
