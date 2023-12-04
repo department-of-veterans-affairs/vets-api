@@ -72,10 +72,13 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team: nil,
           primary_care_team_members: [],
           problems: [],
+          clinical_reminders: [],
           allergies_reactions: nil,
           va_medications: [],
+          nonva_medications: [],
           lab_results: [],
           radiology_reports1_yr: nil,
+          more_help_and_information: nil,
           discrete_data: {
             temp: [
               {
@@ -121,10 +124,13 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team: nil,
           primary_care_team_members: [],
           problems: [],
+          clinical_reminders: [],
           allergies_reactions: nil,
           va_medications: [],
+          nonva_medications: [],
           lab_results: [],
           radiology_reports1_yr: nil,
+          more_help_and_information: nil,
           discrete_data: nil
         }
       )
