@@ -43,7 +43,7 @@ module DebtsApi
         Rails.logger.error('Failed to source user flags', e.message)
         enabled_flags = []
       end
-      
+
       enabled_flags
     end
   end

@@ -22,7 +22,7 @@ module DebtsApi
     end
 
     def persist_form_submission
-      metadata = {copays: @copays}.to_json
+      metadata = { copays: @copays }.to_json
       public_metadata = build_public_metadata
 
       DebtsApi::V0::Form5655Submission.create(
@@ -37,7 +37,7 @@ module DebtsApi
 
     def build_public_metadata
       enabled_flags = enabled_feature_flags(@user)
-      debt_amounts = @copays.nil? ? [] : @copays.map { |copay| copay[VHA_AMOUNT_KEY] }
+      debt_amounts = @copays.nil? ? [] : @copays.pluck(VHA_AMOUNT_KEY)
       {
         'combined' => @is_combined,
         'debt_amounts' => debt_amounts,

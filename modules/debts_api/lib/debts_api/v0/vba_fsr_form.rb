@@ -15,12 +15,12 @@ module DebtsApi
       @user = params[:user]
       @all_debts = params[:all_debts].nil? ? [] : params[:all_debts]
       @debts = get_vba_debts
-      @is_combined = @debts.length < @all_debts.length && @all_debts.length > 0
+      @is_combined = @debts.length < @all_debts.length && @all_debts.length.positive?
       @form_data = build_vba_form
     end
 
     def persist_form_submission
-      metadata = {debts: @debts}.to_json
+      metadata = { debts: @debts }.to_json
       public_metadata = build_public_metadata
 
       DebtsApi::V0::Form5655Submission.create(
@@ -35,7 +35,7 @@ module DebtsApi
 
     def build_public_metadata
       enabled_flags = enabled_feature_flags(@user)
-      debt_amounts = @debts.map { |debt| debt[VBA_AMOUNT_KEY] }
+      debt_amounts = @debts.pluck(VBA_AMOUNT_KEY)
       {
         'combined' => @is_combined,
         'debt_amounts' => debt_amounts,

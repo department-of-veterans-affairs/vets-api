@@ -188,9 +188,7 @@ module DebtsApi
     end
 
     def persist_vha_form_submission(fsr_builder)
-      fsr_builder.vha_forms.map do |vha_form|
-        vha_form.persist_form_submission
-      end
+      fsr_builder.vha_forms.map(&:persist_form_submission)
     end
 
     def persist_vba_form_submission(fsr_builder)
