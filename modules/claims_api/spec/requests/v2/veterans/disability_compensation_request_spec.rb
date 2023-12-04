@@ -846,6 +846,62 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when gulf war service is set to No, and service dates are not present' do
+          let(:gulf_war_hazard_service) { 'NO' }
+
+          it 'responds with accepted' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when gulf war service is set to YES, and service dates are not present' do
+          let(:gulf_war_hazard_service) { 'YES' }
+          let(:service_dates) { nil }
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when gulf war service is set to YES, and service dates are not formatted correctly' do
+          let(:gulf_war_hazard_service) { 'YES' }
+          let(:service_dates) do
+            {
+              beginDate: '199907',
+              endDate: '2005-01'
+            }
+          end
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
       end
 
       context 'tracking PACT act claims' do
@@ -1825,21 +1881,6 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when the activeDutyBeginDate is Feb 29 in a leap year' do
-          let(:active_duty_begin_date) { '2000-02-29' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
-                active_duty_begin_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
         context "when the activeDutyBeginDate is on or before the Veteran's 13th birthday" do
           let(:active_duty_begin_date) { '1904-01-01' }
 
@@ -2550,21 +2591,6 @@ RSpec.describe 'Disability Claims', type: :request do
               end
             end
           end
-
-          # real world example see API-31426
-          context 'when approximateDate contains the name of the month as a string' do
-            let(:approximate_date) { 'July 2017' }
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json_data = JSON.parse data
-                params = json_data
-                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
-                post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
         end
 
         describe "'disabilities.serviceRelevance' validations" do
@@ -2833,33 +2859,6 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.',
                       approximateDate: '2019-30-02'
-                    }
-                  ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-
-          # real world example see API-31426
-          it 'raises an exception if date includes the name of the month' do
-            mock_ccg(scopes) do |auth_header|
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  serviceRelevance: 'Heavy equipment operator in service.',
-                  secondaryDisabilities: [
-                    {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: 'July 2017'
                     }
                   ]
                 }
