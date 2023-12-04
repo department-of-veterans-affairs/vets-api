@@ -59,7 +59,6 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clear out EVSS disability claims that have not been updated in 24 hours
   mgr.register('20 2 * * *', 'DeleteOldPiiLogsJob')
   # Clear out old personal information logs
-  
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
 
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
