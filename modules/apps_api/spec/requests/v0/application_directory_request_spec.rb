@@ -70,7 +70,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       body = JSON.parse(response.body)
       if response.status == 403
         puts "response body for 403 error: #{body}"
-      end 
+      end
       expect(body.length).to be(1)
       expect(response).to have_http_status(:ok)
     end
