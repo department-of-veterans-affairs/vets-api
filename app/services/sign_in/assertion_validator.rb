@@ -13,6 +13,7 @@ module SignIn
       validate_iss
       validate_audience
       validate_scopes
+      validate_user_attributes
       create_new_access_token
     end
 
@@ -42,10 +43,17 @@ module SignIn
       end
     end
 
+    def validate_user_attributes
+      if (user_attributes.keys.map(&:to_s) - service_account_config.access_token_user_attributes).any?
+        raise Errors::ServiceAccountAssertionAttributesError.new message: 'Assertion user attributes are not valid'
+      end
+    end
+
     def create_new_access_token
       ServiceAccountAccessToken.new(service_account_id:,
                                     audience:,
                                     scopes:,
+                                    user_attributes:,
                                     user_identifier:)
     end
 
@@ -76,6 +84,10 @@ module SignIn
 
     def scopes
       @scopes ||= decoded_assertion.scopes
+    end
+
+    def user_attributes
+      @user_attributes = decoded_assertion.user_attributes || {}
     end
 
     def user_identifier
