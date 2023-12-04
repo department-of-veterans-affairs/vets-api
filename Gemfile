@@ -31,7 +31,6 @@ path 'modules' do
   gem 'vba_documents'
   gem 'veteran'
   gem 'veteran_confirmation'
-  gem 'veteran_verification'
 end
 
 gem 'rails', github: 'rails/rails', branch: '6-1-stable'
@@ -130,6 +129,7 @@ gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
+gem 'roo'
 gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'

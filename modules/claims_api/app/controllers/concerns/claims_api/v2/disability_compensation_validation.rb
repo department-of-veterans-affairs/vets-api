@@ -16,8 +16,10 @@ module ClaimsApi
       BDD_UPPER_LIMIT = 180
 
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
+      YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
 
       def validate_form_526_submission_values!(target_veteran)
+        validate_claim_process_type_bdd! if bdd_claim?
         # ensure 'claimantCertification' is true
         validate_form_526_claimant_certification!
         # ensure mailing address country is valid
@@ -26,6 +28,8 @@ module ClaimsApi
         validate_form_526_disabilities!
         # ensure homeless information is valid
         validate_form_526_veteran_homelessness!
+        # ensure toxic exposure info is valid
+        validate_form_526_gulf_service!
         # ensure new address is valid
         validate_form_526_change_of_address!
         # ensure military service pay information is valid
@@ -36,7 +40,6 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
-        validate_claim_process_type_bdd! if bdd_claim?
       end
 
       def validate_form_526_change_of_address!
@@ -346,6 +349,19 @@ module ClaimsApi
         phone.length > 25 if phone
       end
 
+      def validate_form_526_gulf_service!
+        gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
+        return if gulf_war_service&.dig('servedInGulfWarHazardLocations') == 'NO'
+
+        begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')&.match(YYYY_YYYYMM_REGEX)
+        end_date = gulf_war_service&.dig('serviceDates', 'endDate')&.match(YYYY_YYYYMM_REGEX)
+        if begin_date.nil? || end_date.nil?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Both begin and end dates must be in the format of yyyy-mm or yyyy'
+          )
+        end
+      end
+
       def validate_form_526_service_pay!
         validate_form_526_military_retired_pay!
         validate_form_526_future_military_retired_pay!
@@ -452,15 +468,17 @@ module ClaimsApi
           per['activeDutyBeginDate']
         end
         if first_service_period['activeDutyBeginDate']
+          return unless date_is_valid?(first_service_period['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+
           first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'],
                                              '%Y-%m-%d')
         end
         treatments.each do |treatment|
           next if treatment['beginDate'].nil?
 
-          treatment_begin_date = if type_of_date_format?(treatment['beginDate']) == 'yyyy-mm'
+          treatment_begin_date = if type_of_date_format(treatment['beginDate']) == 'yyyy-mm'
                                    Date.strptime(treatment['beginDate'], '%Y-%m')
-                                 elsif type_of_date_format?(treatment['beginDate']) == 'yyyy'
+                                 elsif type_of_date_format(treatment['beginDate']) == 'yyyy'
                                    Date.strptime(treatment['beginDate'], '%Y')
 
                                  else
@@ -510,6 +528,9 @@ module ClaimsApi
           max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
         end
         max_active_duty_end_date = max_period['activeDutyEndDate']
+
+        return unless date_is_valid?(max_active_duty_end_date, 'servicePeriod.activeDutyBeginDate')
+
         if ant_sep_date.present? && max_active_duty_end_date.present? &&
            ((Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
            180.days) || (Date.strptime(ant_sep_date,
@@ -526,11 +547,18 @@ module ClaimsApi
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each do |sp|
           if sp['activeDutyBeginDate']
+            next unless date_is_valid?(sp['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+
             age_exception if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
-            if sp['activeDutyEndDate'] && Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
-              sp['activeDutyEndDate'], '%Y-%m-%d'
-            )
-              begin_date_exception
+
+            if sp['activeDutyEndDate']
+              next unless date_is_valid?(sp['activeDutyEndDate'], 'servicePeriod.activeDutyBeginDate')
+
+              if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
+                sp['activeDutyEndDate'], '%Y-%m-%d'
+              )
+                begin_date_exception
+              end
             end
           end
 
@@ -612,8 +640,8 @@ module ClaimsApi
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
 
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
-          if begin_date_is_after_end_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                           approximate_begin_date)
+          if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                                              approximate_begin_date)
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
@@ -765,6 +793,8 @@ module ClaimsApi
 
       def find_earliest_active_duty_begin_date(service_periods)
         service_periods.max_by do |a|
+          next unless date_is_valid?(a['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
         end
       end
@@ -833,6 +863,8 @@ module ClaimsApi
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
         unless active_dates.compact.any? do |a|
+          next unless date_is_valid?(a, 'servicePeriods.activeDutyEndDate')
+
           Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
                                                 claim_date.next_day(BDD_UPPER_LIMIT))
         end
@@ -853,16 +885,16 @@ module ClaimsApi
       # Either date could be in MM-YYYY or MM-DD-YYYY format
       def begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
         # figure out if either has the day and remove it to compare
-        if type_of_date_format?(begin_date) == 'yyyy-mm-dd'
+        if type_of_date_format(begin_date) == 'yyyy-mm-dd'
           begin_date = remove_chars(begin_date.dup)
-        elsif type_of_date_format?(end_date) == 'yyyy-mm-dd'
+        elsif type_of_date_format(end_date) == 'yyyy-mm-dd'
           end_date = remove_chars(end_date.dup)
         end
         Date.strptime(begin_date, '%Y-%m') > Date.strptime(end_date, '%Y-%m') # only > is an issue
       end
 
       def date_is_valid_against_current_time_after_check_on_format?(date)
-        case type_of_date_format?(date)
+        case type_of_date_format(date)
         when 'yyyy-mm-dd'
           param_date = Date.strptime(date, '%Y-%m-%d')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m-%d'), '%Y-%m-%d')
@@ -881,8 +913,8 @@ module ClaimsApi
         date.length == 10
       end
 
-      # which of three types are we dealing with
-      def type_of_date_format?(date)
+      # which of the three types are we dealing with
+      def type_of_date_format(date)
         DATE_FORMATS[date.length]
       end
 
@@ -911,6 +943,32 @@ module ClaimsApi
 
       def begin_date_is_after_end_date?(begin_date, end_date)
         date_regex_groups(begin_date) > date_regex_groups(end_date)
+      end
+
+      def duty_begin_date_is_after_approximate_begin_date?(begin_date, approximate_begin_date)
+        return unless date_is_valid?(begin_date, 'servicePeriod.activeDutyBeginDate')
+
+        date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
+      end
+
+      # Will check for a real date including leap year
+      def date_is_valid?(date, property)
+        return if date.blank?
+        return true unless date.length == 10
+
+        date_y, date_m, date_d = date.split('-').map(&:to_i)
+
+        if Date.valid_date?(date_y, date_m, date_d)
+          true
+        else
+          raise_date_error(date, property)
+        end
+      end
+
+      def raise_date_error(date, property)
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "#{date} is not a valid date for #{property}."
+        )
       end
     end
   end

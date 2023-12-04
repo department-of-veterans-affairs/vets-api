@@ -7,6 +7,7 @@ module AskVAApi
   module V0
     class AddressValidationController < ApplicationController
       skip_before_action :authenticate
+      skip_before_action :verify_authenticity_token
       service_tag 'profile'
 
       def create
