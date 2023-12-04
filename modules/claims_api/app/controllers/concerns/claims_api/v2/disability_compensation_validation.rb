@@ -476,9 +476,9 @@ module ClaimsApi
         treatments.each do |treatment|
           next if treatment['beginDate'].nil?
 
-          treatment_begin_date = if type_of_date_format?(treatment['beginDate']) == 'yyyy-mm'
+          treatment_begin_date = if type_of_date_format(treatment['beginDate']) == 'yyyy-mm'
                                    Date.strptime(treatment['beginDate'], '%Y-%m')
-                                 elsif type_of_date_format?(treatment['beginDate']) == 'yyyy'
+                                 elsif type_of_date_format(treatment['beginDate']) == 'yyyy'
                                    Date.strptime(treatment['beginDate'], '%Y')
 
                                  else
@@ -885,16 +885,16 @@ module ClaimsApi
       # Either date could be in MM-YYYY or MM-DD-YYYY format
       def begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
         # figure out if either has the day and remove it to compare
-        if type_of_date_format?(begin_date) == 'yyyy-mm-dd'
+        if type_of_date_format(begin_date) == 'yyyy-mm-dd'
           begin_date = remove_chars(begin_date.dup)
-        elsif type_of_date_format?(end_date) == 'yyyy-mm-dd'
+        elsif type_of_date_format(end_date) == 'yyyy-mm-dd'
           end_date = remove_chars(end_date.dup)
         end
         Date.strptime(begin_date, '%Y-%m') > Date.strptime(end_date, '%Y-%m') # only > is an issue
       end
 
       def date_is_valid_against_current_time_after_check_on_format?(date)
-        case type_of_date_format?(date)
+        case type_of_date_format(date)
         when 'yyyy-mm-dd'
           param_date = Date.strptime(date, '%Y-%m-%d')
           now_date = Date.strptime(Time.zone.today.strftime('%Y-%m-%d'), '%Y-%m-%d')
@@ -914,7 +914,7 @@ module ClaimsApi
       end
 
       # which of the three types are we dealing with
-      def type_of_date_format?(date)
+      def type_of_date_format(date)
         DATE_FORMATS[date.length]
       end
 
