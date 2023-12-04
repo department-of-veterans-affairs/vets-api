@@ -26,6 +26,10 @@ spec:
               value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
             - name: "KMS_KEY_ID"
               value: "insecure-test-key"
+          volumeMounts:
+            - name: settings-local-yml
+              mountPath: /app/config/settings
+              readOnly: true
       containers:
         - name: vets-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

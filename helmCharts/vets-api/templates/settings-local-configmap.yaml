@@ -5,3 +5,11 @@ metadata:
 data:
   settings.local.yml: |
     virtual_hosts: ["{{ .Values.domainName }}"]
+    redis:
+      host: "{{ .Values.redisHost }}"
+      app_data:
+        url: "{{ .Values.redisAppDataUrl }}"
+      sidekiq:
+        url: "{{ .Values.redisSideKiqUrl }}"
+      rails_cache:
+        url: "{{ .Values.redisRailsUrl }}"
