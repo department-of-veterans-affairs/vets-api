@@ -25,7 +25,7 @@ module ClaimsApi
         begin
           response = service(auth_headers).submit(auto_claim, form_data)
         # Temporary errors (returning HTML, connection timeout), retry call
-        rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
+        rescue Faraday::ParsingError, Faraday::TimeoutError => e
           ClaimsApi::Logger.log('claims_establisher',
                                 retry: true,
                                 detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}, #{e.class}")
