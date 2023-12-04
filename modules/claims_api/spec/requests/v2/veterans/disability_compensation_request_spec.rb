@@ -846,6 +846,62 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when gulf war service is set to No, and service dates are not present' do
+          let(:gulf_war_hazard_service) { 'NO' }
+
+          it 'responds with accepted' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when gulf war service is set to YES, and service dates are not present' do
+          let(:gulf_war_hazard_service) { 'YES' }
+          let(:service_dates) { nil }
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when gulf war service is set to YES, and service dates are not formatted correctly' do
+          let(:gulf_war_hazard_service) { 'YES' }
+          let(:service_dates) do
+            {
+              beginDate: '199907',
+              endDate: '2005-01'
+            }
+          end
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
       end
 
       context 'tracking PACT act claims' do
