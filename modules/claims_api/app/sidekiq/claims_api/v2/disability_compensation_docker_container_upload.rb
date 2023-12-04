@@ -98,7 +98,8 @@ module ClaimsApi
             'severity' => 'FATAL',
             'text' => error_text }
         ]
-        auto_claim.save!
+
+        save_auto_claim!(auto_claim, auto_claim.status)
       end
 
       def start_bd_uploader_job(auto_claim)

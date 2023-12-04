@@ -62,6 +62,15 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
     end
   end
 
+  describe '#save_auto_claim!' do
+    it 'saves claim with the validation_method property of v2' do
+      service = described_class.new
+
+      service.send(:save_auto_claim!, claim, claim.status)
+      expect(claim.validation_method).to eq('v2')
+    end
+  end
+
   describe '#log_job_progress' do
     let(:detail) { 'PDF mapper succeeded' }
     let(:error_class) { nil }
