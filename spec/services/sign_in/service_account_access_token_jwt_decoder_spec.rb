@@ -47,13 +47,13 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtDecoder do
         JWT.encode(
           jwt_payload,
           OpenSSL::PKey::RSA.new(2048),
-          SignIn::Constants::AccessToken::JWT_ENCODE_ALGORITHM
+          SignIn::Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM
         )
       end
 
       let(:jwt_payload) do
         {
-          iss: SignIn::Constants::AccessToken::ISSUER,
+          iss: SignIn::Constants::ServiceAccountAccessToken::ISSUER,
           aud: service_account_access_token.audience,
           jti: service_account_access_token.uuid,
           sub: service_account_access_token.user_identifier,

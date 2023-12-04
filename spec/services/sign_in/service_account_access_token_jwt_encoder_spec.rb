@@ -9,7 +9,7 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
     let(:service_account_access_token) { create(:service_account_access_token) }
 
     context 'when input object is a service account access token' do
-      let(:expected_iss) { SignIn::Constants::AccessToken::ISSUER }
+      let(:expected_iss) { SignIn::Constants::ServiceAccountAccessToken::ISSUER }
       let(:expected_aud) { service_account_access_token.audience }
       let(:expected_jti) { service_account_access_token.uuid }
       let(:expected_sub) { service_account_access_token.user_identifier }
