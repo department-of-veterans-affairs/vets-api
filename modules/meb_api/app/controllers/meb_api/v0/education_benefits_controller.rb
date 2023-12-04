@@ -109,9 +109,9 @@ module MebApi
       def exclusion_periods
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']
-        exclusion_response = exclusion_periods.get_exclusion_periods(claimant_id)
+        exclusion_response = exclusion_periods_service.get_exclusion_periods(claimant_id)
 
-        render json: response, serializer: ExclusionPeriodSerializer
+        render json: exclusion_response, serializer: ExclusionPeriodSerializer
       end
 
       private
@@ -136,7 +136,7 @@ module MebApi
         MebApi::DGI::Enrollment::Service.new(@current_user)
       end
 
-      def exclusion_periods
+      def exclusion_periods_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
       end
     end
