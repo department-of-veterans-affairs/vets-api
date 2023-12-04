@@ -8,7 +8,7 @@ module Mobile
 
         render json: DependentSerializer.new(dependents_response[:persons])
       rescue => e
-        raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message) # converts 500 to 400
+        raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
 
       def dependent_service
