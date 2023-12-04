@@ -20,7 +20,7 @@ RSpec.describe SignIn::ServiceAccountAccessToken, type: :model do
   let(:user_identifier) { 'some-user-identifier' }
   let(:scopes) { [scope] }
   let(:scope) { 'some-scope' }
-  let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
+  let(:version) { SignIn::Constants::ServiceAccountAccessToken::CURRENT_VERSION }
   let(:validity_length) { service_account_config.access_token_duration }
   let(:expiration_time) { Time.zone.now + validity_length }
   let(:created_time) { Time.zone.now }
@@ -83,7 +83,7 @@ RSpec.describe SignIn::ServiceAccountAccessToken, type: :model do
 
       context 'when version is nil' do
         let(:version) { nil }
-        let(:expected_version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
+        let(:expected_version) { SignIn::Constants::ServiceAccountAccessToken::CURRENT_VERSION }
 
         it 'sets version to CURRENT_VERSION' do
           expect(subject).to be expected_version

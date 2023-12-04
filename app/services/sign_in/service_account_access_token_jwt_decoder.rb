@@ -29,7 +29,7 @@ module SignIn
         with_validation,
         {
           verify_expiration: with_validation,
-          algorithm: Constants::AccessToken::JWT_ENCODE_ALGORITHM
+          algorithm: Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM
         }
       )&.first
       OpenStruct.new(decoded_jwt)
