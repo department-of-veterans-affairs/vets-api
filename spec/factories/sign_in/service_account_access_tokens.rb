@@ -6,10 +6,10 @@ FactoryBot.define do
 
     service_account_id { create(:service_account_config).service_account_id }
     audience { SecureRandom.hex }
-    version { SignIn::Constants::AccessToken::CURRENT_VERSION }
+    version { SignIn::Constants::ServiceAccountAccessToken::CURRENT_VERSION }
     scopes { [Faker::Internet.url] }
     user_identifier { Faker::Internet.email }
-    expiration_time { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
+    expiration_time { Time.zone.now + SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
     created_time { Time.zone.now }
 
     initialize_with do

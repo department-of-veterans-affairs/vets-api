@@ -26,7 +26,7 @@ module SignIn
       presence: true
     )
 
-    validates :version, inclusion: Constants::AccessToken::VERSION_LIST
+    validates :version, inclusion: Constants::ServiceAccountAccessToken::VERSION_LIST
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(service_account_id:,
@@ -42,7 +42,7 @@ module SignIn
       @user_identifier = user_identifier
       @scopes = scopes
       @audience = audience
-      @version = version || Constants::AccessToken::CURRENT_VERSION
+      @version = version || Constants::ServiceAccountAccessToken::CURRENT_VERSION
       @expiration_time = expiration_time || set_expiration_time
       @created_time = created_time || set_created_time
 
