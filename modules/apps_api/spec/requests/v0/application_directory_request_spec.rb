@@ -4,12 +4,12 @@ require 'rails_helper'
 require_relative '../../../app/controllers/apps_api/v0/directory_controller'
 
 RSpec.describe 'Application Directory Endpoint', type: :request do
-  let(:auth_string) { 'blah' }
+  let(:auth_token) { 'valid_auth_token' }
   let(:valid_headers) do
-    { 'Authorization' => auth_string }
+    { 'Authorization' => "Bearer #{auth_token}" }
   end
   let(:invalid_headers) do
-    { 'Authorization' => 'somethingwrong' }
+    { 'Authorization' => 'invalid_auth_token' }
   end
   let(:valid_params) do
     {
