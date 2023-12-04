@@ -57,7 +57,8 @@ module Map
              else
                Faraday::Response.new(body: { message: 'Unauthorized' }, status: 401)
              end
-      response.build(response: resp).handle
+      render json: VAOS::V2::AppointmentsCheckInSerializer.new(resp[:data], meta: resp[:meta])
     end
+
   end
 end
