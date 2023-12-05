@@ -100,17 +100,17 @@ describe HCA::EnrollmentEligibility::Service do
           expect(
             described_class.new.lookup_user('1013144622V807216', '2022')
           ).to eq(
-                 enrollment_status: 'Pending; Other',
-                 application_date: nil,
-                 enrollment_date: nil,
-                 preferred_facility: nil,
-                 ineligibility_reason: nil,
-                 effective_date: '2019-09-08T22:23:05.000-05:00',
-                 primary_eligibility: 'NSC',
-                 veteran: 'true',
-                 priority_group: nil,
-                 can_submit_financial_info: true
-               )
+            enrollment_status: 'Pending; Other',
+            application_date: nil,
+            enrollment_date: nil,
+            preferred_facility: nil,
+            ineligibility_reason: nil,
+            effective_date: '2019-09-08T22:23:05.000-05:00',
+            primary_eligibility: 'NSC',
+            veteran: 'true',
+            priority_group: nil,
+            can_submit_financial_info: true
+          )
         end
       end
     end
