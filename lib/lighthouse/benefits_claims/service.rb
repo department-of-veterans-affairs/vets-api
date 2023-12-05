@@ -25,7 +25,7 @@ module BenefitsClaims
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError, Faraday::ServerError => e
+    rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
@@ -33,7 +33,7 @@ module BenefitsClaims
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError, Faraday::ServerError => e
+    rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
@@ -41,7 +41,7 @@ module BenefitsClaims
       config.post("#{@icn}/claims/#{id}/5103", {}, lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError, Faraday::ServerError => e
+    rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
@@ -49,7 +49,7 @@ module BenefitsClaims
       endpoint = 'benefits_claims/intent_to_file'
       path = "#{@icn}/intent-to-file/#{type}"
       config.get(path, lighthouse_client_id, lighthouse_rsa_key_path, options).body
-    rescue Faraday::ClientError, Faraday::ServerError => e
+    rescue Faraday::ClientError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
@@ -77,7 +77,7 @@ module BenefitsClaims
         },
         lighthouse_client_id, lighthouse_rsa_key_path, options
       ).body
-    rescue Faraday::ClientError, Faraday::ServerError => e
+    rescue Faraday::ClientError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
@@ -113,7 +113,7 @@ module BenefitsClaims
       )
 
       submit_response(response, options[:body_only])
-    rescue Faraday::ClientError, Faraday::ServerError => e
+    rescue Faraday::ClientError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
 

@@ -276,8 +276,7 @@ module Form526ClaimFastTrackingConcern
                                           form526: form
                                         })
     response = client.initiate_apcas_processing
-    mas_packet_id = response&.body ? response.body['packetId'] : nil
-    save_metadata(mas_packetId: mas_packet_id)
+    save_metadata(mas_packetId: response.dig('body', 'packetId'))
     StatsD.increment("#{RRD_STATSD_KEY_PREFIX}.notify_mas.success")
   rescue => e
     send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
