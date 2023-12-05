@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/params_validation/intent_to_file'
+# require 'claims_api/v2/params_validation/intent_to_file'
 require 'bgs_service/local_bgs'
 
 module ClaimsApi
@@ -13,17 +13,15 @@ module ClaimsApi
         #
         # @return [JSON] ITF record
         def type # rubocop:disable Metrics/MethodLength
-          claims_v2_logging('itf_type', message: "type: #{get_bgs_type(params)}, starting itf type")
-
-          validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
-
           type = get_bgs_type(params)
+          claims_v2_logging('itf_type', message: "type: #{type}, starting itf type")
+
           response = local_bgs_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
             type
           )
-          message = "No active '#{get_bgs_type(params)}' intent to file found."
-          claims_v2_logging('itf_type', message: "#{message}, type: #{get_bgs_type(params)}") if response.blank?
+          message = "No active '#{type}' intent to file found."
+          claims_v2_logging('itf_type', message: "#{message}, type: #{type}") if response.blank?
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if response.blank?
 
           response = [response] unless response.is_a?(Array)
@@ -37,21 +35,26 @@ module ClaimsApi
 
           if response.blank?
             claims_v2_logging('itf_type',
-                              message: "itf resource not found, type: #{get_bgs_type(params)}")
+                              message: "itf resource not found, type: #{type}")
           end
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if active_itf.blank?
 
           itf_id = response.is_a?(Array) ? response[0][:intent_to_file_id] : response[:intent_to_file_id]
           claims_v2_logging('itf_type',
-                            message: "ending itf type, itf_id: #{itf_id}, type: #{get_bgs_type(params)}")
-          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(active_itf, root: :data)
+                            message: "ending itf type, itf_id: #{itf_id}, type: #{type}")
+          if validation_error.errors.present?
+            # render_json_error(ClaimsApi::Error::JsonSchemaValidationError.new(errors: validation_error.errors))
+            render json: { errors: validation_error.errors }
+          else
+            render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(
+              active_itf, root: :data
+            )
+          end
         end
 
         def submit
           claims_v2_logging('itf_submit', message: 'starting itf submit')
-          validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
           type = get_bgs_type(params)
-
           options = build_options_and_validate(type)
 
           bgs_response = local_bgs_service.insert_intent_to_file(options)
@@ -65,24 +68,33 @@ module ClaimsApi
 
             itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]
             claims_v2_logging('itf_submit', message: "ending itf submit, ift_id: #{itf_id}, type: #{type}")
-            render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
+            if validation_error.errors.present?
+              # render_json_error(ClaimsApi::Error::JsonSchemaValidationError.new(errors: validation_error.errors))
+              render json: { errors: validation_error.errors }
+            else
+              render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
+            end
           end
         end
 
         def validate
           claims_v2_logging('itf_validate', message: 'starting itf validate')
-          validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
           type = get_bgs_type(params)
           build_options_and_validate(type)
           claims_v2_logging('itf_validate', message: "ending itf validate, type: #{type}")
-          render json: {
-            data: {
-              type: 'intent_to_file_validation',
-              attributes: {
-                status: 'valid'
+          if validation_error.errors.present?
+            # render_json_error(ClaimsApi::Error::JsonSchemaValidationError.new(errors: validation_error.errors))
+            render json: { errors: validation_error.errors }
+          else
+            render json: {
+              data: {
+                type: 'intent_to_file_validation',
+                attributes: {
+                  status: 'valid'
+                }
               }
             }
-          }
+          end
         end
 
         private
@@ -90,7 +102,7 @@ module ClaimsApi
         def validate_request_format
           if params[:data].nil? || params[:data][:attributes].nil?
             message = 'Request body is not in the correct format.'
-            raise ::Common::Exceptions::BadRequest.new(detail: message)
+            validation_error.add_error(detail: message, source: '/requestBody', title: 'InvalidField', status: '400')
           end
         end
 
@@ -113,7 +125,7 @@ module ClaimsApi
 
         # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'
         def handle_claimant_fields(options:, params:, target_veteran:)
-          claimant_ssn = params[:data][:attributes][:claimantSsn]
+          claimant_ssn = params&.dig('data', 'attributes', 'claimantSsn')
           if claimant_ssn.present?
             claimant_ssn = claimant_ssn.delete('^0-9')
             validate_ssn(claimant_ssn)
@@ -128,24 +140,22 @@ module ClaimsApi
 
         def validate_ssn(ssn)
           regex = /^(\d{9})$/
-          unless regex.match?(ssn)
+          unless regex.match?(ssn) || !ssn.empty?
             error_detail = 'Invalid claimantSsn parameter'
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+            validation_error.add_error(detail: error_detail, source: '/claimantSsn')
           end
         end
 
         def check_for_invalid_survivor_submission(options)
           error_detail = "claimantSsn parameter cannot be blank for type 'survivor'"
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail) if claimant_ssn_blank?(options)
+          validation_error.add_error(detail: error_detail, source: '/claimantSsn')
 
           error_detail = "Veteran cannot file for type 'survivor'"
-          if claimant_id_equals_vet_id?(options)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
-          end
+          validation_error.add_error(detail: error_detail, source: '/type') if claimant_id_equals_vet_id?(options)
 
           error_detail = "Claimant SSN cannot be the same as veteran SSN for type 'survivor'"
           if claimant_ssn_equals_vet_ssn?(options)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+            validation_error.add_error(detail: error_detail, source: '/veteranSsn')
           end
         end
 
@@ -162,7 +172,13 @@ module ClaimsApi
         end
 
         def get_bgs_type(params)
-          params[:data] ? itf_types[params[:data][:attributes][:type].downcase] : itf_types[params[:type].downcase]
+          type = params&.dig('data') ? params&.dig('data', 'attributes', 'type') : params&.dig('type')
+          if ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES.keys.exclude?(type&.downcase) || type.nil?
+            validation_error.add_error(detail: 'Missing or incorrect type', source: '/type', title: 'Invalid field',
+                                       status: '400')
+          else
+            itf_types[type&.downcase]
+          end
         end
 
         def itf_types

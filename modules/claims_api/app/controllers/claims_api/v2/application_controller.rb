@@ -4,6 +4,7 @@ require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
+require 'claims_api/common/exceptions/validation_error'
 require 'claims_api/claim_logger'
 require 'bgs_service/local_bgs'
 require 'claims_api/form_schemas'
@@ -108,6 +109,10 @@ module ClaimsApi
                               message:,
                               api_version: 'V2',
                               level:)
+      end
+
+      def validation_error
+        @validation_error ||= ClaimsApi::Error::ValidationError.new
       end
     end
   end

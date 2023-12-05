@@ -14,7 +14,7 @@ module ClaimsApi
           {
             creation_date: itf[:creation_date],
             expiration_date: itf[:expiration_date],
-            type: ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES.key(itf[:type]),
+            type: itf[:type],
             status: itf[:status].downcase
           }
         end

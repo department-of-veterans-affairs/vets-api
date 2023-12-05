@@ -69,7 +69,8 @@ RSpec.describe 'IntentToFiles', type: :request do
           it 'returns a 400' do
             mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
-              expect(response.status).to eq(400)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['status']).to eq('400')
             end
           end
         end
@@ -381,7 +382,8 @@ RSpec.describe 'IntentToFiles', type: :request do
               it 'returns a 400' do
                 mock_ccg(scopes) do |auth_header|
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -393,7 +395,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = ''
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -405,7 +408,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = nil
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -417,7 +421,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = 'foo'
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -454,7 +459,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   survivor_data = data
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   post itf_submit_path, params: survivor_data, headers: auth_header
-                  expect(response.status).to eq(422)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('422')
                 end
               end
             end
@@ -466,7 +472,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   survivor_data[:data][:attributes][:claimantSsn] = 'abcdefghi'
                   post itf_submit_path, params: survivor_data, headers: auth_header
-                  expect(response.status).to eq(422)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('422')
                 end
               end
             end
@@ -574,7 +581,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = 'survivor'
                   invalid_data[:data][:attributes][:claimantSsn] = ''
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(422)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('422')
                 end
               end
             end
@@ -588,7 +596,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = ''
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -600,7 +609,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = nil
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -612,7 +622,8 @@ RSpec.describe 'IntentToFiles', type: :request do
                   invalid_data[:data][:attributes][:type] = 'foo'
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['status']).to eq('400')
                 end
               end
             end
@@ -698,7 +709,8 @@ RSpec.describe 'IntentToFiles', type: :request do
           mock_ccg(scopes) do |auth_header|
             invalid_data_format = data[:data][:attributes]
             post itf_submit_path, params: invalid_data_format, headers: auth_header
-            expect(response.status).to eq(400)
+            response_body = JSON.parse(response.body)
+            expect(response_body['errors'][0]['status']).to eq('400')
           end
         end
 
@@ -713,7 +725,8 @@ RSpec.describe 'IntentToFiles', type: :request do
           mock_ccg(scopes) do |auth_header|
             invalid_data_format = data[:data][:attributes]
             post itf_validate_path, params: invalid_data_format, headers: auth_header
-            expect(response.status).to eq(400)
+            response_body = JSON.parse(response.body)
+            expect(response_body['errors'][0]['status']).to eq('400')
           end
         end
       end
