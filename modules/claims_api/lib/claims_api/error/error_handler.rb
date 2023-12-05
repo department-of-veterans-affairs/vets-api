@@ -31,7 +31,7 @@ module ClaimsApi
         render json: {
           errors: error.errors.map do |e|
             error_hash = e.as_json.slice('title', 'status', 'detail')
-            error_hash['source'] = format_source(error) unless error.backtrace.nil?
+            error_hash['source'] = format_source(error) unless error&.backtrace.nil?
             error_hash
           end
         }, status: error.status_code
@@ -40,7 +40,8 @@ module ClaimsApi
       def render_json_error(error)
         render json: {
           errors: error.errors.map do |e|
-            error_hash = e.as_json.slice('title', 'status', 'detail', 'source')
+            error_hash = e.as_json.slice('title', 'status', 'detail')
+            error_hash['source'] = e[:source]
             error_hash
           end
         }, status: error.status_code
@@ -51,7 +52,7 @@ module ClaimsApi
       end
 
       def get_error_source(error)
-        error.backtrace[0].to_s
+        error&.backtrace&.[](0).to_s
       end
     end
   end

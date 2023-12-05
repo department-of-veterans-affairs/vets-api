@@ -16,7 +16,10 @@
             "description": "HTTP error detail"
           },
           "source": {
-            "type": "string"
+            "type": "object",
+            "pointer": {
+              "type": "string"
+            }
           },
           "title": {
             "type": "string"

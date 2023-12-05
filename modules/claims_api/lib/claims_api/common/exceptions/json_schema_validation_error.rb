@@ -18,7 +18,9 @@ module ClaimsApi
             title: @title,
             detail: @detail,
             status: @status.to_s, # LH standards want this be a string
-            source: "data/attributes#{@source}"
+            source: {
+              pointer: "data/attributes#{@source}"
+            }
           }
         ]
       end
