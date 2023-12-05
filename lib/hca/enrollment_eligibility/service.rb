@@ -99,7 +99,7 @@ module HCA
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
           ),
-          can_submit_financial_info: is_income_year_current_year?(response)
+          can_submit_financial_info: income_year_is_current_year?(response)
         }
       end
       # rubocop:enable Metrics/MethodLength
@@ -317,7 +317,7 @@ module HCA
         end.to_xml
       end
 
-      def is_income_year_current_year?(response)
+      def income_year_is_current_year?(response)
         income_year = get_xpath(
           response,
           "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
