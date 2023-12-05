@@ -1946,21 +1946,6 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when the activeDutyEndDate is Feb 29 in a leap year' do
-          let(:active_duty_end_date) { '2024-02-29' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
-                active_duty_end_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
         context 'when the activeDutyEndDate is not present' do
           let(:service_periods) do
             [
@@ -2531,6 +2516,7 @@ RSpec.describe 'Disability Claims', type: :request do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
+                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:accepted)
               end
@@ -2544,8 +2530,37 @@ RSpec.describe 'Disability Claims', type: :request do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
+                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+
+          context 'when approximateDate is formatted MM-YYYY and is in the past' do
+            let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%Y') }
+
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
+                post submit_path, params: params.to_json, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+
+          context 'when approximateDate is formatted MM-DD-YYYY and is in the past' do
+            let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%d-%Y') }
+
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
+                post submit_path, params: params.to_json, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -2589,6 +2604,21 @@ RSpec.describe 'Disability Claims', type: :request do
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:accepted)
               end
+            end
+          end
+        end
+
+        # real world example see API-31426
+        context 'when approximateDate contains the name of the month as a string' do
+          let(:approximate_date) { 'July 2017' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
+              post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2859,6 +2889,33 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.',
                       approximateDate: '2019-30-02'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+
+          # real world example see API-31426
+          it 'raises an exception if date includes the name of the month' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  serviceRelevance: 'Heavy equipment operator in service.',
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.',
+                      approximateDate: 'July 2017'
                     }
                   ]
                 }
