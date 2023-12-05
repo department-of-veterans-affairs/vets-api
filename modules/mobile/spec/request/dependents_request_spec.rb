@@ -22,7 +22,6 @@ RSpec.describe 'dependents', type: :request do
             'ptcpntId' => '600140899',
             'relatedToVet' => 'Y',
             'relationship' => 'Spouse',
-            'ssn' => '222883214',
             'veteranIndicator' => 'N'
           }
         },
@@ -39,7 +38,6 @@ RSpec.describe 'dependents', type: :request do
             'ptcpntId' => '600280661',
             'relatedToVet' => 'Y',
             'relationship' => 'Child',
-            'ssn' => nil,
             'veteranIndicator' => 'N'
           }
         }

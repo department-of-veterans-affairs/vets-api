@@ -16,7 +16,6 @@ module Mobile
                  :ptcpnt_id,
                  :related_to_vet,
                  :relationship,
-                 :ssn,
                  :veteran_indicator
 
       def initialize(dependents)
@@ -32,7 +31,6 @@ module Mobile
                               dependent[:ptcpnt_id],
                               dependent[:related_to_vet],
                               dependent[:relationship],
-                              dependent[:ssn],
                               dependent[:veteran_indicator])
         end
 
@@ -51,7 +49,6 @@ module Mobile
                                  :ptcpnt_id,
                                  :related_to_vet,
                                  :relationship,
-                                 :ssn,
                                  :veteran_indicator)
   end
 end

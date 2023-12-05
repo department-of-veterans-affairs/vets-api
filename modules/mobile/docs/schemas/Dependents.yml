@@ -30,7 +30,6 @@ properties:
             - ptcpntId
             - relatedToVet
             - relationship
-            - ssn
             - veteranIndicator
           properties:
             awardIndicator:
@@ -63,9 +62,6 @@ properties:
             relationship:
               type: string
               example: 'Spouse'
-            ssn:
-              type: string
-              example: '222883214'
             veteranIndicator:
               type: string
               example: 'N'
