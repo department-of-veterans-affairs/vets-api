@@ -53,7 +53,7 @@ module Dynamics
       parse_response(response.body)
     rescue ErrorHandler::ServiceError => e
       log_error(endpoint, e.class.name)
-      raise e
+      [e, { bearer: token(method, endpoint), env: Rails.env, tenant: tenant_id.chars.first(5) }]
     end
 
     def invoke_request(endpoint, method, payload, params)
