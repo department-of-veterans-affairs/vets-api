@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'oj'
+
 module ClaimsApi
   module V2
     module JsonFormatValidation
@@ -9,28 +11,31 @@ module ClaimsApi
         def validate_json_format
           # rubocop:disable Style/ClassEqualityComparison
           # testing string b/c NullIO class doesn't always exist
-          if request.body.class.name == 'Puma::NullIO'
-            render_body_is_not_a_hash_error
-            return
-          end
+          raise JSON::ParserError if request.body.class.name == 'Puma::NullIO'
           # rubocop:enable Style/ClassEqualityComparison
 
           @json_body = JSON.parse request.body.read
           return if @json_body.is_a? Hash
 
-          render_body_is_not_a_hash_error
+          raise JSON::ParserError
         rescue JSON::ParserError
-          render_body_is_not_a_hash_error
+          render_body_is_not_a_hash_error(request.body.read)
         end
 
-        def render_body_is_not_a_hash_error
+        def render_body_is_not_a_hash_error(body)
           status = '422'
           error = {
             title: 'Unprocessable entity',
             status:,
-            detail: "The request body isn't a JSON object."
+            detail: "The request body is not a valid JSON object: #{get_error_msg(body)}"
           }
           render status:, json: { errors: [error] }
+        end
+
+        def get_error_msg(body)
+          Oj.load(body)
+        rescue Oj::ParseError => e
+          e
         end
       end
     end
