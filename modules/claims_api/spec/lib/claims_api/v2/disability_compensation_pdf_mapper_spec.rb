@@ -67,20 +67,23 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         it 'maps anticipatedSeparationDate correctly' do
           form_attributes['claimProcessType'] = claim_process_type
-          form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_seperation_date 
+          form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+            anticipated_seperation_date
           mapper.map_claim
 
-          date_of_release_from_active_duty = pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
-          expect(date_of_release_from_active_duty).to eq({ year: "2024", month: "03", day: "05" })
+          date_of_release_from_active_duty =
+            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
+          expect(date_of_release_from_active_duty).to eq({ year: '2024', month: '03', day: '05' })
         end
 
         it 'maps activeDutyEndDate correctly' do
           form_attributes['claimProcessType'] = claim_process_type
-          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = active_duty_end_date 
+          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = active_duty_end_date
           mapper.map_claim
 
-          date_of_release_from_active_duty = pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
-          expect(date_of_release_from_active_duty).to eq({ year: "2024", month: "03", day: "05" })
+          date_of_release_from_active_duty =
+            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
+          expect(date_of_release_from_active_duty).to eq({ year: '2024', month: '03', day: '05' })
         end
       end
     end

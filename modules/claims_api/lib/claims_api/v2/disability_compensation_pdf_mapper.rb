@@ -345,13 +345,15 @@ module ClaimsApi
       def date_of_release
         if @pdf_data[:data][:attributes][:claimProcessType] == 'BDD_PROGRAM_CLAIM'
           claim_date = Date.parse(@created_at.to_s)
-          service_information = @auto_claim.dig('serviceInformation')
+          service_information = @auto_claim['serviceInformation']
 
           active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
           active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
-          end_or_separation_date = active_dates.compact.find{ |a| Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
-          claim_date.next_day(BDD_UPPER_LIMIT))}
+          end_or_separation_date = active_dates.compact.find do |a|
+            Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
+                                                  claim_date.next_day(BDD_UPPER_LIMIT))
+          end
 
           @pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty] = regex_date_conversion(end_or_separation_date)
         end
