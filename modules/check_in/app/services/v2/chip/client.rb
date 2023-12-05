@@ -116,7 +116,7 @@ module V2
                                   uuid: check_in_session.uuid
                                 },
                                 { external_service: service_name, team: 'check-in' })
-        Faraday::Response.new(body: e.original_body, status: e.original_status)
+        Faraday::Response.new(response_body: e.original_body, status: e.original_status)
       end
 
       ##
@@ -204,7 +204,7 @@ module V2
                                   uuid: check_in_session.uuid
                                 },
                                 { external_service: service_name, team: 'check-in' })
-        Faraday::Response.new(body: e.original_body, status: e.original_status)
+        Faraday::Response.new(response_body: e.original_body, status: e.original_status)
       end
 
       private
