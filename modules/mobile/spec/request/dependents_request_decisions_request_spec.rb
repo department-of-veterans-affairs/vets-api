@@ -18,6 +18,7 @@ RSpec.describe 'dependents request decisions', type: :request do
       end
       expect(response).to have_http_status(:ok)
       expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
+      expect(attributes['promptRenewal']).to eq(true)
     end
 
     context 'when no diaries exist' do
@@ -28,6 +29,20 @@ RSpec.describe 'dependents request decisions', type: :request do
         end
         expect(response).to have_http_status(:ok)
         expect(attributes['diaries']).to eq([])
+        expect(attributes['promptRenewal']).to eq(false)
+      end
+    end
+
+    context 'when one diary exists that does not meet criteria for renewal' do
+      it 'sets promptRenewal to false' do
+        VCR.use_cassette('bgs/diaries_service/read_diaries_one_entry_cxcl') do
+          allow(user).to receive(:participant_id).and_return('13014883')
+          get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
+        end
+        expect(response).to have_http_status(:ok)
+        expect(attributes['diaries'].count).to eq(1)
+        expect(attributes.dig('diaries', 0, 'diaryLcStatusType')).to eq('CXCL')
+        expect(attributes['promptRenewal']).to eq(false)
       end
     end
 
@@ -39,6 +54,7 @@ RSpec.describe 'dependents request decisions', type: :request do
         end
         expect(response).to have_http_status(:ok)
         expect(attributes['dependencyVerifications'].count).to eq(1)
+        expect(attributes['promptRenewal']).to eq(true)
       end
     end
   end
