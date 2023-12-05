@@ -84,8 +84,33 @@ describe HCA::EnrollmentEligibility::Service do
             effective_date: '2019-01-25T09:04:04.000-06:00',
             primary_eligibility: 'HUMANITARIAN EMERGENCY',
             veteran: 'false',
-            priority_group: nil
+            priority_group: nil,
+            can_submit_financial_info: false
           )
+        end
+      end
+    end
+
+    context "when the user's financial info was submitted during the same year as the given year" do
+      it "sets the 'can_submit_financial_info' key to true", run_at: 'Mon, 04 Dec 2023 21:30:12 GMT' do
+        VCR.use_cassette(
+          'hca/ee/lookup_user_can_submit_financial_info',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          expect(
+            described_class.new.lookup_user('1013144622V807216', '2022')
+          ).to eq(
+                 enrollment_status: 'Pending; Other',
+                 application_date: nil,
+                 enrollment_date: nil,
+                 preferred_facility: nil,
+                 ineligibility_reason: nil,
+                 effective_date: '2019-09-08T22:23:05.000-05:00',
+                 primary_eligibility: 'NSC',
+                 veteran: 'true',
+                 priority_group: nil,
+                 can_submit_financial_info: true
+               )
         end
       end
     end
@@ -106,7 +131,8 @@ describe HCA::EnrollmentEligibility::Service do
           effective_date: '2019-01-02T21:58:55.000-06:00',
           primary_eligibility: 'SC LESS THAN 50%',
           veteran: 'true',
-          priority_group: 'Group 3'
+          priority_group: 'Group 3',
+          can_submit_financial_info: false
         )
       end
     end
