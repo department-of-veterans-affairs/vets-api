@@ -4,7 +4,7 @@ require 'debts_api/v0/fsr_form'
 module DebtsApi
   class V0::VbaFsrForm < V0::FsrForm
     VBA_TYPE_KEY = 'DEBT'
-    VBA_AMOUNT_KEY = 'currentAR'
+    VBA_AMOUNT_KEY = 'currentAr'
     DEBTS_KEY = 'selectedDebtsAndCopays'
 
     attr_reader :form_data, :debts
