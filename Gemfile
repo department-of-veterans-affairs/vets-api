@@ -48,7 +48,7 @@ gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.g
 gem 'blueprinter'
 gem 'bootsnap', require: false
 gem 'breakers'
-gem 'carrierwave', '~> 3.0.5'
+gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clam_scan'
 gem 'combine_pdf'
