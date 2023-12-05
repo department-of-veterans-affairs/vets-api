@@ -10,7 +10,7 @@ module MebApi
 
         def initialize(response = nil)
           attributes = {
-            exclusion_periods: response.body
+            exclusion_periods: response.body["exclusion_periods"]
           }
 
           super(response.status, attributes)
