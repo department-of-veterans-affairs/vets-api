@@ -38,7 +38,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
         'generatedDate' => '2020-01-01T00:00:00Z',
         'data' => {
           'patientInfo' => { 'icn' => '1234567890V123456' },
-          'header' => { 'stationNo' => '500', 'timeZone' => 'US/Pacific' },
+          'header' => { 'stationNo' => '500', 'timeZone' => 'US/Pacific' }
         }
       }
     end
