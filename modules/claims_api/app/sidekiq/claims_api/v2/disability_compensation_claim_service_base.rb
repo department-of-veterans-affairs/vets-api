@@ -13,6 +13,7 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
+      LOG_TAG = '526_v2_claim_service_base'
 
       protected
 
@@ -96,8 +97,8 @@ module ClaimsApi
         ClaimsApi::AutoEstablishedClaim::ERRORED
       end
 
-      def log_job_progress(tag, claim_id, detail)
-        ClaimsApi::Logger.log(tag,
+      def log_job_progress(claim_id, detail)
+        ClaimsApi::Logger.log(self.class::LOG_TAG,
                               claim_id:,
                               detail:)
       end
