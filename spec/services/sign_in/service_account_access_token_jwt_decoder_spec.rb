@@ -47,13 +47,13 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtDecoder do
         JWT.encode(
           jwt_payload,
           OpenSSL::PKey::RSA.new(2048),
-          SignIn::Constants::AccessToken::JWT_ENCODE_ALGORITHM
+          SignIn::Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM
         )
       end
 
       let(:jwt_payload) do
         {
-          iss: SignIn::Constants::AccessToken::ISSUER,
+          iss: SignIn::Constants::ServiceAccountAccessToken::ISSUER,
           aud: service_account_access_token.audience,
           jti: service_account_access_token.uuid,
           sub: service_account_access_token.user_identifier,
@@ -109,6 +109,16 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtDecoder do
         expect(decoded_access_token.expiration_time)
           .to eq(Time.zone.at(service_account_access_token.expiration_time.to_i))
         expect(decoded_access_token.created_time).to eq(Time.zone.at(service_account_access_token.created_time.to_i))
+      end
+    end
+
+    context 'when valid service account access token contains user_attributes claim' do
+      let(:service_account_access_token) { create(:service_account_access_token, user_attributes:) }
+      let(:user_attributes) { { 'foo' => 'bar' } }
+
+      it 'contains the user_attributes claim' do
+        decoded_access_token = subject
+        expect(decoded_access_token.user_attributes).to eq(user_attributes)
       end
     end
   end
