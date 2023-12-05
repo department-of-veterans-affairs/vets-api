@@ -24,7 +24,6 @@ module MebApi
           end
         end
 
-
         private
 
         def end_point(claimant_id)
