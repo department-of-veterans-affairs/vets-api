@@ -64,7 +64,7 @@ module V2
                  chip_client.check_in_appointment(token:, appointment_ien: check_in_body[:appointment_ien],
                                                   travel_params:)
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
 
         response.build(response: resp).handle
@@ -80,7 +80,7 @@ module V2
         if token.present?
           chip_client.refresh_appointments(token:, identifier_params:)
         else
-          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+          Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
         end
       end
 
@@ -96,7 +96,7 @@ module V2
         resp = if token.present?
                  chip_client.pre_check_in(token:, demographic_confirmations:)
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
 
         response.build(response: resp).handle
@@ -116,7 +116,7 @@ module V2
         if token.present?
           chip_client.set_precheckin_started(token:)
         else
-          Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+          Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
         end
       end
 
@@ -134,7 +134,7 @@ module V2
         resp = if token.present?
                  chip_client.set_echeckin_started(token:, appointment_attributes:)
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
 
         response.build(response: resp).handle
@@ -151,12 +151,12 @@ module V2
       # @return [Hash] invalid request message if demographic_confirmations is not present
       def confirm_demographics
         resp = if check_in_body.nil?
-                 Faraday::Response.new(body: check_in.invalid_request.to_json, status: 400)
+                 Faraday::Response.new(response_body: check_in.invalid_request.to_json, status: 400)
                elsif token.present?
                  chip_client.confirm_demographics(token:, demographic_confirmations:
                    demographic_confirmations.merge(identifier_params, { uuid: check_in.uuid }))
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
 
         response.build(response: resp).handle
@@ -175,7 +175,7 @@ module V2
         resp = if token.present?
                  chip_client.refresh_precheckin(token:)
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
         response.build(response: resp).handle
       end
@@ -194,7 +194,7 @@ module V2
         resp = if token.present?
                  chip_client.initiate_check_in(token:)
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
         response.build(response: resp).handle
       end
@@ -212,7 +212,7 @@ module V2
         resp = if token.present?
                  chip_client.delete(token:)
                else
-                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+                 Faraday::Response.new(response_body: check_in.unauthorized_message.to_json, status: 401)
                end
         response.build(response: resp).handle
       end
