@@ -133,6 +133,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build_and_push:
+    if: github.ref == 'refs/heads/k8s'
     needs: [tests, linting_and_security]
     name: Build and Push
     env:
