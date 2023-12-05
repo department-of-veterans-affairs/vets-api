@@ -51,6 +51,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           icn: '1234567890V123456',
           meta: {
             generated_date: '2020-01-01T00:00:00Z',
+            station_no: '500',
             time_zone: 'US/Pacific'
           },
           patient_info: {
@@ -103,6 +104,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           icn: '1234567890V123456',
           meta: {
             generated_date: '2020-01-01T00:00:00Z',
+            station_no: '500',
             time_zone: 'US/Pacific'
           },
           patient_info: {
