@@ -274,6 +274,9 @@
         },
         "comment": {
           "type": ["string", "null"]
+        },
+        "avsPath": {
+          "type": ["string", "null"]
         }
       }
     }
