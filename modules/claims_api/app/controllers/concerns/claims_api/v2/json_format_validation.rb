@@ -10,7 +10,7 @@ module ClaimsApi
           # rubocop:disable Style/ClassEqualityComparison
           # testing string b/c NullIO class doesn't always exist
           if request.body.class.name == 'Puma::NullIO'
-            render_body_is_not_a_hash_error request.body
+            render_body_is_not_a_hash_error
             return
           end
           # rubocop:enable Style/ClassEqualityComparison
@@ -18,18 +18,17 @@ module ClaimsApi
           @json_body = JSON.parse request.body.read
           return if @json_body.is_a? Hash
 
-          render_body_is_not_a_hash_error @json_body
+          render_body_is_not_a_hash_error
         rescue JSON::ParserError
-          render_body_is_not_a_hash_error request.body.read
+          render_body_is_not_a_hash_error
         end
 
-        def render_body_is_not_a_hash_error(body)
+        def render_body_is_not_a_hash_error
           status = '422'
           error = {
-            title: 'Inprocessable entity',
+            title: 'Unprocessable entity',
             status:,
-            detail: "The request body isn't a JSON object: #{body.inspect}",
-            source: ''
+            detail: "The request body isn't a JSON object."
           }
           render status:, json: { errors: [error] }
         end

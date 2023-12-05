@@ -28,7 +28,7 @@ module ClaimsApi
       end
 
       def status_code
-        @status.presence || '422'
+        @status || '422'
       end
     end
   end
