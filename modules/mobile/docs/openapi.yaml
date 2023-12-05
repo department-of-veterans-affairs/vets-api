@@ -1310,7 +1310,7 @@ paths:
       summary: /v0/community-care-providers
   /v0/dependents:
     get:
-      description: Returns a list of user's dependents.
+      description: Returns a list of user's dependents. Dependent SSN is also available but is removed to limit PII exposure.
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
