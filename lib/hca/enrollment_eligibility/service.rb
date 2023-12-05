@@ -57,8 +57,7 @@ module HCA
       end
 
       # rubocop:disable Metrics/MethodLength
-      # The 'year' param is compared to the financial 'incomeYear' on file for the Veteran
-      def lookup_user(icn, year = nil)
+      def lookup_user(icn)
         response = with_monitoring do
           lookup_user_req(icn)
         end
@@ -100,10 +99,7 @@ module HCA
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
           ),
-          can_submit_financial_info: does_income_year_match_year?(
-            response,
-            year || DateTime.now.utc.year.to_s
-          )
+          can_submit_financial_info: is_income_year_current_year?(response)
         }
       end
       # rubocop:enable Metrics/MethodLength
@@ -321,13 +317,13 @@ module HCA
         end.to_xml
       end
 
-      def does_income_year_match_year?(response, year)
+      def is_income_year_current_year?(response)
         income_year = get_xpath(
           response,
           "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
         )
 
-        income_year == year
+        income_year == DateTime.now.utc.year.to_s
       end
       # rubocop:enable Metrics/MethodLength
     end

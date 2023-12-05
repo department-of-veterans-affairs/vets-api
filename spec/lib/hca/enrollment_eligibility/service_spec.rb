@@ -91,14 +91,17 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when the user's financial info was submitted during the same year as the given year" do
-      it "sets the 'can_submit_financial_info' key to true", run_at: 'Mon, 04 Dec 2023 21:30:12 GMT' do
+    context "when the user's financial info is submitted during the current calendar year" do
+      before { Timecop.freeze(DateTime.new(2022, 2, 3)) }
+      after { Timecop.return }
+
+      it "sets the 'can_submit_financial_info' key to true", run_at: 'Mon, 04 Dec 2023 22:32:14 GMT' do
         VCR.use_cassette(
           'hca/ee/lookup_user_can_submit_financial_info',
           { match_requests_on: %i[method uri body], erb: true }
         ) do
           expect(
-            described_class.new.lookup_user('1013144622V807216', '2022')
+            described_class.new.lookup_user('1013144622V807216')
           ).to eq(
             enrollment_status: 'Pending; Other',
             application_date: nil,

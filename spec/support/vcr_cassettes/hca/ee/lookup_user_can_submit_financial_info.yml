@@ -31,7 +31,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Date:
-      - Mon, 04 Dec 2023 21:30:12 GMT
+      - Mon, 04 Dec 2023 22:32:14 GMT
       Content-Length:
       - '975'
       Accept-Encoding:
@@ -42,7 +42,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 04 Dec 2023 21:30:13 GMT
+      - Mon, 04 Dec 2023 22:32:14 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -56,7 +56,7 @@ http_interactions:
       X-Oracle-Dms-Rid:
       - '0'
       X-Oracle-Dms-Ecid:
-      - 70d23c87-7271-4fae-acfa-176969f871b8-00001364
+      - 70d23c87-7271-4fae-acfa-176969f871b8-000029fc
       Soapaction:
       - '""'
       X-Oneagent-Js-Injection:
@@ -70,7 +70,7 @@ http_interactions:
       Cache-Control:
       - max-age=0, no-store
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-1338335443"
+      - dtSInfo;desc="0", dtRpid;desc="-206260948"
       Content-Type:
       - text/xml; charset=UTF-8
       Strict-Transport-Security:
@@ -110,6 +110,6 @@ http_interactions:
         Record</ssaVerificationStatus></ssn></ssns><startDate>20190213</startDate><maidenName>Johnson</maidenName></spouse></spouseFinancials></spouseFinancialsList><dependentFinancialsList><dependentFinancials><incomeYear>2022</incomeYear><expenses><expense><expenseType>Child's
         Educational Expenses</expenseType><amount>450</amount><expenseReportDate>2023-09-01T10:08:33.000-05:00</expenseReportDate></expense></expenses><incomes><income><type>Total
         Employment Income</type><amount>2000</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income></incomes><livedWithPatient>false</livedWithPatient><dependentInfo><dob>20230121</dob><familyName>Andrews</familyName><gender>Male</gender><givenName>Michael</givenName><middleName>Gregory</middleName><relationship>SON</relationship><ssns><ssn><ssnText>666837455</ssnText><type>Active</type><ssaVerificationStatus>New
-        Record</ssaVerificationStatus></ssn></ssns><startDate>20230121</startDate></dependentInfo><incapableOfSelfSupport>false</incapableOfSelfSupport><contributedToSupport>true</contributedToSupport><hasIncome>true</hasIncome><incomeAvailableToPatient>true</incomeAvailableToPatient><attendedSchool>true</attendedSchool></dependentFinancials></dependentFinancialsList><vamcReportDate>2023-09-01T10:08:33.000-05:00</vamcReportDate></financialStatement></financialsInfo></summary><invocationDate>2023-12-04T15:30:15</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
-  recorded_at: Mon, 04 Dec 2023 21:30:15 GMT
+        Record</ssaVerificationStatus></ssn></ssns><startDate>20230121</startDate></dependentInfo><incapableOfSelfSupport>false</incapableOfSelfSupport><contributedToSupport>true</contributedToSupport><hasIncome>true</hasIncome><incomeAvailableToPatient>true</incomeAvailableToPatient><attendedSchool>true</attendedSchool></dependentFinancials></dependentFinancialsList><vamcReportDate>2023-09-01T10:08:33.000-05:00</vamcReportDate></financialStatement></financialsInfo></summary><invocationDate>2023-12-04T16:32:14</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
+  recorded_at: Mon, 04 Dec 2023 22:32:14 GMT
 recorded_with: VCR 6.2.0
