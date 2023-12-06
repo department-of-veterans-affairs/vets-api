@@ -6,6 +6,7 @@ require_relative '../../../rails_helper'
 RSpec.describe 'Evidence Waiver 5103', type: :request,
                                        swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:veteran_id) { '1012667145V762142' }
+  let(:sponsor_id) { '1012861229V078999' }
   let(:claim_id) { '600131328' }
   let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}/5103" }
   let(:error_sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/abc123/5103" }
@@ -26,7 +27,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             context 'when success' do
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
-                  VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                  VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
                     allow_any_instance_of(ClaimsApi::LocalBGS)
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
@@ -62,10 +63,40 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             end
           end
 
+          context 'when sponsorICN is provided' do
+            it 'passes for a valid type' do
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: { claim_type: '140ISCD' }) do
+                  allow_any_instance_of(ClaimsApi::LocalBGS)
+                    .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+
+                  post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
+
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+
+            it 'returns a 404 for an invalid type' do
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
+                  allow_any_instance_of(ClaimsApi::LocalBGS)
+                    .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+
+                  post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
+                  res = JSON.parse(response.body)
+
+                  expect(res['errors'][0]['detail']).to eq('SponsorICN cannot be used with claim type 930AC')
+                  expect(response.status).to eq(404)
+                end
+              end
+            end
+          end
+
           context 'when a veteran does not have a file number' do
             it 'returns an error message' do
               mock_ccg(scopes) do |auth_header|
-                VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
                   allow_any_instance_of(ClaimsApi::V2::Veterans::EvidenceWaiverController)
                     .to receive(:file_number_check).and_return(@file_number = nil)
 

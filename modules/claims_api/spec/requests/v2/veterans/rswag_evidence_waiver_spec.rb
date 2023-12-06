@@ -51,7 +51,7 @@ describe 'EvidenceWaiver5103',
 
           before do |example|
             mock_ccg(scopes) do
-              VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+              VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
                 allow_any_instance_of(ClaimsApi::LocalBGS)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
                 submit_request(example.metadata)
