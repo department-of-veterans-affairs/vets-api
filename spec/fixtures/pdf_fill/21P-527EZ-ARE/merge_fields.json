@@ -1,8 +1,19 @@
 {
-   "veteranFullName":{
-      "first": "John",
-      "middle": "Middle",
-      "last": "Smith",
-      "suffix": "Sr."
-   }
+  "veteranFullName":{
+    "first": "John",
+    "middle": "Middle",
+    "last": "Smith",
+    "suffix": "Sr."
+  },
+  "veteranSocialSecurityNumber": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "veteranDateOfBirth": {
+    "month": "03",
+    "day": "07",
+    "year": "1985"
+  },
+  "vaPreviouslyFiled": 2
 }

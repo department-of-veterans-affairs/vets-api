@@ -4,5 +4,7 @@
     "middle": "middle",
     "last": "smith",
     "suffix": "Sr."
-  }
+  },
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranDateOfBirth": "1985-03-07"
 }
