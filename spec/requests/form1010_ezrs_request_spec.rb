@@ -7,6 +7,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end
 
+  before do
+    Flipper.disable(:ezr_async)
+  end
+
   describe 'POST create' do
     subject do
       post(
@@ -64,6 +68,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
+        end
+
+        it 'increments statsd' do
+          expect { subject }.to trigger_statsd_increment('api.1010ezr.submission_attempt')
         end
 
         context 'when the form includes a Mexican province' do

@@ -382,6 +382,9 @@ features:
     actor_type: user
     description: Enables access to the Enrollment Verification app
     enable_in_development: true
+  ezr_async:
+    actor_type: user
+    description: Submit form 10-10EZR with a background job
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
@@ -826,15 +829,12 @@ features:
   my_va_notification_dot_indicator:
     actor_type: user
     description: Enable dot indicator for notifications
-  my_va_remove_cerner_message:
+  my_va_enable_mhv_link:
     actor_type: user
-    description: Remove Cerner alerts under Health care section
+    description: Enables the "Visit MHV" CTA link under Health care section
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
-  my_va_show_header_link:
-    actor_type: user
-    description: Show the My VA link on the global site header
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1105,10 +1105,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  yellow_ribbon_mvp_enhancement:
-    actor_type: user
-    description: Enhances Yellow Ribbon MVP.
-    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.

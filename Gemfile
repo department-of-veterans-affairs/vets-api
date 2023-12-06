@@ -57,11 +57,11 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby'
+gem 'dogstatsd-ruby', '5.6.1'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
-gem 'faraday' # TODO: next step - update to ~> 1.0 , '~> 1.10'
+gem 'faraday', '~> 1.10'
 gem 'faraday_middleware'
 gem 'fastimage'
 gem 'fhir_client'
