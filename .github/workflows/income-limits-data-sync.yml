@@ -35,6 +35,8 @@ jobs:
 
       - name: Install node-oracledb
         run: npm install oracledb
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
 
       - name: Data Sync
         run: node .github/scripts/income-limits-data-sync.js
