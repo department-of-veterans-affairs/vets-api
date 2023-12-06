@@ -76,9 +76,9 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
 
     it 'logs job progress' do
       service = described_class.new
-      expect(ClaimsApi::Logger).to receive(:log).with('compensation_job', claim_id: claim.id, detail:)
+      expect(ClaimsApi::Logger).to receive(:log).with('526_v2_claim_service_base', claim_id: claim.id, detail:)
 
-      service.send(:log_job_progress, 'compensation_job', claim.id, detail)
+      service.send(:log_job_progress, claim.id, detail)
     end
   end
 end

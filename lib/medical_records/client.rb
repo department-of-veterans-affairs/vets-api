@@ -16,7 +16,7 @@ module MedicalRecords
     DEFAULT_COUNT = 9999
 
     # LOINC codes for clinical notes
-    PHYSICIAN_PROCEDURE_NOTE = '11505-5' # Physician procedure note
+    PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
     DISCHARGE_SUMMARY = '18842-5' # Discharge summary
 
     # LOINC codes for vitals

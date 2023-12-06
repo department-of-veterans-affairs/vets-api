@@ -282,6 +282,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         needed_count = copay_count + debt_count
         expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(needed_count)
         expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+        debt_amounts = DebtsApi::V0::Form5655Submission.with_debt_type('DEBT').last.public_metadata['debt_amounts']
+        expect(debt_amounts).to eq(['541.67', '1134.22'])
       end
     end
   end

@@ -152,7 +152,7 @@ RSpec.describe MedicalCopays::VBS::Service do
 
     it 'returns a response hash' do
       url = "/vbsapi/GetPDFStatementById/#{statement_id}"
-      response = Faraday::Response.new(body: { 'statement' => Base64.encode64('foo bar') }, status: 200)
+      response = Faraday::Response.new(response_body: { 'statement' => Base64.encode64('foo bar') }, status: 200)
 
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
       allow_any_instance_of(MedicalCopays::Request).to receive(:get).with(url).and_return(response)

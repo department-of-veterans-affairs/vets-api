@@ -315,10 +315,18 @@ module VAProfile
 
       # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
       def guard_reserve_service_by_date
-        military_service_episodes_by_date.select do |episode|
+        all_episodes = military_service_episodes_by_date.select do |episode|
           code = episode.personnel_category_type_code
           national_guard?(code) || reserve?(code)
-        end.sort_by(&:end_date).reverse
+        end
+
+        all_episodes.sort_by do |episode|
+          if episode.end_date.blank? # Handles nil and empty string
+            Time.zone.today + 3650
+          else
+            Date.parse(episode.end_date)
+          end
+        end.reverse
       end
 
       def latest_service_episode
