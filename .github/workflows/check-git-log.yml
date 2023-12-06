@@ -17,7 +17,8 @@ jobs:
         LOG=$(git log --all --oneline -- spec/support/vcr_cassettes/emis)
         if [ -n "$LOG" ]; then
           echo "EMIs Cassettes found in git history"
-          echo "Git log output:\n\n$LOG"
+          echo "Git log output:"
+          echo "$LOG"
           exit 1
         fi
 
