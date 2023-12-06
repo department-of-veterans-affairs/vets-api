@@ -25,11 +25,10 @@ jobs:
       - name: Test Java
         run: java -version
 
-      - uses: actions/setup-node@v4
-        env:
-          NODE_TLS_REJECT_UNAUTHORIZED: 0
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: latest
 
       # - name: Install Node package dependencies
       #   run: npm ci
