@@ -11,7 +11,7 @@ module EVSS
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
         lh_request_body.claimant_certification = true
-        lh_request_body.claim_date = form526['claimDate'] if form526['claimDate']
+        # lh_request_body.claim_date = form526['claimDate'] if form526['claimDate']
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
         veteran = form526['veteran']
@@ -137,7 +137,7 @@ module EVSS
               city: center['city']
             ),
             # LH spec says YYYY-DD or YYYY date format
-            begin_date: convert_approximate_date(treatment['startDate'], short: true)
+            begin_date: treatment['startDate'] # convert_approximate_date(treatment['startDate'], short: true)
           )
         end
       end

@@ -136,6 +136,28 @@ module EVSS
         end
       end
 
+      def test_test_test
+        # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
+        service = ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:ppiu],
+          provider: nil,
+          options: {},
+          current_user: @user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
+        )
+
+        service.get_payment_information
+
+        begin
+          raise 'hit our exception!!!!'
+          # set_account(response)
+        rescue => e
+          method_name = '#get_banking_info'
+          Rails.logger.error "#{method_name} Failed to retrieve PPIU data from #{service.class}: #{e.message}"
+          raise Common::Exceptions::BadRequest.new(errors: [e.message])
+        end
+      end
+
       def set_account(response)
         account = response.responses.first.payment_account
 

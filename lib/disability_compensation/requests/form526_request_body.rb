@@ -318,7 +318,7 @@ module Requests
 
     attribute :claimant_certification, Boolean
     attribute :claim_process_type, String
-    attribute :claim_date, String
+    # attribute :claim_date, String
     attribute :veteran_identification, VeteranIdentification
     attribute :change_of_address, ChangeOfAddress
     attribute :homeless, Homeless

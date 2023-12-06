@@ -106,6 +106,10 @@ module BenefitsClaims
         }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
       end
 
+      body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+        body['data']['attributes']['veteranIdentification']['currentVAEmployee']
+      body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+
       response = config.post(
         path,
         body,
