@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module V2
-    module Common
-      module Exceptions
+  module Common
+    module Exceptions
+      module StandardsCompliant
         class TokenValidationError < StandardError
           def initialize(error)
             @title = 'Not authorized'

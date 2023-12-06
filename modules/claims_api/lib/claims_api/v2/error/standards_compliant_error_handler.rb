@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/common/exceptions/token_validation_error'
-require 'claims_api/v2/common/exceptions/disability_compensation_json_validation_error'
+require 'claims_api/common/exceptions/standards_compliant/token_validation_error'
+require 'claims_api/common/exceptions/standards_compliant/json_validation_error'
 require 'claims_api/common/exceptions/standards_compliant/unprocessable_entity'
 require 'claims_api/common/exceptions/standards_compliant/resource_not_found'
 
@@ -13,7 +13,7 @@ module ClaimsApi
           clazz.class_eval do
             rescue_from ::Common::Exceptions::TokenValidationError do |err|
               render_error(
-                ClaimsApi::V2::Common::Exceptions::TokenValidationError.new(err)
+                ::ClaimsApi::Common::Exceptions::StandardsCompliant::TokenValidationError.new(err)
               )
             end
 
@@ -28,7 +28,7 @@ module ClaimsApi
                         end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
               render_json_error(
-                ClaimsApi::V2::Common::Exceptions::DisabilityCompensationJsonValidationError.new(err.to_json_api)
+                ::ClaimsApi::Common::Exceptions::StandardsCompliant::JsonValidationError.new(err.to_json_api)
               )
             end
           end

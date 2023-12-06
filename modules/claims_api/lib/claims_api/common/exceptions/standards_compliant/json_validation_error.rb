@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module V2
-    module Common
-      module Exceptions
-        class DisabilityCompensationJsonValidationError < StandardError
+  module Common
+    module Exceptions
+      module StandardsCompliant
+        class JsonValidationError < StandardError
           def initialize(error)
             @title = error[:errors][0][:title] || 'Unprocessable Entity'
             @source = error[:errors][0][:source]
