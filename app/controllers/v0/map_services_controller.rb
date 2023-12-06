@@ -10,7 +10,7 @@ module V0
     # POST /v0/map_services/:application/token
     def token
       unless (icn = @service_account_access_token.user_attributes['icn'])
-        render json: missing_icn_error, status: :bad_request and return
+        raise MAP::SecurityToken::Errors::MissingICNError
       end
 
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)
@@ -20,6 +20,8 @@ module V0
       render json: sts_client_error, status: :bad_gateway
     rescue MAP::SecurityToken::Errors::ApplicationMismatchError
       render json: application_mismatch_error, status: :bad_request
+    rescue MAP::SecurityToken::Errors::MissingICNError
+      render json: missing_icn_error, status: :bad_request
     end
 
     private
