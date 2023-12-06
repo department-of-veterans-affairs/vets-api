@@ -274,6 +274,24 @@ describe VAProfile::Prefill::MilitaryInformation do
         end
       end
 
+      describe '#guard_reserve_service_history nil end dates' do
+        it 'returns an array of guard and reserve service episode date ranges sorted by end_date' do
+          VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes_dup_end',
+                           match_requests_on: %i[method body]) do
+            expected_response = [
+              { from: '1989-08-20', to: '2002-07-01' },
+              { from: '1989-08-20', to: '1992-08-23' },
+              { from: '2000-04-07', to: '' }
+            ]
+
+            response = subject.guard_reserve_service_history
+
+            expect(response).to be_an(Array)
+            expect(response).to eq(expected_response)
+          end
+        end
+      end
+
       describe '#latest_guard_reserve_service_period' do
         it 'returns the most recently completed guard or reserve service period' do
           VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
