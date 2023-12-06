@@ -54,31 +54,13 @@ module Map
     def get_appointments(token:, patient_identifier:, time_period:)
       if token.present?
         resp = client.get_appointments(token:, patient_identifier:, time_period:)
+        response = Map::Response.build(response: resp).handle
 
-        case resp[:status]
-        when 200
+        if resp[:status] == 200
           serialized_data = VAOS::V2::AppointmentsSerializer.new(resp[:data]).serializable_hash
           response_data = { data: serialized_data, status: :ok }
-        when 400
-          error_data = {
-            message: resp[:message] || 'Bad Request',
-            detail: resp[:detail] || 'Bad request data entered'
-          }
-          response_data = { error: error_data, status: :bad_request }
-        when 500
-          error_data = if resp[:message].is_a?(String) && resp[:detail].is_a?(String)
-                         resp[:error_data]
-                       else
-                         {
-                           message: 'No error code found',
-                           detail: 'Unknown error occurred'
-                         }
-                       end
-          Rails.logger.error "500 error get_appointments - Message: #{error_data[:message]},
-            Detail: #{error_data[:detail]}"
-          response_data = { error: error_data, status: :internal_server_error }
         else
-          response_data = { error: 'Unknown error', status: :internal_server_error }
+          response_data = response
         end
       else
         response_data = { message: 'Unauthorized', status: :unauthorized }
