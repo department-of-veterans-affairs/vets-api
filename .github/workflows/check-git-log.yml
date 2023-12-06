@@ -1,6 +1,9 @@
 name: Check Git Log for EMIS Cassettes (PII)
 
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   check-git-log:
