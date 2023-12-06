@@ -215,7 +215,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#ai'
 
       namespace :schemas, controller: appealable_issues_controller_path do
-        get 'appealable-issues', action: :schema
+        get 'params', action: :schema
       end
 
       resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
@@ -236,7 +236,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#la'
 
       namespace :schemas, controller: controller_path do
-        get 'headers', action: :schema
+        get 'params', action: :schema
       end
 
       resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
