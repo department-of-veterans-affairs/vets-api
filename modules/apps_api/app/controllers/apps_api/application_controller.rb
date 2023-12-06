@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module AppsApi
-  class ApplicationController < ::OpenidApplicationController
+  class ApplicationController < ::ApplicationController
     service_tag 'lighthouse-apps'
+    skip_before_action :verify_authenticity_token
+    skip_after_action :set_csrf_header
     before_action { set_default_format_to_json }
 
     def set_default_format_to_json
