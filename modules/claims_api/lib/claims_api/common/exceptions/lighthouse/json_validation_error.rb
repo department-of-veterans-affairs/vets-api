@@ -3,7 +3,7 @@
 module ClaimsApi
   module Common
     module Exceptions
-      module StandardsCompliant
+      module Lighthouse
         class JsonValidationError < StandardError
           def initialize(error)
             @title = error[:errors][0][:title] || 'Unprocessable Entity'

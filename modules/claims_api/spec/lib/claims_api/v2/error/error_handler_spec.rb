@@ -2,22 +2,22 @@
 
 require 'rails_helper'
 require_relative '../../../../rails_helper' # mock_ccg method
-require 'claims_api/v2/error/standards_compliant_error_handler'
+require 'claims_api/v2/error/lighthouse_error_handler'
 
 describe ApplicationController, type: :controller do
   let(:scopes) { %w[system/claim.write] }
 
   controller do
-    include ClaimsApi::V2::Error::StandardsCompliantErrorHandler
+    include ClaimsApi::V2::Error::LighthouseErrorHandler
 
     skip_before_action :authenticate
 
     def raise_unprocessable_entity
-      raise ClaimsApi::Common::Exceptions::StandardsCompliant::UnprocessableEntity.new(detail: 'Test 422')
+      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(detail: 'Test 422')
     end
 
     def raise_resource_not_found
-      raise ClaimsApi::Common::Exceptions::StandardsCompliant::ResourceNotFound.new(detail: 'Test 404')
+      raise ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(detail: 'Test 404')
     end
 
     def raise_invalid_token

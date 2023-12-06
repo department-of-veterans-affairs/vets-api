@@ -1,34 +1,34 @@
 # frozen_string_literal: true
 
-require 'claims_api/common/exceptions/standards_compliant/token_validation_error'
-require 'claims_api/common/exceptions/standards_compliant/json_validation_error'
-require 'claims_api/common/exceptions/standards_compliant/unprocessable_entity'
-require 'claims_api/common/exceptions/standards_compliant/resource_not_found'
+require 'claims_api/common/exceptions/lighthouse/token_validation_error'
+require 'claims_api/common/exceptions/lighthouse/json_validation_error'
+require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
+require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 
 module ClaimsApi
   module V2
     module Error
-      module StandardsCompliantErrorHandler
+      module LighthouseErrorHandler
         def self.included(clazz) # rubocop:disable Metrics/MethodLength
           clazz.class_eval do
             rescue_from ::Common::Exceptions::TokenValidationError do |err|
               render_error(
-                ::ClaimsApi::Common::Exceptions::StandardsCompliant::TokenValidationError.new(err)
+                ::ClaimsApi::Common::Exceptions::Lighthouse::TokenValidationError.new(err)
               )
             end
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
-                        ::ClaimsApi::Common::Exceptions::StandardsCompliant::ResourceNotFound,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
                         ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::Unauthorized,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
                         ::Common::Exceptions::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::StandardsCompliant::UnprocessableEntity do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
                           render_error(err)
                         end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
               render_json_error(
-                ::ClaimsApi::Common::Exceptions::StandardsCompliant::JsonValidationError.new(err.to_json_api)
+                ::ClaimsApi::Common::Exceptions::Lighthouse::JsonValidationError.new(err.to_json_api)
               )
             end
           end

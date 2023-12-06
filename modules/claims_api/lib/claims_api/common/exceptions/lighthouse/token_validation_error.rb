@@ -3,7 +3,7 @@
 module ClaimsApi
   module Common
     module Exceptions
-      module StandardsCompliant
+      module Lighthouse
         class TokenValidationError < StandardError
           def initialize(error)
             @title = 'Not authorized'

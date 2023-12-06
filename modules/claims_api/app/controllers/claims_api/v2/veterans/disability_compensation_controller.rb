@@ -8,7 +8,7 @@ require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_documents'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
-require 'claims_api/v2/error/standards_compliant_error_handler'
+require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 
 module ClaimsApi
@@ -16,7 +16,7 @@ module ClaimsApi
     module Veterans
       class DisabilityCompensationController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::V2::DisabilityCompensationValidation
-        include ClaimsApi::V2::Error::StandardsCompliantErrorHandler
+        include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
 
         FORM_NUMBER = '526'
@@ -42,7 +42,7 @@ module ClaimsApi
           save_auto_claim!(auto_claim)
 
           if auto_claim.errors.present?
-            raise ::ClaimsApi::Common::Exceptions::StandardsCompliant::UnprocessableEntity.new(
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
               detail: auto_claim.errors.messages.to_s
             )
           end
@@ -63,7 +63,7 @@ module ClaimsApi
 
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::ClaimsApi::Common::Exceptions::StandardsCompliant::UnprocessableEntity.new(
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
               detail: 'Too many attachments.'
             )
           end

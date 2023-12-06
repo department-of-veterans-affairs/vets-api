@@ -3,7 +3,7 @@
 module ClaimsApi
   module Common
     module Exceptions
-      module StandardsCompliant
+      module Lighthouse
         class ResourceNotFound < StandardError
           def initialize(options = {})
             @title = options[:title] || 'Resource not found'
