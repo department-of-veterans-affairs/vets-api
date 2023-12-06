@@ -15,6 +15,8 @@ module ClaimsApi
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
+
           check_sponsorship_type bgs_claim
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
@@ -23,10 +25,6 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail:
               "Unable to locate Veteran's File Number. " \
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-          end
-
-          if lighthouse_claim.blank? && bgs_claim.blank?
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
           ews = create_ews(params[:id])
@@ -69,11 +67,6 @@ module ClaimsApi
 
         def check_sponsorship_type(bgs)
           return if params[:sponsorIcn].blank?
-
-          if bgs.nil?
-            detail = 'SponsorICN cannot be used with until the claim is established'
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
-          end
 
           claim_type = bgs.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
           unless ClaimsApi::AutoEstablishedClaim::SPONSOR_BGS_CLAIM_TYPES.include? claim_type
