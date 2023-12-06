@@ -1288,7 +1288,7 @@
             "in": "query",
             "required": false,
             "example": "1012667145V762142",
-            "description": "ID of Sponsor",
+            "description": "ICN of the veteran affiliated with the dependent",
             "schema": {
               "type": "string"
             }
@@ -1376,7 +1376,7 @@
                   "errors": [
                     {
                       "title": "Resource not found",
-                      "detail": "SponsorICN cannot be used with claim type 930AC"
+                      "detail": "Claim not found"
                     }
                   ]
                 },
