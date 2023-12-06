@@ -210,14 +210,13 @@ describe AppealsApi::SupplementalClaim, type: :model do
       context "when 'evidenceSubmission.retrieveFrom.endDate' is same as submission date" do
         it 'does not errort' do
           retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
-          end_date = (Time.zone.today).to_s
+          end_date = Time.zone.today.to_s
           retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = end_date
 
           expect(appeal.valid?).to be true
           expect(appeal.errors.size).to eq 0
         end
       end
-
     end
 
     describe '#veteran_dob_month' do
