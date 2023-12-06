@@ -83,7 +83,7 @@ describe SimpleFormsApiSubmission::MetadataValidator do
           'businessLine' => 'CMP'
         }
         expected_metadata = {
-          'veteranFirstName' => 'John - Jo/hn',
+          'veteranFirstName' => 'John - John',
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
@@ -145,7 +145,7 @@ describe SimpleFormsApiSubmission::MetadataValidator do
         }
         expected_metadata = {
           'veteranFirstName' => 'John',
-          'veteranLastName' => 'John - Jo/hn',
+          'veteranLastName' => 'John - John',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
           'source' => 'VA Platform Digital Forms',
