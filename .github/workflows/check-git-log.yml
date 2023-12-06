@@ -1,0 +1,23 @@
+name: Check Git Log
+
+on: [push]
+
+jobs:
+  check-git-log:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run git log command
+      run: |
+        LOG=$(git log --all --oneline -- spec/support/vcr_cassettes/emis)
+        if [ -n "$LOG" ]; then
+          echo "EMIs Cassettes found in git history"
+          echo "Git log output:\n\n$LOG"
+          exit 1
+        fi
+
+    - name: Success Message
+      run: echo "The git log is empty as expected."
