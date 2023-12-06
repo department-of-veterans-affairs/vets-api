@@ -77,17 +77,14 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
               end
             end
 
-            it 'returns a 404 for an invalid type' do
+            it 'silently passes for an invalid type' do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
                   allow_any_instance_of(ClaimsApi::LocalBGS)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
-
                   post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
-                  res = JSON.parse(response.body)
 
-                  expect(res['errors'][0]['detail']).to eq('SponsorICN cannot be used with claim type 930AC')
-                  expect(response.status).to eq(404)
+                  expect(response.status).to eq(200)
                 end
               end
             end

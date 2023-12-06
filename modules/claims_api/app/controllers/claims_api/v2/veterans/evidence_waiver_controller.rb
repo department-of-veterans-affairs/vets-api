@@ -3,6 +3,7 @@
 require 'bgs'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
+require 'claims_api/dependent_service'
 
 module ClaimsApi
   module V2
@@ -15,8 +16,12 @@ module ClaimsApi
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
 
-          check_sponsorship_type bgs_claim
-          file_number_check
+          if dependent_service(bgs_claim).dependent_type_claim? && params[:sponsorIcn].blank?
+            claim_type = bgs_claim&.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
+            detail = "SponsorICN is required for claim type #{claim_type}"
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
+          end
+          file_number_check(icn: params[:sponsorIcn])
 
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
@@ -34,6 +39,10 @@ module ClaimsApi
         end
 
         private
+
+        def dependent_service(bgs_claim = nil)
+          ClaimsApi::DependentService.new(bgs_claim:)
+        end
 
         def create_ews(claim_id)
           attributes = {
@@ -63,16 +72,6 @@ module ClaimsApi
           end
 
           lighthouse_claim
-        end
-
-        def check_sponsorship_type(bgs)
-          return if params[:sponsorIcn].blank?
-
-          claim_type = bgs.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
-          unless ClaimsApi::AutoEstablishedClaim::SPONSOR_BGS_CLAIM_TYPES.include? claim_type
-            detail = "SponsorICN cannot be used with claim type #{claim_type}"
-            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
-          end
         end
 
         def looking_for_lighthouse_claim?(claim_id:)

@@ -38,7 +38,7 @@ describe 'EvidenceWaiver5103',
                 required: false,
                 type: :string,
                 example: '1012667145V762142',
-                description: 'ID of Sponsor'
+                description: 'ICN of the veteran affiliated with the dependent'
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
@@ -118,7 +118,7 @@ describe 'EvidenceWaiver5103',
             mock_ccg(scopes) do
               VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
                 allow_any_instance_of(ClaimsApi::LocalBGS)
-                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+                  .to receive(:find_by_ssn).and_return(nil)
                 submit_request(example.metadata)
               end
             end
