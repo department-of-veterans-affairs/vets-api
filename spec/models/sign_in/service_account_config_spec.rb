@@ -5,15 +5,17 @@ require 'rails_helper'
 RSpec.describe SignIn::ServiceAccountConfig, type: :model do
   let(:certificates) { [] }
   let(:service_account_id) { SecureRandom.hex }
-  let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
+  let(:access_token_duration) { SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:description) { 'some-description' }
   let(:access_token_audience) { 'some-access-token-audience' }
+  let(:access_token_user_attributes) { [] }
   let(:service_account_config) do
     create(:service_account_config,
            service_account_id:,
            access_token_duration:,
            description:,
            access_token_audience:,
+           access_token_user_attributes:,
            certificates:)
   end
 
@@ -91,6 +93,48 @@ RSpec.describe SignIn::ServiceAccountConfig, type: :model do
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#access_token_user_attributes' do
+      subject { service_account_config.access_token_user_attributes }
+
+      let(:expected_error_message) do
+        'Validation failed: Access token user attributes is not included in the list'
+      end
+
+      context 'when access_token_user_attributes is empty' do
+        it 'does not raise validation error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+
+      context 'when access_token_user_attributes contains an unallowed item' do
+        let(:access_token_user_attributes) { ['foo'] }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when access_token_user_attributes contains an allowed item' do
+        let(:access_token_user_attributes) { items }
+
+        context 'and it contains only allowed items' do
+          let(:items) { ['icn'] }
+
+          it 'does not raise validation error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+
+        context 'and it also contains an unallowed item' do
+          let(:items) { %w[icn foo] }
+
+          it 'raises validation error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
         end
       end
     end
