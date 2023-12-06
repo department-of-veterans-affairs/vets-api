@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 
-# [wipn8923]
 RSpec.describe FormSubmissionAttempt, type: :model do
   let(:user_account) { create(:user_account) }
   let(:saved_claim) { FactoryBot.build(:burial_claim) } # doesn't matter what type for spec
