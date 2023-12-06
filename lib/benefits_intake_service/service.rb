@@ -52,6 +52,10 @@ module BenefitsIntakeService
       perform :post, 'uploads', request_body, headers
     end
 
+    def get_bulk_status_of_uploads(ids)
+      # TODO: Implement me!
+    end
+
     def get_file_path_from_objs(file)
       case file
       when EVSS::DisabilityCompensationForm::Form8940Document
