@@ -7,6 +7,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end
 
+  before do
+    Flipper.disable(:ezr_async)
+  end
+
   describe 'POST create' do
     subject do
       post(
