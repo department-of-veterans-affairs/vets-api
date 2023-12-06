@@ -72,9 +72,9 @@ describe SimpleFormsApiSubmission::MetadataValidator do
     end
 
     describe 'contains disallowed characters' do
-      it 'returns metadata with disallowed characters of veteran first name stripped' do
+      it 'returns metadata with disallowed characters of veteran first name stripped or corrected' do
         metadata = {
-          'veteranFirstName' => '2John~! - Jo/hn?\\',
+          'veteranFirstName' => '2Jöhn~! - Jo/hn?\\',
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
@@ -133,10 +133,10 @@ describe SimpleFormsApiSubmission::MetadataValidator do
     end
 
     describe 'contains disallowed characters' do
-      it 'returns metadata with disallowed characters of veteran last name stripped' do
+      it 'returns metadata with disallowed characters of veteran last name stripped or corrected' do
         metadata = {
           'veteranFirstName' => 'John',
-          'veteranLastName' => '2John~! - Jo/hn?\\',
+          'veteranLastName' => '2Jöhn~! - Jo/hn?\\',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
           'source' => 'VA Platform Digital Forms',
