@@ -1,6 +1,6 @@
 name: Income Limits Data Sync
 on:
-  push: #This is required to run the Workflow in a PR. REMOVE IT BEFORE MERGING.
+  push:
   workflow_dispatch: null
 
 env:
@@ -25,16 +25,21 @@ jobs:
       - name: Test Java
         run: java -version
 
-      - name: Setup the Node environment
-        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
-          with:
-          node-version: '18.13'
+      # - name: Install Node package dependencies
+      #   run: npm ci
+      #   env:
+      #     NODE_TLS_REJECT_UNAUTHORIZED: 0
 
-      - name: Test Node
-        run: npm --version
+      # - name: Setup the Node environment
+      #   uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+      #     with:
+      #     node-version: '18.13'
 
-      - name: Install node-oracledb
-        run: npm install oracledb
+      # - name: Test Node
+      #   run: npm --version
 
-      - name: Data Sync
-        run: node .github/scripts/income-limits-data-sync.js
+      # - name: Install node-oracledb
+      #   run: npm install oracledb
+
+      # - name: Data Sync
+      #   run: node .github/scripts/income-limits-data-sync.js
