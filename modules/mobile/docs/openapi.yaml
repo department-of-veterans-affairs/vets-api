@@ -1308,9 +1308,9 @@ paths:
       security:
         - Bearer: []
       summary: /v0/community-care-providers
-  /v0/dependents/request-decisions:
+  /v0/dependents:
     get:
-      description: Returns the list of dependents verifications and diaries
+      description: Returns a list of user's dependents. Dependent SSN is also available but is removed to limit PII exposure.
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1318,8 +1318,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/DependentsRequestDecisions.yml
+                $ref: ./schemas/Dependents.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1340,7 +1342,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: /v0/dependents/request-decisions
+      summary: /v0/dependents
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user

@@ -21,6 +21,7 @@ module DebtsApi
       }
     end
 
+    scope :with_debt_type, ->(type) { where("public_metadata ->> 'debt_type' = ?", type) }
     scope :with_flags, ->(flag_array) { where("public_metadata -> 'flags' ?| array[:elements]", elements: flag_array) }
     scope :streamlined, -> { where("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
     scope :not_streamlined, -> { where.not("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
