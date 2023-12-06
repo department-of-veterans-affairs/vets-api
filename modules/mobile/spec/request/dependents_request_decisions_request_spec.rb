@@ -28,6 +28,7 @@ RSpec.describe 'dependents request decisions', type: :request do
           get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
         end
         expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
         expect(attributes['diaries']).to eq([])
         expect(attributes['promptRenewal']).to eq(false)
       end
@@ -40,6 +41,7 @@ RSpec.describe 'dependents request decisions', type: :request do
           get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
         end
         expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
         expect(attributes['diaries'].count).to eq(1)
         expect(attributes.dig('diaries', 0, 'diaryLcStatusType')).to eq('CXCL')
         expect(attributes['promptRenewal']).to eq(false)
@@ -53,6 +55,7 @@ RSpec.describe 'dependents request decisions', type: :request do
           get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
         end
         expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
         expect(attributes['dependencyVerifications'].count).to eq(1)
         expect(attributes['promptRenewal']).to eq(true)
       end

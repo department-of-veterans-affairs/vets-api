@@ -3,28 +3,28 @@ required:
   - data
 properties:
   data:
-    type: array
-    items:
-      type: object
-      required:
-        - id
-        - type
-        - attributes
-      properties:
-        id:
-          type: string
-          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
-        type:
-          type: string
-          example: "dependency_request_decisions"
-        attributes:
-          type: object
-          required:
-            - dependencyVerifications
-            - diaries
-            - promptRenewal
-          properties:
-            dependencyVerifications:
+    type: object
+    required:
+      - id
+      - type
+      - attributes
+    properties:
+      id:
+        type: string
+        example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+      type:
+        type: string
+        example: "dependency_request_decisions"
+      attributes:
+        type: object
+        required:
+          - dependencyVerifications
+          - diaries
+          - promptRenewal
+        properties:
+          dependencyVerifications:
+            type: array
+            items:
               type: object
               required:
                 - awardEffectiveDate
@@ -57,51 +57,64 @@ properties:
               properties:
                 awardEffectiveDate:
                   type: string
+                  nullable: true
                   example: "2000-06-01T00:00:00.000-05:00"
                 awardEventId:
                   type: string
+                  nullable: true
                   example: "60300"
                 awardType:
                   type: string
                   example: "CPL"
                 beginAwardEventId:
                   type: string
+                  nullable: true
                   example: "25326"
                 beneficiaryId:
                   type: string
                   example: "13014883"
                 birthdayDate:
                   type: string
+                  nullable: true
                   example: "2000-05-05T00:00:00.000-05:00"
                 decisionDate:
                   type: string
+                  nullable: true
                   example: "2006-05-02T09:46:06.000-05:00"
                 decisionId:
                   type: string
+                  nullable: true
                   example: "24678"
                 dependencyDecisionId:
                   type: string
+                  nullable: true
                   example: "14599"
                 dependencyDecisionType:
                   type: string
+                  nullable: true
                   example: "DEPEST"
                 dependencyDecisionTypeDescription:
                   type: string
+                  nullable: true
                   example: "Dependency Established"
                 dependencyStatusType:
                   type: string
+                  nullable: true
                   example: "SP"
                 dependencyStatusTypeDescription:
                   type: string
+                  nullable: true
                   example: "Spouse"
                 eventDate:
                   type: string
+                  nullable: true
                   example: "2000-05-05T00:00:00.000-05:00"
                 firstName:
                   type: string
                   example: "lauren"
                 fullName:
                   type: string
+                  nullable: true
                   example: "lauren jakes"
                 lastName:
                   type: string
@@ -114,6 +127,7 @@ properties:
                   example: "IA"
                 modifiedDate:
                   type: string
+                  nullable: true
                   example: "2008-04-21T14:14:20.000-05:00"
                 modifiedLocation:
                   type: string
@@ -126,17 +140,22 @@ properties:
                   example: "13018361"
                 relationshipTypeDescription:
                   type: string
+                  nullable: true
                   example: "Spouse"
                 sortDate:
                   type: string
+                  nullable: true
                   example: "2006-05-02T09:46:06.000-05:00"
                 sortOrderNumber:
                   type: string
                   example: "0"
                 veteranId:
                   type: string
+                  nullable: true
                   example: "13014883"
-            diaries:
+          diaries:
+            type: array
+            items:
               type: object
               required:
                 - awardDiaryId
@@ -216,6 +235,6 @@ properties:
                 veteranId:
                   type: string
                   example: "13014883"
-            promptRenewal:
-              type: boolean
-              example: false
+          promptRenewal:
+            type: boolean
+            example: false
