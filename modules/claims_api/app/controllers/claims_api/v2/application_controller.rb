@@ -88,7 +88,10 @@ module ClaimsApi
       end
 
       def file_number_check
-        if target_veteran&.mpi&.birls_id.present?
+        if params[:sponsorIcn].present?
+          sponsor = build_target_veteran(veteran_id: params[:sponsorIcn], loa: { current: 3, highest: 3 })
+          @file_number = sponsor&.birls_id || sponsor&.mpi&.birls_id
+        elsif target_veteran&.mpi&.birls_id.present?
           @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
         else
           claims_v2_logging('missing_file_number', icn: nil,

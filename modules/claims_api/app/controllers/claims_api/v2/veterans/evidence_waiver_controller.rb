@@ -15,6 +15,7 @@ module ClaimsApi
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
+          check_sponsorship_type bgs_claim
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
                                             message: "EWS no file number error, claim_id: #{params[:id]}")
@@ -64,6 +65,21 @@ module ClaimsApi
           end
 
           lighthouse_claim
+        end
+
+        def check_sponsorship_type(bgs)
+          return if params[:sponsorIcn].blank?
+
+          if bgs.nil?
+            detail = 'SponsorICN cannot be used with until the claim is established'
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
+          end
+
+          claim_type = bgs.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
+          unless ClaimsApi::AutoEstablishedClaim::SPONSOR_BGS_CLAIM_TYPES.include? claim_type
+            detail = "SponsorICN cannot be used with claim type #{claim_type}"
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
+          end
         end
 
         def looking_for_lighthouse_claim?(claim_id:)
