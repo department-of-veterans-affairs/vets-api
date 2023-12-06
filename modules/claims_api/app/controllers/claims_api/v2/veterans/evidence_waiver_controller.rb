@@ -8,8 +8,6 @@ module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
-        before_action :file_number_check
-
         def submit
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
@@ -18,6 +16,8 @@ module ClaimsApi
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
 
           check_sponsorship_type bgs_claim
+          file_number_check
+
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
                                             message: "EWS no file number error, claim_id: #{params[:id]}")
