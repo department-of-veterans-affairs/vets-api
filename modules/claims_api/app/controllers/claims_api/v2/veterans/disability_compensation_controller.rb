@@ -8,12 +8,16 @@ require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_documents'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
+require 'claims_api/v2/error/disability_compensation_error_handler'
+require 'claims_api/v2/json_format_validation'
 
 module ClaimsApi
   module V2
     module Veterans
       class DisabilityCompensationController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::V2::DisabilityCompensationValidation
+        include ClaimsApi::V2::Error::DisabilityCompensationErrorHandler
+        include ClaimsApi::V2::JsonFormatValidation
 
         FORM_NUMBER = '526'
 
