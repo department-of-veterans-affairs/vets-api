@@ -26,6 +26,8 @@ jobs:
         run: java -version
 
       - uses: actions/setup-node@v4
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
         with:
           node-version: 18
 
