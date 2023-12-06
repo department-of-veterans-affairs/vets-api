@@ -75,6 +75,7 @@ Mobile::Engine.routes.draw do
     get '/health/rx/prescriptions', to: 'prescriptions#index'
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
+    get '/dependents/request-decisions', to: 'dependents_request_decisions#index'
 
     scope :messaging do
       scope :health do
