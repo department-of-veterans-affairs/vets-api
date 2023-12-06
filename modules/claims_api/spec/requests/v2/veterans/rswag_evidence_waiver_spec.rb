@@ -33,6 +33,12 @@ describe 'EvidenceWaiver5103',
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
+      parameter name: 'sponsorIcn',
+                in: :query,
+                required: false,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Sponsor'
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
@@ -94,6 +100,39 @@ describe 'EvidenceWaiver5103',
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        response '404', 'NotFound' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                                      'default.json')))
+
+          let(:Authorization) { nil }
+          let(:scopes) { %w[system/claim.read] }
+          let(:sponsorIcn) { '1012861229V078999' } # rubocop:disable RSpec/VariableName
+
+          before do |example|
+            mock_ccg(scopes) do
+              VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
+                allow_any_instance_of(ClaimsApi::LocalBGS)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+                submit_request(example.metadata)
+              end
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
