@@ -318,7 +318,7 @@ module VAProfile
         military_service_episodes_by_date.select do |episode|
           code = episode.personnel_category_type_code
           national_guard?(code) || reserve?(code)
-        end.sort_by(&:end_date).reverse
+        end.sort_by { |episode| episode.end_date || Time.zone.today + 3650 }.reverse
       end
 
       def latest_service_episode
