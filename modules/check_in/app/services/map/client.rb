@@ -8,7 +8,7 @@ module Map
     extend Forwardable
     include SentryLogging
 
-    attr_reader :settings, :check_in
+    attr_reader :settings
 
     def_delegators :settings, :service_name, :url
 
