@@ -70,6 +70,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           end
         end
 
+        it 'increments statsd' do
+          expect { subject }.to trigger_statsd_increment('api.1010ezr.submission_attempt')
+        end
+
         context 'when the form includes a Mexican province' do
           let(:params) do
             {
