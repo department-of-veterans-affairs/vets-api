@@ -2,12 +2,14 @@
 
 require 'claims_api/v2/common/exceptions/token_validation_error'
 require 'claims_api/v2/common/exceptions/disability_compensation_json_validation_error'
+require 'claims_api/common/exceptions/standards_compliant/unprocessable_entity'
+require 'claims_api/common/exceptions/standards_compliant/resource_not_found'
 
 module ClaimsApi
   module V2
     module Error
-      module DisabilityCompensationErrorHandler
-        def self.included(clazz)
+      module StandardsCompliantErrorHandler
+        def self.included(clazz) # rubocop:disable Metrics/MethodLength
           clazz.class_eval do
             rescue_from ::Common::Exceptions::TokenValidationError do |err|
               render_error(
@@ -16,10 +18,12 @@ module ClaimsApi
             end
 
             rescue_from ::Common::Exceptions::ResourceNotFound,
+                        ::ClaimsApi::Common::Exceptions::StandardsCompliant::ResourceNotFound,
                         ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::Unauthorized,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
-                        ::Common::Exceptions::UnprocessableEntity do |err|
+                        ::Common::Exceptions::UnprocessableEntity,
+                        ::ClaimsApi::Common::Exceptions::StandardsCompliant::UnprocessableEntity do |err|
                           render_error(err)
                         end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|

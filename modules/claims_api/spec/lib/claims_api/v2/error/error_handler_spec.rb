@@ -2,24 +2,22 @@
 
 require 'rails_helper'
 require_relative '../../../../rails_helper' # mock_ccg method
-require 'claims_api/v2/error/disability_compensation_error_handler'
-require 'claims_api/v2/json_format_validation'
+require 'claims_api/v2/error/standards_compliant_error_handler'
 
 describe ApplicationController, type: :controller do
   let(:scopes) { %w[system/claim.write] }
 
   controller do
-    include ClaimsApi::V2::Error::DisabilityCompensationErrorHandler
-    include ClaimsApi::V2::JsonFormatValidation
+    include ClaimsApi::V2::Error::StandardsCompliantErrorHandler
 
     skip_before_action :authenticate
 
     def raise_unprocessable_entity
-      raise Common::Exceptions::UnprocessableEntity.new(detail: 'Test 422')
+      raise ClaimsApi::Common::Exceptions::StandardsCompliant::UnprocessableEntity.new(detail: 'Test 422')
     end
 
     def raise_resource_not_found
-      raise Common::Exceptions::ResourceNotFound.new(detail: 'Test 404')
+      raise ClaimsApi::Common::Exceptions::StandardsCompliant::ResourceNotFound.new(detail: 'Test 404')
     end
 
     def raise_invalid_token
@@ -53,7 +51,7 @@ describe ApplicationController, type: :controller do
 
       parsed_body = JSON.parse(response.body)
       expect(parsed_body['errors'].size).to eq(1)
-      expect(parsed_body['errors'][0]['title']).to eq('Unprocessable Entity')
+      expect(parsed_body['errors'][0]['title']).to eq('Unprocessable entity')
       expect(parsed_body['errors'][0]['detail']).to eq('Test 422')
       expect(parsed_body['errors'][0]['status']).to eq('422')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
@@ -63,9 +61,6 @@ describe ApplicationController, type: :controller do
 
   it 'returns a 404 in line with LH standards' do
     mock_ccg(scopes) do |auth_header|
-      # Following the normal headers: auth_header pattern fails due to
-      # this rspec bug: https://github.com/rspec/rspec-rails/issues/1655
-      # This is the recommended workaround from that issue thread.
       request.headers.merge!(auth_header)
 
       get :raise_resource_not_found
@@ -84,9 +79,6 @@ describe ApplicationController, type: :controller do
 
   it 'catches an invalid token' do
     mock_ccg(scopes) do |auth_header|
-      # Following the normal headers: auth_header pattern fails due to
-      # this rspec bug: https://github.com/rspec/rspec-rails/issues/1655
-      # This is the recommended workaround from that issue thread.
       request.headers.merge!(auth_header)
 
       get :raise_invalid_token
