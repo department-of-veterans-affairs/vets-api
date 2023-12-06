@@ -18,6 +18,8 @@ module VAOS
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
+        Rails.logger.info("VAOS: missing ICN, request_id: #{RequestStore.store['request_id']}") if user.icn.blank?
+
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
@@ -48,6 +50,8 @@ module VAOS
       end
 
       def get_appointment(appointment_id)
+        Rails.logger.info("VAOS: missing ICN, request_id: #{RequestStore.store['request_id']}") if user.icn.blank?
+
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
