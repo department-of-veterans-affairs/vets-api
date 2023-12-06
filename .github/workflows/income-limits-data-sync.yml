@@ -12,19 +12,15 @@ jobs:
     runs-on: self-hosted
 
     steps:
-
       - name: Install Actions
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
       - name: Install Java
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0 #v3.13.0
         with:
           distribution: 'zulu'
           java-version: '8'
-
       - name: Test Java
         run: java -version
-
       - name: Setup the Node environment
         uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
           with:
