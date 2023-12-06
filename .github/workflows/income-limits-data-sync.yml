@@ -25,8 +25,9 @@ jobs:
       - name: Test Java
         run: java -version
 
-      - name: Setup Node
-        run: echo "Success"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
       # - name: Install Node package dependencies
       #   run: npm ci
