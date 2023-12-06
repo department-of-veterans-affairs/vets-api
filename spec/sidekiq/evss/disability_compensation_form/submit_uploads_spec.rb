@@ -131,19 +131,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let(:first_submission_upload) { submission.form[Form526Submission::FORM_526_UPLOADS].first }
       let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', 'application/pdf') }
 
-      let!(:lighthouse_attachment) do
-        attachment = LighthouseSupportingEvidenceAttachment.new(guid: first_submission_upload['confirmationCode'])
+      let!(:attachment) do
+        attachment = SupportingEvidenceAttachment.new(guid: first_submission_upload['confirmationCode'])
         attachment.set_file_data!(file)
         attachment.save!
         attachment
       end
 
-      let(:upload_data) { { 'attachmentId' => 'L023', 'confirmationCode' => lighthouse_attachment.guid } }
+      let(:upload_data) { { 'attachmentId' => 'L023', 'confirmationCode' => attachment.guid } }
 
       it 'uploads the document via the Form526LighthouseDocumentsService' do
-        file_contents = lighthouse_attachment&.get_file&.read
+        file_contents = attachment&.get_file&.read
 
-        allow_any_instance_of(LighthouseSupportingEvidenceAttachment).to receive(:converted_filename)
+        allow_any_instance_of(SupportingEvidenceAttachment).to receive(:converted_filename)
           .and_return('Doctors_Note.pdf')
 
         expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:upload_lighthouse_document)

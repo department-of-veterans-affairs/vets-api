@@ -29,14 +29,9 @@ module EVSS
         super(submission_id)
         upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
         guid = upload_data&.dig('confirmationCode')
-        with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
-          user = User.find(submission.user_uuid)
 
-          if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider, user)
-            upload_lighthouse_claim(upload_data, guid)
-          else
-            upload_evss_claim(upload_data, guid, submission)
-          end
+        with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
+          upload_claim(upload_data, submission, guid)
         end
       rescue => e
         # Can't send a job manually to the dead set.
@@ -46,38 +41,37 @@ module EVSS
 
       private
 
-      def upload_evss_claim(upload_data, guid, submission)
-        sea = SupportingEvidenceAttachment.find_by(guid:)
-        file_body = sea&.get_file&.read
+      def upload_claim(upload_data, submission, guid)
+        attachment = SupportingEvidenceAttachment.find_by(guid:)
+        file_body = attachment&.get_file&.read
 
         raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
 
-        document_data = create_evss_document_data(upload_data, sea.converted_filename)
+        file_name = attachment.converted_filename || upload_data['name']
+        document_type = upload_data['attachmentId']
+
+        user = User.find(submission.user_uuid)
+
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider, user)
+          # Defined in BenefitsDocuments::Form526LighthouseDocumentsService:
+          upload_lighthouse_document(file_body, file_name, submission, document_type)
+        else
+          upload_evss_document(file_body, file_name, submission, document_type)
+        end
+      end
+
+      def upload_evss_document(file_body, file_name, submission, document_type)
+        document_data = EVSSClaimDocument.new(
+          evss_claim_id: submission.submitted_claim_id,
+          file_name:,
+          tracked_item_id: nil,
+          document_type:
+        )
+
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         client = EVSS::DocumentsService.new(submission.auth_headers)
         client.upload(file_body, document_data)
-      end
-
-      def create_evss_document_data(upload_data, converted_filename)
-        EVSSClaimDocument.new(
-          evss_claim_id: submission.submitted_claim_id,
-          file_name: converted_filename || upload_data['name'],
-          tracked_item_id: nil,
-          document_type: upload_data['attachmentId']
-        )
-      end
-
-      def upload_lighthouse_claim(upload_data, guid)
-        lighthouse_attachment = LighthouseSupportingEvidenceAttachment.find_by(guid:)
-
-        file_body = lighthouse_attachment&.get_file&.read
-        raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
-
-        file_name = lighthouse_attachment.converted_filename || upload_data['name']
-        document_type = upload_data['attachmentId']
-
-        upload_lighthouse_document(file_body, file_name, submission, document_type)
       end
 
       def retryable_error_handler(error)
