@@ -344,11 +344,17 @@ module ClaimsApi
         gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
         return if gulf_war_service&.dig('servedInGulfWarHazardLocations') == 'NO'
 
-        begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')&.match(YYYY_YYYYMM_REGEX)
-        end_date = gulf_war_service&.dig('serviceDates', 'endDate')&.match(YYYY_YYYYMM_REGEX)
-        if begin_date.nil? || end_date.nil?
+        begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')
+        end_date = gulf_war_service&.dig('serviceDates', 'endDate')
+
+        validate_gulf_war_service_date(begin_date) unless begin_date.nil?
+        validate_gulf_war_service_date(end_date) unless end_date.nil?
+      end
+
+      def validate_gulf_war_service_date(date)
+        if date_has_day?(date) # this date should not have the day, at this point we know it is a valid date
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Both begin and end dates must be in the format of yyyy-mm or yyyy'
+            detail: 'Service dates must be in the format of yyyy-mm or yyyy'
           )
         end
       end
@@ -902,7 +908,7 @@ module ClaimsApi
 
       # just need to know if day is present or not
       def date_has_day?(date)
-        date.length == 10
+        !date.match(YYYY_YYYYMM_REGEX)
       end
 
       # which of the three types are we dealing with
