@@ -2,7 +2,7 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::Pension < CentralMailClaim
+class SavedClaim::Pension < SavedClaim
   FORM = '21P-527EZ'
 
   def regional_office
