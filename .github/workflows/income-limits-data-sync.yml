@@ -29,6 +29,8 @@ jobs:
         sudo apt install libaio1
         sudo sh -c "echo /opt/oracle/instantclient_21_12 > /etc/ld.so.conf.d/oracle-instantclient.conf"
         sudo ldconfig
+        cd $GITHUB_WORKSPACE
+
 
     - name: Install Dependencies
       run: |
@@ -36,4 +38,4 @@ jobs:
         gem install csv
 
     - name: Run Oracle Query
-      run: ruby query_oracle.rb
+      run: ruby .github/scripts/query_oracle.rb
