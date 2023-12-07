@@ -133,15 +133,20 @@ module Mobile
       end
 
       def log_decision_letter_sent(list)
-        decision_letter_sent_claims = list.select(&:decision_letter_sent)
+        decision_letters_sent = list.select(&:decision_letter_sent)
 
-        return nil if decision_letter_sent_claims.empty?
+        return nil if decision_letters_sent.empty?
+
+        claims_decision_letters_sent = decision_letters_sent.select{|item| item.type == 'claim'}
+        appeals_decision_letters_sent = decision_letters_sent.select{|item| item.type == 'appeal'}
+
 
         Rails.logger.info('MOBILE CLAIM DECISION LETTERS SENT COUNT',
                           user_uuid: @current_user.uuid,
                           user_icn: @current_user.icn,
-                          decision_letter_sent_count: decision_letter_sent_claims.count,
-                          decision_letter_sent_ids: decision_letter_sent_claims.map(&:id))
+                          claims_decision_letter_sent_count: claims_decision_letters_sent.count,
+                          appeals_decision_letter_sent_count: appeals_decision_letters_sent.count,
+                          decision_letter_sent_ids: decision_letters_sent.map(&:id))
       end
 
       def fetch_claims_and_appeals
