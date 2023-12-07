@@ -1,9 +1,8 @@
-name: Oracle Query Workflow
+name: Income Limits Data Sync
 
 on:
   push:
-    branches:
-      - main
+  workflow_dispatch: null
 
 jobs:
   query_oracle:
