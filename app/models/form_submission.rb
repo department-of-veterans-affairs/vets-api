@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 class FormSubmission < ApplicationRecord
-  # [ TODO ]: we need some real values here
-  enum form_type: {
-    option1: 0,
-    option2: 1
-  }
-
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
 
