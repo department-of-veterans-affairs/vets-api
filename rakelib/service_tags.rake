@@ -66,7 +66,7 @@ namespace :service_tags do
     _, warnings = find_invalid_controllers(main_app_controllers + engine_controllers)
 
     if warnings.any?
-      puts "\n\nThe following #{warnings.count} controllers are missing service tags:\n\n"
+      puts "\n\nThe following #{warnings.count} controllers are missing service tags. Please associate all controllers with a new or existing service catalog entry using the service_tag method from the Traceable concern:\n\n"
       warnings.each do |controller|
         puts controller[:name]
       end
