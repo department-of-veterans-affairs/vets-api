@@ -17,7 +17,7 @@ jobs:
 
     - name: Install Oracle Instant Client Libraries
       run: |
-        echo "pwd"
+        pwd
         cd /opt
         sudo mkdir /opt/oracle
         cd /opt/oracle
