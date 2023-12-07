@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :form_submission_attempt do
     form_submission
-    
+
     trait :pending do
       aasm_state { 'pending' }
     end
