@@ -285,9 +285,9 @@ describe VAProfile::Prefill::MilitaryInformation do
           VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes_dup_end',
                            match_requests_on: %i[method body]) do
             expected_response = [
+              { from: '2000-04-07', to: '' },
               { from: '1989-08-20', to: '2002-07-01' },
-              { from: '1989-08-20', to: '1992-08-23' },
-              { from: '2000-04-07', to: '' }
+              { from: '1989-08-20', to: '1992-08-23' }
             ]
 
             response = subject.guard_reserve_service_history

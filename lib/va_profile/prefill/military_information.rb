@@ -323,7 +323,11 @@ module VAProfile
         end
 
         all_episodes.sort_by do |episode|
-          episode.end_date || (Time.zone.today + 3650)
+          if episode.end_date.blank? # Handles nil and empty string
+            Time.zone.today + 3650
+          else
+            Date.parse(episode.end_date)
+          end
         end.reverse
       end
 
