@@ -42,7 +42,7 @@ class InProgressForm < ApplicationRecord
   before_save :set_expires_at, unless: :skip_exipry_update
   after_save :log_hca_email_diff
 
-  has_many :form_submissions
+  has_many :form_submissions, dependent: :nullify
 
   def self.form_for_user(form_id, user)
     user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)

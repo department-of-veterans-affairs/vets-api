@@ -172,7 +172,6 @@ group :test do
   gem 'rufus-scheduler'
   gem 'simplecov', require: false
   gem 'super_diff'
-  gem 'shoulda-matchers'
   gem 'vcr'
   gem 'webrick'
 end

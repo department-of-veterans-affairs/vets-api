@@ -9,7 +9,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
   describe 'associations' do
-    it { should belong_to(:form_submission) }
+    it { is_expected.to belong_to(:form_submission) }
   end
 
   describe 'validations' do
@@ -40,8 +40,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
 
     context 'instance' do
       describe '#log_status_change' do
-        it 'writes to Rails.logger.info' do
-        end
+        # it 'writes to Rails.logger.info' do
+        # end
       end
       # N/A
     end
