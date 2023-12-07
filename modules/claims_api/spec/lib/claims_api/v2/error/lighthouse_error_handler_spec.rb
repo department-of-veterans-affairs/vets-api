@@ -20,6 +20,10 @@ describe ApplicationController, type: :controller do
       raise ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(detail: 'Test 404')
     end
 
+    def raise_invalid_field_value
+      raise ClaimsApi::Common::Exceptions::Lighthouse::InvalidFieldValue.new(detail: 'Test 400')
+    end
+
     def raise_invalid_token
       raise Common::Exceptions::TokenValidationError.new(detail: 'Invalid token.')
     end
@@ -33,12 +37,13 @@ describe ApplicationController, type: :controller do
     routes.draw do
       get 'raise_unprocessable_entity' => 'anonymous#raise_unprocessable_entity'
       get 'raise_resource_not_found' => 'anonymous#raise_resource_not_found'
+      get 'raise_invalid_field_value' => 'anonymous#raise_invalid_field_value'
       get 'raise_invalid_token' => 'anonymous#raise_invalid_token'
       get 'raise_expired_token_signature' => 'anonymous#raise_expired_token_signature'
     end
   end
 
-  it 'returns a 422 in line with LH standards' do
+  it 'returns a 422, Unprocessable entity, in line with LH standards' do
     mock_ccg(scopes) do |auth_header|
       # Following the normal headers: auth_header pattern fails due to
       # this rspec bug: https://github.com/rspec/rspec-rails/issues/1655
@@ -59,7 +64,7 @@ describe ApplicationController, type: :controller do
     end
   end
 
-  it 'returns a 404 in line with LH standards' do
+  it 'returns a 404, Resource not found, in line with LH standards' do
     mock_ccg(scopes) do |auth_header|
       request.headers.merge!(auth_header)
 
@@ -72,6 +77,24 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'][0]['title']).to eq('Resource not found')
       expect(parsed_body['errors'][0]['detail']).to eq('Test 404')
       expect(parsed_body['errors'][0]['status']).to eq('404')
+      expect(parsed_body['errors'][0]['status']).to be_a(String)
+      expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
+    end
+  end
+
+  it 'returns a 400, Invalid field value, in line with LH standards' do
+    mock_ccg(scopes) do |auth_header|
+      request.headers.merge!(auth_header)
+
+      get :raise_invalid_field_value
+
+      expect(response).to have_http_status(:bad_request)
+
+      parsed_body = JSON.parse(response.body)
+      expect(parsed_body['errors'].size).to eq(1)
+      expect(parsed_body['errors'][0]['title']).to eq('Invalid field value')
+      expect(parsed_body['errors'][0]['detail']).to eq('Test 400')
+      expect(parsed_body['errors'][0]['status']).to eq('400')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
       expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
     end
