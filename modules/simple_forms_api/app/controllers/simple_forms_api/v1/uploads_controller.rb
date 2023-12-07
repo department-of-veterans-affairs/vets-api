@@ -72,10 +72,7 @@ module SimpleFormsApi
 
       def submit_form_to_central_mail
         parsed_form_data = form_is210966 ? handle_210966_data : JSON.parse(params.to_json)
-        form_number = params[:form_number]
-        raise 'missing form_number in params' unless form_number
-
-        form_id = FORM_NUMBER_MAP[form_number]
+        form_id = get_form_id
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
@@ -154,6 +151,13 @@ module SimpleFormsApi
         end
 
         data
+      end
+
+      def get_form_id
+        form_number = params[:form_number]
+        raise 'missing form_number in params' unless form_number
+
+        FORM_NUMBER_MAP[form_number]
       end
     end
   end
