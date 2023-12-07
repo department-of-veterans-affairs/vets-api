@@ -99,7 +99,7 @@ module HCA
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
           ),
-          can_submit_financial_info: income_year_is_current_year?(response)
+          can_submit_financial_info: !income_year_is_current_year?(response)
         }
       end
       # rubocop:enable Metrics/MethodLength
