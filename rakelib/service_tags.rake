@@ -85,11 +85,13 @@ namespace :service_tags do
     errors, warnings = find_invalid_controllers(main_app_controllers + engine_controllers)
 
     errors.each do |controller|
-      puts "::error file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
+      puts "::error file=#{controller[:path]}::#{controller[:name]} is missing a service tag. " \
+           'Please associate with a service catalog entry using the Traceable#service_tag method.'
     end
 
     warnings.each do |controller|
-      puts "::warning file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
+      puts "::warning file=#{controller[:path]}::#{controller[:name]} is missing a service tag. " \
+           'Please associate with a service catalog entry using the Traceable#service_tag method.'
     end
 
     exit(errors.any? ? 1 : 0)
