@@ -11,14 +11,13 @@ module Rx
   ##
   # Core class responsible for Rx API interface operations on va.gov
   #
-    class MedicationsClient < Rx::Client
-      include Common::Client::Concerns::MHVSessionBasedClient
-      configuration Rx::Configuration
-      client_session Rx::ClientSession
+  class MedicationsClient < Rx::Client
+    include Common::Client::Concerns::MHVSessionBasedClient
+    configuration Rx::Configuration
+    client_session Rx::ClientSession
 
-      def token_headers
-        config.base_request_headers.merge('Token' => Settings.mhv.rx.app_token_va_gov)
-      end
+    def token_headers
+      config.base_request_headers.merge('Token' => Settings.mhv.rx.app_token_va_gov)
     end
+  end
 end
-
