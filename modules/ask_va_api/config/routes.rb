@@ -8,6 +8,9 @@ AskVAApi::Engine.routes.draw do
     # inquiries
     get '/inquiries', to: 'inquiries#index'
     get '/inquiries/:inquiry_number', to: 'inquiries#show'
+    post '/inquiries/auth', to: 'inquiries#create'
+    post '/inquiries', to: 'inquiries#unauth_create'
+    post '/upload_attachment', to: 'inquiries#upload_attachment'
 
     # static_data
     get '/categories', to: 'static_data#categories'
@@ -16,5 +19,8 @@ AskVAApi::Engine.routes.draw do
     get '/zipcodes', to: 'static_data#zipcodes'
     get '/states', to: 'static_data#states'
     get '/provinces', to: 'static_data#provinces'
+
+    # address_validation
+    post '/address_validation', to: 'address_validation#create'
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_13_202956) do
+ActiveRecord::Schema.define(version: 2023_12_01_160018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -839,6 +839,7 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
+    t.datetime "itf_datetime"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -853,6 +854,7 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.string "certificates", array: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "access_token_user_attributes", default: [], array: true
     t.index ["service_account_id"], name: "index_service_account_configs_on_service_account_id", unique: true
   end
 
@@ -1129,9 +1131,6 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.string "state", limit: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1169,9 +1168,6 @@ ActiveRecord::Schema.define(version: 2023_11_13_202956) do
     t.text "dob_ciphertext"
     t.text "encrypted_kms_key"
     t.string "middle_initial"
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"

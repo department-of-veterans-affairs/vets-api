@@ -15,6 +15,11 @@ module Avs
         property :appointmentIens, type: :array do
           items type: :string
         end
+        property :meta, type: :object do
+          property :generatedDate, type: :string
+          property :stationNo, type: :string
+          property :timeZone, type: :string
+        end
         property :clinicsVisited do
           key :$ref, :clinicVisited
         end
@@ -53,6 +58,11 @@ module Avs
         end
         property :patientInstructions, type: :string
         property :patientEducation, type: :string
+        property :pharmacyTerms, type: :array do
+          items do
+            key :$ref, :pharmacyTerm
+          end
+        end
         property :primaryCareProviders, type: :array do
           items type: :string
         end
@@ -60,6 +70,16 @@ module Avs
         property :primaryCareTeamMembers, type: :array do
           items do
             key :$ref, :primaryCareTeamMember
+          end
+        end
+        property :problems, type: :array do
+          items do
+            key :$ref, :problem
+          end
+        end
+        property :clinicalReminders, type: :array do
+          items do
+            key :$ref, :clinicalReminder
           end
         end
         property :allergiesReactions, type: :object do
@@ -74,7 +94,12 @@ module Avs
         end
         property :vaMedications, type: :array do
           items do
-            key :$ref, :vaMedication
+            key :$ref, :medication
+          end
+        end
+        property :nonvaMedications, type: :array do
+          items do
+            key :$ref, :medication
           end
         end
         property :labResults, type: :array do
@@ -88,6 +113,7 @@ module Avs
           end
         end
         property :radiologyReports1Yr, type: :string
+        property :moreHelpAndInformation, type: :string
       end
     end
     # rubocop:enable Metrics/BlockLength
@@ -155,10 +181,51 @@ module Avs
       property :physicalLocation, type: :string
     end
 
+    swagger_schema :pharmacyTerm do
+      property :type, type: :string
+      property :term, type: :string
+      property :aka, type: :string
+      property :explanation, type: :string
+      property :patientActions, type: :string
+    end
+
     swagger_schema :primaryCareTeamMember do
       property :T, type: :string
       property :name, type: :string
       property :title, type: :string
+    end
+
+    swagger_schema :problem do
+      property :dfn, type: :string
+      property :ien, type: :string
+      property :status, type: :string
+      property :description, type: :string
+      property :code, type: :string
+      property :onsetDateStr, type: :string
+      property :onsetDate, type: :string
+      property :lastUpdatedStr, type: :string
+      property :lastUpdated, type: :string
+      property :scStatus, type: :string
+      property :scConditions, type: :string
+      property :detailRpc, type: :string
+      property :transcribed, type: :boolean
+      property :locationIen, type: :number
+      property :location, type: :string
+      property :locationType, type: :string
+      property :providerIen, type: :string
+      property :provider, type: :string
+      property :serviceIen, type: :string
+      property :service, type: :string
+      property :version, type: :string
+      property :comments, type: :string
+    end
+
+    swagger_schema :clinicalReminder do
+      property :ien, type: :string
+      property :whenDue, type: :string
+      property :lastOccurrence, type: :string
+      property :name, type: :string
+      property :frequency, type: :string
     end
 
     swagger_schema :allergy do
@@ -174,23 +241,32 @@ module Avs
       property :verifiedDate, type: :string
     end
 
-    swagger_schema :vaMedication do
-      property :T, type: :string
+    swagger_schema :medication do
+      property :medId, type: :string
       property :name, type: :string
       property :type, type: :string
       property :sig, type: :string
       property :source, type: :string
       property :totalNumRefills, type: :integer
       property :refillsRemaining, type: :integer
+      property :startDate, type: :string
+      property :stopDate, type: :string
       property :dateExpires, type: :string
+      property :dateLastFilled, type: :string
       property :dateLastReleased, type: :string
-      property :fmDateLastReleased, type: :number
+      property :fmDateLastReleased, type: :integer
       property :stationName, type: :string
       property :stationNo, type: :string
+      property :provider, type: :string
+      property :description, type: :string
       property :ndc, type: :string
       property :statusIen, type: :string
       property :status, type: :string
+      property :discontinuedDate, type: :string
       property :fmDiscontinuedDate, type: :integer
+      property :comment, type: :string
+      property :documentor, type: :string
+      property :documentingFacility, type: :string
       property :quantity, type: :integer
       property :daysSupply, type: :integer
       property :orderingProvider, type: :string
@@ -199,7 +275,10 @@ module Avs
       property :rxNumber, type: :string
       property :prescriptionType, type: :string
       property :patientTaking, type: :boolean
-      property :fmIssueDate, type: :number
+      property :current, type: :string
+      property :remote, type: :string
+      property :dateDocumented, type: :string
+      property :fmIssueDate, type: :integer
     end
 
     swagger_schema :labResult do

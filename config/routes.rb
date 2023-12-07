@@ -100,7 +100,9 @@ Rails.application.routes.draw do
     resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
-    resource :user, only: [:show]
+    resource :user, only: [:show] do
+      get 'icn', to: 'users#icn'
+    end
     resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -372,11 +374,17 @@ Rails.application.routes.draw do
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
     resources :form1010_ezrs, only: %i[create]
+
+    post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
   end
   # end /v0
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]
+
+    namespace :profile do
+      resource :military_info, only: :show, defaults: { format: :json }
+    end
 
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
@@ -431,7 +439,6 @@ Rails.application.routes.draw do
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
     mount VAForms::Engine, at: '/va_forms'
-    mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 

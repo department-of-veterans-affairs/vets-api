@@ -2,12 +2,13 @@
 
 require 'ddtrace'
 require 'simple_forms_api_submission/service'
+require 'simple_forms_api_submission/metadata_validator'
 
 module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate
-      before_action :authenticate, if: :form_is210966
+      before_action :authenticate, if: :should_authenticate
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -76,15 +77,15 @@ module SimpleFormsApi
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
-        metadata = filler.metadata
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(filler.metadata)
 
-        handle_attachments(file_path) if form_id == 'vba_40_0247'
+        SimpleFormsApi::VBA400247.new(parsed_form_data).handle_attachments(file_path) if form_id == 'vba_40_0247'
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @user
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
           ).send
         end
 
@@ -129,6 +130,10 @@ module SimpleFormsApi
         params[:form_number] == '21-0966'
       end
 
+      def should_authenticate
+        params[:form_number] == '21-0966' || params[:form_number] == '21-0845'
+      end
+
       def icn
         @current_user&.icn
       end
@@ -147,27 +152,6 @@ module SimpleFormsApi
         end
 
         data
-      end
-
-      def handle_attachments(file_path)
-        attachments = get_attachments
-        if attachments.count.positive?
-          combined_pdf = CombinePDF.new
-          combined_pdf << CombinePDF.load(file_path)
-          attachments.each do |attachment|
-            combined_pdf << CombinePDF.load(attachment.to_pdf)
-          end
-
-          combined_pdf.save file_path
-        end
-      end
-
-      def get_attachments
-        confirmation_codes = []
-        supporting_documents = params['veteran_supporting_documents']
-        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-
-        PersistentAttachment.where(guid: confirmation_codes)
       end
     end
   end
