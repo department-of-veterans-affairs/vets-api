@@ -73,7 +73,7 @@ module DebtsApi
       Rails.logger.info('Submitting Combined FSR')
       create_vba_fsr(fsr_builder)
       create_vha_fsr(fsr_builder)
-      user_form = fsr_builder.user_form
+      user_form = fsr_builder.user_form.form_data
 
       {
         content: Base64.encode64(
@@ -188,39 +188,11 @@ module DebtsApi
     end
 
     def persist_vha_form_submission(fsr_builder)
-      fsr_builder.vha_forms.map do |form_set|
-        form = form_set[:form]
-        copays = form_set[:copays]
-        metadata = { copays: }.to_json
-
-        public_metadata = build_public_metadata(fsr_builder, form, copays)
-
-        DebtsApi::V0::Form5655Submission.create(
-          form_json: form.to_json,
-          metadata:,
-          user_uuid: @user.uuid,
-          user_account: @user.user_account,
-          public_metadata:,
-          state: 1
-        )
-      end
+      fsr_builder.vha_forms.map(&:persist_form_submission)
     end
 
     def persist_vba_form_submission(fsr_builder)
-      form = fsr_builder.vba_form
-      debts = fsr_builder.vba_debts
-      metadata = { debts: }.to_json
-
-      public_metadata = build_public_metadata(fsr_builder, form, debts)
-
-      DebtsApi::V0::Form5655Submission.create(
-        form_json: form.to_json,
-        metadata:,
-        user_uuid: @user.uuid,
-        user_account: @user.user_account,
-        public_metadata:,
-        state: 1
-      )
+      fsr_builder.vba_form.persist_form_submission
     end
 
     def submit_vha_batch_job(vha_submissions)

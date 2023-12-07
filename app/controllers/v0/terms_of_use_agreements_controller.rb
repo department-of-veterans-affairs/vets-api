@@ -5,8 +5,9 @@ require 'terms_of_use/exceptions'
 module V0
   class TermsOfUseAgreementsController < ApplicationController
     service_tag 'terms-of-use'
-    skip_before_action :authenticate
 
+    skip_before_action :verify_authenticity_token, only: [:update_provisioning]
+    skip_before_action :authenticate
     before_action :terms_authenticate
 
     def latest
@@ -61,7 +62,7 @@ module V0
         value: TermsOfUse::Constants::PROVISIONER_COOKIE_VALUE,
         expires: TermsOfUse::Constants::PROVISIONER_COOKIE_EXPIRATION.from_now,
         path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
-        domain: Settings.terms_of_use.provisioner_cookie_domain
+        domain: TermsOfUse::Constants::PROVISIONER_COOKIE_DOMAIN
       }
     end
 

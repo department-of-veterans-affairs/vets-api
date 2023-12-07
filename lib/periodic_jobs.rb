@@ -59,9 +59,6 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clear out EVSS disability claims that have not been updated in 24 hours
   mgr.register('20 2 * * *', 'DeleteOldPiiLogsJob')
   # Clear out old personal information logs
-  mgr.register('30 2 * * *', 'CentralMail::DeleteOldClaims')
-  # Clear out central mail claims older than 2 months
-
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
 
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
@@ -155,5 +152,9 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
   mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+
+  # Updates veteran representatives and organizations address attributes (including lat, long, location)
+  # Updates veteran representatives email address
+  mgr.register('0 3 * * *', 'RepOrgAddresses::QueueAddressUpdates')
 }
 # rubocop:enable Metrics/BlockLength

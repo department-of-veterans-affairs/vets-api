@@ -309,7 +309,7 @@ describe V2::Lorota::Service do
     context 'when lorota token endpoint call succeeds' do
       before do
         allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-          .and_return(Faraday::Response.new(body: { token: }.to_json, status: 200))
+          .and_return(Faraday::Response.new(response_body: { token: }.to_json, status: 200))
       end
 
       it 'returns data from lorota' do
@@ -337,7 +337,7 @@ describe V2::Lorota::Service do
       context 'with chip delete endpoint succeeding' do
         before do
           allow_any_instance_of(V2::Chip::Service).to receive(:delete)
-            .and_return(Faraday::Response.new(body: 'Delete successful', status: 200))
+            .and_return(Faraday::Response.new(response_body: 'Delete successful', status: 200))
         end
 
         context 'when status code is 401 with lastName does not match error message' do
@@ -625,7 +625,7 @@ describe V2::Lorota::Service do
                                                                        auth_exception_response_values,
                                                                        401, last_name_mismatch))
           allow_any_instance_of(V2::Chip::Service).to receive(:delete)
-            .and_return(Faraday::Response.new(body: 'Unknown error',
+            .and_return(Faraday::Response.new(response_body: 'Unknown error',
                                               status: 500))
           Rails.cache.write(
             "authentication_retry_limit_#{id}",
@@ -676,7 +676,7 @@ describe V2::Lorota::Service do
     before do
       allow_any_instance_of(::V2::Lorota::RedisClient).to receive(:get).and_return('123abc')
       allow_any_instance_of(::V2::Lorota::Client).to receive(:data)
-        .and_return(Faraday::Response.new(body: appointment_data.to_json, status: 200))
+        .and_return(Faraday::Response.new(response_body: appointment_data.to_json, status: 200))
     end
 
     context 'when check_in_type is preCheckIn' do

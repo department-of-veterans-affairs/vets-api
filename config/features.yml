@@ -382,6 +382,9 @@ features:
     actor_type: user
     description: Enables access to the Enrollment Verification app
     enable_in_development: true
+  ezr_async:
+    actor_type: user
+    description: Submit form 10-10EZR with a background job
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
@@ -458,6 +461,10 @@ features:
   find_a_rep:
     actor_type: user
     description: Enables the Find a Rep search endpoint
+    enable_in_development: true
+  find_a_representative:
+    actor_type: user
+    description: Enables frontend of Find a Representative
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -632,6 +639,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
     enable_in_development: true
+  mhv_secure_messaging_blocked_triage_group_1_0:
+    actor_type: user
+    description: Enables/disables Secure Messaging Blocked Triage Group functionality on VA.gov
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -684,6 +695,10 @@ features:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
+  military_information_vaprofile_vic:
+    actor_type: user
+    description: Enables the post-EMIS military information of VAProfile for the VIC form
+    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -728,6 +743,9 @@ features:
   show_authenticated_menu_enhancements:
     actor_type: user
     description: Exposes new links for dependents and letters in the header dropdown for authenticated users
+  profile_enhanced_military_info:
+    actor_type: user
+    description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
@@ -815,15 +833,12 @@ features:
   my_va_notification_dot_indicator:
     actor_type: user
     description: Enable dot indicator for notifications
-  my_va_remove_cerner_message:
+  my_va_enable_mhv_link:
     actor_type: user
-    description: Remove Cerner alerts under Health care section
+    description: Enables the "Visit MHV" CTA link under Health care section
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
-  my_va_show_header_link:
-    actor_type: user
-    description: Show the My VA link on the global site header
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1094,10 +1109,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  yellow_ribbon_mvp_enhancement:
-    actor_type: user
-    description: Enhances Yellow Ribbon MVP.
-    enable_in_development: true
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.

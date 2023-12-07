@@ -119,6 +119,21 @@ RSpec.describe 'prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['pagination']['perPage']).to eq(20)
       end
 
+      it 'responds to GET #index with prescription name as sort parameter' do
+        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_prescription_name') do
+          get '/my_health/v1/prescriptions?page=7&per_page=20&sort[]=prescription_name&sort[]=dispensed_date'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        response_data = JSON.parse(response.body)['data']
+        item_index = response_data.find_index { |item| item['orderable_item'] == 'GABAPENTIN' }
+
+        # Make sure 'Gabapentin' does not exist on final page and is being alphabetized correctly
+        expect(item_index).to be_nil
+      end
+
       it 'responds to GET #index with refill_status=active' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
           get '/my_health/v1/prescriptions?refill_status=active'
@@ -180,6 +195,24 @@ RSpec.describe 'prescriptions', type: :request do
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+        end
+
+        it 'responds to GET #index with sorted_dispensed_date' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_sorted_by_custom_field_list_of_all_prescriptions_v1') do
+            get '/my_health/v1/prescriptions?sort[]=-dispensed_date&sort[]=prescription_name', headers: inflection_header
+          end
+
+          res = JSON.parse(response.body)
+
+          dates = res['data'].map { |d| DateTime.parse(d['attributes']['sortedDispensedDate']) }
+          is_sorted = dates.each_cons(2).all? { |item1, item2| item1 >= item2 }
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(is_sorted).to be_truthy
+          expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
+
+          metadata = { 'prescriptionName' => 'ASC', 'dispensedDate' => 'DESC' }
+          expect(JSON.parse(response.body)['meta']['sort']).to eq(metadata)
         end
 
         it 'responds to GET #show of nested tracking resource when camel-inflected' do

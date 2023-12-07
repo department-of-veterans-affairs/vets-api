@@ -7,6 +7,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end
 
+  before do
+    Flipper.disable(:ezr_async)
+  end
+
   describe 'POST create' do
     subject do
       post(
@@ -66,6 +70,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           end
         end
 
+        it 'increments statsd' do
+          expect { subject }.to trigger_statsd_increment('api.1010ezr.submission_attempt')
+        end
+
         context 'when the form includes a Mexican province' do
           let(:params) do
             {
@@ -89,6 +97,32 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
               # The initial form data should include the JSON schema Mexican provinces before they're overridden
               expect(JSON.parse(params[:form])['veteranAddress']['state']).to eq('chihuahua')
               expect(JSON.parse(params[:form])['veteranHomeAddress']['state']).to eq('chihuahua')
+              subject
+
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+        end
+
+        context 'when the form includes next of kin and/or emergency contact info' do
+          let(:params) do
+            {
+              form: File.read('spec/fixtures/form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact.json')
+            }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => 432_861_975,
+              'timestamp' => '2023-11-30T09:52:37.290-06:00',
+              'success' => true
+            }
+          end
+
+          it 'returns a successful response object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
               subject
 
               expect(JSON.parse(response.body)).to eq(body)

@@ -6,6 +6,10 @@ require 'form1010_ezr/service'
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
+  before do
+    Flipper.disable(:ezr_async)
+  end
+
   let(:form) { get_fixture('form1010_ezr/valid_form') }
   let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
   let(:service) { described_class.new(current_user) }
@@ -45,6 +49,27 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   describe '#submit_form' do
+    context 'with ezr_async on' do
+      before do
+        Flipper.enable(:ezr_async)
+      end
+
+      it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          match_requests_on: %i[method uri body],
+          erb: true,
+          allow_unused_http_interactions: false
+        ) do
+          expect { submit_form(form) }.to change {
+            HCA::EzrSubmissionJob.jobs.size
+          }.by(1)
+
+          HCA::EzrSubmissionJob.drain
+        end
+      end
+    end
+
     context 'when successful' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
@@ -92,6 +117,25 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
       end
+
+      context 'when the form includes next of kin and/or emergency contact info' do
+        let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
+
+        it 'returns a success object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(submit_form(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 432_861_975,
+                timestamp: '2023-11-30T09:52:37.290-06:00'
+              }
+            )
+          end
+        end
+      end
     end
 
     context 'when an error occurs' do
@@ -118,6 +162,18 @@ RSpec.describe Form1010Ezr::Service do
             expect(e.errors[0].status).to eq('422')
           end
           expect_logger_error('10-10EZR form validation failed. Form does not match schema.')
+        end
+
+        it 'increments statsd' do
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.fail',
+                                                     tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.total')
+
+          expect do
+            submit_form(form)
+          end.to raise_error(StandardError)
         end
       end
 

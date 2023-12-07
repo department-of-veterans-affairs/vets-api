@@ -253,7 +253,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     it 'enqueues VHA submission jobs' do
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
-      copay_count = builder.grouped_vha_copays.length
+      copay_count = builder.vha_forms.length
       expect { service.submit_combined_fsr(builder) }
         .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
         .from(0)
@@ -266,7 +266,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     it 'creates a form 5655 submission record' do
       service = described_class.new(user)
       builder = DebtsApi::V0::FsrFormBuilder.new(vha_form_data, '', user)
-      copay_count = builder.grouped_vha_copays.length
+      copay_count = builder.vha_forms.length
       expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(copay_count)
       expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
       form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
@@ -277,44 +277,52 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       it 'adds combined key to forms' do
         service = described_class.new(user)
         builder = DebtsApi::V0::FsrFormBuilder.new(combined_form_data, '', user)
-        copay_count = builder.grouped_vha_copays.length
-        debt_count = builder.vba_debts.present? ? 1 : 0
+        copay_count = builder.vha_forms.length
+        debt_count = builder.vba_form.present? ? 1 : 0
         needed_count = copay_count + debt_count
         expect { service.submit_combined_fsr(builder) }.to change(Form5655Submission, :count).by(needed_count)
         expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+        debt_amounts = DebtsApi::V0::Form5655Submission.with_debt_type('DEBT').last.public_metadata['debt_amounts']
+        expect(debt_amounts).to eq(['541.67', '1134.22'])
       end
     end
   end
 
-  describe '#create_vha_fsr' do
-    let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+  describe '#create_vba_fsr' do
+    let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
+    let(:valid_vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
     let(:user) { build(:user, :loa3) }
 
     before do
-      valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+      allow(User).to receive(:find).with(user.uuid).and_return(user)
+    end
+
+    it 'persists vba FSRs' do
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vba_form_data, '', user)
+      expect { service.create_vba_fsr(builder) }.to change(Form5655Submission, :count).by(1)
+    end
+
+    it 'gracefully handles a lack of vba FSRs' do
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
+      expect { service.create_vba_fsr(builder) }.not_to change(Form5655Submission, :count)
+    end
+  end
+
+  describe '#create_vha_fsr' do
+    let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
+    let(:valid_vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
+    let(:user) { build(:user, :loa3) }
+
+    before do
       mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
     it 'creates multiple jobs with multiple stations' do
-      valid_form_data['selectedDebtsAndCopays'] = [
-        {
-          'station' => {
-            'facilitYNum' => '123'
-          },
-          'resolutionOption' => 'waiver',
-          'debtType' => 'COPAY'
-        },
-        {
-          'station' => {
-            'facilitYNum' => '456'
-          },
-          'resolutionOption' => 'waiver',
-          'debtType' => 'COPAY'
-        }
-      ]
       service = described_class.new(user)
-      builder = DebtsApi::V0::FsrFormBuilder.new(valid_form_data, '', user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vha_form_data, '', user)
       expect { service.create_vha_fsr(builder) }
         .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
         .from(0)
@@ -322,6 +330,17 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(2)
+    end
+
+    it 'gracefully handles a lack of vha FSRs' do
+      service = described_class.new(user)
+      builder = DebtsApi::V0::FsrFormBuilder.new(valid_vba_form_data, '', user)
+      expect { service.create_vha_fsr(builder) }.not_to(change do
+                                                          DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size
+                                                        end)
+      expect { service.create_vha_fsr(builder) }.not_to(change do
+                                                          DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size
+                                                        end)
     end
   end
 
