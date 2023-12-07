@@ -54,7 +54,12 @@ module BenefitsIntakeService
 
     def get_bulk_status_of_uploads(ids)
       body = { ids: }.to_json
-      response = perform :post, 'uploads/report', body, { 'Content-Type' => 'application/json', 'accept' => 'application/json' }
+      response = perform(
+        :post,
+        'uploads/report',
+        body,
+        { 'Content-Type' => 'application/json', 'accept' => 'application/json' }
+      )
 
       raise response.body unless response.success?
 
