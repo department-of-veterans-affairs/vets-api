@@ -5,7 +5,7 @@ module Mobile
     skip_before_action :authenticate
 
     def welcome
-      render json: { data: { attributes: { message: 'Welcome to the mobile API!' } } }
+      render json: { data: { attributes: { message: 'Welcome to the mobile API' } } }
     end
   end
 end
