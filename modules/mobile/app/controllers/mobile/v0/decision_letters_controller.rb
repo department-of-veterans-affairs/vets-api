@@ -26,7 +26,6 @@ module Mobile
       private
 
       def log_decision_letters(list)
-
         return nil if list.empty?
 
         Rails.logger.info('MOBILE DECISION LETTERS COUNT',
@@ -34,7 +33,7 @@ module Mobile
                           user_icn: @current_user.icn,
                           decision_letter_sent_count: list.count,
                           decision_letter_doc_type: list.map(&:doc_type),
-                          filtered_out_doc_type_27: Flipper.enabled?(:mobile_filter_doc_27_decision_letters_out))
+                          filtered_out_doc_type27: Flipper.enabled?(:mobile_filter_doc_27_decision_letters_out))
       end
 
       def decision_letters_adapter
