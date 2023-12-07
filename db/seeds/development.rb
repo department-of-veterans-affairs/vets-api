@@ -96,7 +96,8 @@ identity_dashboard_service_account_config.update!(service_account_id: vaid_servi
                                                            'http://localhost:3000/v0/account_controls/credential_unlock'],
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
-                                                  certificates: [vaid_certificate])
+                                                  certificates: [vaid_certificate],
+                                                  access_token_user_attributes: %w[icn type credential_id])
 
 # Create Service Account Config for Chatbot
 chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '88a6d94a3182fd63279ea5565f26bcb4')
