@@ -347,12 +347,17 @@ module ClaimsApi
         begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')
         end_date = gulf_war_service&.dig('serviceDates', 'endDate')
 
-        validate_gulf_war_service_date(begin_date) unless begin_date.nil?
-        validate_gulf_war_service_date(end_date) unless end_date.nil?
+        begin_property = 'toxicExposure/gulfWarHazardService/serviceDates/beginDate'
+        end_property = 'toxicExposure/gulfWarHazardService/serviceDates/endDate'
+
+        validate_gulf_war_service_date(begin_date) unless begin_date.nil? || !date_is_valid?(begin_date,
+                                                                                             begin_property)
+        validate_gulf_war_service_date(end_date) unless end_date.nil? || !date_is_valid?(end_date,
+                                                                                         end_property)
       end
 
       def validate_gulf_war_service_date(date)
-        if date_has_day?(date) # this date should not have the day, at this point we know it is a valid date
+        if date_has_day?(date) # this date should not have the day
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'Service dates must be in the format of yyyy-mm or yyyy'
           )
@@ -954,7 +959,7 @@ module ClaimsApi
         return if date.blank?
 
         raise_date_error(date, property) unless /^[\d-]+$/ =~ date # check for something like 'July 2017'
-        return true unless date.length == 10
+        return true if date.match(YYYY_YYYYMM_REGEX) # valid YYYY or YYYY-MM date
 
         date_y, date_m, date_d = date.split('-').map(&:to_i)
 
