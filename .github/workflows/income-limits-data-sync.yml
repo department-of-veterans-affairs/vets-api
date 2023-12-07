@@ -38,4 +38,4 @@ jobs:
         gem install csv
 
     - name: Run Oracle Query
-      run: ruby .github/scripts/query_oracle.rb
+      run: ruby .github/scripts/income-limits-data-sync.rb
