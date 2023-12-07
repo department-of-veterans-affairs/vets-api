@@ -15,6 +15,19 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
 
+    - name: Install Oracle Instant Client Libraries
+      run: |
+        export PWD=$(echo pwd)
+        cd /opt
+        sudo mkdir /opt/oracle
+        cd /opt/oracle
+        sudo curl https://download.oracle.com/otn_software/linux/instantclient/214000/instantclient-basic-linux.x64-21.4.0.0.0dbru.zip -o /opt/oracle/instantclient-basic-linux.x64-21.4.0.0.0dbru.zip
+        sudo unzip instantclient-basic-linux.x64-21.4.0.0.0dbru.zip
+        sudo apt update
+        sudo apt install libaio1
+        sudo sh -c "echo /opt/oracle/instantclient_21_4 > /etc/ld.so.conf.d/oracle-instantclient.conf"
+        sudo ldconfig
+
     - name: Install Dependencies
       run: |
         gem install ruby-oci8
