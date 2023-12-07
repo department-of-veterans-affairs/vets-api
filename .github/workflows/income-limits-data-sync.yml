@@ -17,7 +17,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        gem install oci8
+        gem install ruby-oci8
         gem install csv
 
     - name: Run Oracle Query
