@@ -5,9 +5,9 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :request do
   describe '#schema' do
-    let(:path) { '/services/appeals/appealable-issues/v0/schemas/appealable-issues' }
+    let(:path) { '/services/appeals/appealable-issues/v0/schemas/params' }
 
-    it 'renders the json schema for request body with shared refs' do
+    it 'renders the json schema for request params with shared refs' do
       with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
         get(path, headers: auth_header)
       end
