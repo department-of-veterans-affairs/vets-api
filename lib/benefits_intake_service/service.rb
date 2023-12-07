@@ -53,7 +53,12 @@ module BenefitsIntakeService
     end
 
     def get_bulk_status_of_uploads(ids)
-      # TODO: Implement me!
+      body = { ids: }.to_json
+      response = perform :post, 'uploads/report', body, { 'Content-Type' => 'application/json', 'accept' => 'application/json' }
+
+      raise response.body unless response.success?
+
+      response
     end
 
     def get_file_path_from_objs(file)
