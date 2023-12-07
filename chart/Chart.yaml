@@ -80,7 +80,8 @@ type: application
 # 0.12.15 - Reverted 12.07 and 12.08 IngressRoute modifications
 # 0.12.16 - HPA autoscaling/v2
 # 0.12.17 - SUM HPA metrics
-version: 0.12.17
+# 0.12.18 - Disable common configmaps
+version: 0.12.18
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
