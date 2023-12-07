@@ -41,8 +41,6 @@ module Dynamics
         f.headers['Content-Type'] = 'application/json'
         f.request :url_encoded
         f.use :breakers
-        # f.response :raise_error, error_prefix: service_name
-        # f.response :betamocks if settings.mock && !Rails.env.production?
         f.adapter Faraday.default_adapter
       end
     end
@@ -53,7 +51,7 @@ module Dynamics
       parse_response(response.body)
     rescue ErrorHandler::ServiceError => e
       log_error(endpoint, e.class.name)
-      [e, { bearer: token(method, endpoint), env: Rails.env, tenant: tenant_id.chars.first(5) }]
+      [e, { bearer: token(method, endpoint)&.chars&.first(5), env: Rails.env, tenant: tenant_id.chars.first(5) }]
     end
 
     def invoke_request(endpoint, method, payload, params)
