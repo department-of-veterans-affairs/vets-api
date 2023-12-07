@@ -301,7 +301,9 @@ module VAProfile
 
       def deployed_to?(countries, date_range)
         deployments.each do |deployment|
-          deployment['deployment_locations']&.each do |location|
+          next if deployment['deployment_locations'].nil? # Skip if deployment_locations is nil
+
+          deployment['deployment_locations'].each do |location|
             location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
 
             if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)
