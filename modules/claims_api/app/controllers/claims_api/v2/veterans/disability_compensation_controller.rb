@@ -69,7 +69,12 @@ module ClaimsApi
           end
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
+
+          unless claim
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: 'Resource not found'
+            )
+          end
 
           documents_service(params, claim).process_documents
 
