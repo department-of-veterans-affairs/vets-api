@@ -73,7 +73,6 @@ module VAOS
 
       def log_clinic_info(clinic_data)
         clinic_data.each do |clinic|
-          binding.pry
           clinic_info = get_clinic_info(clinic)
           Rails.logger.info('VAOS Clinic info: ', clinic_info.to_json) unless clinic_info.values.all?(&:nil?)
         end
