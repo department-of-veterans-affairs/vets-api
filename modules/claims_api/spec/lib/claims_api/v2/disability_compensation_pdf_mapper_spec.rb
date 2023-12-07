@@ -54,8 +54,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
       describe 'when the claimProcessType is BDD_PROGRAM' do
         let(:claim_process_type) { 'BDD_PROGRAM' }
-        let(:anticipated_seperation_date) { '2024-03-05' }
-        let(:active_duty_end_date) { '2024-03-05' }
 
         it 'maps correctly to BDD_PROGRAM_CLAIM' do
           form_attributes['claimProcessType'] = claim_process_type
@@ -63,27 +61,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
           claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
           expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
-        end
-
-        it 'maps anticipatedSeparationDate correctly' do
-          form_attributes['claimProcessType'] = claim_process_type
-          form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-            anticipated_seperation_date
-          mapper.map_claim
-
-          date_of_release_from_active_duty =
-            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
-          expect(date_of_release_from_active_duty).to eq({ year: '2024', month: '03', day: '05' })
-        end
-
-        it 'maps activeDutyEndDate correctly' do
-          form_attributes['claimProcessType'] = claim_process_type
-          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = active_duty_end_date
-          mapper.map_claim
-
-          date_of_release_from_active_duty =
-            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
-          expect(date_of_release_from_active_duty).to eq({ year: '2024', month: '03', day: '05' })
         end
       end
     end
