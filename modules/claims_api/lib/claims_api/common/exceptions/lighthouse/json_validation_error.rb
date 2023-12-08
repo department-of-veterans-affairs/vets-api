@@ -5,26 +5,25 @@ module ClaimsApi
     module Exceptions
       module Lighthouse
         class JsonValidationError < StandardError
-          def initialize(error)
-            @title = error[:errors][0][:title] || 'Unprocessable Entity'
-            @source = error[:errors][0][:source]
-            @status = error[:errors][0][:status]
-            @detail = error[:errors][0][:detail]
+          def initialize(errors)
+            @errors = errors
 
             super
           end
 
-          def errors
-            [
-              {
-                title: @title,
-                detail: @detail,
-                status: @status.to_s, # LH standards want this be a string
+          def errors_array
+            errors_array = []
+            @errors[:errors].each do |err|
+              errors_array << {
+                title: err[:title] || 'Unprocessable entity',
+                detail: err[:detail],
+                status: err[:status].to_s, # LH standards want this be a string
                 source: {
-                  pointer: "data/attributes#{@source}"
+                  pointer: "data/attributes#{err[:source]}"
                 }
               }
-            ]
+            end
+            errors_array
           end
 
           def status
@@ -32,7 +31,7 @@ module ClaimsApi
           end
 
           def status_code
-            @status || '422'
+            422
           end
         end
       end

@@ -12,7 +12,8 @@ module ClaimsApi
       module LighthouseErrorHandler
         def self.included(clazz) # rubocop:disable Metrics/MethodLength
           clazz.class_eval do
-            rescue_from ::Common::Exceptions::TokenValidationError do |err|
+            rescue_from ::Common::Exceptions::Unauthorized,
+                        ::Common::Exceptions::TokenValidationError do |err|
               render_error(
                 ::ClaimsApi::Common::Exceptions::Lighthouse::TokenValidationError.new(err)
               )
@@ -21,7 +22,6 @@ module ClaimsApi
             rescue_from ::Common::Exceptions::ResourceNotFound,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
                         ::Common::Exceptions::Forbidden,
-                        ::Common::Exceptions::Unauthorized,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
                         ::Common::Exceptions::UnprocessableEntity,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::InvalidFieldValue,
@@ -49,13 +49,7 @@ module ClaimsApi
         end
 
         def render_json_error(error)
-          render json: {
-            errors: error.errors.map do |e|
-              error_hash = e.as_json.slice('title', 'status', 'detail')
-              error_hash['source'] = e[:source]
-              error_hash
-            end
-          }, status: error.status_code
+          render json: { errors: error.errors_array }, status: error.status_code
         end
 
         def format_source(error)

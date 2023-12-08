@@ -7,7 +7,6 @@ module ClaimsApi
         class TokenValidationError < StandardError
           def initialize(error)
             @title = 'Not authorized'
-            @source = error.errors[0].source
             @status = error.errors[0].status
             @detail = error.errors[0].detail
 
@@ -19,10 +18,7 @@ module ClaimsApi
               {
                 title: @title,
                 detail: @detail,
-                status: @status.to_s,
-                source: {
-                  pointer: @source
-                }
+                status: @status.to_s # LH standards want this shown as a string
               }
             ]
           end
@@ -32,7 +28,7 @@ module ClaimsApi
           end
 
           def status_code
-            @status || '401'
+            @status || 401
           end
         end
       end
