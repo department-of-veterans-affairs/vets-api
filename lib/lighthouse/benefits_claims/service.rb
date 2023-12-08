@@ -107,7 +107,7 @@ module BenefitsClaims
       end
 
       # TODO: determine why camelcasing is malfunctioning for this field and revisit the below
-      fix_currentVaEmployee(body)
+      fix_current_va_employee(body)
 
       response = config.post(
         path,
@@ -122,7 +122,7 @@ module BenefitsClaims
 
     private
 
-    def fix_currentVaEmployee(body)
+    def fix_current_va_employee(body)
       body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
         body['data']['attributes']['veteranIdentification']['currentVAEmployee']
       body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')

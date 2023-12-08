@@ -104,16 +104,13 @@ module EVSS
         service_information = Requests::ServiceInformation.new
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
-          transform_confinements(service_information_source,
-                                 service_information)
+          transform_confinements(service_information_source, service_information)
         end
         if service_information_source['alternateName']
-          transform_alternate_names(service_information_source,
-                                    service_information)
+          transform_alternate_names(service_information_source, service_information)
         end
         if service_information_source['reservesNationalGuardService']
-          transform_reserves_national_guard_service(service_information_source,
-                                                    service_information)
+          transform_reserves_national_guard_service(service_information_source, service_information)
           reserves_national_guard_service_source =
             service_information_source['reservesNationalGuardService']['title10Activation']
           # Title10Activation == FederalActivation

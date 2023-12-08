@@ -188,7 +188,6 @@
           "disabilityActionType": "INCREASE",
           "name": "PTSD (post traumatic stress disorder)",
           "ratedDisabilityId": "1100583",
-          "approximateBeginDate": "2013-03",
           "secondaryDisabilities": [
             {
               "name": "PTSD personal trauma",

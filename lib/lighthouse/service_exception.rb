@@ -33,10 +33,7 @@ module Lighthouse
       return error unless status_code
 
       errors = get_errors_from_response(error, status_code) if json_response?(response)
-      error_obj = error_class(status_code).new(errors:)
-      Rails.logger.debug error_obj.errors.to_json
-      raise error_obj
-      # raise error_class(status_code).new(errors:)
+      raise error_class(status_code).new(errors:)
     end
 
     # chooses which error class should be reported based on the http status
