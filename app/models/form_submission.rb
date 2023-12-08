@@ -9,6 +9,5 @@ class FormSubmission < ApplicationRecord
   belongs_to :saved_claim, optional: true
   belongs_to :user_account, optional: true
 
-  validates :benefits_intake_uuid, presence: true
   validates :form_type, presence: true
 end
