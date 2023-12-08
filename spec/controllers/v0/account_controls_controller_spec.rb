@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe V0::AccountControlsController, type: :controller do
-  let(:service_account_access_token) { build(:service_account_access_token) }
+  let(:service_account_access_token) { build(:service_account_access_token, user_attributes:) }
   let(:user_account) { create(:user_account) }
+  let(:user_attributes) { {} }
   let(:locked) { false }
   let!(:logingov_user_verification) { create(:logingov_user_verification, user_account:, locked:) }
   let!(:idme_user_verification) { create(:idme_user_verification, user_account:, locked:) }
@@ -18,13 +19,12 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   end
 
   describe 'GET credential_index' do
-    subject { get :credential_index, params: { icn: icn_param } }
+    subject { get :credential_index }
 
-    let(:icn) { user_account.icn }
-    let(:icn_param) { icn }
+    let(:user_attributes) { { 'icn' => requested_icn } }
 
     context 'without an ICN param' do
-      let(:icn_param) { nil }
+      let(:requested_icn) { nil }
       let(:expected_error) { 'icn is not defined' }
 
       it 'returns a bad request error' do
@@ -35,7 +35,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
 
     context 'with an ICN param' do
       context 'when a record is not found' do
-        let(:icn_param) { 'some-bad-icn' }
+        let(:requested_icn) { 'some-bad-icn' }
         let(:expected_error) { 'UserAccount not found.' }
 
         it 'returns a not found error' do
@@ -45,6 +45,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       end
 
       context 'when one or more User Verifications are found' do
+        let(:requested_icn) { user_account.icn }
         let(:expected_response_data) do
           [{ 'type' => 'logingov', 'credential_id' => logingov_user_verification.logingov_uuid, 'locked' => false },
            { 'type' => 'idme', 'credential_id' => idme_user_verification.idme_uuid, 'locked' => false },
@@ -61,7 +62,9 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   end
 
   shared_context 'when validating params and querying a UserVerification' do
-    subject { post lock_action, params: account_controls_params }
+    subject { post lock_action }
+
+    let(:user_attributes) { { 'type' => requested_type, 'credential_id' => requested_credential_id } }
 
     shared_examples 'when a record is not found' do
       let(:expected_error_message) { 'UserAccount credential record not found.' }
@@ -127,7 +130,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     end
 
     context 'when a request is made without a type' do
-      let(:type_param) { nil }
+      let(:requested_type) { nil }
       let(:expected_error_message) { 'type is not defined' }
 
       it 'returns a type parameter missing error' do
@@ -137,7 +140,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     end
 
     context 'when a request is made with a type that is not found in VALID_CSP_TYPES' do
-      let(:type_param) { 'some-csp-type' }
+      let(:requested_type) { 'some-csp-type' }
       let(:expected_error_message) { 'type is malformed' }
 
       it 'returns a type parameter missing error' do
@@ -147,7 +150,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     end
 
     context 'when a request is made without a CSP uuid' do
-      let(:credential_id_param) { nil }
+      let(:requested_credential_id) { nil }
       let(:expected_error_message) { 'credential_id is not defined' }
 
       it 'returns a CSP uuid parameter missing error' do
@@ -162,7 +165,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       end
 
       context 'when a UserVerification does not match the requested CSP uuid' do
-        let(:credential_id_param) { 'some-csp-uuid' }
+        let(:requested_credential_id) { 'some-csp-uuid' }
 
         it_behaves_like 'when a record is not found'
       end
@@ -172,9 +175,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   describe 'POST credential_lock' do
     let(:lock_action) { :credential_lock }
     let(:locked) { false }
-    let(:type_param) { type }
-    let(:credential_id_param) { credential_id }
-    let(:account_controls_params) { { type: type_param, credential_id: credential_id_param } }
+    let(:requested_type) { type }
+    let(:requested_credential_id) { credential_id }
     let(:expected_lock_status) { true }
     let(:expected_lock_action) { 'lock' }
     let(:expected_lock_method) { :lock! }
@@ -222,9 +224,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   describe 'POST credential_unlock' do
     let(:lock_action) { :credential_unlock }
     let(:locked) { true }
-    let(:type_param) { type }
-    let(:credential_id_param) { credential_id }
-    let(:account_controls_params) { { type: type_param, credential_id: credential_id_param } }
+    let(:requested_type) { type }
+    let(:requested_credential_id) { credential_id }
     let(:expected_lock_status) { false }
     let(:expected_lock_action) { 'unlock' }
     let(:expected_lock_method) { :unlock! }
