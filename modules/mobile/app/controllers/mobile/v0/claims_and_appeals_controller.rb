@@ -241,7 +241,7 @@ module Mobile
       end
 
       def active_claims_count(list)
-        list.count { |item| item.type == 'claim' && item.completed == false }
+        list.count { |item| item.completed == false }
       end
     end
   end
