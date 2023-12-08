@@ -91,7 +91,7 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when the user's financial info is submitted for the prior calendar year" do
+    context "when the user's financial info has already been submitted for the prior calendar year" do
       before { Timecop.freeze(DateTime.new(2023, 2, 3)) }
       after { Timecop.return }
 
