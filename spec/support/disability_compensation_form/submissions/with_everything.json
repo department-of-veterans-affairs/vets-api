@@ -139,8 +139,16 @@
       },
       "treatments": [
         {
-          "startDate": "2018-03",
-          "endDate": "2018-03",
+          "startDate": {
+            "year": "2018",
+            "month": "03",
+            "day": null
+          },
+          "endDate": {
+            "year": "2018",
+            "month": "03",
+            "day": null
+          },
           "treatedDisabilityNames": [
             "PTSD (post traumatic stress disorder)"
           ],
@@ -150,8 +158,16 @@
           }
         },
         {
-          "startDate": "2015-04",
-          "endDate": "2018-03",
+          "startDate": {
+            "year": "2015",
+            "month": "04",
+            "day": null
+          },
+          "endDate": {
+            "year": "2018",
+            "month": "03",
+            "day": null
+          },
           "treatedDisabilityNames": [
             "PTSD personal trauma"
           ],

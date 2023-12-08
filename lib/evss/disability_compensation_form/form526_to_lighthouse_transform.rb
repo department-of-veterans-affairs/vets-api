@@ -11,7 +11,6 @@ module EVSS
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
         lh_request_body.claimant_certification = true
-        # lh_request_body.claim_date = form526['claimDate'] if form526['claimDate']
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
         veteran = form526['veteran']
@@ -34,6 +33,8 @@ module EVSS
         service_pay = form526['servicePay']
         lh_request_body.service_pay = transform_service_pay(service_pay) if service_pay.present?
 
+        # TODO: this is a temporary workaround for a LH bug- remove when bug is fixed
+        # see https://dsva.slack.com/archives/C02CQP3RFFX/p1701988756197319?thread_ts=1701986590.863839&cid=C02CQP3RFFX
         te = Requests::ToxicExposure.new
         te.gulf_war_hazard_service = Requests::GulfWarHazardService.new
         te.gulf_war_hazard_service.served_in_gulf_war_hazard_locations = "NO"
@@ -142,7 +143,7 @@ module EVSS
               city: center['city']
             ),
             # LH spec says YYYY-DD or YYYY date format
-            begin_date: treatment['startDate']
+            begin_date: convert_approximate_date(treatment['startDate'], short: true)
           )
         end
       end
