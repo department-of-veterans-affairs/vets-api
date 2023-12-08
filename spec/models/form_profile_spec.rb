@@ -951,7 +951,7 @@ RSpec.describe FormProfile, type: :model do
         { service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } },
         { service_branch: 'Navy', date_range: { from: '2009-03-01', to: '2012-12-31' } },
         { service_branch: 'Army', date_range: { from: '2012-03-02', to: '2018-10-31' } }
-      ],
+      ]
     }
   end
 
