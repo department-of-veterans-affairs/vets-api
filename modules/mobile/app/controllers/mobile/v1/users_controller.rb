@@ -21,9 +21,6 @@ module Mobile
       end
 
       def pre_cache_resources
-        if Flipper.enabled?(:mobile_precache_appointments)
-          Mobile::V0::PreCacheAppointmentsJob.perform_async(@current_user.uuid)
-        end
         Mobile::V0::PreCacheClaimsAndAppealsJob.perform_async(@current_user.uuid)
       end
 
