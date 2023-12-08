@@ -137,9 +137,8 @@ module Mobile
 
         return nil if decision_letters_sent.empty?
 
-        claims_decision_letters_sent = decision_letters_sent.select{|item| item.type == 'claim'}
-        appeals_decision_letters_sent = decision_letters_sent.select{|item| item.type == 'appeal'}
-
+        claims_decision_letters_sent = decision_letters_sent.select { |item| item.type == 'claim' }
+        appeals_decision_letters_sent = decision_letters_sent.select { |item| item.type == 'appeal' }
 
         Rails.logger.info('MOBILE CLAIM DECISION LETTERS SENT COUNT',
                           user_uuid: @current_user.uuid,
