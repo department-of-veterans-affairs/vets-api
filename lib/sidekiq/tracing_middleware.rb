@@ -30,9 +30,6 @@ module Sidekiq
                                             span_type: 'worker') do |_span|
         yield
       end
-    rescue => e
-      Rails.logger.error("Error setting service tag in Sidekiq::TracingMiddleware for #{worker.class.name}")
-      raise e
     end
   end
 end
