@@ -301,7 +301,9 @@ module VAProfile
 
       def deployed_to?(countries, date_range)
         deployments.each do |deployment|
-          deployment['deployment_locations']&.each do |location|
+          next if deployment['deployment_locations'].nil? # Skip if deployment_locations is nil
+
+          deployment['deployment_locations'].each do |location|
             location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
 
             if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)
@@ -315,10 +317,18 @@ module VAProfile
 
       # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
       def guard_reserve_service_by_date
-        military_service_episodes_by_date.select do |episode|
+        all_episodes = military_service_episodes_by_date.select do |episode|
           code = episode.personnel_category_type_code
           national_guard?(code) || reserve?(code)
-        end.sort_by(&:end_date).reverse
+        end
+
+        all_episodes.sort_by do |episode|
+          if episode.end_date.blank? # Handles nil and empty string
+            Time.zone.today + 3650
+          else
+            Date.parse(episode.end_date)
+          end
+        end.reverse
       end
 
       def latest_service_episode

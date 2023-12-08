@@ -111,5 +111,15 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtDecoder do
         expect(decoded_access_token.created_time).to eq(Time.zone.at(service_account_access_token.created_time.to_i))
       end
     end
+
+    context 'when valid service account access token contains user_attributes claim' do
+      let(:service_account_access_token) { create(:service_account_access_token, user_attributes:) }
+      let(:user_attributes) { { 'foo' => 'bar' } }
+
+      it 'contains the user_attributes claim' do
+        decoded_access_token = subject
+        expect(decoded_access_token.user_attributes).to eq(user_attributes)
+      end
+    end
   end
 end

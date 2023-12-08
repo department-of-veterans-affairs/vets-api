@@ -28,7 +28,8 @@ module SignIn
         iat: service_account_access_token.created_time.to_i,
         version: service_account_access_token.version,
         scopes: service_account_access_token.scopes,
-        service_account_id: service_account_access_token.service_account_id
+        service_account_id: service_account_access_token.service_account_id,
+        user_attributes: service_account_access_token.user_attributes
       }
     end
 

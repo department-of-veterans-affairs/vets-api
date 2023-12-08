@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f8b0016b-e28b-4312-93b8-41053b136479",
+                    "id": "0e949c9e-1e40-468e-952f-551299939800",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,7 +1329,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-11-30",
+                          "anticipatedSeparationDate": "2023-12-07",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -2077,7 +2077,7 @@
                                   "approximateDate": {
                                     "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                     "type": "string",
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                    "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                     "example": "2018-03-02 or 2018-03 or 2018",
                                     "nullable": true
                                   },
@@ -2140,7 +2140,7 @@
                                         "approximateDate": {
                                           "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                           "type": "string",
-                                          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                          "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                           "example": "2018-03-02 or 2018-03 or 2018",
                                           "nullable": true
                                         },
@@ -3310,7 +3310,7 @@
                                 "approximateDate": {
                                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                   "type": "string",
-                                  "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                  "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
                                   "nullable": true
                                 },
@@ -3373,7 +3373,7 @@
                                       "approximateDate": {
                                         "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                         "type": "string",
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                        "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
                                         "nullable": true
                                       },
@@ -4816,7 +4816,7 @@
                                 "approximateDate": {
                                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                   "type": "string",
-                                  "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                  "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
                                   "nullable": true
                                 },
@@ -4879,7 +4879,7 @@
                                       "approximateDate": {
                                         "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                         "type": "string",
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                        "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
                                         "nullable": true
                                       },
@@ -5602,7 +5602,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2ba8a852-49f4-4989-af19-c493b30a1998",
+                    "id": "65eeba04-c992-4893-bf9e-77d913de370d",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6447,7 +6447,7 @@
                                 "approximateDate": {
                                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                   "type": "string",
-                                  "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                  "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
                                   "nullable": true
                                 },
@@ -6510,7 +6510,7 @@
                                       "approximateDate": {
                                         "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                         "type": "string",
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                        "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
                                         "nullable": true
                                       },
@@ -7584,8 +7584,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-28",
-                      "expirationDate": "2024-11-28",
+                      "creationDate": "2023-12-05",
+                      "expirationDate": "2024-12-05",
                       "type": "compensation",
                       "status": "active"
                     }
