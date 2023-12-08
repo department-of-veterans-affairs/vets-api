@@ -16,8 +16,8 @@ module Rx
     configuration Rx::Configuration
     client_session Rx::ClientSession
 
-    def token_headers
-      config.base_request_headers.merge('Token' => Settings.mhv.rx.app_token_va_gov)
+    def auth_headers
+      config.base_request_headers.merge('appToken' => config.app_token_va_gov, 'mhvCorrelationId' => session.user_id.to_s)
     end
   end
 end

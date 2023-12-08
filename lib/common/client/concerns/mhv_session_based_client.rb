@@ -84,12 +84,6 @@ module Common
         def auth_headers
           config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => session.user_id.to_s)
         end
-
-        protected
-
-        def token_headers_va_gov
-          config.base_request_headers.merge('Token' => session.token)
-        end
       end
     end
   end
