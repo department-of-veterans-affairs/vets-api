@@ -406,6 +406,40 @@ describe MedicalRecords::Client do
     end
   end
 
+  describe '#handle_api_errors' do
+    context 'when response is successful' do
+      let(:result) { OpenStruct.new(code: 200) }
+
+      it 'does not raise an exception' do
+        expect { client.handle_api_errors(result) }.not_to raise_error
+      end
+    end
+
+    context 'when response is an error' do
+      let(:result) { OpenStruct.new(code: 400, body: { issue: [{ diagnostics: 'Error Message' }] }.to_json) }
+
+      it 'raises a BackendServiceException' do
+        expect { client.handle_api_errors(result) }.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+
+    context 'when response is a HAPI-1363 error' do
+      let(:result) { OpenStruct.new(code: 500, body: { issue: [{ diagnostics: 'HAPI-1363' }] }.to_json) }
+
+      it 'raises a PatientNotFound exception' do
+        expect { client.handle_api_errors(result) }.to raise_error(MedicalRecords::PatientNotFound)
+      end
+    end
+
+    context 'when diagnostics are missing in the response' do
+      let(:result) { OpenStruct.new(code: 400, body: {}.to_json) }
+
+      it 'handles missing diagnostics gracefully' do
+        expect { client.handle_api_errors(result) }.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+  end
+
   def extract_date(resource)
     case resource
     when FHIR::DiagnosticReport
