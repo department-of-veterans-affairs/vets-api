@@ -34,6 +34,11 @@ module EVSS
         service_pay = form526['servicePay']
         lh_request_body.service_pay = transform_service_pay(service_pay) if service_pay.present?
 
+        te = Requests::ToxicExposure.new
+        te.gulf_war_hazard_service = Requests::GulfWarHazardService.new
+        te.gulf_war_hazard_service.served_in_gulf_war_hazard_locations = "NO"
+        lh_request_body.toxic_exposure = te
+
         lh_request_body
       end
 
@@ -91,7 +96,7 @@ module EVSS
         homelessness = veteran['homelessness']
 
         if homelessness['currentlyHomeless'].present?
-          fill_currently_homeless(homelessness['currentlyHomeless'], homeless)
+          fill_currently_homeless(homelessness, homeless)
         end
 
         fill_risk_of_becoming_homeless(homelessness, homeless) if homelessness['homelessnessRisk'].present?
@@ -113,7 +118,7 @@ module EVSS
         if service_information_source['reservesNationalGuardService']
           transform_reserves_national_guard_service(service_information_source,
                                                     service_information)
-          reserves_national_guard_service_source = service_information_source['reservesNationalGuardService']
+          reserves_national_guard_service_source = service_information_source['reservesNationalGuardService']['title10Activation']
           # Title10Activation == FederalActivation
           service_information.federal_activation = Requests::FederalActivation.new(
             anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
@@ -137,7 +142,7 @@ module EVSS
               city: center['city']
             ),
             # LH spec says YYYY-DD or YYYY date format
-            begin_date: treatment['startDate'] # convert_approximate_date(treatment['startDate'], short: true)
+            begin_date: treatment['startDate']
           )
         end
       end
@@ -319,9 +324,6 @@ module EVSS
           dis.name = disability_source['name']
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
           dis.service_relevance = disability_source['serviceRelevance'] || ''
-          if disability_source['approximateBeginDate']
-            dis.approximate_date = convert_approximate_date(disability_source['approximateBeginDate'])
-          end
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
           dis.diagnostic_code = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
           if disability_source['secondaryDisabilities']
@@ -340,9 +342,6 @@ module EVSS
             sd.classification_code = secondary_disability_source['classificationCode']
           end
           sd.service_relevance = secondary_disability_source['serviceRelevance'] || ''
-          if secondary_disability_source['approximateBeginDate']
-            sd.approximate_date = convert_approximate_date(secondary_disability_source['approximateBeginDate'])
-          end
           sd
         end
       end
@@ -382,12 +381,17 @@ module EVSS
 
       # only needs currentlyHomeless from 'homelessness' source
       def fill_currently_homeless(source, target)
-        options = source['homelessSituationType']&.strip
+        options = source['currentlyHomeless']['homelessSituationType']&.strip
         send_other_description = options == 'OTHER'
-        other_description = source['otherLivingSituation'] || nil
+        other_description = source['currentlyHomeless']['otherLivingSituation'] || nil
         target.currently_homeless = Requests::CurrentlyHomeless.new(
           homeless_situation_options: options,
           other_description: send_other_description ? other_description : nil
+        )
+        target.point_of_contact = source['pointOfContact']['pointOfContactName']
+        primary_phone = source['pointOfContact']['primaryPhone']
+        target.point_of_contact_number = Requests::ContactNumber.new(
+          telephone: primary_phone['areaCode'] + primary_phone['phoneNumber']
         )
       end
 

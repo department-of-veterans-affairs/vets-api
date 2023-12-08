@@ -35,7 +35,7 @@
           "state": "OR",
           "zipFirstFive": "23451",
           "zipLastFour": "6789",
-          "addressChangeType": "PERMANENT"
+          "addressChangeType": "TEMPORARY"
         },
         "homelessness": {
           "pointOfContact": {
@@ -67,7 +67,7 @@
         "waiveVABenefitsToRetainTrainingPay": true,
         "waiveVABenefitsToRetainRetiredPay": false,
         "militaryRetiredPay": {
-          "willReceiveInFuture": true,
+          "willReceiveInFuture": false,
           "receiving": true,
           "payment": {
             "serviceBranch": "Air Force",
@@ -117,7 +117,7 @@
         ],
         "reservesNationalGuardService": {
           "title10Activation": {
-            "anticipatedSeparationDate": "2020-01-01",
+            "anticipatedSeparationDate": "2024-01-01",
             "title10ActivationDate": "1999-03-04"
           },
           "obligationTermOfServiceFromDate": "2000-01-04",
@@ -161,12 +161,18 @@
           }
         }
       ],
+      "toxicExposure": {
+        "gulfWarHazardService": {
+          "servedInGulfWarHazardLocations": "NO"
+        }
+      },
       "disabilities": [
         {
           "diagnosticCode": 9999,
           "disabilityActionType": "INCREASE",
           "name": "PTSD (post traumatic stress disorder)",
           "ratedDisabilityId": "1100583",
+          "approximateBeginDate": "2013-03",
           "secondaryDisabilities": [
             {
               "name": "PTSD personal trauma",
