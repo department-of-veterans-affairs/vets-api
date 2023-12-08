@@ -106,9 +106,8 @@ module BenefitsClaims
         }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
       end
 
-      body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
-        body['data']['attributes']['veteranIdentification']['currentVAEmployee']
-      body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      # TODO: determine why camelcasing is malfunctioning for this field and revisit the below
+      fix_currentVaEmployee(body)
 
       response = config.post(
         path,
@@ -122,6 +121,12 @@ module BenefitsClaims
     end
 
     private
+
+    def fix_currentVaEmployee(body)
+      body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+        body['data']['attributes']['veteranIdentification']['currentVAEmployee']
+      body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+    end
 
     def submit_response(response, body_only)
       if body_only

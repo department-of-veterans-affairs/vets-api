@@ -35,10 +35,7 @@ module EVSS
 
         # TODO: this is a temporary workaround for a LH bug- remove when bug is fixed
         # see https://dsva.slack.com/archives/C02CQP3RFFX/p1701988756197319?thread_ts=1701986590.863839&cid=C02CQP3RFFX
-        te = Requests::ToxicExposure.new
-        te.gulf_war_hazard_service = Requests::GulfWarHazardService.new
-        te.gulf_war_hazard_service.served_in_gulf_war_hazard_locations = "NO"
-        lh_request_body.toxic_exposure = te
+        populate_te(lh_request_body)
 
         lh_request_body
       end
@@ -96,9 +93,7 @@ module EVSS
         homeless = Requests::Homeless.new
         homelessness = veteran['homelessness']
 
-        if homelessness['currentlyHomeless'].present?
-          fill_currently_homeless(homelessness, homeless)
-        end
+        fill_currently_homeless(homelessness, homeless) if homelessness['currentlyHomeless'].present?
 
         fill_risk_of_becoming_homeless(homelessness, homeless) if homelessness['homelessnessRisk'].present?
 
@@ -119,7 +114,8 @@ module EVSS
         if service_information_source['reservesNationalGuardService']
           transform_reserves_national_guard_service(service_information_source,
                                                     service_information)
-          reserves_national_guard_service_source = service_information_source['reservesNationalGuardService']['title10Activation']
+          reserves_national_guard_service_source =
+            service_information_source['reservesNationalGuardService']['title10Activation']
           # Title10Activation == FederalActivation
           service_information.federal_activation = Requests::FederalActivation.new(
             anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
@@ -169,6 +165,13 @@ module EVSS
       end
 
       private
+
+      def populate_te(lh_request_body)
+        te = Requests::ToxicExposure.new
+        te.gulf_war_hazard_service = Requests::GulfWarHazardService.new
+        te.gulf_war_hazard_service.served_in_gulf_war_hazard_locations = 'NO'
+        lh_request_body.toxic_exposure = te
+      end
 
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']
