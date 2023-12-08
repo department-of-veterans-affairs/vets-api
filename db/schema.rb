@@ -635,7 +635,7 @@ ActiveRecord::Schema.define(version: 2023_12_07_022820) do
 
   create_table "form_submissions", force: :cascade do |t|
     t.string "form_type", null: false
-    t.uuid "benefits_intake_uuid", null: false
+    t.uuid "benefits_intake_uuid"
     t.uuid "submitted_claim_uuid"
     t.jsonb "form_data", default: {}
     t.uuid "user_account_id"

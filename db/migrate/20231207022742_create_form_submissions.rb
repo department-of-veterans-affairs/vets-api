@@ -2,7 +2,7 @@ class CreateFormSubmissions < ActiveRecord::Migration[6.1]
   def change
     create_table :form_submissions do |t|
       t.string :form_type, null: false
-      t.uuid :benefits_intake_uuid, null: false
+      t.uuid :benefits_intake_uuid
       t.uuid :submitted_claim_uuid
       t.jsonb :form_data, default: {}
       t.references :user_account, foreign_key: true, type: :uuid
