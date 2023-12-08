@@ -234,7 +234,6 @@ FactoryBot.define do
           "view:demographic_categories": { "is_spanish_hispanic_latino": false },
           "veteran_home_address": { "country": 'USA' },
           "view:comp_desc": {},
-          "va_compensation_type": 'lowDisability',
           "last_service_branch": 'coast guard',
           "last_entry_date": '1970-07-13',
           "last_discharge_date": '1998-08-31',
