@@ -53,11 +53,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
 
       describe 'when the claimProcessType is BDD_PROGRAM' do
+        date = DateTime.now + 4.months
         let(:claim_process_type) { 'BDD_PROGRAM' }
         let(:anticipated_seperation_date) { date.strftime('%Y-%m-%d') }
         let(:active_duty_end_date) { date.strftime('%Y-%m-%d') }
-
-        date = DateTime.now + 4.months
 
         it 'maps correctly to BDD_PROGRAM_CLAIM' do
           form_attributes['claimProcessType'] = claim_process_type
