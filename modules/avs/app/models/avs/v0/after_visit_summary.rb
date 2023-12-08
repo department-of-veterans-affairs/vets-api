@@ -44,6 +44,7 @@ module Avs
       self.appointment_iens = data['appointmentIens']
       self.meta = {
         generated_date: data['generatedDate'],
+        station_no: data.dig('data', 'header', 'stationNo'),
         time_zone: data.dig('data', 'header', 'timeZone')
       }
       self.patient_info = {

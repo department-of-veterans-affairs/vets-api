@@ -163,6 +163,18 @@ RSpec.describe Form1010Ezr::Service do
           end
           expect_logger_error('10-10EZR form validation failed. Form does not match schema.')
         end
+
+        it 'increments statsd' do
+          allow(StatsD).to receive(:increment)
+
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.fail',
+                                                     tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.total')
+
+          expect do
+            submit_form(form)
+          end.to raise_error(StandardError)
+        end
       end
 
       context 'any other error' do

@@ -11,10 +11,17 @@ def swagger_doc
   "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json"
 end
 
-# rubocop:disable RSpec/VariableName
+# rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup
 RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
+
+  before do
+    mpi_response = create(:find_profile_response, profile: build(:mpi_profile))
+    allow_any_instance_of(MPI::Service)
+      .to receive(:find_profile_by_identifier)
+      .with(identifier: icn, identifier_type: MPI::Constants::ICN).and_return(mpi_response)
+  end
 
   path '/legacy-appeals' do
     get 'Returns eligible appeals in the legacy process for a Veteran.' do
@@ -30,19 +37,12 @@ RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
                     'date of declaration is within the last 60 days.'
       description description
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header].merge(
-        {
-          required: false,
-          description: 'Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-SSN: 123456789'
-        }
+      parameter(
+        parameter_from_schema('legacy_appeals/v0/params.json', 'properties', 'icn')
+          .merge({ in: :query, required: true })
       )
-      let(:'X-VA-SSN') { '123456789' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header].merge(
-        { description: 'Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-File-Number: 123456789' }
-      )
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
+      let(:icn) { '1012832025V743496' }
 
       response '200', 'Returns eligible legacy appeals for a Veteran' do
         schema '$ref' => '#/components/schemas/legacyAppeals'
@@ -65,36 +65,8 @@ RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
       response '422', 'Header Errors' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        describe 'X-VA-SSN and X-VA-File-Number both missing' do
-          let(:'X-VA-SSN') { nil }
-          let(:'X-VA-File-Number') { nil }
-
-          it_behaves_like 'rswag example',
-                          desc: 'when X-VA-SSN and X-VA-File-Number are missing',
-                          extract_desc: true,
-                          scopes:
-        end
-
-        describe 'missing X-VA-ICN' do
-          let(:'X-VA-ICN') { nil }
-
-          it_behaves_like 'rswag example',
-                          desc: 'when X-VA-ICN is missing',
-                          extract_desc: true,
-                          scopes:
-        end
-
-        describe 'malformed SSN' do
-          let(:'X-VA-SSN') { '12n-~89' }
-
-          it_behaves_like 'rswag example',
-                          desc: 'when SSN formatted incorrectly',
-                          extract_desc: true,
-                          scopes:
-        end
-
         context 'malformed ICN' do
-          let(:'X-VA-ICN') { '12345' }
+          let(:icn) { '12345' }
 
           it_behaves_like 'rswag example',
                           desc: 'when ICN formatted incorrectly',
@@ -148,4 +120,4 @@ RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
     end
   end
 end
-# rubocop:enable RSpec/VariableName
+# rubocop:enable RSpec/VariableName, RSpec/ScatteredSetup
