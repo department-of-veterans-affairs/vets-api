@@ -535,9 +535,7 @@ module ClaimsApi
                  end
           return [] if docs.nil? || docs&.dig('documents').blank?
 
-          @supporting_documents = docs['documents']
-
-          docs['documents'].map do |doc|
+          @supporting_documents = docs['documents'].map do |doc|
             doc = doc.transform_keys(&:underscore) if benefits_documents_enabled?
             upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
             {
