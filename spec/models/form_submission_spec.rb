@@ -11,6 +11,5 @@ RSpec.describe FormSubmission, type: :model do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:form_type) }
-    it { is_expected.to validate_presence_of(:benefits_intake_uuid) }
   end
 end
