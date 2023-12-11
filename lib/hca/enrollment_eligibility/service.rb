@@ -46,6 +46,7 @@ module HCA
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
+        # veteran_contacts = parse_veteran_contacts(response)
 
         OpenStruct.new(
           convert_insurance_hash(
@@ -325,6 +326,33 @@ module HCA
 
         income_year == (DateTime.now.utc.year - 1).to_s
       end
+
+      # def parse_veteran_contacts(response)
+      #   contacts = []
+      #
+      #   response.locate(
+      #     "#{XPATH_PREFIX}financialsInfo/financialStatement/dependentFinancialsList"
+      #   )[0]&.nodes&.each do |dep_node|
+      #     dependent = {
+      #       fullName: {},
+      #       socialSecurityNumber: get_locate_value(dep_node, 'dependentInfo/ssns/ssn/ssnText'),
+      #       becameDependent: get_locate_value_date(dep_node, 'dependentInfo/startDate'),
+      #       dependentRelation: get_locate_value(dep_node, 'dependentInfo/relationship').downcase.upcase_first,
+      #       disabledBefore18: get_locate_value_bool(dep_node, 'incapableOfSelfSupport'),
+      #       attendedSchoolLastYear: get_locate_value_bool(dep_node, 'attendedSchool'),
+      #       cohabitedLastYear: get_locate_value_bool(dep_node, 'livedWithPatient'),
+      #       dateOfBirth: get_locate_value_date(dep_node, 'dependentInfo/dob')
+      #     }
+      #
+      #     NAME_MAPPINGS.each do |mapping|
+      #       dependent[:fullName][mapping[0]] = get_locate_value(dep_node, "dependentInfo/#{mapping[1]}")
+      #     end
+      #
+      #     dependents << Common::HashHelpers.deep_compact(dependent)
+      #   end
+      #
+      #   dependents
+      # end
       # rubocop:enable Metrics/MethodLength
     end
   end
