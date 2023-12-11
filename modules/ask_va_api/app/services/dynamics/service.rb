@@ -32,6 +32,11 @@ module Dynamics
 
       params = { icn: }
       execute_api_call(endpoint, method, payload, params)
+    rescue ErrorHandler::ServiceError => e
+      log_error(endpoint, e.class.name)
+      [e,
+       { bearer: token(method), env: Rails.env, vsp_env: Settings.vsp_environment,
+         tenant: tenant_id.chars.first(5), base_uri: }]
     end
 
     private
@@ -49,11 +54,6 @@ module Dynamics
       response = invoke_request(endpoint, method, payload, params)
       ErrorHandler.handle(endpoint, response)
       parse_response(response.body)
-    rescue ErrorHandler::ServiceError => e
-      log_error(endpoint, e.class.name)
-      [e,
-       { bearer: token(method)&.chars&.first(5), env: Rails.env, vsp_env: Settings.vsp_environment,
-         tenant: tenant_id.chars.first(5), base_uri: }]
     end
 
     def invoke_request(endpoint, method, payload, params)
@@ -115,7 +115,12 @@ module Dynamics
           req.headers = token_headers
           req.body = URI.encode_www_form(auth_params)
         end
-        parse_response(response.body)[:access_token]
+        token = parse_response(response.body)
+        if token[:access_token]
+          token[:access_token]
+        elsif token[:error]
+          token[:error_description]
+        end
       end
     end
   end
