@@ -301,7 +301,9 @@ module VAProfile
 
       def deployed_to?(countries, date_range)
         deployments.each do |deployment|
-          deployment['deployment_locations']&.each do |location|
+          next if deployment['deployment_locations'].nil? # Skip if deployment_locations is nil
+
+          deployment['deployment_locations'].each do |location|
             location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
 
             if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)
@@ -321,7 +323,11 @@ module VAProfile
         end
 
         all_episodes.sort_by do |episode|
-          episode.end_date || (Time.zone.today + 3650)
+          if episode.end_date.blank? # Handles nil and empty string
+            Time.zone.today + 3650
+          else
+            Date.parse(episode.end_date)
+          end
         end.reverse
       end
 
