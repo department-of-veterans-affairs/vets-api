@@ -1172,7 +1172,7 @@ RSpec.describe 'Claims', type: :request do
 
           it "returns a claim with 'tracked_items'" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('evss/documents/get_claim_documents_with_tracked_item_ids') do
+              VCR.use_cassette('bgs/tracked_item_service/get_claim_documents_with_tracked_item_ids') do
                 VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
                   allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
 
