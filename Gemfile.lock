@@ -24,13 +24,13 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: 4a1e3ca30bd3a9df857534089a41c93236d51c73
+  revision: 8233129def00c29b33e56ac5ad6d08f5442d665c
   branch: master
   specs:
-    betamocks (0.10.0)
+    betamocks (0.11.0)
       activesupport (>= 4.2)
       adler32
-      faraday (>= 1, < 2.0)
+      faraday (>= 1.2.0, < 3.0)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
@@ -258,8 +258,8 @@ GEM
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     brakeman (6.1.0)
-    breakers (0.6.0)
-      faraday (>= 0.7.4, < 2.0)
+    breakers (0.7.1)
+      faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
     brow (0.4.1)
     builder (3.2.4)

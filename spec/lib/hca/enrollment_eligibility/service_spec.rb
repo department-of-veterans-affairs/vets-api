@@ -91,8 +91,8 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when the user's financial info is submitted during the current calendar year" do
-      before { Timecop.freeze(DateTime.new(2022, 2, 3)) }
+    context "when the user's financial info has already been submitted for the prior calendar year" do
+      before { Timecop.freeze(DateTime.new(2023, 2, 3)) }
       after { Timecop.return }
 
       it "sets the 'can_submit_financial_info' key to false", run_at: 'Mon, 04 Dec 2023 22:32:14 GMT' do
