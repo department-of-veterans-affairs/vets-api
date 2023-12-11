@@ -32,6 +32,11 @@ module Dynamics
 
       params = { icn: }
       execute_api_call(endpoint, method, payload, params)
+    rescue ErrorHandler::ServiceError => e
+      log_error(endpoint, e.class.name)
+      [e,
+       { bearer: token(method), env: Rails.env, vsp_env: Settings.vsp_environment,
+         tenant: tenant_id.chars.first(5), base_uri: }]
     end
 
     private
@@ -49,15 +54,12 @@ module Dynamics
       response = invoke_request(endpoint, method, payload, params)
       ErrorHandler.handle(endpoint, response)
       parse_response(response.body)
-    rescue ErrorHandler::ServiceError => e
-      log_error(endpoint, e.class.name)
-      [e, { bearer: token(method, endpoint)&.chars&.first(5), env: Rails.env, tenant: tenant_id.chars.first(5) }]
     end
 
     def invoke_request(endpoint, method, payload, params)
       logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
         conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
-          req.headers = default_header.merge('Authorization' => "Bearer #{token(method, endpoint)}")
+          req.headers = default_header.merge('Authorization' => "Bearer #{token(method)}")
         end
       end
     end
@@ -107,13 +109,18 @@ module Dynamics
       }
     end
 
-    def token(method, endpoint)
-      logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
+    def token(method)
+      logger.call("api_call.#{method}", tags: build_tags("/#{tenant_id}/oauth2/token")) do
         response = conn(url: auth_url).post("/#{tenant_id}/oauth2/token") do |req|
           req.headers = token_headers
           req.body = URI.encode_www_form(auth_params)
         end
-        parse_response(response.body)[:access_token]
+        token = parse_response(response.body)
+        if token[:access_token]
+          token[:access_token]
+        elsif token[:error]
+          token[:error_description]
+        end
       end
     end
   end
