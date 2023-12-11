@@ -25,6 +25,10 @@ module Rx
       Settings.mhv.rx.app_token
     end
 
+    def app_token_va_gov
+      Settings.mhv.rx.app_token_va_gov
+    end
+
     ##
     # @return [String] Base path for dependent URLs
     #
