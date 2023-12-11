@@ -341,7 +341,6 @@ module HCA
       #       disabledBefore18: get_locate_value_bool(dep_node, 'incapableOfSelfSupport'),
       #       attendedSchoolLastYear: get_locate_value_bool(dep_node, 'attendedSchool'),
       #       cohabitedLastYear: get_locate_value_bool(dep_node, 'livedWithPatient'),
-      #       dateOfBirth: get_locate_value_date(dep_node, 'dependentInfo/dob')
       #     }
       #
       #     NAME_MAPPINGS.each do |mapping|
