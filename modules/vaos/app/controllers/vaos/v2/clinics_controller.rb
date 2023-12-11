@@ -73,6 +73,7 @@ module VAOS
 
       def log_clinic_info(clinic_data)
         clinic_data.each do |clinic|
+          binding.pry
           clinic_info = get_clinic_info(clinic)
           Rails.logger.info('VAOS Clinic info: ', clinic_info.to_json) unless clinic_info.values.all?(&:nil?)
         end
@@ -83,7 +84,9 @@ module VAOS
           stationId: clinic.station_id,
           serviceName: clinic.service_name,
           primaryStopCode: clinic.primary_stop_code,
-          secondaryStopCode: clinic.secondary_stop_code
+          primaryStopCodeName: clinic.primary_stop_code_name,
+          secondaryStopCode: clinic.secondary_stop_code,
+          secondaryStopCodeName: clinic.secondary_stop_code_name
         }
       end
 
