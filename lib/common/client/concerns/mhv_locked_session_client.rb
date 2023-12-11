@@ -20,7 +20,7 @@ module Common
         include SentryLogging
 
         LOCK_RETRY_DELAY = 1 # Number of seconds to wait between attempts to acquire a session lock
-        RETRY_ATTEMPTS = 10 # How many times to attempt to acquire a session lock
+        RETRY_ATTEMPTS = 11 # How many times to attempt to acquire a session lock
 
         attr_reader :session
 
@@ -64,6 +64,8 @@ module Common
         class_methods do
           ##
           # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
+          # @return [Rx::ClientSession] if an Rx (Prescription) client session
+          # @return [SM::ClientSession] if a SM (Secure Messaging) client session
           #
           def client_session(klass = nil)
             @client_session ||= klass
@@ -102,7 +104,7 @@ module Common
         end
 
         def obtain_redis_lock
-          lock_key = "mhv_fhir_session_lock:#{user_key}"
+          lock_key = "mhv_session_lock:#{user_key}"
           redis_lock = Redis::Namespace.new(REDIS_CONFIG[session_config_key][:namespace], redis: $redis)
           success = redis_lock.set(lock_key, 1, nx: true, ex: REDIS_CONFIG[session_config_key][:each_ttl])
 
@@ -112,7 +114,7 @@ module Common
         end
 
         def release_redis_lock(redis_lock)
-          lock_key = "mhv_fhir_session_lock:#{user_key}"
+          lock_key = "mhv_session_lock:#{user_key}"
           redis_lock.del(lock_key)
         end
       end
