@@ -1941,3 +1941,4 @@ spec/lib/va_profile/health_benefit/service_spec.rb @department-of-veterans-affai
 lib/logging/third_party_transaction.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/logging/third_party_transaction_spec.rb @department-of-veterans-affairs/backend-review-group
 Brewfile @department-of-veterans-affairs/backend-review-group
+docker-compose-deps.yml @department-of-veterans-affairs/backend-review-group
