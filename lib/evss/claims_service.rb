@@ -15,6 +15,11 @@ module EVSS
 
     def all_claims
       get 'vbaClaimStatusService/getClaims'
+    rescue => e
+      Rails.logger.error('Failed to retrieve benefit claims data from EVSS all_claims', headers: @headers,
+                                                                                        class: self.class.name,
+                                                                                        error: e.message)
+      raise EVSS::ErrorMiddleware::EVSSError.new(message: e.message.to_s)
     end
 
     # GETs a user's claim information
