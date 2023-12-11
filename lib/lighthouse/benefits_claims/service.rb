@@ -31,10 +31,10 @@ module BenefitsClaims
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-      rescue Faraday::TimeoutError
-        raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-      rescue Faraday::ClientError, Faraday::ServerError => e
-        handle_error(e, lighthouse_client_id, 'benefits_claims/get_claim')
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, lighthouse_client_id, 'benefits_claims/get_claim')
     end
 
     def submit5103(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
