@@ -53,7 +53,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
 
       describe 'when the claimProcessType is BDD_PROGRAM' do
+        date = DateTime.now + 4.months
         let(:claim_process_type) { 'BDD_PROGRAM' }
+        let(:anticipated_seperation_date) { date.strftime('%Y-%m-%d') }
+        let(:active_duty_end_date) { date.strftime('%Y-%m-%d') }
 
         it 'maps correctly to BDD_PROGRAM_CLAIM' do
           form_attributes['claimProcessType'] = claim_process_type
@@ -61,6 +64,42 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
           claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
           expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
+        end
+
+        it 'maps anticipatedSeparationDate correctly' do
+          form_attributes['claimProcessType'] = claim_process_type
+          form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+            anticipated_seperation_date
+          mapper.map_claim
+
+          date_of_release_from_active_duty =
+            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
+          expect(date_of_release_from_active_duty).to eq({ year: date.strftime('%Y'), month: date.strftime('%m'),
+                                                           day: date.strftime('%d') })
+        end
+
+        it 'maps activeDutyEndDate correctly' do
+          form_attributes['claimProcessType'] = claim_process_type
+          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = active_duty_end_date
+          mapper.map_claim
+
+          date_of_release_from_active_duty =
+            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
+          expect(date_of_release_from_active_duty).to eq({ year: date.strftime('%Y'), month: date.strftime('%m'),
+                                                           day: date.strftime('%d') })
+        end
+
+        it 'maps activeDutyEndDate correctly when federalActivation & activeDutyBeginDate are nil' do
+          form_attributes['claimProcessType'] = claim_process_type
+          form_attributes['serviceInformation']['federalActivation'] = nil
+          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] = nil
+          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = active_duty_end_date
+          mapper.map_claim
+
+          date_of_release_from_active_duty =
+            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
+          expect(date_of_release_from_active_duty).to eq({ year: date.strftime('%Y'), month: date.strftime('%m'),
+                                                           day: date.strftime('%d') })
         end
       end
     end

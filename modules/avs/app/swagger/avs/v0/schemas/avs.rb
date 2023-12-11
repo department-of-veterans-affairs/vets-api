@@ -15,6 +15,11 @@ module Avs
         property :appointmentIens, type: :array do
           items type: :string
         end
+        property :meta, type: :object do
+          property :generatedDate, type: :string
+          property :stationNo, type: :string
+          property :timeZone, type: :string
+        end
         property :clinicsVisited do
           key :$ref, :clinicVisited
         end
