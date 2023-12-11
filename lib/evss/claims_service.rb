@@ -21,7 +21,7 @@ module EVSS
                                                                                         error: e.message)
       case e
       when Breakers::OutageException
-        raise Breakers::OutageException(e.outage, e.service)
+        raise Breakers::OutageException.new(e.outage, e.service)
       else
         raise EVSS::ErrorMiddleware::EVSSError.new(message: e.message.to_s)
       end
