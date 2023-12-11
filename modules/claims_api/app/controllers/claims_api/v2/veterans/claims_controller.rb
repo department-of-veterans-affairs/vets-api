@@ -483,7 +483,7 @@ module ClaimsApi
         end
 
         def supporting_document?(id)
-          @supporting_documents.find { |doc| doc['tracked_item_id'] == id.to_i }.present?
+          @supporting_documents.find { |doc| doc[:tracked_item_id] == id.to_i }.present?
         end
 
         def find_tracked_item(id)
