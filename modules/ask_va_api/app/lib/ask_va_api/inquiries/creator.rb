@@ -13,6 +13,7 @@ module AskVAApi
 
       def call(params:)
         post_data(payload: { params: })
+        { message: 'Inquiry has been created', status: :ok }
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
