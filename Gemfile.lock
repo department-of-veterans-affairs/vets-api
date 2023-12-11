@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: cbff1da81e28edc6157931e1e1e53f2ad102e6bd
+  revision: 6b17e3975a42babafa14f4cfb9db7e376cd7fafe
   branch: master
   specs:
-    vets_json_schema (20.32.0)
+    vets_json_schema (20.33.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -258,8 +258,8 @@ GEM
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     brakeman (6.1.0)
-    breakers (0.6.0)
-      faraday (>= 0.7.4, < 2.0)
+    breakers (0.7.1)
+      faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
     brow (0.4.1)
     builder (3.2.4)
