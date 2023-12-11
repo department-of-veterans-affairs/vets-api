@@ -37,7 +37,7 @@ describe 'EvidenceWaiver5103',
                 in: :query,
                 required: false,
                 type: :string,
-                example: '1012667145V762142',
+                example: '1012861229V078999',
                 description: 'ICN of the veteran affiliated with the dependent'
       let(:id) { '256803' }
       let(:Authorization) { 'Bearer token' }
@@ -56,12 +56,14 @@ describe 'EvidenceWaiver5103',
           let(:scopes) { %w[system/claim.write] }
 
           before do |example|
+            bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
+            expect_any_instance_of(ClaimsApi::LocalBGS)
+              .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
+
             mock_ccg(scopes) do
-              VCR.use_cassette('bgs/benefit_claim/update_5103_200', erb: true) do
-                allow_any_instance_of(ClaimsApi::LocalBGS)
-                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
-                submit_request(example.metadata)
-              end
+              allow_any_instance_of(ClaimsApi::LocalBGS)
+                .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+              submit_request(example.metadata)
             end
           end
 
