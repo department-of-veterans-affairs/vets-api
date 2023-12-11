@@ -148,7 +148,7 @@ module MebApi
         first_name = form_data.dig('claimant', 'first_name')&.upcase.presence
 
         if email.present?
-          MebApi::V0::Submit1990MEBFormConfirmation.perform_async(
+          MebApi::V0::Submit1990mebFormConfirmation.perform_async(
             @current_user.uuid, email, first_name
           )
         end

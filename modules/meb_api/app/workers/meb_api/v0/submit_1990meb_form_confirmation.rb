@@ -6,7 +6,7 @@ require 'dgi/status/service'
 
 module MebApi
   module V0
-    class Submit1990MEBFormConfirmation
+    class Submit1990mebFormConfirmation
       include Sidekiq::Worker
       include SentryLogging
       sidekiq_options retry: 14
