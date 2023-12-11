@@ -8188,6 +8188,413 @@
           "required": true
         }
       }
+    },
+    "/veterans/{veteranId}/power-of-attorney": {
+      "get": {
+        "summary": "Find current Power of Attorney for a Veteran.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "findPowerOfAttorney",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Retrieves current Power of Attorney for Veteran.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a current Power of Attorney",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "A1Q",
+                  "name": "Firstname Lastname",
+                  "phone": {
+                    "number": "555-555-5555"
+                  },
+                  "type": "individual"
+                },
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Power of Attorney Code currently assigned to Veteran"
+                    },
+                    "name": {
+                      "description": "Name of individual representative or organization",
+                      "type": "string",
+                      "example": "Jane Smith"
+                    },
+                    "type": {
+                      "description": "Type of representative, organization or individual",
+                      "type": "string",
+                      "example": "individual"
+                    },
+                    "phone": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "number": {
+                          "description": "Phone number of representative. Can be organization or individual phone number.",
+                          "type": "string",
+                          "example": "555-555-5555"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful response with no current Power of Attorney",
+            "content": {
+              "application/json": {
+                "example": ""
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/2122a/validate": {
+      "post": {
+        "summary": "Validates a 2122a form submission.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "post2122aValidate",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Validates a request appointing an individual as Power of Attorney (21-22a).\n",
+        "responses": {
+          "200": {
+            "description": "Valid request response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/2122a": {
+      "post": {
+        "summary": "Appoint an individual as Power of Attorney.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "post2122a",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Validates a request appointing an individual as Power of Attorney (21-22a).\n",
+        "responses": {
+          "200": {
+            "description": "Valid request response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/2122/validate": {
+      "post": {
+        "summary": "Validates a 2122 form submission.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "post2122Validate",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Validates a request appointing an organization as Power of Attorney (21-22).\n",
+        "responses": {
+          "200": {
+            "description": "Valid request response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/2122": {
+      "post": {
+        "summary": "Appoint an organization as Power of Attorney",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "post2122",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Validates a request appointing an organization as Power of Attorney (21-22).\n",
+        "responses": {
+          "200": {
+            "description": "Valid request response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/power-of-attorney/{id}": {
+      "get": {
+        "summary": "Checks status of Power of Attorney appointment form submission",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "getPowerOfAttorneyStatus",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "example": "12e13134-7229-4e44-90ae-bcea2a4525fa",
+            "description": "Power of Attorney appointment request id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)\n",
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
     }
   },
   "servers": [
