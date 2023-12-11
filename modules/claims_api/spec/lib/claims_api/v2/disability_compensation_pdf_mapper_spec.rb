@@ -88,6 +88,19 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           expect(date_of_release_from_active_duty).to eq({ year: date.strftime('%Y'), month: date.strftime('%m'),
                                                            day: date.strftime('%d') })
         end
+
+        it 'maps activeDutyEndDate correctly when federalActivation & activeDutyBeginDate are nil' do
+          form_attributes['claimProcessType'] = claim_process_type
+          form_attributes['serviceInformation']['federalActivation'] = nil
+          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] = nil
+          form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] = active_duty_end_date
+          mapper.map_claim
+
+          date_of_release_from_active_duty =
+            pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty]
+          expect(date_of_release_from_active_duty).to eq({ year: date.strftime('%Y'), month: date.strftime('%m'),
+                                                           day: date.strftime('%d') })
+        end
       end
     end
 
