@@ -116,11 +116,7 @@ module Dynamics
           req.body = URI.encode_www_form(auth_params)
         end
         token = parse_response(response.body)
-        if token[:access_token]
-          token[:access_token]
-        elsif token[:error]
-          token[:error_description]
-        end
+        token[:access_token] || token
       end
     end
   end
