@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe FormSubmissionAttempt, type: :model do
+  describe 'associations' do
+    it { is_expected.to belong_to(:form_submission) }
+  end
+  
   describe 'state machine' do
     it 'transitions to a failure state' do
       form_submission_attempt = create(:form_submission_attempt)
