@@ -3,9 +3,7 @@
 require 'map/security_token/service'
 
 module V0
-  class MapServicesController < SignIn::ApplicationController
-    skip_before_action :authenticate
-    before_action :authenticate_service_account
+  class MapServicesController < SignIn::ServiceAccountApplicationController
 
     # POST /v0/map_services/:application/token
     def token
