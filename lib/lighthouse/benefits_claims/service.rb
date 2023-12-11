@@ -94,17 +94,19 @@ module BenefitsClaims
       endpoint = 'benefits_claims/form/526'
       path = "#{@icn}/526"
 
+      debugger
+
       # if we're coming straight from the transformation service without
       # making this a jsonapi request body first ({data: {type:, attributes}}),
       # this will put it in the correct format for transmission
-      if body['attributes'].blank?
-        body = {
-          data: {
-            type: 'form/526',
-            attributes: body
-          }
-        }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
-      end
+      # if body['attributes'].blank?
+      body = {
+        data: {
+          type: 'form/526',
+          attributes: body
+        }
+      }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+      # end
 
       # TODO: determine why camelcasing is malfunctioning for this field and revisit the below
       fix_current_va_employee(body)
@@ -123,9 +125,12 @@ module BenefitsClaims
     private
 
     def fix_current_va_employee(body)
-      body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
-        body['data']['attributes']['veteranIdentification']['currentVAEmployee']
-      body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      # debugger
+      if body.dig('data', 'attributes', 'veteranIdentification')&.select { | x | x['currentVAEmployee'] }&.key?('currentVAEmployee')
+        body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+          body['data']['attributes']['veteranIdentification']['currentVAEmployee']
+        body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
     end
 
     def submit_response(response, body_only)
