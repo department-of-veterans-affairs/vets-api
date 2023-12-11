@@ -997,6 +997,7 @@ rakelib/remove_va1995s_records.rake @department-of-veterans-affairs/govcio-vfep-
 rakelib/routes_csv.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/rswag.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/security.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+rakelib/service_tags.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/support/shell_command.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/support/vic_load_test.rb @department-of-veterans-affairs/vsp-identity
 rakelib/test_user_account.rake @department-of-veterans-affairs/vsp-identity
