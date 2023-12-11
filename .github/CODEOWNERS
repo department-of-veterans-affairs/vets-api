@@ -1027,6 +1027,7 @@ spec/controllers/application_controller_spec.rb @department-of-veterans-affairs/
 spec/controllers/concerns/third_party_transaction_logging_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/controllers/inherited_proofing_controller_spec.rb @department-of-veterans-affairs/vsp-identity
 spec/controllers/sign_in @department-of-veterans-affairs/vsp-identity
+spec/controllers/v0/account_controls_controller_spec.rb @department-of-veterans-affairs/vsp-identity
 spec/controllers/v0/apps_controller_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/controllers/v0/ask_va @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/benefits_claims_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
