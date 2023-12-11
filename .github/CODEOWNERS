@@ -1942,3 +1942,7 @@ lib/logging/third_party_transaction.rb @department-of-veterans-affairs/backend-r
 spec/lib/logging/third_party_transaction_spec.rb @department-of-veterans-affairs/backend-review-group
 Brewfile @department-of-veterans-affairs/backend-review-group
 docker-compose-deps.yml @department-of-veterans-affairs/backend-review-group
+docker-compose.review.yml @department-of-veterans-affairs/backend-review-group
+docker-compose.test.yml @department-of-veterans-affairs/backend-review-group
+docker-compose.yml @department-of-veterans-affairs/backend-review-group
+docs/setup/native.md @department-of-veterans-affairs/backend-review-group
