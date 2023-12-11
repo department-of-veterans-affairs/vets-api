@@ -3,17 +3,25 @@
 require 'bgs'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
+require 'claims_api/dependent_service'
 
 module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
-        before_action :file_number_check
-
         def submit
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
+
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if bgs_claim.blank?
+
+          if dependent_service(bgs_claim).dependent_type_claim? && params[:sponsorIcn].blank?
+            claim_type = bgs_claim&.dig(:benefit_claim_details_dto, :bnft_claim_type_cd)
+            detail = "SponsorICN is required for claim type #{claim_type}"
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:)
+          end
+          file_number_check(icn: params[:sponsorIcn])
 
           if @file_number.nil?
             claims_v2_logging('EWS_submit', level: :error,
@@ -24,10 +32,6 @@ module ClaimsApi
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
           end
 
-          if lighthouse_claim.blank? && bgs_claim.blank?
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
-          end
-
           ews = create_ews(params[:id])
           ClaimsApi::EvidenceWaiverBuilderJob.perform_async(ews.id)
 
@@ -35,6 +39,10 @@ module ClaimsApi
         end
 
         private
+
+        def dependent_service(bgs_claim = nil)
+          ClaimsApi::DependentService.new(bgs_claim:)
+        end
 
         def create_ews(claim_id)
           attributes = {
