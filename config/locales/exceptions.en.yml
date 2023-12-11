@@ -501,12 +501,17 @@ en:
         <<: *external_defaults
         code: "MEDICALRECORDS_401"
         detail: "Authentication failed on the upstream server"
-        status: 401
+        status: 400
       MEDICALRECORDS_403:
         <<: *external_defaults
         code: "MEDICALRECORDS_403"
         detail: "This user is forbidden from performing requests on the upstream server"
         status: 403
+      MEDICALRECORDS_404:
+        <<: *external_defaults
+        code: "MEDICALRECORDS_404"
+        detail: "The resource could not be found"
+        status: 404
       HCA422:
         <<: *external_defaults
         code: 'HCA422'
