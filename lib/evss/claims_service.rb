@@ -19,7 +19,12 @@ module EVSS
       Rails.logger.error('Failed to retrieve benefit claims data from EVSS all_claims', headers: @headers,
                                                                                         class: self.class.name,
                                                                                         error: e.message)
-      raise EVSS::ErrorMiddleware::EVSSError.new(message: e.message.to_s)
+      case e
+      when Breakers::OutageException
+        raise Breakers::OutageException(e.outage, e.service)
+      else
+        raise EVSS::ErrorMiddleware::EVSSError.new(message: e.message.to_s)
+      end
     end
 
     # GETs a user's claim information
