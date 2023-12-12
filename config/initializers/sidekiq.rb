@@ -57,6 +57,10 @@ Rails.application.reloader.to_prepare do
     end
 
     # Remove the default error handler
-    config.error_handlers.delete_if { |handler| handler.is_a?(Sidekiq::ExceptionHandler::Logger) }
+    # The previous code was resulting in a Rails.logger error
+    # This corrects it.
+    config.error_handlers.delete(Sidekiq::Config::ERROR_HANDLER)
   end
+
+  Sidekiq.strict_args!(false)
 end
