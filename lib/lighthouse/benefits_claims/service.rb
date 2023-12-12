@@ -105,7 +105,8 @@ module BenefitsClaims
         }
       }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
 
-      # TODO: determine why camelcasing is malfunctioning for this field and revisit the below
+      # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
+      # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
       fix_current_va_employee(body)
 
       response = config.post(
@@ -122,8 +123,8 @@ module BenefitsClaims
     private
 
     def fix_current_va_employee(body)
-      if body.dig('data', 'attributes', 'veteranIdentification')&.select do |x|
-           x['currentVAEmployee']
+      if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
+        field['currentVAEmployee']
          end&.key?('currentVAEmployee')
         body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
           body['data']['attributes']['veteranIdentification']['currentVAEmployee']
