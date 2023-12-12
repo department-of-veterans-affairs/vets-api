@@ -29,7 +29,6 @@ app/controllers/facilities_controller.rb @department-of-veterans-affairs/vfs-fac
 app/controllers/flipper_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/gids_controller.rb @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/inherited_proofing_controller.rb @department-of-veterans-affairs/vsp-identity
-app/controllers/openid_application_controller.rb @department-of-veterans-affairs/lighthouse-pivot
 app/controllers/preneeds_controller.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/rx_controller.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/sign_in @department-of-veterans-affairs/vsp-identity
@@ -286,7 +285,6 @@ app/models/okta_redis/model.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/okta_redis/profile.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/old_email.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/onsite_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/opaque_token.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/openid_user_identity.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/openid_user.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
@@ -327,7 +325,6 @@ app/models/single_logout_request.rb @department-of-veterans-affairs/vsp-identity
 app/models/spool_file_event.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/supporting_evidence_attachment.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/terms_of_use_agreement.rb @department-of-veterans-affairs/vsp-identity
-app/models/token.rb @department-of-veterans-affairs/vsp-identity
 app/models/transaction_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/triage_team.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/all_triage_teams.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1014,7 +1011,6 @@ spec/config/initializers/staccato_spec.rb @department-of-veterans-affairs/vfs-10
 spec/controllers/application_controller_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/concerns/third_party_transaction_logging_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/controllers/inherited_proofing_controller_spec.rb @department-of-veterans-affairs/vsp-identity
-spec/controllers/openid_application_controller_spec.rb @department-of-veterans-affairs/vsp-identity
 spec/controllers/sign_in @department-of-veterans-affairs/vsp-identity
 spec/controllers/v0/apps_controller_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/controllers/v0/ask_va @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1355,8 +1351,6 @@ spec/lib/mhv_ac @department-of-veterans-affairs/vfs-health-modernization-initiat
 spec/lib/mhv_ac/client_spec.rb @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv_logging @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/mpi @department-of-veterans-affairs/vsp-identity
-spec/lib/oidc @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/oidc/key_service_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/okta @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/okta/configuration_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/okta/directory_service_spec.rb @department-of-veterans-affairs/lighthouse-pivot
