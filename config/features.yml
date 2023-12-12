@@ -525,6 +525,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  form2010206:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 20-10206
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
