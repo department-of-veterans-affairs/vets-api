@@ -39,6 +39,8 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
+        # collect errors and pass back to the controller
+        raise_error_collection
       end
 
       def validate_form_526_change_of_address!
@@ -744,11 +746,13 @@ module ClaimsApi
         # if one is present both need to be present
         raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
         raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
-
-        if Date.strptime(tos_start_date, '%Y-%m-%d') > Date.strptime(tos_end_date, '%Y-%m-%d')
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Terms of service begin date must be before the terms of service end date.'
-          )
+        if tos_start_date.present? && tos_end_date.presnt?
+          if Date.strptime(tos_start_date, '%Y-%m-%d') > Date.strptime(tos_end_date, '%Y-%m-%d')
+            collect_error_messages(
+              detail: 'Terms of service begin date must be before the terms of service end date.',
+              source: '/serviceInformation/reservesNationalGuardService/obligationTermsOfService'
+            )
+          end
         end
       end
 
@@ -844,18 +848,24 @@ module ClaimsApi
         account_number = direct_deposit_account_vals&.dig('accountNumber')
         routing_number = direct_deposit_account_vals&.dig('routingNumber')
 
-        form_object_desc = 'direct deposit'
-
         if account_type.blank? || valid_account_types.exclude?(account_type)
-          raise_exception_if_value_not_present('account type (CHECKING/SAVINGS)', form_object_desc)
+          collect_error_messages(detail: 'invalid, account types are missing or blank',
+                                 source: '/directDeposit/accountType')
         end
-        raise_exception_if_value_not_present('account number', form_object_desc) if account_number.blank?
-        raise_exception_if_value_not_present('routing number', form_object_desc) if routing_number.blank?
+        if account_number.blank?
+          collect_error_messages(detail: 'invalid, account number is missing or blank',
+                                 source: '/directDeposit/accountNumber')
+        end
+        if routing_number.blank?
+          collect_error_messages(detail: 'invalid, routing number is missing or blank',
+                                 source: '/directDeposit/routingNumber')
+        end
       end
 
       def raise_exception_if_value_not_present(val, form_obj_description)
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "The #{val} is required for #{form_obj_description}."
+        collect_error_messages(
+          detail: "The #{val} is required for #{form_obj_description}.",
+          source: form_obj_description
         )
       end
 
@@ -974,6 +984,21 @@ module ClaimsApi
         raise ::Common::Exceptions::UnprocessableEntity.new(
           detail: "#{date} is not a valid date for #{property}."
         )
+      end
+
+      def errors_array
+        @errors ||= []
+      end
+
+      def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
+                                 title: 'Unprocessable Entity', status: 422.to_s)
+        errors_array.push({ detail:, source:, title:, status: })
+      end
+
+      def raise_error_collection
+        return if errors_array.nil?
+
+        errors_array
       end
     end
   end

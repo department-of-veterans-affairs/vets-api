@@ -24,10 +24,12 @@ module ClaimsApi
                         ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
                         ::Common::Exceptions::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::InvalidFieldValue,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::InvalidFieldValue do |err|
                           render_error(err)
                         end
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
+              render_json_error(err)
+            end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
               render_json_error(
                 ::ClaimsApi::Common::Exceptions::Lighthouse::JsonValidationError.new(err.to_json_api)

@@ -41,11 +41,11 @@ module ClaimsApi
           end
           save_auto_claim!(auto_claim)
 
-          if auto_claim.errors.present?
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: auto_claim.errors.messages.to_s
-            )
-          end
+          # if auto_claim.errors.present?
+          #   raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+          #     detail: auto_claim.errors.messages.to_s
+          #   )
+          # end
 
           track_pact_counter auto_claim
 
@@ -115,7 +115,10 @@ module ClaimsApi
 
         def shared_validation
           validate_json_schema
-          validate_form_526_submission_values!(target_veteran)
+          error = validate_form_526_submission_values!(target_veteran)
+          if error.present?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, error
+          end
         end
 
         def documents_service(params, claim)

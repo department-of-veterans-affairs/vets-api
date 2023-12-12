@@ -13,7 +13,15 @@ describe ApplicationController, type: :controller do
     skip_before_action :authenticate
 
     def raise_unprocessable_entity
-      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(detail: 'Test 422')
+      errors_array =
+        [
+          { detail: 'invalid, account number is missing or blank', source: '/directDeposit/accountNumber',
+            title: 'Unprocessable Entity', status: '422' },
+          { detail: 'invalid, routing number is missing or blank',
+            source: '/directDeposit/routingNumber', title: 'Unprocessable Entity', status: '422' }
+        ]
+
+      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, errors_array
     end
 
     def raise_resource_not_found
@@ -55,9 +63,9 @@ describe ApplicationController, type: :controller do
       expect(response).to have_http_status(:unprocessable_entity)
 
       parsed_body = JSON.parse(response.body)
-      expect(parsed_body['errors'].size).to eq(1)
-      expect(parsed_body['errors'][0]['title']).to eq('Unprocessable entity')
-      expect(parsed_body['errors'][0]['detail']).to eq('Test 422')
+      expect(parsed_body['errors'].size).to eq(2)
+      expect(parsed_body['errors'][0]['title']).to eq('Unprocessable Entity')
+      expect(parsed_body['errors'][0]['detail']).to eq('invalid, account number is missing or blank')
       expect(parsed_body['errors'][0]['status']).to eq('422')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
       expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
