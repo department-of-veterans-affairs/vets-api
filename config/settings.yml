@@ -136,7 +136,7 @@ fsr:
 
 review_instance_slug: ~
 
-sidekiq_admin_panel: false
+sidekiq_admin_panel: true
 
 salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
