@@ -100,7 +100,18 @@
                     "personal_information": { "type": "boolean" },
                     "rating_info": { "type": "boolean" },
                     "appeals": { "type": "boolean" },
-                    "medical_copays": { "type": "boolean" }
+                    "medical_copays": { "type": "boolean" },
+                    "form526_required_identifier_presence": {
+                      "type": "object",
+                      "properties": {
+                        "participant_id": { "type": "boolean" },
+                        "birls_id": { "type": "boolean" },
+                        "ssn": { "type": "boolean" },
+                        "birth_date": { "type": "boolean" },
+                        "edipi": { "type": "boolean" }
+                      },
+                      "required": ["participant_id", "birls_id", "ssn", "birth_date", "edipi"]
+                    }
                   }
                 }
               }
