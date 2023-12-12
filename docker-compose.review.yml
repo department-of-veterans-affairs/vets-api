@@ -4,7 +4,7 @@ services:
     image: redis:5.0-alpine
     restart: unless-stopped
   postgres:
-    image: postgis/postgis:14-3.3-alpine
+    image: mdillon/postgis:11-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
