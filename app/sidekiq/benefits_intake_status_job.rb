@@ -1,22 +1,23 @@
 # frozen_string_literal: true
 
+require 'benefits_intake_service/service'
+
 class BenefitsIntakeStatusJob
   include Sidekiq::Job
 
   def perform
     pending_form_submission_ids = FormSubmission
                                   .joins(:form_submission_attempts)
-                                  .where('form_submission_attempt.aasm_state = pending')
+                                  .where('form_submission_attempts.aasm_state = ?', 'pending')
                                   .map(&:benefits_intake_uuid)
-    response = BenefitsIntakeService::Service.get_bulk_status_of_uploads(pending_form_submission_ids)
+    response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
     handle_response(response)
   end
 
   private
 
   def handle_response(response)
-    parsed_response = JSON.parse(response.body['data'])
-    parsed_response.each do |submission|
+    response.body['data'].each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
         handle_failure(submission)
       elsif submission.dig('attributes', 'status') == 'vbms'
@@ -32,7 +33,7 @@ class BenefitsIntakeStatusJob
                               .where(aasm_state: 'pending')
                               .order(created_at: :asc)
                               .last
-    form_submission_attempt.fail
+    form_submission_attempt.fail!
   end
 
   def handle_success(submission)
@@ -42,6 +43,6 @@ class BenefitsIntakeStatusJob
                               .where(aasm_state: 'pending')
                               .order(created_at: :asc)
                               .last
-    form_submission_attempt.succeed
+    form_submission_attempt.succeed!
   end
 end
