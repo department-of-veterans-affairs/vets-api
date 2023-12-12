@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/vba_documents/v1/uploads/report
+    body:
+      encoding: UTF-8
+      string: '{"ids":[null,null]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Tue, 12 Dec 2023 20:19:31 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '45'
+      Connection:
+      - keep-alive
+      Www-Authenticate:
+      - Key realm="kong"
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message":"No API key found in request"
+        }
+  recorded_at: Tue, 12 Dec 2023 20:19:31 GMT
+recorded_with: VCR 6.2.0

@@ -8,14 +8,13 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       it 'submits only pending form submissions' do
         pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
         create_list(:form_submission, 2, :success)
-        create_list(:form_submission, 2, :error)
-        allow_any_instance_of(BenefitsIntakeService::Service).to receive(:get_bulk_status_of_uploads)
-          .with(pending_form_submission_ids)
+        create_list(:form_submission, 2, :failure)
+        response = double
+        allow(response).to receive(:body).and_return({ 'data' => [] })
+        expect_any_instance_of(BenefitsIntakeService::Service).to receive(:get_bulk_status_of_uploads)
+          .with(pending_form_submission_ids).and_return(response)
 
         BenefitsIntakeStatusJob.new.perform
-
-        expect_any_instance_of(BenefitsIntakeService::Service).to have_recieved(:get_bulk_status_of_uploads)
-          .with(pending_form_submission_ids)
       end
     end
 
@@ -39,7 +38,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
           BenefitsIntakeStatusJob.new.perform
 
           pending_form_submissions.reload.each do |form_submission|
-            expect(form_submission.status).to eq :error
+            expect(form_submission.status).to eq :failure
           end
         end
       end
