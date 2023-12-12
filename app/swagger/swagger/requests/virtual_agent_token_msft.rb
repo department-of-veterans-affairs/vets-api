@@ -2,7 +2,7 @@
 
 module Swagger
   module Requests
-    class VirtualAgentToken
+    class VirtualAgentTokenMsft
       include Swagger::Blocks
 
       swagger_path '/v0/virtual_agent_token_msft' do
