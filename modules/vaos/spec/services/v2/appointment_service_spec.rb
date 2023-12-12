@@ -976,6 +976,7 @@ describe VAOS::V2::AppointmentsService do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
     let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+    let(:avs_error_message) { 'Error retrieving AVS link' }
 
     context 'when AVS successfully retrieved the AVS link' do
       it 'fetches the avs link and updates the appt hash' do
@@ -991,7 +992,7 @@ describe VAOS::V2::AppointmentsService do
           .and_raise(Common::Exceptions::BackendServiceException)
         expect(Rails.logger).to receive(:error)
         subject.send(:fetch_avs_and_update_appt_body, appt)
-        expect(appt[:avs_path]).to be_nil
+        expect(appt[:avs_path]).to eq(avs_error_message)
       end
     end
   end

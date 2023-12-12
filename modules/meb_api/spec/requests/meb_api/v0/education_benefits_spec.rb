@@ -129,5 +129,16 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         end
       end
     end
+
+    describe 'GET /meb_api/v0/exclusion_periods' do
+      context 'retrieves data contact info ' do
+        it 'returns a 200 status when it' do
+          VCR.use_cassette('dgi/get_exclusion_period_controller') do
+            get '/meb_api/v0/exclusion_periods'
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
   end
 end
