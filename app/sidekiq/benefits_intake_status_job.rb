@@ -9,7 +9,7 @@ class BenefitsIntakeStatusJob
                                   .where('form_submission_attempt.aasm_state = pending')
                                   .map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.get_bulk_status_of_uploads(pending_form_submission_ids)
-    handle_response(response) if response.status == 200
+    handle_response(response)
   end
 
   private
