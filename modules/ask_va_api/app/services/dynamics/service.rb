@@ -115,8 +115,11 @@ module Dynamics
           req.headers = token_headers
           req.body = URI.encode_www_form(auth_params)
         end
+
         token = parse_response(response.body)
         token[:access_token] || token
+      rescue => e
+        [:error, e]
       end
     end
   end
