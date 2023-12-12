@@ -4,7 +4,10 @@
 
 {{- $___ := required "A valid BUNDLE_ENTERPRISE__CONTRIBSYS__COM is required!" .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM}}
 
-  {{- $____ := required "A valid BUNDLE_ENTERPRISE__CONTRIBSYS__COM is required!" .Values.redisRailsUrl}}
-  {{- $_____ := required "A valid BUNDLE_ENTERPRISE__CONTRIBSYS__COM is required!" .Values.redisSideKiqUrl}}
-  {{- $______ := required "A valid BUNDLE_ENTERPRISE__CONTRIBSYS__COM is required!" .Values.redisAppDataUrl}}
-  {{- $_______ := required "A valid BUNDLE_ENTERPRISE__CONTRIBSYS__COM is required!" .Values.redisHost}}
+{{- $____ := required "A valid redisRailsUrl is required!" .Values.redisRailsUrl}}
+
+{{- $_____ := required "A valid redisSideKiqUrl is required!" .Values.redisSideKiqUrl}}
+
+{{- $______ := required "A valid redisAppDataUrl is required!" .Values.redisAppDataUrl}}
+
+{{- $_______ := required "A valid redisHost is required!" .Values.redisHost}}

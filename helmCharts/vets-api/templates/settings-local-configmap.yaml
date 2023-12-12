@@ -13,3 +13,4 @@ data:
         url: "{{ .Values.redisSideKiqUrl }}"
       rails_cache:
         url: "{{ .Values.redisRailsUrl }}"
+    sidekiq_admin_panel: true
