@@ -2007,13 +2007,13 @@ RSpec.describe 'Disability Claims', type: :request do
             ]
           end
 
-          it 'responds with a 202' do
+          it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2030,13 +2030,13 @@ RSpec.describe 'Disability Claims', type: :request do
             ]
           end
 
-          it 'responds with a 202' do
+          it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2052,13 +2052,13 @@ RSpec.describe 'Disability Claims', type: :request do
             ]
           end
 
-          it 'responds with a 202' do
+          it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
