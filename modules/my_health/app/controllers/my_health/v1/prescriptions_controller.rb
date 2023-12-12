@@ -73,7 +73,7 @@ module MyHealth
 
       def sort_by_prescription_name(resource)
         sorted_data = resource.data.sort_by do |item|
-          sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name.nil?
+          sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name
                                   item.orderable_item
                                 elsif !item.prescription_name.nil?
                                   item.prescription_name
