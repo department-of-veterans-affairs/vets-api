@@ -80,7 +80,7 @@
 
   "form1[0].#subform[8].TextField1[0]": "<%= data['va_regional_office_name'] %>",
 
-  "form1[0].#subform[8].TextField1[1]": "<%= (data['additional_records_information'] || '') + '\n' + (data['disability_exams'].length > 0 ? 'Disability exams (YYYY-MM-DD):\n' + data['disability_exams'].map{ |e| e['disability_exam_date'] }.join(', ') : '') + '\n' + (data['financial_record_details'] || '') + '\n' + data['life_insurance_benefit_details'] %>",
+  "form1[0].#subform[8].TextField1[1]": "<%= (data['additional_records_information'] || '') + '\n' + (data['disability_exams'].length > 0 ? 'Disability exams (YYYY-MM-DD):\n' + data['disability_exams'].map{ |e| e['disability_exam_date'] }.join(', ') : '') + '\n' + (data['financial_record_details'] || '') + '\n' + (data['life_insurance_benefit_details'] || '') %>",
 
   "form1[0].#subform[8].I_AM_WILLING_TO_PAY_THE_APPLICABLE_FEES_UP_TO_THE_AMOUNT_OF[0]": "<%= %>",
   "form1[0].#subform[8].IF_YOU_BELIEVE_YOU_ARE_ENTITLED_TO_A_FEE_WAIVER_OR_EXPEDITED_PROCESSING_INDICATE_HERE[0]": "<%= %>",
