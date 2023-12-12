@@ -8254,11 +8254,13 @@
                     "name": {
                       "description": "Name of individual representative or organization",
                       "type": "string",
+                      "nullable": true,
                       "example": "Jane Smith"
                     },
                     "type": {
                       "description": "Type of representative, organization or individual",
                       "type": "string",
+                      "nullable": true,
                       "example": "individual"
                     },
                     "phone": {
@@ -8268,6 +8270,7 @@
                         "number": {
                           "description": "Phone number of representative. Can be organization or individual phone number.",
                           "type": "string",
+                          "nullable": true,
                           "example": "555-555-5555"
                         }
                       }
