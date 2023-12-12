@@ -8,7 +8,7 @@ class BenefitsIntakeStatusJob
   def perform
     pending_form_submission_ids = FormSubmission
                                   .joins(:form_submission_attempts)
-                                  .where('form_submission_attempts.aasm_state = ?', 'pending')
+                                  .where(form_submission_attempts: { aasm_state: 'pending' })
                                   .map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
     handle_response(response)
