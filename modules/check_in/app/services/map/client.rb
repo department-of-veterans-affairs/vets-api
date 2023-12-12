@@ -27,6 +27,19 @@ module Map
       @settings = Settings.check_in.map_api
     end
 
+    ##
+    # HTTP GET call to get the appointment data from MAP
+    #
+    # @return [Faraday::Response]
+    #
+    def appointments(token:, patient_icn:, query_params:)
+      connection.post("/vaos/v1/patients/#{patient_icn}/appointments?#{query_params}") do |req|
+        req.headers = default_headers.merge('X-VAMF-JWT' => token)
+      end
+    rescue => e
+      Faraday::Response.new(body: e.original_body, status: e.original_status)
+    end
+
     private
 
     ##
@@ -35,8 +48,8 @@ module Map
     #
     # @return [Faraday::Connection]
     #
-    def connection(server_url:)
-      Faraday.new(url: server_url) do |conn|
+    def connection
+      Faraday.new(url:) do |conn|
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks if mock_enabled?
