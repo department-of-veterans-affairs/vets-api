@@ -21,24 +21,24 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     describe 'updating the form submission status' do
       it 'updates the status with success from the bulk status report endpoint' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_success') do
-          pending_form_submissions = create_list(:form_submission, 2, :pending)
+          pending_form_submissions = create_list(:form_submission, 1, :pending)
 
           BenefitsIntakeStatusJob.new.perform
 
-          pending_form_submissions.reload.each do |form_submission|
-            expect(form_submission.status).to eq :success
+          pending_form_submissions.each do |form_submission|
+            expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'success'
           end
         end
       end
 
       it 'updates the status with error from the bulk status report endpoint' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_error') do
-          pending_form_submissions = create_list(:form_submission, 2, :pending)
+          pending_form_submissions = create_list(:form_submission, 1, :pending)
 
           BenefitsIntakeStatusJob.new.perform
 
-          pending_form_submissions.reload.each do |form_submission|
-            expect(form_submission.status).to eq :failure
+          pending_form_submissions.each do |form_submission|
+            expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'failure'
           end
         end
       end
