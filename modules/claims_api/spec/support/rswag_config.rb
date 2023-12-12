@@ -118,12 +118,12 @@ class ClaimsApi::RswagConfig
               Allows authenticated and authorized users to automatically establish an Intent to File (21-0966) in VBMS.
             VERBIAGE
           },
-         {
+          {
             name: 'Disability Compensation Claims',
             description: <<~VERBIAGE
               Allows authenticated and authorized users to automatically establish a Disability Compensation Claim (21-526EZ) in VBMS
             VERBIAGE
-          },
+          }
         ],
         components: {
           securitySchemes: {
