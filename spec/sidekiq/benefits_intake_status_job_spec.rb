@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#perform' do
-    describe 'submission to the bulk status report endpoint'
+    describe 'submission to the bulk status report endpoint' do
       it 'submits only pending form submissions' do
         pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
         create_list(:form_submission, 2, :success)
@@ -19,7 +19,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
     end
 
-    describe 'updating the form submission status'
+    describe 'updating the form submission status' do
       it 'updates the status with success from the bulk status report endpoint' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_success') do
           pending_form_submissions = create_list(:form_submission, 2, :pending)
