@@ -18,7 +18,7 @@ spec:
         - name: db-create
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: [ "bash" ]
-          args: [ "-c", "bin/rails db:setup" ]
+          args: [ "-c", "bundle exec rake db:setup" ]
           env:
             - name: "Settings.database_url"
               value: "{{ .Values.databaseUrl }}"
