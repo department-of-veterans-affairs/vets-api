@@ -85,7 +85,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         preferred_facility: '987 - CHEY6',
         parsed_status: inelig_character_of_discharge,
         primary_eligibility: 'SC LESS THAN 50%',
-        can_submit_financial_info: false }
+        can_submit_financial_info: true }
     end
     let(:loa1_response) do
       { parsed_status: login_required }
@@ -173,7 +173,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             effective_date: '2019-01-02T21:58:55.000-06:00',
             primary_eligibility: 'SC LESS THAN 50%',
             priority_group: 'Group 3',
-            can_submit_financial_info: false,
+            can_submit_financial_info: true,
             parsed_status: enrolled
           }
         end

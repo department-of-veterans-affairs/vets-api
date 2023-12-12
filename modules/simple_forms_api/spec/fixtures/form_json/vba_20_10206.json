@@ -1,0 +1,60 @@
+{
+  "form_number": "20-10206",
+  "preparer_type": "non-citizen",
+  "full_name": {
+    "first": "John",
+    "middle": "A",
+    "last": "Preparer"
+  },
+  "date_of_birth": "1985-01-01",
+  "place_of_birth": "Washington, DC",
+  "address": {
+    "street": "123 Any St",
+    "street2": "Apt 2",
+    "city": "Washington",
+    "state": "DC",
+    "postal_code": "54321",
+    "country": "USA"
+  },
+  "home_phone": "1234567890",
+  "email_address": "jv@example.com",
+  "citizen_id": {
+    "ssn": "333221111",
+    "va_file_number": "123456789"
+  },
+  "non_citizen_id": {
+    "arn": "123456789",
+    "va_file_number": "123456789"
+  },
+  "record_selections": {
+    "c_file": true,
+    "dd214": true,
+    "disability_exams": true,
+    "education": true,
+    "financial": true,
+    "fiduciary": true,
+    "home_loan": true,
+    "life_ins": true,
+    "ompf": true,
+    "other_comp_pen": true,
+    "other": true,
+    "pension": true,
+    "treatment": true,
+    "vre": true
+  },
+  "disability_exams": [
+    {
+      "disability_exam_date": "2019-01-01"
+    },
+    {
+      "disability_exam_date": "2019-01-01"
+    }
+  ],
+  "other_comp_and_pen_details": "Other Comp&Pen details",
+  "financial_record_details": "Financial record details",
+  "life_insurance_benefit_details": "Life insurance details",
+  "other_benefit_details": "Other benefit details",
+  "additional_records_information": "Additional records information",
+  "va_regional_office_name": "VA regional office name",
+  "statement_of_truth_signature": "John A Preparer"
+}

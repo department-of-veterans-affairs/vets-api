@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class UserAccount < ApplicationRecord
+  has_many :form_submissions, dependent: :nullify
   has_many :user_verifications, dependent: :destroy
   has_many :terms_of_use_agreements, dependent: :destroy
   has_one :user_acceptable_verified_credential, dependent: :destroy

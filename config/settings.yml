@@ -666,7 +666,7 @@ ask_va_api:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
-    
+
 #Settings for Claims Api Module
 claims_api:
   pdf_generator_526:

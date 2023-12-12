@@ -22,47 +22,50 @@ module Sidekiq
         # rubocop:disable Metrics/MethodLength
         def job_exhausted(msg, statsd_key_prefix)
           job_id = msg['jid']
+          job_class = msg['class'].demodulize
           error_class = msg['error_class']
           error_message = msg['error_message']
           timestamp = Time.now.utc
           form526_submission_id = msg['args'].first
-
-          values = {
-            form526_submission_id:,
-            job_id:,
-            job_class: msg['class'].demodulize,
-            status: Form526JobStatus::STATUS[:exhausted],
-            error_class:,
-            error_message:,
-            bgjob_errors: {},
-            updated_at: timestamp
-          }
 
           form_job_status = Form526JobStatus.find_by(job_id:)
           bgjob_errors = form_job_status.bgjob_errors || {}
           new_error = {
             "#{timestamp.to_i}": {
               caller_method: __method__.to_s,
-              error_class:, error_message:,
-              timestamp:
+              error_class:,
+              error_message:,
+              timestamp:,
+              form526_submission_id:
             }
           }
-          bgjob_errors.merge!(new_error)
-          values[:bgjob_errors] = bgjob_errors
 
-          JobTracker.send_backup_submission_if_enabled(form526_submission_id:, job_class: values[:job_class], job_id:,
+          JobTracker.send_backup_submission_if_enabled(form526_submission_id:, job_class:, job_id:,
                                                        error_message:, error_class:)
 
-          # rubocop:disable Rails/SkipsModelValidations
-          Form526JobStatus.upsert(values, unique_by: :job_id)
+          form_job_status.update(
+            status: Form526JobStatus::STATUS[:exhausted],
+            bgjob_errors: bgjob_errors.merge(new_error)
+          )
+
+          ::Rails.logger.warn(
+            'Submit Form 526 Retries exhausted',
+            { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+          )
         rescue => e
-          emsg = 'Form526 Exhausted, with error tracking job exhausted'
-          error_details = {
-            message: emsg, error: e,
-            class: msg['class'].demodulize, jid: msg['jid'],
-            backtrace: e.backtrace
-          }
-          ::Rails.logger.error(emsg, error_details)
+          ::Rails.logger.error(
+            'Failure in SubmitForm526#sidekiq_retries_exhausted',
+            {
+              messaged_content: e.message,
+              job_id:,
+              submission_id: form526_submission_id,
+              pre_exhaustion_failure: {
+                error_class:,
+                error_message:
+              }
+            }
+          )
+          raise e
         ensure
           Metrics.new(statsd_key_prefix).increment_exhausted
         end
@@ -161,6 +164,7 @@ module Sidekiq
                                                              error_message:,
                                                              caller_method:,
                                                              timestamp:)
+        # rubocop:disable Rails/SkipsModelValidations
         Form526JobStatus.upsert(values, unique_by: :job_id)
         # rubocop:enable Rails/SkipsModelValidations
       end

@@ -11,6 +11,12 @@ module BGS
 
     attr_accessor :submission_id
 
+    # Sidekiq has built in exponential back-off functionality for retries
+    # A max retry attempt of 10 will result in a run time of ~8 hours
+    # This job is invoked from 526 background job
+    sidekiq_options retry: 10
+    STATSD_KEY_PREFIX = 'worker.bgs.flash_updater.exhausted'
+
     wrap_with_logging(
       :add_flashes,
       additional_class_logs: {
@@ -20,6 +26,51 @@ module BGS
         submission_id: %i[submission_id]
       }
     )
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job_id = msg['jid']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+      timestamp = Time.now.utc
+      form526_submission_id = msg['args'].first
+
+      form_job_status = Form526JobStatus.find_by(job_id:)
+      bgjob_errors = form_job_status.bgjob_errors || {}
+      new_error = {
+        "#{timestamp.to_i}": {
+          caller_method: __method__.to_s,
+          error_class:,
+          error_message:,
+          timestamp:,
+          form526_submission_id:
+        }
+      }
+      form_job_status.update(
+        status: Form526JobStatus::STATUS[:exhausted],
+        bgjob_errors: bgjob_errors.merge(new_error)
+      )
+
+      StatsD.increment(STATSD_KEY_PREFIX)
+
+      ::Rails.logger.warn(
+        'Flash Updater Retries exhausted',
+        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+      )
+    rescue => e
+      ::Rails.logger.error(
+        'Failure in FlashUpdater#sidekiq_retries_exhausted',
+        {
+          messaged_content: e.message,
+          job_id:,
+          submission_id: form526_submission_id,
+          pre_exhaustion_failure: {
+            error_class:,
+            error_message:
+          }
+        }
+      )
+      raise e
+    end
 
     def perform(submission_id)
       @submission_id = submission_id

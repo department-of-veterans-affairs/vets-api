@@ -26,6 +26,7 @@ class SavedClaim < ApplicationRecord
   has_encrypted :form, key: :kms_key, **lockbox_options
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
+  has_many :form_submissions, dependent: :nullify
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.

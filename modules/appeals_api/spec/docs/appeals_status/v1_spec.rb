@@ -27,7 +27,6 @@ describe 'Appeals Status', swagger_doc:, type: :request do
       consumes 'application/json'
       produces 'application/json'
 
-      example_icn = '1012832025V743496'
       example_va_user = 'va.api.user+idme.025@gmail.com'
 
       parameter(
@@ -35,13 +34,12 @@ describe 'Appeals Status', swagger_doc:, type: :request do
           {
             name: :icn,
             in: :query,
-            required: true,
-            example: example_icn
+            required: true
           }
         )
       )
 
-      let(:icn) { example_icn }
+      let(:icn) { '1012832025V743496' }
 
       parameter name: 'X-VA-User',
                 in: :header,

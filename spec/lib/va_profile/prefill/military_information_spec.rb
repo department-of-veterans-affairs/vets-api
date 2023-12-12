@@ -81,6 +81,12 @@ describe VAProfile::Prefill::MilitaryInformation do
             expect(subject.sw_asia_combat).to eq(false)
           end
         end
+
+        it 'returns false if there is no deployment location' do
+          VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
+            expect(subject.sw_asia_combat).to eq(false)
+          end
+        end
       end
 
       describe '#discharge_type' do

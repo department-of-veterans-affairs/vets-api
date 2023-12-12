@@ -10,7 +10,6 @@ module V0
     module DirectDeposits
       class DisabilityCompensationsController < ApplicationController
         service_tag 'direct-deposit'
-        before_action :controller_enabled?
         before_action { authorize :lighthouse, :access_disability_compensations? }
         after_action :log_sso_info, only: :update
 
@@ -41,10 +40,6 @@ module V0
         end
 
         private
-
-        def controller_enabled?
-          routing_error unless Flipper.enabled?(:profile_lighthouse_direct_deposit, @current_user)
-        end
 
         def log_stats(response)
           error = response.body[:errors]&.first

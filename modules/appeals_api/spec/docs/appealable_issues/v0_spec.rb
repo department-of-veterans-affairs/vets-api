@@ -24,7 +24,7 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
   end
 
   path '/appealable-issues/{decisionReviewType}' do
-    get 'Returns all appealable issues for a specific veteran.' do
+    get 'Returns all appealable issues for a specific Veteran.' do
       scopes = AppealsApi::AppealableIssues::V0::AppealableIssuesController::OAUTH_SCOPES[:GET]
       tags 'Appealable Issues'
       operationId 'getAppealableIssues'

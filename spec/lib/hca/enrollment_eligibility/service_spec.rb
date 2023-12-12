@@ -85,17 +85,17 @@ describe HCA::EnrollmentEligibility::Service do
             primary_eligibility: 'HUMANITARIAN EMERGENCY',
             veteran: 'false',
             priority_group: nil,
-            can_submit_financial_info: false
+            can_submit_financial_info: true
           )
         end
       end
     end
 
-    context "when the user's financial info is submitted during the current calendar year" do
-      before { Timecop.freeze(DateTime.new(2022, 2, 3)) }
+    context "when the user's financial info has already been submitted for the prior calendar year" do
+      before { Timecop.freeze(DateTime.new(2023, 2, 3)) }
       after { Timecop.return }
 
-      it "sets the 'can_submit_financial_info' key to true", run_at: 'Mon, 04 Dec 2023 22:32:14 GMT' do
+      it "sets the 'can_submit_financial_info' key to false", run_at: 'Mon, 04 Dec 2023 22:32:14 GMT' do
         VCR.use_cassette(
           'hca/ee/lookup_user_can_submit_financial_info',
           { match_requests_on: %i[method uri body], erb: true }
@@ -112,7 +112,7 @@ describe HCA::EnrollmentEligibility::Service do
             primary_eligibility: 'NSC',
             veteran: 'true',
             priority_group: nil,
-            can_submit_financial_info: true
+            can_submit_financial_info: false
           )
         end
       end
@@ -135,7 +135,7 @@ describe HCA::EnrollmentEligibility::Service do
           primary_eligibility: 'SC LESS THAN 50%',
           veteran: 'true',
           priority_group: 'Group 3',
-          can_submit_financial_info: false
+          can_submit_financial_info: true
         )
       end
     end

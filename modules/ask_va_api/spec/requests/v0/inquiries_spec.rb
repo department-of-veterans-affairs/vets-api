@@ -190,13 +190,46 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   describe 'POST #upload_attachment' do
     let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
     let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
-    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}" } }
+    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}", inquiry_id: '12345' } }
 
-    before do
-      post '/ask_va_api/v0/upload_attachment', params:
+    context 'when the file is valid' do
+      it 'returns an ok status' do
+        post('/ask_va_api/v0/upload_attachment', params:)
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:message]).to eq('Attachment has been received')
+      end
     end
 
-    it { expect(response).to have_http_status(:ok) }
+    context 'when no file is attached' do
+      it 'returns a bad request status' do
+        post '/ask_va_api/v0/upload_attachment', params: { inquiry_id: '12345' }
+        expect(response).to have_http_status(:bad_request)
+        expect(json_response[:message]).to eq('No file attached')
+      end
+    end
+
+    context 'when the file size exceeds the limit' do
+      let(:large_file) { double('File', size: 30.megabytes, content_type: 'application/pdf') }
+      let(:large_base64_encoded_file) { Base64.strict_encode64('a' * large_file.size) }
+      let(:large_file_params) do
+        { attachment: "data:application/pdf;base64,#{large_base64_encoded_file}", inquiry_id: '12345' }
+      end
+
+      before do
+        allow(File).to receive(:read).and_return('a' * large_file.size)
+        post '/ask_va_api/v0/upload_attachment', params: large_file_params
+      end
+
+      it 'returns an unprocessable entity status' do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response[:message]).to eq('File size exceeds the allowed limit')
+      end
+    end
+
+    # Helper method to parse JSON response
+    def json_response
+      JSON.parse(response.body, symbolize_names: true)
+    end
   end
 
   describe 'POST #create' do

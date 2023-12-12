@@ -14,6 +14,7 @@ module VAOS
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
+      AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
 
@@ -236,7 +237,7 @@ module VAOS
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
-        appt[:avs_path] = nil
+        appt[:avs_path] = AVS_ERROR_MESSAGE
       end
 
       # Checks if appointment is eligible for receiving an AVS link, i.e.

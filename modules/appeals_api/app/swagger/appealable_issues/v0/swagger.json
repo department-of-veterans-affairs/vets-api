@@ -17,7 +17,7 @@
   "paths": {
     "/appealable-issues/{decisionReviewType}": {
       "get": {
-        "summary": "Returns all appealable issues for a specific veteran.",
+        "summary": "Returns all appealable issues for a specific Veteran.",
         "tags": [
           "Appealable Issues"
         ],
@@ -94,7 +94,7 @@
           {
             "name": "icn",
             "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
-            "example": "1234567890V123456",
+            "example": "1012832025V743496",
             "required": true,
             "schema": {
               "type": "string",
@@ -594,6 +594,14 @@
             }
           }
         }
+      },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17,
+        "example": "1012832025V743496"
       }
     }
   },

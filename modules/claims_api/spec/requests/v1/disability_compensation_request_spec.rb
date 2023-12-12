@@ -457,7 +457,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                 'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
                 'icn' => '1013062086V794840'
               }
-              allow_any_instance_of(Token).to receive(:payload).and_return(jwt_payload)
+              allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:payload).and_return(jwt_payload)
 
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']

@@ -8,19 +8,23 @@ require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'claims_api/v2/disability_compensation_documents'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
+require 'claims_api/v2/error/lighthouse_error_handler'
+require 'claims_api/v2/json_format_validation'
 
 module ClaimsApi
   module V2
     module Veterans
       class DisabilityCompensationController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::V2::DisabilityCompensationValidation
+        include ClaimsApi::V2::Error::LighthouseErrorHandler
+        include ClaimsApi::V2::JsonFormatValidation
 
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit
+        def submit # rubocop:disable Metrics/MethodLength
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
@@ -38,7 +42,9 @@ module ClaimsApi
           save_auto_claim!(auto_claim)
 
           if auto_claim.errors.present?
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: auto_claim.errors.messages.to_s
+            )
           end
 
           track_pact_counter auto_claim
@@ -57,11 +63,18 @@ module ClaimsApi
 
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.')
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'Too many attachments.'
+            )
           end
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
+
+          unless claim
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: 'Resource not found'
+            )
+          end
 
           documents_service(params, claim).process_documents
 
