@@ -648,47 +648,7 @@ module ClaimsApi
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
           end
-
-          unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
-                                                              service_periods)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: 'Confinement dates must be within one of the service period dates.'
-            )
-          end
         end
-      end
-
-      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
-        service_periods.each do |sp|
-          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
-          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
-
-          next if active_duty_begin_date.blank? || active_duty_end_date.blank? # nothing to compare against
-
-          begin_date_has_day = date_has_day?(approximate_begin_date)
-          end_date_has_day = date_has_day?(approximate_end_date)
-          if begin_date_has_day && end_date_has_day
-            unless date_is_within_range?(Date.strptime(approximate_begin_date, '%Y-%m-%d'),
-                                         Date.strptime(approximate_end_date, '%Y-%m-%d'),
-                                         active_duty_begin_date, active_duty_end_date)
-              return false
-            end
-          elsif !begin_date_has_day && !end_date_has_day
-            unless date_is_within_range?(Date.strptime(approximate_begin_date, '%Y-%m'),
-                                         Date.strptime(approximate_end_date, '%Y-%m'),
-                                         active_duty_begin_date, active_duty_end_date)
-              return false
-            end
-          end
-        end
-        true
-      end
-
-      def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
-        return if service_begin.blank? || service_end.blank?
-
-        conf_begin.between?(service_begin, service_end) &&
-          conf_end.between?(service_begin, service_end)
       end
 
       def validate_alternate_names!(service_information)
@@ -794,7 +754,7 @@ module ClaimsApi
       end
 
       def find_earliest_active_duty_begin_date(service_periods)
-        service_periods.max_by do |a|
+        service_periods.min_by do |a|
           next unless date_is_valid?(a['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
 
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
@@ -921,11 +881,9 @@ module ClaimsApi
         DATE_FORMATS[date.length]
       end
 
-      # making date approximate to compare
+      # removing the -DD from a YYYY-MM-DD date format to compare against a YYYY-MM date
       def remove_chars(str)
-        indices = [2, 3, 4] # MM| -DD |-YYYY
-        indices.reverse_each { |i| str[i] = '' }
-        str
+        str.sub(/-\d{2}\z/, '')
       end
 
       def date_regex_groups(date)
