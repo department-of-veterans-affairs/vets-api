@@ -1283,7 +1283,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0e949c9e-1e40-468e-952f-551299939800",
+                    "id": "63ef7bda-bc15-4b31-8474-3e5ecf810acc",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1329,7 +1329,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-12-07",
+                          "anticipatedSeparationDate": "2023-12-14",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -2256,7 +2256,9 @@
                                     "type": "object",
                                     "required": [
                                       "serviceBranch",
-                                      "serviceComponent"
+                                      "serviceComponent",
+                                      "activeDutyBeginDate",
+                                      "activeDutyEndDate"
                                     ],
                                     "properties": {
                                       "serviceBranch": {
@@ -2276,14 +2278,12 @@
                                       "activeDutyBeginDate": {
                                         "description": "Date started active duty.",
                                         "type": "string",
-                                        "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
                                         "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                         "type": "string",
-                                        "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
@@ -2621,6 +2621,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -2646,6 +2647,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -2675,24 +2680,36 @@
                     "value": {
                       "errors": [
                         {
-                          "status": 422,
+                          "title": "Unprocessable entity",
                           "detail": "The property / did not contain the required key claimProcessType",
-                          "source": "/"
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
                         },
                         {
-                          "status": 422,
+                          "title": "Unprocessable entity",
                           "detail": "The property / did not contain the required key disabilities",
-                          "source": "/"
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
                         },
                         {
-                          "status": 422,
+                          "title": "Unprocessable entity",
                           "detail": "The property / did not contain the required key serviceInformation",
-                          "source": "/"
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
                         },
                         {
-                          "status": 422,
+                          "title": "Unprocessable entity",
                           "detail": "The property / did not contain the required key veteranIdentification",
-                          "source": "/"
+                          "status": "422",
+                          "source": {
+                            "pointer": "data/attributes/"
+                          }
                         }
                       ]
                     }
@@ -2701,9 +2718,12 @@
                     "value": {
                       "errors": [
                         {
-                          "status": 422,
-                          "detail": "The request body isn't a JSON object: \"This is not valid JSON\"",
-                          "source": ""
+                          "title": "Unprocessable entity",
+                          "status": "422",
+                          "detail": "The request body is not a valid JSON object: This is not valid JSON",
+                          "source": {
+                            "pointer": null
+                          }
                         }
                       ]
                     }
@@ -2719,13 +2739,13 @@
                       "items": {
                         "additionalProperties": false,
                         "required": [
+                          "title",
                           "status",
-                          "detail",
-                          "source"
+                          "detail"
                         ],
                         "properties": {
                           "status": {
-                            "type": "integer",
+                            "type": "string",
                             "description": "HTTP error code"
                           },
                           "detail": {
@@ -2733,6 +2753,12 @@
                             "description": "HTTP error detail"
                           },
                           "source": {
+                            "type": "object",
+                            "pointer": {
+                              "type": "string"
+                            }
+                          },
+                          "title": {
                             "type": "string"
                           }
                         }
@@ -3489,7 +3515,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -3509,14 +3537,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -4142,6 +4168,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -4167,6 +4194,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -4194,24 +4225,36 @@
                 "example": {
                   "errors": [
                     {
-                      "status": 422,
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key claimProcessType",
-                      "source": "/"
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
                     },
                     {
-                      "status": 422,
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key disabilities",
-                      "source": "/"
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
                     },
                     {
-                      "status": 422,
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key serviceInformation",
-                      "source": "/"
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
                     },
                     {
-                      "status": 422,
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteranIdentification",
-                      "source": "/"
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/"
+                      }
                     }
                   ]
                 },
@@ -4225,13 +4268,13 @@
                       "items": {
                         "additionalProperties": false,
                         "required": [
+                          "title",
                           "status",
-                          "detail",
-                          "source"
+                          "detail"
                         ],
                         "properties": {
                           "status": {
-                            "type": "integer",
+                            "type": "string",
                             "description": "HTTP error code"
                           },
                           "detail": {
@@ -4239,6 +4282,12 @@
                             "description": "HTTP error detail"
                           },
                           "source": {
+                            "type": "object",
+                            "pointer": {
+                              "type": "string"
+                            }
+                          },
+                          "title": {
                             "type": "string"
                           }
                         }
@@ -4995,7 +5044,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -5015,14 +5066,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -5602,7 +5651,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "65eeba04-c992-4893-bf9e-77d913de370d",
+                    "id": "785822e4-2d57-41bb-bd36-c9944fdcf3b6",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5692,6 +5741,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -5717,6 +5767,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -5745,7 +5799,11 @@
                   "errors": [
                     {
                       "title": "Resource not found",
-                      "detail": "Resource not found"
+                      "status": "404",
+                      "detail": "Resource not found",
+                      "source": {
+                        "pointer": "/Users/matthewchristianson/development/vets-api/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
+                      }
                     }
                   ]
                 },
@@ -5770,6 +5828,10 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
@@ -5873,6 +5935,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -6626,7 +6689,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -6646,14 +6711,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -7647,8 +7710,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-05",
-                      "expirationDate": "2024-12-05",
+                      "creationDate": "2023-12-12",
+                      "expirationDate": "2024-12-12",
                       "type": "compensation",
                       "status": "active"
                     }
