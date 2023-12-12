@@ -923,6 +923,8 @@ GEM
     sentry-raven (3.1.2)
       faraday (>= 1.0)
     shellany (0.0.1)
+    shoulda-matchers (5.3.0)
+      activesupport (>= 5.2.0)
     shrine (3.5.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
@@ -1200,6 +1202,7 @@ DEPENDENCIES
   savon
   seedbank
   sentry-raven
+  shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
   sidekiq-ent!
