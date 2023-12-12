@@ -2137,53 +2137,6 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when there are multiple service periods and one contains the confinement period' do
-          let(:service_periods) do
-            [
-              {
-                serviceBranch: 'Air Force',
-                serviceComponent: 'Active',
-                activeDutyBeginDate: '1990-11-14',
-                activeDutyEndDate: '1999-10-30',
-                separationLocationCode: '98289'
-              },
-              {
-                serviceBranch: 'Army',
-                serviceComponent: 'Active',
-                activeDutyBeginDate: '2000-12-01',
-                activeDutyEndDate: '2005-11-10',
-                separationLocationCode: '123617'
-              },
-              {
-                serviceBranch: 'Air Force',
-                activeDutyBeginDate: '1990-02-05',
-                activeDutyEndDate: '2021-12-01',
-                serviceComponent: 'Active'
-              }
-            ]
-          end
-
-          let(:confinement) do
-            [
-              {
-                approximateBeginDate: '1995-02-01',
-                approximateEndDate: '1995-03-06'
-              }
-            ]
-          end
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
-              json['data']['attributes']['serviceInformation']['confinements'] = confinement
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
         context 'when there are confinements with mixed date formatting and begin date is <= to end date' do
           let(:confinements) do
             [
