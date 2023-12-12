@@ -33,10 +33,6 @@ module EVSS
         service_pay = form526['servicePay']
         lh_request_body.service_pay = transform_service_pay(service_pay) if service_pay.present?
 
-        # TODO: this is a temporary workaround for a LH bug- remove when bug is fixed
-        # see https://dsva.slack.com/archives/C02CQP3RFFX/p1701988756197319?thread_ts=1701986590.863839&cid=C02CQP3RFFX
-        populate_te(lh_request_body)
-
         lh_request_body
       end
 
@@ -162,13 +158,6 @@ module EVSS
       end
 
       private
-
-      def populate_te(lh_request_body)
-        te = Requests::ToxicExposure.new
-        te.gulf_war_hazard_service = Requests::GulfWarHazardService.new
-        te.gulf_war_hazard_service.served_in_gulf_war_hazard_locations = 'NO'
-        lh_request_body.toxic_exposure = te
-      end
 
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']

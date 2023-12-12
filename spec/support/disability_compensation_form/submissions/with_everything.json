@@ -105,16 +105,6 @@
             "activeDutyEndDate": "1990-04-05"
           }
         ],
-        "confinements": [
-          {
-            "confinementBeginDate": "1987-02-01",
-            "confinementEndDate": "1989-01-01"
-          },
-          {
-            "confinementBeginDate": "1990-03-06",
-            "confinementEndDate": "1999-01-01"
-          }
-        ],
         "reservesNationalGuardService": {
           "title10Activation": {
             "anticipatedSeparationDate": "2024-01-01",
@@ -177,11 +167,6 @@
           }
         }
       ],
-      "toxicExposure": {
-        "gulfWarHazardService": {
-          "servedInGulfWarHazardLocations": "NO"
-        }
-      },
       "disabilities": [
         {
           "diagnosticCode": 9999,
