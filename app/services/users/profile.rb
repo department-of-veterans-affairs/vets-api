@@ -96,9 +96,18 @@ module Users
           military_history: Vet360Policy.new(user).military_access?,
           payment_history: BGSPolicy.new(user).access?(log_stats: false),
           personal_information: MPIPolicy.new(user).queryable?,
-          rating_info: LighthousePolicy.new(user).rating_info_access?
+          rating_info: LighthousePolicy.new(user).rating_info_access?,
+          **form_526_required_identifiers
         }
       end
+    end
+
+    def form_526_required_identifiers
+      if Flipper.enabled?(:form_526_required_identifiers_in_user_object)
+        return { form526_required_identifier_presence: Users::Form526UserIdentifiersStatusService.call(user) }
+      end
+
+      {}
     end
 
     def vet360_contact_information
