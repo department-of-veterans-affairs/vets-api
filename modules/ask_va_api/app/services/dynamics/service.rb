@@ -35,8 +35,15 @@ module Dynamics
     rescue ErrorHandler::ServiceError => e
       log_error(endpoint, e.class.name)
       [e,
-       { bearer: token(method), env: Rails.env, vsp_env: Settings.vsp_environment,
-         tenant: tenant_id.chars.first(5), base_uri: }]
+       {
+         bearer: token(method),
+         env: Rails.env,
+         vsp_env: Settings.vsp_environment,
+         tenant: tenant_id.chars.first(5),
+         resource: resource.chars.first(5),
+         client: client_id.chars.first(5),
+         base_uri:
+       }]
     end
 
     private
@@ -116,8 +123,8 @@ module Dynamics
           req.body = URI.encode_www_form(auth_params)
         end
 
-        token = parse_response(response.body)
-        token[:access_token] || token
+        parse_response = parse_response(response.body)
+        parse_response[:access_token] || parse_response || 'not null'
       rescue => e
         [:error, e]
       end
