@@ -170,6 +170,7 @@ group :test do
   gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
+  gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'
