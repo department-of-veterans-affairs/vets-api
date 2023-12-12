@@ -127,21 +127,6 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         expect(e['code']).to eq('cnp.payment.api.gateway.timeout')
       end
     end
-
-    context 'when lighthouse direct deposit feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_direct_deposit, instance_of(User))
-                                            .and_return(false)
-      end
-
-      it 'returns routing error' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-          get(:show)
-        end
-
-        expect(response).to have_http_status(:not_found)
-      end
-    end
   end
 
   describe '#update' do
@@ -167,23 +152,6 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         payment_account = body['data']['attributes']['payment_account']
 
         expect(payment_account['account_type']).to eq('Checking')
-      end
-    end
-
-    context 'when lighthouse direct deposit feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_direct_deposit, instance_of(User))
-                                            .and_return(false)
-      end
-
-      it 'returns routing error' do
-        params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-
-        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put(:update, params:)
-        end
-
-        expect(response).to have_http_status(:not_found)
       end
     end
 

@@ -188,39 +188,11 @@ module DebtsApi
     end
 
     def persist_vha_form_submission(fsr_builder)
-      fsr_builder.vha_forms.map do |form_obj|
-        form = form_obj.form_data
-        copays = form_obj.copays
-        metadata = { copays: }.to_json
-
-        public_metadata = build_public_metadata(fsr_builder, form, copays)
-
-        DebtsApi::V0::Form5655Submission.create(
-          form_json: form.to_json,
-          metadata:,
-          user_uuid: @user.uuid,
-          user_account: @user.user_account,
-          public_metadata:,
-          state: 1
-        )
-      end
+      fsr_builder.vha_forms.map(&:persist_form_submission)
     end
 
     def persist_vba_form_submission(fsr_builder)
-      form = fsr_builder.vba_form.form_data
-      debts = fsr_builder.vba_form.debts
-      metadata = { debts: }.to_json
-
-      public_metadata = build_public_metadata(fsr_builder, form, debts)
-
-      DebtsApi::V0::Form5655Submission.create(
-        form_json: form.to_json,
-        metadata:,
-        user_uuid: @user.uuid,
-        user_account: @user.user_account,
-        public_metadata:,
-        state: 1
-      )
+      fsr_builder.vba_form.persist_form_submission
     end
 
     def submit_vha_batch_job(vha_submissions)

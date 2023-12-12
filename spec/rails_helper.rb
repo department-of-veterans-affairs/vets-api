@@ -30,6 +30,7 @@ require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
+require 'support/service_account_authorization_context'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
@@ -195,3 +196,10 @@ BGS.configure do |config|
 end
 
 Gem::Deprecate.skip = true
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end
