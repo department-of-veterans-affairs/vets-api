@@ -124,7 +124,7 @@ module BenefitsClaims
 
     def fix_current_va_employee(body)
       if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
-        field['currentVAEmployee']
+           field['currentVAEmployee']
          end&.key?('currentVAEmployee')
         body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
           body['data']['attributes']['veteranIdentification']['currentVAEmployee']
