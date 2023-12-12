@@ -44,7 +44,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       PGDATA: /tmp
-    image: mdillon/postgis:11-alpine
+    image: mdillon/postgis:14-3.3-alpine
     ports:
       - 54320:5432
     volumes:
