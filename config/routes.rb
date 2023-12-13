@@ -458,6 +458,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount VAOS::Engine, at: '/vaos'
+  mount Vye::Engine, at: '/vye'
   # End Modules
 
   require 'sidekiq/web'

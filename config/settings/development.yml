@@ -27,3 +27,12 @@ web_origin_regex: \Ahttps?:\/\/.*\z
 modules_appeals_api:
   documentation:
     notice_of_disagreements_v1: true
+
+vye:
+  ivr_key: '0615324c-5a8d-9fe1-3542-7b3b86df281f'
+  scrypt:
+    salt: '51463d6f-3b19-ae87-578a-7c4e3f1a5588'
+    N: 16384
+    r: 8
+    p: 1
+    length: 16
