@@ -16,6 +16,7 @@ module MyHealth
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         sorting_key_primary = params[:sort]&.first
         resource.data = filter_non_va_meds(resource.data)
+        resource.data = fetch_and_encode_images(resource.data)
         resource = if sorting_key_primary == 'prescription_name'
                      sort_by_prescription_name(resource)
                    elsif sorting_key_primary == '-dispensed_date'
@@ -47,6 +48,42 @@ module MyHealth
       end
 
       private
+
+      def fetch_and_encode_images(data)
+        data.map do |item|
+          if item[:cmop_ndc_number].present?
+            begin
+              image_url = get_image_uri(item[:cmop_ndc_number])
+              item[:prescription_image] = fetch_image(image_url)
+            rescue => e
+              puts "Error fetching image for NDC #{cmop_ndc_number}: #{e.message}"
+            end
+          end
+          item
+        end
+      end
+
+      def fetch_image(image_url)
+        uri = URI.parse(image_url)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = (uri.scheme == 'https')
+        request = Net::HTTP::Get.new(uri.request_uri)
+        response = http.request(request)
+        if response.is_a?(Net::HTTPSuccess)
+          image_data = response.body
+          base64_image = Base64.strict_encode64(image_data)
+          "data:#{response['content-type']};base64,#{base64_image}"
+        end
+      end
+
+      def get_image_uri(cmop_ndc_number)
+        folder_names = %w[1 2 3 4 5 6 7 8 9]
+        folder_name = cmop_ndc_number ? cmop_ndc_number.gsub(/^0+(?!$)/, '')[0] : ''
+        file_name = "NDC#{cmop_ndc_number}.jpg"
+        folder_name = 'other' unless folder_names.include?(folder_name)
+        image_root_uri = 'https://www.myhealth.va.gov/static/MILDrugImages/';
+        "#{image_root_uri + folder_name}/#{file_name}"
+      end
 
       def collection_resource
         case params[:refill_status]
