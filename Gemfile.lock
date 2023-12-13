@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: cbff1da81e28edc6157931e1e1e53f2ad102e6bd
+  revision: 6b17e3975a42babafa14f4cfb9db7e376cd7fafe
   branch: master
   specs:
-    vets_json_schema (20.32.0)
+    vets_json_schema (20.33.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -923,6 +923,8 @@ GEM
     sentry-raven (3.1.2)
       faraday (>= 1.0)
     shellany (0.0.1)
+    shoulda-matchers (5.3.0)
+      activesupport (>= 5.2.0)
     shrine (3.5.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
@@ -1200,6 +1202,7 @@ DEPENDENCIES
   savon
   seedbank
   sentry-raven
+  shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
   sidekiq-ent!

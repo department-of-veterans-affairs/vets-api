@@ -16,6 +16,8 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   end
 
   before do
+    Flipper.enable(:mobile_claims_log_decision_letter_sent)
+
     if lighthouse_flag
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
@@ -24,6 +26,8 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
       Flipper.disable(:mobile_lighthouse_claims)
     end
   end
+
+  after { Flipper.disable(:mobile_claims_log_decision_letter_sent) }
 
   describe '#index is polled an unauthorized user' do
     it 'and not user returns a 401 status' do
