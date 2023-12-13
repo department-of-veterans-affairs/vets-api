@@ -19,9 +19,13 @@ jobs:
       run: |
         LOG=$(git log --all --oneline -- spec/support/vcr_cassettes/emis)
         if [ -n "$LOG" ]; then
+          echo "$LOG" | awk '{print $1}' > bad-shas.txt
           echo "EMIs Cassettes found in git history"
-          echo "Git log output:"
-          echo "$LOG"
+          echo "Commits and associated branch"
+          for sha in $(cat bad-shas.txt); do
+            echo $sha
+            git branch -r --contains $sha;
+          done
           exit 1
         fi
 
