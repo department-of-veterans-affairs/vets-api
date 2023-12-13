@@ -821,7 +821,8 @@ module ClaimsApi
 
       def find_earliest_active_duty_begin_date(service_periods)
         service_periods.min_by do |a|
-          next unless !date_is_valid?(a['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate').is_a?(Array)
+          next if date_is_valid?(a['activeDutyBeginDate'],
+                                 'servicePeriod.activeDutyBeginDate').is_a?(Array)
 
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
         end
