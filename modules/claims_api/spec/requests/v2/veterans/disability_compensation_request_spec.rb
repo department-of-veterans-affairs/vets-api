@@ -1924,7 +1924,7 @@ RSpec.describe 'Disability Claims', type: :request do
               response_body = JSON.parse(response.body)
               # make sure it is failing for the expected reason, do not need the whole text
               expect(response_body['errors'][0]['detail']).to include(
-                "#{active_duty_begin_date} is not a valid date for servicePeriod.activeDutyBeginDate."
+                "#{active_duty_begin_date} is not a valid date."
               )
             end
           end
@@ -1988,8 +1988,8 @@ RSpec.describe 'Disability Claims', type: :request do
               expect(response).to have_http_status(:unprocessable_entity)
               response_body = JSON.parse(response.body)
               # make sure it is failing for the expected reason, do not need the whole text
-              expect(response_body['errors'][0]['detail']).to eq(
-                'Confinement dates must be within one of the service period dates.'
+              expect(response_body['errors'][0]['detail']).to include(
+                'is not a valid date.'
               )
             end
           end
@@ -2725,7 +2725,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'].count).to eq(4)
+                expect(response_body['errors'].count).to eq(2)
               end
             end
           end

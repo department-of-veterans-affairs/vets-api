@@ -474,7 +474,8 @@ module ClaimsApi
           per['activeDutyBeginDate']
         end
         if first_service_period['activeDutyBeginDate']
-          return unless date_is_valid?(first_service_period['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+          return if date_is_valid?(first_service_period['activeDutyBeginDate'],
+                                   'serviceInformation/servicePeriods/activeDutyBeginDate').is_a?(Array)
 
           first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'],
                                              '%Y-%m-%d')
@@ -495,7 +496,8 @@ module ClaimsApi
           next if first_service_date.blank? || treatment_begin_date >= first_service_date
 
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'."
+            detail: 'Each treatment begin date must be after the first activeDutyBeginDate.'
+            # , source: 'serviceInformation/servicePeriods/activeDutyBeginDate'
           )
         end
       end
@@ -535,7 +537,8 @@ module ClaimsApi
         end
         max_active_duty_end_date = max_period['activeDutyEndDate']
 
-        max_date_valid = date_is_valid?(max_active_duty_end_date, 'servicePeriod.activeDutyBeginDate')
+        max_date_valid = date_is_valid?(max_active_duty_end_date,
+                                        'serviceInformation/servicePeriods/activeDutyBeginDate')
         return if max_date_valid.is_a?(Array)
 
         if (ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid &&
@@ -554,12 +557,14 @@ module ClaimsApi
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each do |sp|
           if sp['activeDutyBeginDate']
-            begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+            begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'],
+                                              'serviceInformation/servicePeriods/activeDutyBeginDate')
             break if begin_date_valid.is_a?(Array)
 
             age_exception if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
             if sp['activeDutyEndDate']
-              end_date_valid = date_is_valid?(sp['activeDutyEndDate'], 'servicePeriod.activeDutyBeginDate')
+              end_date_valid = date_is_valid?(sp['activeDutyEndDate'],
+                                              'serviceInformation/servicePeriods/activeDutyBeginDate')
               break if end_date_valid.is_a?(Array)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
@@ -595,10 +600,20 @@ module ClaimsApi
         )
       end
 
+      def detect_invalid_active_duty_enddate(service_information)
+        service_information['servicePeriods'].detect do |service_period|
+          errors = date_is_valid?(service_period['activeDutyEndDate'],
+                                  'serviceInformation/servicePeriods/activeDutyEndDate')
+          return true if errors.is_a?(Array)
+        end
+      end
+
       def validate_form_526_location_codes!(service_information)
         # only retrieve separation locations if we'll need them
+        invalid_end_date = detect_invalid_active_duty_enddate(service_information).is_a?(Array)
+
         need_locations = service_information['servicePeriods'].detect do |service_period|
-          if service_period['activeDutyEndDate']
+          if invalid_end_date && service_period['activeDutyEndDate']
             Date.strptime(service_period['activeDutyEndDate'],
                           '%Y-%m-%d') > Time.zone.today
           end
@@ -606,8 +621,10 @@ module ClaimsApi
         separation_locations = retrieve_separation_locations if need_locations
 
         service_information['servicePeriods'].each do |service_period|
-          next if service_period['activeDutyEndDate'] && Date.strptime(service_period['activeDutyEndDate'],
-                                                                       '%Y-%m-%d') <= Time.zone.today
+          if invalid_end_date && (service_period['activeDutyEndDate'] &&
+            Date.strptime(service_period['activeDutyEndDate'], '%Y-%m-%d') <= Time.zone.today)
+            next
+          end
           next if separation_locations&.any? do |location|
                     if service_period['separationLocationCode']
                       @location_code = service_period['separationLocationCode']
@@ -801,6 +818,8 @@ module ClaimsApi
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
         # return true if activationDate is an earlier date
+        return if date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
         return false if earliest_active_duty_begin_date['activeDutyBeginDate'].nil?
 
         Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
@@ -809,7 +828,8 @@ module ClaimsApi
 
       def find_earliest_active_duty_begin_date(service_periods)
         service_periods.max_by do |a|
-          next unless date_is_valid?(a['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+          next if date_is_valid?(a['activeDutyBeginDate'],
+                                 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
 
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
         end
@@ -886,7 +906,7 @@ module ClaimsApi
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
         unless active_dates.compact.any? do |a|
-          next unless date_is_valid?(a, 'servicePeriods.activeDutyEndDate')
+          next unless date_is_valid?(a, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
           Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
                                                 claim_date.next_day(BDD_UPPER_LIMIT))
@@ -969,7 +989,7 @@ module ClaimsApi
       end
 
       def duty_begin_date_is_after_approximate_begin_date?(begin_date, approximate_begin_date)
-        return unless date_is_valid?(begin_date, 'servicePeriod.activeDutyBeginDate')
+        return if date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
       end
@@ -992,7 +1012,7 @@ module ClaimsApi
 
       def raise_date_error(date, property = '/')
         collect_error_messages(
-          detail: "#{date} is not a valid date for #{property}.",
+          detail: "#{date} is not a valid date.",
           source: property
         )
       end
@@ -1009,7 +1029,7 @@ module ClaimsApi
       def raise_error_collection
         return if errors_array.nil?
 
-        errors_array
+        errors_array.uniq { |e| e[:detail] }
       end
     end
   end
