@@ -109,7 +109,7 @@ spec:
 {{ toYaml $root.Values.web.envSecrets | indent 12 }}
           {{- range $keys, $key := $root.Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
-            - name: {{ $secret.env_var }}
+            - name: {{ upper $secret.name }}
               valueFrom:
                 secretKeyRef:
                   name: {{ $keys }}
