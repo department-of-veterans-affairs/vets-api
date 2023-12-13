@@ -921,6 +921,7 @@ lib/rx @department-of-veterans-affairs/mobile-api-team @department-of-veterans-a
 lib/saml @department-of-veterans-affairs/vsp-identity
 lib/search @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sftp_writer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+lib/sidekiq/attr_package.rb @department-of-veterans-affairs/vsp-identity @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/error_tag.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/form526_backup_submission_process @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/form526_backup_submission_process/submit_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/benefits-disability-2 @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
@@ -1375,6 +1376,7 @@ spec/lib/sentry @department-of-veterans-affairs/va-api-engineers @department-of-
 spec/lib/sftp_writer @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sftp_writer/factory_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sftp_writer/remote_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/sidekiq/attr_package_spec.rb @department-of-veterans-affairs/vsp-identity @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/error_tag_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_backup_submission_process @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/benefits-disability-2 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/benefits-disability-2 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
