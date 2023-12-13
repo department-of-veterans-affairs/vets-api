@@ -50,7 +50,6 @@ else
 	$(COMPOSE_TEST) build
 endif
 
-
 .PHONY: db
 db:  ## Sets up database and runs migrations
 ifeq ($(ENV_ARG), dev)
@@ -58,7 +57,6 @@ ifeq ($(ENV_ARG), dev)
 else
 	@$(BASH_TEST) $(DB)
 endif
-
 
 .PHONY: lint
 lint:  ## runs the linter
@@ -135,3 +133,25 @@ endif
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"
+
+# NATIVE COMMANDS
+.PHONY: native-up
+native-up:
+	bundle install
+	foreman start -m ${FOREMAN_ARG}
+
+.PHONY: native-lint
+native-lint:
+	bundle exec rake lint
+
+.PHONY: native-spec
+native-spec:
+	bundle exec rake spec
+
+.PHONY: native-spec-parallel
+native-spec-parallel:
+	RAILS_ENV=test NOCOVERAGE=true bundle exec rake parallel:spec
+
+.PHONY: native-spec-parallel-setup
+native-spec-parallel-setup:
+	RAILS_ENV=test bundle exec rake parallel:setup
