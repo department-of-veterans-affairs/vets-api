@@ -43,14 +43,22 @@ module EMISRedis
       tours_of_duty
       last_entry_date
       last_discharge_date
+      is_va_service_connected
       post_nov111998_combat
       sw_asia_combat
+      compensable_va_service_connected
       discharge_type
       service_branches
+      va_compensation_type
       service_periods
       guard_reserve_service_history
       latest_guard_reserve_service_period
     ].freeze
+
+    # Disability ratings counted as lower
+    LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
+    # Disability ratings counted as higher
+    HIGHER_DISABILITY_RATING = 50
 
     NOV_1998 = Date.new(1998, 11, 11)
     # Date range for the Gulf War
@@ -280,6 +288,57 @@ module EMISRedis
     #  Veteran's deployments
     def deployments
       @deployments ||= items_from_response('get_deployment')
+    end
+
+    # @return [Boolean] true if veteran is paid for a disability
+    #  with a low disability percentage
+    def compensable_va_service_connected
+      disabilities.each do |disability|
+        return true if disability.get_pay_amount.positive? &&
+                       LOWER_DISABILITY_RATINGS.include?(disability.get_disability_percent)
+      end
+
+      false
+    end
+
+    # don't want to change this method name, it matches the attribute in the json schema
+    # rubocop:disable Naming/PredicateName
+
+    # @return [Boolean] true if veteran is paid for a disability
+    #  with a high disability percentage
+    def is_va_service_connected
+      disabilities.each do |disability|
+        pay_amount = disability.get_pay_amount
+        disability_percent = disability.get_disability_percent
+
+        return true if pay_amount.positive? && disability_percent >= HIGHER_DISABILITY_RATING
+      end
+
+      false
+    end
+    # rubocop:enable Naming/PredicateName
+
+    # @return [String] If veteran is paid for a disability this method
+    #  will return which type of disability it is
+    #  (highDisability or lowDisability)
+    def va_compensation_type
+      # while supporting fallback support for the old fields,
+      # make a consistent number of calls to the properties to
+      # support specs that will be removed or updated
+      high_disability = is_va_service_connected
+      low_disability = compensable_va_service_connected
+
+      if high_disability
+        'highDisability'
+      elsif low_disability
+        'lowDisability'
+      end
+    end
+
+    # @return [Array<EMIS::Models::Disability>] Cached array of the
+    #  Veteran's disability data
+    def disabilities
+      @disabilities ||= items_from_response('get_disabilities')
     end
 
     # @return [Array<EMIS::Models::MilitaryServiceEpisode>] Cached

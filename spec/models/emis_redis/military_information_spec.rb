@@ -74,6 +74,66 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#is_va_service_connected' do
+    context 'with a disability with the right percent and amount' do
+      before do
+        expect(subject).to receive(:disabilities).and_return(
+          [
+            EMIS::Models::Disability.new(
+              disability_percent: 50,
+              pay_amount: 1
+            )
+          ]
+        )
+      end
+
+      it 'returns true' do
+        expect(subject.is_va_service_connected).to eq(true)
+      end
+    end
+
+    context 'with a disability with one of the fields nil' do
+      before do
+        expect(subject).to receive(:disabilities).and_return(
+          [
+            EMIS::Models::Disability.new(
+              disability_percent: nil,
+              pay_amount: 1
+            )
+          ]
+        )
+      end
+
+      it 'returns false' do
+        expect(subject.is_va_service_connected).to eq(false)
+      end
+    end
+  end
+
+  describe '#va_compensation_type' do
+    context 'with a disability of 50% or above' do
+      before do
+        expect(subject).to receive(:is_va_service_connected).and_return(true)
+        expect(subject).to receive(:compensable_va_service_connected).and_return(false)
+      end
+
+      it 'returns "highDisability"' do
+        expect(subject.va_compensation_type).to eq('highDisability')
+      end
+    end
+
+    context 'with a disability less than 50%' do
+      before do
+        expect(subject).to receive(:is_va_service_connected).and_return(false)
+        expect(subject).to receive(:compensable_va_service_connected).and_return(true)
+      end
+
+      it 'returns "lowDisability"' do
+        expect(subject.va_compensation_type).to eq('lowDisability')
+      end
+    end
+  end
+
   describe '#post_nov111998_combat' do
     context 'with no post nov 1998 combat' do
       before do
