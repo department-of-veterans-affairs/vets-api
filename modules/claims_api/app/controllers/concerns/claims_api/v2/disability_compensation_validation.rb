@@ -536,7 +536,7 @@ module ClaimsApi
         max_active_duty_end_date = max_period['activeDutyEndDate']
 
         max_date_valid = date_is_valid?(max_active_duty_end_date, 'servicePeriod.activeDutyBeginDate')
-        return if max_date_valid[0][:detail].present?
+        return if max_date_valid.is_a?(Array)
 
         if (ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid &&
           (Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
