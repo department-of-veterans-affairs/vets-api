@@ -68,6 +68,6 @@ jobs:
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "GH Workflow failed: ${{ matrix.build_location }}"
+          message: "GH Workflow failed: EMIS Cassettes Git History"
           blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\"}}, {\"type\": \"divider\"}]"
           channel_id: "C039HRTHXDH"
