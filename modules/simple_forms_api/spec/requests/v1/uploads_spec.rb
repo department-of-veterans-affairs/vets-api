@@ -52,7 +52,9 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
             data = JSON.parse(fixture_path.read)
             allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
-            expect { post '/simple_forms_api/v1/simple_forms', params: data }.to change(FormSubmissionAttempt, :count).by(1)
+            expect {
+              post '/simple_forms_api/v1/simple_forms', params: data
+            }.to change(FormSubmissionAttempt, :count).by(1)
           ensure
             metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
             Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
