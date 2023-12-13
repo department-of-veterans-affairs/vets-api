@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
-      UPCOMING_DAYS_LIMIT = 14.freeze
+      UPCOMING_DAYS_LIMIT = 14
 
       after_action :clear_appointments_cache, only: %i[cancel create]
 
