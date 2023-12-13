@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
+describe 'DisabilityCompensation', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
                                    vcr: 'claims_api/disability_comp' do
   let(:scopes) { %w[system/claim.read system/claim.write] }
 
@@ -489,7 +489,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
     end
   end
 
-  path '/veterans/{veteranId}/526/generatePDF' do
+  path '/veterans/{veteranId}/526/generatePDF', production: false do
     post 'Returns filled out 526EZ form as PDF' do
       tags 'Disability'
       operationId 'post526Pdf'
