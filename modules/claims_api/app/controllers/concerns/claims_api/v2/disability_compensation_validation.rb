@@ -69,7 +69,7 @@ module ClaimsApi
         begin
           nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
-          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
+          collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: "#{date} is not a valid date.")
         end
       end
 
@@ -77,8 +77,9 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'endDate')
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: '"changeOfAddress.dates.endDate" cannot be included when typeOfAddressChange is PERMANENT'
+          collect_error_messages(
+            detail: 'Change of address enddate cannot be included when typeOfAddressChange is PERMANENT',
+            source: 'changeOfAddress/dates/endDate'
           )
         end
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
@@ -451,8 +452,9 @@ module ClaimsApi
         treated_disability_names.each do |treatment|
           next if declared_disability_names.include?(treatment)
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The treated disability must match a disability listed above'
+          collect_error_messages(
+            detail: 'The treated disability must match a disability listed above',
+            source: '/treatments/treatedDisabilityNames'
           )
         end
       end
@@ -533,30 +535,32 @@ module ClaimsApi
         end
         max_active_duty_end_date = max_period['activeDutyEndDate']
 
-        return unless date_is_valid?(max_active_duty_end_date, 'servicePeriod.activeDutyBeginDate')
+        max_date_valid = date_is_valid?(max_active_duty_end_date, 'servicePeriod.activeDutyBeginDate')
+        return if max_date_valid[0][:detail].present?
 
-        if ant_sep_date.present? && max_active_duty_end_date.present? &&
-           ((Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
-           180.days) || (Date.strptime(ant_sep_date,
-                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
+        if (ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid &&
+          (Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
+           180.days)) || (Date.strptime(ant_sep_date,
+                                        '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days)
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
             detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
           )
         end
       end
 
-      def validate_service_periods!(service_information, target_veteran)
+      def validate_service_periods!(service_information, target_veteran) # rubocop:disable Metrics/MethodLength
         date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each do |sp|
           if sp['activeDutyBeginDate']
-            next unless date_is_valid?(sp['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+            begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+            break if begin_date_valid.is_a?(Array)
 
             age_exception if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
-
             if sp['activeDutyEndDate']
-              next unless date_is_valid?(sp['activeDutyEndDate'], 'servicePeriod.activeDutyBeginDate')
+              end_date_valid = date_is_valid?(sp['activeDutyEndDate'], 'servicePeriod.activeDutyBeginDate')
+              break if end_date_valid.is_a?(Array)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
@@ -662,6 +666,12 @@ module ClaimsApi
 
       def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
         service_periods.each do |sp|
+          begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'],
+                                            'serviceInformation/servicePeriods/activeDutyBeginDate')
+          end_date_valid = date_is_valid?(sp['activeDutyEndDate'],
+                                          'serviceInformation/servicePeriods/activeDutyEndDate')
+          break if begin_date_valid.is_a?(Array) || end_date_valid.is_a?(Array)
+
           active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
           active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
 
@@ -746,13 +756,13 @@ module ClaimsApi
         # if one is present both need to be present
         raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
         raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
-        if tos_start_date.present? && tos_end_date.presnt?
-          if Date.strptime(tos_start_date, '%Y-%m-%d') > Date.strptime(tos_end_date, '%Y-%m-%d')
-            collect_error_messages(
-              detail: 'Terms of service begin date must be before the terms of service end date.',
-              source: '/serviceInformation/reservesNationalGuardService/obligationTermsOfService'
-            )
-          end
+        if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
+                                                                              '%Y-%m-%d') > Date.strptime(tos_end_date,
+                                                                                                          '%Y-%m-%d'))
+          collect_error_messages(
+            detail: 'Terms of service begin date must be before the terms of service end date.',
+            source: '/serviceInformation/reservesNationalGuardService/obligationTermsOfService'
+          )
         end
       end
 
@@ -980,9 +990,10 @@ module ClaimsApi
         end
       end
 
-      def raise_date_error(date, property)
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "#{date} is not a valid date for #{property}."
+      def raise_date_error(date, property = '/')
+        collect_error_messages(
+          detail: "#{date} is not a valid date for #{property}.",
+          source: property
         )
       end
 

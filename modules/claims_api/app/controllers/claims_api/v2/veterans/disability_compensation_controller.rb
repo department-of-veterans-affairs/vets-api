@@ -24,7 +24,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit # rubocop:disable Metrics/MethodLength
+        def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
@@ -63,9 +63,8 @@ module ClaimsApi
 
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'Too many attachments.'
-            )
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity,
+                  [{ detail: 'Too many attachments.' }]
           end
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
@@ -116,9 +115,7 @@ module ClaimsApi
         def shared_validation
           validate_json_schema
           error = validate_form_526_submission_values!(target_veteran)
-          if error.present?
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, error
-          end
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, error if error.present?
         end
 
         def documents_service(params, claim)

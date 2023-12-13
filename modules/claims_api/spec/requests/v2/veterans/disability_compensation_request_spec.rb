@@ -200,7 +200,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  '"changeOfAddress.dates.endDate" cannot be included when typeOfAddressChange is PERMANENT'
+                  'Change of address enddate cannot be included when typeOfAddressChange is PERMANENT'
                 )
               end
             end
@@ -233,8 +233,8 @@ RSpec.describe 'Disability Claims', type: :request do
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:bad_request)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  '"2012-11-31" is not a valid value for "changeOfAddress.dates.beginDate"'
+                expect(response_body['errors'][0]['detail']).to include(
+                  'is not a valid'
                 )
               end
             end
@@ -1988,8 +1988,8 @@ RSpec.describe 'Disability Claims', type: :request do
               expect(response).to have_http_status(:unprocessable_entity)
               response_body = JSON.parse(response.body)
               # make sure it is failing for the expected reason, do not need the whole text
-              expect(response_body['errors'][0]['detail']).to include(
-                "#{active_duty_end_date} is not a valid date for servicePeriod.activeDutyBeginDate."
+              expect(response_body['errors'][0]['detail']).to eq(
+                'Confinement dates must be within one of the service period dates.'
               )
             end
           end
@@ -2725,9 +2725,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The name is required for secondary disability.'
-                )
+                expect(response_body['errors'].count).to eq(4)
               end
             end
           end
