@@ -56,7 +56,7 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
 
-        form_object_desc = 'change of address'
+        form_object_desc = '/changeOfAddress'
 
         raise_exception_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
@@ -69,7 +69,7 @@ module ClaimsApi
         begin
           nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
-          collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: "#{date} is not a valid date.")
+          collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end
 
@@ -79,10 +79,11 @@ module ClaimsApi
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
           collect_error_messages(
             detail: 'Change of address enddate cannot be included when typeOfAddressChange is PERMANENT',
-            source: 'changeOfAddress/dates/endDate'
+            source: '/changeOfAddress/dates/endDate'
           )
         end
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+        return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
         form_object_desc = 'a TEMPORARY change of address'
 
@@ -872,15 +873,15 @@ module ClaimsApi
         routing_number = direct_deposit_account_vals&.dig('routingNumber')
 
         if account_type.blank? || valid_account_types.exclude?(account_type)
-          collect_error_messages(detail: 'invalid, account types are missing or blank',
+          collect_error_messages(detail: 'accountType is missing or blank',
                                  source: '/directDeposit/accountType')
         end
         if account_number.blank?
-          collect_error_messages(detail: 'invalid, account number is missing or blank',
+          collect_error_messages(detail: 'accountNumber is missing or blank',
                                  source: '/directDeposit/accountNumber')
         end
         if routing_number.blank?
-          collect_error_messages(detail: 'invalid, routing number is missing or blank',
+          collect_error_messages(detail: 'routingNumber is missing or blank',
                                  source: '/directDeposit/routingNumber')
         end
       end

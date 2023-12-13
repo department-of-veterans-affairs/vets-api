@@ -267,7 +267,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'The begin date is required for change of address.'
+                  'The begin date is required for /changeOfAddress.'
                 )
               end
             end
