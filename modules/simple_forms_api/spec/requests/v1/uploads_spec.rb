@@ -31,6 +31,21 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
           end
         end
       end
+
+      it 'saves a FormSubmission' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', test_payload)
+            data = JSON.parse(fixture_path.read)
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+            expect { post '/simple_forms_api/v1/simple_forms', params: data }.to change { FormSubmission.count }.by(1)
+          ensure
+            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+          end
+        end
+      end
     end
 
     test_submit_request 'vha_10_10d.json'
