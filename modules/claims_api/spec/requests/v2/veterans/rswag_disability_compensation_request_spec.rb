@@ -12,7 +12,7 @@ describe 'DisabilityCompensation', swagger_doc: Rswag::TextHelpers.new.claims_ap
 
   path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'post526Claim'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -191,7 +191,7 @@ describe 'DisabilityCompensation', swagger_doc: Rswag::TextHelpers.new.claims_ap
 
   path '/veterans/{veteranId}/526/validate' do
     post 'Validates a 526 claim form submission.' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'post526ClaimValidate'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -319,7 +319,7 @@ describe 'DisabilityCompensation', swagger_doc: Rswag::TextHelpers.new.claims_ap
 
   path '/veterans/{veteranId}/526/{id}/attachments' do
     post 'Upload documents supporting a 526 claim' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'upload526Attachments'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -491,7 +491,7 @@ describe 'DisabilityCompensation', swagger_doc: Rswag::TextHelpers.new.claims_ap
 
   path '/veterans/{veteranId}/526/generatePDF', production: false do
     post 'Returns filled out 526EZ form as PDF' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
