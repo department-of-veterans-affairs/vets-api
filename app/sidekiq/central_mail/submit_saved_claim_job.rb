@@ -127,8 +127,8 @@ module CentralMail
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
+        'veteranFirstName' => remove_invalid_characters(veteran_full_name['first']),
+        'veteranLastName' => remove_invalid_characters(veteran_full_name['last']),
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => @claim.guid,
@@ -166,6 +166,11 @@ module CentralMail
       details['error'] = e if e
 
       details
+    end
+
+    def remove_invalid_characters(str)
+      # Replace characters that do not match the pattern with an empty string
+      @claim.respond_to?(:central_mail_submission) ? str.gsub(/[^A-Za-z'\/ -]/, '') : str
     end
   end
 end
