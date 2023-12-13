@@ -951,10 +951,7 @@ RSpec.describe FormProfile, type: :model do
         { service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } },
         { service_branch: 'Navy', date_range: { from: '2009-03-01', to: '2012-12-31' } },
         { service_branch: 'Army', date_range: { from: '2012-03-02', to: '2018-10-31' } }
-      ],
-      'is_va_service_connected' => true,
-      'compensable_va_service_connected' => false,
-      'va_compensation_type' => 'highDisability'
+      ]
     }
   end
 
@@ -969,12 +966,9 @@ RSpec.describe FormProfile, type: :model do
       'discharge_type' => 'honorable',
       'post_nov111998_combat' => true,
       'sw_asia_combat' => true,
-      'compensable_va_service_connected' => true,
-      'is_va_service_connected' => true,
       'tours_of_duty' => [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }],
       'currently_active_duty' => true,
       'currently_active_duty_hash' => { yes: true },
-      'va_compensation_type' => 'highDisability',
       'vic_verified' => true,
       'service_branches' => ['F'],
       'service_periods' => [{ service_branch: 'Air Force Reserve',

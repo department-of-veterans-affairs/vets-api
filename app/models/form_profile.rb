@@ -34,12 +34,9 @@ class FormMilitaryInformation
   attribute :discharge_type, String
   attribute :post_nov111998_combat, Boolean
   attribute :sw_asia_combat, Boolean
-  attribute :compensable_va_service_connected, Boolean
-  attribute :is_va_service_connected, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
-  attribute :va_compensation_type, String
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
