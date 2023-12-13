@@ -675,45 +675,6 @@ module ClaimsApi
         end
       end
 
-      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods) # rubocop:disable Metrics/MethodLength
-        service_periods.each do |sp|
-          begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'],
-                                            'serviceInformation/servicePeriods/activeDutyBeginDate')
-          end_date_valid = date_is_valid?(sp['activeDutyEndDate'],
-                                          'serviceInformation/servicePeriods/activeDutyEndDate')
-          break if begin_date_valid.is_a?(Array) || end_date_valid.is_a?(Array)
-
-          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') if sp['activeDutyBeginDate']
-          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%Y-%m-%d') if sp['activeDutyEndDate']
-
-          next if active_duty_begin_date.blank? || active_duty_end_date.blank? # nothing to compare against
-
-          begin_date_has_day = date_has_day?(approximate_begin_date)
-          end_date_has_day = date_has_day?(approximate_end_date)
-          if begin_date_has_day && end_date_has_day
-            unless date_is_within_range?(Date.strptime(approximate_begin_date, '%Y-%m-%d'),
-                                         Date.strptime(approximate_end_date, '%Y-%m-%d'),
-                                         active_duty_begin_date, active_duty_end_date)
-              return false
-            end
-          elsif !begin_date_has_day && !end_date_has_day
-            unless date_is_within_range?(Date.strptime(approximate_begin_date, '%Y-%m'),
-                                         Date.strptime(approximate_end_date, '%Y-%m'),
-                                         active_duty_begin_date, active_duty_end_date)
-              return false
-            end
-          end
-        end
-        true
-      end
-
-      def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
-        return if service_begin.blank? || service_end.blank?
-
-        conf_begin.between?(service_begin, service_end) &&
-          conf_end.between?(service_begin, service_end)
-      end
-
       def validate_alternate_names!(service_information)
         alternate_names = service_information&.dig('alternateNames')
         return if alternate_names.blank?
