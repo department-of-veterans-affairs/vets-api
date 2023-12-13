@@ -671,13 +671,6 @@ module ClaimsApi
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
           end
-
-          unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
-                                                              service_periods)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: 'Confinement dates must be within one of the service period dates.'
-            )
-          end
         end
       end
 
@@ -827,9 +820,8 @@ module ClaimsApi
       end
 
       def find_earliest_active_duty_begin_date(service_periods)
-        service_periods.max_by do |a|
-          next if date_is_valid?(a['activeDutyBeginDate'],
-                                 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
+        service_periods.min_by do |a|
+          next unless !date_is_valid?(a['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate').is_a?(Array)
 
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
         end
@@ -961,11 +953,9 @@ module ClaimsApi
         DATE_FORMATS[date.length]
       end
 
-      # making date approximate to compare
+      # removing the -DD from a YYYY-MM-DD date format to compare against a YYYY-MM date
       def remove_chars(str)
-        indices = [2, 3, 4] # MM| -DD |-YYYY
-        indices.reverse_each { |i| str[i] = '' }
-        str
+        str.sub(/-\d{2}\z/, '')
       end
 
       def date_regex_groups(date)

@@ -5,7 +5,7 @@ services:
     ports:
       - "63790:6379"
   postgres:
-    image: postgis/postgis:14-3.3-alpine
+    image: mdillon/postgis:11-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"

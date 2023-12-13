@@ -1,5 +1,8 @@
 name: Audit Service Tags
-on: [push]
+on:
+  pull_request:
+    branches:
+      - 'master'
 permissions:
   contents: read
   checks: write
