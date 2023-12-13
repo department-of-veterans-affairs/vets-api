@@ -3,6 +3,8 @@
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
+      UPCOMING_DAYS_LIMIT = 14.freeze
+
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
@@ -12,7 +14,10 @@ module Mobile
         status = get_response_status(failures)
         page_appointments, page_meta_data = paginate(appointments)
         page_meta_data[:meta].merge!(partial_errors) unless partial_errors.nil?
-        page_meta_data[:meta].merge!(upcoming_appointments_count: upcoming_appointments_count(appointments))
+        page_meta_data[:meta].merge!(
+          upcoming_appointments_count: upcoming_appointments_count(appointments),
+          upcoming_days_limit: UPCOMING_DAYS_LIMIT
+        )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
@@ -116,7 +121,7 @@ module Mobile
       def upcoming_appointments_count(appointments)
         appointments.count do |appt|
           appt.is_pending == false && appt.status == 'BOOKED' && appt.start_date_utc > Time.now.utc &&
-            appt.start_date_utc <= 2.weeks.from_now.end_of_day.utc
+            appt.start_date_utc <= UPCOMING_DAYS_LIMIT.days.from_now.end_of_day.utc
         end
       end
 
