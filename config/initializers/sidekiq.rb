@@ -10,11 +10,6 @@ require 'sidekiq/set_request_attributes'
 require 'sidekiq/set_current_retry'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 
-if defined?(ENV.fetch('VSP_ENVIRONMENT', nil))
-  Settings.prepend_source!(Rails.root.join("config/settings/#{ENV.fetch('VSP_ENVIRONMENT', nil)}.local.yml").to_s)
-  Settings.reload!
-end
-
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
