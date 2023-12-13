@@ -100,7 +100,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting an unauthorized reponse' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -130,8 +130,8 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       describe 'Getting an unprocessable entity response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api',
-                                            'errors', 'default_with_source.json').read)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default_with_source.json').read)
           # Build the dropdown for examples
           def append_example_metadata(example, response)
             example.metadata[:response][:content] = {
@@ -257,7 +257,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -291,8 +291,8 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
-                                            'default_with_source.json').read)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default_with_source.json').read)
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
@@ -410,7 +410,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -454,7 +454,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:attachment1) do

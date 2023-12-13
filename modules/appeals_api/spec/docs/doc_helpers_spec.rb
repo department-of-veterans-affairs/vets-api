@@ -114,7 +114,7 @@ describe DocHelpers do
         {
           name: 'exampleSharedSchemaValue1',
           description: "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
-          example: '1234567890V123456',
+          example: '1012832025V743496',
           schema: {
             type: 'string',
             pattern: '^[0-9]{10}V[0-9]{6}$',
@@ -133,7 +133,7 @@ describe DocHelpers do
         {
           name: 'exampleSharedSchemaValue2',
           description: 'Description of example shared schema field',
-          example: '1234567890V123456',
+          example: '1012832025V743496',
           required: true,
           schema: {
             type: 'string',

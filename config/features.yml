@@ -710,6 +710,10 @@ features:
     actor_type: user
     description: filters out doc type 27 decision letters out of list of decision letters for mobile
     enable_in_development: false
+  mobile_claims_log_decision_letter_sent:
+    actor_type: user
+    description: Logs decision letter info on both claims and decision letter endpoint
+    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -749,9 +753,6 @@ features:
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
-  profile_lighthouse_direct_deposit:
-    actor_type: user
-    description: When enabled, will request direct deposit data from lighthouse API.
   profile_user_claims:
     actor_type: user
     description: When enabled, /v0/user will return user profile claims for accessing service endpoints.
@@ -1268,6 +1269,9 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  pension_claim_submission_to_lighthouse:
+    actor_type: user
+    description: Pension claim submission uses Lighthouse API
   veteran_status_updated:
     actor_type: user
     description: Enable the veteran post-emis status

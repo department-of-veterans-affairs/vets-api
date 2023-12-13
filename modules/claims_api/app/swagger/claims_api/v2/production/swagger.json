@@ -1282,6 +1282,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "sponsorIcn",
+            "in": "query",
+            "required": false,
+            "example": "1012861229V078999",
+            "description": "ICN of the veteran affiliated with the dependent",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1314,6 +1324,59 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Claim not found"
                     }
                   ]
                 },
