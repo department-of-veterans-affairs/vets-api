@@ -111,12 +111,13 @@ module SimpleFormsApi
       def upload_pdf_to_benefits_intake(file_path, metadata)
         lighthouse_service = SimpleFormsApiSubmission::Service.new
         uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
-        FormSubmission.create(
+        form_submission = FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid_and_location[:uuid],
           form_data: params.to_json,
-          user_account_id: @current_user&.id
+          user_account: @current_user
         )
+        FormSubmissionAttempt.create(form_submission:)
 
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
