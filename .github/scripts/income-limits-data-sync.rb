@@ -13,11 +13,11 @@ db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 
 # Define csv files hash.
 files = [
-  "std_zipcode" => "std_zipcode_temp.csv",
-  "std_state" => "std_state_temp.csv",
-  "std_incomethreshold" => "std_incomethreshold_temp.csv",
-  "std_gmtthresholds" => "std_gmtthresholds_temp.csv",
-  "std_county" => "std_county_temp.csv",
+  "STD_ZIPCODE" => "std_zipcode_temp.csv",
+  "STD_STATE" => "std_state_temp.csv",
+  "STD_INCOMETHRESHOLD" => "std_incomethreshold_temp.csv",
+  "STD_GMTTHRESHOLDS" => "std_gmtthresholds_temp.csv",
+  "STD_COUNTY" => "std_county_temp.csv",
 ]
 
 # Define temp directory
@@ -26,24 +26,22 @@ temp_directory = ENV['TEMP_FOLDER']
 # Connect to the Oracle database
 conn = OCI8.new(db_username, db_password, db_connection_string)
 
-# files.each do |table, file|
-#   # Query the data for the table.
-#   sql_query = "SELECT * FROM #{table}"
-#   result = conn.exec(sql_query)
+files.each do |table, file|
+  # Query the data for the table.
+  sql_query = "SELECT * FROM #{table}"
+  result = conn.exec(sql_query)
 
-#   # Create a CSV file from the results in the temp directory.
-#   CSV.open("#{temp_directory}/#{file}", 'w') do |csv|
-#     # Write header
-#     csv << result.get_col_names
+  # Create a CSV file from the results in the temp directory.
+  CSV.open("#{temp_directory}/#{file}", 'w') do |csv|
+    # Write header
+    csv << result.get_col_names
 
-#     # Write rows
-#     result.fetch do |row|
-#       csv << row
-#     end
-#   end
-# end
+    # Write rows
+    result.fetch do |row|
+      csv << row
+    end
+  end
+end
 
-query = 'SELECT table_name FROM all_tables ORDER BY table_name'
-conn.exec(query) do |r| puts r.join(',') end
 # Close the database connection
 conn.logoff
