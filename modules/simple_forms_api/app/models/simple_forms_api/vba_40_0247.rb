@@ -66,6 +66,7 @@ module SimpleFormsApi
         'postal_code' => additional_form_data.dig('additional_address', 'postal_code'),
         'country' => additional_form_data.dig('additional_address', 'country')
       }
+      additional_form_data['certificates'] = additional_form_data['additional_copies']
       filler = SimpleFormsApi::PdfFiller.new(
         form_number: 'vba_40_0247',
         form: SimpleFormsApi::VBA400247.new(additional_form_data),
