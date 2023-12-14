@@ -197,7 +197,6 @@ PATH
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
 
-
 GEM
   remote: https://enterprise.contribsys.com/
   specs:
