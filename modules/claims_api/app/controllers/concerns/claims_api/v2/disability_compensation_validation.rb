@@ -40,7 +40,7 @@ module ClaimsApi
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
         # collect errors and pass back to the controller
-        raise_error_collection
+        raise_error_collection if @errors
       end
 
       def validate_form_526_change_of_address!
@@ -979,8 +979,6 @@ module ClaimsApi
       end
 
       def raise_error_collection
-        return if errors_array.empty?
-
         errors_array.uniq! { |e| e[:detail] }
         { errors: errors_array } # set up the object to match other error returns
       end
