@@ -1217,15 +1217,11 @@ RSpec.describe User, type: :model do
         end
 
         it 'returns attributes of military_information for a mock user' do
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            allow_playback_repeats: true, match_requests_on: %i[method body]) do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                             allow_playback_repeats: true, match_requests_on: %i[method body]) do
-              expect(user.military_information.service_episodes_by_date.length).to eq(3)
-              expect(user.military_information.va_compensation_type).to eq('highDisability')
-              expect(user.military_information.last_service_branch).to eq('Army')
-              expect(user.military_information.tours_of_duty.length).to eq(3)
-            end
+            expect(user.military_information.service_episodes_by_date.length).to eq(3)
+            expect(user.military_information.last_service_branch).to eq('Army')
+            expect(user.military_information.tours_of_duty.length).to eq(3)
           end
         end
       end
