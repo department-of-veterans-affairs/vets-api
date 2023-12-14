@@ -21,7 +21,7 @@ files = [
 ]
 
 # Define temp directory
-temp_directory = ENV.TEMP_FOLDER
+temp_directory = ENV['TEMP_FOLDER']
 
 # Connect to the Oracle database
 conn = OCI8.new(db_username, db_password, db_connection_string)
