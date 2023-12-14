@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'fakeredis/rspec'
 require 'i18n'
 require 'support/spec_builders'
 require 'support/matchers'
