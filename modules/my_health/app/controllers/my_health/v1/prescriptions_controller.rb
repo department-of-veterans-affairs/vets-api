@@ -23,7 +23,7 @@ module MyHealth
                    else
                      resource.sort(params[:sort])
                    end
-        resource.data = params[:include_images].present? ? fetch_and_encode_images(resource.data) : resource.data
+        resource.data = params[:include_image].present? ? fetch_and_encode_images(resource.data) : resource.data
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         render json: resource.data,
@@ -40,6 +40,12 @@ module MyHealth
         render json: resource,
                serializer: PrescriptionDetailsSerializer,
                meta: resource.metadata
+      end
+
+      def get_prescription_image
+        image_url = get_image_uri(params[:cmopNdcNumber])
+        image_data = fetch_image(image_url)
+        render json: { data: image_data }
       end
 
       def refill
