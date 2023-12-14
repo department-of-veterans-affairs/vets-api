@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_13_143523) do
+ActiveRecord::Schema.define(version: 2023_12_13_145347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -637,13 +637,13 @@ ActiveRecord::Schema.define(version: 2023_12_13_143523) do
     t.string "form_type", null: false
     t.uuid "benefits_intake_uuid"
     t.uuid "submitted_claim_uuid"
-    t.jsonb "form_data", default: {}
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
     t.bigint "in_progress_form_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "form_data_ciphertext"
     t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
     t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
