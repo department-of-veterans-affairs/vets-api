@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 services:
   redis:
     image: redis:5.0-alpine
@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
     volumes:
-      - ./data:/var/lib/postgresql/data:cached
+      - postgres-data:/var/lib/postgresql/data:cached
     ports:
       - "54320:5432"
   vets-api:

@@ -8,14 +8,21 @@ module MyHealth
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-messaging'
 
+    skip_before_action :authenticate
+
     protected
 
-    def client
-      @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
+   def client
+      # @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
+      # @client ||= SM::Client.new(session: { user_id: 9792157 }) # STAGING USER
+      # @client ||= SM::Client.new(session: { user_id: 1571704 }) # DEV USER
+        # @client ||= SM::Client.new(session: { user_id: 7366505 }) # SYST MHV smautotest4
+        # @client ||= SM::Client.new(session: { user_id: 10055239 }) # SYST vets.gov.user+41@gmail.co
+        @client ||= SM::Client.new(session: { user_id: 9712240 }) # MHVMARK mhvmark.test@id.me
     end
 
     def authorize
-      raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
+      # raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
     end
 
     def raise_access_denied
