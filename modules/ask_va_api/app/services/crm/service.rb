@@ -8,9 +8,9 @@ module Crm
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'veis/vagov.lob.ava/api'
-    AUTH_URL = 'https://login.microsoftonline.us'
 
     def_delegators :settings,
+                   :auth_url,
                    :base_url,
                    :client_id,
                    :client_secret,
@@ -27,6 +27,19 @@ module Crm
       @logger = logger
     end
 
+    def token
+      endpoint = "/#{tenant_id}/oauth2/token"
+      response = conn(url: auth_url).post(endpoint) do |req|
+        req.headers = token_headers
+        req.body = URI.encode_www_form(auth_params)
+      end
+      result = parse_response(response.body)
+      result[:access_token]
+    rescue => e
+      log_error(endpoint, service_name)
+      raise e
+    end
+
     def call(endpoint:, method: :get, payload: {})
       endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
 
@@ -37,17 +50,8 @@ module Crm
       end
       parse_response(response.body)
     rescue => e
-      log_error(endpoint, e.class.name)
-      [e,
-       {
-         bearer: token,
-         env: Rails.env,
-         vsp_env: Settings.vsp_environment,
-         tenant: tenant_id.chars.first(5),
-         resource: resource.chars.first(5),
-         client: client_id.chars.first(5),
-         base_uri:
-       }]
+      log_error(endpoint, service_name)
+      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
     private
@@ -55,6 +59,7 @@ module Crm
     def conn(url: base_uri)
       Faraday.new(url:) do |f|
         f.use :breakers
+        f.response :raise_error, error_prefix: service_name
         f.adapter Faraday.default_adapter
       end
     end
@@ -102,16 +107,6 @@ module Crm
         resource:,
         grant_type: 'client_credentials'
       }
-    end
-
-    def token
-      response = conn(url: AUTH_URL).post("/#{tenant_id}/oauth2/token") do |req|
-        req.headers = token_headers
-        req.body = URI.encode_www_form(auth_params)
-      end
-
-      result = parse_response(response.body)
-      result[:access_token] || result
     end
   end
 end
