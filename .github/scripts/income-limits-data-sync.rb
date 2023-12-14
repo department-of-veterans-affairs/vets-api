@@ -44,5 +44,9 @@ files.each do |table, file|
   end
 end
 
+# Debugging all available tables
+query = 'SELECT table_name FROM all_tables ORDER BY table_name'
+conn.exec(query) do |r| puts r.join(',') end
+
 # Close the database connection
 conn.logoff
