@@ -16,7 +16,6 @@ module MyHealth
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         sorting_key_primary = params[:sort]&.first
         resource.data = filter_non_va_meds(resource.data)
-        resource.data = fetch_and_encode_images(resource.data)
         resource = if sorting_key_primary == 'prescription_name'
                      sort_by_prescription_name(resource)
                    elsif sorting_key_primary == '-dispensed_date'
@@ -24,6 +23,7 @@ module MyHealth
                    else
                      resource.sort(params[:sort])
                    end
+        resource.data = params[:include_images].present? ? fetch_and_encode_images(resource.data) : resource.data
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         render json: resource.data,
@@ -47,21 +47,23 @@ module MyHealth
         head :no_content
       end
 
-      private
-
       def fetch_and_encode_images(data)
-        data.map do |item|
+        threads = []
+        data.each do |item|
           if item[:cmop_ndc_number].present?
-            begin
-              image_url = get_image_uri(item[:cmop_ndc_number])
-              item[:prescription_image] = fetch_image(image_url)
+            threads << Thread.new(item) do |thread_item|
+              image_url = get_image_uri(thread_item[:cmop_ndc_number])
+              thread_item[:prescription_image] = fetch_image(image_url)
             rescue => e
-              puts "Error fetching image for NDC #{cmop_ndc_number}: #{e.message}"
+              puts "Error fetching image for NDC #{thread_item[:cmop_ndc_number]}: #{e.message}"
             end
           end
-          item
         end
+        threads.each(&:join)
+        data
       end
+
+      private
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
