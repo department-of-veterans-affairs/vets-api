@@ -74,12 +74,13 @@ module SimpleFormsApi
       def submit_form_to_central_mail
         parsed_form_data = form_is210966 ? handle_210966_data : JSON.parse(params.to_json)
         form_id = get_form_id
-        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
+        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = filler.generate
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(filler.metadata)
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        SimpleFormsApi::VBA400247.new(parsed_form_data).handle_attachments(file_path) if form_id == 'vba_40_0247'
+        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 

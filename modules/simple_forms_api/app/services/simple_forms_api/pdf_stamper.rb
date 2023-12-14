@@ -7,10 +7,10 @@ module SimpleFormsApi
     FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
-    def self.stamp_pdf(stamped_template_path, data)
-      if FORM_REQUIRES_STAMP.include? data['form_number']
-        stamp_method = "stamp#{data['form_number'].gsub('-', '')}".downcase
-        send(stamp_method, stamped_template_path, data)
+    def self.stamp_pdf(stamped_template_path, form)
+      if FORM_REQUIRES_STAMP.include? form.data['form_number']
+        stamp_method = "stamp#{form.data['form_number'].gsub('-', '')}".downcase
+        send(stamp_method, stamped_template_path, form.data)
       end
 
       current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
