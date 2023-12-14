@@ -43,7 +43,7 @@ conn = OCI8.new(db_username, db_password, db_connection_string)
 #   end
 # end
 
-query = 'SELECT table_name FROM user_tables ORDER BY table_name'
+query = 'SELECT table_name FROM all_tables ORDER BY table_name'
 conn.exec(query) do |r| puts r.join(',') end
 # Close the database connection
 conn.logoff
