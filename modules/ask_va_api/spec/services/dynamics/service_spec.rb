@@ -10,6 +10,10 @@ RSpec.describe Dynamics::Service do
   describe '#call' do
     let(:endpoint) { 'ada58e23-c461-4baf-9c03-ee36ba55c8cf' }
 
+    before do
+      allow_any_instance_of(Dynamics::Service).to receive(:token).and_return('token')
+    end
+
     context 'with GET method' do
       it 'makes a successful API call' do
         VCR.use_cassette('ask_va_api/dynamics/service/get_request') do

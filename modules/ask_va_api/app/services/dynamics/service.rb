@@ -31,12 +31,16 @@ module Dynamics
       endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
 
       params = { icn: }
-      execute_api_call(endpoint, method, payload, params)
-    rescue ErrorHandler::ServiceError => e
+
+      response = conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
+        req.headers = default_header.merge('Authorization' => "Bearer #{token}")
+      end
+      parse_response(response.body)
+    rescue => e
       log_error(endpoint, e.class.name)
       [e,
        {
-         bearer: token(method),
+         bearer: token,
          env: Rails.env,
          vsp_env: Settings.vsp_environment,
          tenant: tenant_id.chars.first(5),
@@ -50,24 +54,8 @@ module Dynamics
 
     def conn(url: base_uri)
       Faraday.new(url:) do |f|
-        f.headers['Content-Type'] = 'application/json'
-        f.request :url_encoded
         f.use :breakers
         f.adapter Faraday.default_adapter
-      end
-    end
-
-    def execute_api_call(endpoint, method, payload, params)
-      response = invoke_request(endpoint, method, payload, params)
-      ErrorHandler.handle(endpoint, response)
-      parse_response(response.body)
-    end
-
-    def invoke_request(endpoint, method, payload, params)
-      logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
-        conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
-          req.headers = default_header.merge('Authorization' => "Bearer #{token(method)}")
-        end
       end
     end
 
@@ -116,18 +104,14 @@ module Dynamics
       }
     end
 
-    def token(method)
-      logger.call("api_call.#{method}", tags: build_tags("/#{tenant_id}/oauth2/token")) do
-        response = conn(url: AUTH_URL).post("/#{tenant_id}/oauth2/token") do |req|
-          req.headers = token_headers
-          req.body = URI.encode_www_form(auth_params)
-        end
-
-        parse_response = parse_response(response.body)
-        parse_response[:access_token] || parse_response || 'not null'
-      rescue => e
-        [:error, e]
+    def token
+      response = conn(url: AUTH_URL).post("/#{tenant_id}/oauth2/token") do |req|
+        req.headers = token_headers
+        req.body = URI.encode_www_form(auth_params)
       end
+
+      result = parse_response(response.body)
+      result[:access_token] || result
     end
   end
 end
