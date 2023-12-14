@@ -673,7 +673,8 @@ module ClaimsApi
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
           if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                                               approximate_begin_date)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
+            collect_error_messages(
+              source: "/confinements/#{idx}/approximateBeginDate",
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
           end
@@ -691,7 +692,8 @@ module ClaimsApi
         duplicate_names_check = alternate_names.detect { |e| alternate_names.rindex(e) != alternate_names.index(e) }
 
         unless duplicate_names_check.nil?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/alternateNames',
             detail: 'Names entered as an alternate name must be unique.'
           )
         end
@@ -699,10 +701,11 @@ module ClaimsApi
 
       def validate_service_branch_names!(service_information)
         downcase_branches = brd_service_branch_names.map(&:downcase)
-        service_information['servicePeriods'].each do |sp|
+        service_information['servicePeriods'].each_with_index do |sp, idx|
           unless downcase_branches.include?(sp['serviceBranch'].downcase)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'servicePeriods.serviceBranch' must match a service branch " \
+            collect_error_messages(
+              source: "/serviceInformation/servicePeriods/#{idx}/serviceBranch",
+              detail: 'serviceBranch must match a service branch ' \
                       'returned from the /service-branches endpoint of the Benefits ' \
                       'Reference Data API.'
             )
@@ -750,21 +753,22 @@ module ClaimsApi
 
         return if title_ten_activation.blank?
 
-        form_obj_desc = 'title 10 activation'
+        form_obj_desc = '/serviceInformation/federalActivation'
 
         if title_ten_activation_date.blank?
-          raise_exception_if_value_not_present('title 10 activation date',
+          raise_exception_if_value_not_present('federalActivation',
                                                form_obj_desc)
         end
 
         if anticipated_seperation_date.blank?
-          raise_exception_if_value_not_present('anticipated seperation date',
-                                               form_obj_desc)
+          raise_exception_if_value_not_present('anticipatedSeperationDate',
+                                               "#{form_obj_desc}/anticipatedSeparationDate")
         end
         # we know the dates are present
         if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
           )
         end
 
@@ -797,7 +801,8 @@ module ClaimsApi
 
       def validate_anticipated_seperation_date_in_past!(date)
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
             detail: 'The anticipated separation date must be a date in the future.'
           )
         end
@@ -815,16 +820,17 @@ module ClaimsApi
       def validate_no_account!
         acc_vals = form_attributes['directDeposit']
 
-        raise_exception_on_invalid_account_values('account type') if acc_vals['accountType'].present?
-        raise_exception_on_invalid_account_values('account number') if acc_vals['accountNumber'].present?
-        raise_exception_on_invalid_account_values('routing number') if acc_vals['routingNumber'].present?
+        raise_exception_on_invalid_account_values('accountType') if acc_vals['accountType'].present?
+        raise_exception_on_invalid_account_values('accountNumber') if acc_vals['accountNumber'].present?
+        raise_exception_on_invalid_account_values('routingNumber') if acc_vals['routingNumber'].present?
         if acc_vals['financialInstitutionName'].present?
-          raise_exception_on_invalid_account_values('financial institution name')
+          raise_exception_on_invalid_account_values('financialInstitutionName')
         end
       end
 
       def raise_exception_on_invalid_account_values(account_detail)
-        raise ::Common::Exceptions::UnprocessableEntity.new(
+        collect_error_messages(
+          source: "/directDeposit/#{account_detail}",
           detail: "If the claimant has no account the #{account_detail} field must be left empty."
         )
       end
@@ -871,7 +877,8 @@ module ClaimsApi
           Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
                                                 claim_date.next_day(BDD_UPPER_LIMIT))
         end
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/servicePeriods/',
             detail: "Must have an activeDutyEndDate or anticipatedSeparationDate between #{BDD_LOWER_LIMIT}" \
                     " & #{BDD_UPPER_LIMIT} days from claim date."
           )
