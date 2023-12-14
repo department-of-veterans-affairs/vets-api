@@ -2,8 +2,8 @@
 
 require 'claims_api/common/exceptions/lighthouse/token_validation_error'
 require 'claims_api/common/exceptions/lighthouse/json_validation_error'
+require 'claims_api/common/exceptions/lighthouse/json_disability_compensation_validation_error'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
-require 'claims_api/common/exceptions/lighthouse/invalid_field_value'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 
 module ClaimsApi
@@ -24,16 +24,17 @@ module ClaimsApi
                         ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
                         ::Common::Exceptions::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::InvalidFieldValue do |err|
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
                           render_error(err)
                         end
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
-              render_json_error(err)
-            end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
               render_json_error(
                 ::ClaimsApi::Common::Exceptions::Lighthouse::JsonValidationError.new(err.to_json_api)
               )
+            end
+
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |err|
+              render_error_array(err)
             end
           end
         end
@@ -48,6 +49,10 @@ module ClaimsApi
               error_hash
             end
           }, status: error.status_code
+        end
+
+        def render_error_array(error)
+          render json: { errors: error.errors_array }, status: error.status_code
         end
 
         def render_json_error(error)
