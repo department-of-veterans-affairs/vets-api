@@ -23,39 +23,38 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
         with:
-          role-to-assume: arn:aws:iam::1234567890:role/example-role #todo: change to real role
-          role-session-name: samplerolesession #todo: change to real session name
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: "us-gov-west-1"
 
       - name: Get VES DB Username
-        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
         with:
           ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_USERNAME
           env_variable_name: VA_INCOME_LIMITS_VES_DB_USERNAME
 
       - name: Get VES DB Password
-        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
         with:
           ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_PASSWORD
           env_variable_name: VA_INCOME_LIMITS_VES_DB_PASSWORD
 
       - name: Get VES DB SID
-        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
         with:
           ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_SID
           env_variable_name: VA_INCOME_LIMITS_VES_DB_SID
 
       - name: Get VES DB Server Name
-        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
         with:
           ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_SERVER
           env_variable_name: VA_INCOME_LIMITS_VES_DB_SERVER
 
       - name: Get VES DB Port
-        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
         with:
           ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_PORT
           env_variable_name: VA_INCOME_LIMITS_VES_DB_PORT
