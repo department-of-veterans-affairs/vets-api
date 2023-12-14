@@ -5,25 +5,21 @@ module ClaimsApi
     module Exceptions
       module Lighthouse
         class UnprocessableEntity < StandardError
-          def initialize(errors)
-            @errors = errors
+          def initialize(options = {})
+            @title = options[:title] || 'Unprocessable entity'
+            @detail = options[:detail]
 
             super
           end
 
-          def errors_array
-            errors_array = []
-            @errors.each do |err|
-              errors_array << {
-                title: err[:title] || 'Unprocessable entity',
-                detail: err[:detail],
-                status: err[:status].to_s, # LH standards want this be a string
-                source: {
-                  pointer: "data/attributes#{err[:source]}"
-                }
+          def errors
+            [
+              {
+                title: @title,
+                detail: @detail,
+                status: status_code.to_s # LH standards want this as a string
               }
-            end
-            errors_array
+            ]
           end
 
           def status

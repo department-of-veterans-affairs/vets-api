@@ -24,7 +24,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit
+        def submit # rubocop:disable Metrics/MethodLength
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
@@ -41,11 +41,11 @@ module ClaimsApi
           end
           save_auto_claim!(auto_claim)
 
-          # if auto_claim.errors.present?
-          #   raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-          #     detail: auto_claim.errors.messages.to_s
-          #   )
-          # end
+          if auto_claim.errors.present?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: auto_claim.errors.messages.to_s
+            )
+          end
 
           track_pact_counter auto_claim
 
@@ -63,8 +63,9 @@ module ClaimsApi
 
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity,
-                  [{ detail: 'Too many attachments.' }]
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'Too many attachments.'
+            )
           end
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
@@ -114,8 +115,10 @@ module ClaimsApi
 
         def shared_validation
           validate_json_schema
-          error = validate_form_526_submission_values!(target_veteran)
-          raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, error if error.present?
+          errors = validate_form_526_submission_values!(target_veteran)
+          if errors.present?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError, errors
+          end
         end
 
         def documents_service(params, claim)

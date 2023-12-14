@@ -992,9 +992,10 @@ module ClaimsApi
       end
 
       def raise_error_collection
-        return if errors_array.nil?
+        return if errors_array.empty?
 
-        errors_array.uniq { |e| e[:detail] }
+        errors_array.uniq! { |e| e[:detail] }
+        { errors: errors_array } # set up the object to match other error returns
       end
     end
   end
