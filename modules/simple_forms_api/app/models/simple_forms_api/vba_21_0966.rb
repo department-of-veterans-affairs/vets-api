@@ -31,24 +31,26 @@ module SimpleFormsApi
 
     def relationship_to_veteran
       relationship = @data.dig('relationship_to_veteran', 'relationship_to_veteran')
-      if ['parent', 'executor', 'other'].include?(relationship)
-        relationship
-      end
+      relationship if %w[parent executor other].include?(relationship)
     end
 
     def third_party_info
       third_party_preparer_full_name = @data['third_party_preparer_full_name']
-      role = if @data['third_party_preparer_role'] == 'other'
-        @data['other_third_party_preparer_role'] || ''
-      else
-        @data['third_party_preparer_role'] || ''
-      end
+      role =
+        if @data['third_party_preparer_role'] == 'other'
+          @data['other_third_party_preparer_role'] || ''
+        else
+          @data['third_party_preparer_role'] || ''
+        end
 
       if third_party_preparer_full_name
-        (third_party_preparer_full_name['first'] || '') + ' '
-          + (third_party_preparer_full_name['middle'] || '') + ' '
-          + (third_party_preparer_full_name['last'] || '') + ', ' 
-          + role
+        "#{
+          third_party_preparer_full_name['first'] || ''
+        } #{
+          third_party_preparer_full_name['middle'] || ''
+        } #{
+          third_party_preparer_full_name['last'] || ''
+        }, #{role}"
       end
     end
   end

@@ -22,8 +22,10 @@ module SimpleFormsApi
 
     def self.stamp264555(stamped_template_path, form)
       desired_stamps = []
-      desired_stamps.append([73, 390, 'X']) if form.data['previous_sah_application']['has_previous_sah_application'] == false
-      desired_stamps.append([73, 355, 'X']) if form.data['previous_hi_application']['has_previous_hi_application'] == false
+      desired_stamps.append([73, 390,
+                             'X']) if form.data['previous_sah_application']['has_previous_sah_application'] == false
+      desired_stamps.append([73, 355,
+                             'X']) if form.data['previous_hi_application']['has_previous_hi_application'] == false
       desired_stamps.append([73, 320, 'X']) if form.data['living_situation']['is_in_care_facility'] == false
       stamp(desired_stamps, stamped_template_path)
     end
