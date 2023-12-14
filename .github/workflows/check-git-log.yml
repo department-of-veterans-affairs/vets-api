@@ -3,7 +3,7 @@ name: Check Git Log for EMIS Cassettes (PII)
 on:
   push:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 * * * *'
 
 jobs:
   check-git-log:
@@ -15,13 +15,26 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Only check current branch unless we're triggered via schedule/cron
+      id: vars
+      run: |
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          echo "GIT_LOG_ARGS=--all" >> $GITHUB_ENV
+        else
+          echo "GIT_LOG_ARGS=" >> $GITHUB_ENV
+        fi
+
     - name: Run git log command
       run: |
-        LOG=$(git log --all --oneline -- spec/support/vcr_cassettes/emis)
+        LOG=$(git log $GIT_LOG_ARGS --oneline -- spec/support/vcr_cassettes/emis)
         if [ -n "$LOG" ]; then
+          echo "$LOG" | awk '{print $1}' > bad-shas.txt
           echo "EMIs Cassettes found in git history"
-          echo "Git log output:"
-          echo "$LOG"
+          echo "Commits and associated branch"
+          for sha in $(cat bad-shas.txt); do
+            echo $sha
+            git branch -r --contains $sha;
+          done
           exit 1
         fi
 
@@ -64,6 +77,6 @@ jobs:
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
-          message: "GH Workflow failed: ${{ matrix.build_location }}"
+          message: "GH Workflow failed: EMIS Cassettes Git History"
           blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\"}}, {\"type\": \"divider\"}]"
           channel_id: "C039HRTHXDH"
