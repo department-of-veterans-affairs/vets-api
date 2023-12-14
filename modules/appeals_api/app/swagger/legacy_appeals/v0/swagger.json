@@ -46,33 +46,17 @@
         "description": "Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of the case (SOC)  or supplemental statement of the case (SSOC) has been declared, and if the date of declaration is within the last 60 days.",
         "parameters": [
           {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": false,
-            "description": "Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-SSN: 123456789",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-File-Number: 123456789",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
+            "name": "icn",
+            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+            "example": "1012832025V743496",
             "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
             "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
+              "type": "string",
+              "pattern": "^[0-9]{10}V[0-9]{6}$",
+              "minLength": 17,
+              "maxLength": 17
+            },
+            "in": "query"
           }
         ],
         "responses": {
@@ -111,9 +95,10 @@
                 "example": {
                   "errors": [
                     {
-                      "status": "404",
-                      "code": "veteran_not_found",
-                      "title": "Veteran Not Found"
+                      "title": "Resource not found",
+                      "detail": "A matching Veteran was not found in our systems",
+                      "code": "404",
+                      "status": "404"
                     }
                   ]
                 },
@@ -128,133 +113,6 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "when X-VA-SSN and X-VA-File-Number are missing": {
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Validation error",
-                          "detail": "Validation error",
-                          "code": "100",
-                          "source": {
-                            "pointer": "/"
-                          },
-                          "status": "422"
-                        },
-                        {
-                          "title": "Invalid length",
-                          "detail": "'' did not fit within the defined length limits",
-                          "code": "142",
-                          "source": {
-                            "pointer": "/X-VA-SSN"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "max_length": 9,
-                            "min_length": 9
-                          }
-                        },
-                        {
-                          "title": "Invalid pattern",
-                          "detail": "'' did not match the defined pattern",
-                          "code": "143",
-                          "source": {
-                            "pointer": "/X-VA-SSN"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "regex": "^[0-9]{9}$"
-                          }
-                        },
-                        {
-                          "title": "Invalid pattern",
-                          "detail": "'' did not match the defined pattern",
-                          "code": "143",
-                          "source": {
-                            "pointer": "/X-VA-File-Number"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "regex": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
-                          }
-                        },
-                        {
-                          "title": "Invalid length",
-                          "detail": "'' did not fit within the defined length limits",
-                          "code": "142",
-                          "source": {
-                            "pointer": "/X-VA-File-Number"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "max_length": 9,
-                            "min_length": 1
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "when X-VA-ICN is missing": {
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Invalid length",
-                          "detail": "'' did not fit within the defined length limits",
-                          "code": "142",
-                          "source": {
-                            "pointer": "/X-VA-ICN"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "max_length": 17,
-                            "min_length": 17
-                          }
-                        },
-                        {
-                          "title": "Invalid pattern",
-                          "detail": "'' did not match the defined pattern",
-                          "code": "143",
-                          "source": {
-                            "pointer": "/X-VA-ICN"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "regex": "^[0-9]{10}V[0-9]{6}$"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "when SSN formatted incorrectly": {
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Invalid length",
-                          "detail": "'12n-~89' did not fit within the defined length limits",
-                          "code": "142",
-                          "source": {
-                            "pointer": "/X-VA-SSN"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "max_length": 9,
-                            "min_length": 9
-                          }
-                        },
-                        {
-                          "title": "Invalid pattern",
-                          "detail": "'12n-~89' did not match the defined pattern",
-                          "code": "143",
-                          "source": {
-                            "pointer": "/X-VA-SSN"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "regex": "^[0-9]{9}$"
-                          }
-                        }
-                      ]
-                    }
-                  },
                   "when ICN formatted incorrectly": {
                     "value": {
                       "errors": [
@@ -263,7 +121,7 @@
                           "detail": "'12345' did not fit within the defined length limits",
                           "code": "142",
                           "source": {
-                            "pointer": "/X-VA-ICN"
+                            "pointer": "/icn"
                           },
                           "status": "422",
                           "meta": {
@@ -276,7 +134,7 @@
                           "detail": "'12345' did not match the defined pattern",
                           "code": "143",
                           "source": {
-                            "pointer": "/X-VA-ICN"
+                            "pointer": "/icn"
                           },
                           "status": "422",
                           "meta": {
@@ -473,6 +331,14 @@
           }
         }
       },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17,
+        "example": "1012832025V743496"
+      },
       "legacyAppeal": {
         "properties": {
           "type": {
@@ -533,33 +399,6 @@
       "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": "string",
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": "^[0-9]{10}V[0-9]{6}$"
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

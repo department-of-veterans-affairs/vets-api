@@ -37,32 +37,6 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
         'all fields used' => { value: FixtureHelpers.fixture_as_json('higher_level_reviews/v0/valid_200996_extra.json') }
       }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
-      let(:'X-VA-SSN') { '000000000' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'first' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'last' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1900-01-01' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
-
       response '201', 'Higher-Level Review created' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_minimum.json') }
 
@@ -77,10 +51,6 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
 
       response '201', 'Higher-Level Review created' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_extra.json') }
-        let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
-        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
-        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
-        let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
 
         schema '$ref' => '#/components/schemas/hlrShow'
 
@@ -217,32 +187,6 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
         'all fields used' => { value: FixtureHelpers.fixture_as_json('higher_level_reviews/v0/valid_200996_extra.json') }
       }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
-      let(:'X-VA-SSN') { '000000000' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'first' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'last' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1900-01-01' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
-
       response '200', 'Valid' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_minimum.json') }
 
@@ -256,10 +200,6 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
 
       response '200', 'Valid' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_extra.json') }
-        let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
-        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
-        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
-        let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'hlr_validate.json')))
 

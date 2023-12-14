@@ -1,0 +1,240 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - id
+      - type
+      - attributes
+    properties:
+      id:
+        type: string
+        example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+      type:
+        type: string
+        example: "dependency_request_decisions"
+      attributes:
+        type: object
+        required:
+          - dependencyVerifications
+          - diaries
+          - promptRenewal
+        properties:
+          dependencyVerifications:
+            type: array
+            items:
+              type: object
+              required:
+                - awardEffectiveDate
+                - awardEventId
+                - awardType
+                - beginAwardEventId
+                - beneficiaryId
+                - birthdayDate
+                - decisionDate
+                - decisionId
+                - dependencyDecisionId
+                - dependencyDecisionType
+                - dependencyDecisionTypeDescription
+                - dependencyStatusType
+                - dependencyStatusTypeDescription
+                - eventDate
+                - firstName
+                - fullName
+                - lastName
+                - modifiedAction
+                - modifiedBy
+                - modifiedDate
+                - modifiedLocation
+                - modifiedProcess
+                - personId
+                - relationshipTypeDescription
+                - sortDate
+                - sortOrderNumber
+                - veteranId
+              properties:
+                awardEffectiveDate:
+                  type: string
+                  nullable: true
+                  example: "2000-06-01T00:00:00.000-05:00"
+                awardEventId:
+                  type: string
+                  nullable: true
+                  example: "60300"
+                awardType:
+                  type: string
+                  example: "CPL"
+                beginAwardEventId:
+                  type: string
+                  nullable: true
+                  example: "25326"
+                beneficiaryId:
+                  type: string
+                  example: "13014883"
+                birthdayDate:
+                  type: string
+                  nullable: true
+                  example: "2000-05-05T00:00:00.000-05:00"
+                decisionDate:
+                  type: string
+                  nullable: true
+                  example: "2006-05-02T09:46:06.000-05:00"
+                decisionId:
+                  type: string
+                  nullable: true
+                  example: "24678"
+                dependencyDecisionId:
+                  type: string
+                  nullable: true
+                  example: "14599"
+                dependencyDecisionType:
+                  type: string
+                  nullable: true
+                  example: "DEPEST"
+                dependencyDecisionTypeDescription:
+                  type: string
+                  nullable: true
+                  example: "Dependency Established"
+                dependencyStatusType:
+                  type: string
+                  nullable: true
+                  example: "SP"
+                dependencyStatusTypeDescription:
+                  type: string
+                  nullable: true
+                  example: "Spouse"
+                eventDate:
+                  type: string
+                  nullable: true
+                  example: "2000-05-05T00:00:00.000-05:00"
+                firstName:
+                  type: string
+                  example: "lauren"
+                fullName:
+                  type: string
+                  nullable: true
+                  example: "lauren jakes"
+                lastName:
+                  type: string
+                  example: "jakes"
+                modifiedAction:
+                  type: string
+                  example: "U"
+                modifiedBy:
+                  type: string
+                  example: "IA"
+                modifiedDate:
+                  type: string
+                  nullable: true
+                  example: "2008-04-21T14:14:20.000-05:00"
+                modifiedLocation:
+                  type: string
+                  example: "101"
+                modifiedProcess:
+                  type: string
+                  example: "106072 Backfill"
+                personId:
+                  type: string
+                  example: "13018361"
+                relationshipTypeDescription:
+                  type: string
+                  nullable: true
+                  example: "Spouse"
+                sortDate:
+                  type: string
+                  nullable: true
+                  example: "2006-05-02T09:46:06.000-05:00"
+                sortOrderNumber:
+                  type: string
+                  example: "0"
+                veteranId:
+                  type: string
+                  nullable: true
+                  example: "13014883"
+          diaries:
+            type: array
+            items:
+              type: object
+              required:
+                - awardDiaryId
+                - awardType
+                - beneficaryId
+                - diaryDueDate
+                - diaryLcStatusType
+                - diaryLcStatusTypeDescription
+                - diaryReasonType
+                - diaryReasonTypeDescription
+                - fileNumber
+                - firstNm
+                - lastName
+                - modifiedAction
+                - modifiedBy
+                - modifiedDate
+                - modifiedLocation
+                - modifiedProcess
+                - ptcpntDiaryId
+                - statusDate
+                - veteranId
+              properties:
+                awardDiaryId:
+                  type: string
+                  example: "3322"
+                awardType:
+                  type: string
+                  example: "CPL"
+                beneficaryId:
+                  type: string
+                  example: "13014883"
+                diaryDueDate:
+                  type: string
+                  example: "2014-05-01T00:00:00.000-05:00"
+                diaryLcStatusType:
+                  type: string
+                  example: "PEND"
+                diaryLcStatusTypeDescription:
+                  type: string
+                  example: "Pending"
+                diaryReasonType:
+                  type: string
+                  example: "24"
+                diaryReasonTypeDescription:
+                  type: string
+                  example: "Issue Dependency Verification Form"
+                fileNumber:
+                  type: string
+                  example: "546212222"
+                firstNm:
+                  type: string
+                  example: "Ray"
+                lastName:
+                  type: string
+                  example: "Jakes"
+                modifiedAction:
+                  type: string
+                  example: "I"
+                modifiedBy:
+                  type: string
+                  example: "CAPSBRAN"
+                modifiedDate:
+                  type: string
+                  example: "2006-05-02T07:52:11.000-05:00"
+                modifiedLocation:
+                  type: string
+                  example: "317"
+                modifiedProcess:
+                  type: string
+                  example: "cp_diary_pkg.do_create"
+                ptcpntDiaryId:
+                  type: string
+                  example: "13018359"
+                statusDate:
+                  type: string
+                  example: "2006-05-02T07:52:11.000-05:00"
+                veteranId:
+                  type: string
+                  example: "13014883"
+          promptRenewal:
+            type: boolean
+            example: false
