@@ -2,6 +2,10 @@ name: Income Limits Data Sync
 on:
   push:
   workflow_dispatch: null
+env:
+  BUCKET_NAME: "sitewide-public-websites-income-limits-data"
+  AWS_REGION: "us-gov-west-1"
+  TEMP_FOLDER: "income_limits_files"
 jobs:
   income_limits_data_sync:
     runs-on: self-hosted
@@ -18,6 +22,44 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::1234567890:role/example-role #todo: change to real role
+          role-session-name: samplerolesession #todo: change to real session name
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get VES DB Username
+        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        with:
+          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_USERNAME
+          env_variable_name: VA_INCOME_LIMITS_VES_DB_USERNAME
+
+      - name: Get VES DB Password
+        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        with:
+          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_PASSWORD
+          env_variable_name: VA_INCOME_LIMITS_VES_DB_PASSWORD
+
+      - name: Get VES DB SID
+        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        with:
+          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_SID
+          env_variable_name: VA_INCOME_LIMITS_VES_DB_SID
+
+      - name: Get VES DB Server Name
+        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        with:
+          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_SERVER
+          env_variable_name: VA_INCOME_LIMITS_VES_DB_SERVER
+
+      - name: Get VES DB Port
+        uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+        with:
+          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_PORT
+          env_variable_name: VA_INCOME_LIMITS_VES_DB_PORT
+
       - name: Install Oracle Instant Client Libraries
         run: |
           cd /opt
@@ -32,9 +74,18 @@ jobs:
           sh -c "echo /opt/oracle/instantclient_21_12 > /etc/ld.so.conf.d/oracle-instantclient.conf"
           ldconfig
           cd $GITHUB_WORKSPACE
+
       - name: Install Dependencies
         run: |
           gem install ruby-oci8
           gem install csv
-      - name: Run Oracle Query
+
+      - name: Create Temp Directory
+        run: mkdir ${{ env.TEMP_FOLDER }}
+
+      - name: Run Oracle Queries
         run: ruby .github/scripts/income-limits-data-sync.rb
+
+      - name: Copy files to the S3
+        run: |
+          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}

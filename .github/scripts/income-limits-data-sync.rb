@@ -3,35 +3,47 @@
 require 'oci8'
 require 'csv'
 
-# # Oracle DB connection parameters
-# db_username = 'your_username'
-# db_password = 'your_password'
-# db_connection_string = 'your_connection_string'
+# Oracle DB connection parameters
+db_username = ENV.VA_INCOME_LIMITS_VES_DB_USERNAME
+db_password = ENV.VA_INCOME_LIMITS_VES_DB_PASSWORD
+db_host = ENV.VA_INCOME_LIMITS_VES_DB_SERVER
+db_port = ENV.VA_INCOME_LIMITS_VES_DB_PORT
+db_sid = ENV.VA_INCOME_LIMITS_VES_DB_SID
+# Expected format of connection string: //remote-host:1521/XE.
+# See https://www.rubydoc.info/github/kubo/ruby-oci8/OCI8
+db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 
-# # SQL query
-# sql_query = 'SELECT * FROM your_table'
+# Define csv files hash.
+files = [
+  "std_zipcode" => "std_zipcode_temp.csv",
+  "std_state" => "std_state_temp.csv",
+  "std_incomethreshold" => "std_incomethreshold_temp.csv",
+  "std_gmtthresholds" => "std_gmtthresholds_temp.csv",
+  "std_county" => "std_county_temp.csv",
+]
 
-# # Output CSV file
-# output_csv_file = 'query_result.csv'
+# Define temp directory
+temp_directory = ENV.TEMP_FOLDER
 
-# # Connect to the Oracle database
-# conn = OCI8.new(db_username, db_password, db_connection_string)
+# Connect to the Oracle database
+conn = OCI8.new(db_username, db_password, db_connection_string)
 
-# # Execute the SQL query
-# result = conn.exec(sql_query)
+files.each do |table, file|
+  # Query the data for the table.
+  sql_query = "SELECT * FROM #{table}"
+  result = conn.exec(sql_query)
 
-# # Write results to a CSV file
-# CSV.open(output_csv_file, 'w') do |csv|
-#   # Write header
-#   csv << result.get_col_names
+  # Create a CSV file from the results in the temp directory.
+  CSV.open("#{temp_directory}/#{file}", 'w') do |csv|
+    # Write header
+    csv << result.get_col_names
 
-#   # Write rows
-#   result.fetch do |row|
-#     csv << row
-#   end
-# end
+    # Write rows
+    result.fetch do |row|
+      csv << row
+    end
+  end
+end
 
-# # Close the database connection
-# conn.logoff
-
-puts "Hello, World!"
+# Close the database connection
+conn.logoff
