@@ -29,11 +29,12 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     context 'when the API call is successful' do
       before do
         allow(service).to receive(:call).with(endpoint:, method: :post,
-                                              payload: { params: }).and_return('success')
+                                              payload: { params: }).and_return({ message: 'Inquiry has been created',
+                                                                                 status: :ok })
       end
 
       it 'posts data to the service and returns the response' do
-        expect(creator.call(params:)).to eq('success')
+        expect(creator.call(params:)).to eq({ message: 'Inquiry has been created', status: :ok })
       end
     end
 

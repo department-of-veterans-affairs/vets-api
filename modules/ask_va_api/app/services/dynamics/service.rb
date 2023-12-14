@@ -8,9 +8,9 @@ module Dynamics
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'veis/vagov.lob.ava/api'
+    AUTH_URL = 'https://login.microsoftonline.us'
 
     def_delegators :settings,
-                   :auth_url,
                    :base_url,
                    :client_id,
                    :client_secret,
@@ -31,36 +31,31 @@ module Dynamics
       endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
 
       params = { icn: }
-      execute_api_call(endpoint, method, payload, params)
+
+      response = conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
+        req.headers = default_header.merge('Authorization' => "Bearer #{token}")
+      end
+      parse_response(response.body)
+    rescue => e
+      log_error(endpoint, e.class.name)
+      [e,
+       {
+         bearer: token,
+         env: Rails.env,
+         vsp_env: Settings.vsp_environment,
+         tenant: tenant_id.chars.first(5),
+         resource: resource.chars.first(5),
+         client: client_id.chars.first(5),
+         base_uri:
+       }]
     end
 
     private
 
     def conn(url: base_uri)
       Faraday.new(url:) do |f|
-        f.headers['Content-Type'] = 'application/json'
-        f.request :url_encoded
         f.use :breakers
-        f.response :raise_error, error_prefix: service_name
-        f.response :betamocks if settings.mock && !Rails.env.production?
         f.adapter Faraday.default_adapter
-      end
-    end
-
-    def execute_api_call(endpoint, method, payload, params)
-      response = invoke_request(endpoint, method, payload, params)
-      ErrorHandler.handle(endpoint, response)
-      parse_response(response.body)
-    rescue ErrorHandler::ServiceError => e
-      log_error(endpoint, e.class.name)
-      raise e
-    end
-
-    def invoke_request(endpoint, method, payload, params)
-      logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
-        conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
-          req.headers = default_header.merge('Authorization' => "Bearer #{token(method, endpoint)}")
-        end
       end
     end
 
@@ -109,14 +104,14 @@ module Dynamics
       }
     end
 
-    def token(method, endpoint)
-      logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
-        response = conn(url: auth_url).post("/#{tenant_id}/oauth2/v2.0/token") do |req|
-          req.headers = token_headers
-          req.body = URI.encode_www_form(auth_params)
-        end
-        parse_response(response.body)[:access_token]
+    def token
+      response = conn(url: AUTH_URL).post("/#{tenant_id}/oauth2/token") do |req|
+        req.headers = token_headers
+        req.body = URI.encode_www_form(auth_params)
       end
+
+      result = parse_response(response.body)
+      result[:access_token] || result
     end
   end
 end

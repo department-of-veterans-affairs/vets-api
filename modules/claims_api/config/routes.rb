@@ -44,6 +44,11 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/claims/:id/5103', to: 'evidence_waiver#submit'
       ## 2122 Forms
       get '/:veteranId/power-of-attorney', to: 'power_of_attorney#show'
+      post '/:veteranId/2122/validate', to: 'power_of_attorney#validate_2122'
+      post '/:veteranId/2122', to: 'power_of_attorney#submit_2122'
+      post '/:veteranId/2122a/validate', to: 'power_of_attorney#validate_2122a'
+      post '/:veteranId/2122a', to: 'power_of_attorney#submit_2122a'
+      get '/:veteranId/power-of-attorney/:id', to: 'power_of_attorney#status'
       put '/:veteranId/power-of-attorney:appoint-organization', to: 'power_of_attorney#appoint_organization',
                                                                 constraints: { 'appoint-organization': /:appoint-organization/ } # rubocop:disable Layout/LineLength
       put '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',

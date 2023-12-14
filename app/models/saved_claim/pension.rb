@@ -2,7 +2,7 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::Pension < CentralMailClaim
+class SavedClaim::Pension < SavedClaim
   FORM = '21P-527EZ'
 
   def regional_office
@@ -29,5 +29,12 @@ class SavedClaim::Pension < CentralMailClaim
         'confirmation_number' => guid
       }
     )
+  end
+
+  # Send this Pension claim to the Lighthouse Benefit Intake API
+  # https://developer.va.gov/explore/api/benefits-intake/docs
+  # @see Lighthouse::PensionBenefitIntakeJob
+  def upload_to_lighthouse
+    Lighthouse::PensionBenefitIntakeJob.perform_async(id)
   end
 end

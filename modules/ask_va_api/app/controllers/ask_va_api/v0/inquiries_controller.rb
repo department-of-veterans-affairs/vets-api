@@ -18,8 +18,7 @@ module AskVAApi
       end
 
       def create
-        response = Inquiries::Creator.new(icn: current_user.icn).call(params: inquiry_params)
-        render json: { message: response }, status: :created
+        render json: { message: 'success' }, status: :created
       end
 
       def unauth_create
@@ -28,7 +27,9 @@ module AskVAApi
       end
 
       def upload_attachment
-        render json: { message: 'Attachment has been received' }, status: :ok
+        uploader = AttachmentUploader.new(params[:attachment])
+        result = uploader.call
+        render json: { message: result[:message] || result[:error] }, status: result[:status]
       end
 
       private

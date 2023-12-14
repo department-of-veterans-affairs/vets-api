@@ -99,7 +99,7 @@ gem 'mini_magick'
 gem 'net-sftp'
 gem 'nokogiri'
 gem 'notifications-ruby-client'
-gem 'octokit', '4.21.0'
+gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
@@ -170,6 +170,7 @@ group :test do
   gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
+  gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'
