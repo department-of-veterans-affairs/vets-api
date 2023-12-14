@@ -17,8 +17,8 @@ module Veteran
 
       PERMITTED_TYPES = %w[attorney claim_agents organization].freeze
 
-      PERMITTED_ORGANIZATION_SORTS = %w[distance_asc distance_desc name_asc name_desc].freeze
-      PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc distance_desc first_name_asc first_name_desc last_name_asc
+      PERMITTED_ORGANIZATION_SORTS = %w[distance_asc name_asc name_desc].freeze
+      PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
       def index
         collection = Common::Collection.new(model_klass, data: accreditation_query)
@@ -104,9 +104,6 @@ module Veteran
         case sort_param
         when 'distance_asc'
           [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) ASC'),
-           search_params[:long], search_params[:lat]]
-        when 'distance_desc'
-          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) DESC'),
            search_params[:long], search_params[:lat]]
         when 'name_asc' then 'name ASC'
         when 'name_desc' then 'name DESC'
