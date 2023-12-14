@@ -8,9 +8,10 @@ module SimpleFormsApi
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
     def self.stamp_pdf(stamped_template_path, form)
-      if FORM_REQUIRES_STAMP.include? form.data['form_number']
-        stamp_method = "stamp#{form.data['form_number'].gsub('-', '')}".downcase
-        send(stamp_method, stamped_template_path, form.data)
+      form_number = form.data ? form.data['form_number'] : form.number
+      if FORM_REQUIRES_STAMP.include? form_number
+        stamp_method = "stamp#{form_number.gsub('-', '')}".downcase
+        send(stamp_method, stamped_template_path, form)
       end
 
       current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
@@ -19,17 +20,17 @@ module SimpleFormsApi
       stamp(desired_stamps, stamped_template_path, text_only: false)
     end
 
-    def self.stamp264555(stamped_template_path, data)
+    def self.stamp264555(stamped_template_path, form)
       desired_stamps = []
-      desired_stamps.append([73, 390, 'X']) if data['previous_sah_application']['has_previous_sah_application'] == false
-      desired_stamps.append([73, 355, 'X']) if data['previous_hi_application']['has_previous_hi_application'] == false
-      desired_stamps.append([73, 320, 'X']) if data['living_situation']['is_in_care_facility'] == false
+      desired_stamps.append([73, 390, 'X']) if form.data['previous_sah_application']['has_previous_sah_application'] == false
+      desired_stamps.append([73, 355, 'X']) if form.data['previous_hi_application']['has_previous_hi_application'] == false
+      desired_stamps.append([73, 320, 'X']) if form.data['living_situation']['is_in_care_facility'] == false
       stamp(desired_stamps, stamped_template_path)
     end
 
-    def self.stamp214142(stamped_template_path, data)
+    def self.stamp214142(stamped_template_path, form)
       desired_stamps = [[50, 560]]
-      signature_text = data['statement_of_truth_signature']
+      signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] },
@@ -39,9 +40,9 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
 
       # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
-      if data['in_progress_form_created_at']
+      if form.data['in_progress_form_created_at']
         date_title = 'Application Submitted:'
-        date_text = data['in_progress_form_created_at']
+        date_text = form.data['in_progress_form_created_at']
         stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
       end
     end
@@ -66,9 +67,9 @@ module SimpleFormsApi
       multistamp(stamped_template_path, date_text, page_configuration, 12)
     end
 
-    def self.stamp2110210(stamped_template_path, data)
+    def self.stamp2110210(stamped_template_path, form)
       desired_stamps = [[50, 160]]
-      signature_text = data['statement_of_truth_signature']
+      signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :new_page },
@@ -78,9 +79,9 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.stamp210845(stamped_template_path, data)
+    def self.stamp210845(stamped_template_path, form)
       desired_stamps = [[50, 240]]
-      signature_text = data['statement_of_truth_signature']
+      signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :new_page },
@@ -90,9 +91,9 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.stamp21p0847(stamped_template_path, data)
+    def self.stamp21p0847(stamped_template_path, form)
       desired_stamps = [[50, 190]]
-      signature_text = data['statement_of_truth_signature']
+      signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] }
@@ -101,9 +102,9 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.stamp210972(stamped_template_path, data)
+    def self.stamp210972(stamped_template_path, form)
       desired_stamps = [[50, 465]]
-      signature_text = data['statement_of_truth_signature']
+      signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :new_page },
@@ -113,9 +114,9 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.stamp210966(stamped_template_path, data)
+    def self.stamp210966(stamped_template_path, form)
       desired_stamps = [[50, 415]]
-      signature_text = data['statement_of_truth_signature']
+      signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] }

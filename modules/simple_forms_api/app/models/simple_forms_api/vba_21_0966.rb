@@ -23,5 +23,33 @@ module SimpleFormsApi
         'businessLine' => 'CMP'
       }
     end
+
+    def relationship_to_veteran_radio
+      relationship = @data.dig('relationship_to_veteran', 'relationship_to_veteran')
+      ['', 'spouse', 'child'].find_index(relationship) if relationship
+    end
+
+    def relationship_to_veteran
+      relationship = @data.dig('relationship_to_veteran', 'relationship_to_veteran')
+      if ['parent', 'executor', 'other'].include?(relationship)
+        relationship
+      end
+    end
+
+    def third_party_info
+      third_party_preparer_full_name = @data['third_party_preparer_full_name']
+      role = if @data['third_party_preparer_role'] == 'other'
+        @data['other_third_party_preparer_role'] || ''
+      else
+        @data['third_party_preparer_role'] || ''
+      end
+
+      if third_party_preparer_full_name
+        (third_party_preparer_full_name['first'] || '') + ' '
+          + (third_party_preparer_full_name['middle'] || '') + ' '
+          + (third_party_preparer_full_name['last'] || '') + ', ' 
+          + role
+      end
+    end
   end
 end

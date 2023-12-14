@@ -30,7 +30,7 @@ module SimpleFormsApi
     def mapped_data
       template = Rails.root.join('modules', 'simple_forms_api', 'app', 'form_mappings', "#{form_number}.json.erb").read
       b = binding
-      b.local_variable_set(:data, form.data || form)
+      b.local_variable_set(:data, form)
       result = ERB.new(template).result(b)
       JSON.parse(escape_json_string(result))
     end
