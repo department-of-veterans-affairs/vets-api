@@ -6,6 +6,9 @@ env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
   TEMP_FOLDER: "income_limits_files"
+permissions:
+  id-token: write
+  contents: read 
 jobs:
   income_limits_data_sync:
     runs-on: self-hosted
