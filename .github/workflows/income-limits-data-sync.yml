@@ -14,13 +14,13 @@ jobs:
     runs-on: self-hosted
     container:
       image: public.ecr.aws/docker/library/ruby:3.2.2-bullseye
-      # env:
-        # SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
+      env:
+        SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
       ports:
         - 80
       volumes:
         - my_docker_volume:/home/runner
-        # - /etc/ssl/certs:/etc/ssl/certs
+        - /etc/ssl/certs:/etc/ssl/certs
       options: --cpus 1
 
     steps:
