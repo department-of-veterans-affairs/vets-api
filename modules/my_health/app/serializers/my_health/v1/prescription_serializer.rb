@@ -15,7 +15,6 @@ module MyHealth
       attribute :prescription_id
       attribute :prescription_number
       attribute :prescription_name
-      attribute :prescription_image
       attribute :refill_status
       attribute :refill_submit_date
       attribute :refill_date
