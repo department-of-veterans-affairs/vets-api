@@ -92,21 +92,30 @@ module ClaimsApi
         return if Date.strptime(date,
                                 '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
+        collect_error_messages(source: '/changeOfAddress/dates/endDate', detail: 'endDate is not a valid date.')
+        # raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
       end
 
       def validate_form_526_change_of_address_country!
         country = form_attributes.dig('changeOfAddress', 'country')
         return if country.nil? || valid_countries.include?(country)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', country)
+        collect_error_messages(
+          source: '/changeOfAddress/country',
+          detail: 'The country provided is not a valid.'
+        )
+        # raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', country)
       end
 
       def validate_form_526_claimant_certification!
         return unless form_attributes['claimantCertification'] == false
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
-                                                          form_attributes['claimantCertification'])
+        collect_error_messages(
+          source: '/claimantCertification',
+          detail: 'claimantCertification must not be false.'
+        )
+        # raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
+        # form_attributes['claimantCertification'])
       end
 
       def validate_form_526_identification!
@@ -117,8 +126,10 @@ module ClaimsApi
       def validate_form_526_service_number!
         service_num = form_attributes.dig('veteranIdentification', 'serviceNumber')
         return if service_num.nil?
+
         if service_num.length > 9
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: "serviceNumber, #{service_num} is too long")
+          collect_error_messages(source: '/veteranIdentification/serviceNumber', detail: 'serviceNumber is too long.')
+          # raise ::Common::Exceptions::UnprocessableEntity.new(detail: "serviceNumber, #{service_num} is too long")
         end
       end
 
@@ -126,7 +137,11 @@ module ClaimsApi
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if valid_countries.include?(mailing_address['country'])
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('country', mailing_address['country'])
+        collect_error_messages(
+          source: '/veteranIdentification/mailingAddress/country',
+          detail: 'The country provided is not valid.'
+        )
+        # raise ::Common::Exceptions::InvalidFieldValue.new('country', mailing_address['country'])
       end
 
       def validate_form_526_disabilities!
@@ -139,30 +154,36 @@ module ClaimsApi
       def validate_form_526_disability_classification_code!
         return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
 
-        form_attributes['disabilities'].each do |disability|
+        form_attributes['disabilities'].each_with_index do |disability, idx|
           next if disability['classificationCode'].blank?
 
           if brd_classification_ids.include?(disability['classificationCode'].to_i)
-            validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i)
+            validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i, idx)
           else
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.classificationCode' must match an active code " \
-                      'returned from the /disabilities endpoint of the Benefits ' \
-                      'Reference Data API.'
-            )
+            collect_error_messages(source: "/disabilities/#{idx}/classificationCode",
+                                   detail: 'The classificationCode must match an active code ' \
+                                           'returned from the /disabilities endpoint of the Benefits ' \
+                                           'Reference Data API.')
+            # raise ::Common::Exceptions::UnprocessableEntity.new(
+            #   detail: "'disabilities.classificationCode' must match an active code " \
+            #           'returned from the /disabilities endpoint of the Benefits ' \
+            #           'Reference Data API.'
+            # )
           end
         end
       end
 
-      def validate_form_526_disability_code_enddate!(classification_code)
+      def validate_form_526_disability_code_enddate!(classification_code, _dis_idx, _sd_idx = nil)
         reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
-        end_date_time = reference_disability[:endDateTime]
+        end_date_time = reference_disability[:endDateTime] if reference_disability
         return if end_date_time.nil?
 
         if Date.parse(end_date_time) < Time.zone.today
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "'disabilities.classificationCode' is no longer active."
-          )
+          collect_error_messages(source: "disabilities/#{idx}/classificationCode",
+                                 detail: 'The classificationCode is no longer active.')
+          # raise ::Common::Exceptions::UnprocessableEntity.new(
+          #   detail: "'disabilities.classificationCode' is no longer active."
+          # )
         end
       end
 
@@ -178,7 +199,9 @@ module ClaimsApi
 
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
-          raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
+          collect_error_messages(source: "disabilities/#{idx}/approximateDate",
+                                 detail: 'The approximateDate is not valid.')
+          # raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
         end
       end
 
@@ -186,27 +209,32 @@ module ClaimsApi
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
-        disabilities.each do |disability|
+        disabilities.each_with_index do |disability, idx|
           disability_action_type = disability&.dig('disabilityActionType')
           service_relevance = disability&.dig('serviceRelevance')
           if disability_action_type == 'NEW' && service_relevance.blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.serviceRelevance' is required if 'disabilities.disabilityActionType' is NEW."
-            )
+            collect_error_messages(source: "disabilities/#{idx}/serviceRelevance",
+                                   detail: 'The serviceRelevance is required if ' \
+                                           "disabilityActionType' is NEW.")
+            # raise ::Common::Exceptions::UnprocessableEntity.new(
+            #   detail: "'disabilities.serviceRelevance' is required if 'disabilities.disabilityActionType' is NEW."
+            # )
           end
         end
       end
 
       def validate_form_526_disability_secondary_disabilities!
-        form_attributes['disabilities'].each do |disability|
+        form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           next if disability['secondaryDisabilities'].blank?
 
-          validate_form_526_disability_secondary_disability_required_fields!(disability)
+          validate_form_526_disability_secondary_disability_required_fields!(disability, dis_idx)
 
-          disability['secondaryDisabilities'].each do |secondary_disability|
+          disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
             if secondary_disability['classificationCode'].present?
-              validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
-              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i)
+              validate_form_526_disability_secondary_disability_classification_code!(secondary_disability, dis_idx,
+                                                                                     sd_idx)
+              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i, dis_idx,
+                                                         sd_idx)
             end
 
             if secondary_disability['approximateDate'].present?
@@ -216,33 +244,37 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disability_required_fields!(disability)
-        disability['secondaryDisabilities'].each do |secondary_disability|
+      def validate_form_526_disability_secondary_disability_required_fields!(disability, disability_idx)
+        disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
           sd_name = secondary_disability&.dig('name')
           sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
           sd_service_relevance = secondary_disability&.dig('serviceRelevance')
 
-          form_object_desc = 'secondary disability'
+          form_object_desc = "disability/#{disability_idx}/secondaryDisability/#{sd_idx}"
 
-          raise_exception_if_value_not_present('name', form_object_desc) if sd_name.blank?
+          raise_exception_if_value_not_present('name', "#{form_object_desc}/name") if sd_name.blank?
+
           if sd_disability_action_type.blank?
-            raise_exception_if_value_not_present('disability action type',
-                                                 form_object_desc)
+            raise_exception_if_value_not_present('disabilityActionType',
+                                                 "#{form_object_desc}/disabilityActionType")
           end
           if sd_service_relevance.blank?
             raise_exception_if_value_not_present('service relevance',
-                                                 form_object_desc)
+                                                 "#{form_object_desc}/serviceRelevance")
           end
         end
       end
 
-      def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
+      def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability, dis_idx, sd_idx)
         return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'disabilities.secondaryDisabilities.classificationCode' must match an active code " \
-                  'returned from the /disabilities endpoint of the Benefits Reference Data API.'
-        )
+        collect_error_messages(source: "disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
+                               detail: 'classificationCode must match an active code ' \
+                                       'returned from the /disabilities endpoint of the Benefits Reference Data API.')
+        # raise ::Common::Exceptions::UnprocessableEntity.new(
+        #   detail: "'disabilities.secondaryDisabilities.classificationCode' must match an active code " \
+        #           'returned from the /disabilities endpoint of the Benefits Reference Data API.'
+        # )
       end
 
       def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
@@ -508,7 +540,7 @@ module ClaimsApi
         disabilities.each do |disability|
           names << disability['name'].strip.downcase
           disability['secondaryDisabilities']&.each do |secondary|
-            names << secondary['name'].strip.downcase
+            names << secondary['name']&.strip&.downcase
           end
         end
         names
@@ -975,7 +1007,7 @@ module ClaimsApi
       end
 
       def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
-                                 title: 'Unprocessable Entity', status: 422.to_s)
+                                 title: 'Unprocessable Entity', status: '422')
         errors_array.push({ detail:, source:, title:, status: })
       end
 
