@@ -75,10 +75,10 @@ module MyHealth
         sorted_data = resource.data.sort_by do |item|
           sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name
                                   item.orderable_item
-                                elsif item.prescription_name
+                                elsif !item.prescription_name.nil?
                                   item.prescription_name
                                 else
-                                  '~' # Arbitrary value for end of sort
+                                  '~'
                                 end
           sorting_key_secondary = item.sorted_dispensed_date
           [sorting_key_primary, sorting_key_secondary]
