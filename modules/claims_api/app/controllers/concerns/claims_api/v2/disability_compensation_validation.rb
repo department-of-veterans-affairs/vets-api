@@ -663,9 +663,6 @@ module ClaimsApi
               source: "/confinements/#{idx}/",
               detail: 'Confinement approximate end date must be after approximate begin date.'
             )
-            # raise ::Common::Exceptions::UnprocessableEntity.new(
-            #   detail: 'Confinement approximate end date must be after approximate begin date.'
-            # )
           end
 
           service_periods = service_information&.dig('servicePeriods')
