@@ -26,6 +26,10 @@ temp_directory = ENV['TEMP_FOLDER']
 # Connect to the Oracle database
 conn = OCI8.new(db_username, db_password, db_connection_string)
 
+# Debugging all available tables
+query = 'SELECT table_name FROM all_tables ORDER BY table_name'
+conn.exec(query) do |r| puts r.join(',') end
+
 files.each do |table, file|
   # Query the data for the table.
   sql_query = "SELECT * FROM #{table}"
@@ -43,10 +47,6 @@ files.each do |table, file|
     end
   end
 end
-
-# Debugging all available tables
-query = 'SELECT table_name FROM all_tables ORDER BY table_name'
-conn.exec(query) do |r| puts r.join(',') end
 
 # Close the database connection
 conn.logoff
