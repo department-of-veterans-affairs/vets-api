@@ -29,6 +29,7 @@ conn = OCI8.new(db_username, db_password, db_connection_string)
 files.each do |table, file|
   # Query the data for the table.
   sql_query = "SELECT * FROM #{table}"
+  puts "Debug sql query:" + sql_query
   result = conn.exec(sql_query)
 
   # Create a CSV file from the results in the temp directory.
