@@ -1,20 +1,23 @@
 ---
 http_interactions:
 - request:
-    method: put
-    uri: https://run.mocky.io/v3/ada58e23-c461-4baf-9c03-ee36ba55c8cf
+    method: get
+    uri: https://run.mocky.io/v3/ada58e23-c461-4baf-9c03-ee36ba55c8cf?icn=test_icn
     body:
-      encoding: UTF-8
-      string: "{}"
+      encoding: US-ASCII
+      string: ''
     headers:
       Content-Type:
       - application/json
-      User-Agent:
-      - Faraday v0.17.6
+      Ocp-Apim-Subscription-Key:
+      - subscription_key
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
+      User-Agent:
+      - Ruby
   response:
     status:
       code: 200
@@ -23,11 +26,11 @@ http_interactions:
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 20 Sep 2023 17:52:48 GMT
+      - Thu, 14 Dec 2023 18:19:20 GMT
       Content-Length:
       - '1215'
       Sozu-Id:
-      - 01HASVJ7AD64JN3AR8F5FN5TKB
+      - 01HHMRVXRWJ98C02Q9ZF8H43XN
     body:
       encoding: UTF-8
       string: |
@@ -45,7 +48,7 @@ http_interactions:
                 "date_sent": "08/7/23"
                 }
               ],
-              "sec_id": "0001740097"
+              "icn": "0001740097"
             },
             {
               "respond_reply_id": "R-1",
@@ -60,7 +63,7 @@ http_interactions:
                 "date_sent": "08/7/23"
                 }
               ],
-              "sec_id": "0001740097"
+              "icn": "0001740097"
             },
             {
               "inquiryNumber": "A-3",
@@ -74,9 +77,9 @@ http_interactions:
                 "date_sent": "08/7/23"
                 }
               ],
-              "sec_id": "0001741122"
+              "icn": "0001741122"
             }
           ]
         }
-  recorded_at: Wed, 20 Sep 2023 17:52:48 GMT
+  recorded_at: Thu, 14 Dec 2023 18:19:20 GMT
 recorded_with: VCR 6.2.0

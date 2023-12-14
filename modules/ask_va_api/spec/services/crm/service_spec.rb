@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Dynamics::Service do
+RSpec.describe Crm::Service do
   let(:icn) { 'test_icn' }
   let(:base_uri) { 'https://run.mocky.io/v3/' }
   let(:service) { described_class.new(icn:, base_uri:) }
@@ -11,12 +11,12 @@ RSpec.describe Dynamics::Service do
     let(:endpoint) { 'ada58e23-c461-4baf-9c03-ee36ba55c8cf' }
 
     before do
-      allow_any_instance_of(Dynamics::Service).to receive(:token).and_return('token')
+      allow_any_instance_of(Crm::Service).to receive(:token).and_return('token')
     end
 
     context 'with GET method' do
       it 'makes a successful API call' do
-        VCR.use_cassette('ask_va_api/dynamics/service/get_request') do
+        VCR.use_cassette('ask_va_api/crm/service/get_request') do
           expect { service.call(endpoint:, method: :get) }.not_to raise_error
         end
       end
@@ -56,7 +56,7 @@ RSpec.describe Dynamics::Service do
         end
 
         it 'returns a parsed response' do
-          VCR.use_cassette('ask_va_api/dynamics/service/get_request') do
+          VCR.use_cassette('ask_va_api/crm/service/get_request') do
             expect(service.call(endpoint:)[:data].first).to eq(response_body.first)
           end
         end
@@ -68,8 +68,8 @@ RSpec.describe Dynamics::Service do
         it 'returns a message indicating no response was received' do
           endpoint = 'ada58e23-c461-4baf-9c03-ee36ba55c8cf'
           expect do
-            Dynamics::ErrorHandler.handle(endpoint, nil)
-          end.to raise_error(Dynamics::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
+            Crm::ErrorHandler.handle(endpoint, nil)
+          end.to raise_error(Crm::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
         end
       end
 
@@ -86,8 +86,8 @@ RSpec.describe Dynamics::Service do
             endpoint = 'ada58e23-c461-4baf-9c03-ee36ba55c8cf'
             response = instance_double(Faraday::Response, status:, body:)
             expect do
-              Dynamics::ErrorHandler.handle(endpoint, response)
-            end.to raise_error(Dynamics::ErrorHandler::ServiceError, "#{message} to #{endpoint}: #{body}")
+              Crm::ErrorHandler.handle(endpoint, response)
+            end.to raise_error(Crm::ErrorHandler::ServiceError, "#{message} to #{endpoint}: #{body}")
           end
         end
       end
@@ -99,8 +99,8 @@ RSpec.describe Dynamics::Service do
           endpoint = 'ada58e23-c461-4baf-9c03-ee36ba55c8cf' # Replace with your desired endpoint
           response = instance_double(Faraday::Response, status: 418, body:)
           expect do
-            Dynamics::ErrorHandler.handle(endpoint, response)
-          end.to raise_error(Dynamics::ErrorHandler::ServiceError, "Service Error to #{endpoint}: #{body}")
+            Crm::ErrorHandler.handle(endpoint, response)
+          end.to raise_error(Crm::ErrorHandler::ServiceError, "Service Error to #{endpoint}: #{body}")
         end
       end
     end
