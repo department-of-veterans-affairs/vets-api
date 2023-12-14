@@ -37,6 +37,7 @@ module Form1010Ezr
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
+
       response = with_monitoring do
         perform(:post, '', submission.body)
       rescue => e
