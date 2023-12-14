@@ -19,6 +19,7 @@ jobs:
         - my_docker_volume:/home/runner
         - /etc/ssl/certs:/etc/ssl/certs
       options: --cpus 1
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,33 +31,33 @@ jobs:
           aws-region: "us-gov-west-1"
 
       - name: Get VES DB Username
-        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         with:
-          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_USERNAME
+          ssm_parameter: /vets-api/income-limits/ves_db_username
           env_variable_name: VA_INCOME_LIMITS_VES_DB_USERNAME
 
       - name: Get VES DB Password
-        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         with:
-          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_PASSWORD
+          ssm_parameter: /vets-api/income-limits/ves_db_password
           env_variable_name: VA_INCOME_LIMITS_VES_DB_PASSWORD
 
       - name: Get VES DB SID
-        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         with:
-          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_SID
+          ssm_parameter: /vets-api/income-limits/ves_db_sid
           env_variable_name: VA_INCOME_LIMITS_VES_DB_SID
 
       - name: Get VES DB Server Name
-        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         with:
-          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_SERVER
+          ssm_parameter: /vets-api/income-limits/ves_db_server
           env_variable_name: VA_INCOME_LIMITS_VES_DB_SERVER
 
       - name: Get VES DB Port
-        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         with:
-          ssm_parameter: /devops/VA_INCOME_LIMITS_VES_DB_PORT
+          ssm_parameter: /vets-api/income-limits/ves_db_port
           env_variable_name: VA_INCOME_LIMITS_VES_DB_PORT
 
       - name: Install Oracle Instant Client Libraries

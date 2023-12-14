@@ -9,8 +9,6 @@ db_password = ENV.VA_INCOME_LIMITS_VES_DB_PASSWORD
 db_host = ENV.VA_INCOME_LIMITS_VES_DB_SERVER
 db_port = ENV.VA_INCOME_LIMITS_VES_DB_PORT
 db_sid = ENV.VA_INCOME_LIMITS_VES_DB_SID
-# Expected format of connection string: //remote-host:1521/XE.
-# See https://www.rubydoc.info/github/kubo/ruby-oci8/OCI8
 db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 
 # Define csv files hash.
