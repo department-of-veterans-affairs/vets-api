@@ -12,13 +12,13 @@ db_sid = ENV['VA_INCOME_LIMITS_VES_DB_SID']
 db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 
 # Define csv files hash.
-files = [
-  "STD_ZIPCODE" => "std_zipcode_temp.csv",
-  "STD_STATE" => "std_state_temp.csv",
-  "STD_INCOMETHRESHOLD" => "std_incomethreshold_temp.csv",
-  "STD_GMTTHRESHOLDS" => "std_gmtthresholds_temp.csv",
-  "STD_COUNTY" => "std_county_temp.csv",
-]
+files = {
+  "STD_ZIPCODE": "std_zipcode_temp.csv",
+  "STD_STATE": "std_state_temp.csv",
+  "STD_INCOMETHRESHOLD": "std_incomethreshold_temp.csv",
+  "STD_GMTTHRESHOLDS": "std_gmtthresholds_temp.csv",
+  "STD_COUNTY": "std_county_temp.csv",
+}
 
 # Define temp directory
 temp_directory = ENV['TEMP_FOLDER']
@@ -29,7 +29,7 @@ conn = OCI8.new(db_username, db_password, db_connection_string)
 files.each do |table, file|
   # Query the data for the table.
   sql_query = "SELECT * FROM #{table}"
-  puts "Debug sql query:" + sql_query
+  puts "Running query: " + sql_query
   result = conn.exec(sql_query)
 
   # Create a CSV file from the results in the temp directory.
