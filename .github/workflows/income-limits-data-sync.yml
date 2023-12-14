@@ -15,12 +15,12 @@ jobs:
     container:
       image: public.ecr.aws/docker/library/ruby:3.2.2-bullseye
       env:
-        SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
+        # SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
       ports:
         - 80
       volumes:
         - my_docker_volume:/home/runner
-        - /etc/ssl/certs:/etc/ssl/certs
+        # - /etc/ssl/certs:/etc/ssl/certs
       options: --cpus 1
 
     steps:
@@ -89,6 +89,6 @@ jobs:
       - name: Run Oracle Queries
         run: ruby .github/scripts/income-limits-data-sync.rb
 
-      - name: Copy files to the S3
+      - name: Copy files to the S3 bucket
         run: |
           aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}
