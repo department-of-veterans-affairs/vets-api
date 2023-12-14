@@ -47,7 +47,7 @@ module MyHealth
       end
 
       private
-      
+
       def collection_resource
         case params[:refill_status]
         when nil
