@@ -360,7 +360,6 @@ module Sidekiq
       end
 
       def get_form4142_pdf
-        debugger
         processor4142 = DecisionReviewV1::Processor::Form4142Processor.new(submission, form_data: submission.form[FORM_4142])
         docs << {
           type: FORM_4142_DOC_TYPE,
