@@ -18,6 +18,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
+    allow_any_instance_of(Dynamics::CrmToken).to receive(:call).and_return('token')
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
