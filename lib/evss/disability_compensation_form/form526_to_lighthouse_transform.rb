@@ -11,7 +11,6 @@ module EVSS
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
         lh_request_body.claimant_certification = true
-        lh_request_body.claim_date = form526['claimDate'] if form526['claimDate']
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
         veteran = form526['veteran']
@@ -90,9 +89,7 @@ module EVSS
         homeless = Requests::Homeless.new
         homelessness = veteran['homelessness']
 
-        if homelessness['currentlyHomeless'].present?
-          fill_currently_homeless(homelessness['currentlyHomeless'], homeless)
-        end
+        fill_currently_homeless(homelessness, homeless) if homelessness['currentlyHomeless'].present?
 
         fill_risk_of_becoming_homeless(homelessness, homeless) if homelessness['homelessnessRisk'].present?
 
@@ -103,17 +100,15 @@ module EVSS
         service_information = Requests::ServiceInformation.new
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
-          transform_confinements(service_information_source,
-                                 service_information)
+          transform_confinements(service_information_source, service_information)
         end
         if service_information_source['alternateName']
-          transform_alternate_names(service_information_source,
-                                    service_information)
+          transform_alternate_names(service_information_source, service_information)
         end
         if service_information_source['reservesNationalGuardService']
-          transform_reserves_national_guard_service(service_information_source,
-                                                    service_information)
-          reserves_national_guard_service_source = service_information_source['reservesNationalGuardService']
+          transform_reserves_national_guard_service(service_information_source, service_information)
+          reserves_national_guard_service_source =
+            service_information_source['reservesNationalGuardService']['title10Activation']
           # Title10Activation == FederalActivation
           service_information.federal_activation = Requests::FederalActivation.new(
             anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
@@ -319,9 +314,6 @@ module EVSS
           dis.name = disability_source['name']
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
           dis.service_relevance = disability_source['serviceRelevance'] || ''
-          if disability_source['approximateBeginDate']
-            dis.approximate_date = convert_approximate_date(disability_source['approximateBeginDate'])
-          end
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
           dis.diagnostic_code = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
           if disability_source['secondaryDisabilities']
@@ -340,9 +332,6 @@ module EVSS
             sd.classification_code = secondary_disability_source['classificationCode']
           end
           sd.service_relevance = secondary_disability_source['serviceRelevance'] || ''
-          if secondary_disability_source['approximateBeginDate']
-            sd.approximate_date = convert_approximate_date(secondary_disability_source['approximateBeginDate'])
-          end
           sd
         end
       end
@@ -382,12 +371,17 @@ module EVSS
 
       # only needs currentlyHomeless from 'homelessness' source
       def fill_currently_homeless(source, target)
-        options = source['homelessSituationType']&.strip
+        options = source['currentlyHomeless']['homelessSituationType']&.strip
         send_other_description = options == 'OTHER'
-        other_description = source['otherLivingSituation'] || nil
+        other_description = source['currentlyHomeless']['otherLivingSituation'] || nil
         target.currently_homeless = Requests::CurrentlyHomeless.new(
           homeless_situation_options: options,
           other_description: send_other_description ? other_description : nil
+        )
+        target.point_of_contact = source['pointOfContact']['pointOfContactName']
+        primary_phone = source['pointOfContact']['primaryPhone']
+        target.point_of_contact_number = Requests::ContactNumber.new(
+          telephone: primary_phone['areaCode'] + primary_phone['phoneNumber']
         )
       end
 
