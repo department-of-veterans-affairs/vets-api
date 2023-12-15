@@ -317,11 +317,15 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
                                    'appeal_or_review' => 'appeal'
                                  }])
         end
+
         it 'returns single appeal with correct appeal status for sc_recieved' do
           sign_in_as(user)
 
           # new cassette to use for lighthouse mock request
-          VCR.use_cassette('caseflow/virtual_agent_appeals/lighthouse_mock_appeal_sc_recieved', match_requests_on: [:headers]) do
+          VCR.use_cassette(
+            'caseflow/virtual_agent_appeals/lighthouse_mock_appeal_sc_recieved',
+            match_requests_on: [:headers]
+          ) do
             get '/v0/virtual_agent/appeal'
           end
           res_body = JSON.parse(response.body)['data']
