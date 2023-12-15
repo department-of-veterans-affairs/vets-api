@@ -17,7 +17,8 @@ describe ApplicationController, type: :controller do
         { errors:
           [
             { detail: 'Test 422' }
-          ] }
+          ] 
+        }
 
       raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, errors_array
     end

@@ -73,8 +73,6 @@ module ClaimsApi
 
         def get_error_source(error)
           err_source_str = error&.backtrace&.[](0).to_s
-          split_err_string = err_source_str.split('/', 6)
-          split_err_string[5]
         end
       end
     end
