@@ -24,7 +24,7 @@ describe VAProfile::Models::PreferredName do
       model.text = 'mistér'
       model.valid?
       expect(model).to be_valid
-    end    
+    end
   end
 
   context 'is invalid' do
