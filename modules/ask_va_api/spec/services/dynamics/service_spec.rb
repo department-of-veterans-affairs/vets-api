@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Crm::Service do
+RSpec.describe Dynamics::Service do
   let(:service) { described_class.new(icn: '123') }
 
   # Helper method to create a mock response
@@ -19,8 +19,8 @@ RSpec.describe Crm::Service do
       expected_error_message = "#{message} to #{endpoint}: \"#{body}\""
 
       expect do
-        Crm::ErrorHandler.handle(endpoint, response)
-      end.to raise_error(Crm::ErrorHandler::ServiceError, expected_error_message)
+        Dynamics::ErrorHandler.handle(endpoint, response)
+      end.to raise_error(Dynamics::ErrorHandler::ServiceError, expected_error_message)
     end
   end
 
@@ -50,7 +50,7 @@ RSpec.describe Crm::Service do
         end
 
         before do
-          allow_any_instance_of(Crm::Service).to receive(:token).and_return('token')
+          allow_any_instance_of(Dynamics::CrmToken).to receive(:call).and_return('token')
           allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
                                                                            icn: '123').and_return(response)
         end
@@ -66,9 +66,9 @@ RSpec.describe Crm::Service do
       context 'when response is nil' do
         it 'returns a message indicating no response was received' do
           expect do
-            Crm::ErrorHandler.handle(endpoint,
-                                     nil)
-          end.to raise_error(Crm::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
+            Dynamics::ErrorHandler.handle(endpoint,
+                                          nil)
+          end.to raise_error(Dynamics::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
         end
       end
 
@@ -85,8 +85,8 @@ RSpec.describe Crm::Service do
         it 'returns a generic error message' do
           response = mock_response(status: 418, body:)
           expect do
-            Crm::ErrorHandler.handle(endpoint, response)
-          end.to raise_error(Crm::ErrorHandler::ServiceError, "Service Error to #{endpoint}: \"#{body}\"")
+            Dynamics::ErrorHandler.handle(endpoint, response)
+          end.to raise_error(Dynamics::ErrorHandler::ServiceError, "Service Error to #{endpoint}: \"#{body}\"")
         end
       end
     end
@@ -96,47 +96,14 @@ RSpec.describe Crm::Service do
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
 
       before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+        allow_any_instance_of(Dynamics::CrmToken).to receive(:call).and_return('token')
+        allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
+                                                                         { icn: '123' }).and_raise(exception)
       end
 
       it 'raises a service error' do
         response = service.call(endpoint:)
         expect(response.status).to eq(resp.status)
-      end
-    end
-  end
-
-  describe '#token' do
-    context 'when veis auth service returns a success response' do
-      let(:token_response) do
-        {
-          token_type: 'Bearer',
-          expires_in: 3599,
-          ext_expires_in: 3599,
-          access_token: 'testtoken'
-        }
-      end
-      let(:veis_token_response) { mock_response(body: token_response, status: 200) }
-
-      before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(veis_token_response)
-      end
-
-      it 'returns token' do
-        expect(service.token).to eq(token_response[:access_token])
-      end
-    end
-
-    context 'with invalid JSON' do
-      let(:resp) { mock_response(body: { error: 'invalid_client' }, status: 401) }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
-
-      before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
-      end
-
-      it 'logs message and raises exception' do
-        expect { service.token }.to raise_exception(exception)
       end
     end
   end

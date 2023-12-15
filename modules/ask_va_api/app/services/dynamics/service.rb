@@ -4,40 +4,23 @@ module Dynamics
   class Service
     extend Forwardable
 
-    attr_reader :icn, :logger, :settings, :base_uri
+    attr_reader :icn, :logger, :settings, :base_uri, :token
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'veis/vagov.lob.ava/api'
 
     def_delegators :settings,
-                   :auth_url,
                    :base_url,
-                   :client_id,
-                   :client_secret,
                    :veis_api_path,
-                   :tenant_id,
                    :ocp_apim_subscription_key,
-                   :service_name,
-                   :resource
+                   :service_name
 
     def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
       @base_uri = base_uri
       @icn = icn
+      @token = CrmToken.new.call
       @logger = logger
-    end
-
-    def token
-      endpoint = "/#{tenant_id}/oauth2/token"
-      response = conn(url: auth_url).post(endpoint) do |req|
-        req.headers = token_headers
-        req.body = URI.encode_www_form(auth_params)
-      end
-      result = parse_response(response.body)
-      result[:access_token]
-    rescue => e
-      log_error(endpoint, service_name)
-      raise e
     end
 
     def call(endpoint:, method: :get, payload: {})
@@ -87,25 +70,10 @@ module Dynamics
       logger.call('api_call.error', tags: build_tags(endpoint, error_type))
     end
 
-    def token_headers
-      {
-        'Content-Type' => 'application/x-www-form-urlencoded'
-      }
-    end
-
     def default_header
       {
         'Content-Type' => 'application/json',
         'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
-      }
-    end
-
-    def auth_params
-      {
-        client_id:,
-        client_secret:,
-        resource:,
-        grant_type: 'client_credentials'
       }
     end
   end
