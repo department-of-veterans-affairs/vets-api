@@ -15,13 +15,14 @@ module MyHealth
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         sorting_key_primary = params[:sort]&.first
-        if sorting_key_primary == 'prescription_name'
-          sort_by_prescription_name(resource)
-        elsif sorting_key_primary == '-dispensed_date'
-          resource = last_refill_date_filter(resource)
-        else
-          resource = resource.sort(params[:sort])
-        end
+        resource.data = filter_non_va_meds(resource.data)
+        resource = if sorting_key_primary == 'prescription_name'
+                     sort_by_prescription_name(resource)
+                   elsif sorting_key_primary == '-dispensed_date'
+                     last_refill_date_filter(resource)
+                   else
+                     resource.sort(params[:sort])
+                   end
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
@@ -114,6 +115,10 @@ module MyHealth
         end
       end
 
+      def filter_non_va_meds(data)
+        data.reject { |item| item[:prescription_source] == 'NV' && item[:disp_status] != 'Active: Non-VA' }
+      end
+
       def last_refill_date_filter(resource)
         sorted_data = resource.data.sort_by { |r| r[:sorted_dispensed_date] }.reverse
         sort_metadata = {
@@ -125,11 +130,13 @@ module MyHealth
       end
 
       def sort_by_prescription_name(resource)
-        resource.data = resource.data.sort_by do |item|
+        sorted_data = resource.data.sort_by do |item|
           sorting_key_primary = if item.disp_status == 'Active: Non-VA' && !item.prescription_name
                                   item.orderable_item
-                                else
+                                elsif !item.prescription_name.nil?
                                   item.prescription_name
+                                else
+                                  '~'
                                 end
           sorting_key_secondary = item.sorted_dispensed_date
           [sorting_key_primary, sorting_key_secondary]
@@ -138,7 +145,8 @@ module MyHealth
           'prescription_name' => 'ASC',
           'dispensed_date' => 'ASC'
         }
-        resource.metadata = resource.metadata.merge('sort' => sort_metadata)
+        new_metadata = resource.metadata.merge('sort' => sort_metadata)
+        Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
       end
     end
   end
