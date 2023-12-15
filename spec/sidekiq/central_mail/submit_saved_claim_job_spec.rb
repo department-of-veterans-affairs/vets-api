@@ -174,7 +174,6 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
           )
         end
       end
-
     end
   end
 end
