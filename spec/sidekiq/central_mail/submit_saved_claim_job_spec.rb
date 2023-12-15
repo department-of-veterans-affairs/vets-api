@@ -155,9 +155,8 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
       context 'with bad metadata names' do
         let(:pension_burial) { create(:pension_burial_bad_names) }
         let(:claim) { pension_burial.saved_claim }
-        # build claim from the burial_claim_bad_names factory object
+
         it 'strips invalid characters from veteran name from the metadata', run_at: '2017-01-04 03:00:00 EDT' do
-          # implement testing of new
           expect(job.generate_metadata).to eq(
             'veteranFirstName' => 'WA',
             'veteranLastName' => 'Ford',
