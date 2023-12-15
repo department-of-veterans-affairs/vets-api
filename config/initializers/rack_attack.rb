@@ -10,7 +10,17 @@ class Rack::Attack
 
   # .to_h because hashes from config_for don't support non-symbol keys
   redis_options = REDIS_CONFIG[:redis].to_h
-  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(redis_options))
+
+  redis = if Rails.env.test?
+    require 'mock_redis'
+    MockRedis.new
+  else
+    Redis.new(REDIS_CONFIG[:redis].to_h)
+  end
+
+
+  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(redis)
+  # Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(redis_options))
 
   throttle('example/ip', limit: 1, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/limited'

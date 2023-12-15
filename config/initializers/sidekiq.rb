@@ -14,7 +14,16 @@ Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
   Sidekiq.configure_server do |config|
-    config.redis = REDIS_CONFIG[:sidekiq]
+    # config.redis = REDIS_CONFIG[:sidekiq]
+    redis = if Rails.env.test?
+      require 'mock_redis'
+      MockRedis.new
+    else
+      Redis.new(REDIS_CONFIG[:sidekiq])
+    end
+
+    config.redis = redis
+
     # super_fetch! is only available in sidekiq-pro and will cause
     #   "undefined method `super_fetch!'"
     # for those using regular sidekiq

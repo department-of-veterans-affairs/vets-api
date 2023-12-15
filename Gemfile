@@ -164,6 +164,7 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'pdf-inspector'
+  gem 'mock_redis'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
   gem 'rspec-sidekiq'

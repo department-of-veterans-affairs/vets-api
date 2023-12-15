@@ -13,7 +13,16 @@ Rails.application.reloader.to_prepare do
   # Read the redis config, create a connection and a namespace for breakers
   # .to_h because hashes from config_for don't support non-symbol keys
   redis_options = REDIS_CONFIG[:redis].to_h
-  redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
+
+  redis = if Rails.env.test?
+    require 'mock_redis'
+    MockRedis.new
+  else
+    Redis.new(REDIS_CONFIG[:sidekiq])
+  end
+
+  redis_namespace = Redis::Namespace.new('breakers', redis: redis)
+  # redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
 
   services = [
     MebApi::DGI::Configuration.instance.breakers_service,

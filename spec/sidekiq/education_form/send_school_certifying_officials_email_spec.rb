@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'gi/client' # required for stubbing, isn't loaded normally until GIDSRedis is loaded
 
-RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, form: :education_benefits, redis: true do
   subject { described_class.new }
 
   let(:claim) { create(:va10203) }

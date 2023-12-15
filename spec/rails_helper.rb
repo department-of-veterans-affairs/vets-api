@@ -12,6 +12,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
+require 'redis_helper'
 require 'support/stub_va_profile'
 require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
@@ -113,6 +114,8 @@ RSpec.configure do |config|
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
+
+  config.include(RedisHelper, redis: true)
 
   %i[controller mdot_helpers request].each do |type|
     config.include(MDOTHelpers, type:)
