@@ -99,18 +99,18 @@ RSpec.describe Okta::DirectoryService do
     end
   end
 
-  # describe '#handle_health_server' do
-  #   before do
-  #     allow(Settings.directory).to receive(:health_server_id).and_return('ausa6g29u50OhqAdv2p7')
-  #   end
+  describe '200 reponse' do
+    before do
+      allow(Settings.directory).to receive(:health_server_id).and_return('ausa6g29u50OhqAdv2p7')
+    end
 
-  #   it 'returns a body' do
-  #     VCR.use_cassette('okta/health_scopes', match_requests_on: %i[method path]) do
-  #       response = subject.handle_health_server
-  #       expect(response).not_to be_nil
-  #     end
-  #   end
-  # end
+    it 'returns a body' do
+      VCR.use_cassette('okta/health_scopes', match_requests_on: %i[method path]) do
+        response = subject.handle_health_server
+        expect(response).not_to be_nil
+      end
+    end
+  end
 
   # describe '#handle_nonhealth_server' do
   #   it 'handles nonhealth servers as expected' do
