@@ -27,6 +27,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :vbms do
       transitions from: :pending, to: :vbms
+      transitions from: :success, to: :vbms
     end
   end
 

@@ -43,6 +43,6 @@ class BenefitsIntakeStatusJob
                               .where(aasm_state: 'pending')
                               .order(created_at: :asc)
                               .last
-    form_submission_attempt.succeed!
+    form_submission_attempt.vbms!
   end
 end
