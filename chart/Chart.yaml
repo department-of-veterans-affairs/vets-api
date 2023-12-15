@@ -81,7 +81,8 @@ type: application
 # 0.12.16 - HPA autoscaling/v2
 # 0.12.17 - SUM HPA metrics
 # 0.12.18 - Disable common configmaps
-version: 0.12.18
+# 0.12.19 - Condensed value secrets
+version: 0.12.19
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

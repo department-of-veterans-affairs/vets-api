@@ -165,10 +165,10 @@ common:
   initContainers: {}
   secrets: {}
   configMapsEnabled: false
-  configMaps:
-    configMap:
-      name: ""
-      data: ""
-    readinessConfigMap:
-      name: ""
-      data: ""
+  configMaps: {}
+    # configMap:
+    #   name: ""
+    #   data: {}
+    # readinessConfigMap:
+    #   name: ""
+    #   data: {}
