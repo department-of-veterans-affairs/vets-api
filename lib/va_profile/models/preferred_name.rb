@@ -17,7 +17,7 @@ module VAProfile
       validates :text, length: { maximum: 25 }
       validates :text, format: { without: /\s/, message: 'must not contain spaces' }
       validates :text, format: { with: /\A[a-zA-ZÀ-ÖØ-öø-ÿ\-áéíóúäëïöüâêîôûãñõ]+\z/,
-                                 message: 'must only contain alpha, -, acute, grave, diaresis, circumflex, tilde' }
+                                 message: 'must only contain alpha, -, acute, grave, diaeresis, circumflex, tilde' }
 
       # Converts an instance of the PreferredName model to a JSON encoded string suitable for
       # use in the body of a request to VAProfile

@@ -25,39 +25,63 @@ describe VAProfile::Models::PreferredName do
       model.valid?
       expect(model).to be_valid
     end
+
+    it 'when contains an grave' do
+      model.text = 'mistàr'
+      model.valid?
+      expect(model).to be_valid
+    end
+
+    it 'when contains an diaeresis' do
+      model.text = 'mistër'
+      model.valid?
+      expect(model).to be_valid
+    end
+
+    it 'when contains an circumflex' do
+      model.text = 'mistâ'
+      model.valid?
+      expect(model).to be_valid
+    end
+
+    it 'when contains an tilde' do
+      model.text = 'mistã'
+      model.valid?
+      expect(model).to be_valid
+    end
   end
 
   context 'is invalid' do
     it 'when blank' do
       model.text = nil
-      model.valid?
+      expect(model.valid?).to be(false)
       expect(model.errors[:text]).to include("can't be blank")
-    end
-
-    it 'when text length is over 25' do
-      model.text = 'a' * 26
-      model.valid?
-      expect(model.errors[:text]).to include('is too long (maximum is 25 characters)')
     end
 
     it 'when text contains a space' do
       model.text = 'mr robot'
-      model.valid?
+      expect(model.valid?).to be(false)
       expect(model.errors[:text]).to include('must not contain spaces')
+    end
+
+    it 'when text length is over 25' do
+      model.text = 'a' * 26
+      expect(model.valid?).to be(false)
+      expect(model.errors[:text]).to include('is too long (maximum is 25 characters)')
     end
 
     it 'when text contains a digit' do
       model.text = 'mrrobot1'
-      model.valid?
-      expect(model.errors[:text]).to include('must only contain alpha, -, acute, grave, diaresis, circumflex, tilde')
+      expect(model.valid?).to be(false)
+      expect(model.errors[:text]).to include('must only contain alpha, -, acute, grave, diaeresis, circumflex, tilde')
     end
 
     it 'when text contains a special character' do
-      special_chars = ['&', '$', '@', '%', '*', ' ']
+      special_chars = ['&', '$', '@', '%', '*']
       special_chars.each do |special_char|
         model.text = special_char
-        model.valid?
-        expect(model.errors[:text]).to include('must only contain alpha, -, acute, grave, diaresis, circumflex, tilde')
+        expect(model.valid?).to be(false)
+        expect(model.errors[:text]).to include('must only contain alpha, -, acute, grave, diaeresis, circumflex, tilde')
       end
     end
   end
