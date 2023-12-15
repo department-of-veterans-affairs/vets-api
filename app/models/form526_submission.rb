@@ -296,6 +296,7 @@ class Form526Submission < ApplicationRecord
   # @return [String] the workflow batch id
   #
   def perform_ancillary_jobs(first_name)
+    debugger
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
