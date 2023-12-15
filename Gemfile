@@ -33,7 +33,7 @@ path 'modules' do
   gem 'veteran_confirmation'
 end
 
-gem 'rails', github: 'rails/rails', branch: '6-1-stable'
+gem 'rails', '~> 7.1.2'
 
 gem 'aasm'
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
