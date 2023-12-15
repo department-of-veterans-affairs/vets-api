@@ -101,7 +101,7 @@ module MyHealth
         folder_name = cmop_ndc_number ? cmop_ndc_number.gsub(/^0+(?!$)/, '')[0] : ''
         file_name = "NDC#{cmop_ndc_number}.jpg"
         folder_name = 'other' unless folder_names.include?(folder_name)
-        image_root_uri = 'https://www.myhealth.va.gov/static/MILDrugImages/';
+        image_root_uri = 'https://www.myhealth.va.gov/static/MILDrugImages/'
         "#{image_root_uri + folder_name}/#{file_name}"
       end
 
