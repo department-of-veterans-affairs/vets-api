@@ -13,7 +13,13 @@ describe ApplicationController, type: :controller do
     skip_before_action :authenticate
 
     def raise_unprocessable_entity
-      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(detail: 'Test 422')
+      errors_array =
+        { errors:
+          [
+            { detail: 'Test 422' }
+          ] }
+
+      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, errors_array
     end
 
     def raise_resource_not_found

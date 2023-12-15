@@ -17,42 +17,42 @@ module ClaimsApi
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
 
-      def validate_form_526_submission_values(target_veteran)
-        validate_claim_process_type_bdd if bdd_claim?
+      def validate_form_526_submission_values!(target_veteran)
+        validate_claim_process_type_bdd! if bdd_claim?
         # ensure 'claimantCertification' is true
-        validate_form_526_claimant_certification
+        validate_form_526_claimant_certification!
         # ensure mailing address country is valid
-        validate_form_526_identification
+        validate_form_526_identification!
         # ensure disabilities are valid
-        validate_form_526_disabilities
+        validate_form_526_disabilities!
         # ensure homeless information is valid
-        validate_form_526_veteran_homelessness
+        validate_form_526_veteran_homelessness!
         # ensure toxic exposure info is valid
-        validate_form_526_gulf_service
+        validate_form_526_gulf_service!
         # ensure new address is valid
-        validate_form_526_change_of_address
+        validate_form_526_change_of_address!
         # ensure military service pay information is valid
-        validate_form_526_service_pay
+        validate_form_526_service_pay!
         # ensure treament centers information is valid
-        validate_form_526_treatments
+        validate_form_526_treatments!
         # ensure service information is valid
-        validate_form_526_service_information(target_veteran)
+        validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
-        validate_form_526_direct_deposit
+        validate_form_526_direct_deposit!
         # collect errors and pass back to the controller
         raise_error_collection if @errors
       end
 
-      def validate_form_526_change_of_address
+      def validate_form_526_change_of_address!
         return if form_attributes['changeOfAddress'].blank?
 
-        validate_form_526_change_of_address_required_fields
-        validate_form_526_change_of_address_beginning_date
-        validate_form_526_change_of_address_ending_date
-        validate_form_526_change_of_address_country
+        validate_form_526_change_of_address_required_fields!
+        validate_form_526_change_of_address_beginning_date!
+        validate_form_526_change_of_address_ending_date!
+        validate_form_526_change_of_address_country!
       end
 
-      def validate_form_526_change_of_address_required_fields
+      def validate_form_526_change_of_address_required_fields!
         change_of_address = form_attributes['changeOfAddress']
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
 
@@ -61,7 +61,7 @@ module ClaimsApi
         raise_exception_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
 
-      def validate_form_526_change_of_address_beginning_date
+      def validate_form_526_change_of_address_beginning_date!
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
 
@@ -73,7 +73,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_change_of_address_ending_date
+      def validate_form_526_change_of_address_ending_date!
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'endDate')
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
@@ -95,7 +95,7 @@ module ClaimsApi
         collect_error_messages(source: '/changeOfAddress/dates/endDate', detail: 'endDate is not a valid date.')
       end
 
-      def validate_form_526_change_of_address_country
+      def validate_form_526_change_of_address_country!
         country = form_attributes.dig('changeOfAddress', 'country')
         return if country.nil? || valid_countries.include?(country)
 
@@ -105,7 +105,7 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_claimant_certification
+      def validate_form_526_claimant_certification!
         return unless form_attributes['claimantCertification'] == false
 
         collect_error_messages(
@@ -114,12 +114,12 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_identification
-        validate_form_526_current_mailing_address_country
-        validate_form_526_service_number
+      def validate_form_526_identification!
+        validate_form_526_current_mailing_address_country!
+        validate_form_526_service_number!
       end
 
-      def validate_form_526_service_number
+      def validate_form_526_service_number!
         service_num = form_attributes.dig('veteranIdentification', 'serviceNumber')
         return if service_num.nil?
 
@@ -128,7 +128,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_current_mailing_address_country
+      def validate_form_526_current_mailing_address_country!
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if valid_countries.include?(mailing_address['country'])
 
@@ -138,21 +138,22 @@ module ClaimsApi
         )
       end
 
-      def validate_form_526_disabilities
-        validate_form_526_disability_classification_code
-        validate_form_526_disability_approximate_begin_date
-        validate_form_526_disability_service_relevance
-        validate_form_526_disability_secondary_disabilities
+      def validate_form_526_disabilities!
+        validate_form_526_disability_classification_code!
+        validate_form_526_disability_approximate_begin_date!
+        validate_form_526_disability_service_relevance!
+        validate_form_526_disability_secondary_disabilities!
       end
 
-      def validate_form_526_disability_classification_code
+      def validate_form_526_disability_classification_code!
         return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
 
         form_attributes['disabilities'].each_with_index do |disability, idx|
           next if disability['classificationCode'].blank?
 
           if brd_classification_ids.include?(disability['classificationCode'].to_i)
-            validate_form_526_disability_code_enddate(disability['classificationCode'].to_i, idx)
+
+            validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i, idx)
           else
             collect_error_messages(source: "/disabilities/#{idx}/classificationCode",
                                    detail: 'The classificationCode must match an active code ' \
@@ -162,7 +163,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_code_enddate(classification_code, idx, sd_idx = nil)
+      def validate_form_526_disability_code_enddate!(classification_code, idx, sd_idx = nil)
         reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
         end_date_time = reference_disability[:endDateTime] if reference_disability
         return if end_date_time.nil?
@@ -178,7 +179,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_approximate_begin_date
+      def validate_form_526_disability_approximate_begin_date!
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
@@ -195,7 +196,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_service_relevance
+      def validate_form_526_disability_service_relevance!
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
@@ -210,29 +211,31 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disabilities
+      def validate_form_526_disability_secondary_disabilities!
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           next if disability['secondaryDisabilities'].blank?
 
-          validate_form_526_disability_secondary_disability_required_fields(disability, dis_idx)
+          validate_form_526_disability_secondary_disability_required_fields!(disability, dis_idx)
 
           disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
             if secondary_disability['classificationCode'].present?
-              validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx,
-                                                                                    sd_idx)
-              validate_form_526_disability_code_enddate(secondary_disability['classificationCode'].to_i, dis_idx,
-                                                        sd_idx)
+              validate_form_526_disability_secondary_disability_classification_code!(secondary_disability, dis_idx,
+                                                                                     sd_idx)
+              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i, dis_idx,
+                                                         sd_idx)
             end
 
             if secondary_disability['approximateDate'].present?
-              validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
-                                                                                       sd_idx)
+              validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability, dis_idx,
+                                                                                        sd_idx)
+              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i, dis_idx,
+                                                         sd_idx)
             end
           end
         end
       end
 
-      def validate_form_526_disability_secondary_disability_required_fields(disability, disability_idx)
+      def validate_form_526_disability_secondary_disability_required_fields!(disability, disability_idx)
         disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
           sd_name = secondary_disability&.dig('name')
           sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
@@ -253,7 +256,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_disability_secondary_disability_classification_code(secondary_disability, dis_idx, sd_idx)
+      def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability, dis_idx, sd_idx)
         return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
         collect_error_messages(source: "disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
@@ -261,8 +264,8 @@ module ClaimsApi
                                        'returned from the /disabilities endpoint of the Benefits Reference Data API.')
       end
 
-      def validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability, dis_idx,
-                                                                                   sd_idx)
+      def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability, dis_idx,
+                                                                                    sd_idx)
         date_is_valid?(secondary_disability['approximateDate'], 'disabilities.secondaryDisabilities.approximateDate')
 
         return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
@@ -271,7 +274,7 @@ module ClaimsApi
                                detail: 'approximateDate must be a date in the past.')
       end
 
-      def validate_form_526_veteran_homelessness # rubocop:disable Metrics/MethodLength
+      def validate_form_526_veteran_homelessness! # rubocop:disable Metrics/MethodLength
         handle_empty_other_description
 
         if too_many_homelessness_attributes_provided?
@@ -351,7 +354,7 @@ module ClaimsApi
         phone.length > 25 if phone
       end
 
-      def validate_form_526_gulf_service
+      def validate_form_526_gulf_service!
         gulf_war_service = form_attributes&.dig('toxicExposure', 'gulfWarHazardService')
         return if gulf_war_service&.dig('servedInGulfWarHazardLocations') == 'NO'
 
@@ -374,15 +377,15 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_service_pay
-        validate_form_526_military_retired_pay
-        validate_form_526_future_military_retired_pay
-        validate_from_526_military_retired_pay_branch
-        validate_form_526_separation_pay_received_date
-        validate_from_526_separation_severance_pay_branch
+      def validate_form_526_service_pay!
+        validate_form_526_military_retired_pay!
+        validate_form_526_future_military_retired_pay!
+        validate_from_526_military_retired_pay_branch!
+        validate_form_526_separation_pay_received_date!
+        validate_from_526_separation_severance_pay_branch!
       end
 
-      def validate_form_526_military_retired_pay
+      def validate_form_526_military_retired_pay!
         receiving_attr = form_attributes.dig('servicePay', 'receivingMilitaryRetiredPay')
         future_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPay')
 
@@ -396,7 +399,7 @@ module ClaimsApi
                                        'should not be the same value')
       end
 
-      def validate_from_526_military_retired_pay_branch
+      def validate_from_526_military_retired_pay_branch!
         return if form_attributes.dig('servicePay', 'militaryRetiredPay').nil?
 
         branch = form_attributes.dig('servicePay', 'militaryRetiredPay', 'branchOfService')
@@ -408,7 +411,7 @@ module ClaimsApi
                                        'Reference Data API.')
       end
 
-      def validate_form_526_future_military_retired_pay
+      def validate_form_526_future_military_retired_pay!
         future_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPay')
         future_explanation_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPayExplanation')
         return if future_attr.nil?
@@ -420,7 +423,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_separation_pay_received_date
+      def validate_form_526_separation_pay_received_date!
         separation_pay_received_date = form_attributes.dig('servicePay', 'separationSeverancePay',
                                                            'datePaymentReceived')
         return if separation_pay_received_date.blank?
@@ -431,7 +434,7 @@ module ClaimsApi
                                detail: 'datePaymentReceived must be a date in the past.')
       end
 
-      def validate_from_526_separation_severance_pay_branch
+      def validate_from_526_separation_severance_pay_branch!
         branch = form_attributes.dig('servicePay', 'separationSeverancePay', 'branchOfService')
         return if branch.nil? || brd_service_branch_names.include?(branch)
 
@@ -441,7 +444,7 @@ module ClaimsApi
                                        'Reference Data API.')
       end
 
-      def validate_form_526_treatments
+      def validate_form_526_treatments!
         treatments = form_attributes['treatments']
         return if treatments.blank?
 
@@ -518,7 +521,7 @@ module ClaimsApi
         names
       end
 
-      def validate_form_526_service_information(target_veteran)
+      def validate_form_526_service_information!(target_veteran)
         service_information = form_attributes['serviceInformation']
 
         if service_information.blank?
@@ -527,16 +530,16 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
-        validate_claim_date_to_active_duty_end_date(service_information)
+        validate_claim_date_to_active_duty_end_date!(service_information)
         validate_service_periods!(service_information, target_veteran)
-        validate_service_branch_names(service_information)
-        validate_confinements(service_information)
-        validate_alternate_names(service_information)
-        validate_reserves_required_values(service_information)
-        validate_form_526_location_codes(service_information)
+        validate_service_branch_names!(service_information)
+        validate_confinements!(service_information)
+        validate_alternate_names!(service_information)
+        validate_reserves_required_values!(service_information)
+        validate_form_526_location_codes!(service_information)
       end
 
-      def validate_claim_date_to_active_duty_end_date(service_information)
+      def validate_claim_date_to_active_duty_end_date!(service_information)
         ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
         unless service_information['servicePeriods'].nil?
           max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
@@ -617,7 +620,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_location_codes(service_information)
+      def validate_form_526_location_codes!(service_information)
         # only retrieve separation locations if we'll need them
         invalid_end_date = detect_invalid_active_duty_enddate(service_information).is_a?(Array)
 
@@ -643,7 +646,7 @@ module ClaimsApi
         end
       end
 
-      def validate_confinements(service_information) # rubocop:disable Metrics/MethodLength
+      def validate_confinements!(service_information) # rubocop:disable Metrics/MethodLength
         confinements = service_information&.dig('confinements')
 
         return if confinements.blank?
@@ -686,7 +689,7 @@ module ClaimsApi
         end
       end
 
-      def validate_alternate_names(service_information)
+      def validate_alternate_names!(service_information)
         alternate_names = service_information&.dig('alternateNames')
         return if alternate_names.blank?
 
@@ -704,7 +707,7 @@ module ClaimsApi
         end
       end
 
-      def validate_service_branch_names(service_information)
+      def validate_service_branch_names!(service_information)
         downcase_branches = brd_service_branch_names.map(&:downcase)
         service_information['servicePeriods'].each_with_index do |sp, idx|
           unless downcase_branches.include?(sp['serviceBranch'].downcase)
@@ -718,18 +721,18 @@ module ClaimsApi
         end
       end
 
-      def validate_reserves_required_values(service_information)
-        validate_title_ten_activiation_values(service_information)
+      def validate_reserves_required_values!(service_information)
+        validate_title_ten_activiation_values!(service_information)
         reserves = service_information&.dig('reservesNationalGuardService')
 
         return if reserves.blank?
 
         # if reserves is not empty the we require tos dates
-        validate_reserves_tos_dates(reserves)
-        validate_title_ten_activiation_values(reserves)
+        validate_reserves_tos_dates!(reserves)
+        validate_title_ten_activiation_values!(reserves)
       end
 
-      def validate_reserves_tos_dates(reserves)
+      def validate_reserves_tos_dates!(reserves)
         tos = reserves&.dig('obligationTermsOfService')
         return if tos.blank?
 
@@ -751,7 +754,7 @@ module ClaimsApi
         end
       end
 
-      def validate_title_ten_activiation_values(service_information)
+      def validate_title_ten_activiation_values!(service_information)
         title_ten_activation = service_information&.dig('federalActivation')
         title_ten_activation_date = title_ten_activation&.dig('activationDate')
         anticipated_seperation_date = title_ten_activation&.dig('anticipatedSeparationDate')
@@ -777,7 +780,7 @@ module ClaimsApi
           )
         end
 
-        validate_anticipated_seperation_date_in_past(anticipated_seperation_date)
+        validate_anticipated_seperation_date_in_past!(anticipated_seperation_date)
       end
 
       def activation_date_not_afterduty_begin_date?(activation_date)
@@ -804,7 +807,7 @@ module ClaimsApi
         end
       end
 
-      def validate_anticipated_seperation_date_in_past(date)
+      def validate_anticipated_seperation_date_in_past!(date)
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
           collect_error_messages(
             source: '/serviceInformation/federalActivation/',
@@ -813,7 +816,7 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_direct_deposit
+      def validate_form_526_direct_deposit!
         direct_deposit = form_attributes['directDeposit']
         return if direct_deposit.blank?
 
@@ -870,7 +873,7 @@ module ClaimsApi
         )
       end
 
-      def validate_claim_process_type_bdd
+      def validate_claim_process_type_bdd!
         claim_date = Date.parse(CLAIM_DATE.to_s)
         service_information = form_attributes['serviceInformation']
         active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')

@@ -23,8 +23,7 @@ module ClaimsApi
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
                         ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
-                        ::Common::Exceptions::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
+                        ::Common::Exceptions::UnprocessableEntity do |err|
                           render_error(err)
                         end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
@@ -33,8 +32,11 @@ module ClaimsApi
               )
             end
 
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |err|
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
               render_error_array(err)
+            end
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |err|
+              render_json_error(err)
             end
           end
         end
@@ -52,7 +54,13 @@ module ClaimsApi
         end
 
         def render_error_array(error)
-          render json: { errors: error.errors_array }, status: error.status_code
+          render json: {
+            errors: error.errors_array.map do |e|
+              error_hash = e.as_json.slice('title', 'status', 'detail')
+              error_hash['source'] = format_source(error) unless error&.backtrace.nil?
+              error_hash
+            end
+          }, status: error.status_code
         end
 
         def render_json_error(error)

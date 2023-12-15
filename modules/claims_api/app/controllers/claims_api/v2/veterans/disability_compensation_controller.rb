@@ -43,7 +43,7 @@ module ClaimsApi
 
           if auto_claim.errors.present?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: auto_claim.errors.messages.to_s
+              { errors: [{ detail: auto_claim.errors.messages.to_s }] }
             )
           end
 
@@ -64,7 +64,7 @@ module ClaimsApi
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'Too many attachments.'
+              { errors: [{ detail: 'Too many attachments.' }] }
             )
           end
 
@@ -115,7 +115,7 @@ module ClaimsApi
 
         def shared_validation
           validate_json_schema
-          errors = validate_form_526_submission_values(target_veteran)
+          errors = validate_form_526_submission_values!(target_veteran)
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError, errors if errors
         end
 
