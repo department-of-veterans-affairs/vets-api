@@ -1282,3 +1282,6 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
+  virtual_agent_enable_msft_pva_testing:
+    actor_type: user
+    description: If enabled, allows for connecting to MSFT PVA
