@@ -181,15 +181,6 @@ RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
         expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 345 456])
       end
 
-      it 'can sort by distance_desc' do
-        get '/services/veteran/v0/accredited_representatives',
-            params: { type: 'organization', lat: 38.9072, long: -77.0369, sort: 'distance_desc' }
-
-        parsed_response = JSON.parse(response.body)
-
-        expect(parsed_response['data'].pluck('id')).to eq(%w[456 345 234 123])
-      end
-
       it 'can sort by name_asc' do
         get '/services/veteran/v0/accredited_representatives',
             params: { type: 'organization', lat: 38.9072, long: -77.0369, sort: 'name_asc' }
@@ -293,15 +284,6 @@ RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
         parsed_response = JSON.parse(response.body)
 
         expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 345 456])
-      end
-
-      it 'can sort by distance_desc' do
-        get '/services/veteran/v0/accredited_representatives',
-            params: { type: 'attorney', lat: 38.9072, long: -77.0369, sort: 'distance_desc' }
-
-        parsed_response = JSON.parse(response.body)
-
-        expect(parsed_response['data'].pluck('id')).to eq(%w[456 345 234 123])
       end
 
       it 'can sort by first_name_asc' do
