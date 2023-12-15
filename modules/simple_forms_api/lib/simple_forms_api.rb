@@ -37,8 +37,13 @@ module SimpleFormsApi
                  'error message has been redacted to keep PII from getting leaked'
         end
 
+        remove_words(words_to_remove)
+      end
+
+      def remove_words(words_to_remove)
         words_to_remove.compact.each do |word|
           message.gsub!(word, '')
+          message.gsub!(word.upcase, '')
         end
 
         message
