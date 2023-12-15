@@ -57,10 +57,11 @@ module MyHealth
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
-          if item[:cmop_ndc_number].present?
+          cmop_ndc_number = get_cmop_value(item)
+          if cmop_ndc_number.present?
+            image_uri = get_image_uri(cmop_ndc_number)
             threads << Thread.new(item) do |thread_item|
-              image_url = get_image_uri(thread_item[:cmop_ndc_number])
-              thread_item[:prescription_image] = fetch_image(image_url)
+              thread_item[:prescription_image] = fetch_image(image_uri)
             rescue => e
               puts "Error fetching image for NDC #{thread_item[:cmop_ndc_number]}: #{e.message}"
             end
@@ -81,6 +82,18 @@ module MyHealth
           base64_image = Base64.strict_encode64(image_data)
           "data:#{response['content-type']};base64,#{base64_image}"
         end
+      end
+
+      def get_cmop_value(item)
+        cmop_ndc_number = nil
+        if item[:rx_rf_records].present? || item[:cmop_ndc_number].present?
+          cmop_ndc_number = if item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.key?(:cmop_ndc_number)
+                              item[:rx_rf_records][0][1][0][:cmop_ndc_number]
+                            elsif item[:cmop_ndc_number].present?
+                              item[:cmop_ndc_number]
+                            end
+        end
+        cmop_ndc_number
       end
 
       def get_image_uri(cmop_ndc_number)
