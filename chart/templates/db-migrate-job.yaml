@@ -26,7 +26,7 @@ spec:
 {{ toYaml .Values.web.dbMigrate.envSecrets | indent 12 }}
           {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
-            - name: {{ $secret.env_var }}
+            - name: {{ upper $secret.name }}
               valueFrom:
                 secretKeyRef:
                   name: {{ $keys }}
