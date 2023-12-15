@@ -11,13 +11,13 @@ db_port = ENV['VA_INCOME_LIMITS_VES_DB_PORT']
 db_sid = ENV['VA_INCOME_LIMITS_VES_DB_SID']
 db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 
-# Define csv files hash.
+# Define csv files hash with table names as the index.
 files = {
-  "sdsadm.STD_ZIPCODE": "std_zipcode_temp.csv",
-  "sdsadm.STD_STATE": "std_state_temp.csv",
-  "sdsadm.STD_INCOMETHRESHOLD": "std_incomethreshold_temp.csv",
-  "sdsadm.STD_GMTTHRESHOLDS": "std_gmtthresholds_temp.csv",
-  "sdsadm.STD_COUNTY": "std_county_temp.csv",
+  "sdsadm.std_zipcode": "std_zipcode_temp.csv",
+  "sdsadm.std_state": "std_state_temp.csv",
+  "sdsadm.std_incomethreshold": "std_incomethreshold_temp.csv",
+  "sdsadm.std_gmtthresholds": "std_gmtthresholds_temp.csv",
+  "sdsadm.std_county": "std_county_temp.csv",
 }
 
 # Define temp directory
@@ -25,10 +25,6 @@ temp_directory = ENV['TEMP_FOLDER']
 
 # Connect to the Oracle database
 conn = OCI8.new(db_username, db_password, db_connection_string)
-
-# Debugging all available tables
-query = 'SELECT table_name FROM all_tables ORDER BY table_name'
-conn.exec(query) do |r| puts r.join(',') end
 
 files.each do |table, file|
   # Query the data for the table.
