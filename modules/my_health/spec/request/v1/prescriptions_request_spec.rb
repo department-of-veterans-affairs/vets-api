@@ -103,7 +103,7 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
-        item_index = JSON.parse(response.body)['data'].find_index { |item| item['attributes']['prescription_image'] };
+        item_index = JSON.parse(response.body)['data'].find_index { |item| item['attributes']['prescription_image'] }
         expect(item_index).not_to be_nil
       end
 
