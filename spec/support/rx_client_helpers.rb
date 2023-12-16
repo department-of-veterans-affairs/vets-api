@@ -7,7 +7,7 @@ module Rx
     HOST = Settings.mhv.rx.host
     CONTENT_TYPE = 'application/json'
     APP_TOKEN = 'your-unique-app-token'
-    TOKEN = 'ENC(MA0ECJh1RjEgZFMhAgEQC4/A+wCOLWCZsYg5kVN8CWDCnyX2eRF7VYLV+0Q3RGuAk/LCyWyJKT3m)'
+    TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
 
     def authenticated_client
       Rx::Client.new(session: { user_id: 123,
