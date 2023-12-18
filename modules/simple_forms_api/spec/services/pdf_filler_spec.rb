@@ -13,7 +13,6 @@ describe SimpleFormsApi::PdfFiller do
 
       # fill the PDF
       data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{test_payload}.json"))
-      byebug
       form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
       filler = SimpleFormsApi::PdfFiller.new(form_number:, form:)
       filler.generate
