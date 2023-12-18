@@ -1,4 +1,5 @@
 require "redis"
+require "mock_redis"
 
 module RedisHelper
   def self.included(rspec)
@@ -10,14 +11,7 @@ module RedisHelper
   end
 
   def redis(&block)
-
-    @redis ||= if Rails.env.test?
-      require 'mock_redis'
-      MockRedis.new
-    else
-      Redis.new(REDIS_CONFIG[:redis].to_h)
-    end
-
+    $redis ||= MockRedis.new
   end
 
   def with_clean_redis(&block)
