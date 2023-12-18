@@ -15,7 +15,7 @@ module Veteran
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
 
-      PERMITTED_TYPES = %w[attorney].freeze
+      PERMITTED_TYPES = 'attorney'
 
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
