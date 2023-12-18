@@ -112,7 +112,7 @@ server:  ## Starts the server (natively)
 
 .PHONY: spec
 spec:  ## Runs spec tests
-	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
+	@$(BASH_DEV) "RAILS_ENV=test bin/rspec ${SPEC_PATH}"
 
 .PHONY: spec_parallel_setup
 spec_parallel_setup:  ## Setup the parallel test dbs. This resets the current test db, as well as the parallel test dbs
