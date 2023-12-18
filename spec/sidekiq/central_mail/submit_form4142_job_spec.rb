@@ -98,7 +98,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
         subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
-          expect(StatsD).to receive(:increment).with(subject::STATSD_KEY_PREFIX)
+          expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
           expect(Rails).to receive(:logger).and_call_original
         end
         form526_job_status.reload

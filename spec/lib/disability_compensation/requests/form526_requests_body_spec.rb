@@ -15,9 +15,10 @@ Rspec.describe Requests do
       expect(form).to respond_to(:claim_process_type)
     end
 
-    it 'has claim_date attribute' do
-      expect(form).to respond_to(:claim_date)
-    end
+    # TODO: revisit if LH adds it back to the request
+    # it 'has claim_date attribute' do
+    #   expect(form).to respond_to(:claim_date)
+    # end
 
     it 'has veteran_identification attribute' do
       expect(form).to respond_to(:veteran_identification)
@@ -213,10 +214,6 @@ Rspec.describe Requests do
 
     it 'has service_relevance attribute' do
       expect(disability).to respond_to(:service_relevance)
-    end
-
-    it 'has approximate_date attribute' do
-      expect(disability).to respond_to(:approximate_date)
     end
 
     it 'has is_related_to_toxic_exposure attribute' do
