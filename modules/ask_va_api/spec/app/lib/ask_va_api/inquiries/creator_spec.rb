@@ -9,6 +9,10 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
+  before do
+    allow_any_instance_of(Dynamics::CrmToken).to receive(:call).and_return('token')
+  end
+
   describe '#initialize' do
     context 'when service is provided' do
       it 'uses the provided service' do
