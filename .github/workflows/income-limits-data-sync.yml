@@ -8,7 +8,7 @@ env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
   TEMP_FOLDER: "income_limits_files"
-  NSL_LANG: "AMERICAN_AMERICA.AL32UTF8"
+  NLS_LANG: "AMERICAN_AMERICA.AL32UTF8"
 permissions:
   id-token: write
   contents: read 
