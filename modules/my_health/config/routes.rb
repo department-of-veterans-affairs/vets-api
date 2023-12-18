@@ -4,7 +4,9 @@ MyHealth::Engine.routes.draw do
   namespace :v1 do
     scope :medical_records do
       resources :session, only: %i[create], controller: 'medical_records/mr_session',
-                          defaults: { format: :json }
+                          defaults: { format: :json } do
+        get :status, on: :collection
+      end
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
       end
