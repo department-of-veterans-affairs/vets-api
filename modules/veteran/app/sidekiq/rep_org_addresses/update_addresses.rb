@@ -66,10 +66,7 @@ module RepOrgAddresses
     # @param api_response [Hash] The response from the address validation service.
     def update_address_record(data, api_response)
       record =
-        if data['type'] == 'representative'
           Veteran::Service::Representative.find_by(representative_id: data['id'])
-        elsif data['type'] == 'organization'
-          Veteran::Service::Organization.find_by(poa: data['id'])
         end
 
       if record.nil?
