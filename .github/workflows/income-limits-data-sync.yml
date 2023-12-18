@@ -6,6 +6,7 @@ env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
   TEMP_FOLDER: "income_limits_files"
+  NLS_LANG: "en_US.UTF-8"
 permissions:
   id-token: write
   contents: read 
@@ -34,11 +35,11 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
 
-      - name: Install AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          ./aws/install
+      # - name: Install AWS CLI
+      #   run: |
+      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #     unzip awscliv2.zip
+      #     ./aws/install
 
       - name: Get VES DB Username
         uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
@@ -98,4 +99,4 @@ jobs:
 
       - name: Copy files to the S3 bucket
         run: |
-          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}
+          /usr/bin/aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}
