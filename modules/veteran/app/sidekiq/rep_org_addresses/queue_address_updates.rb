@@ -4,7 +4,7 @@ require 'sidekiq'
 require 'sentry_logging'
 require 'roo'
 
-module RepOrgAddresses
+module RepAddresses
   class QueueAddressUpdates
     include Sidekiq::Job
     include SentryLogging
@@ -13,7 +13,7 @@ module RepOrgAddresses
     BATCH_SIZE = 5000
 
     def perform
-      file_content = RepOrgAddresses::XlsxFileFetcher.new.fetch
+      file_content = RepAddresses::XlsxFileFetcher.new.fetch
 
       unless file_content
         log_error('Failed to fetch file or file content is empty')
@@ -47,7 +47,7 @@ module RepOrgAddresses
               next if index.zero?
 
               json_data = create_json_data(row, sheet_name, column_map)
-              RepOrgAddresses::UpdateAddresses.perform_async(json_data)
+              RepAddresses::UpdateAddresses.perform_async(json_data)
             end
           end
         end

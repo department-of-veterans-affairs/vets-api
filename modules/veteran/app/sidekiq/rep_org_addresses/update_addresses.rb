@@ -5,7 +5,7 @@ require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 
-module RepOrgAddresses
+module RepAddresses
   # A Sidekiq job class for updating address records. It processes JSON data for address updates,
   # validates the address, and then updates the address record if valid.
   class UpdateAddresses

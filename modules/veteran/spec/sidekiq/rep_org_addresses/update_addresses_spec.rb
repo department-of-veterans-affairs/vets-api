@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepOrgAddresses::UpdateAddresses do
+RSpec.describe RepAddresses::UpdateAddresses do
   describe '#perform' do
     let(:json_data) do
       { type:,
