@@ -90,7 +90,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 expect(job_status.job_id).to eq(jid)
                 expect(job_status.status).to eq('success')
                 submission = Form526Submission.last
-                expect(submission.form["form4142"]).not_to be(nil)
+                expect(submission.form['form4142']).not_to be(nil)
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
               end
             end
