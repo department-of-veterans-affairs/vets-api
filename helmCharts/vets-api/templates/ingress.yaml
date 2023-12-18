@@ -62,7 +62,6 @@ spec:
       - "*"
     accessControlAllowOriginList:
       - "https://{{ .Values.assetsUrl }}"
-      - "https://{{ .Values.vetsApiUrl }}"
       - "https://{{ .Values.webUrl }}"
     accessControlMaxAge: 100
     addVaryHeader: true
