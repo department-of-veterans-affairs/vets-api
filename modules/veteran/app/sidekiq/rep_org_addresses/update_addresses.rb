@@ -67,7 +67,6 @@ module RepAddresses
     def update_address_record(data, api_response)
       record =
           Veteran::Service::Representative.find_by(representative_id: data['id'])
-        end
 
       if record.nil?
         log_message_to_sentry(
