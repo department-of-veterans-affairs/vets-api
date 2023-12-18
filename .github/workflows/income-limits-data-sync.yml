@@ -2,11 +2,12 @@ name: Income Limits Data Sync
 on:
   push:
   workflow_dispatch: null
+  schedule:
+    - cron: "35 0 1 * *"
 env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
   TEMP_FOLDER: "income_limits_files"
-  NLS_LANG: "en_US.UTF-8"
 permissions:
   id-token: write
   contents: read 
