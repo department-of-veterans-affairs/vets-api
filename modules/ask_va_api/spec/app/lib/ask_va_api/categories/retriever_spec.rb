@@ -5,18 +5,18 @@ require 'rails_helper'
 RSpec.describe AskVAApi::Categories::Retriever do
   subject(:retriever) { described_class.new }
 
-  let(:service) { instance_double(Dynamics::Service) }
+  let(:service) { instance_double(Crm::Service) }
   let(:entity) { instance_double(AskVAApi::Categories::Entity) }
   let(:error_message) { 'Some error occurred' }
 
   before do
-    allow(Dynamics::Service).to receive(:new).and_return(service)
+    allow(Crm::Service).to receive(:new).and_return(service)
     allow(AskVAApi::Categories::Entity).to receive(:new).and_return(entity)
     allow(service).to receive(:call)
   end
 
   describe '#call' do
-    context 'when Dynamics raise an error' do
+    context 'when Crm raise an error' do
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Categories::ENDPOINT }
       let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
@@ -24,13 +24,13 @@ RSpec.describe AskVAApi::Categories::Retriever do
       before do
         allow(service).to receive(:call)
           .with(endpoint:)
-          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
+          .and_raise(Crm::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises an Error' do
         expect do
           retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 

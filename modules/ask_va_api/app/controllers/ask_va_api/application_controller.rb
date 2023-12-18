@@ -10,7 +10,7 @@ module AskVAApi
       yield
     rescue AskVAApi::V0::InquiriesController::InvalidInquiryError => e
       log_and_render_error('invalid_inquiry_error', e, :bad_request)
-    rescue ErrorHandler::ServiceError, Dynamics::ErrorHandler::ServiceError => e
+    rescue ErrorHandler::ServiceError, Crm::ErrorHandler::ServiceError => e
       log_and_render_error('service_error', e, :unprocessable_entity)
     rescue => e
       log_and_render_error('unexpected_error', e, :internal_server_error)
