@@ -13,7 +13,6 @@ module MHV
     sidekiq_options retry: false
 
     def perform(icn, mhv_correlation_id)
-      p 'Here we go!'
       run_refresh(icn) if mhv_user?(mhv_correlation_id)
     rescue => e
       handle_errors(e)
