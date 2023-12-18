@@ -14,7 +14,19 @@ class BenefitsIntakeStatusJob
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
     handle_response(response)
     submissions_handled = response.body['data'].count
-    Rails.logger.info({ name: 'BenefitsIntakeStatusJob ended', submissions_handled: })
+    cumulative_failures = FormSubmissionAttempt.where(aasm_state: 'failure').count
+    cumulative_vbms = FormSubmissionAttempt.where(aasm_state: 'vbms').count
+    cumulative_pending = FormSubmissionAttempt.where(aasm_state: 'pending').count
+    Rails.logger.info({
+      message: 'BenefitsIntakeStatusJob ended',
+      submissions_handled:,
+    })
+    Rails.logger.info({
+      message: 'Cumulative BenefitsIntakeStatusJob stats',
+      cumulative_failures:,
+      cumulative_vbms:,
+      cumulative_pending:
+    })
   end
 
   private
