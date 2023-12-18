@@ -12,7 +12,8 @@ describe AppealsApi::V1::AppealsController, type: :request do
     let(:icn) { '1012667145V762142' }
     let(:ssn) { '796122306' }
     let(:consumer_username) { 'TestConsumer' }
-    let(:headers) { { 'X-Consumer-Username' => consumer_username } }
+    let(:va_user) { 'test.user@example.com' }
+    let(:headers) { { 'X-Consumer-Username' => consumer_username, 'X-VA-User' => va_user } }
     let(:scopes) { described_class::OAUTH_SCOPES[:GET] }
     let(:params) { {} }
 
@@ -43,11 +44,11 @@ describe AppealsApi::V1::AppealsController, type: :request do
             it 'logs the caseflow request and response' do
               expect(Rails.logger).to have_received(:info).with(
                 'Caseflow Request',
-                { 'lookup_identifier' => Digest::SHA2.hexdigest(ssn) }
+                { 'va_user' => va_user, 'lookup_identifier' => Digest::SHA2.hexdigest(ssn) }
               )
               expect(Rails.logger).to have_received(:info).with(
                 'Caseflow Response',
-                { 'first_appeal_id' => '1196201', 'appeal_count' => 3 }
+                { 'va_user' => va_user, 'first_appeal_id' => '1196201', 'appeal_count' => 3 }
               )
             end
           end

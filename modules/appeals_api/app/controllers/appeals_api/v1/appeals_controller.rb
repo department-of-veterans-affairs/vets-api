@@ -31,18 +31,24 @@ module AppealsApi
         @ssn ||= icn_to_ssn!(veteran_icn)
       end
 
+      def va_user
+        required_header('X-VA-User')
+      end
+
       def caseflow_request_headers
-        { 'Consumer' => request.headers['X-Consumer-Username'] }
+        { 'Consumer' => request.headers['X-Consumer-Username'], 'VA-User' => required_header('X-VA-User') }
       end
 
       def log_caseflow_request_details
-        Rails.logger.info('Caseflow Request', 'lookup_identifier' => Digest::SHA2.hexdigest(ssn))
+        hashed_ssn = Digest::SHA2.hexdigest(ssn)
+        Rails.logger.info('Caseflow Request', 'va_user' => va_user, 'lookup_identifier' => hashed_ssn)
       end
 
       def log_caseflow_response(res)
         Rails.logger.info(
           'Caseflow Response',
           {
+            'va_user' => va_user,
             'first_appeal_id' => res.body.dig('data', 0, 'id'),
             'appeal_count' => res.body['data'].length
           }
