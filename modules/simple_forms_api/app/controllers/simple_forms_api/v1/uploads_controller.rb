@@ -72,7 +72,7 @@ module SimpleFormsApi
       end
 
       def submit_form_to_central_mail
-        parsed_form_data = form_is210966 ? handle_210966_data : JSON.parse(params.to_json)
+        parsed_form_data = JSON.parse(params.to_json)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
@@ -144,22 +144,6 @@ module SimpleFormsApi
 
       def icn
         @current_user&.icn
-      end
-
-      def handle_210966_data
-        roles = {
-          'fiduciary' => 'Fiduciary',
-          'officer' => 'Veteran Service Officer',
-          'alternate' => 'Alternate Signer'
-        }
-        data = JSON.parse(params.to_json)
-        if data['third_party_preparer_role']
-          data['third_party_preparer_role'] = (
-            roles[data['third_party_preparer_role']] || data['other_third_party_preparer_role']
-          ) || ''
-        end
-
-        data
       end
 
       def get_form_id
