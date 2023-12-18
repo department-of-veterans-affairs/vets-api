@@ -13,7 +13,7 @@ module DecisionReviewV1
       # @return [Hash] the generated request body
       attr_reader :request_body
 
-      def initialize(*submission, form_data:)
+      def initialize(form_data:, submission: nil)
         @form = form_data
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
@@ -21,7 +21,7 @@ module DecisionReviewV1
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
-        @submission = submission.first
+        @submission = submission
       end
 
       def generate_stamp_pdf
@@ -67,7 +67,7 @@ module DecisionReviewV1
       end
 
       def received_date
-        date = if @submission
+        date = if !@submission.nil?
                  date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
                  date.in_time_zone('Central Time (US & Canada)')
                else
