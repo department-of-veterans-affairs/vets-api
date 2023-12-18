@@ -13,6 +13,7 @@ module MHV
     sidekiq_options retry: false
 
     def perform(icn, mhv_correlation_id)
+      p 'Here we go!'
       run_refresh(icn) if mhv_user?(mhv_correlation_id)
     rescue => e
       handle_errors(e)
@@ -21,8 +22,8 @@ module MHV
     private
 
     def run_refresh(icn)
-      phr_client = PHRMgr::Client.new
-      phr_client.post_phrmgr_refresh(icn)
+      phr_client = PHRMgr::Client.new(icn)
+      phr_client.post_phrmgr_refresh
     end
 
     def mhv_user?(mhv_correlation_id)
