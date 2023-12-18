@@ -1535,6 +1535,32 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/app_directory_scope/{category}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET App Directory Scopes'
+          key :operationId, 'getAppDirectoryScopes'
+          key :tags, ['profile']
+
+          parameter do
+            key :name, :category
+            key :in, :path
+            key :description, 'scope category'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'List of scopes from app directory'
+            schema do
+              key :$ref, :AppDirectoryScopes
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/connected_applications/{application_id}' do
         operation :delete do
           extend Swagger::Responses::AuthenticationError
