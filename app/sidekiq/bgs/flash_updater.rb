@@ -15,7 +15,7 @@ module BGS
     # A max retry attempt of 10 will result in a run time of ~8 hours
     # This job is invoked from 526 background job
     sidekiq_options retry: 10
-    STATSD_KEY_PREFIX = 'worker.bgs.flash_updater.exhausted'
+    STATSD_KEY_PREFIX = 'worker.bgs.flash_updater'
 
     wrap_with_logging(
       :add_flashes,
@@ -50,7 +50,7 @@ module BGS
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      StatsD.increment(STATSD_KEY_PREFIX)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
       ::Rails.logger.warn(
         'Flash Updater Retries exhausted',

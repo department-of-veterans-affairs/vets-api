@@ -3,7 +3,7 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitUploads < Job
-      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload.exhausted'
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -31,7 +31,7 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
-        StatsD.increment(STATSD_KEY_PREFIX)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
           'Submit Form 526 Upload Retries exhausted',
