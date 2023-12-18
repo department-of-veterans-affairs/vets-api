@@ -2,13 +2,12 @@
 
 module TravelPay
   class ApplicationController < ::ApplicationController
-    #include ActionController::Cookies
-    #include ActionController::RequestForgeryProtection
+    include ActionController::Cookies
+    include ActionController::RequestForgeryProtection
     service_tag 'travel-pay'
 
-    #protect_from_forgery with: :exception
+    protect_from_forgery with: :exception
 
-    #skip_before_action :authorize
     skip_before_action :authenticate
     skip_before_action :verify_authenticity_token
 
