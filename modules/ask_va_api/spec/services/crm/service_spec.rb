@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Dynamics::Service do
+RSpec.describe Crm::Service do
   let(:service) { described_class.new(icn: '123') }
 
   # Helper method to create a mock response
@@ -19,8 +19,8 @@ RSpec.describe Dynamics::Service do
       expected_error_message = "#{message} to #{endpoint}: \"#{body}\""
 
       expect do
-        Dynamics::ErrorHandler.handle(endpoint, response)
-      end.to raise_error(Dynamics::ErrorHandler::ServiceError, expected_error_message)
+        Crm::ErrorHandler.handle(endpoint, response)
+      end.to raise_error(Crm::ErrorHandler::ServiceError, expected_error_message)
     end
   end
 
@@ -50,7 +50,7 @@ RSpec.describe Dynamics::Service do
         end
 
         before do
-          allow_any_instance_of(Dynamics::CrmToken).to receive(:call).and_return('token')
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
           allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
                                                                            icn: '123').and_return(response)
         end
@@ -66,9 +66,9 @@ RSpec.describe Dynamics::Service do
       context 'when response is nil' do
         it 'returns a message indicating no response was received' do
           expect do
-            Dynamics::ErrorHandler.handle(endpoint,
-                                          nil)
-          end.to raise_error(Dynamics::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
+            Crm::ErrorHandler.handle(endpoint,
+                                     nil)
+          end.to raise_error(Crm::ErrorHandler::ServiceError, "Server Error to #{endpoint}: ")
         end
       end
 
@@ -85,8 +85,8 @@ RSpec.describe Dynamics::Service do
         it 'returns a generic error message' do
           response = mock_response(status: 418, body:)
           expect do
-            Dynamics::ErrorHandler.handle(endpoint, response)
-          end.to raise_error(Dynamics::ErrorHandler::ServiceError, "Service Error to #{endpoint}: \"#{body}\"")
+            Crm::ErrorHandler.handle(endpoint, response)
+          end.to raise_error(Crm::ErrorHandler::ServiceError, "Service Error to #{endpoint}: \"#{body}\"")
         end
       end
     end
@@ -96,7 +96,7 @@ RSpec.describe Dynamics::Service do
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
 
       before do
-        allow_any_instance_of(Dynamics::CrmToken).to receive(:call).and_return('token')
+        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
         allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
                                                                          { icn: '123' }).and_raise(exception)
       end
