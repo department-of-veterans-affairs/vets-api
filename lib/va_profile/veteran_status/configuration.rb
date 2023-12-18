@@ -12,7 +12,7 @@ module VAProfile
       end
 
       def service_name
-        'VAProfileVeteranStatus'
+        'VAProfile/VeteranStatus'
       end
 
       def mock_enabled?

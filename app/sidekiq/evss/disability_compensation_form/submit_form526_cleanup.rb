@@ -8,12 +8,50 @@ module EVSS
       include Sidekiq::Job
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup'
 
-      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
-      # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
-        job_exhausted(msg, STATSD_KEY_PREFIX)
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+        timestamp = Time.now.utc
+        form526_submission_id = msg['args'].first
+
+        form_job_status = Form526JobStatus.find_by(job_id:)
+        bgjob_errors = form_job_status.bgjob_errors || {}
+        new_error = {
+          "#{timestamp.to_i}": {
+            caller_method: __method__.to_s,
+            error_class:,
+            error_message:,
+            timestamp:,
+            form526_submission_id:
+          }
+        }
+        form_job_status.update(
+          status: Form526JobStatus::STATUS[:exhausted],
+          bgjob_errors: bgjob_errors.merge(new_error)
+        )
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+        ::Rails.logger.warn(
+          'Submit Form 526 Cleanup Retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+        )
+      rescue => e
+        ::Rails.logger.error(
+          'Failure in SubmitForm526Cleanup#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            submission_id: form526_submission_id,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+        raise e
       end
-      # :nocov:
 
       # Cleans up a 526 submission by removing its {InProgressForm} and deleting the
       # active Intent to File record (via EVSS)

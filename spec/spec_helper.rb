@@ -15,6 +15,7 @@ require 'support/okta_users_helpers'
 require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
+require 'aasm/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
