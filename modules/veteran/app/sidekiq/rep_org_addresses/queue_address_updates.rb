@@ -86,7 +86,7 @@ module RepAddresses
       log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
     end
 
-    def build_common_data(row, sheet_name, column_map)
+    def build_common_data(row, column_map)
       zip_code5, zip_code4 = format_zip_code(row, column_map)
 
       {
