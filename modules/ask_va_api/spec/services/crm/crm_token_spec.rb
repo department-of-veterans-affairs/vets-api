@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Dynamics::CrmToken do
+RSpec.describe Crm::CrmToken do
   let(:service) { described_class.new }
 
   def mock_response(status:, body:)
