@@ -457,6 +457,7 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   # End Modules
 
