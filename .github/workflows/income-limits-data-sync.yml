@@ -8,6 +8,7 @@ env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
   TEMP_FOLDER: "income_limits_files"
+  NSL_LANG: "AMERICAN_AMERICA.AL32UTF8"
 permissions:
   id-token: write
   contents: read 
@@ -98,6 +99,6 @@ jobs:
       - name: Run Oracle Queries
         run: ruby .github/scripts/income-limits-data-sync.rb
 
-      # - name: Copy files to the S3 bucket
-      #   run: |
-      #     aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}
+      - name: Copy files to the S3 bucket
+        run: |
+          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}

@@ -42,7 +42,5 @@ files.each do |table, file|
   end
 end
 
-ensure
-  # Close the database connection
-  conn.logoff if conn
-end
+# Close the database connection
+conn.logoff if conn
