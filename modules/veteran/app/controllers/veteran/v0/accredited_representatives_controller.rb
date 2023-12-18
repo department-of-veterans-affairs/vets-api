@@ -36,7 +36,7 @@ module Veteran
       end
 
       def serializer_klass
-          'Veteran::Accreditation::RepresentativeSerializer'.constantize
+        'Veteran::Accreditation::RepresentativeSerializer'.constantize
       end
 
       def base_query
@@ -45,9 +45,9 @@ module Veteran
       end
 
       def model_adjusted_query
-          base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-            '? = ANY(user_types) ', search_params[:type]
-          )
+        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
+          '? = ANY(user_types) ', search_params[:type]
+        )
       end
 
       def accreditation_query
@@ -109,9 +109,9 @@ module Veteran
 
       def verify_sort
         return unless search_params[:sort]
-          unless PERMITTED_REPRESENTATIVE_SORTS.include?(search_params[:sort])
-            raise Common::Exceptions::InvalidFieldValue.new('sort', search_params[:sort])
-          end
+        unless PERMITTED_REPRESENTATIVE_SORTS.include?(search_params[:sort])
+          raise Common::Exceptions::InvalidFieldValue.new('sort', search_params[:sort])
+        end
       end
 
       def verify_long
