@@ -5,16 +5,13 @@ require 'sentry_logging'
 require 'roo'
 
 module RepOrgAddresses
-  # A Sidekiq job class for processing address and email updates from an Excel file.
-  # This job fetches the file content, processes each sheet, and enqueues updates.
   class QueueAddressUpdates
     include Sidekiq::Job
     include SentryLogging
 
-    SHEETS_TO_PROCESS = %w[Attorneys Agents VSOs].freeze
+    SHEETS_TO_PROCESS = %w[Attorneys Agents].freeze
     BATCH_SIZE = 5000
 
-    # Performs the job of fetching and processing the file content.
     def perform
       file_content = RepOrgAddresses::XlsxFileFetcher.new.fetch
 
@@ -81,25 +78,25 @@ module RepOrgAddresses
       case sheet_name
       when 'Attorneys', 'Agents'
         build_data_for_attorneys_and_agents(common_data, row, sheet_name, column_map).to_json
-      when 'VSOs'
-        build_data_for_vsos(common_data, row, column_map).to_json
+      else
+        log_error("Unexpected sheet encountered: #{sheet_name}")
+        {}.to_json
       end
     rescue => e
       log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
     end
 
     def build_common_data(row, sheet_name, column_map)
-      is_vso = sheet_name == 'VSOs'
-      zip_code5, zip_code4 = format_zip_code(row, column_map, is_vso)
+      zip_code5, zip_code4 = format_zip_code(row, column_map)
 
       {
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
-          address_line1: format_address_line1(row, column_map, is_vso),
-          address_line2: format_address_line2(row, column_map, is_vso),
-          address_line3: format_address_line3(row, column_map, is_vso),
-          city: format_city(row, column_map, is_vso),
-          state_province: { code: format_state_province_code(row, column_map, is_vso) },
+          address_line1: format_address_line1(row, column_map),
+          address_line2: format_address_line2(row, column_map),
+          address_line3: format_address_line3(row, column_map),
+          city: format_city(row, column_map),
+          state_province: { code: format_state_province_code(row, column_map) },
           zip_code5:,
           zip_code4:,
           country_code_iso3: 'US'
@@ -107,39 +104,28 @@ module RepOrgAddresses
       }
     end
 
-    def format_address_line1(row, column_map, is_vso)
-      value_candidate =
-        (is_vso ? row[column_map['Organization.AddressLine1']].value : row[column_map['WorkAddress1']].value).to_s
-      value_or_nil(value_candidate)
+    def format_address_line1(row, column_map)
+      value_or_nil(row[column_map['WorkAddress1']].value.to_s)
     end
 
-    def format_address_line2(row, column_map, is_vso)
-      value_candidate =
-        (is_vso ? row[column_map['Organization.AddressLine2']].value : row[column_map['WorkAddress2']].value).to_s
-      value_or_nil(value_candidate)
+    def format_address_line2(row, column_map)
+      value_or_nil(row[column_map['WorkAddress2']].value.to_s)
     end
 
-    def format_address_line3(row, column_map, is_vso)
-      value_candidate =
-        (is_vso ? row[column_map['Organization.AddressLine3']].value : row[column_map['WorkAddress3']].value).to_s
-      value_or_nil(value_candidate)
+    def format_address_line3(row, column_map)
+      value_or_nil(row[column_map['WorkAddress3']].value.to_s)
     end
 
-    def format_city(row, column_map, is_vso)
-      value_candidate =
-        (is_vso ? row[column_map['Organization.City']].value : row[column_map['WorkCity']].value).to_s
-      value_or_nil(value_candidate)
+    def format_city(row, column_map)
+      value_or_nil(row[column_map['WorkCity']].value.to_s)
     end
 
-    def format_state_province_code(row, column_map, is_vso)
-      value_candidate =
-        (is_vso ? row[column_map['Organization.State']].value : row[column_map['WorkState']].value).to_s
-      value_or_nil(value_candidate)
+    def format_state_province_code(row, column_map)
+      value_or_nil(row[column_map['WorkState']].value.to_s)
     end
 
-    def format_zip_code(row, column_map, is_vso)
-      zip_code =
-        (is_vso ? row[column_map['Organization.ZipCode']].value : row[column_map['WorkZip']].value).to_s
+    def format_zip_code(row, column_map)
+      zip_code = row[column_map['WorkZip']].value.to_s
       is_zip_plus4 = zip_code.include?('-')
       zip5 = is_zip_plus4 ? format_zip5(zip_code.split('-').first) : format_zip5(zip_code)
       zip4 = is_zip_plus4 ? format_zip4(zip_code.split('-').last) : nil
@@ -161,17 +147,6 @@ module RepOrgAddresses
                           id: row[column_map['Number']].value,
                           email_address: value_or_nil(row[column_map[email_address_column_name]].value)
                         })
-    end
-
-    def build_data_for_vsos(common_data, row, column_map)
-      common_data.merge({
-                          type: 'organization',
-                          id: format_vso_poa(row[column_map['POA']].value)
-                        })
-    end
-
-    def format_vso_poa(vso_poa)
-      vso_poa.to_s.rjust(3, '0')
     end
 
     def value_or_nil(value_candidate)
