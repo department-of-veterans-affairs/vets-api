@@ -26,23 +26,31 @@ temp_directory = ENV['TEMP_FOLDER']
 # Connect to the Oracle database
 conn = OCI8.new(db_username, db_password, db_connection_string)
 
-files.each do |table, file|
-  # Query the data for the table.
-  sql_query = "SELECT * FROM #{table}"
-  puts "Running query: " + sql_query
-  result = conn.exec(sql_query)
+query = "SELECT * FROM V$NLS_PARAMETERS"
 
-  # Create a CSV file from the results in the temp directory.
-  CSV.open("#{temp_directory}/#{file}", 'w') do |csv|
-    # Write header
-    csv << result.get_col_names
+result = conn.exec(query)
 
-    # Write rows
-    result.fetch do |row|
-      csv << row
-    end
-  end
+# Fetch and print results
+result.each do |row|
+  puts row.join(', ')
 end
+# files.each do |table, file|
+#   # Query the data for the table.
+#   sql_query = "SELECT * FROM #{table}"
+#   puts "Running query: " + sql_query
+#   result = conn.exec(sql_query)
+
+#   # Create a CSV file from the results in the temp directory.
+#   CSV.open("#{temp_directory}/#{file}", 'w') do |csv|
+#     # Write header
+#     csv << result.get_col_names
+
+#     # Write rows
+#     result.fetch do |row|
+#       csv << row
+#     end
+#   end
+# end
 
 # Close the database connection
 conn.logoff
