@@ -1951,6 +1951,8 @@ RSpec.describe FormProfile, type: :model do
       it 'raises an IOError' do
         VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability',
                          allow_playback_repeats: true) do
+          allow(FormProfile).to receive(:prefill_enabled_forms).and_return(['foo'])
+
           expect { described_class.new(form_id: 'foo', user:).prefill }.to raise_error(IOError)
         end
       end
