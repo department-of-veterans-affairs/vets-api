@@ -8,7 +8,7 @@ module SimpleFormsApi
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
     def self.stamp_pdf(stamped_template_path, form)
-      form_number = form.data ? form.data['form_number'] : form.number
+      form_number = form.data['form_number']
       if FORM_REQUIRES_STAMP.include? form_number
         stamp_method = "stamp#{form_number.gsub('-', '')}".downcase
         send(stamp_method, stamped_template_path, form)
