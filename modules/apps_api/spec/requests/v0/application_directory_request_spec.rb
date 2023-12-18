@@ -122,9 +122,8 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   describe '#get /services/apps/v0/directory/scopes/:category' do
     it 'returns a populated list of health scopes' do
       VCR.use_cassette('okta/health-scopes', match_requests_on: %i[method path]) do
-        get '/services/apps/v0/directory/scopes/Health'
+        get '/services/apps/v0/directory/scopes/health'
         body = JSON.parse(response.body)
-        puts response.body
         expect(response).to have_http_status(:success)
         expect(body).not_to be_empty
         expect(body['data'][0]['name']).to eq('launch/patient')

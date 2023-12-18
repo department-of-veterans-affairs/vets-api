@@ -109,18 +109,20 @@ RSpec.describe Okta::DirectoryService do
   #     expect(subject.scopes('verification')).to be('beep')
   #   end
   # end
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     it 'handle 200 calls from lh-auth' do
       VCR.use_cassette('okta/health_scopes', match_requests_on: %i[method path]) do
-<<<<<<< Updated upstream
         get '/v0/profile/app_directory_scope/ausa6g29u50OhqAdv2p7'
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
       end
     end
   end
-=======
+
         response = subject.handle_health_server
         puts response.body
         expect(response).not_to be_nil
@@ -158,5 +160,4 @@ RSpec.describe Okta::DirectoryService do
   #     expect(response.first[:metadataPublish]).to be_nil
   #   end
   #end
->>>>>>> Stashed changes
 end
