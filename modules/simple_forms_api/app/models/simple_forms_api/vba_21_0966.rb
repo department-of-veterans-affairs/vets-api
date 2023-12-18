@@ -35,11 +35,6 @@ module SimpleFormsApi
     end
 
     def third_party_info
-      roles = {
-        'fiduciary' => 'Fiduciary',
-        'officer' => 'Veteran Service Officer',
-        'alternate' => 'Alternate Signer'
-      }
       third_party_preparer_full_name = @data['third_party_preparer_full_name']
       role =
         if @data['third_party_preparer_role'] == 'other'
@@ -57,6 +52,16 @@ module SimpleFormsApi
           third_party_preparer_full_name['last'] || ''
         }, #{role}"
       end
+    end
+
+    private
+
+    def roles
+      {
+        'fiduciary' => 'Fiduciary',
+        'officer' => 'Veteran Service Officer',
+        'alternate' => 'Alternate Signer'
+      }
     end
   end
 end
