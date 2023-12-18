@@ -61,7 +61,6 @@ spec:
     accessControlAllowHeaders:
       - "*"
     accessControlAllowOriginList:
-      - "https://{{ .Values.assetsUrl }}"
-      - "https://{{ .Values.webUrl }}"
+      - "*"
     accessControlMaxAge: 100
     addVaryHeader: true
