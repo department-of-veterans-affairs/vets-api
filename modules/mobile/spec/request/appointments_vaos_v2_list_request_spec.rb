@@ -343,7 +343,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
         expect(expected_upcoming_pending_count).to eq(2)
         expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(2)
-        expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(14)
+        expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
       end
     end
   end

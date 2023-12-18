@@ -1,4 +1,4 @@
-name: Check Git Log for EMIS Cassettes (PII)
+name: Check Git Log for EMIS Cassettes
 
 on:
   push:
