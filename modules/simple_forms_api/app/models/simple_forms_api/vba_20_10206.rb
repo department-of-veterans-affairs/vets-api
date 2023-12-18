@@ -24,7 +24,7 @@ module SimpleFormsApi
           'non_citizen_id',
           'arn'
         ),
-        'zipCode' => @data.dig('address', 'postal_code'),
+        'zipCode' => @data.dig('address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
