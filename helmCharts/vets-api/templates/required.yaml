@@ -11,3 +11,8 @@
 {{- $______ := required "A valid redisAppDataUrl is required!" .Values.redisAppDataUrl}}
 
 {{- $_______ := required "A valid redisHost is required!" .Values.redisHost}}
+
+{{- $________ := required "A valid redisHost is required!" .Values.assetsUrl}}
+
+{{- $_________ := required "A valid redisHost is required!" .Values.webUrl}}
+

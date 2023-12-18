@@ -3,7 +3,29 @@ kind: Ingress
 metadata:
   name: vets-api-service-routing
   annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Values.namespace }}-header@kubernetescrd
+spec:
+  rules:
+    - host: "{{ .Values.domainName }}"
+      http:
+        paths:
+          - path: /s
+            pathType: Prefix
+            backend:
+              service:
+                name: vets-api-service
+                port:
+                  name: web
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vets-api-service-http-routing
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Values.namespace }}-redirect@kubernetescrd
 spec:
   rules:
     - host: "{{ .Values.domainName }}"
@@ -17,21 +39,30 @@ spec:
                 port:
                   name: web
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
 metadata:
-  name: vets-api-service-http-routing
-  annotations:
-    traefik.ingress.kubernetes.io/router.tls: "false"
+  name: redirect
 spec:
-  rules:
-    - host: "{{ .Values.domainName }}"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: vets-api-service
-                port:
-                  name: web
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: header
+spec:
+  headers:
+    accessControlAllowMethods:
+      - "GET"
+      - "OPTIONS"
+      - "PUT"
+    accessControlAllowHeaders:
+      - "*"
+    accessControlAllowOriginList:
+      - "https://{{ .Values.assetsUrl }}"
+      - "https://{{ .Values.vetsApiUrl }}"
+      - "https://{{ .Values.webUrl }}"
+    accessControlMaxAge: 100
+    addVaryHeader: true
