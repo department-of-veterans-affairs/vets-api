@@ -51,6 +51,7 @@ module Swagger
             property :prescription_id, type: :integer
             property :prescription_number, type: :string
             property :prescription_name, type: :string
+            property :presciption_image, type: :string
             property :refill_status, type: :string
             property :refill_submit_date, type: %i[string null], format: :date
             property :refill_date, type: :string, format: :date
