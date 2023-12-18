@@ -25,7 +25,6 @@ describe 'Claims',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves all claims for Veteran.'
 
       parameter name: 'veteranId',
                 in: :path,
@@ -116,7 +115,7 @@ describe 'Claims',
   end
 
   path '/veterans/{veteranId}/claims/{id}' do
-    get 'Find claim by ID' do
+    get 'Find claim by ID.' do
       tags 'Claims'
       operationId 'findClaimById'
       security [
@@ -129,7 +128,7 @@ describe 'Claims',
       parameter name: :id,
                 in: :path,
                 type: :string,
-                example: '1234',
+                example: '600400703',
                 description: 'The ID of the claim being requested'
       parameter name: 'veteranId',
                 in: :path,
