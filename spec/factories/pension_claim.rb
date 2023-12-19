@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :pension_claim, class: 'SavedClaim::Pension' do
-    form_id { '21P-527EZ' }
+    form_id { '21P-527EZ-ARE' }
     form do
       {
         privacyAgreementAccepted: true,

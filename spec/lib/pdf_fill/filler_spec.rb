@@ -51,7 +51,7 @@ describe PdfFill::Filler, type: :model do
       },
       {
         form_id: '21P-527EZ-ARE',
-        factory: :pension_claim_new
+        factory: :pension_claim
       },
       {
         form_id: '10-10CG',
