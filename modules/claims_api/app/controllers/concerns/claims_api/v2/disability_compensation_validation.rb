@@ -228,8 +228,6 @@ module ClaimsApi
             if secondary_disability['approximateDate'].present?
               validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability, dis_idx,
                                                                                         sd_idx)
-              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i, dis_idx,
-                                                         sd_idx)
             end
           end
         end
