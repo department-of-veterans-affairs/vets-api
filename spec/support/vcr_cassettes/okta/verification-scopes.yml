@@ -78,6 +78,6 @@ http_interactions:
       - application/json;charset=UTF-8
     body:
       encoding: ASCII-8BIT
-      string: ''
+      string: '[]'
     http_version:  
   recorded_at: Mon, 08 Mar 2021 16:42:21 GMT 

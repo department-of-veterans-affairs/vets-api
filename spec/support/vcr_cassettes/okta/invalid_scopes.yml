@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/internal/auth/v3/auth/scopes/somethingthatdoesntexist
+    uri: https://sandbox-api.va.gov/internal/auth/v3/auth/scopes/invalid_category
     body:
       encoding: US-ASCII
       string: ''
@@ -17,13 +17,13 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 204
+      message: No Content
     headers:
       Content-Type:
       - application/json;charset=UTF-8
     body:
       encoding: ASCII-8BIT
-      string: ''
+      string: '[]'
     http_version:  
   recorded_at: Mon, 08 Mar 2021 16:42:21 GMT 

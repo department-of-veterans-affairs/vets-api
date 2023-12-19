@@ -14,16 +14,21 @@ module Okta
 
       scopes_url = "#{base_url}/#{category}"
 
-      puts scopes_url
-
       headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
       response = RestClient::Request.execute(method: :get, url: scopes_url, headers:)
 
       if response.code == 200
-        JSON.parse(response.body)
+        begin
+          JSON.parse(response.body)
+
+        # response has 200 status but content of response body is not valid json
+        rescue JSON::ParserError
+          { 'error' => 'Failed to parse JSON response' }
+        end
       else
-        { 'error' => 'Failed to fetch scopes' }
+        # category is found but no scopes are returned (204)
+        []
       end
     end
   end
