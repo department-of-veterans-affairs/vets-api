@@ -58,8 +58,12 @@ module MyHealth
 
       def thread
         message_id = params[:id].try(:to_i)
-        # resource = client.get_message_history(message_id)
-        resource = client.get_messages_for_thread(message_id)
+        if params[:full_body] == 'true'
+          #returns full body of message including attachments attributes
+          resource = client.get_full_messages_for_thread(message_id)
+        else
+          resource = client.get_messages_for_thread(message_id)
+        end
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
         render json: resource,
