@@ -122,7 +122,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   describe '#get /services/apps/v0/directory/scopes/:category' do
     it 'returns a populated list of health scopes' do
       VCR.use_cassette('okta/health_scopes', match_requests_on: %i[method path]) do
-        get '/services/apps/v0/directory/scopes/health'
+        get '/services/apps/v0/directory/scopes/Health'
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
         expect(body).not_to be_empty
@@ -130,38 +130,46 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       end
     end
 
-    # it 'returns a populated list of benefits scopes' do
-    #   VCR.use_cassette('okta/benefits-scopes', match_requests_on: %i[method path]) do
-    #     get '/services/apps/v0/directory/scopes/Benefits'
-    #     body = JSON.parse(response.body)
-    #     expect(response).to have_http_status(:success)
-    #     expect(body).not_to be_empty
-    #     expect(body['data'][0]['name']).to eq('claim.read')
-    #   end
-    # end
+    it 'returns a populated list of benefits scopes' do
+      VCR.use_cassette('okta/benefits-scopes', match_requests_on: %i[method path]) do
+        get '/services/apps/v0/directory/scopes/benefits'
+        body = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(body).not_to be_empty
+        expect(body['data'][0]['name']).to eq('claim.read')
+      end
+    end
 
-    # it 'returns a populated list of verification scopes' do
-    #   VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
-    #     get '/services/apps/v0/directory/scopes/Verification'
-    #     body = JSON.parse(response.body)
-    #     expect(response).to have_http_status(:success)
-    #     expect(body).not_to be_empty
-    #     expect(body['data'][0]['name']).to eq('disability_rating.read')
-    #   end
-    # end
+    it 'returns a populated list of verification scopes' do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
+        get '/services/apps/v0/directory/scopes/verification'
+        body = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(body).not_to be_empty
+        expect(body['data'][0]['name']).to eq('disability_rating.read')
+      end
+    end
 
-    # it 'returns an empty list when given an unknown category' do
-    #   VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
-    #     get '/services/apps/v0/directory/scopes/unknown_category'
-    #     expect(response).to have_http_status(:no_content)
-    #   end
-    # end
+    it 'returns a 404 when given an unknown category' do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
+        get '/services/apps/v0/directory/scopes/unknown_category'
+        expect(response).to have_http_status(:not_found)
+      end
+    end
 
-    # it '204s when given a null category' do
-    #   VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
-    #     get '/services/apps/v0/directory/scopes'
-    #     expect(response).to have_http_status(:no_content)
-    #   end
-    # end
+    it '404s when given a null category' do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
+        get '/services/apps/v0/directory/scopes'
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    it '204s when given an empty category' do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
+        get '/services/apps/v0/directory/scopes/empty_category'
+        puts response.body
+        expect(response).to have_http_status(:no_content)
+      end
+    end
   end
 end

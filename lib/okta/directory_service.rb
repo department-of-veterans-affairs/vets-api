@@ -10,17 +10,15 @@ module Okta
 
       base_url = Settings.authorization_server_scopes_api.auth_server.url
 
+      category = category.downcase
+
       scopes_url = "#{base_url}/#{category}"
 
       puts scopes_url
 
       headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
-      puts headers
-
       response = RestClient::Request.execute(method: :get, url: scopes_url, headers:)
-
-      puts response
 
       if response.code == 200
         JSON.parse(response.body)
