@@ -54,17 +54,26 @@ metadata:
   name: vets-header
 spec:
   headers:
-    customRequestHeaders:
-      X-Csrf-Token: "" # Removes
     accessControlAllowMethods:
       - "GET"
       - "OPTIONS"
       - "PUT"
+      - "HEAD"
+      - "POST"
+      - "PATCH"
+      - "DELETE"
+    accessControlExposeHeaders:
+      - "X-RateLimit-Limit"
+      - "X-RateLimit-Remaining"
+      - "X-RateLimit-Reset"
+      - "X-Session-Expiration"
+      - "X-CSRF-Token"
+      - "X-Request-Id"
     accessControlAllowHeaders:
-      - "*"
+      - "x-csrf-token"
     accessControlAllowOriginList:
       - "https://{{ .Values.assetsUrl }}"
       - "https://{{ .Values.webUrl }}"
-    accessControlMaxAge: 100
+    accessControlMaxAge: 7200
     addVaryHeader: true
     accessControlAllowCredentials: true
