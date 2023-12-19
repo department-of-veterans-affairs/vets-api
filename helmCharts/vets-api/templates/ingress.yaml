@@ -58,7 +58,8 @@ spec:
       - "GET"
       - "OPTIONS"
       - "PUT"
-    accessControlAllowHeaders: *
+    accessControlAllowHeaders:
+      - "*"
     accessControlAllowOriginList:
       - "https://{{ .Values.assetsUrl }}"
       - "https://{{ .Values.webUrl }}"
