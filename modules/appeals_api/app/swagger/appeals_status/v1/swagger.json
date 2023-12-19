@@ -944,7 +944,7 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "with a incorrectly formatted 'icn' parameter": {
+                  "with an incorrectly formatted 'icn' parameter": {
                     "value": {
                       "errors": [
                         {

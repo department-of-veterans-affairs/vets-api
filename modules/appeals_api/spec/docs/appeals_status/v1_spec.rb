@@ -122,7 +122,7 @@ describe 'Appeals Status', swagger_doc:, type: :request do
         let(:cassette) { %w[caseflow/invalid_ssn mpi/find_candidate/valid] }
 
         it_behaves_like 'rswag example',
-                        desc: "with a incorrectly formatted 'icn' parameter",
+                        desc: "with an incorrectly formatted 'icn' parameter",
                         extract_desc: true,
                         cassette:,
                         scopes: %w[veteran/AppealsStatus.read]

@@ -3,7 +3,7 @@
 module AppealsApi
   module IcnParameterValidation
     extend ActiveSupport::Concern
-    # NOTE: Make sure to also include the AppealsApi::OpenidAuth concern when using this concern
+    include AppealsApi::OpenidAuth # This concern depends on `token_validation_result`
 
     ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/
 
@@ -22,6 +22,12 @@ module AppealsApi
       elsif veteran_icn_from_token.blank? && params[:icn].blank?
         # If the auth token is a system or representative token, an ICN parameter is required
         raise(Common::Exceptions::ParameterMissing, 'icn')
+      end
+
+      if veteran_icn_from_token.present? && !ICN_REGEX.match?(veteran_icn_from_token)
+        # rubocop:disable Layout/LineLength
+        Rails.logger.error("The Veteran ICN '#{veteran_icn_from_token}', which was returned by the token validation server, has an invalid format. This should never happen.")
+        # rubocop:enable Layout/LineLength
       end
     end
 

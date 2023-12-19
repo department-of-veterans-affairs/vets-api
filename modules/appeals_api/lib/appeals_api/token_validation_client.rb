@@ -4,7 +4,7 @@ require 'common/client/base'
 require 'token_validation/v2/configuration'
 
 module AppealsApi
-  # Represents the result of token validation
+  # Exposes a subset of the data received from the token validation server
   #
   # @attr [Array<String>] scopes the scopes included with this token
   # @attr [String|nil] veteran_icn the ICN of the target veteran, if any
