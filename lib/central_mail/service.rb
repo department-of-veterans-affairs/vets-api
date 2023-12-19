@@ -36,7 +36,6 @@ module CentralMail
       )
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.upload.fail") unless response.success?
-
       response
     end
     # rubocop:enable Metrics/MethodLength
