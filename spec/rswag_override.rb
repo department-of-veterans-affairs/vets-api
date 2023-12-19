@@ -16,7 +16,7 @@ module Rswag
         return if metadata[:document] == false
         return unless metadata.key?(:response)
 
-        swagger_doc = @config.get_swagger_doc(metadata[:swagger_doc])
+        swagger_doc = @config.get_openapi_spec(metadata[:swagger_doc])
 
         unless doc_version(swagger_doc).start_with?('2')
           # This is called multiple times per file!
@@ -33,7 +33,7 @@ module Rswag
 
       # rubocop:disable Metrics/BlockNesting, Layout/LineLength, Style/CommentedKeyword, Metrics/MethodLength
       def stop(_notification = nil)
-        @config.swagger_docs.each do |url_path, doc|
+        @config.openapi_specs.each do |url_path, doc|
           unless doc_version(doc).start_with?('2')
             doc[:paths]&.each_pair do |_k, v|
               v.each_pair do |_verb, value|
@@ -57,7 +57,7 @@ module Rswag
           end
 
           if relevant_path?(url_path) # Added conditional
-            file_path = File.join(@config.swagger_root, url_path)
+            file_path = File.join(@config.openapi_root, url_path)
             dirname = File.dirname(file_path)
             FileUtils.mkdir_p dirname unless File.exist?(dirname)
             File.open(file_path, 'w') do |file|

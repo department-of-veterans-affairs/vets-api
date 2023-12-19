@@ -110,7 +110,6 @@ def format_for_swagger(version, env = nil)
   swagger_file_path = ClaimsApi::Engine.root.join(path)
   oas = JSON.parse(File.read(swagger_file_path.to_s))
 
-  remove_base_path!(oas)
   clear_null_types!(oas) if version == 'v2'
   clear_null_enums!(oas) if version == 'v2'
   File.write(swagger_file_path, JSON.pretty_generate(oas))
@@ -162,10 +161,6 @@ def clear_null_enums!(data)
     end
   end
   data.replace deep_transform(data, transformer:)
-end
-
-def remove_base_path!(data)
-  data.except!('basePath')
 end
 
 # Does file manipulation to make an rswag-output json file compatible to OAS v3
