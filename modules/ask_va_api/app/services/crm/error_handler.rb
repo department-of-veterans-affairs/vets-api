@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Dynamics
+module Crm
   class ErrorHandler
     class ServiceError < StandardError; end
 
