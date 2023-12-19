@@ -66,7 +66,7 @@ module RepAddresses
     # @param api_response [Hash] The response from the address validation service.
     def update_address_record(data, api_response)
       record =
-          Veteran::Service::Representative.find_by(representative_id: data['id'])
+        Veteran::Service::Representative.find_by(representative_id: data['id'])
 
       if record.nil?
         log_message_to_sentry(
