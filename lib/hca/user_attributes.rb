@@ -20,6 +20,18 @@ class HCA::UserAttributes
     super(new_ssn&.gsub(/\D/, ''))
   end
 
+  def birth_date=(dob)
+    return if dob.blank?
+
+    birth_day = Date.parse(dob)
+    invalid_range = birth_day.year < 1900 || birth_day > 18.years.ago.to_date
+    raise ArgumentError, 'DOB is out of acceptable range' if invalid_range
+
+    super(dob)
+  rescue
+    super(nil)
+  end
+
   def uuid
     SecureRandom.uuid
   end
