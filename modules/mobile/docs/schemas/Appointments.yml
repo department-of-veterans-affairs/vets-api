@@ -33,8 +33,6 @@ properties:
       upcomingAppointmentsCount:
         type: number
         description: The number of BOOKED, non-pending appointments in the next upcomingDaysLimit number of days.
-        example: 3
       upcomingDaysLimit:
         type: number
-        description: The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 14.
-        example: 14
+        description: The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7.

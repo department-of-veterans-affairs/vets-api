@@ -6,12 +6,15 @@ class BenefitsIntakeStatusJob
   include Sidekiq::Job
 
   def perform
+    Rails.logger.info('BenefitsIntakeStatusJob started')
     pending_form_submission_ids = FormSubmission
                                   .joins(:form_submission_attempts)
                                   .where(form_submission_attempts: { aasm_state: 'pending' })
                                   .map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
     handle_response(response)
+    submissions_handled = response.body['data'].count
+    Rails.logger.info({ name: 'BenefitsIntakeStatusJob ended', submissions_handled: })
   end
 
   private
@@ -43,6 +46,6 @@ class BenefitsIntakeStatusJob
                               .where(aasm_state: 'pending')
                               .order(created_at: :asc)
                               .last
-    form_submission_attempt.succeed!
+    form_submission_attempt.vbms!
   end
 end
