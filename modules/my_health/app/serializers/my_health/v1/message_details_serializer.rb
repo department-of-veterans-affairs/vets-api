@@ -18,6 +18,21 @@ module MyHealth
       attribute :draft_date
       attribute :to_date
       attribute :has_attachments
+      
+      attribute :attachments do
+        (1..4).each_with_object([]) do |i, array|
+          if !object.send("attachment#{i}_id").nil?
+            attachment = {
+              id: object.send("attachment#{i}_id"),
+              message_id: object.message_id,
+              name: object.send("attachment#{i}_name"),
+              attachment_size: object.send("attachment#{i}_size"),
+              download: MyHealth::UrlHelper.new.v1_message_attachment_url(object.message_id, object.send("attachment#{i}_id"))
+            } 
+            array << attachment
+          end
+        end
+      end
 
       link(:self) { MyHealth::UrlHelper.new.v1_message_url(object.message_id) }
     end
