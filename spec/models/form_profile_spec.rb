@@ -1957,6 +1957,16 @@ RSpec.describe FormProfile, type: :model do
         end
       end
     end
+
+    context 'when the form does not use prefill' do
+      it 'does not raise an error' do
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability',
+                         allow_playback_repeats: true) do
+
+          expect { described_class.new(form_id: '21-4142', user:).prefill }.not_to raise_error
+        end
+      end
+    end
   end
 
   describe '.mappings_for_form' do

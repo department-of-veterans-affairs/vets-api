@@ -189,11 +189,11 @@ class FormProfile
   # * TODO(AJD): MIS (military history)
   #
   def prefill
+    @identity_information = initialize_identity_information
+    @contact_information = initialize_contact_information
+    @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
     if FormProfile.prefill_enabled_forms.include?(form)
-      @identity_information = initialize_identity_information
-      @contact_information = initialize_contact_information
-      @military_information = initialize_military_information
       mappings = self.class.mappings_for_form(form_id)
 
       form_data = generate_prefill(mappings)
