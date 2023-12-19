@@ -31,6 +31,7 @@ path 'modules' do
   gem 'vba_documents'
   gem 'veteran'
   gem 'veteran_confirmation'
+  gem 'vye'
 end
 
 gem 'rails', github: 'rails/rails', branch: '6-1-stable'
