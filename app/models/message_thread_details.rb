@@ -8,4 +8,9 @@ class MessageThreadDetails < Message
   attribute :draft_date, Common::DateTimeString
   attribute :to_date, Common::DateTimeString
   attribute :has_attachments, Boolean
+  (1..4).each do |i|
+    [:id, :name, :size, :mime_type].each do |attr|
+      attribute "attachment#{i}_#{attr}".to_sym
+    end
+  end
 end
