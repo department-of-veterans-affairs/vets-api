@@ -86,7 +86,6 @@ module VBADocuments
       end
       metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
       metadata['businessLine'] = AppealsApi::LineOfBusiness.new(model).value if model.appeals_consumer?
-      metadata['zipCode'] = metadata['zipCode'].to_s if metadata['zipCode'].is_a? Numeric
       metadata
     end
 

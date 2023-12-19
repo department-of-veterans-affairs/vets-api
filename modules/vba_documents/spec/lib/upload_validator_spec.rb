@@ -30,22 +30,6 @@ RSpec.describe VBADocuments::UploadValidations do
       expect(subject).to have_key('ahash1')
       expect(subject['ahash1']).to eq(upload_submission.uploaded_pdf['content']['attachments'][0]['sha256_checksum'])
     end
-
-    describe 'when zipCode is a number' do
-      before do
-        json_parse = JSON.method(:parse)
-        allow(JSON).to receive(:parse) do |input|
-          output = json_parse.call(input)
-          output.merge!({ 'zipCode' => 12_345 }) if output.is_a?(Hash) && output['zipCode'].present?
-          output
-        end
-      end
-
-      it 'stringifies the zipCode' do
-        expect(subject).to have_key('zipCode')
-        expect(subject['zipCode']).to eq('12345')
-      end
-    end
   end
 
   describe '#validate_metadata' do
