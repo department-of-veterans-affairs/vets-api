@@ -71,6 +71,8 @@ spec:
       - "X-Request-Id"
     accessControlAllowHeaders:
       - "x-csrf-token"
+      - "source-app-name"
+      - "x-key-inflection"
     accessControlAllowOriginList:
       - "https://{{ .Values.assetsUrl }}"
       - "https://{{ .Values.webUrl }}"
