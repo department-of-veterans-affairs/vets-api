@@ -3,7 +3,7 @@
   "info": {
     "title": "Benefits Claims",
     "version": "v2",
-    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n\nAdditional functionality will be added over time.\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if: \n\n-   You are a consumer outside of VA and do not have the necessary VA agreements to use this API, and/or\n-   (POA) You want automatic establishment of power of attorney (21-22 or 21-22a)\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted to Lighthouse\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n\nAdditional functionality will be added over time.\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if: \n\n-   You are a consumer outside of VA and do not have the necessary VA agreements to use this API, and/or\n-   You want automatic establishment of power of attorney (21-22 or 21-22a)\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted to Lighthouse\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
   },
   "tags": [
     {
@@ -1245,7 +1245,7 @@
       "post": {
         "summary": "Submits form 526",
         "tags": [
-          "Disability"
+          "Disability Compensation Claims"
         ],
         "operationId": "post526Claim",
         "security": [
@@ -1287,7 +1287,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8926153f-1d19-4357-84ec-b685ec2b71cc",
+                    "id": "30e7b70f-7b50-4cb2-a543-6d4da2e30a19",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -4075,7 +4075,7 @@
       "post": {
         "summary": "Validates a 526 claim form submission.",
         "tags": [
-          "Disability"
+          "Disability Compensation Claims"
         ],
         "operationId": "post526ClaimValidate",
         "security": [
@@ -5604,7 +5604,7 @@
       "post": {
         "summary": "Upload documents supporting a 526 claim",
         "tags": [
-          "Disability"
+          "Disability Compensation Claims"
         ],
         "operationId": "upload526Attachments",
         "security": [
@@ -5655,7 +5655,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "650cc3c9-7758-46cc-a58c-940eb83f7d8d",
+                    "id": "49d25afc-197f-48e1-a430-338e23345179",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {

@@ -11,6 +11,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
@@ -30,7 +31,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
     before do
       entity = OpenStruct.new(id: nil, info: 'pong')
-      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint: 'ping').and_return(entity)
+      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'ping').and_return(entity)
       get index_path
     end
 
@@ -64,14 +65,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(Crm::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+          .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
         get categories_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::ServiceError: service error'
+                      'Crm::ErrorHandler::ServiceError: service error'
     end
   end
 
@@ -103,14 +104,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(Crm::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+          .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
         get topics_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::ServiceError: service error'
+                      'Crm::ErrorHandler::ServiceError: service error'
     end
   end
 

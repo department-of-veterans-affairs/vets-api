@@ -32,7 +32,7 @@ module EVSS
         FORM_ID_0781A => { docType: 'L229' }
       }.freeze
 
-      STATSD_KEY_PREFIX = 'worker.evss.submit_form0781.exhausted'
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form0781'
 
       # Sidekiq has built in exponential back-off functionality for retries
       # A max retry attempt of 10 will result in a run time of ~8 hours
@@ -64,7 +64,7 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
-        StatsD.increment(STATSD_KEY_PREFIX)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
           'Submit Form 0781 Retries exhausted',

@@ -1,29 +1,25 @@
 # frozen_string_literal: true
 
-module Dynamics
+module Crm
   class Service
     extend Forwardable
 
-    attr_reader :icn, :logger, :settings, :base_uri
+    attr_reader :icn, :logger, :settings, :base_uri, :token
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'veis/vagov.lob.ava/api'
-    AUTH_URL = 'https://login.microsoftonline.us'
 
     def_delegators :settings,
                    :base_url,
-                   :client_id,
-                   :client_secret,
                    :veis_api_path,
-                   :tenant_id,
                    :ocp_apim_subscription_key,
-                   :service_name,
-                   :resource
+                   :service_name
 
     def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
       @base_uri = base_uri
       @icn = icn
+      @token = CrmToken.new.call
       @logger = logger
     end
 
@@ -37,17 +33,8 @@ module Dynamics
       end
       parse_response(response.body)
     rescue => e
-      log_error(endpoint, e.class.name)
-      [e,
-       {
-         bearer: token,
-         env: Rails.env,
-         vsp_env: Settings.vsp_environment,
-         tenant: tenant_id.chars.first(5),
-         resource: resource.chars.first(5),
-         client: client_id.chars.first(5),
-         base_uri:
-       }]
+      log_error(endpoint, service_name)
+      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
     private
@@ -55,6 +42,7 @@ module Dynamics
     def conn(url: base_uri)
       Faraday.new(url:) do |f|
         f.use :breakers
+        f.response :raise_error, error_prefix: service_name
         f.adapter Faraday.default_adapter
       end
     end
@@ -82,36 +70,11 @@ module Dynamics
       logger.call('api_call.error', tags: build_tags(endpoint, error_type))
     end
 
-    def token_headers
-      {
-        'Content-Type' => 'application/x-www-form-urlencoded'
-      }
-    end
-
     def default_header
       {
         'Content-Type' => 'application/json',
         'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
       }
-    end
-
-    def auth_params
-      {
-        client_id:,
-        client_secret:,
-        resource:,
-        grant_type: 'client_credentials'
-      }
-    end
-
-    def token
-      response = conn(url: AUTH_URL).post("/#{tenant_id}/oauth2/token") do |req|
-        req.headers = token_headers
-        req.body = URI.encode_www_form(auth_params)
-      end
-
-      result = parse_response(response.body)
-      result[:access_token] || result
     end
   end
 end
