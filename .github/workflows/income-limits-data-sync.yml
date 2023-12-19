@@ -1,6 +1,5 @@
 name: Income Limits Data Sync
 on:
-  push:
   workflow_dispatch: null
   schedule:
     - cron: "35 0 1 * *"
