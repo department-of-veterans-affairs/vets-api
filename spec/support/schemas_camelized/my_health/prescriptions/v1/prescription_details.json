@@ -49,7 +49,8 @@
         "rxRfRecords",
         "tracking",
         "orderableItem",
-        "sortedDispensedDate"
+        "sortedDispensedDate",
+        "prescriptionImage"
       ],
       "properties": {
         "prescriptionId": { "type": ["integer", "null"] },
@@ -166,7 +167,8 @@
         },
         "tracking": { "type": ["boolean", "null"] },
         "orderableItem": { "type": ["string", "null"] },
-        "sortedDispensedDate": { "type": "string", "format": "date" }
+        "sortedDispensedDate": { "type": "string", "format": "date" },
+        "prescriptionImage": { "type": ["string", "null"] }
       }
     },
     "links": {

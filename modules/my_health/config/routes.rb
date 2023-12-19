@@ -49,6 +49,7 @@ MyHealth::Engine.routes.draw do
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
+      get 'get_prescription_image/:cmopNdcNumber', to: 'prescriptions#get_prescription_image', on: :collection
       resources :trackings, only: :index, controller: :trackings
       collection do
         resource :preferences, only: %i[show update], controller: 'prescription_preferences'
