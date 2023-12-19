@@ -22,14 +22,14 @@ module ClaimsApi
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
       )
 
-      @response = service.corporate_update.update_poa_access(
+      response = service.corporate_update.update_poa_access(
         participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
         allow_poa_access: 'y',
         allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'y' : 'n'
       )
 
-      if @response[:return_code] == 'GUIE50000'
+      if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
