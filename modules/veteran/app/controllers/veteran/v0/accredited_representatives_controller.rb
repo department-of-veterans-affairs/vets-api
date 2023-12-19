@@ -20,41 +20,27 @@ module Veteran
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
       def index
-        collection = Common::Collection.new(model_klass, data: accreditation_query)
+        collection = Common::Collection.new(Veteran::Service::Representative, data: accreditation_query)
         resource = collection.paginate(**pagination_params)
 
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: serializer_klass,
+               each_serializer: Veteran::Accreditation::RepresentativeSerializer,
                meta: resource.metadata
       end
 
       private
 
-      def model_klass
-        @model_klass ||= 'Veteran::Service::Representative'.constantize
-      end
-
-      def serializer_klass
-        'Veteran::Accreditation::RepresentativeSerializer'.constantize
-      end
-
       def base_query
-        model_klass.find_within_max_distance(search_params[:long],
-                                             search_params[:lat]).order(sort_query_string)
-      end
-
-      def model_adjusted_query
-        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-          '? = ANY(user_types) ', search_params[:type]
-        )
+        Veteran::Service::Representative.find_within_max_distance(search_params[:long],
+                                                                  search_params[:lat]).order(sort_query_string)
       end
 
       def accreditation_query
         if search_params[:name]
-          model_adjusted_query.find_with_name_similar_to(search_params[:name])
+          base_query.find_with_name_similar_to(search_params[:name])
         else
-          model_adjusted_query
+          base_query
         end
       end
 
