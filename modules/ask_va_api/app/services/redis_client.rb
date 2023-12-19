@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class RedisClient
-  extend Forwardable
-
   def token
     Rails.cache.read(
       'token',
