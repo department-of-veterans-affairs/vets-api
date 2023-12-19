@@ -618,8 +618,11 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:anticipatedSeparationDate] =
           regex_date_conversion(anticipated_sep_date)
         @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = activation_date ? 'YES' : 'NO'
-        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:federalActivation)
-
+        if @pdf_data&.dig(
+          'data', 'attributes', 'serviceInformation', 'reservesNationalGuardService', 'federalActivation'
+        ).present?
+          @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:federalActivation)
+        end
         @pdf_data
       end
 
