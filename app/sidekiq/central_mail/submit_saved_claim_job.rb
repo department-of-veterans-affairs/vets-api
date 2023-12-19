@@ -47,7 +47,7 @@ module CentralMail
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
-        raise CentralMailResponseError, response.body.to_s
+        raise CentralMailResponseError, response.body
       end
     rescue => e
       update_submission('failed')
