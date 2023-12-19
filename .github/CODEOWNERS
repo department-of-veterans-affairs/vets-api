@@ -1856,6 +1856,7 @@ spec/support/vcr_cassettes/dmc/download_pdf.yml @department-of-veterans-affairs/
 spec/support/vcr_cassettes/dmc/submit_to_vbs.yml     @department-of-veterans-affairs/vsa-debt-resolution   @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/dmc/submit_fsr_error.yml @department-of-veterans-affairs/vsa-debt-resolution
 spec/support/vcr_cassettes/dmc/submit_fsr.yml @department-of-veterans-affairs/vsa-debt-resolution
+spec/support/vcr_cassettes/evss/claims @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/evss/dependents  @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/evss/disability_compensation_form @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/evss/documents/get_claim_documents.yml @department-of-veterans-affairs/backend-review-group
