@@ -20,7 +20,7 @@ module Veteran
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
       def index
-        collection = Common::Collection.new(model_klass, data: accreditation_query)
+        collection = Common::Collection.new(representative_klass, data: accreditation_query)
         resource = collection.paginate(**pagination_params)
 
         render json: resource.data,
@@ -31,8 +31,8 @@ module Veteran
 
       private
 
-      def model_klass
-        @model_klass ||= 'Veteran::Service::Representative'.constantize
+      def representative_klass
+        @representative_klass ||= 'Veteran::Service::Representative'.constantize
       end
 
       def serializer_klass
@@ -40,7 +40,7 @@ module Veteran
       end
 
       def base_query
-        model_klass.find_within_max_distance(search_params[:long],
+        representative_klass.find_within_max_distance(search_params[:long],
                                              search_params[:lat]).order(sort_query_string)
       end
 
