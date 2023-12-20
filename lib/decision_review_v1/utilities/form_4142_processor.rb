@@ -22,7 +22,6 @@ module DecisionReviewV1
           'metadata' => generate_metadata
         }
         @submission = submission_id ? Form526Submission.find(submission_id) : nil
-
       end
 
       def generate_stamp_pdf
