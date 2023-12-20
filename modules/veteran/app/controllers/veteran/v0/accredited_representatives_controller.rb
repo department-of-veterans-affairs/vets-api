@@ -34,6 +34,8 @@ module Veteran
       end
 
       def serializer_klass
+        return 'Veteran::Accreditation::ExtendedRepresentativeSerializer'.constantize if search_params[:name]
+
         'Veteran::Accreditation::RepresentativeSerializer'.constantize
       end
 
