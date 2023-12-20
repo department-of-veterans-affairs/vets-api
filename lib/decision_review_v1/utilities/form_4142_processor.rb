@@ -70,8 +70,7 @@ module DecisionReviewV1
         date = if @submission.nil?
                  Time.now.in_time_zone('Central Time (US & Canada)')
                else
-                 date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
-                 date.in_time_zone('Central Time (US & Canada)')
+                 @submission.created_at.in_time_zone('Central Time (US & Canada)')
                end
         date.strftime('%Y-%m-%d %H:%M:%S')
       end

@@ -88,8 +88,7 @@ module EVSS
       end
 
       def received_date
-        date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
-        date = date.in_time_zone('Central Time (US & Canada)')
+        date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
         date.strftime('%Y-%m-%d %H:%M:%S')
       end
     end
