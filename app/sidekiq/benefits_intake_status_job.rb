@@ -19,26 +19,26 @@ class BenefitsIntakeStatusJob
   private
 
   def handle_response(response)
-    total_submissions_handled = 0
-    pending_submissions_handled = 0
-    failed_submissions_handled = 0
-    successful_submissions_handled = 0
+    stats = {
+      total_submissions_handled: 0,
+      pending_submissions_handled: 0,
+      failed_submissions_handled: 0,
+      successful_submissions_handled: 0
+    }
     response.body['data'].each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
-        failed_submissions_handled += 1
+        stats[:failed_submissions_handled] += 1
         handle_failure(submission)
       elsif submission.dig('attributes', 'status') == 'vbms'
-        successful_submissions_handled += 1
+        stats[:successful_submissions_handled] += 1
         handle_success(submission)
       else
-        pending_submissions_handled += 1
+        stats[:pending_submissions_handled] += 1
       end
-      total_submissions_handled += 1
+      stats[:total_submissions_handled] += 1
     end
-    {
-      total_submissions_handled:, pending_submissions_handled:,
-      failed_submissions_handled:, successful_submissions_handled:
-    }
+
+    stats
   end
 
   def handle_failure(submission)
