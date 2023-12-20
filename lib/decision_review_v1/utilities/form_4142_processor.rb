@@ -13,7 +13,7 @@ module DecisionReviewV1
       # @return [Hash] the generated request body
       attr_reader :request_body
 
-      def initialize(form_data:, submission: nil)
+      def initialize(form_data:, submission_id: nil)
         @form = form_data
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
@@ -21,7 +21,7 @@ module DecisionReviewV1
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
-        @submission = submission
+        @submission = Form526Submission.find(submission_id)
       end
 
       def generate_stamp_pdf
