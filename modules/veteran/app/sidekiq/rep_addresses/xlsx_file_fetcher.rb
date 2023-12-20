@@ -3,7 +3,7 @@
 require 'octokit'
 require 'sentry_logging'
 
-module RepOrgAddresses
+module RepAddresses
   # Class responsible for fetching the XLSX file containing representative organization addresses
   # from a specified GitHub repository.
   class XlsxFileFetcher
@@ -18,7 +18,7 @@ module RepOrgAddresses
     # @return [String, nil] The content of the file as a string, or nil if not fetched.
     def fetch
       setup_octokit_client
-      file_info = fetch_rep_org_addresses_file_info
+      file_info = fetch_rep_addresses_file_info
 
       return nil unless file_recently_updated?
 
@@ -43,7 +43,7 @@ module RepOrgAddresses
 
     # Retrieves the file information for the XLSX file from GitHub.
     # @return [Sawyer::Resource] The file information resource from GitHub.
-    def fetch_rep_org_addresses_file_info
+    def fetch_rep_addresses_file_info
       @client.contents("#{ORG}/#{REPO}", path: PATH)
     end
 
