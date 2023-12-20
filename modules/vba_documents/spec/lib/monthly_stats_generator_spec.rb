@@ -312,10 +312,17 @@ RSpec.describe VBADocuments::MonthlyStatsGenerator do
     end
     # rubocop:enable Style/NumericLiterals
 
+    context 'when MonthlyStat record does not already exist for the month and year' do
+      it 'creates a new record with the generated stats' do
+        described_class.new(month:, year:).generate_and_save_stats
+        expect(VBADocuments::MonthlyStat.find_by(month:, year:).stats).to eq(expected_stats_result)
+      end
+    end
+
     context 'when MonthlyStat record already exists for the month and year' do
       before { FactoryBot.create(:monthly_stat, month:, year:, stats: {}) }
 
-      it 'updates the existing record with the new stats' do
+      it 'updates the existing record with the generated stats' do
         described_class.new(month:, year:).generate_and_save_stats
         expect(VBADocuments::MonthlyStat.find_by(month:, year:).stats).to eq(expected_stats_result)
       end
