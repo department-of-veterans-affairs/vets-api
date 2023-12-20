@@ -6,14 +6,14 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
   subject(:retriever) { described_class.new(inquiry_number:) }
 
   let(:sec_id) { '123' }
-  let(:service) { instance_double(Dynamics::Service) }
+  let(:service) { instance_double(Crm::Service) }
   let(:entity) { instance_double(AskVAApi::Correspondences::Entity) }
   let(:inquiry_number) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
   let(:payload) { { inquiry_number: 'A-1' } }
 
   before do
-    allow(Dynamics::Service).to receive(:new).and_return(service)
+    allow(Crm::Service).to receive(:new).and_return(service)
     allow(AskVAApi::Correspondences::Entity).to receive(:new).and_return(entity)
     allow(service).to receive(:call)
   end
@@ -28,7 +28,7 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
       end
     end
 
-    context 'when Dynamics raise an error' do
+    context 'when Crm raise an error' do
       let(:payload) { { inquiry_number: 'A-1' } }
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Correspondences::ENDPOINT }
@@ -37,13 +37,13 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
       before do
         allow(service).to receive(:call)
           .with(endpoint:, payload:)
-          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
+          .and_raise(Crm::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises an Error' do
         expect do
           retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 
