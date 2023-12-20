@@ -21,7 +21,8 @@ module DecisionReviewV1
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
-        @submission = Form526Submission.find(submission_id)
+        @submission = submission_id ? Form526Submission.find(submission_id) : nil
+
       end
 
       def generate_stamp_pdf
