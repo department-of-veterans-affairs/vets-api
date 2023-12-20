@@ -1280,3 +1280,6 @@ features:
   virtual_agent_enable_msft_pva_testing:
     actor_type: user
     description: If enabled, allows for connecting to MSFT PVA
+  virtual_agent_enable_nlu_pva_testing:
+    actor_type: user
+    description: If enabled, allows for connecting to NLU PVA
