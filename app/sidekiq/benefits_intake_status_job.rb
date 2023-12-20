@@ -13,16 +13,14 @@ class BenefitsIntakeStatusJob
                                   .map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
     stats = handle_response(response)
-    Rails.logger.info({ message: 'BenefitsIntakeStatusJob ended'}.merge(stats))
+    Rails.logger.info({ message: 'BenefitsIntakeStatusJob ended' }.merge(stats))
   end
 
   private
 
   def handle_response(response)
-    total_submissions_handled = 0
-    pending_submissions_handled = 0
-    failed_submissions_handled = 0
-    successful_submissions_handled = 0
+    total_submissions_handled, pending_submissions_handled, failed_submissions_handled, successful_submissions_handled =
+      0, 0, 0, 0
     response.body['data'].each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
         failed_submissions_handled += 1
