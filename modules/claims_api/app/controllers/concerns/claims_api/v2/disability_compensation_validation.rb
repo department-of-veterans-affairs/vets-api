@@ -733,7 +733,7 @@ module ClaimsApi
         # we know the dates are present
         if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The federal activation date must be after the earliest service period active duty begin date.'
+            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
           )
         end
 
