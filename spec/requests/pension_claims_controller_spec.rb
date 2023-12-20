@@ -67,8 +67,8 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
       end
 
       it 'logs the successful submission' do
-        expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ Submission', be_a(Hash))
-        expect(Rails.logger).to receive(:info).with('Submit 21P-527EZ Success', be_a(Hash))
+        expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ-ARE Submission', be_a(Hash))
+        expect(Rails.logger).to receive(:info).with('Submit 21P-527EZ-ARE Success', be_a(Hash))
         subject
       end
     end
