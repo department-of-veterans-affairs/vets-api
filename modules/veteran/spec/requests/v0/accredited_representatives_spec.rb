@@ -126,6 +126,25 @@ RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
       end
     end
 
+    context 'when there are no results for the search criteria' do
+      it 'returns an empty list' do
+        get '/services/veteran/v0/accredited_representatives',
+            params: { type: 'attorney', lat: 40.7128, long: -74.0060 }
+
+        parsed_response = JSON.parse(response.body)
+
+        expect(parsed_response['data']).to eq([])
+        expect(parsed_response['meta']['pagination']['total_entries']).to eq(0)
+      end
+    end
+
+    it 'returns ok for a successful request' do
+      get '/services/veteran/v0/accredited_representatives',
+          params: { type: 'attorney', lat: 40.7128, long: -74.0060 }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     context 'when searching for a representative' do
       before do
         create(:representative, representative_id: '123', poa_codes: ['A12'], user_types: ['attorney'],
