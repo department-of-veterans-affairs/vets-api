@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/internal/auth/v3/auth/scopes/verification
+    uri: https://sandbox-api.va.gov/internal/auth/v2/server/scopes/verification
     body:
       encoding: US-ASCII
       string: ''

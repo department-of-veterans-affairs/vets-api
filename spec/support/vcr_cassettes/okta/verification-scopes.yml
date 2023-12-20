@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/internal/auth/v3/auth/scopes/verification
+    uri: https://sandbox-api.va.gov/internal/auth/v2/server/scopes/verification
     body:
       encoding: US-ASCII
       string: ''
@@ -29,7 +29,7 @@ http_interactions:
   recorded_at: Mon, 08 Mar 2021 16:42:21 GMT
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/internal/auth/v3/auth/scopes/unknown_category
+    uri: https://sandbox-api.va.gov/internal/auth/v2/server/scopes/unknown_category
     body:
       encoding: US-ASCII
       string: ''
@@ -56,7 +56,7 @@ http_interactions:
   recorded_at: Mon, 08 Mar 2021 16:42:21 GMT 
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/internal/auth/v3/auth/scopes/empty_category
+    uri: https://sandbox-api.va.gov/internal/auth/v2/server/scopes/empty_category
     body:
       encoding: US-ASCII
       string: ''
