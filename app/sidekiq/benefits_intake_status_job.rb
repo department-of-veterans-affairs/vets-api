@@ -38,7 +38,7 @@ class BenefitsIntakeStatusJob
 
     {
       total_submissions_handled:,
-      pending_submissions_handled:
+      pending_submissions_handled:,
       failed_submissions_handled:,
       successful_submissions_handled:
     }
