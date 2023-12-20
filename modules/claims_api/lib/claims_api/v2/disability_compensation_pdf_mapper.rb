@@ -453,9 +453,11 @@ module ClaimsApi
 
       def get_treatments
         @auto_claim['treatments'].map do |tx|
-          center = "#{tx['center']['name']}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
+          unless tx['center'].nil?
+            center = "#{tx.dig('center', 'name')}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
+          end
           name = tx['treatedDisabilityNames'].join(', ')
-          tx['treatmentDetails'] = "#{name} - #{center}"
+          tx['treatmentDetails'] = center.nil? ? name : "#{name} - #{center}"
           tx['dateOfTreatment'] = regex_date_conversion(tx['beginDate']) if tx['beginDate'].present?
           tx['doNotHaveDate'] = tx['beginDate'].nil?
           tx.delete('center')
