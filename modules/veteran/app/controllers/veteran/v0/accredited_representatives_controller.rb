@@ -42,7 +42,7 @@ module Veteran
                                              search_params[:lat]).order(sort_query_string)
       end
 
-      def model_adjusted_query
+      def type_adjusted_query
         base_query.select("veteran_representatives.*, #{distance_query_string}").where(
           '? = ANY(user_types) ', search_params[:type]
         )
@@ -50,9 +50,9 @@ module Veteran
 
       def accreditation_query
         if search_params[:name]
-          model_adjusted_query.find_with_name_similar_to(search_params[:name])
+          type_adjusted_query.find_with_name_similar_to(search_params[:name])
         else
-          model_adjusted_query
+          type_adjusted_query
         end
       end
 
