@@ -46,14 +46,18 @@ module HCA
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
-        # veteran_contacts = parse_veteran_contacts(response)
+        veteran_contacts = parse_veteran_contacts(response)
 
         OpenStruct.new(
           convert_insurance_hash(
             response, providers
           ).merge(
             dependents.present? ? { dependents: } : {}
-          ).merge(spouse)
+          ).merge(
+            spouse
+          ).merge(
+            veteran_contacts.present? ? { veteran_contacts: } : {}
+          )
         )
       end
 
@@ -327,31 +331,75 @@ module HCA
         income_year == (DateTime.now.utc.year - 1).to_s
       end
 
-      # def parse_veteran_contacts(response)
-      #   contacts = []
-      #
-      #   response.locate(
-      #     "#{XPATH_PREFIX}financialsInfo/financialStatement/dependentFinancialsList"
-      #   )[0]&.nodes&.each do |dep_node|
-      #     dependent = {
-      #       fullName: {},
-      #       socialSecurityNumber: get_locate_value(dep_node, 'dependentInfo/ssns/ssn/ssnText'),
-      #       becameDependent: get_locate_value_date(dep_node, 'dependentInfo/startDate'),
-      #       dependentRelation: get_locate_value(dep_node, 'dependentInfo/relationship').downcase.upcase_first,
-      #       disabledBefore18: get_locate_value_bool(dep_node, 'incapableOfSelfSupport'),
-      #       attendedSchoolLastYear: get_locate_value_bool(dep_node, 'attendedSchool'),
-      #       cohabitedLastYear: get_locate_value_bool(dep_node, 'livedWithPatient'),
-      #     }
-      #
-      #     NAME_MAPPINGS.each do |mapping|
-      #       dependent[:fullName][mapping[0]] = get_locate_value(dep_node, "dependentInfo/#{mapping[1]}")
-      #     end
-      #
-      #     dependents << Common::HashHelpers.deep_compact(dependent)
-      #   end
-      #
-      #   dependents
-      # end
+      def parse_veteran_contacts(response)
+        contact_types = [
+          'Primary Next of Kin',
+          'Other Next of Kin',
+          'Emergency Contact',
+          'Other emergency contact'
+        ]
+        contacts = []
+
+        response.locate("#{XPATH_PREFIX}associations/association").each do |association|
+          contact_type = get_locate_value(association, 'contactType')
+
+          if contact_types.include?(contact_type)
+            contact = {
+              fullName: {},
+              contactRelation: get_locate_value(association, 'relationship').downcase.upcase_first,
+              contactType: get_locate_value(association, 'contactType'),
+              primaryPhone: get_locate_value(association, 'primaryPhone'),
+              address: lambda {
+                address = {}
+                address_mappings = [
+                  %i[street line1],
+                  %i[street2 line2],
+                  %i[street3 line3],
+                  %i[city city],
+                  %i[country country],
+                ]
+
+                address_mappings.each do |address_map|
+                  address[address_map[0]] = get_locate_value(association, "address/#{address_map[1]}")
+                end
+
+                postal_code = get_locate_value(association, "address/postalCode")
+
+                # If the veteran contact has a Mexican address, we need to convert the value back to the
+                # frontend format (ex: 'JAL.' needs to be changed back into 'jalisco')
+                if address[:country] == 'MEX'
+                  address[:state] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert["#{address[:state]}"]
+                  address[:postalCode] = postal_code
+                elsif address[:country] == 'USA'
+                  address[:state] = get_locate_value(association, "address/state")
+
+                  zip = get_locate_value(association, "address/zipCode")
+                  zip_plus_4 = get_locate_value(association, "address/zipPlus4")
+
+                  if zip_plus_4.present?
+                    address[:postalCode] = "#{zip}-#{zip_plus_4}"
+                  else
+                    address[:postalCode] = zip
+                  end
+                else
+                  address[:state] = get_locate_value(association, "address/provinceCode")
+                  address[:postalCode] = postal_code
+                end
+
+                address
+              }.call
+            }
+
+            NAME_MAPPINGS.each do |mapping|
+              contact[:fullName][mapping[0]] = get_locate_value(association, "#{mapping[1]}")
+            end
+
+            contacts << Common::HashHelpers.deep_compact(contact)
+          end
+        end
+
+        contacts
+      end
       # rubocop:enable Metrics/MethodLength
     end
   end

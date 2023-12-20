@@ -52,19 +52,27 @@ module HCA
     end
 
     def override_address_states
-      %w[veteranHomeAddress veteranAddress spouseAddress].each do |target|
-        override_individual_address(target)
+      %w[veteranHomeAddress veteranAddress spouseAddress veteranContacts].each do |target|
+        # For 'veteranContacts', we need to loop through each entry and override any necessary state/country fields
+        if target == 'veteranContacts'
+          form.dig(target).each do |contact|
+            override_individual_address(contact, 'address')
+          end
+        else
+          override_individual_address(form, target)
+        end
       end
     end
 
-    def override_individual_address(key)
-      country = form.dig(key, 'country')
-      state = form.dig(key, 'state')
+    # @param [Hash] data that contains address fields
+    def override_individual_address(data, key)
+      country = data.dig(key, 'country')
+      state = data.dig(key, 'state')
 
       return unless STATE_OVERRIDES.key?(country)
       return unless STATE_OVERRIDES[country]&.key?(state)
 
-      form[key]['state'] = STATE_OVERRIDES[country][state]
+      data[key]['state'] = STATE_OVERRIDES[country][state]
     end
   end
 end
