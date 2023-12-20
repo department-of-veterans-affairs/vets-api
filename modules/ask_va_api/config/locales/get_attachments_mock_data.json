@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "inquiriesId": 1,
+      "correspondenceId": null,
+      "fileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "fileName": "testfile.txt"
+    },
+    {
+      "id": 2,
+      "inquiriesId": 2,
+      "correspondenceId": null,
+      "fileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "fileName": "testfile.txt"
+    },
+    {
+      "id": 3,
+      "inquiriesId": null,
+      "correspondenceId": 1,
+      "fileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "fileName": "testfile.txt"
+    },
+    {
+      "id": 4,
+      "inquiriesId": null,
+      "correspondenceId": 2,
+      "fileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "fileName": "testfile.txt"
+    },
+    {
+      "id": 5,
+      "inquiriesId": null,
+      "correspondenceId": 3,
+      "fileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "fileName": "testfile.txt"
+    }
+  ]
+}
