@@ -25,5 +25,30 @@ module Map
       @query_params = opts[:query_params]
       @redis_client = RedisClient.build
     end
+
+    # Get the auth token. If the token does not already exist in Redis, a call is made to Map token
+    # endpoint to retrieve it.
+    #
+    # @return [String] token
+    def token
+      @token ||= fetch_or_generate_token
+    end
+
+    def fetch_or_generate_token
+      token = redis_client.token(patient_identifier:)
+
+      return token if token.present?
+
+      current_time = Time.zone.now
+      token_response = MAP::SecurityToken::Service.new.token(application: :check_in, icn: patient_identifier)
+
+      redis_client.save_token(
+        patient_identifier:,
+        token: token_response[:access_token],
+        expires_in: token_response[:expiration] - current_time
+      )
+
+      token_response[:access_token]
+    end
   end
 end

@@ -16,32 +16,30 @@ describe 'Appeals Status', swagger_doc:, type: :request do
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
   path '/appeals' do
-    get 'Retrieve appeals status for the Veteran with the supplied SSN' do
+    get 'Retrieve appeals status for the Veteran with the supplied ICN' do
       scopes = AppealsApi::V1::AppealsController::OAUTH_SCOPES[:GET]
       tags 'Appeals Status'
       operationId 'getAppealStatus'
 
-      description "Returns a list of all known appeal records for the given veteran. Includes details of each appeal's current status, priority, and history of updates."
+      description "Returns a list of all known appeal records for the given Veteran. Includes details of each appeal's current status, priority, and history of updates."
 
       security DocHelpers.oauth_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
-      example_icn = '1234567890V543210'
-      example_va_user = 'va.api.user+idme.001@gmail.com'
+      example_va_user = 'va.api.user+idme.025@gmail.com'
 
       parameter(
         parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
           {
             name: :icn,
             in: :query,
-            required: true,
-            example: example_icn
+            required: true
           }
         )
       )
 
-      let(:icn) { example_icn }
+      let(:icn) { '1012832025V743496' }
 
       parameter name: 'X-VA-User',
                 in: :header,

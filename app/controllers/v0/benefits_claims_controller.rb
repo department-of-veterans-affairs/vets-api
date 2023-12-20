@@ -5,6 +5,7 @@ require 'lighthouse/benefits_claims/service'
 module V0
   class BenefitsClaimsController < ApplicationController
     before_action { authorize :lighthouse, :access? }
+    service_tag 'claims-shared'
 
     def index
       claims = service.get_claims

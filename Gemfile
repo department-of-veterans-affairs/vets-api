@@ -31,6 +31,7 @@ path 'modules' do
   gem 'vba_documents'
   gem 'veteran'
   gem 'veteran_confirmation'
+  gem 'vye'
 end
 
 gem 'rails', github: 'rails/rails', branch: '6-1-stable'
@@ -57,11 +58,11 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby', '5.6.0'
+gem 'dogstatsd-ruby', '5.6.1'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
-gem 'faraday' # TODO: next step - update to ~> 1.0 , '~> 1.10'
+gem 'faraday', '~> 1.10'
 gem 'faraday_middleware'
 gem 'fastimage'
 gem 'fhir_client'
@@ -99,7 +100,7 @@ gem 'mini_magick'
 gem 'net-sftp'
 gem 'nokogiri'
 gem 'notifications-ruby-client'
-gem 'octokit', '4.21.0'
+gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
@@ -170,6 +171,7 @@ group :test do
   gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
+  gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'

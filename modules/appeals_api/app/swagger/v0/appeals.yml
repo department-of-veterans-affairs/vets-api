@@ -48,7 +48,7 @@ paths:
       tags:
         - Appeals Status
       summary: Retrieve appeals status for the Veteran with the supplied SSN
-      description: Returns a list of all known appeal records for the given veteran. Includes details of each appeal's current status, priority, and history of updates.
+      description: Returns a list of all known appeal records for the given Veteran. Includes details of each appeal's current status, priority, and history of updates.
       operationId: getAppealStatus
       security:
         - apikey: []

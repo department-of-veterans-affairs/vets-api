@@ -2,6 +2,7 @@
 
 require 'ddtrace'
 require 'simple_forms_api_submission/service'
+require 'simple_forms_api_submission/metadata_validator'
 
 module SimpleFormsApi
   module V1
@@ -19,7 +20,8 @@ module SimpleFormsApi
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
         '10-10D' => 'vha_10_10d',
-        '40-0247' => 'vba_40_0247'
+        '40-0247' => 'vba_40_0247',
+        '20-10206' => 'vba_20_10206'
       }.freeze
 
       def submit
@@ -71,11 +73,11 @@ module SimpleFormsApi
 
       def submit_form_to_central_mail
         parsed_form_data = form_is210966 ? handle_210966_data : JSON.parse(params.to_json)
-        form_id = FORM_NUMBER_MAP[params[:form_number]]
+        form_id = get_form_id
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
-        metadata = filler.metadata
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(filler.metadata)
 
         SimpleFormsApi::VBA400247.new(parsed_form_data).handle_attachments(file_path) if form_id == 'vba_40_0247'
 
@@ -109,6 +111,13 @@ module SimpleFormsApi
       def upload_pdf_to_benefits_intake(file_path, metadata)
         lighthouse_service = SimpleFormsApiSubmission::Service.new
         uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
+        form_submission = FormSubmission.create(
+          form_type: params[:form_number],
+          benefits_intake_uuid: uuid_and_location[:uuid],
+          form_data: params.to_json,
+          user_account: @current_user&.user_account
+        )
+        FormSubmissionAttempt.create(form_submission:)
 
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
@@ -150,6 +159,13 @@ module SimpleFormsApi
         end
 
         data
+      end
+
+      def get_form_id
+        form_number = params[:form_number]
+        raise 'missing form_number in params' unless form_number
+
+        FORM_NUMBER_MAP[form_number]
       end
     end
   end

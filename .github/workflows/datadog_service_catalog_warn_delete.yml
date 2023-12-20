@@ -1,0 +1,36 @@
+name: Warn PR if it deletes a DataDog Service Catalog File
+on:
+  pull_request:
+
+jobs:
+  warn_if_deleting:
+    name: 'Check and warn'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: 'Checkout repo'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: one
+        name: 'Check for deleted DataDog service files'
+        run: |
+          git fetch origin master
+          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only origin/master.. -- "datadog-service-catalog/**.yml"))
+          out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.] | map(select(length > 0)) | . != []')
+          echo "needs_comment=$out" >> $GITHUB_OUTPUT
+      - id: two
+        if: steps.one.outputs.needs_comment == 'true'
+        name: 'Comment on PR if deleting a DataDog Service file'
+        run: |
+          echo ${{steps.one.outputs.needs_comment}}
+          message="You are deleting a Datadog Service Definition file in this PR. If this change is merged to the main branch, that entry will be automatically deleted from the Datadog service catalog. Please ensure that this removal is intended."
+          posted_already=$(gh pr view ${{github.event.number}} -c --json comments | jq -r --arg message "$message" '.[] | map(.body==$message) | index(true) != null')
+          if [ $posted_already = "false" ]; then
+            echo "Warning PR of DataDog Service File Deletion"
+            gh pr comment ${{github.event.number}} --body "$message"
+          else
+            echo "PR has already been warned"
+          fi
+

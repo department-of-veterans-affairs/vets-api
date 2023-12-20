@@ -4,6 +4,7 @@
 module V0
   class DocumentsController < ApplicationController
     before_action { authorize :evss, :access? }
+    service_tag 'claim-status'
 
     def create
       params.require :file

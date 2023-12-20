@@ -3,6 +3,7 @@
 module V0
   class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
+    service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
 

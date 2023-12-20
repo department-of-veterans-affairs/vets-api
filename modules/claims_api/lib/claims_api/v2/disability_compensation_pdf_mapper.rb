@@ -24,6 +24,9 @@ module ClaimsApi
         4 => :convert_date_string_to_format_yyyy
       }.freeze
 
+      BDD_LOWER_LIMIT = 90
+      BDD_UPPER_LIMIT = 180
+
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial, created_at)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
@@ -186,8 +189,12 @@ module ClaimsApi
 
       # rubocop:disable Layout/LineLength
       def gulfwar_hazard
-        gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService).present?
-        if gulf
+        gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService)
+        if gulf.present?
+          served_gulf_loc = @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
+          served_gulf_loc == 'NO' || served_gulf_loc.blank? ? 'NO' : 'YES'
+        end
+        if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:start] =
             regex_date_conversion(gulfwar_service_dates_begin)
@@ -196,9 +203,6 @@ module ClaimsApi
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:end] =
             regex_date_conversion(gulfwar_service_dates_end)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates].delete(:endDate)
-          served_in_gulf_war_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations] =
-            served_in_gulf_war_hazard_locations ? 'YES' : 'NO'
         end
       end
 
@@ -298,6 +302,8 @@ module ClaimsApi
 
         @pdf_data[:data][:attributes].delete(:veteranIdentification)
 
+        date_of_release
+
         @pdf_data
       end
 
@@ -332,6 +338,25 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:) if mailing_addr
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
+
+        @pdf_data
+      end
+
+      def date_of_release
+        if @pdf_data[:data][:attributes][:claimProcessType] == 'BDD_PROGRAM_CLAIM'
+          claim_date = Date.parse(@created_at.to_s)
+          service_information = @auto_claim['serviceInformation']
+
+          active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
+          active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
+
+          end_or_separation_date = active_dates.compact.find do |a|
+            Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
+                                                  claim_date.next_day(BDD_UPPER_LIMIT))
+          end
+
+          @pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty] = regex_date_conversion(end_or_separation_date)
+        end
 
         @pdf_data
       end

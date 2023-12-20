@@ -73,7 +73,7 @@ module V0
             data: data_for_three_most_recent_open_comp_claims_lighthouse(claims),
             meta: { sync_status: 'SUCCESS' }
           }
-        rescue Faraday::ClientError => e
+        rescue Faraday::ClientError, Faraday::ServerError => e
           report_or_error(cxdw_reporting_service, conversation_id)
           service_exception_handler(error)
           raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'

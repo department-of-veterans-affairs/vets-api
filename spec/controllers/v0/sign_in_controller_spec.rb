@@ -1620,6 +1620,7 @@ RSpec.describe V0::SignInController, type: :controller do
           {
             uuid:,
             service_account_id:,
+            user_attributes: {},
             user_identifier:,
             scopes:,
             audience:,

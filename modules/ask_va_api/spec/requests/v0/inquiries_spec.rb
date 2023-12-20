@@ -18,6 +18,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
@@ -82,21 +83,21 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           let(:error_message) { 'service error' }
 
           before do
-            allow_any_instance_of(Dynamics::Service)
+            allow_any_instance_of(Crm::Service)
               .to receive(:call)
-              .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+              .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
             get inquiry_path
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Dynamics::ErrorHandler::ServiceError: service error'
+                          'Crm::ErrorHandler::ServiceError: service error'
         end
 
         context 'when a standard error' do
           let(:error_message) { 'standard error' }
 
           before do
-            allow_any_instance_of(Dynamics::Service)
+            allow_any_instance_of(Crm::Service)
               .to receive(:call)
               .and_raise(StandardError.new(error_message))
             get inquiry_path
@@ -157,7 +158,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when an error occur' do
       before do
-        allow(Dynamics::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
+        allow(Crm::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
         sign_in(authorized_user)
         get "#{inquiry_path}/#{inquiry_number}"
       end
@@ -179,8 +180,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
     before do
-      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint:, method: :post,
-                                                                      payload: { params: }).and_return('success')
+      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint:, method: :post,
+                                                                 payload: { params: }).and_return('success')
       post inquiry_path, params:
     end
 
@@ -190,13 +191,46 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   describe 'POST #upload_attachment' do
     let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
     let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
-    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}" } }
+    let(:params) { { attachment: "data:image/png;base64,#{base64_encoded_file}", inquiry_id: '12345' } }
 
-    before do
-      post '/ask_va_api/v0/upload_attachment', params:
+    context 'when the file is valid' do
+      it 'returns an ok status' do
+        post('/ask_va_api/v0/upload_attachment', params:)
+        expect(response).to have_http_status(:ok)
+        expect(json_response[:message]).to eq('Attachment has been received')
+      end
     end
 
-    it { expect(response).to have_http_status(:ok) }
+    context 'when no file is attached' do
+      it 'returns a bad request status' do
+        post '/ask_va_api/v0/upload_attachment', params: { inquiry_id: '12345' }
+        expect(response).to have_http_status(:bad_request)
+        expect(json_response[:message]).to eq('No file attached')
+      end
+    end
+
+    context 'when the file size exceeds the limit' do
+      let(:large_file) { double('File', size: 30.megabytes, content_type: 'application/pdf') }
+      let(:large_base64_encoded_file) { Base64.strict_encode64('a' * large_file.size) }
+      let(:large_file_params) do
+        { attachment: "data:application/pdf;base64,#{large_base64_encoded_file}", inquiry_id: '12345' }
+      end
+
+      before do
+        allow(File).to receive(:read).and_return('a' * large_file.size)
+        post '/ask_va_api/v0/upload_attachment', params: large_file_params
+      end
+
+      it 'returns an unprocessable entity status' do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response[:message]).to eq('File size exceeds the allowed limit')
+      end
+    end
+
+    # Helper method to parse JSON response
+    def json_response
+      JSON.parse(response.body, symbolize_names: true)
+    end
   end
 
   describe 'POST #create' do
@@ -204,12 +238,33 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
 
     before do
-      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint:, method: :post,
-                                                                      payload: { params: }).and_return('success')
+      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint:, method: :post,
+                                                                 payload: { params: }).and_return('success')
       sign_in(authorized_user)
       post '/ask_va_api/v0/inquiries/auth', params:
     end
 
     it { expect(response).to have_http_status(:created) }
+  end
+
+  describe 'GET #download_attachment' do
+    let(:id) { '1' }
+
+    before do
+      sign_in(authorized_user)
+      get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+    end
+
+    it 'response with 200' do
+      expect(response).to have_http_status(:ok)
+    end
+
+    context 'when attachment is not found' do
+      let(:id) { 'not_valid' }
+
+      it 'responds with 404' do
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
   end
 end

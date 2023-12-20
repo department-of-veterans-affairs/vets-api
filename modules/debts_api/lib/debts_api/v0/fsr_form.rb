@@ -33,5 +33,18 @@ module DebtsApi
 
       form['personalIdentification']['fsrReason'] = debts.pluck('resolutionOption').uniq.join(', ').delete_prefix(', ')
     end
+
+    def enabled_feature_flags(user)
+      begin
+        enabled_flags = Flipper.features.select { |feature| feature.enabled?(user) }.map do |feature|
+          feature.name.to_s
+        end.sort
+      rescue => e
+        Rails.logger.error('Failed to source user flags', e.message)
+        enabled_flags = []
+      end
+
+      enabled_flags
+    end
   end
 end

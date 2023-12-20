@@ -13,6 +13,7 @@ module AskVAApi
 
       def call(params:)
         post_data(payload: { params: })
+        { message: 'Inquiry has been created', status: :ok }
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -20,7 +21,7 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(icn:)
+        Crm::Service.new(icn:)
       end
 
       def post_data(payload: {})

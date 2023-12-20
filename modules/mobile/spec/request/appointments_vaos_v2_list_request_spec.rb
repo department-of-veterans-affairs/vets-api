@@ -319,10 +319,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
     end
 
-    describe 'upcoming_appointments_count' do
+    describe 'upcoming_appointments_count and upcoming_days_limit' do
       before { Timecop.freeze(Time.zone.parse('2022-01-24T00:00:00Z')) }
 
-      it 'includes a count of booked appointments in the next two weeks in the meta' do
+      it 'includes the upcoming_days_limit and a count of booked appointments within that limit in the meta' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
@@ -343,6 +343,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
         expect(expected_upcoming_pending_count).to eq(2)
         expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(2)
+        expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
       end
     end
   end

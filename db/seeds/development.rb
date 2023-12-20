@@ -85,7 +85,7 @@ vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,
 # Create Service Account Config for VA Identity Dashboard Service Account auth
 vaid_certificate = File.read('spec/fixtures/sign_in/identity_dashboard_service_account.crt')
 vaid_service_account_id = '01b8ebaac5215f84640ade756b645f28'
-vaid_access_token_duration = SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES
+vaid_access_token_duration = SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES
 identity_dashboard_service_account_config =
   SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: vaid_service_account_id)
 identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
@@ -103,6 +103,6 @@ chatbot.update!(
   description: 'Chatbot',
   scopes: ['http://localhost:3000/v0/map_services/chatbot/token'],
   access_token_audience: 'http://localhost:3001',
-  access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+  access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sample_service_account.crt')]
 )

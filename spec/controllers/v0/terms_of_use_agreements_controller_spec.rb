@@ -289,15 +289,27 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
 
       before do
+        Timecop.freeze(Time.zone.now.floor)
         sign_in(user)
         allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
       end
 
+      after { Timecop.return }
+
       context 'when the provisioning is successful' do
+        let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
+        let(:expected_cookie_domain) { '.va.gov' }
+        let(:expected_cookie_path) { '/' }
+        let(:expected_cookie_expiration) { 2.minutes.from_now }
+
         it 'returns ok status and sets the cerner cookie' do
           subject
           expect(response).to have_http_status(:ok)
           expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
+          expect(response.headers['Set-Cookie']).to include(expected_cookie)
+          expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
+          expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
+          expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
         end
       end
 
@@ -308,6 +320,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
           subject
           expect(response).to have_http_status(:unprocessable_entity)
           expect(cookies['CERNER_CONSENT']).to be_nil
+          expect(response.headers['Set-Cookie']).to be_nil
         end
       end
 
@@ -320,6 +333,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
           subject
           expect(response).to have_http_status(:unprocessable_entity)
           expect(cookies['CERNER_CONSENT']).to be_nil
+          expect(response.headers['Set-Cookie']).to be_nil
         end
       end
     end

@@ -4,6 +4,7 @@ require 'debts_api/v0/fsr_form'
 module DebtsApi
   class V0::VhaFsrForm < V0::FsrForm
     VHA_TYPE_KEY = 'COPAY'
+    VHA_AMOUNT_KEY = 'pHAmtDue'
     DEBTS_KEY = 'selectedDebtsAndCopays'
 
     attr_reader :form_data, :copays, :is_combined, :is_streamlined, :streamlined_data
@@ -18,6 +19,33 @@ module DebtsApi
       @streamlined_data = params[:streamlined_data]
       @is_streamlined = @streamlined_data ? @streamlined_data['value'] : false
       @form_data = build_vha_form
+    end
+
+    def persist_form_submission
+      metadata = { copays: @copays }.to_json
+      public_metadata = build_public_metadata
+
+      DebtsApi::V0::Form5655Submission.create(
+        form_json: @form_data.to_json,
+        metadata:,
+        user_uuid: @user.uuid,
+        user_account: @user.user_account,
+        public_metadata:,
+        state: 1
+      )
+    end
+
+    def build_public_metadata
+      enabled_flags = enabled_feature_flags(@user)
+      debt_amounts = @copays.nil? ? [] : @copays.pluck(VHA_AMOUNT_KEY)
+      {
+        'combined' => @is_combined,
+        'debt_amounts' => debt_amounts,
+        'debt_type' => VHA_TYPE_KEY,
+        'flags' => enabled_flags,
+        'streamlined' => @streamlined_data,
+        'zipcode' => (@form_data.dig('personalData', 'address', 'zipOrPostalCode') || '???')
+      }
     end
 
     def build_vha_form

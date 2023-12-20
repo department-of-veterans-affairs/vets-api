@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
+require 'medical_records/patient_not_found'
 
 module MedicalRecords
   ##
@@ -16,7 +17,7 @@ module MedicalRecords
     DEFAULT_COUNT = 9999
 
     # LOINC codes for clinical notes
-    PHYSICIAN_PROCEDURE_NOTE = '11505-5' # Physician procedure note
+    PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
     DISCHARGE_SUMMARY = '18842-5' # Discharge summary
 
     # LOINC codes for vitals
@@ -274,27 +275,25 @@ module MedicalRecords
     end
 
     def handle_api_errors(result)
-      body = JSON.parse(result.body)
-      diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
-      diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
+      if result.code.present? && result.code >= 400
+        body = JSON.parse(result.body)
+        diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
+        diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
 
-      exception_class = case result.code
-                        when 401
-                          Common::Exceptions::Unauthorized
-                        when 403
-                          Common::Exceptions::Forbidden
-                        when 500
-                          if diagnostics.include? 'HAPI-1363'
-                            # HAPI-1363: Either No patient or multiple patient found
-                            Common::Exceptions::ResourceNotFound
-                          else
-                            Common::Exceptions::BadRequest
-                          end
-                        else
-                          Common::Exceptions::BadRequest
-                        end
+        # Special-case exception handling
+        if result.code == 500 && diagnostics.include?('HAPI-1363')
+          # "HAPI-1363: Either No patient or multiple patient found"
+          raise MedicalRecords::PatientNotFound
+        end
 
-      raise exception_class, { detail: diagnostics } if exception_class
+        # Default exception handling
+        raise Common::Exceptions::BackendServiceException.new(
+          "MEDICALRECORDS_#{result.code}",
+          status: result.code,
+          detail: diagnostics,
+          source: self.class.to_s
+        )
+      end
     end
 
     ##

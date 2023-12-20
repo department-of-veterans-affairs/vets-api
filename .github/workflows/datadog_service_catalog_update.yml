@@ -5,7 +5,7 @@ on:
     types:
       - merged
     branches:
-      - main
+      - master
     paths:
       - "datadog-service-catalog/**.yml"
 

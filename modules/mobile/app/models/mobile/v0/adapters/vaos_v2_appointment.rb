@@ -475,10 +475,16 @@ module Mobile
         end
 
         def embedded_data_match(key)
-          match = appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
+          camelized_key = key.gsub(' ', '_').camelize(:lower)
+          match = reason_code_match(key) || reason_code_match(camelized_key)
+
           return nil unless match
 
           match[2].strip.presence
+        end
+
+        def reason_code_match(key)
+          appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
         end
 
         def time_to_datetime(time)

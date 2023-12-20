@@ -3,13 +3,13 @@
 module EVSS
   module Dependents
     ##
-    # Model for the retrieve endpoint response. Body is passed straight through from the service.
+    # Model for the retrieve endpoint response. Body (response_body) is passed straight through from the service.
     #
-    # @!attribute body
-    #   @return [Hash] response body
+    # @!attribute response_body
+    #   @return [Hash] response_body
     #
     class RetrieveInfoResponse < EVSS::Response
-      attribute :body, Hash
+      attribute :response_body, Hash
     end
   end
 end

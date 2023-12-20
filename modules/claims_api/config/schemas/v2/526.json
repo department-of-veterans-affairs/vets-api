@@ -165,7 +165,8 @@
             },
             "endDate": {
               "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
-              "type": "string",
+              "type": ["string", "null"],
+              "nullable": true,
               "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
               "example": "2018-06-04"
             }
@@ -217,7 +218,8 @@
         },
         "zipLastFour": {
           "description": "Zip code (Last 4 digits) for the Veteran's new address.",
-          "type": "string",
+          "type": ["string", "null"],
+          "nullable": true,
           "pattern": "^$|^\\d{4}?$",
           "example": "6789"
         },
@@ -346,14 +348,12 @@
                   "type": ["string", "null"],
                   "nullable": true,
                   "description": "Approximate begin date for serving in Gulf War hazard location.",
-                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                   "example": "2018-06 or 2018"
                 },
                 "endDate": {
                   "type": ["string", "null"],
                   "nullable": true,
                   "description": "Approximate end date for serving in Gulf War hazard location.",
-                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                   "example": "2018-06 or 2018"
                 }
               }
@@ -533,7 +533,7 @@
           "approximateDate": {
             "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
             "type": ["string", "null"],
-            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+            "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
             "example": "2018-03-02 or 2018-03 or 2018",
             "nullable": true
           },
@@ -590,7 +590,7 @@
                 "approximateDate": {
                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                   "type": ["string", "null"],
-                  "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                  "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                   "example": "2018-03-02 or 2018-03 or 2018",
                   "nullable": true
                 },
@@ -972,7 +972,7 @@
       "type": ["object", "null"],
       "nullable": true,
       "additionalProperties": false,
-      "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber, and financialInstitutionName.",
+      "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
       "properties": {
         "accountType": {
           "description": "Account type for the direct deposit.",
@@ -984,19 +984,22 @@
         "accountNumber": {
           "description": "Account number for the direct deposit.",
           "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
-          "type": "string",
+          "type": ["string", "null"],
+          "nullable": true,
           "example": "123123123123"
         },
         "routingNumber": {
           "description": "Routing number for the direct deposit.",
-          "type": "string",
+          "type": ["string", "null"],
+          "nullable": true,
           "pattern": "^(?:\\d{9})?$",
           "example": "123123123"
         },
         "financialInstitutionName": {
           "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
           "maxLength": 35,
-          "type": "string",
+          "type": ["string", "null"],
+          "nullable": true,
           "example": "Some Bank"
         },
         "noAccount": {

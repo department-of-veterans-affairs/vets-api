@@ -14,10 +14,13 @@ module VAOS
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
+      AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
+        Rails.logger.info("VAOS: missing ICN, request_id: #{RequestStore.store['request_id']}") if user.icn.blank?
+
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
@@ -48,6 +51,8 @@ module VAOS
       end
 
       def get_appointment(appointment_id)
+        Rails.logger.info("VAOS: missing ICN, request_id: #{RequestStore.store['request_id']}") if user.icn.blank?
+
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
@@ -232,7 +237,7 @@ module VAOS
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
-        appt[:avs_path] = nil
+        appt[:avs_path] = AVS_ERROR_MESSAGE
       end
 
       # Checks if appointment is eligible for receiving an AVS link, i.e.

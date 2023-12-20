@@ -245,7 +245,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
               ]
             }
           end
-          let(:error_resp) { Faraday::Response.new(body: error_body, status: 500) }
+          let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 500) }
 
           it 'returns error response' do
             VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -283,8 +283,8 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           }
         }
       end
-      let(:body) { { 'data' => 'Checkin successful', 'status' => 200 } }
-      let(:success_resp) { Faraday::Response.new(body:, status: 200) }
+      let(:response_body) { { 'data' => 'Checkin successful', 'status' => 200 } }
+      let(:success_resp) { Faraday::Response.new(response_body:, status: 200) }
 
       it 'returns a successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -332,7 +332,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           ]
         }
       end
-      let(:error_resp) { Faraday::Response.new(body: error_body, status: 404) }
+      let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 404) }
 
       it 'returns 404 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -375,7 +375,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           ]
         }
       end
-      let(:error_resp) { Faraday::Response.new(body: error_body, status: 500) }
+      let(:error_resp) { Faraday::Response.new(response_body: error_body, status: 500) }
 
       it 'returns 500 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
@@ -394,8 +394,8 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     end
 
     context 'when session is not authorized' do
-      let(:body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
-      let(:unauth_response) { Faraday::Response.new(body:, status: 200) }
+      let(:response_body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
+      let(:unauth_response) { Faraday::Response.new(response_body:, status: 200) }
 
       it 'returns unauthorized response' do
         post '/check_in/v2/patient_check_ins', params: post_params
