@@ -719,10 +719,10 @@ module ClaimsApi
 
         return if title_ten_activation.blank?
 
-        form_obj_desc = 'federal activation'
+        form_obj_desc = 'title 10 activation'
 
         if title_ten_activation_date.blank?
-          raise_exception_if_value_not_present('federal activation date',
+          raise_exception_if_value_not_present('title 10 activation date',
                                                form_obj_desc)
         end
 
