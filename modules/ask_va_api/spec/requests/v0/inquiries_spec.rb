@@ -246,4 +246,25 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     it { expect(response).to have_http_status(:created) }
   end
+
+  describe 'GET #download_attachment' do
+    let(:id) { '1' }
+
+    before do
+      sign_in(authorized_user)
+      get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+    end
+
+    it 'response with 200' do
+      expect(response).to have_http_status(:ok)
+    end
+
+    context 'when attachment is not found' do
+      let(:id) { 'not_valid' }
+
+      it 'responds with 404' do
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
 end
