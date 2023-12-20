@@ -126,6 +126,15 @@ module PdfFill
 
         bool_attribute ? 'Yes' : 'No'
       end
+
+      def expand_phone_number(phone_number)
+        phone_number = phone_number.delete('^0-9')
+        {
+          'phone_area_code' => phone_number[0..2],
+          'phone_first_three_numbers' => phone_number[3..5],
+          'phone_last_four_numbers' => phone_number[6..9]
+        }
+      end
     end
   end
 end

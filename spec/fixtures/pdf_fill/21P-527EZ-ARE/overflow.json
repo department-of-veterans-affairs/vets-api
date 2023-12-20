@@ -34,14 +34,15 @@
         "from": "2012-06-26",
         "to": "2013-04-10"
       },
-      "serviceBranch": "army"
+      "serviceBranch": "army",
+      "serviceNumber": "12345"
     },
     {
       "activeServiceDateRange": {
         "from": "2012-06-26",
         "to": "2013-04-10"
       },
-      "serviceBranch": "army2"
+      "serviceBranch": "navy"
     }
   ],
   "noRapidProcessing": true,
@@ -483,18 +484,6 @@
       "last": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     },
     {
-      "first": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-      "last": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    },
-    {
-      "first": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-      "last": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    },
-    {
-      "first": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-      "last": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    },
-    {
       "first": "name2",
       "last": "last2"
     }
@@ -509,7 +498,7 @@
     "city": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "country": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "postalCode": "21231",
-    "street": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "street": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "street2": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "state": "MD"
   },
@@ -518,6 +507,7 @@
   "nightPhone": "0123456789",
   "dayPhone": "1123456789",
   "mobilePhone": "2123456789",
+  "internationalPhone": "123456789012345678901234567890XXXXXX",
   "spouseVaFileNumber": "22345678",
   "vaFileNumber": "12345678",
   "disabilities": [
@@ -530,5 +520,15 @@
       "disabilityStartDate": "2016-12-01"
     }
   ],
+  "vaMedicalCenters": [
+    "John D. Dingell Department of Veterans Affairs Medical Center",
+    "Piquette Street VA Clinic"
+  ],
+  "federalMedicalCenters": [
+    "Federal Medical Center One",
+    "Federal Medical Center Two"
+  ],
+  "federalTreatmentHistory": true,
+  "vaTreatmentHistory": true,
   "gender": "M"
 }

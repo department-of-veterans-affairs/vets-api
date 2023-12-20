@@ -1,15 +1,71 @@
 {
-  "privacyAgreementAccepted": true,
-  "veteranSocialSecurityNumber": "111223333",
+  "noRapidProcessing": false,
+  "receivesIncome": false,
+  "homeOwnership": false,
+  "assetTransfer": false,
+  "medicalExpenses": false,
+  "hasCareExpenses": false,
+  "netWorthEstimation": 0,
+  "totalNetWorth": false,
+  "maritalStatus": "Never Married",
+  "previousEmployers": [
+    {
+      "jobDate": "2020-12-12",
+      "jobType": "Train conductor",
+      "jobHoursWeek": 40,
+      "jobTitle": "Conductor"
+    }
+  ],
+  "currentEmployment": false,
+  "federalTreatmentHistory": false,
+  "vaTreatmentHistory": false,
+  "specialMonthlyPension": false,
+  "nursingHome": false,
+  "socialSecurityDisability": true,
+  "servicePeriods": [
+    {
+      "serviceBranch": "Coast Guard",
+      "activeServiceDateRange": {
+        "from": "2020-12-12",
+        "to": "2022-12-12"
+      },
+      "serviceNumber": "12345"
+    }
+  ],
+  "email": "veteran@example.com",
+  "mobilePhone": "555-555-5555",
   "veteranAddress": {
-    "city": "Baltimore",
     "country": "USA",
-    "postalCode": "21231",
-    "state": "MD",
-    "street": "111 Uni Drive"
+    "street": "123 Main St",
+    "city": "Brooklyn",
+    "state": "NY",
+    "postalCode": "11225"
   },
   "veteranFullName": {
-    "first": "Mark",
-    "last": "Olson"
-  }
+    "first": "Firstname",
+    "last": "Lastname"
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "veteranDateOfBirth": "1990-12-12",
+  "isOver65": false,
+  "netWorth": {
+    "bank": 0,
+    "interestBank": 0,
+    "ira": 0,
+    "stocks": 0,
+    "realProperty": 0
+  },
+  "monthlyIncome": {
+    "socialSecurity": 0,
+    "civilService": 0,
+    "railroad": 0,
+    "blackLung": 0,
+    "serviceRetirement": 0,
+    "ssi": 0
+  },
+  "expectedIncome": {
+    "salary": 0,
+    "interest": 0
+  },
+  "privacyAgreementAccepted": true
 }
