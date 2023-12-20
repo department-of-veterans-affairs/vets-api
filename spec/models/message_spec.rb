@@ -14,7 +14,10 @@ RSpec.describe Message do
                                                                            :attachment, :attachments, :sent_date,
                                                                            :sender_id, :sender_name, :recipient_id,
                                                                            :recipient_name, :read_receipt, :uploads,
-                                                                           :triage_group_name, :proxy_sender_name)
+                                                                           :triage_group_name, :proxy_sender_name,
+                                                                           :has_attachments, :attachment1_id, 
+                                                                           :attachment2_id, :attachment3_id,
+                                                                           :attachment4_id)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
