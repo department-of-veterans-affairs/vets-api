@@ -361,7 +361,6 @@ module ClaimsApi
             Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
                                                   claim_date.next_day(BDD_UPPER_LIMIT))
           end
-
           if end_or_separation_date.present?
             @pdf_data[:data][:attributes][:identificationInformation][:dateOfReleaseFromActiveDuty] =
               make_date_object(end_or_separation_date, end_or_separation_date.length)
@@ -784,31 +783,34 @@ module ClaimsApi
 
       def regex_date_conversion(date)
         if date.present?
-          date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
+          date_match = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
+          date_match&.values_at(:year, :month, :day)
         end
       end
 
       def make_date_object(date, date_length)
-        regex_date = regex_date_conversion(date)
+        year, month, day = regex_date_conversion(date)
+        return if year.nil?
 
-        if regex_date.present? && date_length == 4
-          { year: regex_date[:year] }
-        elsif regex_date.present? && date_length == 7
-          { month: regex_date[:month], year: regex_date[:year] }
-        elsif regex_date.present?
-          { year: regex_date[:year], month: regex_date[:month], day: regex_date[:day] }
+        if date_length == 4
+          { year: }
+        elsif date_length == 7
+          { month:, year: }
+        else
+          { year:, month:, day: }
         end
       end
 
       def make_date_string_month_first(date, date_length)
-        regex_date = regex_date_conversion(date)
+        year, month, day = regex_date_conversion(date)
+        return if year.nil?
 
-        if regex_date.present? && date_length == 4
-          regex_date[:year].to_s
-        elsif regex_date.present? && date_length == 7
-          "#{regex_date[:month]}/#{regex_date[:year]}"
-        elsif regex_date.present?
-          "#{regex_date[:month]}/#{regex_date[:day]}/#{regex_date[:year]}"
+        if date_length == 4
+          year.to_s
+        elsif date_length == 7
+          "#{month}/#{year}"
+        else
+          "#{month}/#{day}/#{year}"
         end
       end
     end
