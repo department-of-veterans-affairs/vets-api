@@ -39,7 +39,7 @@ module Veteran
 
       def base_query
         representative_klass.find_within_max_distance(search_params[:long],
-                                             search_params[:lat]).order(sort_query_string)
+                                                      search_params[:lat]).order(sort_query_string)
       end
 
       def type_adjusted_query
