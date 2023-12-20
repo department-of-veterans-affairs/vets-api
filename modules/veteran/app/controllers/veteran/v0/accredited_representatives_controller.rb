@@ -44,25 +44,41 @@ module Veteran
 
       def type_adjusted_query
         case search_params[:type]
+        when 'attorney' then attorney_query
+        when 'veteran_service_officer' then veteran_service_officer_query
+        end
+      end
+
+      def attorney_query
+        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
+          '? = ANY(user_types) ', search_params[:type]
+        )
+      end
+
+      def veteran_service_officer_query
+        base_query
+          .joins('JOIN LATERAL UNNEST(veteran_representatives.poa_codes) AS UnnestedPoaCode ON true')
+          .joins('JOIN veteran_service_organizations ON UnnestedPoaCode = veteran_service_organizations.poa')
+          .select("veteran_representatives.*, veteran_service_organizations.name AS organization_name, #{distance_query_string}") # rubocop:disable Layout/LineLength
+          .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
+      end
+
+      def find_with_name_similar_to(query)
+        fuzzy_search_threshold = Constants::FUZZY_SEARCH_THRESHOLD
+
+        case search_params[:type]
         when 'attorney'
-          base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-            '? = ANY(user_types) ', search_params[:type]
-          )
+          query.where('word_similarity(?, full_name) >= ?', search_phrase, fuzzy_search_threshold)
         when 'veteran_service_officer'
-          base_query
-            .joins('JOIN LATERAL UNNEST(veteran_representatives.poa_codes) AS UnnestedPoaCode ON true')
-            .joins('JOIN veteran_service_organizations ON UnnestedPoaCode = veteran_service_organizations.poa')
-            .select("veteran_representatives.*, veteran_service_organizations.name AS organization_name, #{distance_query_string}") # rubocop:disable Layout/LineLength
-            .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
+          query.where('word_similarity(?, veteran_representatives.full_name) >= ? OR word_similarity(?, veteran_service_organizations.name) >= ?', # rubocop:disable Layout/LineLength
+                      search_phrase, fuzzy_search_threshold, search_phrase, fuzzy_search_threshold)
         end
       end
 
       def accreditation_query
-        if search_params[:name]
-          type_adjusted_query.find_with_name_similar_to(search_params[:name])
-        else
-          type_adjusted_query
-        end
+        query = type_adjusted_query
+
+        search_params[:name] ? find_with_name_similar_to(query) : query
       end
 
       def search_params
