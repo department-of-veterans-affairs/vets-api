@@ -5,7 +5,7 @@ require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 
-module RepOrgAddresses
+module RepAddresses
   # A Sidekiq job class for updating address records. It processes JSON data for address updates,
   # validates the address, and then updates the address record if valid.
   class UpdateAddresses
@@ -66,11 +66,7 @@ module RepOrgAddresses
     # @param api_response [Hash] The response from the address validation service.
     def update_address_record(data, api_response)
       record =
-        if data['type'] == 'representative'
-          Veteran::Service::Representative.find_by(representative_id: data['id'])
-        elsif data['type'] == 'organization'
-          Veteran::Service::Organization.find_by(poa: data['id'])
-        end
+        Veteran::Service::Representative.find_by(representative_id: data['id'])
 
       if record.nil?
         log_message_to_sentry(

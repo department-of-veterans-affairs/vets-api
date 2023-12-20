@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepOrgAddresses::UpdateAddresses do
+RSpec.describe RepAddresses::UpdateAddresses do
   describe '#perform' do
     let(:json_data) do
       { type:,
@@ -151,81 +151,6 @@ RSpec.describe RepOrgAddresses::UpdateAddresses do
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
             'UpdateAddresses record not found for type: representative and id: 1234', :error
-          )
-
-          subject.perform(json_data)
-        end
-      end
-    end
-
-    context 'when processing an organization' do
-      let(:id) { '789' }
-      let(:type) { 'organization' }
-      let!(:organization) do
-        create(:organization,
-               poa: '789',
-               name: 'My Fake Org',
-               address_line1: '123 East Main St',
-               address_line2: 'Suite 1',
-               address_line3: 'Address Line 3',
-               address_type: 'DOMESTIC',
-               city: 'My City',
-               country_name: 'United States of America',
-               country_code_iso3: 'USA',
-               province: 'A Province',
-               international_postal_code: '12345',
-               state_code: 'ZZ',
-               zip_code: '12345',
-               zip_suffix: '6789',
-               lat: '39',
-               long: '-75',
-               location: 'POINT(-75 39)')
-      end
-
-      context 'when address is valid' do
-        it 'updates the address record for an organization' do
-          subject.perform(json_data)
-
-          organization.reload
-
-          expect(organization.address_line1).to eq('37N 1st St')
-          expect(organization.address_line2).to be_nil
-          expect(organization.address_line3).to be_nil
-          expect(organization.address_type).to eq('Domestic')
-          expect(organization.city).to eq('Brooklyn')
-          expect(organization.country_code_iso3).to eq('USA')
-          expect(organization.country_name).to eq('United States')
-          expect(organization.county_name).to eq('Kings')
-          expect(organization.county_code).to eq('36047')
-          expect(organization.province).to eq('New York')
-          expect(organization.state_code).to eq('NY')
-          expect(organization.zip_code).to eq('11249')
-          expect(organization.zip_suffix).to eq('3939')
-          expect(organization.lat).to eq(40.717029)
-          expect(organization.long).to eq(-73.964956)
-          expect(organization.location.x).to eq(-73.964956)
-          expect(organization.location.y).to eq(40.717029)
-        end
-      end
-
-      context 'when address is not valid' do
-        let(:api_response) { { 'candidateAddresses' => [] } }
-
-        it 'does not update the address record for an organization' do
-          subject.perform(json_data)
-
-          organization.reload
-
-          expect(organization.address_line1).to eq('123 East Main St')
-        end
-      end
-
-      context 'when the organization is not found' do
-        let(:id) { '345' }
-
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'UpdateAddresses record not found for type: organization and id: 345', :error
           )
 
           subject.perform(json_data)
