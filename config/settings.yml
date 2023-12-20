@@ -703,7 +703,7 @@ connected_apps_api:
 
 authorization_server_scopes_api:
   auth_server:
-    url: https://sandbox-api.va.gov/internal/auth/v2/server/scopes
+    url: https://sandbox-api.va.gov/internal/auth/v2/server
 
 redis:
   host: localhost

@@ -12,7 +12,7 @@ module Okta
 
       category = category.downcase
 
-      scopes_url = "#{base_url}/#{category}"
+      scopes_url = "#{base_url}/#{category}/scopes"
 
       headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/internal/auth/v2/server/scopes/health
+    uri: https://sandbox-api.va.gov/internal/auth/v2/server/health/scopes
     body:
       encoding: US-ASCII
       string: ''
