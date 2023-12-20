@@ -97,12 +97,7 @@ def generate_appeals_docs(dev: false)
   appeals_api_output_files(dev:).each { |file_path| rswag_to_oas!(file_path) }
 end
 
-# This method does two things
-# 1
-# Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
-# This removes the basePath value from the generated JSON file(s)
-# 2
-# To validate the null values for fields in the JSON correctly we use type: ['string', 'null']
+# validates the null values for fields in the JSON correctly we use type: ['string', 'null']
 # Swagger displays that as stringnull so in order to make the docs remain readable we remove the null before writing
 def format_for_swagger(version, env = nil)
   path = "app/swagger/claims_api/#{version}/swagger.json"

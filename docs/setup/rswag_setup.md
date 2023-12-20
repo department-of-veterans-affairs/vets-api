@@ -49,8 +49,6 @@ class AppealsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/appeals/v2/decision_reviews',
-        # ^ basePath is used in building up the url that Rswag will use in testing
         servers: [
           # ^ Used in creating the 'Environment' drop-down for generating example curl commands
           {
