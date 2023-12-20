@@ -6,7 +6,7 @@ module VAProfile
   module HealthBenefit
     class Configuration < VAProfile::Configuration
       def base_path
-        "#{Settings.vet360.url}/health-benefit/health-benefit"
+        "#{Settings.vet360.url}/health-benefit"
       end
 
       def service_name

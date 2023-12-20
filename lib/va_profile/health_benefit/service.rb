@@ -33,6 +33,15 @@ module VAProfile
         VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
       end
 
+      def get_relationship_types
+        with_monitoring do
+          response = perform(:get, relationship_types_path)
+          VAProfile::HealthBenefit::RelationshipTypesResponse.from(response)
+        end
+      rescue => e
+        handle_error(e)
+      end
+
       private
 
       ID_ME_AAID = '^PN^200VIDM^USDVA'
@@ -57,7 +66,11 @@ module VAProfile
       end
 
       def v1_read_path
-        "#{config.base_path}/v1/#{identity_path}/read"
+        "#{config.base_path}/health-benefit/v1/#{identity_path}/read"
+      end
+
+      def relationship_types_path
+        "#{config.base_path}/referencedata/v1/associated-person/relationship-type"
       end
     end
   end

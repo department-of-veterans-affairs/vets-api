@@ -17,17 +17,17 @@ describe VAProfile::HealthBenefit::Service do
     allow(user).to receive(:idme_uuid).and_return(idme_uuid)
   end
 
-  around do |example|
-    # using webmock & json fixtures instead of VCR until VA Profile API access is granted
-    VCR.turned_off do
-      # disable data mocking for the VA Profile Health Benefit API
-      with_settings(Settings.vet360.health_benefit, mock: false) do
-        example.run
+  describe '#get_associated_persons' do
+    around do |example|
+      # using webmock & json fixtures instead of VCR until VA Profile API access is granted
+      VCR.turned_off do
+        # disable data mocking for the VA Profile Health Benefit API
+        with_settings(Settings.vet360.health_benefit, mock: false) do
+          example.run
+        end
       end
     end
-  end
 
-  describe '#get_associated_persons' do
     let(:resource) { service.send(:v1_read_path) }
 
     context 'when request is successful' do
@@ -51,6 +51,16 @@ describe VAProfile::HealthBenefit::Service do
       it 'raises a BackendServiceException' do
         stub_request(:get, resource).to_return(status: 500)
         expect { service.get_associated_persons }.to raise_error Common::Exceptions::BackendServiceException
+      end
+    end
+  end
+
+  describe '#get_relationship_types' do
+    it 'returns a RelationshipTypesResponse with status "ok"' do
+      VCR.use_cassette('va_profile/health_benefit/relationship_types', record: :once) do
+        result = service.get_relationship_types
+        expect(result).to be_a(VAProfile::HealhtBenefit::RelationshipTypesResponse)
+        expect(result.relationship_types.size).to be > 0
       end
     end
   end
