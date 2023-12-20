@@ -453,7 +453,7 @@ module ClaimsApi
 
       def get_treatments
         @auto_claim['treatments'].map do |tx|
-          unless tx['center'].blank?
+          if tx['center'].present?
             center = "#{tx.dig('center', 'name')}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
           end
           name = tx['treatedDisabilityNames'].join(', ')
