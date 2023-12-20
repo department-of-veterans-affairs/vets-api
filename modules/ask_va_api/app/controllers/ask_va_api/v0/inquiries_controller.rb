@@ -32,6 +32,10 @@ module AskVAApi
         render json: { message: result[:message] || result[:error] }, status: result[:status]
       end
 
+      def download_attachment
+        render json: get_attachment.payload, status: get_attachment.status
+      end
+
       private
 
       def inquiry_params
@@ -50,6 +54,14 @@ module AskVAApi
         @user_inquiries = Result.new(payload: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok)
       end
 
+      def get_attachment
+        att = Attachments::Retriever.new(id: params[:id], service: mock_service).call
+
+        raise InvalidAttachmentError if att.file_name.nil? || att.file_content.nil?
+
+        Result.new(payload: Attachments::Serializer.new(att).serializable_hash, status: :ok)
+      end
+
       def mock_service
         DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
       end
@@ -60,6 +72,7 @@ module AskVAApi
 
       Result = Struct.new(:payload, :status, keyword_init: true)
       class InvalidInquiryError < StandardError; end
+      class InvalidAttachmentError < StandardError; end
     end
   end
 end
