@@ -196,6 +196,7 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
+    vye (0.1.0)
 
 GEM
   remote: https://enterprise.contribsys.com/
@@ -1230,6 +1231,7 @@ DEPENDENCIES
   veteran_confirmation!
   vets_json_schema!
   virtus
+  vye!
   warden-github
   web-console
   webmock

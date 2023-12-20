@@ -83,5 +83,6 @@ class SimpleCovHelper
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'Vye', 'modules/vye/'
   end
 end
