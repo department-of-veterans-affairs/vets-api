@@ -49,9 +49,11 @@ module Veteran
             '? = ANY(user_types) ', search_params[:type]
           )
         when 'veteran_service_officer'
-          # base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-          #   '? = ANY(user_types) ', search_params[:type]
-          # )
+          base_query
+            .joins('JOIN LATERAL UNNEST(veteran_representatives.poa_codes) AS UnnestedPoaCode ON true')
+            .joins('JOIN veteran_service_organizations ON UnnestedPoaCode = veteran_service_organizations.poa')
+            .select("veteran_representatives.*, veteran_service_organizations.name AS organization_name, #{distance_query_string}") # rubocop:disable Layout/LineLength
+            .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
         end
       end
 
