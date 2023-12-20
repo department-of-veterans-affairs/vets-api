@@ -288,6 +288,7 @@ RSpec.describe VBADocuments::MonthlyStatsGenerator do
                             error: { start: 1703080148 }
                           }
                         })
+
       FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
                         status: 'error',
                         consumer_name: 'Consumer2',
