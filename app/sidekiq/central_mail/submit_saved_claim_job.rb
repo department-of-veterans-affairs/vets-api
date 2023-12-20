@@ -40,7 +40,6 @@ module CentralMail
       log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
 
       response = send_claim_to_central_mail(saved_claim_id)
-      log_cmp_response(response) if @claim.is_a?(SavedClaim::VeteranReadinessEmploymentClaim)
 
       if response.success?
         update_submission('success')
@@ -48,7 +47,7 @@ module CentralMail
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
-        raise CentralMailResponseError, response.to_s
+        raise CentralMailResponseError, response.body
       end
     rescue => e
       update_submission('failed')
@@ -65,7 +64,6 @@ module CentralMail
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
-
       response = CentralMail::Service.new.upload(create_request_body)
 
       File.delete(@pdf_path)
@@ -153,18 +151,13 @@ module CentralMail
 
     private
 
-    def log_cmp_response(response)
-      log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
-    end
-
     def generate_sentry_details(e = nil)
       details = {
         'guid' => @claim&.guid,
         'docType' => @claim&.form_id,
         'savedClaimId' => @saved_claim_id
       }
-      details['error'] = e if e
-
+      details['error'] = e.message if e
       details
     end
 
