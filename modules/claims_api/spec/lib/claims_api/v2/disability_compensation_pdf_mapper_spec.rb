@@ -321,7 +321,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
-        expect(date).to eq('March 2018')
+        expect(date).to eq('03/11/2018')
         expect(yyyy_date_format).to eq('2015')
         expect(event).to eq('EXPOSURE')
         expect(attribut_count).to eq(4)
