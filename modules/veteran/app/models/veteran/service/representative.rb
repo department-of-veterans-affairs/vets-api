@@ -108,17 +108,6 @@ module Veteran
       end
 
       #
-      # Find all representatives with a full name with at least the FUZZY_SEARCH_THRESHOLD value of
-      #   word similarity. This gives us a way to fuzzy search for names.
-      # @param search_phrase [String] the word, words, or phrase we want representatives with full names similar to
-      #
-      # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
-      #   all representatives matching the search criteria
-      def self.find_with_name_similar_to(search_phrase)
-        where('word_similarity(?, full_name) >= ?', search_phrase, Constants::FUZZY_SEARCH_THRESHOLD)
-      end
-
-      #
       # Set the full_name attribute for the representative
       def set_full_name
         self.full_name = "#{first_name} #{last_name}"

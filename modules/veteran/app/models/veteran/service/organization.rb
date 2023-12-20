@@ -23,17 +23,6 @@ module Veteran
         where(query, params)
       end
 
-      #
-      # Find all organizations with a name with at least the FUZZY_SEARCH_THRESHOLD value of
-      #   word similarity. This gives us a way to fuzzy search for names.
-      # @param search_phrase [String] the word, words, or phrase we want organizations with names similar to
-      #
-      # @return [Veteran::Service::Organization::ActiveRecord_Relation] an ActiveRecord_Relation of
-      #   all organizations matching the search criteria
-      def self.find_with_name_similar_to(search_phrase)
-        where('word_similarity(?, name) >= ?', search_phrase, Constants::FUZZY_SEARCH_THRESHOLD)
-      end
-
       def self.max_per_page
         Constants::MAX_PER_PAGE
       end
