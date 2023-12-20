@@ -719,10 +719,10 @@ module ClaimsApi
 
         return if title_ten_activation.blank?
 
-        form_obj_desc = 'title 10 activation'
+        form_obj_desc = 'federal activation'
 
         if title_ten_activation_date.blank?
-          raise_exception_if_value_not_present('title 10 activation date',
+          raise_exception_if_value_not_present('federal activation date',
                                                form_obj_desc)
         end
 
@@ -733,7 +733,7 @@ module ClaimsApi
         # we know the dates are present
         if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
+            detail: 'The federal activation date must be after the earliest service period active duty begin date.'
           )
         end
 
