@@ -3184,7 +3184,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:anticipated_separation_date) { '2024-06-16' }
+          let(:anticipated_separation_date) { claim_date + 81.days }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
