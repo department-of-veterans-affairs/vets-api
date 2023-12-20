@@ -4,7 +4,7 @@ namespace :veteran do
   desc 'Reload Rep Information'
   task reload_vso_data: :environment do
     puts 'Loading VSO data from OGC'
-    Veteran::RepReloader.perform_async
+    Veteran::VSOReloader.perform_async
     puts "#{Veteran::Service::Representative.count} Representatives loaded"
   end
 

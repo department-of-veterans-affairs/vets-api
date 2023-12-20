@@ -4,7 +4,7 @@ require 'sidekiq'
 require 'sentry_logging'
 
 module Veteran
-  class RepReloader < BaseReloader
+  class VSOReloader < BaseReloader
     include Sidekiq::Job
     include SentryLogging
 
@@ -21,10 +21,10 @@ module Veteran
       end
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("OGC connection failed: #{e.message}", :warn)
-      log_to_slack('Rep Reloader failed to connect to OGC')
+      log_to_slack('VSO Reloader failed to connect to OGC')
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_message_to_sentry("Rep Reloading error: #{e.message}", :warn)
-      log_to_slack('Rep Reloader job has failed!')
+      log_message_to_sentry("VSO Reloading error: #{e.message}", :warn)
+      log_to_slack('VSO Reloader job has failed!')
     end
 
     def reload_attorneys
@@ -42,10 +42,29 @@ module Veteran
       end
     end
 
+    def reload_vso_reps
+      vso_reps = []
+      vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
+        next unless vso_rep['Representative']
+
+        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
+        vso_reps << vso_rep['Registration Num']
+        {
+          poa: vso_rep['POA'].gsub(/\W/, ''),
+          name: vso_rep['Organization Name'],
+          phone: vso_rep['Org Phone'],
+          state: vso_rep['Org State']
+        }
+      end.compact.uniq
+      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_ignore: true)
+
+      vso_reps
+    end
+
     private
 
     def reload_representatives
-      reload_attorneys + reload_claim_agents
+      reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
     def find_or_create_attorneys(attorney)
@@ -60,10 +79,27 @@ module Veteran
       rep.save
     end
 
+    def find_or_create_vso(vso)
+      first_name = vso['Representative'].split&.second
+      last_name = vso['Representative'].split(',')&.first
+      middle_initial = vso['Representative'].split&.third
+
+      rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
+                                                                   first_name:,
+                                                                   last_name:)
+      poa_code = vso['POA'].gsub(/\W/, '')
+      rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
+
+      rep.phone = vso['Org Phone']
+      rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
+      rep.middle_initial = middle_initial.presence || ''
+      rep.save
+    end
+
     def log_to_slack(message)
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
                                        channel: '#api-benefits-claims',
-                                       username: 'RepReloader')
+                                       username: 'VSOReloader')
       client.notify(message)
     end
   end
