@@ -19,8 +19,10 @@ class BenefitsIntakeStatusJob
   private
 
   def handle_response(response)
-    total_submissions_handled, pending_submissions_handled, failed_submissions_handled, successful_submissions_handled =
-      0, 0, 0, 0
+    total_submissions_handled = 0
+    pending_submissions_handled = 0
+    failed_submissions_handled = 0
+    successful_submissions_handled = 0
     response.body['data'].each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
         failed_submissions_handled += 1
@@ -33,12 +35,9 @@ class BenefitsIntakeStatusJob
       end
       total_submissions_handled += 1
     end
-
     {
-      total_submissions_handled:,
-      pending_submissions_handled:,
-      failed_submissions_handled:,
-      successful_submissions_handled:
+      total_submissions_handled:, pending_submissions_handled:,
+      failed_submissions_handled:, successful_submissions_handled:
     }
   end
 
