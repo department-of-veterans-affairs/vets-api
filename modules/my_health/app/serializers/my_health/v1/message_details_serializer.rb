@@ -27,10 +27,10 @@ module MyHealth
               message_id: object.message_id,
               name: object.send("attachment#{i}_name"),
               attachment_size: object.send("attachment#{i}_size"),
-              download: 
+              download:
                 MyHealth::UrlHelper.new.v1_message_attachment_url(
-                    object.message_id, object.send("attachment#{i}_id")
-                  )
+                  object.message_id, object.send("attachment#{i}_id")
+                )
             }
             array << attachment
           end
