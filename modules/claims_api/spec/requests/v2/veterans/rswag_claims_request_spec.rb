@@ -6,7 +6,7 @@ require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
 describe 'Claims',
-         swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:bcs) do
     ClaimsApi::LocalBGS
   end

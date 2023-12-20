@@ -6,12 +6,12 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/appeals_status/v1/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, Layout/LineLength, RSpec/RepeatedExample
-describe 'Appeals Status', swagger_doc:, type: :request do
+describe 'Appeals Status', openapi_spec:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 

@@ -8,7 +8,7 @@ require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 5103 temporarily disabled
 describe 'EvidenceWaiver5103',
-         swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+            openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   path '/veterans/{veteranId}/claims/{id}/5103' do
     post 'Submit Evidence Waiver 5103' do
       tags '5103 Waiver'

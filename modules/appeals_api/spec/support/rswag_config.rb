@@ -20,8 +20,6 @@ class AppealsApi::RswagConfig
       },
       tags:,
       paths: {},
-      # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
-      # basePath: base_path_template.gsub('{version}', version),
       components: {
         securitySchemes: name == 'decision_reviews' ? decision_reviews_security_schemes : oauth_security_schemes(name),
         schemas: schemas(api_name: name, version:)
