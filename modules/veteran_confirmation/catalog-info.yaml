@@ -2,8 +2,12 @@ apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: veteran-confirmation-v0
-  description: Veteran Confirmation APIs for VA Lighthouse program
+  description: The Deprecated Veteran Confirmation API allows you to confirm Veteran status for a given person. This can be useful for offering Veterans discounts or other benefits. The API will only return "Confirmed" or "Not Confirmed".
   title: Veteran Confirmation API v0
+  annotations:
+    hub.lighthouse.va.gov/api-id: confirmation
+    datadog/production-monitor-id: '130864'
+    datadog/sandbox-monitor-id: '130945'
   tags:
     - lighthouse
     - external
@@ -15,6 +19,6 @@ spec:
   type: openapi
   lifecycle: production
   owner: lighthouse-ninjapigs
-  system: vets-api
+  system: digital-veterans-platform
   definition:
     $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/veteran_confirmation/VETERAN_CONFIRMATION.yml
