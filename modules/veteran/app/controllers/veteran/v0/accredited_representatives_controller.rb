@@ -45,9 +45,16 @@ module Veteran
       end
 
       def type_adjusted_query
-        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-          '? = ANY(user_types) ', search_params[:type]
-        )
+        case search_params[:type]
+        when 'attorney'
+          # base_query.select("veteran_representatives.*, #{distance_query_string}").where(
+          #   '? = ANY(user_types) ', search_params[:type]
+          # )
+        when 'representative'
+          # base_query.select("veteran_representatives.*, #{distance_query_string}").where(
+          #   '? = ANY(user_types) ', search_params[:type]
+          # )
+        end
       end
 
       def accreditation_query
