@@ -77,7 +77,7 @@ describe 'PowerOfAttorney',
       describe 'No POA assigned to Veteran' do
         let(:bgs_poa) { { person_org_name: nil } }
 
-        response '204', 'Successful response with no current Power of Attorney' do
+        response '404', 'POA not found' do
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
@@ -96,7 +96,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it 'returns a valid 200 response' do |example|
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

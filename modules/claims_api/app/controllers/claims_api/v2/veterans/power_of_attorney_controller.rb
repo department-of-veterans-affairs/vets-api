@@ -12,7 +12,7 @@ module ClaimsApi
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
-          head(:no_content) && return if poa_code.blank?
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') if poa_code.blank?
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ code: poa_code })

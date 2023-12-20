@@ -33,13 +33,13 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           context 'when valid' do
             context 'when current poa code does not exist' do
-              it 'returns a 204' do
+              it 'returns a 404' do
                 mock_ccg(scopes) do |auth_header|
                   allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
 
                   get get_poa_path, headers: auth_header
 
-                  expect(response.status).to eq(204)
+                  expect(response).to have_http_status(:not_found)
                 end
               end
             end
@@ -49,7 +49,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             it 'returns a 401' do
               get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end
@@ -80,7 +80,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 .and_return({ person_poa_history: nil })
 
               put appoint_individual_path, params: data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -88,7 +88,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when not provided' do
           it 'returns a 401 error code' do
             put appoint_individual_path, params: data
-            expect(response.status).to eq(401)
+            expect(response).to have_http_status(:unauthorized)
           end
         end
       end
@@ -99,7 +99,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             data[:serviceOrganization] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -110,7 +110,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             data[:signatures] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -121,7 +121,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             data[:signatures][:veteran] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -132,7 +132,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             data[:signatures][:representative] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end
@@ -143,7 +143,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             data[:serviceOrganization][:poaCode] = organization_poa_code.to_s
 
             put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
@@ -155,7 +155,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
           mock_ccg(scopes) do |auth_header|
             put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(500)
+            expect(response).to have_http_status(:internal_server_error)
           end
         end
       end
@@ -172,7 +172,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                 put appoint_individual_path, params: data, headers: auth_header
 
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -181,7 +181,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             it 'returns a 401' do
               put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end
@@ -212,7 +212,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 .and_return({ person_poa_history: nil })
 
               put appoint_organization_path, params: data, headers: auth_header
-              expect(response.status).to eq(200)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -220,7 +220,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when not provided' do
           it 'returns a 401 error code' do
             put appoint_organization_path, params: data
-            expect(response.status).to eq(401)
+            expect(response).to have_http_status(:unauthorized)
           end
         end
 
@@ -230,7 +230,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               data[:serviceOrganization][:poaCode] = individual_poa_code.to_s
 
               put appoint_organization_path, params: data, headers: auth_header
-              expect(response.status).to eq(422)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -248,7 +248,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                 put appoint_organization_path, params: data, headers: auth_header
 
-                expect(response.status).to eq(200)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -257,7 +257,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             it 'returns a 401' do
               put appoint_organization_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(401)
+              expect(response).to have_http_status(:unauthorized)
             end
           end
         end

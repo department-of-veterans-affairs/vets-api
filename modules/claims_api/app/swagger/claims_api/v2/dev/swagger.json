@@ -8346,11 +8346,11 @@
               }
             }
           },
-          "204": {
-            "description": "Successful response with no current Power of Attorney",
+          "404": {
+            "description": "POA not found",
             "content": {
               "application/json": {
-                "example": ""
+                "example": "{\"errors\":[{\"title\":\"Resource not found\",\"detail\":\"POA not found\"}]}"
               }
             }
           },
