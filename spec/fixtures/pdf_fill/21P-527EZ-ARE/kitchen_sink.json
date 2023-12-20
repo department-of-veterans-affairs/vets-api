@@ -1,8 +1,91 @@
 {
+  "noRapidProcessing": false,
+  "homeOwnership": false,
+  "totalNetWorth": false,
+  "maritalStatus": "Never Married",
+  "previousEmployers": [
+    {
+      "jobDate": "2020-12-12",
+      "jobType": "Train conductor",
+      "jobHoursWeek": 40,
+      "jobTitle": "Conductor"
+    }
+  ],
+  "currentEmployment": false,
+  "federalTreatmentHistory": true,
+  "vaTreatmentHistory": true,
+  "specialMonthlyPension": false,
+  "nursingHome": true,
+  "socialSecurityDisability": false,
+  "medicalCondition": true,
+  "medicaidStatus": true,
+  "previousNames": [
+    {
+      "first": "Other",
+      "last": "Name",
+      "suffix": "Jr."
+    }
+  ],
+  "placeOfSeparation": "1234 Separation Rd, City, ST 12345",
+  "servicePeriods": [
+    {
+      "serviceBranch": "Coast Guard",
+      "activeServiceDateRange": {
+        "from": "2020-12-12",
+        "to": "2022-12-12"
+      },
+      "serviceNumber": "12345"
+    }
+  ],
+  "email": "veteran@example.com",
+  "mobilePhone": "555-555-5555",
+  "internationalPhone": "55-555-555-5555",
+  "veteranAddress": {
+    "country": "USA",
+    "street": "123 Main St",
+    "street2": "456",
+    "city": "Brooklyn",
+    "state": "NY",
+    "postalCode": "11225"
+  },
   "veteranFullName": {
-    "first": "john",
-    "middle": "middle",
-    "last": "smith",
-    "suffix": "Sr."
-  }
+    "first": "Firstname",
+    "middle": "M",
+    "last": "Lastname"
+  },
+  "powDateRange": {
+    "from": "2021-04-10",
+    "to": "2021-05-10"
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "vaClaimsHistory": true,
+  "vaFileNumber": "12345678",
+  "veteranDateOfBirth": "1990-12-12",
+  "isOver65": false,
+  "netWorth": {
+    "bank": 0,
+    "interestBank": 0,
+    "ira": 0,
+    "stocks": 0,
+    "realProperty": 0
+  },
+  "monthlyIncome": {
+    "socialSecurity": 0,
+    "civilService": 0,
+    "railroad": 0,
+    "blackLung": 0,
+    "serviceRetirement": 0,
+    "ssi": 0
+  },
+  "expectedIncome": {
+    "salary": 0,
+    "interest": 0
+  },
+  "vaMedicalCenters": [
+    "John D. Dingell VA Medical Center"
+  ],
+  "federalMedicalCenters": [
+    "Federal Medical Center"
+  ],
+  "privacyAgreementAccepted": true
 }

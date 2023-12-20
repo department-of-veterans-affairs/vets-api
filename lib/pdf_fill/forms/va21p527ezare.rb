@@ -2,51 +2,461 @@
 
 require 'pdf_fill/hash_converter'
 require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
 module PdfFill
   module Forms
     class Va21p527ezare < FormBase
+      include FormHelper
       KEY = {
-        # the key is used to translate your json schema validated form into a hash that can be passed
-        # to the pdf-forms library which will write out text onto the pdf
-        # the keys in this hash should match the keys in the hash that is submitted from the frontend
+        # 1a
         'veteranFullName' => {
           'first' => {
-            # the key here is the name of the field in the pdf. you can use acrobat pro or an online
-            # editor like https://www.pdfescape.com to find out what the field names are.
-            key: 'form1[0].#subform[48].VeteransFirstName[0]',
-            # character limit for this field. if a value goes over the character limit extra pages
-            # are attached to the end of the pdf that look like this
-            # https://github.com/department-of-veterans-affairs/vets-api/blob/master/spec/fixtures/pdf_fill/21P-530/overflow_extras.pdf
-            # the field itself will have the text "See add'l info page"
             limit: 12,
-            # the question number and question suffix are used to order the questions on the additional
-            # information page. the question text is written on the additional information page.
             question_num: 1,
             question_suffix: 'A',
-            question_text: "VETERAN'S FIRST NAME"
+            question_text: 'VETERAN\'S FIRST NAME',
+            key: 'form1[0].#subform[48].VeteransFirstName[0]'
           },
           'middle' => {
             key: 'form1[0].#subform[48].VeteransMiddleInitial1[0]'
           },
           'last' => {
-            key: 'form1[0].#subform[48].VeteransLastName[0]',
             limit: 18,
             question_num: 1,
             question_suffix: 'A',
-            question_text: "VETERAN'S LAST NAME"
+            question_text: 'VETERAN\'S LAST NAME',
+            key: 'form1[0].#subform[48].VeteransLastName[0]'
+          }
+        },
+        # 1b
+        'veteranSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[48].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[48].VeteransSocialSecurityNumber_SecondTwoNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[48].VeteransSocialSecurityNumber_LastFourNumbers[0]'
+          }
+        },
+        # 1c
+        'veteranDateOfBirth' => {
+          'month' => {
+            key: 'form1[0].#subform[48].DOBmonth[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[48].DOBday[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[48].DOByear[0]'
+          }
+        },
+        # 1d
+        'vaPreviouslyFiled' => {
+          key: 'form1[0].#subform[48].RadioButtonList[0]'
+        },
+        # 1e
+        'vaFileNumber' => {
+          key: 'form1[0].#subform[48].VAFileNumber[0]'
+        },
+        # 2a
+        'veteranAddress' => {
+          'street' => {
+            limit: 30,
+            question_num: 2,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS NUMBER AND STREET',
+            key: 'form1[0].#subform[48].NumberStreet[0]'
+          },
+          'street2' => {
+            limit: 5,
+            question_num: 2,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS APT/UNIT',
+            key: 'form1[0].#subform[48].Apt_Or_Unit_Number[0]'
+          },
+          'city' => {
+            limit: 18,
+            question_num: 2,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS CITY',
+            key: 'form1[0].#subform[48].City[0]'
+          },
+          'state' => {
+            key: 'form1[0].#subform[48].State[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[48].Country[0]'
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[48].Zip_Postal_Code[0]'
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[48].Zip_Postal_Code[1]'
+            }
+          }
+        },
+        # 2b
+        'mobilePhone' => {
+          'phone_area_code' => {
+            key: 'form1[0].#subform[48].Telephone_Number_First_Three_Numbers[0]'
+          },
+          'phone_first_three_numbers' => {
+            key: 'form1[0].#subform[48].Telephone_Number_Second_Three_Numbers[0]'
+          },
+          'phone_last_four_numbers' => {
+            key: 'form1[0].#subform[48].Telephone_Number_Last_Four_Numbers[0]'
+          }
+        },
+        'internationalPhone' => {
+          limit: 30,
+          question_num: 2,
+          question_suffix: 'C',
+          question_text: 'International Phone Number',
+          key: 'form1[0].#subform[48].International_Phone_Number[0]'
+        },
+        # 2c
+        'email' => {
+          limit: 32,
+          question_num: 2,
+          question_suffix: 'C',
+          question_text: 'VETERAN\'S E-MAIL ADDRESS',
+          key: 'form1[0].#subform[48].Veterans_Email_Address_Optional[0]'
+        },
+        # 3a
+        'previousNames' => {
+          limit: 1,
+          first_key: 'first',
+          'first' => {
+            limit: 12,
+            question_num: 3,
+            question_suffix: 'A',
+            question_text: 'OTHER FIRST NAME',
+            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[0]'
+          },
+          'last' => {
+            limit: 18,
+            question_num: 3,
+            question_suffix: 'A',
+            question_text: 'OTHER LAST NAME',
+            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[0]'
+          }
+        },
+        # 3b
+        'servicePeriods' => {
+          limit: 1,
+          first_key: 'serviceNumber',
+          'activeServiceDateRange' => {
+            'from' => {
+              'month' => {
+                key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Month[0]'
+              },
+              'day' => {
+                key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Day[0]'
+              },
+              'year' => {
+                key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Year[0]'
+              }
+            },
+            'to' => {
+              'month' => {
+                key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Month[0]'
+              },
+              'day' => {
+                key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Day[0]'
+              },
+              'year' => {
+                key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Year[0]'
+              }
+            }
+          },
+          'activeServiceDateRangeFromOverflow' => {
+            question_num: 3,
+            question_suffix: 'B',
+            question_text: 'DATE INITIALLY ENTERED ACTIVE DUTY'
+          },
+          'activeServiceDateRangeToOverflow' => {
+            question_num: 3,
+            question_suffix: 'C',
+            question_text: 'FINAL RELEASE DATE FROM ACTIVE DUTY'
+          },
+          # 3e
+          'serviceBranch' => {
+            'army' => {
+              key: 'form1[0].#subform[48].Army[0]'
+            },
+            'navy' => {
+              key: 'form1[0].#subform[48].Navy[0]'
+            },
+            'airForce' => {
+              key: 'form1[0].#subform[48].Air_Force[0]'
+            },
+            'coastGuard' => {
+              key: 'form1[0].#subform[48].Coast_Guard[0]'
+            },
+            'marineCorps' => {
+              key: 'form1[0].#subform[48].Marine_Corps[0]'
+            },
+            'spaceForce' => {
+              key: 'form1[0].#subform[48].Space_Force[0]'
+            },
+            'usphs' => {
+              key: 'form1[0].#subform[48].USPHS[0]'
+            },
+            'noaa' => {
+              key: 'form1[0].#subform[48].NOAA[0]'
+            }
+          },
+          'serviceBranchOverflow' => {
+            question_num: 3,
+            question_suffix: 'E',
+            question_text: 'BRANCH OF SERVICE'
+          },
+          # 3d
+          'serviceNumber' => {
+            limit: 12,
+            question_num: 3,
+            question_suffix: 'D',
+            question_text: 'YOUR SERVICE NUMBER',
+            key: 'form1[0].#subform[48].Your_Service_Number[0]'
+          }
+        },
+        # 3f
+        'placeOfSeparationLineOne' => {
+          limit: 18,
+          question_num: 3,
+          question_suffix: 'F',
+          question_text: 'PLACE OF YOUR LAST SEPARATION.',
+          key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[1]'
+        },
+        'placeOfSeparationLineTwo' => {
+          key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[0]'
+        },
+        # 3g
+        'pow' => {
+          key: 'form1[0].#subform[48].RadioButtonList[1]'
+        },
+        # 3h
+        'powDateRange' => {
+          'from' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Started_Month[1]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Started_Day[1]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Started_Year[1]'
+            }
+          },
+          'to' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Ended_Month[1]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Ended_Day[1]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Ended_Year[1]'
+            }
+          }
+        },
+        # 4a
+        'socialSecurityDisability' => {
+          key: 'form1[0].#subform[48].RadioButtonList[2]'
+        },
+        # 4b
+        'medicalCondition' => {
+          key: 'form1[0].#subform[48].RadioButtonList[3]'
+        },
+        # 4c
+        'nursingHome' => {
+          key: 'form1[0].#subform[48].RadioButtonList[4]'
+        },
+        # 4d
+        'medicaidStatus' => {
+          key: 'form1[0].#subform[48].RadioButtonList[5]'
+        },
+        # 4e
+        'specialMonthlyPension' => {
+          key: 'form1[0].#subform[48].RadioButtonList[6]'
+        },
+        # 4f
+        'vaTreatmentHistory' => {
+          key: 'form1[0].#subform[49].RadioButtonList[7]'
+        },
+        'vaMedicalCenters' => {
+          limit: 1,
+          first_key: 'facility',
+          'facility' => {
+            limit: 33,
+            question_num: 4,
+            question_suffix: 'F',
+            question_text: 'Specify VA Facility',
+            key: 'form1[0].#subform[49].Facility[0]'
+          }
+        },
+        # 4g
+        'federalTreatmentHistory' => {
+          key: 'form1[0].#subform[49].RadioButtonList[8]'
+        },
+        'federalMedicalCenters' => {
+          limit: 1,
+          first_key: 'facility',
+          'facility' => {
+            limit: 44,
+            question_num: 4,
+            question_suffix: 'G',
+            question_text: 'Specify Federal Facility',
+            key: 'form1[0].#subform[49].Facility[1]'
           }
         }
+        # 5a
+        # form1[0].#subform[49].RadioButtonList[9]
+        # 5b
+        # form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]
+        # 5c
+        # form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]
+        # 5d
+        # form1[0].#subform[49].Date_You_Last_Worked_Month[0]
+        # form1[0].#subform[49].Date_You_Last_Worked_Day[0]
+        # form1[0].#subform[49].Date_You_Last_Worked_Year[0]
+        # 5e
+        # form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]
+        # 5f
+        # form1[0].#subform[49].What_Was_Your_Job_Title[0]
+        # 5g
+        # form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]
       }.freeze
 
       def merge_fields(_options = {})
-        # your class must include this method, it can be used to make changes to the form
-        # before final processing
-        @form_data['veteranFullName']['first'] = @form_data['veteranFullName']['first']&.titleize
-        @form_data['veteranFullName']['middle'] = @form_data['veteranFullName']['middle']&.titleize
-        @form_data['veteranFullName']['last'] = @form_data['veteranFullName']['last']&.titleize
+        expand_veteran_identification_information
+        expand_veteran_contact_information
+        expand_veteran_service_information
+        expand_pension_information
+        expand_employment_history
+
         @form_data
+      end
+
+      # SECTION I: VETERAN'S IDENTIFICATION INFORMATION
+      def expand_veteran_identification_information
+        @form_data['veteranFullName'] ||= {}
+        @form_data['veteranFullName']['first'] = @form_data.dig('veteranFullName', 'first')&.titleize
+        @form_data['veteranFullName']['middle'] = @form_data.dig('veteranFullName', 'middle')&.titleize
+        @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
+        @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
+        @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
+        @form_data['vaPreviouslyFiled'] = to_radio_yes_no(@form_data['vaFileNumber'].present?)
+      end
+
+      # SECTION II: VETERAN'S CONTACT INFORMATION
+      def expand_veteran_contact_information
+        @form_data['veteranAddress'] ||= {}
+        @form_data['veteranAddress']['postalCode'] =
+          split_postal_code(@form_data['veteranAddress'])
+        @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
+      end
+
+      # SECTION III: VETERAN'S SERVICE INFORMATION
+      def expand_veteran_service_information
+        @form_data['servicePeriods'] = @form_data['servicePeriods']&.map do |sp|
+          sp.merge(expand_service_period(sp))
+        end
+
+        @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
+
+        if @form_data['pow'].zero?
+          @form_data['powDateRange'] ||= {}
+          @form_data['powDateRange']['from'] = split_date(@form_data['powDateRange']['from'])
+          @form_data['powDateRange']['to'] = split_date(@form_data['powDateRange']['to'])
+        end
+
+        place_of_separation = @form_data['placeOfSeparation'].to_s
+
+        if place_of_separation.length <= 36 # split lines
+          @form_data['placeOfSeparationLineOne'] = place_of_separation[0..17]
+          @form_data['placeOfSeparationLineTwo'] = place_of_separation[18..]
+        else # overflow
+          @form_data['placeOfSeparationLineOne'] = place_of_separation
+        end
+      end
+
+      # SECTION IV: PENSION INFORMATION
+      def expand_pension_information
+        @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
+        @form_data['medicaidStatus'] = to_radio_yes_no(@form_data['medicaidStatus'])
+        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
+        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
+        @form_data['socialSecurityDisability'] = to_radio_yes_no(@form_data['socialSecurityDisability'])
+
+        # If "YES," skip question 4B
+        @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'].zero?
+
+        # If "NO," skip question 4D
+        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 2
+
+        @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
+        @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
+
+        @form_data['vaMedicalCenters'] = @form_data['vaMedicalCenters']&.map { |mc| { 'facility' => mc } }
+        @form_data['federalMedicalCenters'] = @form_data['federalMedicalCenters']&.map { |mc| { 'facility' => mc } }
+      end
+
+      # SECTION V: EMPLOYMENT HISTORY
+      def expand_employment_history
+        @form_data['currentEmployment'] = to_radio_yes_no(@form_data['currentEmployment'])
+        # @form_data['currentEmployersOverflow'] = generate_employers_overflow(@form_data['currentEmployers'])
+        @form_data['currentEmployerJobType'] = @form_data.dig('currentEmployers', 0, 'jobTypes').to_s
+        @form_data['currentEmployerJobTitle'] = @form_data.dig('currentEmployers', 0, 'jobTitle').to_s
+        @form_data['currentEmployerJobHoursWeek'] = @form_data.dig('currentEmployers', 0, 'jobHoursWeek').to_s
+        if @form_data['currentEmployment'] == 2
+          @form_data['currentEmployerJobType'] = ''
+          @form_data['currentEmployerJobTitle'] = ''
+          @form_data['currentEmployerJobHoursWeek'] = ''
+        end
+
+        # @form_data['previousEmployersOverflow'] = generate_employers_overflow(@form_data['previousEmployers'])
+        @form_data['previousEmployersJobDate'] = split_date(@form_data.dig('previousEmployers', 0, 'jobDate').to_s)
+        @form_data['previousEmployersJobType'] = @form_data.dig('previousEmployers', 0, 'j  obTypes').to_s
+        @form_data['previousEmployersJobTitle'] = @form_data.dig('previousEmployers', 0, 'jobTitle')&.to_s
+        @form_data['previousEmployersJobHoursWeek'] = @form_data.dig('previousEmployers', 0, 'jobHoursWeek').to_s
+      end
+
+      def expand_service_period(service_period)
+        return unless service_period.is_a?(Hash)
+
+        {
+          'activeServiceDateRange' => {
+            'from' => split_date(service_period.dig('activeServiceDateRange', 'from')),
+            'to' => split_date(service_period.dig('activeServiceDateRange', 'to'))
+          },
+          'serviceBranch' => expand_service_branch(service_period['serviceBranch'].to_s),
+          'activeServiceDateRangeFromOverflow' => service_period.dig('activeServiceDateRange', 'from'),
+          'activeServiceDateRangeToOverflow' => service_period.dig('activeServiceDateRange', 'to'),
+          'serviceBranchOverflow' => service_period['serviceBranch'].to_s.titleize
+        }
+      end
+
+      def expand_service_branch(service_branch)
+        {
+          'army' => service_branch.casecmp('army').zero?,
+          'navy' => service_branch.casecmp('navy').zero?,
+          'airForce' => service_branch.casecmp('air force').zero?,
+          'coastGuard' => service_branch.casecmp('coast guard').zero?,
+          'marineCorps' => service_branch.casecmp('marine corps').zero?,
+          'spaceForce' => service_branch.casecmp('space force').zero?,
+          'usphs' => service_branch.casecmp('usphs').zero?,
+          'noaa' => service_branch.casecmp('noaa').zero?
+        }
+      end
+
+      def to_radio_yes_no(obj)
+        obj ? 0 : 2
       end
     end
   end
