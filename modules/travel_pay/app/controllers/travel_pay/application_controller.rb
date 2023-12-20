@@ -8,9 +8,6 @@ module TravelPay
 
     protect_from_forgery with: :exception
 
-    skip_before_action :authenticate
-    skip_before_action :verify_authenticity_token
-
     protected
 
     def before_logger
@@ -22,8 +19,7 @@ module TravelPay
     end
 
     def authorize
-      # Not yet implemented
-      #routing_error
+      routing_error
     end
   end
 end
