@@ -25,7 +25,7 @@ class BenefitsIntakeStatusJob
       failed_submissions_handled: 0,
       successful_submissions_handled: 0
     }
-    response.body['data'].each do |submission|
+    response.body['data']&.each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
         stats[:failed_submissions_handled] += 1
         handle_failure(submission)
