@@ -11,6 +11,7 @@ require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
 require 'support/sidekiq/batch'
 require 'support/stub_va_profile'
+require 'support/okta_users_helpers'
 require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
