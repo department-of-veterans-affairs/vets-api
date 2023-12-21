@@ -3,7 +3,6 @@
 module Veteran
   module Accreditation
     class VeteranServiceOfficerSerializer < BaseSerializer
-      attribute :organization_name
       attribute :full_name
       attribute :address_line1
       attribute :address_line2
@@ -23,6 +22,7 @@ module Veteran
       attribute :lat
       attribute :long
       attribute :distance
+      attribute :organization_name
 
       def organization_name
         object.try(:organization_name)
