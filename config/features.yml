@@ -743,9 +743,6 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
-  show_authenticated_menu_enhancements:
-    actor_type: user
-    description: Exposes new links for dependents and letters in the header dropdown for authenticated users
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
@@ -1219,16 +1216,15 @@ features:
   disability_compensation_lighthouse_ppiu_direct_deposit_provider:
     actor_type: user
     description: If enabled uses the lighthouse ppiu/direct deposit endpoint in the form526 submission workflow
+  disability_compensation_prevent_submission_job:
+    actor_type: user
+    description: If enabled, the submission form526 record will be created, but there will be submission job
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
   drupal_footer:
     actor_type: user
     description: If enabled, pulls Drupal data to populate most of the global footer
-  my_va_lighthouse_claims:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view benefit claims
-    enable_in_development: true
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
