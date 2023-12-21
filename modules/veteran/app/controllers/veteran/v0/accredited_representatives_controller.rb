@@ -34,9 +34,12 @@ module Veteran
       end
 
       def serializer_klass
-        return 'Veteran::Accreditation::ExtendedRepresentativeSerializer'.constantize if search_params[:name]
-
-        'Veteran::Accreditation::RepresentativeSerializer'.constantize
+        case search_params[:type]
+        when 'attorney'
+          'Veteran::Accreditation::AttorneySerializer'.constantize
+        when 'veteran_service_officer'
+          'Veteran::Accreditation::VeteranServiceOfficerSerializer'.constantize
+        end
       end
 
       def base_query

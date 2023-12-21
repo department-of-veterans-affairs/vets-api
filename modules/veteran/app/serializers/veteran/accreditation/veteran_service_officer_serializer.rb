@@ -2,7 +2,7 @@
 
 module Veteran
   module Accreditation
-    class ExtendedRepresentativeSerializer < RepresentativeSerializer
+    class VeteranServiceOfficerSerializer < BaseSerializer
       attribute :organization_name
       attribute :full_name
       attribute :address_line1
@@ -23,6 +23,10 @@ module Veteran
       attribute :lat
       attribute :long
       attribute :distance
+
+      def organization_name
+        object.try(:organization_name)
+      end
     end
   end
 end

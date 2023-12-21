@@ -2,7 +2,7 @@
 
 module Veteran
   module Accreditation
-    class RepresentativeSerializer < ActiveModel::Serializer
+    class AttorneySerializer < BaseSerializer
       attribute :full_name
       attribute :address_line1
       attribute :address_line2
@@ -22,10 +22,6 @@ module Veteran
       attribute :lat
       attribute :long
       attribute :distance
-
-      def distance
-        object.distance / Veteran::Service::Constants::METERS_PER_MILE
-      end
     end
   end
 end
