@@ -6,8 +6,13 @@ module AskVAApi
       include JSONAPI::Serializer
       set_type :correspondence
 
-      attributes :inquiry_number,
-                 :correspondence
+      attributes :inquiry_id,
+                 :message_type,
+                 :modified_on,
+                 :status_reason,
+                 :description,
+                 :enable_reply,
+                 :attachment_names
     end
   end
 end

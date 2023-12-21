@@ -3,20 +3,21 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Correspondences::Serializer do
-  let(:info) do
-    {
-      inquiryNumber: 'A-1',
-      replyId: 'R-1',
-      reply: 'this is a reply'
-    }
-  end
-  let(:correspondence) { AskVAApi::Correspondences::Entity.new(info) }
-  let(:response) { described_class.new(correspondence) }
+  let(:file_path) { 'modules/ask_va_api/config/locales/get_replies_mock_data.json' }
+  let(:data) { JSON.parse(File.read(file_path), symbolize_names: true)[:data] }
+  let(:cor1) { AskVAApi::Correspondences::Entity.new(data.first) }
+  let(:cor2) { AskVAApi::Correspondences::Entity.new(data.last) }
+  let(:response) { described_class.new([cor1]) }
   let(:expected_response) do
-    { data: { id: 'R-1',
-              type: :correspondence,
-              attributes: { inquiry_number: 'A-1',
-                            correspondence: 'this is a reply' } } }
+    { data: [{ id: '1',
+               type: :correspondence,
+               attributes: { inquiry_id: '1',
+                             message_type: '722310001: Response from VA',
+                             modified_on: '1/2/23',
+                             status_reason: 'Completed/Sent',
+                             description: 'Your claim is still In Progress',
+                             enable_reply: true,
+                             attachment_names: [{ id: '12', name: 'correspondence_1_attachment.pdf' }] } }] }
   end
 
   context 'when successful' do

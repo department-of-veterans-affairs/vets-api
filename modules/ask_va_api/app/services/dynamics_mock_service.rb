@@ -29,8 +29,8 @@ class DynamicsMockService
   end
 
   def filter_mock_data(data)
-    if @payload[:inquiry_number]
-      data.find { |i| i[:inquiryNumber] == @payload[:inquiry_number] } || {}
+    if @payload[:id]
+      data.select { |i| i[:id] == @payload[:id] }
     elsif @payload[:icn]
       data.select { |i| i[:icn] == @payload[:icn] }.map { |i| i.except(:attachments) }
     elsif @payload.blank?

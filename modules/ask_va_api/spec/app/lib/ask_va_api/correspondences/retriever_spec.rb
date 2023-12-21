@@ -3,14 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Correspondences::Retriever do
-  subject(:retriever) { described_class.new(inquiry_number:) }
+  subject(:retriever) { described_class.new(id:) }
 
   let(:sec_id) { '123' }
   let(:service) { instance_double(Crm::Service) }
   let(:entity) { instance_double(AskVAApi::Correspondences::Entity) }
-  let(:inquiry_number) { 'A-1' }
+  let(:id) { '1' }
   let(:error_message) { 'Some error occurred' }
-  let(:payload) { { inquiry_number: 'A-1' } }
+  let(:payload) { { id: '1' } }
 
   before do
     allow(Crm::Service).to receive(:new).and_return(service)
@@ -19,17 +19,17 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
   end
 
   describe '#call' do
-    context 'when inquiry_number is blank' do
-      let(:inquiry_number) { nil }
+    context 'when id is blank' do
+      let(:id) { nil }
 
       it 'raises an ArgumentError' do
         expect { retriever.call }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry Number')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry ID')
       end
     end
 
     context 'when Crm raise an error' do
-      let(:payload) { { inquiry_number: 'A-1' } }
+      let(:payload) { { id: '1' } }
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Correspondences::ENDPOINT }
       let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
@@ -47,11 +47,11 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
       end
     end
 
-    it 'returns an Entity object with correct data' do
+    it 'returns an array object with correct data' do
       allow(service).to receive(:call)
-        .with(endpoint: 'get_replies_mock_data', payload: { inquiry_number: })
+        .with(endpoint: 'get_replies_mock_data', payload: { id: })
         .and_return([double])
-      expect(retriever.call).to eq(entity)
+      expect(retriever.call).to eq([entity])
     end
   end
 end
