@@ -6,7 +6,7 @@ require 'string_helpers'
 
 module PdfFill
   module Forms
-    class Va21p527ezare < FormBase
+    class Va21p527ez < FormBase
       KEY = {
         # the key is used to translate your json schema validated form into a hash that can be passed
         # to the pdf-forms library which will write out text onto the pdf

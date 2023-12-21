@@ -50,7 +50,7 @@ describe PdfFill::Filler, type: :model do
         factory: :burial_claim
       },
       {
-        form_id: '21P-527EZ-ARE',
+        form_id: '21P-527EZ',
         factory: :pension_claim
       },
       {
