@@ -713,8 +713,8 @@ module ClaimsApi
         seperation_severance_pay = @pdf_data&.dig(:data, :attributes, :servicePay, :separationSeverancePay)
         branch_of_service = @pdf_data&.dig(:data, :attributes, :servicePay, :separationSeverancePay, :branchOfService)
         seperation_severance_pay[:branchOfService] = handle_branch(branch_of_service)
+        date = seperation_severance_pay[:datePaymentReceived]
         seperation_severance_pay[:datePaymentReceived] =
-          date = seperation_severance_pay[:datePaymentReceived]
         make_date_object(date, date.length) if date.present?
       end
 
