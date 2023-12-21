@@ -70,6 +70,19 @@ module BenefitsClaims
     end
 
     ##
+    # @return [Faraday::Response] response from POST request
+    #
+    def post5103(path, params, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      connection.post(path, params.merge({ Authorization: "Bearer #{
+        access_token(
+          lighthouse_client_id,
+          lighthouse_rsa_key_path,
+          options
+        )
+      }" }))
+    end
+
+    ##
     # Creates a Faraday connection with parsing json and breakers functionality.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
@@ -81,6 +94,8 @@ module BenefitsClaims
 
         faraday.request :multipart
         faraday.request :json
+
+        faraday.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
 
         faraday.response :betamocks if use_mocks?
         faraday.response :json, content_type: /\bjson/

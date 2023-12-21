@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service_exception'
+require 'lighthouse/benefits_claims/veteran_sponsor_resolver'
 require 'lighthouse/service_exception'
 
 module BenefitsClaims
@@ -13,7 +14,8 @@ module BenefitsClaims
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
     def initialize(icn)
-      @icn = icn
+      # @icn = icn
+      @icn = '1012830905V768518'
       raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
 
       super()
@@ -37,8 +39,14 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def submit5103(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      config.post("#{@icn}/claims/#{id}/5103", {}, lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    def submit5103(user, id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      # Gets the sponsor's icn if one exists
+      sponsor_icn = BenefitsClaims::VeteranSponsorResolver.get_sponsor_icn(user)
+      is_dependent = BenefitsClaims::VeteranSponsorResolver.dependent?(user)
+      p "IS DEPENDENT:", is_dependent
+      params = {}
+      params[:sponsorIcn] = sponsor_icn if is_dependent
+      config.post5103("#{@icn}/claims/#{id}/5103", params, lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
