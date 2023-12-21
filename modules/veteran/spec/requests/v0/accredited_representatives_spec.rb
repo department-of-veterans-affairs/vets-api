@@ -145,7 +145,7 @@ RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    context 'when searching for a representative' do
+    context 'when searching for a attorney' do
       before do
         create(:representative, representative_id: '123', poa_codes: ['A12'], user_types: ['attorney'],
                                 long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
