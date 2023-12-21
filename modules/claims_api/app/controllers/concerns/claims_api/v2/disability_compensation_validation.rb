@@ -539,12 +539,13 @@ module ClaimsApi
 
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate')
-        return if max_date_valid.is_a?(Array)
+        return if max_date_valid.is_a?(Array) || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
 
-        if (ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid &&
-          (Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
-           180.days)) || (Date.strptime(ant_sep_date,
-                                        '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days)
+        if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
+          max_period['activeDutyEndDate'], '%Y-%m-%d'
+        ) > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
+           180.days) || (Date.strptime(ant_sep_date,
+                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
 
           collect_error_messages(
             detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
@@ -790,6 +791,8 @@ module ClaimsApi
       end
 
       def validate_anticipated_seperation_date_in_past!(date)
+        return if date.blank?
+
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'The anticipated separation date must be a date in the future.'
