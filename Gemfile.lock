@@ -256,7 +256,7 @@ GEM
       i18n
     bindex (0.8.1)
     blueprinter (0.30.0)
-    bootsnap (1.16.0)
+    bootsnap (1.17.0)
       msgpack (~> 1.2)
     brakeman (6.1.0)
     breakers (0.7.1)
