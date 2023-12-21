@@ -31,6 +31,7 @@ properties:
       - draftDate
       - toDate
       - hasAttachments
+      - attachments
     properties:
       messageId:
         type: integer
@@ -45,7 +46,14 @@ properties:
       body:
         type: string
         nullable: true
-        example: 2
+        example:
+          "Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+          Lorem Ipsum has been the industry&#39;s standard dummy text ever since the 1500s,
+          when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+          It has survived not only five centuries, but also the leap into electronic typesetting,
+          remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
+          sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like
+          Aldus PageMaker including versions of Lorem Ipsum."
       attachment:
         type: boolean
         example: false
@@ -97,6 +105,32 @@ properties:
       hasAttachments:
         type: boolean
         example: false
+      attachments:
+        type: array
+        items:
+          type: object
+          required:
+            - id
+            - message_id
+            - name
+            - attachmentSize
+            - download
+          properties:
+            id:
+              type: integer
+              example: 123789
+            message_id:
+              type: integer
+              example: 123788
+            name:
+              type: string
+              example: "sm_file1.jpg"
+            attachmentSize:
+              type: integer
+              example: 210000
+            download:
+              type: string
+              example: "https://api.va.gov/my_health/v1/messaging/messages/3204755/attachments/3204753"
   links:
     type: object
     required:
