@@ -61,8 +61,8 @@ module Veteran
       def veteran_service_officer_query
         base_query
           .joins('JOIN LATERAL UNNEST(veteran_representatives.poa_codes) AS UnnestedPoaCode ON true')
-          .joins('JOIN veteran_service_organizations ON UnnestedPoaCode = veteran_service_organizations.poa')
-          .select("veteran_representatives.*, veteran_service_organizations.name AS organization_name, #{distance_query_string}") # rubocop:disable Layout/LineLength
+          .joins('JOIN veteran_organizations ON UnnestedPoaCode = veteran_organizations.poa')
+          .select("veteran_representatives.*, veteran_organizations.name AS organization_name, #{distance_query_string}") # rubocop:disable Layout/LineLength
           .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
       end
 
@@ -104,7 +104,7 @@ module Veteran
       def distance_query_string
         ActiveRecord::Base
           .sanitize_sql_array([
-                                'ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) as distance',
+                                'ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) as distance', # rubocop:disable Layout/LineLength
                                 search_params[:long],
                                 search_params[:lat]
                               ])
@@ -113,7 +113,7 @@ module Veteran
       def sort_query_string
         case sort_param
         when 'distance_asc'
-          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) ASC'),
+          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'), # rubocop:disable Layout/LineLength
            search_params[:long], search_params[:lat]]
         when 'name_asc' then 'name ASC'
         when 'name_desc' then 'name DESC'

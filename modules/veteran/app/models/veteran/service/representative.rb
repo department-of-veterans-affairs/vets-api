@@ -101,7 +101,7 @@ module Veteran
       # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
       #   all representatives matching the search criteria
       def self.find_within_max_distance(long, lat, max_distance = Constants::DEFAULT_MAX_DISTANCE)
-        query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
+        query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, veteran_representatives.location, :max_distance)' # rubocop:disable Layout/LineLength
         params = { long:, lat:, max_distance: }
 
         where(query, params)
