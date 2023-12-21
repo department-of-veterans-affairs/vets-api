@@ -35,7 +35,7 @@ module Mobile
                  attachments: { serializer: Mobile::V0::AttachmentSerializer },
                  user_in_triage_team?: user_in_triage_team
                },
-               meta: response.metadata.merge(:user_in_triage_team? => user_in_triage_team)
+               meta: response.metadata.merge(user_in_triage_team?: user_in_triage_team)
       end
 
       def create
