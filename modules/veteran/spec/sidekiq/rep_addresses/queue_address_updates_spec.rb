@@ -4,14 +4,14 @@ require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
-# Test suite for RepOrgAddresses::QueueAddressUpdates.
+# Test suite for RepAddresses::QueueAddressUpdates.
 # Tests focus on both the observable outcomes of methods and the direct testing of Sentry logging.
-RSpec.describe RepOrgAddresses::QueueAddressUpdates, type: :job do
+RSpec.describe RepAddresses::QueueAddressUpdates, type: :job do
   describe '#perform' do
     let(:mock_file_content) { 'mock file content' }
 
     before do
-      allow_any_instance_of(RepOrgAddresses::XlsxFileFetcher).to receive(:fetch).and_return(mock_file_content)
+      allow_any_instance_of(RepAddresses::XlsxFileFetcher).to receive(:fetch).and_return(mock_file_content)
     end
 
     # Tests for when file content is available and ensures that process_file is called.
@@ -25,12 +25,12 @@ RSpec.describe RepOrgAddresses::QueueAddressUpdates, type: :job do
     # Tests error handling for unavailable file content, including Sentry logging and side effects.
     context 'when file content is unavailable' do
       it 'logs an error and returns early' do
-        allow_any_instance_of(RepOrgAddresses::XlsxFileFetcher).to receive(:fetch).and_return(nil)
+        allow_any_instance_of(RepAddresses::XlsxFileFetcher).to receive(:fetch).and_return(nil)
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
           'QueueAddressUpdates error: Failed to fetch file or file content is empty', :error
         )
         subject.perform
-        expect(RepOrgAddresses::UpdateAddresses.jobs).to be_empty
+        expect(RepAddresses::UpdateAddresses.jobs).to be_empty
       end
     end
   end
@@ -43,9 +43,9 @@ RSpec.describe RepOrgAddresses::QueueAddressUpdates, type: :job do
       it 'processes each sheet correctly' do
         file_content = File.read(file_path)
         subject.send(:process_file, file_content)
-        RepOrgAddresses::QueueAddressUpdates::SHEETS_TO_PROCESS.each do |_sheet_name|
+        RepAddresses::QueueAddressUpdates::SHEETS_TO_PROCESS.each do |_sheet_name|
           # rubocop:disable Style/NumericPredicate
-          expect(RepOrgAddresses::UpdateAddresses.jobs.size).to be > 0
+          expect(RepAddresses::UpdateAddresses.jobs.size).to be > 0
           # rubocop:enable Style/NumericPredicate
         end
       end
@@ -60,7 +60,7 @@ RSpec.describe RepOrgAddresses::QueueAddressUpdates, type: :job do
         )
         file_content = File.read(file_path)
         subject.send(:process_file, file_content)
-        expect(RepOrgAddresses::UpdateAddresses.jobs).to be_empty
+        expect(RepAddresses::UpdateAddresses.jobs).to be_empty
       end
     end
   end
