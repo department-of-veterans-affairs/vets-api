@@ -196,6 +196,7 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
+    vye (0.1.0)
 
 GEM
   remote: https://enterprise.contribsys.com/
@@ -255,7 +256,7 @@ GEM
       i18n
     bindex (0.8.1)
     blueprinter (0.30.0)
-    bootsnap (1.16.0)
+    bootsnap (1.17.0)
       msgpack (~> 1.2)
     brakeman (6.1.0)
     breakers (0.7.1)
@@ -1230,6 +1231,7 @@ DEPENDENCIES
   veteran_confirmation!
   vets_json_schema!
   virtus
+  vye!
   warden-github
   web-console
   webmock

@@ -7,24 +7,43 @@ RSpec.describe AskVAApi::Inquiries::Entity do
 
   let(:info) do
     {
-      inquiryNumber: 'A-1',
-      inquiryTopic: 'Topic',
-      submitterQuestions: 'This is a question',
-      inquiryProcessingStatus: 'In Progress',
-      lastUpdate: '08/07/23',
-      userUuid: '6400bbf301eb4e6e95ccea7693eced6f'
+      icn: '1008709396V637156',
+      id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+      inquiryNumber: 'A-123456',
+      inquiryStatus: 'In Progress',
+      submitterQuestion: 'My question is... ',
+      lastUpdate: '1/1/1900',
+      inquiryHasAttachments: true,
+      inquiryHasBeenSplit: true,
+      veteranRelationship: 'self',
+      schoolFacilityCode: '0123',
+      inquiryTopic: 'topic',
+      inquiryLevelOfAuthentication: 'Personal',
+      attachmentNames: [
+        {
+          id: '012345',
+          name: 'File A.pdf'
+        }
+      ]
     }
   end
   let(:inquiry) { creator.new(info) }
 
   it 'creates an inquiry' do
     expect(inquiry).to have_attributes({
-                                         inquiry_number: 'A-1',
-                                         topic: 'Topic',
-                                         question: 'This is a question',
-                                         processing_status: 'In Progress',
-                                         last_update: '08/07/23',
-                                         reply: nil
+                                         id: info[:id],
+                                         inquiry_number: info[:inquiryNumber],
+                                         attachments: info[:attachmentNames],
+                                         correspondences: nil,
+                                         has_attachments: info[:inquiryHasAttachments],
+                                         has_been_split: info[:inquiryHasBeenSplit],
+                                         level_of_authentication: info[:inquiryLevelOfAuthentication],
+                                         last_update: info[:lastUpdate],
+                                         status: info[:inquiryStatus],
+                                         submitter_question: info[:submitterQuestion],
+                                         school_facility_code: info[:schoolFacilityCode],
+                                         topic: info[:inquiryTopic],
+                                         veteran_relationship: info[:veteranRelationship]
                                        })
   end
 end
