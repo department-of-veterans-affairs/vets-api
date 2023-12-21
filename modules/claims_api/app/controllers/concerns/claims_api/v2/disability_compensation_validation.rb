@@ -726,10 +726,8 @@ module ClaimsApi
                                                form_obj_desc)
         end
 
-        if anticipated_seperation_date.blank?
-          raise_exception_if_value_not_present('anticipated seperation date',
-                                               form_obj_desc)
-        end
+        return if anticipated_seperation_date.blank?
+
         # we know the dates are present
         if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
           raise ::Common::Exceptions::UnprocessableEntity.new(
