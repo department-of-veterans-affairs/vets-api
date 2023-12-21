@@ -1164,6 +1164,34 @@ RSpec.describe 'Claims', type: :request do
           end
         end
 
+        context 'it has tracked items that show SUBMITTED_AWAITING_REVIEW when it should' do
+          let(:claim_id_with_items) { '600236068' }
+          let(:claim_by_id_with_items_path) do
+            "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id_with_items}"
+          end
+
+          it "returns a claim with 'tracked_items'" do
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_item_service/get_claim_documents_with_tracked_item_ids') do
+                VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
+                  allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
+
+                  get claim_by_id_with_items_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+
+                  first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
+                  resp_tracked_items = json_response['data']['attributes']['trackedItems']
+                  expect(response.status).to eq(200)
+                  expect(json_response['data']['id']).to eq(claim_id_with_items)
+                  expect(first_doc_id).to eq(293_439)
+                  expect(resp_tracked_items[0]['status']).to eq('SUBMITTED_AWAITING_REVIEW')
+                end
+              end
+            end
+          end
+        end
+
         context 'it has no bgs_claim' do
           let(:lighthouse_claim) do
             create(:auto_established_claim, status: 'PENDING', veteran_icn: '1013062086V794840',

@@ -8,12 +8,50 @@ module EVSS
       # retry for one day
       sidekiq_options retry: 14
 
-      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
-      # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
-        job_exhausted(msg, STATSD_KEY_PREFIX)
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+        timestamp = Time.now.utc
+        form526_submission_id = msg['args'].first
+
+        form_job_status = Form526JobStatus.find_by(job_id:)
+        bgjob_errors = form_job_status.bgjob_errors || {}
+        new_error = {
+          "#{timestamp.to_i}": {
+            caller_method: __method__.to_s,
+            error_class:,
+            error_message:,
+            timestamp:,
+            form526_submission_id:
+          }
+        }
+        form_job_status.update(
+          status: Form526JobStatus::STATUS[:exhausted],
+          bgjob_errors: bgjob_errors.merge(new_error)
+        )
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+        ::Rails.logger.warn(
+          'Submit Form 526 Upload Retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+        )
+      rescue => e
+        ::Rails.logger.error(
+          'Failure in SubmitUploads#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            submission_id: form526_submission_id,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+        raise e
       end
-      # :nocov:
 
       # Recursively submits a file in a new instance of this job for each upload in the uploads list
       #
