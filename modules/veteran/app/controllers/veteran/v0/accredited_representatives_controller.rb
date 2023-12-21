@@ -35,10 +35,8 @@ module Veteran
 
       def serializer_klass
         case search_params[:type]
-        when 'attorney'
-          'Veteran::Accreditation::AttorneySerializer'.constantize
-        when 'veteran_service_officer'
-          'Veteran::Accreditation::VeteranServiceOfficerSerializer'.constantize
+        when 'attorney' then 'Veteran::Accreditation::AttorneySerializer'.constantize
+        when 'veteran_service_officer' then 'Veteran::Accreditation::VeteranServiceOfficerSerializer'.constantize
         end
       end
 
