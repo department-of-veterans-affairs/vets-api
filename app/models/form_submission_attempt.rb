@@ -32,15 +32,23 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def log_status_change
-    Rails.logger.info(
-      {
-        name: 'Form Submissions Attempt State change',
-        form_submission_id:,
-        benefits_intake_uuid: form_submission&.benefits_intake_uuid,
-        from_state: aasm.from_state,
-        to_state: aasm.to_state,
-        event: aasm.current_event
-      }
-    )
+    log_hash = {
+      form_submission_id:,
+      benefits_intake_uuid: form_submission&.benefits_intake_uuid,
+      form_type: form_submission&.form_type,
+      from_state: aasm.from_state,
+      to_state: aasm.to_state,
+      event: aasm.current_event
+    }
+    if failure?
+      log_hash[:message] = 'Form Submission Attempt failed'
+      Rails.logger.error(log_hash)
+    elsif vbms?
+      log_hash[:message] = 'Form Submission Attempt went to vbms'
+      Rails.logger.info(log_hash)
+    else
+      log_hash[:message] = 'Form Submission Attempt State change'
+      Rails.logger.info(log_hash)
+    end
   end
 end
