@@ -118,6 +118,18 @@ module Lighthouse
       end
     end
 
+    def form_submission_polling
+      form_submission = FormSubmission.create(
+        form_type: params[:form_number],
+        benefits_intake_uuid: uuid_and_location[:uuid],
+        form_data: params.to_json,
+        user_account: @current_user&.user_account
+      )
+      FormSubmissionAttempt.create(form_submission:)
+
+      Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
+    end
+
     # Delete temporary stamped PDF files for this instance.
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path

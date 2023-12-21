@@ -140,9 +140,22 @@ native-up:
 	bundle install
 	foreman start -m ${FOREMAN_ARG}
 
+.PHONY: native-console
+native-console:
+	bundle exec rails console
+
+.PHONY: native-db
+native-db:
+	bundle exec rake db:create
+	bundle exec rake db:migrate
+
 .PHONY: native-lint
 native-lint:
 	bundle exec rake lint
+
+.PHONY: native-security
+native-security:
+	bundle exec rake security
 
 .PHONY: native-spec
 native-spec:
