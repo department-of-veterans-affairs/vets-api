@@ -8362,6 +8362,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -8387,6 +8388,71 @@
                           "detail": {
                             "type": "string",
                             "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "status": "422",
+                      "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
+                      "source": {
+                        "pointer": "data/attributes"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
                           },
                           "source": {
                             "type": "object",
