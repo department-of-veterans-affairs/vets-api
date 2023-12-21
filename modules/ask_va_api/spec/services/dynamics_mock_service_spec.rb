@@ -35,19 +35,31 @@ RSpec.describe DynamicsMockService do
     end
 
     context 'when the file contains valid JSON content' do
+      let(:expected_result) do
+        {
+          icn: '1008709396V637156',
+          id: '1',
+          inquiryNumber: 'A-1',
+          inquiryStatus: 'In Progress',
+          submitterQuestion: 'What is my status?',
+          lastUpdate: '12/20/23',
+          inquiryHasAttachments: true,
+          inquiryHasBeenSplit: true,
+          veteranRelationship: 'self',
+          schoolFacilityCode: '0123',
+          inquiryTopic: 'Status of a pending claim',
+          inquiryLevelOfAuthentication: 'Personal',
+          attachmentNames: [
+            {
+              id: '1',
+              name: 'testfile.txt'
+            }
+          ]
+        }
+      end
+
       context 'with inquiry_number payload' do
         let(:payload) { { inquiry_number: 'A-1' } }
-        let(:expected_result) do
-          { respond_reply_id: 'Original Question',
-            inquiryNumber: 'A-1',
-            inquiryTopic: 'Topic',
-            inquiryProcessingStatus: 'Close',
-            lastUpdate: '08/07/23',
-            submitterQuestions: 'When is Sergeant Joe Smith birthday?',
-            attachments: [{ activity: 'activity_1',
-                            date_sent: '08/7/23' }],
-            icn: '1008709396V637156' }
-        end
 
         it 'filters data based on inquiry number' do
           expect(service.call(endpoint:, payload:)).to eq(expected_result)
@@ -64,15 +76,6 @@ RSpec.describe DynamicsMockService do
 
       context 'with icn payload' do
         let(:payload) { { icn: '1008709396V637156' } }
-        let(:expected_result) do
-          { respond_reply_id: 'Original Question',
-            inquiryNumber: 'A-1',
-            inquiryTopic: 'Topic',
-            inquiryProcessingStatus: 'Close',
-            lastUpdate: '08/07/23',
-            submitterQuestions: 'When is Sergeant Joe Smith birthday?',
-            icn: '1008709396V637156' }
-        end
 
         it 'filters data based on icn and excludes attachments' do
           expect(service.call(endpoint:, payload:).first).to eq(expected_result)
