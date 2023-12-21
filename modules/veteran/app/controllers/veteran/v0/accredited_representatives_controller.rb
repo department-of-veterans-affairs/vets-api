@@ -66,7 +66,8 @@ module Veteran
       end
 
       def find_with_name_similar_to(query)
-        fuzzy_search_threshold = Constants::FUZZY_SEARCH_THRESHOLD
+        search_phrase = search_params[:name]
+        fuzzy_search_threshold = Veteran::Service::Constants::FUZZY_SEARCH_THRESHOLD
 
         case search_params[:type]
         when 'attorney'
