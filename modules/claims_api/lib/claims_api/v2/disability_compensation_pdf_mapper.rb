@@ -714,8 +714,10 @@ module ClaimsApi
         branch_of_service = @pdf_data&.dig(:data, :attributes, :servicePay, :separationSeverancePay, :branchOfService)
         seperation_severance_pay[:branchOfService] = handle_branch(branch_of_service)
         date = seperation_severance_pay[:datePaymentReceived]
-        seperation_severance_pay[:datePaymentReceived] =
-        make_date_object(date, date.length) if date.present?
+        if date.present?
+          seperation_severance_pay[:datePaymentReceived] =
+            make_date_object(date, date.length)
+        end
       end
 
       def convert_date_to_object(date_string)
