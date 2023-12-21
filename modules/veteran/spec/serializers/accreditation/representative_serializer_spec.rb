@@ -25,8 +25,7 @@ RSpec.describe Veteran::Accreditation::RepresentativeSerializer do
            poa_codes: ['A123'],
            phone: '222-222-2222',
            email: 'email@example.com',
-           user_types: ['attorney']
-           )
+           user_types: ['attorney'])
   end
 
   it 'includes the specified model attributes' do
@@ -56,8 +55,7 @@ RSpec.describe Veteran::Accreditation::RepresentativeSerializer do
        email
        lat
        long
-       user_types
-      ].each do |attr|
+       user_types].each do |attr|
       expect(attributes[attr]).to eq(representative.public_send(attr))
     end
   end
@@ -102,7 +100,6 @@ RSpec.describe Veteran::Accreditation::RepresentativeSerializer do
                                      lat
                                      long
                                      distance
-                                     user_types
-                                    ])
+                                     user_types])
   end
 end
