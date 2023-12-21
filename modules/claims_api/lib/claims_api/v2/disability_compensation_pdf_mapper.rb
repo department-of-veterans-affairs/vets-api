@@ -455,7 +455,7 @@ module ClaimsApi
         @auto_claim['treatments'].map do |tx|
           if tx['center'].present?
             center_data = tx['center'].transform_keys(&:to_sym)
-            center = center_data.values_at(:name, :city, :state).compact.join(', ')
+            center = center_data.values_at(:name, :city, :state).compact.map(&:presence).compact.join(', ')
           end
           names = tx['treatedDisabilityNames']
           name = names.join(', ') if names.present?
