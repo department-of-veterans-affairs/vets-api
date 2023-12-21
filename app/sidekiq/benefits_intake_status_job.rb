@@ -12,21 +12,33 @@ class BenefitsIntakeStatusJob
                                   .where(form_submission_attempts: { aasm_state: 'pending' })
                                   .map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
-    handle_response(response)
-    submissions_handled = response.body['data'].count
-    Rails.logger.info({ name: 'BenefitsIntakeStatusJob ended', submissions_handled: })
+    stats = handle_response(response)
+    Rails.logger.info({ message: 'BenefitsIntakeStatusJob ended' }.merge(stats))
   end
 
   private
 
   def handle_response(response)
-    response.body['data'].each do |submission|
+    stats = {
+      total_submissions_handled: 0,
+      pending_submissions_handled: 0,
+      failed_submissions_handled: 0,
+      successful_submissions_handled: 0
+    }
+    response.body['data']&.each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
+        stats[:failed_submissions_handled] += 1
         handle_failure(submission)
       elsif submission.dig('attributes', 'status') == 'vbms'
+        stats[:successful_submissions_handled] += 1
         handle_success(submission)
+      else
+        stats[:pending_submissions_handled] += 1
       end
+      stats[:total_submissions_handled] += 1
     end
+
+    stats
   end
 
   def handle_failure(submission)
