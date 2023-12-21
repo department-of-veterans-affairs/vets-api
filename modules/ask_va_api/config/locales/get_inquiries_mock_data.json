@@ -168,7 +168,28 @@
       "schoolFacilityCode": "0123",
       "inquiryTopic": "All other Questions",
       "inquiryLevelOfAuthentication": "Business",
-      "attachmentNames": []
+      "attachmentNames": [
+        {
+          "id": "8",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "9",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "10",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "11",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "14",
+          "name": "txt_file_for_inquiry_9.txt"
+        }
+      ]
     },
     {
       "icn": "1008709396V637156",
