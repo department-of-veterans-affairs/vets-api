@@ -129,8 +129,8 @@ mcp:
     mock_vista: false
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   notifications:
-    job_interval: 90
-    batch_size: 100
+    job_interval: 10
+    batch_size: 10
 
 fsr:
   prefill: true

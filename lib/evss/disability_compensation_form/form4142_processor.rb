@@ -73,8 +73,8 @@ module EVSS
         address = form['veteranAddress']
 
         {
-          'veteranFirstName' => veteran_full_name['first'],
-          'veteranLastName' => veteran_full_name['last'],
+          'veteranFirstName' => transliterate(veteran_full_name['first']),
+          'veteranLastName' => transliterate(veteran_full_name['last']),
           'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           'receiveDt' => received_date,
           'uuid' => jid,
@@ -91,6 +91,11 @@ module EVSS
         date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
         date = date.in_time_zone('Central Time (US & Canada)')
         date.strftime('%Y-%m-%d %H:%M:%S')
+      end
+
+      # Corrects or replaces with an empty string any characters not matching upstream validators
+      def transliterate(name)
+        I18n.transliterate(name).gsub(%r{[^A-Za-z'/ -]}, '')
       end
     end
   end

@@ -229,29 +229,83 @@ RSpec.describe 'Messages Integration', type: :request do
       end
     end
 
-    # describe '#thread' do
-    #   let(:thread_id) { 573_059 }
+    describe '#thread' do
+      let(:thread_id) { 3_188_782 }
 
-    #   it 'responds to GET #thread' do
-    #     VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-    #       get "/my_health/v1/messaging/messages/#{thread_id}/thread"
-    #     end
+      it 'responds to GET #thread' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_full') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
+        end
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
+        expect(data).to be_an(Array)
+        first_message = data.first['attributes']
+        expect(first_message['message_id']).to eq(3_207_476)
+        expect(first_message['thread_id']).to eq(3_188_781)
+        expect(first_message['sender_id']).to eq(251_391)
+        expect(first_message['sender_name']).to eq('MHVDAYMARK, MARK')
+        expect(first_message['recipient_id']).to eq(3_188_767)
+        expect(first_message['recipient_name']).to eq('TG API TESTING')
+        expect(first_message['sent_date']).to be_nil
+        expect(first_message['draft_date']).to eq('2023-12-19T17:21:47.000+00:00')
+        expect(first_message['triage_group_name']).to eq('TG API TESTING')
+        expect(first_message['has_attachments']).to eq(false)
+        expect(first_message['subject']).to eq('Test Inquiry')
+        expect(first_message['category']).to eq('TEST_RESULTS')
+        expect(first_message['folder_id']).to eq(-2)
+        expect(first_message['message_body']).to eq('TEST0101010101')
+        expect(first_message['proxy_sender_name']).to be_nil
+        expect(first_message['read_receipt']).to be_nil
+        expect(response).to be_successful
+      end
 
-    #     expect(response).to be_successful
-    #     expect(response.body).to be_a(String)
-    #     expect(response).to match_response_schema('messages_thread')
-    #   end
+      it 'responds to GET #thread with full_body query param' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_full_body') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread?full_body=true"
+        end
 
-    #   it 'responds to GET #thread when camel-inflected' do
-    #     VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-    #       get "/my_health/v1/messaging/messages/#{thread_id}/thread", headers: inflection_header
-    #     end
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
 
-    #     expect(response).to be_successful
-    #     expect(response.body).to be_a(String)
-    #     expect(response).to match_camelized_response_schema('messages_thread')
-    #   end
-    # end
+        expect(data).to be_an(Array)
+
+        first_message = data.first['attributes']
+        expect(first_message['message_id']).to eq(3_207_476)
+        expect(first_message['attachments']).to be_empty
+
+        second_message = data[1]['attributes']
+        expect(second_message['message_id']).to eq(3_204_755)
+
+        attachments = second_message['attachments']
+        expect(attachments.length).to eq(2)
+
+        first_attachment = attachments.first
+        expect(first_attachment['id']).to eq(3_204_753)
+        expect(first_attachment['name']).to eq('almost4mbfile.pdf')
+        expect(first_attachment['attachment_size']).to eq(3_976_877)
+        expect(first_attachment['message_id']).to eq(3_204_755)
+
+        third_message = data[2]['attributes']
+        expect(third_message['message_id']).to eq(3_203_739)
+        expect(third_message['message_body'].length).to be > 200
+      end
+
+      it 'responds to GET #thread when camel-inflected' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_full') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread", headers: { 'X-Key-Inflection': 'camel' }
+        end
+
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
+
+        expect(response).to be_successful
+        expect(data).to be_a(Array)
+        first_message = data.first['attributes']
+        expect(first_message['messageId']).to eq(3_207_476)
+        expect(first_message['threadId']).to eq(3_188_781)
+        expect(first_message['senderId']).to eq(251_391)
+      end
+    end
 
     describe '#destroy' do
       let(:message_id) { 573_052 }
