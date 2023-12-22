@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_13_145347) do
+ActiveRecord::Schema.define(version: 2023_12_15_141616) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1229,6 +1229,44 @@ ActiveRecord::Schema.define(version: 2023_12_13_145347) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
+  end
+
+  create_table "vye_address_changes", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "rpo"
+    t.string "benefit_type"
+    t.text "veteran_name_ciphertext"
+    t.text "address1_ciphertext"
+    t.text "address2_ciphertext"
+    t.text "address3_ciphertext"
+    t.text "address4_ciphertext"
+    t.text "city_ciphertext"
+    t.text "state_ciphertext"
+    t.text "zip_code_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
+  end
+
+  create_table "vye_direct_deposit_changes", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "rpo"
+    t.string "ben_type"
+    t.text "full_name_ciphertext"
+    t.text "phone_ciphertext"
+    t.text "phone2_ciphertext"
+    t.text "email_ciphertext"
+    t.text "acct_no_ciphertext"
+    t.text "acct_type_ciphertext"
+    t.text "routing_no_ciphertext"
+    t.text "chk_digit_ciphertext"
+    t.text "bank_name_ciphertext"
+    t.text "bank_phone_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
