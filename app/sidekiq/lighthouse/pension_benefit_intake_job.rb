@@ -37,11 +37,11 @@ module Lighthouse
       @form_path = process_pdf(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
-      lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt',
-                          claim_id: @claim.id, uuid: lighthouse_service.uuid })
+                          claim_id: @claim.id, uuid: @lighthouse_service.uuid })
 
-      response = lighthouse_service.upload_form(
+      response = @lighthouse_service.upload_form(
         main_document: split_file_and_path(@form_path),
         attachments: @attachment_paths.map(&method(:split_file_and_path)),
         form_metadata: generate_form_metadata_lh
@@ -113,21 +113,24 @@ module Lighthouse
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: @claim.id })
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+        form_submission_polling
       else
         raise PensionBenefitIntakeError, response.to_s
       end
     end
 
+    # Insert submission polling entries
     def form_submission_polling
       form_submission = FormSubmission.create(
-        form_type: params[:form_number],
-        benefits_intake_uuid: uuid_and_location[:uuid],
-        form_data: params.to_json,
-        user_account: @current_user&.user_account
+        form_type: @claim.form_id,
+        form_data: @claim.to_json,
+        benefits_intake_uuid: @lighthouse_service.uuid,
+        saved_claim: @claim,
+        saved_claim_id: @claim.id
       )
       FormSubmissionAttempt.create(form_submission:)
 
-      Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
+      Datadog::Tracing.active_trace&.set_tag('uuid', @lighthouse_service.uuid)
     end
 
     # Delete temporary stamped PDF files for this instance.
