@@ -18,6 +18,10 @@ RSpec.describe Form1010Ezr::Service do
     allow(Rails.logger).to receive(:error)
   end
 
+  def allow_logger_to_receive_info
+    allow(Rails.logger).to receive(:info)
+  end
+
   def expect_logger_error(error_message)
     expect(Rails.logger).to have_received(:error).with(error_message)
   end
@@ -71,6 +75,10 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context 'when successful' do
+      before do
+        allow_logger_to_receive_info
+      end
+
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
@@ -102,7 +110,7 @@ RSpec.describe Form1010Ezr::Service do
         ) do
           submission_response = submit_form(form)
 
-          expect(Rails.logger).to receive(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
         end
       end
 
