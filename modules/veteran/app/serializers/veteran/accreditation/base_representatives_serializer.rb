@@ -2,7 +2,7 @@
 
 module Veteran
   module Accreditation
-    class BaseSerializer < ActiveModel::Serializer
+    class BaseRepresentativesSerializer < ActiveModel::Serializer
       def distance
         object.distance / Veteran::Service::Constants::METERS_PER_MILE
       end

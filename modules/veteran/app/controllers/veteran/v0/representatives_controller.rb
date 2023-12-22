@@ -2,7 +2,7 @@
 
 module Veteran
   module V0
-    class RepresentativesController < ApplicationController
+    class AccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
       skip_before_action :authenticate
       before_action :check_required_fields

@@ -2,7 +2,7 @@
 
 module Veteran
   module V0
-    class AccreditedRepresentativesController < ApplicationController
+    class BaseAccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
       skip_before_action :authenticate
       before_action :feature_enabled
@@ -14,11 +14,10 @@ module Veteran
       DEFAULT_PAGE = 1
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
-      PERMITTED_TYPES = %w[attorney veteran_service_officer].freeze
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
       def index
-        collection = Common::Collection.new(representative_klass, data: accreditation_query)
+        collection = Common::Collection.new(representative_klass, data: representative_query)
         resource = collection.paginate(**pagination_params)
 
         render json: resource.data,
@@ -33,56 +32,9 @@ module Veteran
         @representative_klass ||= 'Veteran::Service::Representative'.constantize
       end
 
-      def serializer_klass
-        case search_params[:type]
-        when 'attorney' then 'Veteran::Accreditation::AttorneySerializer'.constantize
-        when 'veteran_service_officer' then 'Veteran::Accreditation::VeteranServiceOfficerSerializer'.constantize
-        end
-      end
-
       def base_query
         representative_klass.find_within_max_distance(search_params[:long],
                                                       search_params[:lat]).order(sort_query_string)
-      end
-
-      def type_adjusted_query
-        case search_params[:type]
-        when 'attorney' then attorney_query
-        when 'veteran_service_officer' then veteran_service_officer_query
-        end
-      end
-
-      def attorney_query
-        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-          '? = ANY(user_types) ', search_params[:type]
-        )
-      end
-
-      def veteran_service_officer_query
-        base_query
-          .joins('JOIN LATERAL UNNEST(veteran_representatives.poa_codes) AS UnnestedPoaCode ON true')
-          .joins('JOIN veteran_organizations ON UnnestedPoaCode = veteran_organizations.poa')
-          .select("veteran_representatives.*, veteran_organizations.name AS organization_name, #{distance_query_string}") # rubocop:disable Layout/LineLength
-          .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
-      end
-
-      def find_with_name_similar_to(query)
-        search_phrase = search_params[:name]
-        fuzzy_search_threshold = Veteran::Service::Constants::FUZZY_SEARCH_THRESHOLD
-
-        case search_params[:type]
-        when 'attorney'
-          query.where('word_similarity(?, full_name) >= ?', search_phrase, fuzzy_search_threshold)
-        when 'veteran_service_officer'
-          query.where('word_similarity(?, veteran_representatives.full_name) >= ? OR word_similarity(?, veteran_service_organizations.name) >= ?', # rubocop:disable Layout/LineLength
-                      search_phrase, fuzzy_search_threshold, search_phrase, fuzzy_search_threshold)
-        end
-      end
-
-      def accreditation_query
-        query = type_adjusted_query
-
-        search_params[:name] ? find_with_name_similar_to(query) : query
       end
 
       def search_params
@@ -126,12 +78,6 @@ module Veteran
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:find_a_rep)
-      end
-
-      def verify_type
-        unless PERMITTED_TYPES.include?(search_params[:type])
-          raise Common::Exceptions::InvalidFieldValue.new('type', search_params[:type])
-        end
       end
 
       def verify_sort
