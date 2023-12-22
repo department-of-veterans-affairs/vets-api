@@ -903,6 +903,7 @@ lib/medical_records @department-of-veterans-affairs/vfs-mhv-medical-records @dep
 lib/mhv_ac @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/mhv_logging @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/mpi @department-of-veterans-affairs/vsp-identity
+lib/okta/directory_service.rb @department-of-veterans-affairs/lighthouse-pivot
 lib/olive_branch_patch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/vfs-1095-b
