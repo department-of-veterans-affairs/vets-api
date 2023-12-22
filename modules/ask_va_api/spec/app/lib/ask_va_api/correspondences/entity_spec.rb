@@ -33,7 +33,7 @@ RSpec.describe AskVAApi::Correspondences::Entity do
       description: info[:description],
       message_type: info[:message_type],
       enable_reply: true,
-      attachment_names: [
+      attachments: [
         {
           id: info[:attachmentNames].first[:id],
           name: info[:attachmentNames].first[:name]

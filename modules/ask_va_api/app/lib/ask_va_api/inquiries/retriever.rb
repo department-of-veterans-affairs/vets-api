@@ -14,8 +14,7 @@ module AskVAApi
 
       def fetch_by_id(id:)
         validate_input(id, 'Invalid ID')
-        reply = Correspondences::Retriever.new(id:, service:).call
-
+        reply = Correspondences::Retriever.new(inquiry_id: id, service:).call
         data = fetch_data(payload: { id: })
         return {} if data.blank?
 

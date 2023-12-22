@@ -12,7 +12,7 @@ module AskVAApi
                  :status_reason,
                  :description,
                  :enable_reply,
-                 :attachment_names
+                 :attachments
     end
   end
 end

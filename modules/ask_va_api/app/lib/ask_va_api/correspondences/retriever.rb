@@ -5,16 +5,16 @@ module AskVAApi
     ENDPOINT = 'get_replies_mock_data'
 
     class Retriever
-      attr_reader :id, :service
+      attr_reader :inquiry_id, :service
 
-      def initialize(id:, service: nil)
-        @id = id
+      def initialize(inquiry_id:, service: nil)
+        @inquiry_id = inquiry_id
         @service = service || default_service
       end
 
       def call
-        validate_input(id, 'Invalid Inquiry ID')
-        fetch_data(payload: { id: }).map do |cor|
+        validate_input(inquiry_id, 'Invalid Inquiry ID')
+        fetch_data(payload: { inquiry_id: }).map do |cor|
           Entity.new(cor)
         end
       rescue => e

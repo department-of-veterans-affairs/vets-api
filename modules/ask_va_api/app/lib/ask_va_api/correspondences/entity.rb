@@ -10,7 +10,7 @@ module AskVAApi
                   :status_reason,
                   :description,
                   :enable_reply,
-                  :attachment_names
+                  :attachments
 
       def initialize(info)
         @id = info[:id]
@@ -20,7 +20,7 @@ module AskVAApi
         @status_reason = info[:status_reason]
         @description = info[:description]
         @enable_reply = info[:enable_reply]
-        @attachment_names = info[:attachmentNames]
+        @attachments = info[:attachmentNames]
       end
     end
   end

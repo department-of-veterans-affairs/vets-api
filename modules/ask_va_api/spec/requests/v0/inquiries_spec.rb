@@ -118,7 +118,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                 'status_reason' => 'Completed/Sent',
                 'description' => 'Your claim is still In Progress',
                 'enable_reply' => true,
-                'attachment_names' => [
+                'attachments' => [
                   {
                     'id' => '12',
                     'name' => 'correspondence_1_attachment.pdf'

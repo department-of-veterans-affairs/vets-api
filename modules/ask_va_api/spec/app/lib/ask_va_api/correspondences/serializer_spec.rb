@@ -17,7 +17,7 @@ RSpec.describe AskVAApi::Correspondences::Serializer do
                              status_reason: 'Completed/Sent',
                              description: 'Your claim is still In Progress',
                              enable_reply: true,
-                             attachment_names: [{ id: '12', name: 'correspondence_1_attachment.pdf' }] } }] }
+                             attachments: [{ id: '12', name: 'correspondence_1_attachment.pdf' }] } }] }
   end
 
   context 'when successful' do
