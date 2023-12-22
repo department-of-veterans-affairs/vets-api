@@ -283,8 +283,6 @@ app/models/mhv_opt_in_flag.rb @department-of-veterans-affairs/vfs-mhv-secure-mes
 app/models/mpi_data.rb @department-of-veterans-affairs/vsp-identity
 app/models/old_email.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/onsite_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/openid_user_identity.rb @department-of-veterans-affairs/lighthouse-pivot
-app/models/openid_user.rb @department-of-veterans-affairs/lighthouse-pivot
 app/models/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 app/models/persistent_attachment.rb  @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/pensions @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments/dependency_claim.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
