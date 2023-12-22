@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module VYE; end
+module VYE::BatchTransfer; end
 
-module VYE::IngressFiles
+module VYE::BatchTransfer::IngressFiles
   module_function
 
   BDN_FEED_FILENAME = 'WAVE.txt'
