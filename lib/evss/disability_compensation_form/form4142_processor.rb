@@ -50,13 +50,13 @@ module EVSS
           @submission.form[Form526Submission::FORM_4142], @submission.submitted_claim_id, FORM_ID
         )
         stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                              form_submission_date: @submission.created_at)
+                                                              timestamp: @submission.created_at)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
           text_only: true,
-          form_submission_date: @submission.created_at
+          timestamp: @submission.created_at
         )
       end
 
