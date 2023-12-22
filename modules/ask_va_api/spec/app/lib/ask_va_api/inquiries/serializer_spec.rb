@@ -33,7 +33,7 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
               attributes: {
                 inquiry_number: info[:inquiryNumber],
                 attachments: info[:attachmentNames],
-                correspondences: { data: nil },
+                correspondences: nil,
                 has_attachments: info[:inquiryHasAttachments],
                 has_been_split: info[:inquiryHasBeenSplit],
                 level_of_authentication: info[:inquiryLevelOfAuthentication],
