@@ -15,8 +15,10 @@ module AskVAApi
       def call
         validate_input(id, "Invalid Attachment's ID")
 
-        attachment = fetch_data(payload: { id: })
-        Entity.new(attachment.first)
+        attachments = fetch_data(payload: { id: })
+        attachments.map do |att|
+          Entity.new(att)
+        end.first
       rescue => e
         ErrorHandler.handle_service_error(e)
       end

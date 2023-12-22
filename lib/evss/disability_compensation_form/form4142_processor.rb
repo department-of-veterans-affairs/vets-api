@@ -49,12 +49,14 @@ module EVSS
         pdf = PdfFill::Filler.fill_ancillary_form(
           @submission.form[Form526Submission::FORM_4142], @submission.submitted_claim_id, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5)
+        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
+                                                              timestamp: @submission.created_at)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true
+          text_only: true,
+          timestamp: @submission.created_at
         )
       end
 
@@ -88,8 +90,7 @@ module EVSS
       end
 
       def received_date
-        date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
-        date = date.in_time_zone('Central Time (US & Canada)')
+        date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
         date.strftime('%Y-%m-%d %H:%M:%S')
       end
 
