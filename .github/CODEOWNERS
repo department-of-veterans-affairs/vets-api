@@ -1351,7 +1351,6 @@ spec/lib/mhv_ac/client_spec.rb @department-of-veterans-affairs/vfs-health-modern
 spec/lib/mhv_logging @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/mpi @department-of-veterans-affairs/vsp-identity
 spec/lib/okta @department-of-veterans-affairs/lighthouse-pivot
-spec/lib/okta/configuration_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/okta/directory_service_spec.rb @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/olive_branch_patch_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
