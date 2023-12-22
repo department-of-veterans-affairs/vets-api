@@ -129,8 +129,8 @@ mcp:
     mock_vista: false
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   notifications:
-    job_interval: 90
-    batch_size: 100
+    job_interval: 10
+    batch_size: 10
 
 fsr:
   prefill: true
@@ -260,11 +260,6 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
-  disability:
-    cache_enabled: false
-    enabled: true
-    timeout: 30
-    mock: false
 
 # Settings for IHub
 ihub:
@@ -1275,6 +1270,7 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_secret_msft: fake_secret
   webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key

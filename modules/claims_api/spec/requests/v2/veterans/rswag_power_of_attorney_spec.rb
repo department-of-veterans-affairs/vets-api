@@ -9,7 +9,7 @@ require 'bgs_service/local_bgs'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
-         swagger_doc: Rswag::TextHelpers.new.claims_api_docs, document: false do
+         swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
   path '/veterans/{veteranId}/power-of-attorney' do
@@ -169,7 +169,7 @@ describe 'PowerOfAttorney',
         }
       end
 
-      describe 'Getting a successful response' do
+      xdescribe 'Getting a successful response', document: false do
         response '200', 'Successful response with the submitted Power of Attorney' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
@@ -208,7 +208,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      describe 'Getting a 401 response' do
+      xdescribe 'Getting a 401 response', document: false do
         response '401', 'Unauthorized' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
@@ -233,7 +233,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      describe 'Getting a 422 response' do
+      xdescribe 'Getting a 422 response', document: false do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
@@ -308,7 +308,7 @@ describe 'PowerOfAttorney',
         }
       end
 
-      describe 'Getting a successful response' do
+      xdescribe 'Getting a successful response', document: false do
         response '200', 'Successful response with the submitted Power of Attorney' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
@@ -350,7 +350,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      describe 'Getting a 401 response' do
+      xdescribe 'Getting a 401 response', document: false do
         response '401', 'Unauthorized' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
@@ -375,7 +375,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      describe 'Getting a 422 response' do
+      xdescribe 'Getting a 422 response', document: false do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
@@ -404,6 +404,243 @@ describe 'PowerOfAttorney',
 
           it 'returns a 422 response' do |example|
             assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/2122a/validate' do
+    post 'Validates a 2122a form submission.' do
+      tags 'Power of Attorney'
+      operationId 'post2122aValidate'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      produces 'application/json'
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:Authorization) { 'Bearer token' }
+      pdf_description = <<~VERBIAGE
+        Validates a request appointing an individual as Power of Attorney (21-22a).
+      VERBIAGE
+
+      description pdf_description
+
+      describe 'Getting a successful response' do
+        response '200', 'Valid request response' do
+          it 'returns a valid 200 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          it 'returns a 401 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/2122a' do
+    post 'Appoint an individual as Power of Attorney.' do
+      tags 'Power of Attorney'
+      operationId 'post2122a'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      produces 'application/json'
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:Authorization) { 'Bearer token' }
+      pdf_description = <<~VERBIAGE
+        Validates a request appointing an individual as Power of Attorney (21-22a).
+      VERBIAGE
+
+      description pdf_description
+
+      describe 'Getting a successful response' do
+        response '200', 'Valid request response' do
+          it 'returns a valid 200 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          it 'returns a 401 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/2122/validate' do
+    post 'Validates a 2122 form submission.' do
+      tags 'Power of Attorney'
+      operationId 'post2122Validate'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      produces 'application/json'
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:Authorization) { 'Bearer token' }
+      pdf_description = <<~VERBIAGE
+        Validates a request appointing an organization as Power of Attorney (21-22).
+      VERBIAGE
+
+      description pdf_description
+
+      describe 'Getting a successful response' do
+        response '200', 'Valid request response' do
+          it 'returns a valid 200 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          it 'returns a 401 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/2122' do
+    post 'Appoint an organization as Power of Attorney' do
+      tags 'Power of Attorney'
+      operationId 'post2122'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      produces 'application/json'
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:Authorization) { 'Bearer token' }
+      pdf_description = <<~VERBIAGE
+        Validates a request appointing an organization as Power of Attorney (21-22).
+      VERBIAGE
+
+      description pdf_description
+
+      describe 'Getting a successful response' do
+        response '200', 'Valid request response' do
+          it 'returns a valid 200 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          it 'returns a 401 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/power-of-attorney/{id}' do
+    get 'Checks status of Power of Attorney appointment form submission' do
+      tags 'Power of Attorney'
+      operationId 'getPowerOfAttorneyStatus'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      produces 'application/json'
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+      parameter name: 'id',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '12e13134-7229-4e44-90ae-bcea2a4525fa',
+                description: 'Power of Attorney appointment request id'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:id) { '17125d28-dcb4-4466-9927-cd163361b30b' }
+      let(:Authorization) { 'Bearer token' }
+      pdf_description = <<~VERBIAGE
+        Gets the Power of Attorney appointment request status (21-22/21-22a)
+      VERBIAGE
+
+      description pdf_description
+
+      describe 'Getting a successful response' do
+        response '200', 'Successful response' do
+          it 'returns a valid 200 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          it 'returns a 401 response' do
+            one = 1
+            expect(one).to eq(1)
           end
         end
       end

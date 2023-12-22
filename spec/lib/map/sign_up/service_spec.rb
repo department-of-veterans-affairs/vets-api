@@ -102,11 +102,16 @@ describe MAP::SignUp::Service do
     context 'when response is successful' do
       let(:expected_log_message) { "#{log_prefix} agreements accept success, icn: #{icn}" }
 
-      before { allow(Rails.logger).to receive(:info) }
+      before do
+        Timecop.freeze(Time.zone.local(2023, 1, 1, 12, 0, 0))
+        allow(Rails.logger).to receive(:info)
+      end
+
+      after { Timecop.return }
 
       it 'logs an agreements accept success message' do
         VCR.use_cassette('map/security_token_service_200_response') do
-          VCR.use_cassette('map/sign_up_service_200_responses') do
+          VCR.use_cassette('map/sign_up_service_200_responses', match_requests_on: %i[method path body]) do
             expect(Rails.logger).to receive(:info).with(expected_log_message)
             subject
           end

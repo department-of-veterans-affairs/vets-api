@@ -6,33 +6,33 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
   subject(:retriever) { described_class.new(icn:) }
 
   let(:icn) { '123' }
-  let(:service) { instance_double(Dynamics::Service) }
+  let(:service) { instance_double(Crm::Service) }
   let(:correspondences) { instance_double(AskVAApi::Correspondences::Retriever) }
   let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
-  let(:inquiry_number) { 'A-1' }
+  let(:id) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
-  let(:payload) { { inquiry_number: 'A-1' } }
+  let(:payload) { { id: '1' } }
 
   before do
-    allow(Dynamics::Service).to receive(:new).and_return(service)
+    allow(Crm::Service).to receive(:new).and_return(service)
     allow(AskVAApi::Correspondences::Retriever).to receive(:new).and_return(correspondences)
     allow(correspondences).to receive(:call).and_return(entity)
     allow(AskVAApi::Inquiries::Entity).to receive(:new).and_return(entity)
     allow(service).to receive(:call)
   end
 
-  describe '#fetch_by_inquiry_number' do
-    context 'when inquiry_number is blank' do
-      let(:inquiry_number) { nil }
+  describe '#fetch_by_id' do
+    context 'when id is blank' do
+      let(:id) { nil }
 
       it 'raises an ErrorHandler::ServiceError' do
-        expect { retriever.fetch_by_inquiry_number(inquiry_number:) }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry Number')
+        expect { retriever.fetch_by_id(id:) }
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid ID')
       end
     end
 
-    context 'when Dynamics raise an error' do
-      let(:payload) { { inquiry_number: 'A-1' } }
+    context 'when Crm raise an error' do
+      let(:payload) { { id: 'A-1' } }
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Inquiries::ENDPOINT }
       let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
@@ -40,21 +40,21 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       before do
         allow(service).to receive(:call)
           .with(endpoint:, payload:)
-          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
+          .and_raise(Crm::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises a FetchInquiriesError' do
         expect do
-          retriever.fetch_by_inquiry_number(inquiry_number: 'A-1')
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
+          retriever.fetch_by_id(id: 'A-1')
+        end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 
     it 'returns an Entity object with correct data' do
       allow(service).to receive(:call)
-        .with(endpoint: 'get_inquiries_mock_data', payload: { inquiry_number: })
+        .with(endpoint: 'get_inquiries_mock_data', payload: { id: })
         .and_return([double])
-      expect(retriever.fetch_by_inquiry_number(inquiry_number:)).to eq(entity)
+      expect(retriever.fetch_by_id(id:)).to eq(entity)
     end
   end
 
