@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_13_145347) do
+ActiveRecord::Schema.define(version: 2023_12_15_141617) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1229,6 +1229,33 @@ ActiveRecord::Schema.define(version: 2023_12_13_145347) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
+  end
+
+  create_table "vye_pending_documents", force: :cascade do |t|
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
+    t.string "claim_no_ciphertext"
+    t.string "doc_type"
+    t.datetime "queue_date"
+    t.string "rpo"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
+  end
+
+  create_table "vye_verifications", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.integer "award_id"
+    t.string "change_flag"
+    t.integer "rpo_code"
+    t.boolean "rpo_flag"
+    t.datetime "act_begin"
+    t.datetime "act_end"
+    t.string "source_ind"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
