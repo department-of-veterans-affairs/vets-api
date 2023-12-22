@@ -329,6 +329,20 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(secondary_event).to eq('EXPOSURE')
         expect(secondary_relevance).to eq('ABCDEFG')
       end
+
+      it 'maps the secondary disability name to the primary disability correctly' do
+        mapper.map_claim
+
+        disability_name = pdf_data[:data][:attributes][:claimInformation][:disabilities][0][:disability]
+        secondary_disability_name = pdf_data[:data][:attributes][:claimInformation][:disabilities][3][:disability]
+        sd_label = "#{secondary_disability_name} secondary to: #{disability_name}"
+        
+        claim_info = pdf_data[:data][:attributes][:claimInformation]
+
+        secondary_disability_label = claim_info[:disabilities][3][:disability]
+
+        expect(secondary_disability_label).to eq(sd_label)
+      end
     end
 
     context '526 section 5, claim info: disabilities, & has conditions attribute' do
