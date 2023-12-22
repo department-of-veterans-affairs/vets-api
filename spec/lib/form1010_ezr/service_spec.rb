@@ -95,6 +95,17 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
+      it 'logs the submission id', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          submission_response = submit_form(form)
+
+          expect(Rails.logger).to receive(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+        end
+      end
+
       context 'when the form includes a Mexican province' do
         let(:form) { get_fixture('form1010_ezr/valid_form_with_mexican_province') }
 

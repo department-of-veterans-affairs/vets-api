@@ -27,24 +27,6 @@ module HCA
       'NB' => 'B'
     }.freeze
 
-    FORM_TEMPLATE = IceNine.deep_freeze(
-      'va:form' => {
-        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-        'va:formIdentifier' => {
-          'va:type' => '100',
-          'va:value' => '1010EZ',
-          'va:version' => 2_986_360_436
-        }
-      },
-      'va:identity' => {
-        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-        'va:authenticationLevel' => {
-          'va:type' => '100',
-          'va:value' => 'anonymous'
-        }
-      }
-    )
-
     SERVICE_BRANCH_CODES = {
       'army' => 1,
       'air force' => 2,
@@ -93,6 +75,31 @@ module HCA
       'Mother' => 18,
       'Other' => 99
     }.freeze
+
+    # @param [String] form_id
+    # Depending on the type of submission, EZ or EZR, we need to set specific form identifiers
+    # Per Enrollment System staff (12/21/23)
+    def form_template(form_id)
+      is_ezr_submission = form_id == '10-10EZR'
+
+      IceNine.deep_freeze(
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => is_ezr_submission ? '101' : '100',
+            'va:value' => is_ezr_submission ? '1010EZR' : '1010EZ',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      )
+    end
 
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
@@ -741,8 +748,8 @@ module HCA
       end
     end
 
-    def build_form_for_user(user_identifier)
-      form = FORM_TEMPLATE.deep_dup
+    def build_form_for_user(user_identifier, form_id)
+      form = form_template(form_id).deep_dup
 
       (user_id, id_type) = get_user_variables(user_identifier)
       return form if user_id.nil?
@@ -804,12 +811,17 @@ module HCA
 
     # @param [Hash] veteran data in JSON format
     # @param [Account] current_user
-    def veteran_to_save_submit_form(veteran, current_user)
+    # @param [String] form_id
+    def veteran_to_save_submit_form(
+      veteran,
+      current_user,
+      form_id
+    )
       return {} if veteran.blank?
 
       copy_spouse_address!(veteran)
 
-      request = build_form_for_user(current_user)
+      request = build_form_for_user(current_user, form_id)
 
       veteran['attachments']&.each do |attachment|
         hca_attachment = HCAAttachment.find_by(guid: attachment['confirmationCode'])

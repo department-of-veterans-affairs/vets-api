@@ -1443,13 +1443,16 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#veteran_to_save_submit_form' do
-    subject do
-      described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access
+    let(:ez_form) do
+      described_class.veteran_to_save_submit_form(test_veteran, nil, '10-10EZ').with_indifferent_access
+    end
+    let(:ezr_form) do
+      described_class.veteran_to_save_submit_form(test_veteran, nil, '10-10EZR').with_indifferent_access
     end
 
     it 'returns the right result' do
       Timecop.freeze(DateTime.new(2015, 10, 21, 23, 0, 0, '-5')) do
-        result = subject
+        result = ez_form
         expect(result).to eq(test_result)
         expect(
           result['va:form']['va:applications']['va:applicationInfo'][0]['va:appDate']
@@ -1462,31 +1465,27 @@ describe HCA::EnrollmentSystem do
     context 'with attachments' do
       it 'creates the right result', run_at: '2019-01-11 14:19:04 -0800' do
         health_care_application = build(:hca_app_with_attachment)
-        result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil)
+        result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil, '10-10EZ')
         expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
       end
     end
 
-    it 'does not modify the form template' do
-      subject
+    context 'EZ form submission' do
+      it "sets the 'va:type' to '101' and 'va:value' to '1010EZR' for the va:formIdentifier object" do
+        result = ez_form
 
-      expect(described_class::FORM_TEMPLATE).to eq(
-        'va:form' => {
-          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-          'va:formIdentifier' => {
-            'va:type' => '100',
-            'va:value' => '1010EZ',
-            'va:version' => 2_986_360_436
-          }
-        },
-        'va:identity' => {
-          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-          'va:authenticationLevel' => {
-            'va:type' => '100',
-            'va:value' => 'anonymous'
-          }
-        }
-      )
+        expect(result['va:form']['va:formIdentifier']['va:type']).to eq('100')
+        expect(result['va:form']['va:formIdentifier']['va:value']).to eq('1010EZ')
+      end
+    end
+
+    context 'EZR form submission' do
+      it "sets the 'va:type' to '101' and 'va:value' to '1010EZR' for the va:formIdentifier object" do
+        result = ezr_form
+
+        expect(result['va:form']['va:formIdentifier']['va:type']).to eq('101')
+        expect(result['va:form']['va:formIdentifier']['va:value']).to eq('1010EZR')
+      end
     end
   end
 
@@ -1566,27 +1565,96 @@ describe HCA::EnrollmentSystem do
     end
   end
 
-  describe '#build_form_for_user' do
-    def self.should_return_template
-      it 'returns the form template' do
-        expect(subject).to eq(described_class::FORM_TEMPLATE)
+  describe '#form_template' do
+    let(:ez_template) do
+      {
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+          'va:type' => '100',
+          'va:value' => '1010EZ',
+          'va:version' => 2_986_360_436
+        }
+        },
+          'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      }
+    end
+    let(:ezr_template) do
+      {
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => '101',
+            'va:value' => '1010EZR',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      }
+    end
+
+    context "when the 'form_id' is '10-10EZR'" do
+      it "sets the 'va:type' to '101' and 'va:value' to '1010EZR' for the va:formIdentifier object" do
+        expect(described_class.form_template('10-10EZR')).to eq(ezr_template)
       end
     end
 
-    subject do
-      described_class.build_form_for_user(HealthCareApplication.get_user_identifier(current_user))
+    context "when the 'form_id' anything other than '10-10EZR'" do
+      it "sets the 'va:type' to '100' and 'va:value' to '1010EZ' for the va:formIdentifier object" do
+        expect(described_class.form_template('hello world')).to eq(ez_template)
+      end
+    end
+  end
+
+  describe '#build_form_for_user' do
+    let(:ez_form) { described_class.build_form_for_user(nil, '10-10EZ') }
+    let(:ez_form_with_user) do
+      described_class.build_form_for_user(HealthCareApplication.get_user_identifier(current_user), '10-10EZ')
+    end
+    let(:ezr_form) { described_class.build_form_for_user(nil, '10-10EZR') }
+
+    context 'form template' do
+      context 'when the submission is an EZ form' do
+        it 'returns the form template for an EZ submission' do
+          expect(ez_form).to eq(described_class.form_template('10-10EZ'))
+        end
+      end
+
+      context 'when the submission is an EZR form' do
+        it 'returns the form template for an EZR submission' do
+          expect(ezr_form).to eq(described_class.form_template('10-10EZR'))
+        end
+      end
+    end
+
+    def self.should_return_ez_template
+      it 'returns the form template for an EZ submission' do
+        expect(ez_form).to eq(described_class.form_template('10-10EZ'))
+      end
     end
 
     context 'with no user' do
       let(:current_user) { nil }
 
-      should_return_template
+      should_return_ez_template
     end
 
     context 'with a user' do
       def self.should_return_user_id
         it 'includes the user id in the authentication level' do
-          expect(subject).to eq(form_with_user)
+          expect(ez_form_with_user).to eq(form_with_user)
         end
       end
 
@@ -1617,7 +1685,7 @@ describe HCA::EnrollmentSystem do
       end
 
       context 'when the user doesnt have an id' do
-        should_return_template
+        should_return_ez_template
       end
 
       context 'when the user has an icn' do
