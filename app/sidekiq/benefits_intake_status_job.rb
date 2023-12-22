@@ -4,6 +4,7 @@ require 'benefits_intake_service/service'
 
 class BenefitsIntakeStatusJob
   include Sidekiq::Job
+  STATS_KEY = 'api.benefits_intake.submission_status'
 
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
@@ -12,33 +13,24 @@ class BenefitsIntakeStatusJob
                                   .where(form_submission_attempts: { aasm_state: 'pending' })
                                   .map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
-    stats = handle_response(response)
-    Rails.logger.info({ message: 'BenefitsIntakeStatusJob ended' }.merge(stats))
+    handle_response(response)
+    Rails.logger.info('BenefitsIntakeStatusJob ended')
   end
 
   private
 
   def handle_response(response)
-    stats = {
-      total_submissions_handled: 0,
-      pending_submissions_handled: 0,
-      failed_submissions_handled: 0,
-      successful_submissions_handled: 0
-    }
     response.body['data']&.each do |submission|
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
-        stats[:failed_submissions_handled] += 1
+        StatsD.increment("#{STATS_KEY}.failure")
         handle_failure(submission)
       elsif submission.dig('attributes', 'status') == 'vbms'
-        stats[:successful_submissions_handled] += 1
+        StatsD.increment("#{STATS_KEY}.success")
         handle_success(submission)
       else
-        stats[:pending_submissions_handled] += 1
+        StatsD.increment("#{STATS_KEY}.pending")
       end
-      stats[:total_submissions_handled] += 1
     end
-
-    stats
   end
 
   def handle_failure(submission)
