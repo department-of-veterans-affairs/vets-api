@@ -1571,12 +1571,12 @@ describe HCA::EnrollmentSystem do
         'va:form' => {
           '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
           'va:formIdentifier' => {
-          'va:type' => '100',
-          'va:value' => '1010EZ',
-          'va:version' => 2_986_360_436
-        }
+            'va:type' => '100',
+            'va:value' => '1010EZ',
+            'va:version' => 2_986_360_436
+          }
         },
-          'va:identity' => {
+        'va:identity' => {
           '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
           'va:authenticationLevel' => {
             'va:type' => '100',
