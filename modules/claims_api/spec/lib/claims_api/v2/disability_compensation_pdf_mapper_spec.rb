@@ -432,7 +432,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(served_after_nine_eleven).to eq('NO')
       end
 
-      it 'maps homservice info correctly with a nil phone number' do
+      it 'maps service info correctly with a nil phone number' do
         form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = nil
         form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = nil
         mapper.map_claim
