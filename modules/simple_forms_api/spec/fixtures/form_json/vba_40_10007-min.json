@@ -1,0 +1,89 @@
+{
+  "form_number": "40-10007",
+  "application": {
+    "applicant": {
+      "applicantRelationshipToClaimant": "Self",
+      "name": {
+        "first": "Jordan",
+        "middle": "Elvis Greene",
+        "last": "Summers",
+        "suffix": "Jr.",
+        "maiden": "Dolan Wilder"
+      },
+      "mailingAddress": {
+        "street": "2387 Clements Ferry ",
+        "street2": "fsdfsdfd",
+        "city": "Charleston",
+        "country": "USA",
+        "state": "SC",
+        "postalCode": "29492"
+      },
+      "applicantPhoneNumber": "8434711231",
+      "applicantEmail": "santiago_kenneth@bah.com"
+    },
+    "claimant": {
+      "address": {
+        "street": "2387 Clements Ferry ",
+        "street2": "fsdfsdfd",
+        "city": "Charleston",
+        "country": "USA",
+        "state": "SC",
+        "postalCode": "29492"
+      },
+      "phoneNumber": "8434711231",
+      "email": "santiago_kenneth@bah.com",
+      "name": {
+        "first": "Jordan",
+        "middle": "Elvis Greene",
+        "last": "Summers",
+        "suffix": "Jr.",
+        "maiden": "Dolan Wilder"
+      },
+      "ssn": "437-62-9899",
+      "dateOfBirth": "2010-04-13",
+      "relationshipToVet": "1"
+    },
+    "hasCurrentlyBuried": "2",
+    "veteran": {
+      "serviceName": {
+        "first": "Kenny",
+        "middle": "sfdxfd",
+        "last": "Santiago",
+        "suffix": "Jr."
+      },
+      "serviceRecords": [
+        {
+          "dateRange": { "from": "1900-01-01", "to": "1904-01-02" },
+          "serviceBranch": "AL",
+          "dischargeType": "2",
+          "highestRank": "dfdsfsdf"
+        }
+      ],
+      "militaryServiceNumber": "RA1234567",
+      "vaClaimNumber": "234343434",
+      "militaryStatus": "A",
+      "gender": "Male",
+      "race": { "isAmericanIndianOrAlaskanNative": true },
+      "maritalStatus": "Single",
+      "placeOfBirth": "Numquam ut corporis est id quisquam quibusdam",
+      "currentName": {
+        "first": "Jordan",
+        "middle": "Elvis Greene",
+        "last": "Summers",
+        "suffix": "Jr.",
+        "maiden": "Dolan Wilder"
+      },
+      "ssn": "437-62-9899",
+      "dateOfBirth": "2010-04-13",
+      "isDeceased": "no",
+      "address": {
+        "street": "2387 Clements Ferry ",
+        "street2": "fsdfsdfd",
+        "city": "Charleston",
+        "country": "USA",
+        "state": "SC",
+        "postalCode": "29492"
+      }
+    }
+  }
+}
