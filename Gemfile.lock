@@ -11,8 +11,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
-  revision: 1e142cad169abea9e76886821f0f0ec92ae48dba
-  branch: rm-bump-ruby-hashie-jsonschema
+  revision: 5f40ee08bd62bfdf8259201e5803050f2d326576
+  branch: master
   specs:
     apivore (1.6.2.1.vsp)
       actionpack (>= 4)

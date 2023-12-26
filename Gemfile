@@ -163,7 +163,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'rm-bump-ruby-hashie-jsonschema'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'fakeredis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
