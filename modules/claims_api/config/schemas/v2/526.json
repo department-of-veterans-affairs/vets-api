@@ -974,12 +974,11 @@
       "additionalProperties": false,
       "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
       "properties": {
-        "accountType": {
-          "description": "Account type for the direct deposit.",
-          "type": ["string", "null"],
+        "noAccount": {
+          "type": ["boolean", "null"],
           "nullable": true,
-          "example": "CHECKING",
-          "enum": ["CHECKING", "SAVINGS", null]
+          "description": "Claimant certifies that they do not have an account with a financial institution or certified payment agent.",
+          "default": false
         },
         "accountNumber": {
           "description": "Account number for the direct deposit.",
@@ -988,12 +987,12 @@
           "nullable": true,
           "example": "123123123123"
         },
-        "routingNumber": {
-          "description": "Routing number for the direct deposit.",
+        "accountType": {
+          "description": "Account type for the direct deposit.",
           "type": ["string", "null"],
           "nullable": true,
-          "pattern": "^(?:\\d{9})?$",
-          "example": "123123123"
+          "example": "CHECKING",
+          "enum": ["CHECKING", "SAVINGS", null]
         },
         "financialInstitutionName": {
           "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
@@ -1002,11 +1001,12 @@
           "nullable": true,
           "example": "Some Bank"
         },
-        "noAccount": {
-          "type": ["boolean", "null"],
+        "routingNumber": {
+          "description": "Routing number for the direct deposit.",
+          "type": ["string", "null"],
           "nullable": true,
-          "description": "Claimant certifies that they do not have an account with a financial institution or certified payment agent.",
-          "default": false
+          "pattern": "^(?:\\d{9})?$",
+          "example": "123123123"
         }
       }
     }
