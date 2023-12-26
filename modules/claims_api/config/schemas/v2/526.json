@@ -518,11 +518,11 @@
             "example": "PTSD (post traumatic stress disorder)",
             "maxLength": 255
           },
-          "classificationCode": {
+          "exposureOrEventOrInjury": {
             "type": ["string", "null"],
-            "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
-            "example": "249470",
-            "nullable": true
+            "description": "What caused the disability?",
+            "nullable": true,
+            "examples": ["Agent Orange", "radiation", "burn pits"]
           },
           "serviceRelevance": {
             "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
@@ -537,6 +537,18 @@
             "example": "2018-03-02 or 2018-03 or 2018",
             "nullable": true
           },
+          "disabilityActionType": {
+            "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
+            "type": "string",
+            "enum": ["NONE", "NEW", "INCREASE"],
+            "example": "NEW"
+          },
+          "classificationCode": {
+            "type": ["string", "null"],
+            "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+            "example": "249470",
+            "nullable": true
+          },
           "ratedDisabilityId": {
             "description": "When submitting a contention with action type 'INCREASE', the previously rated disability id may be included.",
             "type": ["string","null"],
@@ -549,11 +561,12 @@
             "example": 9999,
             "nullable": true
           },
-          "disabilityActionType": {
-            "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
-            "type": "string",
-            "enum": ["NONE", "NEW", "INCREASE"],
-            "example": "NEW"
+          "isRelatedToToxicExposure": {
+            "type": ["boolean", "null"],
+            "description": "Is the disability related to toxic exposures? If true, related 'toxicExposure' must be included.",
+            "example": true,
+            "default": false,
+            "nullable": true
           },
           "secondaryDisabilities": {
             "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
@@ -569,11 +582,11 @@
                   "example": "PTSD (post traumatic stress disorder)",
                   "maxLength": 255
                 },
-                "disabilityActionType": {
-                  "description": "The status of the secondary disability.",
-                  "type": "string",
-                  "example": "SECONDARY",
-                  "enum": ["SECONDARY"]
+                "exposureOrEventOrInjury": {
+                  "type": ["string", "null"],
+                  "description": "What caused the disability?",
+                  "nullable": true,
+                  "examples": ["Agent Orange", "radiation", "burn pits"]
                 },
                 "serviceRelevance": {
                   "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
@@ -581,11 +594,11 @@
                   "nullable": true,
                   "example": "Heavy equipment operator in service."
                 },
-                "classificationCode": {
-                  "type": ["string", "null"],
-                  "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
-                  "example": "249470",
-                  "nullable": true
+                "disabilityActionType": {
+                  "description": "The status of the secondary disability.",
+                  "type": "string",
+                  "example": "SECONDARY",
+                  "enum": ["SECONDARY"]
                 },
                 "approximateDate": {
                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
@@ -594,27 +607,14 @@
                   "example": "2018-03-02 or 2018-03 or 2018",
                   "nullable": true
                 },
-                "exposureOrEventOrInjury": {
+                "classificationCode": {
                   "type": ["string", "null"],
-                  "description": "What caused the disability?",
-                  "nullable": true,
-                  "examples": ["Agent Orange", "radiation", "burn pits"]
+                  "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                  "example": "249470",
+                  "nullable": true
                 }
               }
             }
-          },
-          "isRelatedToToxicExposure": {
-            "type": ["boolean", "null"],
-            "description": "Is the disability related to toxic exposures? If true, related 'toxicExposure' must be included.",
-            "example": true,
-            "default": false,
-            "nullable": true
-          },
-          "exposureOrEventOrInjury": {
-            "type": ["string", "null"],
-            "description": "What caused the disability?",
-            "nullable": true,
-            "examples": ["Agent Orange", "radiation", "burn pits"]
           }
         }
       }
