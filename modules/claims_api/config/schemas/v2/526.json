@@ -866,20 +866,6 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
-        "favorTrainingPay": {
-          "description": "Is the Veteran waiving VA benefits to retain training pay? See item 28 on form 21-526EZ for more details. ",
-            "type": ["boolean", "null"],
-            "nullable": true,
-          "example": true,
-          "default": false
-        },
-        "favorMilitaryRetiredPay": {
-          "description": "Is the Veteran waiving VA benefits to retain military retired pay? See item 26 on form 21-526EZ for more details.",
-            "type": ["boolean", "null"],
-            "nullable": true,
-          "example": true,
-          "default": false
-        },
         "receivingMilitaryRetiredPay": {
           "description": "Is the Veteran receiving military retired pay?",
           "type": ["string", "null"],
@@ -932,6 +918,13 @@
             null
           ]
         },
+        "favorMilitaryRetiredPay": {
+          "description": "Is the Veteran waiving VA benefits to retain military retired pay? See item 26 on form 21-526EZ for more details.",
+            "type": ["boolean", "null"],
+            "nullable": true,
+          "example": true,
+          "default": false
+        },
         "receivedSeparationOrSeverancePay": {
           "description": "Has the Veteran ever received separation pay, disability severance pay, or any other lump sum payment from their branch of service?",
           "type": ["string", "null"],
@@ -965,6 +958,13 @@
               "example": 100
             }
           }
+        },
+        "favorTrainingPay": {
+          "description": "Is the Veteran waiving VA benefits to retain training pay? See item 28 on form 21-526EZ for more details. ",
+            "type": ["boolean", "null"],
+            "nullable": true,
+          "example": true,
+          "default": false
         }
       }
     },
