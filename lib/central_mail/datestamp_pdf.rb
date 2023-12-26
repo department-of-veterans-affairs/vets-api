@@ -12,16 +12,18 @@ module CentralMail
 
     def run(settings)
       stamp_path = Common::FileHelpers.random_file_path
-      generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only], settings[:size])
+      generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only], settings[:size],
+                     settings[:timestamp])
       stamp(@file_path, stamp_path)
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def generate_stamp(stamp_path, text, x, y, text_only, size = 10)
+    def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil)
+      timestamp ||= Time.zone.now
       unless text_only
-        text += " #{I18n.l(Time.zone.now, format: :pdf_stamp)}"
+        text += " #{I18n.l(timestamp, format: :pdf_stamp)}"
         text += ". #{@append_to_stamp}" if @append_to_stamp
       end
 
