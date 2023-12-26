@@ -25,7 +25,8 @@ RSpec.describe SignIn::SessionRefresher do
       let(:input_anti_csrf_token) { anti_csrf_token }
       let(:session_handle) { SecureRandom.uuid }
       let(:user_uuid) { user_verification.credential_identifier }
-      let(:user_verification) { create(:user_verification, user_account:) }
+      let(:user_verification) { create(:user_verification, user_account:, locked:) }
+      let(:locked) { false }
       let(:user_account) { create(:user_account) }
       let!(:session) do
         create(:oauth_session,
@@ -33,6 +34,7 @@ RSpec.describe SignIn::SessionRefresher do
                hashed_refresh_token: session_hashed_refresh_token,
                handle: session_handle,
                user_account:,
+               user_verification:,
                client_id:)
       end
       let(:session_expiration) { Time.zone.now + 5.minutes }
@@ -74,6 +76,24 @@ RSpec.describe SignIn::SessionRefresher do
 
       context 'when session handle in refresh token matches an existing oauth session' do
         context 'and session is not expired' do
+          context 'expected credential_lock validation' do
+            context 'when the UserVerification is not locked' do
+              it 'does not return an error' do
+                expect { subject }.not_to raise_error
+              end
+            end
+
+            context 'when the UserVerification is locked' do
+              let(:locked) { true }
+              let(:expected_error) { SignIn::Errors::CredentialLockedError }
+              let(:expected_error_message) { 'Credential is locked' }
+
+              it 'returns a credential locked error' do
+                expect { subject }.to raise_error(expected_error, expected_error_message)
+              end
+            end
+          end
+
           context 'and client in session is configured to check for anti csrf' do
             let(:anti_csrf) { true }
 

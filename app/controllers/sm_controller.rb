@@ -5,6 +5,7 @@ require 'sm/client'
 class SMController < ApplicationController
   include ActionController::Serialization
   include MHVControllerConcerns
+  service_tag 'legacy-mhv'
 
   protected
 

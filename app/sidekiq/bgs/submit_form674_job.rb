@@ -13,7 +13,10 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do
+    sidekiq_retries_exhausted do |msg, error|
+      user_uuid, icn, saved_claim_id, vet_info, user_struct = msg['args']
+      Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
+                         { user_uuid:, saved_claim_id:, icn:, error: })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
@@ -28,7 +31,8 @@ module BGS
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
 
       @vet_info = vet_info
-      @user = generate_user_struct
+      @user = generate_user_struct(user_struct_hash)
+
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 
@@ -37,16 +41,16 @@ module BGS
 
       claim_data = normalize_names_and_addresses!(valid_claim_data)
 
-      @user = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct
-
       BGS::Form674.new(user, claim).submit(claim_data)
 
       send_confirmation_email
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.error('BGS::SubmitForm674Job failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
-      log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
+      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
+      @icn = icn
 
       raise
     end
@@ -74,7 +78,9 @@ module BGS
       )
     end
 
-    def generate_user_struct
+    def generate_user_struct(user_struct_hash)
+      return OpenStruct.new(user_struct_hash) if user_struct_hash.present?
+
       info = vet_info['veteran_information']
       full_name = info['full_name']
       OpenStruct.new(

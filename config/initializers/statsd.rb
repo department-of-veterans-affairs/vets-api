@@ -60,7 +60,7 @@ Rails.application.reloader.to_prepare do
         count =
           case payload.body
           when Hash
-            payload.dig(:body, :value)&.count
+            payload.body['value']&.count
           when Array
             payload.body&.count
           else

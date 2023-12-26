@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for Legacy Appeals endpoint parameters",
+  "type": "object",
+  "properties": {
+    "icn": {
+      "$ref": "icn.json"
+    }
+  },
+  "required": ["icn"]
+}

@@ -48,9 +48,7 @@ module Mobile
       end
 
       def index
-        validated_params = validate_params
-
-        json, status = fetch_all_cached_or_service(validated_params, params[:showCompleted])
+        json, status = prepare_claims_and_appeals
         render json:, status:
       end
 
@@ -116,31 +114,47 @@ module Mobile
         params[:trackedItemId] || params[:tracked_item_id]
       end
 
-      def fetch_all_cached_or_service(validated_params, show_completed)
-        list = nil
-        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
-        list, errors = if list.nil?
-                         service_list, service_errors = get_accessible_claims_appeals
-
-                         if service_errors.blank?
-                           Mobile::V0::ClaimOverview.set_cached(@current_user,
-                                                                service_list)
-                         end
-
-                         [service_list, service_errors]
-                       else
-                         [list, []]
-                       end
-
+      def prepare_claims_and_appeals
+        list, errors = fetch_claims_and_appeals
         status = get_response_status(errors)
         list = filter_by_date(validated_params[:start_date], validated_params[:end_date], list)
-        list = filter_by_completed(list, show_completed) if show_completed.present?
+        list = filter_by_completed(list) if params[:showCompleted].present?
+        log_decision_letter_sent(list) if Flipper.enabled?(:mobile_claims_log_decision_letter_sent)
         list, meta = paginate(list, validated_params)
 
-        options = { meta: { errors:, pagination: meta.dig(:meta, :pagination) },
-                    links: meta[:links] }
+        options = {
+          meta: {
+            errors:, pagination: meta.dig(:meta, :pagination), active_claims_count: active_claims_count(list)
+          },
+          links: meta[:links]
+        }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
+      end
+
+      def log_decision_letter_sent(list)
+        decision_letters_sent = list.select(&:decision_letter_sent)
+
+        return nil if decision_letters_sent.empty?
+
+        claims_decision_letters_sent = decision_letters_sent.count { |item| item.type == 'claim' }
+        appeals_decision_letters_sent = decision_letters_sent.count { |item| item.type == 'appeal' }
+
+        Rails.logger.info('MOBILE CLAIM DECISION LETTERS SENT COUNT',
+                          user_uuid: @current_user.uuid,
+                          user_icn: @current_user.icn,
+                          claims_decision_letter_sent_count: claims_decision_letters_sent,
+                          appeals_decision_letter_sent_count: appeals_decision_letters_sent,
+                          decision_letter_sent_ids: decision_letters_sent.map(&:id))
+      end
+
+      def fetch_claims_and_appeals
+        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
+        return [list, []] if list.present?
+
+        service_list, service_errors = get_accessible_claims_appeals
+        Mobile::V0::ClaimOverview.set_cached(@current_user, service_list) if service_errors.blank?
+        [service_list, service_errors]
       end
 
       def get_accessible_claims_appeals
@@ -171,8 +185,8 @@ module Mobile
         @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user)
       end
 
-      def validate_params
-        Mobile::V0::Contracts::ClaimsAndAppeals.new.call(pagination_params)
+      def validated_params
+        @validated_params ||= Mobile::V0::Contracts::ClaimsAndAppeals.new.call(pagination_params)
       end
 
       def paginate(list, validated_params)
@@ -212,9 +226,9 @@ module Mobile
         end
       end
 
-      def filter_by_completed(list, filter)
+      def filter_by_completed(list)
         list.filter do |entry|
-          entry[:completed] == ActiveRecord::Type::Boolean.new.deserialize(filter)
+          entry[:completed] == ActiveRecord::Type::Boolean.new.deserialize(params[:showCompleted])
         end
       end
 
@@ -241,6 +255,10 @@ module Mobile
 
       def claim_status_lighthouse?
         Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+      end
+
+      def active_claims_count(list)
+        list.count { |item| item.completed == false }
       end
     end
   end

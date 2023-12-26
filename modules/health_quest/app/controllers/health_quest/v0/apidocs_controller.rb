@@ -3,6 +3,7 @@
 module HealthQuest
   module V0
     class ApidocsController < ApplicationController
+      service_tag 'health-questionnaire'
       YAML_FILE_PATH = 'app/docs/health_quest/v0/health_quest.yaml'
 
       skip_before_action(:authenticate)

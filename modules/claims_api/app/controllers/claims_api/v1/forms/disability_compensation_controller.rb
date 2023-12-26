@@ -64,15 +64,13 @@ module ClaimsApi
           end
 
           if auto_claim.errors.present?
+            claims_v1_logging('526_submit', message: auto_claim.errors.messages.to_s)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
           end
-
-          ClaimsApi::Logger.log('526', detail: '526 - Request Completed')
-          claims_v1_logging(target_veteran&.mpi_icn)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
@@ -95,16 +93,17 @@ module ClaimsApi
             ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
-            claims_v1_logging(target_veteran&.mpi_icn)
 
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
             message = <<-MESSAGE
-              Claim submission requires that the "autoCestPDFGenerationDisabled" field
-              must be set to "true" in order to allow a 526 PDF to be uploaded
+            Claim submission requires that the "autoCestPDFGenerationDisabled" field
+            must be set to "true" in order to allow a 526 PDF to be uploaded
             MESSAGE
+            claims_v1_logging('526_upload', message:)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
           else
+            claims_v1_logging('526_upload', message: 'Resource not found')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
           end
         end
@@ -117,13 +116,12 @@ module ClaimsApi
           validate_documents_page_size
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
-
-          ClaimsApi::Logger.log(
-            '526',
-            claim_id: claim.id,
-            detail: "/attachments called with #{documents.length} #{'attachment'.pluralize(documents.length)}"
-          )
+          unless claim
+            claims_v1_logging('526_attachments',
+                              message: "/attachments called with
+                              #{documents.length} #{'attachment'.pluralize(documents.length)}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+          end
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
@@ -131,8 +129,6 @@ module ClaimsApi
             claim_document.save!
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
-
-          claims_v1_logging(target_veteran&.mpi_icn)
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
         end
@@ -175,7 +171,6 @@ module ClaimsApi
           end
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
-          claims_v1_logging(target_veteran&.mpi_icn)
 
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
@@ -188,7 +183,7 @@ module ClaimsApi
         rescue ::Common::Exceptions::GatewayTimeout,
                ::Timeout::Error,
                ::Faraday::TimeoutError,
-               Faraday::Error::ParsingError,
+               Faraday::ParsingError,
                Breakers::OutageException => e
           req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
           PersonalInformationLog.create(

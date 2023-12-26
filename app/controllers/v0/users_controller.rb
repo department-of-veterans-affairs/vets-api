@@ -5,6 +5,7 @@ require 'logging/third_party_transaction'
 module V0
   class UsersController < ApplicationController
     extend Logging::ThirdPartyTransaction::MethodWrapper
+    service_tag 'identity'
 
     wrap_with_logging(
       :show,
@@ -21,6 +22,10 @@ module V0
         serializer: UserSerializer,
         meta: { errors: pre_serialized_profile.errors }
       )
+    end
+
+    def icn
+      render json: { icn: current_user.icn }, status: :ok
     end
   end
 end

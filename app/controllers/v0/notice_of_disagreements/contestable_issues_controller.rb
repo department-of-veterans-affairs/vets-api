@@ -3,6 +3,8 @@
 module V0
   module NoticeOfDisagreements
     class ContestableIssuesController < AppealsBaseController
+      service_tag 'board-appeal'
+
       def index
         render json: decision_review_service
           .get_notice_of_disagreement_contestable_issues(user: current_user)

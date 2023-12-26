@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class FacilitiesController < ApplicationController
+  service_tag 'facility-locator'
   skip_before_action :authenticate
 
   PAGINATED_CLASSES = [

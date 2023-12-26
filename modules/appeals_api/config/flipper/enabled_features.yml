@@ -2,6 +2,7 @@ common:
   - decision_review_hlr_email
   - decision_review_nod_email
   - decision_review_sc_email
+  - decision_review_delay_evidence
 development:
   - decision_review_icn_updater_enabled
   - decision_review_sc_pact_act_boolean
@@ -11,7 +12,6 @@ staging:
   - decision_review_daily_stuck_records_report_enabled
   - decision_review_monthly_stats_report_enabled
   - decision_review_sc_pact_act_boolean
-  - decision_review_delay_evidence
 sandbox:
 production:
   - decision_review_hlr_pii_expunge_enabled

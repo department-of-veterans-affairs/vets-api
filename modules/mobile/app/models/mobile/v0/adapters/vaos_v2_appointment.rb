@@ -13,17 +13,13 @@ module Mobile
           va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
         }.freeze
 
-        HIDDEN_STATUS = %w[
-          noshow
-          pending
-        ].freeze
-
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',
           arrived: 'BOOKED',
           cancelled: 'CANCELLED',
-          hidden: 'HIDDEN',
+          noshow: 'HIDDEN',
+          pending: 'HIDDEN',
           proposed: 'SUBMITTED'
         }.freeze
 
@@ -101,6 +97,7 @@ module Mobile
             healthcare_provider: appointment[:healthcare_provider],
             healthcare_service:,
             location:,
+            physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
             phone_only: appointment[:kind] == PHONE_KIND,
             start_date_local:,
@@ -244,8 +241,6 @@ module Mobile
         end
 
         def status
-          return STATUSES[:hidden] if HIDDEN_STATUS.include?(appointment[:status])
-
           STATUSES[appointment[:status].to_sym]
         end
 
@@ -480,10 +475,16 @@ module Mobile
         end
 
         def embedded_data_match(key)
-          match = appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
+          camelized_key = key.gsub(' ', '_').camelize(:lower)
+          match = reason_code_match(key) || reason_code_match(camelized_key)
+
           return nil unless match
 
           match[2].strip.presence
+        end
+
+        def reason_code_match(key)
+          appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
         end
 
         def time_to_datetime(time)

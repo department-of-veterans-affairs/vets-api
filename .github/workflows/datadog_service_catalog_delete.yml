@@ -1,0 +1,64 @@
+name: Delete Datadog service from Datadog
+on:
+  pull_request:
+    types:
+      - merged
+    branches:
+      - master
+    paths:
+      - "datadog-service-catalog/**.yml"
+
+jobs:
+  get_deleted_services:
+    name: 'Get deleted service filenames'
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{steps.one.outputs.files}}
+    steps:
+      - name: 'Checkout repo'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: one
+        name: 'Check for deleted DataDog service files'
+        run: |
+          git fetch origin master
+          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only origin/master.. -- "datadog-service-catalog/**.yml"))
+          out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.]')
+          echo $out
+          echo ::set-output name=files::$out
+
+  delete_services:
+    name: 'Delete services from Datadog'
+    runs-on: ubuntu-latest
+    needs:
+      - get_deleted_services
+    strategy:
+      matrix:
+        file: ${{fromJSON(needs.get_deleted_services.outputs.files)}}
+    steps:
+      - name: 'Checkout master branch'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+          token: ${{github.token}}
+      - name: 'Get service name from file'
+        id: parse_service_name
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -o=json '.dd-service' ${{matrix.file}}
+      - name: 'Get schema version from file'
+        id: parse_schema_version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -o=json '.schema-version' ${{matrix.file}}
+      - name: 'Delete service'
+        run: |
+              service=${{steps.parse_service_name.outputs.result}}
+              schema=${{steps.parse_schema_version.outputs.result}}
+              echo "Deleting $service@$schema from Datadog Service Catalog"
+              curl --location --request DELETE 'https://api.ddog-gov.com/api/v2/services/definitions/$service?schema_version=$schema' \
+              --header 'Accept: application/json' \
+              --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
+              --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \

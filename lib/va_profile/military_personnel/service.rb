@@ -37,10 +37,12 @@ module VAProfile
           )
 
           return ServiceHistoryResponse.new(404, episodes: nil)
-        elsif error_status >= 400 && error_status < 500
-          return ServiceHistoryResponse.new(e.status, episodes: nil)
+        elsif error_status && error_status >= 400 && error_status < 500
+          return ServiceHistoryResponse.new(error_status, episodes: nil)
         end
 
+        # Sometimes e.status is nil. Why?
+        Rails.logger.info('Miscellaneous service history error', error: e)
         handle_error(e)
       rescue => e
         handle_error(e)

@@ -6,6 +6,7 @@ require 'pension_burial/tag_sentry'
 module StructuredData
   class ProcessDataJob
     include Sidekiq::Job
+    include SentryLogging
 
     sidekiq_options retry: false
 
@@ -27,12 +28,13 @@ module StructuredData
         send_confirmation_email if @claim.form_id == '21P-530'
 
         # veteran lookup for hit/miss metrics in support of Automation work
-        StatsD.increment("#{stats_key}.success", tags: [
-                           "relationship:#{relationship_type}",
-                           "veteranInMVI:#{veteran&.participant_id}"
-                         ])
+        StatsD.increment("#{stats_key}.success",
+                         tags: %W[relationship:#{relationship_type} veteranInMVI:#{veteran&.participant_id}])
+        log_message_to_sentry("Successfully processed data job form id #{@claim.form_id}", :info)
       end
-    rescue
+    rescue => e
+      log_message_to_sentry("Error processing data job form id #{@claim.form_id}", :error)
+      log_exception_to_sentry(e, { form_id: @claim.form_id })
       raise
     end
 

@@ -46,6 +46,8 @@ module MAP
           config.chatbot_client_id
         when :sign_up_service
           config.sign_up_service_client_id
+        when :check_in
+          config.check_in_client_id
         else
           raise Errors::ApplicationMismatchError, "#{config.logging_prefix} application mismatch detected"
         end

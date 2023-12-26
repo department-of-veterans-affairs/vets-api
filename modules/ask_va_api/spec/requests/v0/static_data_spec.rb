@@ -11,6 +11,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
@@ -26,30 +27,19 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #index' do
     let(:index_path) { '/ask_va_api/v0/static_data' }
-    let(:expected_response) do
-      {
-        'Emily' => {
-          'data-info' => 'emily@oddball.io'
-        }, 'Eddie' => {
-          'data-info' => 'eddie.otero@oddball.io'
-        }, 'Jacob' => {
-          'data-info' => 'jacob@docme360.com'
-        }, 'Joe' => {
-          'data-info' => 'joe.hall@thoughtworks.com'
-        }, 'Khoa' => {
-          'data-info' => 'khoa.nguyen@oddball.io'
-        }
-      }
-    end
+    let(:expected_response) { 'pong' }
 
     before do
+      entity = OpenStruct.new(id: nil, info: 'pong')
+      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'topics').and_return(entity)
       get index_path
     end
 
     context 'when successful' do
       it 'returns status of 200 and the correct response data' do
+        result = JSON.parse(response.body)['table']['info']
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq(expected_response)
+        expect(result).to eq(expected_response)
       end
     end
   end
@@ -75,14 +65,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(Crm::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+          .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
         get categories_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::ServiceError: service error'
+                      'Crm::ErrorHandler::ServiceError: service error'
     end
   end
 
@@ -114,14 +104,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(Crm::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+          .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
         get topics_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::ServiceError: service error'
+                      'Crm::ErrorHandler::ServiceError: service error'
     end
   end
 

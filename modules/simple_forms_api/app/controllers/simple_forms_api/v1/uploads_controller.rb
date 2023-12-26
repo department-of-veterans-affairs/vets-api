@@ -2,12 +2,13 @@
 
 require 'ddtrace'
 require 'simple_forms_api_submission/service'
+require 'simple_forms_api_submission/metadata_validator'
 
 module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate
-      before_action :authenticate, if: :form_is210966
+      before_action :authenticate, if: :should_authenticate
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -19,7 +20,8 @@ module SimpleFormsApi
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
         '10-10D' => 'vha_10_10d',
-        '40-0247' => 'vba_40_0247'
+        '40-0247' => 'vba_40_0247',
+        '20-10206' => 'vba_20_10206'
       }.freeze
 
       def submit
@@ -58,9 +60,10 @@ module SimpleFormsApi
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(params, icn)
         existing_intents = intent_service.existing_intents
-        expiration_date = intent_service.submit
+        confirmation_number, expiration_date = intent_service.submit
 
         render json: {
+          confirmation_number:,
           expiration_date:,
           compensation_intent: existing_intents['compensation'],
           pension_intent: existing_intents['pension'],
@@ -69,20 +72,20 @@ module SimpleFormsApi
       end
 
       def submit_form_to_central_mail
-        parsed_form_data = JSON.parse(params.to_json)
-        form_id = FORM_NUMBER_MAP[params[:form_number]]
+        parsed_form_data = form_is210966 ? handle_210966_data : JSON.parse(params.to_json)
+        form_id = get_form_id
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
-        metadata = filler.metadata
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(filler.metadata)
 
-        handle_attachments(file_path) if form_id == 'vba_40_0247'
+        SimpleFormsApi::VBA400247.new(parsed_form_data).handle_attachments(file_path) if form_id == 'vba_40_0247'
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @user
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
           ).send
         end
 
@@ -108,7 +111,15 @@ module SimpleFormsApi
       def upload_pdf_to_benefits_intake(file_path, metadata)
         lighthouse_service = SimpleFormsApiSubmission::Service.new
         uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
+        form_submission = FormSubmission.create(
+          form_type: params[:form_number],
+          benefits_intake_uuid: uuid_and_location[:uuid],
+          form_data: params.to_json,
+          user_account: @current_user&.user_account
+        )
+        FormSubmissionAttempt.create(form_submission:)
 
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
           "Simple forms api - preparing to upload PDF to benefits intake:
             location: #{uuid_and_location[:location]}, uuid: #{uuid_and_location[:uuid]}"
@@ -126,29 +137,35 @@ module SimpleFormsApi
         params[:form_number] == '21-0966'
       end
 
+      def should_authenticate
+        params[:form_number] == '21-0966' || params[:form_number] == '21-0845'
+      end
+
       def icn
         @current_user&.icn
       end
 
-      def handle_attachments(file_path)
-        attachments = get_attachments
-        if attachments.count.positive?
-          combined_pdf = CombinePDF.new
-          combined_pdf << CombinePDF.load(file_path)
-          attachments.each do |attachment|
-            combined_pdf << CombinePDF.load(attachment.to_pdf)
-          end
-
-          combined_pdf.save file_path
+      def handle_210966_data
+        roles = {
+          'fiduciary' => 'Fiduciary',
+          'officer' => 'Veteran Service Officer',
+          'alternate' => 'Alternate Signer'
+        }
+        data = JSON.parse(params.to_json)
+        if data['third_party_preparer_role']
+          data['third_party_preparer_role'] = (
+            roles[data['third_party_preparer_role']] || data['other_third_party_preparer_role']
+          ) || ''
         end
+
+        data
       end
 
-      def get_attachments
-        confirmation_codes = []
-        supporting_documents = params['veteran_supporting_documents']
-        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
+      def get_form_id
+        form_number = params[:form_number]
+        raise 'missing form_number in params' unless form_number
 
-        PersistentAttachment.where(guid: confirmation_codes)
+        FORM_NUMBER_MAP[form_number]
       end
     end
   end

@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
+require 'medical_records/patient_not_found'
 
 module MedicalRecords
   ##
@@ -16,7 +17,7 @@ module MedicalRecords
     DEFAULT_COUNT = 9999
 
     # LOINC codes for clinical notes
-    PHYSICIAN_PROCEDURE_NOTE = '11505-5' # Physician procedure note
+    PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
     DISCHARGE_SUMMARY = '18842-5' # Discharge summary
 
     # LOINC codes for vitals
@@ -96,7 +97,11 @@ module MedicalRecords
     end
 
     def list_vaccines
-      bundle = fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::Immunization,
+                           {
+                             search: { parameters: { patient: patient_fhir_id } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
@@ -121,8 +126,24 @@ module MedicalRecords
 
     def list_clinical_notes
       loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
-      fhir_search(FHIR::DocumentReference,
-                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+      bundle = fhir_search(FHIR::DocumentReference,
+                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+
+      # Sort the bundle of notes based on the date field appropriate to each note type.
+      sort_bundle_with_criteria(bundle, :desc) do |resource|
+        loinc_code = if resource.respond_to?(:type) && resource.type.respond_to?(:coding)
+                       resource.type.coding&.find do |coding|
+                         coding.respond_to?(:system) && coding.system == 'http://loinc.org'
+                       end&.code
+                     end
+
+        case loinc_code
+        when PHYSICIAN_PROCEDURE_NOTE
+          resource.date
+        when DISCHARGE_SUMMARY
+          resource.context&.period&.end
+        end
+      end
     end
 
     def get_clinical_note(note_id)
@@ -254,27 +275,25 @@ module MedicalRecords
     end
 
     def handle_api_errors(result)
-      body = JSON.parse(result.body)
-      diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
-      diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
+      if result.code.present? && result.code >= 400
+        body = JSON.parse(result.body)
+        diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
+        diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
 
-      exception_class = case result.code
-                        when 401
-                          Common::Exceptions::Unauthorized
-                        when 403
-                          Common::Exceptions::Forbidden
-                        when 500
-                          if diagnostics.include? 'HAPI-1363'
-                            # HAPI-1363: Either No patient or multiple patient found
-                            Common::Exceptions::ResourceNotFound
-                          else
-                            Common::Exceptions::BadRequest
-                          end
-                        else
-                          Common::Exceptions::BadRequest
-                        end
+        # Special-case exception handling
+        if result.code == 500 && diagnostics.include?('HAPI-1363')
+          # "HAPI-1363: Either No patient or multiple patient found"
+          raise MedicalRecords::PatientNotFound
+        end
 
-      raise exception_class, { detail: diagnostics } if exception_class
+        # Default exception handling
+        raise Common::Exceptions::BackendServiceException.new(
+          "MEDICALRECORDS_#{result.code}",
+          status: result.code,
+          detail: diagnostics,
+          source: self.class.to_s
+        )
+      end
     end
 
     ##
@@ -325,27 +344,49 @@ module MedicalRecords
     # is sorted to the end.
     #
     # @param bundle [FHIR::Bundle] the bundle to sort
-    # @param field [Symbol] the field to sort on
+    # @param field [Symbol, String] the field to sort on (supports nested fields with dot notation)
     # @param order [Symbol] the sort order, :asc (default) or :desc
     #
     def sort_bundle(bundle, field, order = :asc)
+      field = field.to_s
+      sort_bundle_with_criteria(bundle, order) do |resource|
+        fetch_nested_value(resource, field)
+      end
+    end
+
+    ##
+    # Sort the FHIR::Bundle entries based on a provided block. The block should handle different resource types
+    # and define how to extract the sorting value from each.
+    #
+    # @param bundle [FHIR::Bundle] the bundle to sort
+    # @param order [Symbol] the sort order, :asc (default) or :desc
+    #
+    def sort_bundle_with_criteria(bundle, order = :asc)
       sorted_entries = bundle.entry.sort do |entry1, entry2|
-        value1 = if entry1.resource.respond_to?(field) && !entry1.resource.send(field).nil?
-                   entry1.resource.send(field)
-                 end
-        value2 = if entry2.resource.respond_to?(field) && !entry2.resource.send(field).nil?
-                   entry2.resource.send(field)
-                 end
-        if value1.nil?
-          1
-        elsif value2.nil?
+        value1 = yield(entry1.resource)
+        value2 = yield(entry2.resource)
+        if value2.nil?
           -1
+        elsif value1.nil?
+          1
         else
           order == :asc ? value1 <=> value2 : value2 <=> value1
         end
       end
       bundle.entry = sorted_entries
       bundle
+    end
+
+    ##
+    # Fetches the value of a potentially nested field from a given object.
+    #
+    # @param object [Object] the object to fetch the value from
+    # @param field_path [String] the dot-separated path to the field
+    #
+    def fetch_nested_value(object, field_path)
+      field_path.split('.').reduce(object) do |obj, method|
+        obj.respond_to?(method) ? obj.send(method) : nil
+      end
     end
 
     ##

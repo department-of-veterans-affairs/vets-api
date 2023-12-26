@@ -2,6 +2,7 @@
 
 require 'debt_management_center/base_service'
 require 'debts_api/v0/financial_status_report_configuration'
+require 'debts_api/v0/fsr_form_builder'
 require 'debts_api/v0/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debts_api/v0/financial_status_report_downloader'
@@ -49,9 +50,8 @@ module DebtsApi
     #
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
-        form = add_personal_identification(form)
-        validate_form_schema(form)
-        submit_combined_fsr(form)
+        form_builder = DebtsApi::V0::FsrFormBuilder.new(form, @file_number, @user)
+        submit_combined_fsr(form_builder)
       end
     end
 
@@ -69,21 +69,17 @@ module DebtsApi
       downloader.download_pdf
     end
 
-    def submit_combined_fsr(form)
+    def submit_combined_fsr(fsr_builder)
       Rails.logger.info('Submitting Combined FSR')
-      needs_vba = form['selectedDebtsAndCopays'].blank? || selected_vba_debts(form['selectedDebtsAndCopays']).present?
-      needs_vha = selected_vha_copays(form['selectedDebtsAndCopays']).present?
-      form['combined'] = true if needs_vba && needs_vha
-      # Edge case for old flow (pre-combined) that didn't include this field
-      create_vba_fsr(form) if needs_vba
-      create_vha_fsr(form) if needs_vha
-      aggregate_fsr_reasons(form, form['selectedDebtsAndCopays'])
+      create_vba_fsr(fsr_builder)
+      create_vha_fsr(fsr_builder)
+      user_form = fsr_builder.user_form.form_data
 
       {
         content: Base64.encode64(
           File.read(
             PdfFill::Filler.fill_ancillary_form(
-              form,
+              user_form,
               SecureRandom.uuid,
               '5655'
             )
@@ -92,33 +88,18 @@ module DebtsApi
       }
     end
 
-    def create_vba_fsr(form)
-      debts = selected_vba_debts(form['selectedDebtsAndCopays'])
-      if debts.present?
-        add_compromise_amounts(form, debts)
-        aggregate_fsr_reasons(form, debts)
+    def create_vba_fsr(fsr_builder)
+      if fsr_builder.vba_form
+        vba_submission = persist_vba_form_submission(fsr_builder)
+        vba_submission.submit_to_vba
       end
-      submission = persist_form_submission(form, debts)
-      submission.submit_to_vba
     end
 
-    def create_vha_fsr(form)
-      facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
-        copay['station']['facilitYNum']
+    def create_vha_fsr(fsr_builder)
+      if fsr_builder.vha_forms.present?
+        submissions = persist_vha_form_submission(fsr_builder)
+        submit_vha_batch_job(submissions)
       end
-      submissions = []
-      facility_copays.each do |facility_num, copays|
-        facility_form = form.deep_dup
-        facility_form['facilityNum'] = facility_num
-        facility_form['personalIdentification']['fileNumber'] = @user.ssn
-        add_compromise_amounts(facility_form, copays)
-        facility_form.delete('selectedDebtsAndCopays')
-        facility_form = remove_form_delimiters(facility_form)
-
-        submission = persist_form_submission(facility_form, copays)
-        submissions.append(submission)
-      end
-      submit_vha_batch_job(submissions)
     end
 
     def submit_vba_fsr(form)
@@ -139,7 +120,6 @@ module DebtsApi
       vha_form = form_submission.form
       vha_form['transactionId'] = form_submission.id
       vha_form['timestamp'] = DateTime.now.strftime('%Y%m%dT%H%M%S')
-      vha_form = streamline_adjustments(vha_form)
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
       Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
@@ -180,40 +160,13 @@ module DebtsApi
     private
 
     def add_vha_specific_data(form_submission)
-      combined_adjustments(form_submission)
       form = form_submission.form
       form['transactionId'] = form_submission.id
       form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
-      streamline_adjustments(form)
-    end
-
-    def combined_adjustments(submission)
-      form = submission.form
-      if submission.public_metadata['combined']
-        comments = form['additionalData']['additionalComments']
-        form['additionalData']['additionalComments'] = "Combined FSR. #{comments}"
-      end
-    end
-
-    def streamline_adjustments(form)
-      if form.key?('streamlined')
-        if form['streamlined']['value']
-          reasons_array = form['personalIdentification']['fsrReason'].split(',').map(&:strip)
-          reasons = reasons_array.push('Automatically Approved').uniq.join(', ')
-          form['personalIdentification']['fsrReason'] = reasons
-        end
-        streamline_data = form.fetch('streamlined')
-        form.reject! { |k, _v| k == 'streamlined' }
-        form['streamlined'] = streamline_data['value']
-      end
       form
     end
 
-    def raise_client_error
-      raise Common::Client::Errors::ClientError.new('malformed request', 400)
-    end
-
-    def build_public_metadata(form, debts)
+    def build_public_metadata(form_builder, form, debts)
       begin
         enabled_flags = Flipper.features.select { |feature| feature.enabled?(@user) }.map do |feature|
           feature.name.to_s
@@ -225,39 +178,21 @@ module DebtsApi
       debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
       debt_type = debts&.pluck('debtType')&.first
       {
-        'combined' => form['combined'],
+        'combined' => form_builder.is_combined,
         'debt_amounts' => debt_amounts,
         'debt_type' => debt_type,
         'flags' => enabled_flags,
-        'streamlined' => form['streamlined'],
+        'streamlined' => form_builder.streamlined_data,
         'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
       }
     end
 
-    def sanitize_submission_form(form)
-      form.delete('selectedDebtsAndCopays')
-      form.delete('combined')
-      form
+    def persist_vha_form_submission(fsr_builder)
+      fsr_builder.vha_forms.map(&:persist_form_submission)
     end
 
-    def persist_form_submission(form, debts)
-      metadata = {
-        debts: selected_vba_debts(debts),
-        copays: selected_vha_copays(debts)
-      }.to_json
-      form_json = form.deep_dup
-
-      public_metadata = build_public_metadata(form_json, debts)
-      form_json = sanitize_submission_form(form_json)
-
-      DebtsApi::V0::Form5655Submission.create(
-        form_json: form_json.to_json,
-        metadata:,
-        user_uuid: @user.uuid,
-        user_account: @user.user_account,
-        public_metadata:,
-        state: 1
-      )
+    def persist_vba_form_submission(fsr_builder)
+      fsr_builder.vba_form.persist_form_submission
     end
 
     def submit_vha_batch_job(vha_submissions)
@@ -278,14 +213,6 @@ module DebtsApi
       end
     end
 
-    def selected_vba_debts(debts)
-      debts&.filter { |debt| debt['debtType'] == 'DEBT' }
-    end
-
-    def selected_vha_copays(debts)
-      debts&.filter { |debt| debt['debtType'] == 'COPAY' }
-    end
-
     def update_filenet_id(response)
       fsr_params = { REDIS_CONFIG[:financial_status_report][:namespace] => @user.uuid }
       fsr = DebtManagementCenter::FinancialStatusReport.new(fsr_params)
@@ -300,49 +227,11 @@ module DebtsApi
       end
     end
 
-    def camelize(hash)
-      hash.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-    end
-
-    def add_personal_identification(form)
-      form = camelize(form)
-      raise_client_error unless form.key?('personalIdentification')
-      form['personalIdentification']['fileNumber'] = @file_number
-      set_certification_date(form)
-      form
-    end
-
-    def aggregate_fsr_reasons(form, debts)
-      return if debts.blank?
-
-      form['personalIdentification']['fsrReason'] = debts.pluck('resolutionOption').uniq.join(', ')
-    end
-
-    def add_compromise_amounts(form, debts)
-      form['additionalData']['additionalComments'] =
-        "#{form['additionalData']['additionalComments']}#{get_compromise_amount_text(debts)}"
-    end
-
-    def get_compromise_amount_text(debts)
-      debts.map do |debt|
-        if debt['resolutionOption'] == 'compromise'
-          "#{DEDUCTION_CODES[debt['deductionCode']]} compromise amount: $#{debt['resolutionComment']}"
-        end
-      end.join(', ')
-    end
-
     def validate_form_schema(form)
       schema_path = Rails.root.join('lib', 'debt_management_center', 'schemas', 'fsr.json').to_s
       errors = JSON::Validator.fully_validate(schema_path, form)
 
       raise FSRInvalidRequest if errors.any?
-    end
-
-    def set_certification_date(form)
-      date = Time.now.in_time_zone(self.class::DATE_TIMEZONE).to_date
-      date_formatted = date.strftime('%m/%d/%Y')
-
-      form['applicantCertifications']['veteranDateSigned'] = date_formatted if form['applicantCertifications']
     end
 
     def send_confirmation_email(template_id)
@@ -356,16 +245,6 @@ module DebtsApi
 
     def email_personalization_info
       { 'name' => @user.first_name, 'time' => '48 hours', 'date' => Time.zone.now.strftime('%m/%d/%Y') }
-    end
-
-    def remove_form_delimiters(form)
-      form.deep_transform_values do |val|
-        if val.is_a?(String)
-          val.gsub(/[\^|\n]/, '')
-        else
-          val
-        end
-      end
     end
 
     def vbs_settings

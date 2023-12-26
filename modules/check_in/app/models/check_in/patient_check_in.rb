@@ -43,9 +43,9 @@ module CheckIn
     # @return [Faraday::Response]
     #
     def client_error
-      body = { error: true, message: "Invalid uuid #{uuid}" }
+      response_body = { error: true, message: "Invalid uuid #{uuid}" }
 
-      Faraday::Response.new(body:, status: 400)
+      Faraday::Response.new(response_body:, status: 400)
     end
   end
 end

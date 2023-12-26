@@ -62,5 +62,6 @@ module SignIn
     class CredentialMissingAttributeError < StandardError; end
     class InvalidAccessTokenAttributeError < StandardError; end
     class TermsOfUseNotAcceptedError < StandardError; end
+    class CredentialLockedError < StandardError; end
   end
 end

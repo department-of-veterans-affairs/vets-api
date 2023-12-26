@@ -23,6 +23,7 @@ data:
           extension: null
         url: null
         code: GL45678
+      physicalLocation: null
       minutesDuration: 60
       phoneOnly: false
       startDateLocal: 2019-04-20T14:15:00.000-04:00

@@ -48,6 +48,7 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
+    resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
@@ -100,7 +101,9 @@ Rails.application.routes.draw do
     resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
-    resource :user, only: [:show]
+    resource :user, only: [:show] do
+      get 'icn', to: 'users#icn'
+    end
     resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -349,11 +352,6 @@ Rails.application.routes.draw do
 
     resources :apidocs, only: [:index]
 
-    get 'terms_and_conditions', to: 'terms_and_conditions#index'
-    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
-    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
-    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
-
     get 'feature_toggles', to: 'feature_toggles#index'
 
     resource :mhv_opt_in_flags, only: %i[show create]
@@ -374,13 +372,20 @@ Rails.application.routes.draw do
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+    put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
     resources :form1010_ezrs, only: %i[create]
+
+    post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
   end
   # end /v0
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]
+
+    namespace :profile do
+      resource :military_info, only: :show, defaults: { format: :json }
+    end
 
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
@@ -435,7 +440,6 @@ Rails.application.routes.draw do
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
     mount VAForms::Engine, at: '/va_forms'
-    mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
@@ -455,6 +459,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount VAOS::Engine, at: '/vaos'
+  mount Vye::Engine, at: '/vye'
   # End Modules
 
   require 'sidekiq/web'

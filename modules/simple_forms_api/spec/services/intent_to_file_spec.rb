@@ -17,7 +17,7 @@ describe SimpleFormsApi::IntentToFile do
       }
     end
 
-    it 'returns nil if no new ITF is filed' do
+    it 'returns no confirmation number and no expiration date if no new ITF is filed' do
       icn = 'fake-icn'
       intent_to_file_service = SimpleFormsApi::IntentToFile.new(params, icn)
       expiration_date = 'fake-expiration-date'
@@ -35,7 +35,7 @@ describe SimpleFormsApi::IntentToFile do
 
       result = intent_to_file_service.submit
 
-      expect(result).to eq nil
+      expect(result).to eq [nil, nil]
     end
   end
 
@@ -57,8 +57,10 @@ describe SimpleFormsApi::IntentToFile do
       icn = 'fake-icn'
       intent_to_file_service = SimpleFormsApi::IntentToFile.new(params, icn)
       expiration_date = 'fake-expiration-date'
+      id = 'fake-id'
       compensation_intent = {
         'data' => {
+          'id' => id,
           'attributes' => {
             'expirationDate' => expiration_date
           }
@@ -75,7 +77,7 @@ describe SimpleFormsApi::IntentToFile do
 
       result = intent_to_file_service.submit
 
-      expect(result).to eq expiration_date
+      expect(result).to eq [id, expiration_date]
     end
   end
 end

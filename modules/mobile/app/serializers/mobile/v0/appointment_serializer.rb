@@ -12,6 +12,7 @@ module Mobile
                  :healthcare_provider,
                  :healthcare_service,
                  :location,
+                 :physical_location,
                  :minutes_duration,
                  :phone_only,
                  :start_date_local,

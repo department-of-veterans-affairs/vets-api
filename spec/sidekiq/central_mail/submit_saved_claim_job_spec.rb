@@ -32,14 +32,27 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
       let(:success) { false }
 
       it 'raises CentralMailResponseError and updates submission to failed' do
+        expect(Rails.logger).to receive(:warn).exactly(:once)
         expect { job.perform(claim.id) }.to raise_error(CentralMail::SubmitSavedClaimJob::CentralMailResponseError)
         expect(central_mail_submission.reload.state).to eq('failed')
       end
     end
 
     it 'submits the saved claim and updates submission to success' do
+      expect(Rails.logger).to receive(:info).exactly(:twice)
       job.perform(claim.id)
       expect(central_mail_submission.reload.state).to eq('success')
+    end
+  end
+
+  describe 'sidekiq_retries_exhausted block' do
+    it 'logs a distrinct error when retries are exhausted' do
+      CentralMail::SubmitSavedClaimJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once).with(
+          'Failed all retries on CentralMail::SubmitSavedClaimJob, last error: An error occured'
+        )
+        expect(StatsD).to receive(:increment).with('worker.central_mail.submit_saved_claim_job.exhausted')
+      end
     end
   end
 
@@ -137,6 +150,29 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
           'ahash1' => 'hash2',
           'numberPages1' => 2
         )
+      end
+
+      context 'with bad metadata names' do
+        let(:pension_burial) { create(:pension_burial_bad_names) }
+        let(:claim) { pension_burial.saved_claim }
+
+        it 'strips invalid characters from veteran name from the metadata', run_at: '2017-01-04 03:00:00 EDT' do
+          expect(job.generate_metadata).to eq(
+            'veteranFirstName' => 'WA',
+            'veteranLastName' => 'Ford',
+            'fileNumber' => '796043735',
+            'receiveDt' => '2017-01-04 01:00:00',
+            'zipCode' => '90210',
+            'uuid' => claim.guid,
+            'source' => 'va.gov',
+            'hashV' => 'hash1',
+            'numberAttachments' => 1,
+            'docType' => '21P-530',
+            'numberPages' => 1,
+            'ahash1' => 'hash2',
+            'numberPages1' => 2
+          )
+        end
       end
     end
   end

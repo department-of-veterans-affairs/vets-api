@@ -28,7 +28,8 @@ module CheckIn
           workflow:,
           uuid:,
           controller: ctrl_name,
-          action: ctrl_action
+          action: ctrl_action,
+          initiated_by:
         }
       end
 
@@ -60,6 +61,17 @@ module CheckIn
 
       def uuid
         ctrl.params[:id] || ctrl.permitted_params[:uuid]
+      end
+
+      def initiated_by
+        case ctrl.controller_name
+        when 'patient_check_ins'
+          set_e_checkin_started_called = ctrl.params[:set_e_checkin_started_called] ||
+                                         ctrl.params.dig(:patient_check_ins, :set_e_checkin_started_called)
+          set_e_checkin_started_called ? 'veteran' : 'vetext'
+        else
+          ''
+        end
       end
     end
   end

@@ -28,6 +28,14 @@ module HCA
         'groupNumber' => 'insuranceGroupCode'
       }.freeze
 
+      MARITAL_STATUSES = %w[
+        Married
+        Never Married
+        Separated
+        Widowed
+        Divorced
+      ].freeze
+
       MEDICARE = 'Medicare'
 
       def get_ezr_data(icn)
@@ -90,7 +98,8 @@ module HCA
           priority_group: get_xpath(
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
-          )
+          ),
+          can_submit_financial_info: !income_year_is_last_year?(response)
         }
       end
       # rubocop:enable Metrics/MethodLength
@@ -115,6 +124,17 @@ module HCA
         )
       end
 
+      def get_marital_status(response)
+        marital_status = get_locate_value(
+          response,
+          "#{XPATH_PREFIX}demographics/maritalStatus"
+        )
+
+        return unless MARITAL_STATUSES.include?(marital_status)
+
+        marital_status
+      end
+
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)
         spouse_financials_xpath =
@@ -136,6 +156,7 @@ module HCA
 
               return_val
             end.call,
+            maritalStatus: get_marital_status(response),
             dateOfMarriage: get_locate_value_date(
               response,
               "#{spouse_financials_xpath}spouse/startDate"
@@ -294,6 +315,15 @@ module HCA
             end
           end
         end.to_xml
+      end
+
+      def income_year_is_last_year?(response)
+        income_year = get_xpath(
+          response,
+          "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
+        )
+
+        income_year == (DateTime.now.utc.year - 1).to_s
       end
       # rubocop:enable Metrics/MethodLength
     end

@@ -13,7 +13,7 @@ module TestUserDashboard
     private
 
     def checkin_tud_accounts
-      TestUserDashboard::TudAccount.where.not(checkout_time: nil).each do |account|
+      TestUserDashboard::TudAccount.where.not(checkout_time: nil).find_each do |account|
         account.update(checkout_time: nil)
 
         TestUserDashboard::AccountMetrics

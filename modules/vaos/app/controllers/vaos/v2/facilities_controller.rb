@@ -28,8 +28,6 @@ module VAOS
 
       def facility_id
         params[:facility_id]
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('facility_id', params[:facility_id])
       end
 
       def ids

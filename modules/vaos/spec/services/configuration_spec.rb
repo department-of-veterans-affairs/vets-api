@@ -13,6 +13,17 @@ describe VAOS::Configuration do
     it 'returns a connection' do
       expect(VAOS::Configuration.instance.connection).not_to be_nil
     end
+
+    context 'when VAOS_DEBUG is set and not in production' do
+      it 'sets up the connection with a stdout logger to display requests in curl format' do
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('VAOS_DEBUG').and_return('true')
+
+        conn = VAOS::Configuration.instance.connection
+        expect(conn.builder.handlers).to include(Faraday::Response::Logger)
+        expect(conn.builder.handlers).to include(Faraday::Curl::Middleware)
+      end
+    end
   end
 
   describe '#mock_enabled?' do

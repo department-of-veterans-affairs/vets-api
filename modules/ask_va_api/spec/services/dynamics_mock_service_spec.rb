@@ -6,7 +6,7 @@ RSpec.describe DynamicsMockService do
   let(:endpoint) { 'get_inquiries_mock_data' }
   let(:method) { 'GET' }
   let(:payload) { {} }
-  let(:service) { described_class.new(sec_id: nil, logger: nil) }
+  let(:service) { described_class.new(icn: nil, logger: nil) }
   let(:file_path) { "modules/ask_va_api/config/locales/#{endpoint.tr('/', '_')}.json" }
 
   describe '#call' do
@@ -35,46 +35,49 @@ RSpec.describe DynamicsMockService do
     end
 
     context 'when the file contains valid JSON content' do
-      context 'with inquiry_number payload' do
-        let(:payload) { { inquiry_number: 'A-1' } }
-        let(:expected_result) do
-          { respond_reply_id: 'Original Question',
-            inquiryNumber: 'A-1',
-            inquiryTopic: 'Topic',
-            inquiryProcessingStatus: 'Close',
-            lastUpdate: '08/07/23',
-            submitterQuestions: 'When is Sergeant Joe Smith birthday?',
-            attachments: [{ activity: 'activity_1',
-                            date_sent: '08/7/23' }],
-            sec_id: '0001740097' }
+      let(:expected_result) do
+        {
+          icn: '1008709396V637156',
+          id: '1',
+          inquiryNumber: 'A-1',
+          inquiryStatus: 'In Progress',
+          submitterQuestion: 'What is my status?',
+          lastUpdate: '12/20/23',
+          inquiryHasAttachments: true,
+          inquiryHasBeenSplit: true,
+          veteranRelationship: 'self',
+          schoolFacilityCode: '0123',
+          inquiryTopic: 'Status of a pending claim',
+          inquiryLevelOfAuthentication: 'Personal',
+          attachmentNames: [
+            {
+              id: '1',
+              name: 'testfile.txt'
+            }
+          ]
+        }
+      end
+
+      context 'with id payload' do
+        let(:payload) { { id: '1' } }
+
+        it 'filters data based on id' do
+          expect(service.call(endpoint:, payload:)).to eq([expected_result])
         end
 
-        it 'filters data based on inquiry number' do
-          expect(service.call(endpoint:, payload:)).to eq(expected_result)
-        end
-
-        context 'with non-existent inquiry_number' do
-          let(:payload) { { inquiry_number: 99 } }
+        context 'with non-existent id' do
+          let(:payload) { { id: '99' } }
 
           it 'returns an empty hash' do
-            expect(service.call(endpoint:, payload:)).to eq({})
+            expect(service.call(endpoint:, payload:)).to eq([])
           end
         end
       end
 
-      context 'with sec_id payload' do
-        let(:payload) { { sec_id: '0001740097' } }
-        let(:expected_result) do
-          { respond_reply_id: 'Original Question',
-            inquiryNumber: 'A-1',
-            inquiryTopic: 'Topic',
-            inquiryProcessingStatus: 'Close',
-            lastUpdate: '08/07/23',
-            submitterQuestions: 'When is Sergeant Joe Smith birthday?',
-            sec_id: '0001740097' }
-        end
+      context 'with icn payload' do
+        let(:payload) { { icn: '1008709396V637156' } }
 
-        it 'filters data based on sec_id and excludes attachments' do
+        it 'filters data based on icn and excludes attachments' do
           expect(service.call(endpoint:, payload:).first).to eq(expected_result)
         end
       end

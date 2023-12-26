@@ -70,6 +70,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                              'url' => nil,
                                              'code' => nil
                                            },
+                                           'physical_location' => nil,
                                            'minutes_duration' => 30,
                                            'phone_only' => false,
                                            'start_date_local' => '2022-08-27T09:45:00.000-06:00',
@@ -126,6 +127,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'url' => nil,
                                           'code' => nil
                                         },
+                                        'physical_location' => nil,
                                         'minutes_duration' => 30,
                                         'phone_only' => false,
                                         'start_date_local' => '2018-03-07T00:00:00.000-07:00',
@@ -187,6 +189,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'url' => nil,
                                           'code' => nil
                                         },
+                                        'physical_location' => nil,
                                         'minutes_duration' => 60,
                                         'phone_only' => false,
                                         'start_date_local' => '2022-01-11T08:00:00.000-07:00',
@@ -247,6 +250,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             'url' => nil,
                                             'code' => nil
                                           },
+                                          'physical_location' => nil,
                                           'minutes_duration' => 60,
                                           'phone_only' => false,
                                           'start_date_local' => '2022-01-25T17:00:00.000-07:00',
@@ -315,6 +319,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             'url' => nil,
                                             'code' => nil
                                           },
+                                          'physical_location' => nil,
                                           'minutes_duration' => nil,
                                           'phone_only' => false,
                                           'start_date_local' => '2021-09-27T18:00:00.000-06:00',
@@ -376,6 +381,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                          'url' => nil,
                                          'code' => nil
                                        },
+                                       'physical_location' => nil,
                                        'minutes_duration' => nil,
                                        'phone_only' => true,
                                        'start_date_local' => '2021-10-01T06:00:00.000-06:00',
@@ -430,6 +436,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                       'extension' => nil },
                                          'url' => 'http://www.meeting.com',
                                          'code' => nil },
+                                      'physical_location' => nil,
                                       'minutes_duration' => nil,
                                       'phone_only' => false,
                                       'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -487,6 +494,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                        'extension' => nil },
                                           'url' => 'http://www.meeting.com',
                                           'code' => '420835' },
+                                       'physical_location' => nil,
                                        'minutes_duration' => nil,
                                        'phone_only' => false,
                                        'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -535,6 +543,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'phone' => { 'area_code' => '307', 'number' => '778-7550', 'extension' => nil },
                                         'url' => 'http://www.meeting.com',
                                         'code' => nil },
+                                     'physical_location' => nil,
                                      'minutes_duration' => nil,
                                      'phone_only' => false,
                                      'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -589,6 +598,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                        'extension' => nil },
                                                     'url' => nil,
                                                     'code' => nil },
+                                                'physical_location' => nil,
                                                 'minutes_duration' => nil,
                                                 'phone_only' => false,
                                                 'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -647,6 +657,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                             'url' => nil,
                                                             'code' => nil
                                                           },
+                                                          'physical_location' => nil,
                                                           'minutes_duration' => nil,
                                                           'phone_only' => false,
                                                           'start_date_local' => '2017-05-15T18:00:00.000-06:00',
@@ -817,6 +828,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
             'url' => nil,
             'code' => nil
           },
+          'physical_location' => nil,
           'minutes_duration' => nil,
           'phone_only' => false,
           'start_date_local' => '2022-12-12T19:00:00.000-05:00',
@@ -899,6 +911,23 @@ preferred dates:12/13/2022 PM|pager number:8675309"
         expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
         expect(result.comment).to be_nil
         expect(result.reason).to be_nil
+      end
+    end
+
+    context 'when some acheron field keys are camel case' do
+      it 'parses both camel case and non camel case fields' do
+        appointment = appointment_data[12]
+        appointment[:reason_code][:coding] = [{ code: 'will not be used' }]
+        appointment[:contact] = { telecom: { email: 'will not be used', phone: '1112223333' } }
+        appointment[:comment] = 'will not be used'
+        appointment[:reason_code][:text] =
+          'email:melissa.gra@va.gov|preferred dates:12/13/2022 AM|reasonCode:ROUTINEVISIT|comments:My leg!'
+
+        result = subject.parse([appointment]).first
+        expect(result.patient_email).to eq('melissa.gra@va.gov')
+        expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
+        expect(result.comment).to eq('My leg!')
+        expect(result.reason).to eq('Routine Follow-up')
       end
     end
   end

@@ -36,6 +36,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
+        physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         expect(location).to eq({ 'id' => '983',
                                  'name' => 'Cheyenne VA Medical Center',
@@ -51,6 +52,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                      'extension' => nil },
                                  'url' => nil,
                                  'code' => nil })
+        expect(physical_location).to eq('MTZ OPC, LAB')
       end
     end
 
@@ -207,10 +209,13 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     end
 
     describe 'healthcare provider names' do
+      let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
+
       def fetch_appointments
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                             erb: erb_template_params,
                              match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
                                                                     tag: :force_utf8) do
@@ -241,6 +246,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                               erb: erb_template_params,
                                match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/providers/get_provider_400', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
@@ -257,6 +263,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                               erb: erb_template_params,
                                match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/providers/get_provider_500', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
@@ -309,6 +316,34 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(appt_ien).to be_nil
         end
+      end
+    end
+
+    describe 'upcoming_appointments_count and upcoming_days_limit' do
+      before { Timecop.freeze(Time.zone.parse('2022-01-24T00:00:00Z')) }
+
+      it 'includes the upcoming_days_limit and a count of booked appointments within that limit in the meta' do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                             erb: { start_date: '2021-01-01T00:00:00Z', end_date: '2023-02-18T23:59:59Z' },
+                             match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                    tag: :force_utf8) do
+                get '/mobile/v0/appointments', headers: sis_headers
+              end
+            end
+          end
+        end
+
+        expected_upcoming_pending_count = response.parsed_body['data'].count do |appt|
+          appt_start_time = DateTime.parse(appt['attributes']['startDateUtc'])
+          appt['attributes']['isPending'] == false && appt['attributes']['status'] == 'BOOKED' &&
+            appt_start_time > Time.now.utc && appt_start_time <= 2.weeks.from_now.end_of_day.utc
+        end
+        expect(expected_upcoming_pending_count).to eq(2)
+        expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(2)
+        expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
       end
     end
   end

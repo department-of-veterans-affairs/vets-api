@@ -48,7 +48,10 @@
         "tracking_list",
         "rx_rf_records",
         "tracking",
-        "orderable_item"],
+        "orderable_item",
+        "sorted_dispensed_date",
+        "prescription_image"
+      ],
       "properties": {
         "prescription_id": { "type": ["integer", "null"] },
         "prescription_number": { "type": ["string", "null"] },
@@ -162,7 +165,9 @@
           }
         },
         "tracking": { "type": ["boolean", "null"] },
-        "orderable_item": { "type": ["string", "null"] }
+        "orderable_item": { "type": ["string", "null"] },
+        "sorted_dispensed_date": { "type": "string", "format": "date" },
+        "prescription_image": { "type": ["string", "null"] }
       }
     },
     "links": {

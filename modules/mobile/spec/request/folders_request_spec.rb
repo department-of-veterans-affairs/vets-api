@@ -198,6 +198,15 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
           end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
         end
       end
+
+      it 'shows a count of read and unread' do
+        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+          get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
+        end
+
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(6)
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'unread')).to eq(4)
+      end
     end
   end
 end

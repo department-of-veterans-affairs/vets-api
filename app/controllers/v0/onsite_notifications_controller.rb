@@ -2,6 +2,7 @@
 
 module V0
   class OnsiteNotificationsController < ApplicationController
+    service_tag 'on-site-notifications'
     BEARER_PATTERN = /^Bearer /
 
     skip_before_action :verify_authenticity_token, only: [:create]

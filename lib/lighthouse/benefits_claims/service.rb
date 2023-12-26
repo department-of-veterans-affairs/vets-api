@@ -25,7 +25,7 @@ module BenefitsClaims
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError => e
+    rescue Faraday::ClientError, Faraday::ServerError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
@@ -33,7 +33,7 @@ module BenefitsClaims
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError => e
+    rescue Faraday::ClientError, Faraday::ServerError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
@@ -41,7 +41,7 @@ module BenefitsClaims
       config.post("#{@icn}/claims/#{id}/5103", {}, lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError => e
+    rescue Faraday::ClientError, Faraday::ServerError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
@@ -49,7 +49,7 @@ module BenefitsClaims
       endpoint = 'benefits_claims/intent_to_file'
       path = "#{@icn}/intent-to-file/#{type}"
       config.get(path, lighthouse_client_id, lighthouse_rsa_key_path, options).body
-    rescue Faraday::ClientError => e
+    rescue Faraday::ClientError, Faraday::ServerError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
@@ -77,7 +77,7 @@ module BenefitsClaims
         },
         lighthouse_client_id, lighthouse_rsa_key_path, options
       ).body
-    rescue Faraday::ClientError => e
+    rescue Faraday::ClientError, Faraday::ServerError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
@@ -97,14 +97,17 @@ module BenefitsClaims
       # if we're coming straight from the transformation service without
       # making this a jsonapi request body first ({data: {type:, attributes}}),
       # this will put it in the correct format for transmission
-      if body['attributes'].blank?
-        body = {
-          data: {
-            type: 'form/526',
-            attributes: body
-          }
-        }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
-      end
+
+      body = {
+        data: {
+          type: 'form/526',
+          attributes: body
+        }
+      }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+
+      # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
+      # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
+      fix_current_va_employee(body)
 
       response = config.post(
         path,
@@ -113,11 +116,21 @@ module BenefitsClaims
       )
 
       submit_response(response, options[:body_only])
-    rescue Faraday::ClientError => e
+    rescue Faraday::ClientError, Faraday::ServerError => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
     private
+
+    def fix_current_va_employee(body)
+      if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
+           field['currentVAEmployee']
+         end&.key?('currentVAEmployee')
+        body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+          body['data']['attributes']['veteranIdentification']['currentVAEmployee']
+        body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
 
     def submit_response(response, body_only)
       if body_only

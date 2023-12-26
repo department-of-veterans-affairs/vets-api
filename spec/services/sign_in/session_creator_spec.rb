@@ -19,6 +19,28 @@ RSpec.describe SignIn::SessionCreator do
       let(:access_token_attributes) { %w[first_name last_name email] }
       let(:enforced_terms) { nil }
 
+      context 'expected credential_lock validation' do
+        let(:validated_credential) { create(:validated_credential, client_config:, user_verification:) }
+        let(:user_verification) { create(:user_verification, locked:) }
+        let(:locked) { false }
+        let(:expected_error) { SignIn::Errors::CredentialLockedError }
+        let(:expected_error_message) { 'Credential is locked' }
+
+        context 'when the UserVerification is not locked' do
+          it 'does not return an error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+
+        context 'when the UserVerification is locked' do
+          let(:locked) { true }
+
+          it 'returns a credential locked error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
       context 'when client config is set to enforce terms' do
         let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
 

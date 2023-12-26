@@ -118,7 +118,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       context 'when the user does not have a common_name' do
         let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Name for user must be present' }
+        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
 
         it 'returns an unprocessable_entity' do
           subject
@@ -216,7 +216,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
 
       context 'when the user does not have a common_name' do
         let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
-        let(:expected_error) { 'Name for user must be present' }
+        let(:expected_error) { 'Validation failed: Common name can\'t be blank' }
 
         it 'returns an unprocessable_entity' do
           subject
@@ -275,6 +275,66 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       it 'returns response with not authorize error' do
         subject
         expect(response.body).to eq(expected_response)
+      end
+    end
+  end
+
+  describe 'PUT #update_provisioning' do
+    subject { put :update_provisioning }
+
+    context 'when user is authenticated with a session token' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:user) { build(:user, :loa3, mpi_profile:) }
+      let(:provisioned) { true }
+      let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
+
+      before do
+        Timecop.freeze(Time.zone.now.floor)
+        sign_in(user)
+        allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+      end
+
+      after { Timecop.return }
+
+      context 'when the provisioning is successful' do
+        let(:expected_cookie) { 'CERNER_CONSENT=ACCEPTED' }
+        let(:expected_cookie_domain) { '.va.gov' }
+        let(:expected_cookie_path) { '/' }
+        let(:expected_cookie_expiration) { 2.minutes.from_now }
+
+        it 'returns ok status and sets the cerner cookie' do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
+          expect(response.headers['Set-Cookie']).to include(expected_cookie)
+          expect(response.headers['Set-Cookie']).to include("domain=#{expected_cookie_domain}")
+          expect(response.headers['Set-Cookie']).to include("path=#{expected_cookie_path}")
+          expect(response.headers['Set-Cookie']).to include("expires=#{expected_cookie_expiration.httpdate}")
+        end
+      end
+
+      context 'when the provisioning is not successful' do
+        let(:provisioned) { false }
+
+        it 'returns unprocessable_entity status and does not set the cookie' do
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(cookies['CERNER_CONSENT']).to be_nil
+          expect(response.headers['Set-Cookie']).to be_nil
+        end
+      end
+
+      context 'when the provisioning raises an error' do
+        before do
+          allow(provisioner).to receive(:perform).and_raise(TermsOfUse::Errors::ProvisionerError)
+        end
+
+        it 'returns unprocessable_entity status and does not set the cookie' do
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(cookies['CERNER_CONSENT']).to be_nil
+          expect(response.headers['Set-Cookie']).to be_nil
+        end
       end
     end
   end

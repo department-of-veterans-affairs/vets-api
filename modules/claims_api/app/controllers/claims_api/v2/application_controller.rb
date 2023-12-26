@@ -17,6 +17,7 @@ module ClaimsApi
       include ClaimsApi::TokenValidation
       include ClaimsApi::CcgTokenValidation
       include ClaimsApi::TargetVeteran
+      service_tag 'lighthouse-claims'
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema]
@@ -38,7 +39,7 @@ module ClaimsApi
         if request.headers['Mock-Override'] &&
            Settings.claims_api.disability_claims_mock_override
           evss_headers['Mock-Override'] = request.headers['Mock-Override']
-          Rails.logger.info('ClaimsApi: Mock Override Engaged')
+          claims_v2_logging('mock_override', message: 'ClaimsApi: Mock Override Engaged in app_controller_v2')
         end
 
         evss_headers
@@ -55,69 +56,6 @@ module ClaimsApi
         raise ::Common::Exceptions::ValidationErrorsBadRequest, validator
       end
 
-      #
-      # Veteran being acted on.
-      #
-      # @return [ClaimsApi::Veteran] Veteran to act on
-      def target_veteran
-        @target_veteran ||= if @is_valid_ccg_flow
-                              build_target_veteran(veteran_id: params[:veteranId], loa: { current: 3, highest: 3 })
-                            elsif @validated_token_data && !@current_user.icn.nil?
-                              build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
-                            elsif user_is_representative?
-                              build_target_veteran(veteran_id: params[:veteranId], loa: @current_user.loa)
-                            else
-                              raise ::Common::Exceptions::Unauthorized
-                            end
-      end
-
-      #
-      # Determine if the current authenticated user is an accredited representative
-      #
-      # @return [boolean] True if current user is an accredited representative, false otherwise
-      def user_is_representative?
-        return if @is_valid_ccg_flow
-
-        ::Veteran::Service::Representative.find_by(
-          first_name: @current_user.first_name,
-          last_name: @current_user.last_name
-        ).present?
-      end
-
-      #
-      # Determine if the current authenticated user is the Veteran being acted on
-      #
-      # @return [boolean] True if the current user is the Veteran being acted on, false otherwise
-      def user_is_target_veteran?
-        return false if params[:veteranId].blank?
-        return false if @current_user.icn.blank?
-        return false if target_veteran&.mpi&.icn.blank?
-        return false unless params[:veteranId] == target_veteran.mpi.icn
-
-        @current_user.icn == target_veteran.mpi.icn
-      end
-
-      #
-      # Determine if the current authenticated user is the target veteran's representative
-      #
-      # @return [boolean] True if the current authenticated user is the target veteran's representative
-      def user_represents_veteran?
-        reps = ::Veteran::Service::Representative.all_for_user(
-          first_name: @current_user.first_name,
-          last_name: @current_user.last_name
-        )
-
-        return false if reps.blank?
-        return false if reps.count > 1
-
-        rep = reps.first
-        veteran_poa_code = ::Veteran::User.new(target_veteran)&.power_of_attorney&.code
-
-        return false if veteran_poa_code.blank?
-
-        rep.poa_codes.include?(veteran_poa_code)
-      end
-
       private
 
       def authenticate
@@ -129,7 +67,7 @@ module ClaimsApi
       end
 
       def benefits_doc_api
-        ClaimsApi::BD.new(request:)
+        ClaimsApi::BD.new
       end
 
       def bgs_service
@@ -149,60 +87,30 @@ module ClaimsApi
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
-      def build_target_veteran(veteran_id:, loa:) # rubocop:disable Metrics/MethodLength
-        target_veteran ||= ClaimsApi::Veteran.new(
-          mhv_icn: veteran_id,
-          loa:
-        )
-        # populate missing veteran attributes with their mpi record
-        found_record = target_veteran.mpi_record?(user_key: veteran_id)
-
-        unless found_record
-          log_message_to_sentry("Claims v2 Veteran record not found - Veteran ICN: #{veteran_id}",
-                                :warning)
-          raise ::Common::Exceptions::ResourceNotFound.new(detail:
-            "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
-            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-        end
-
-        mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
-
-        if mpi_profile[:participant_id].blank?
-          log_message_to_sentry("Claims v2 Veteran PID not found - Veteran ICN: #{veteran_id}",
-                                :warning)
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
-            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-        end
-
-        target_veteran[:first_name] = mpi_profile[:given_names]&.first
-        if target_veteran[:first_name].nil?
-          log_message_to_sentry("Claims v2 Veteran First Name not found - Veteran ICN: #{veteran_id}",
-                                :warning)
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Missing first name')
-        end
-
-        target_veteran[:last_name] = mpi_profile[:family_name]
-        target_veteran[:edipi] = mpi_profile[:edipi]
-        target_veteran[:uuid] = mpi_profile[:ssn]
-        target_veteran[:ssn] = mpi_profile[:ssn]
-        target_veteran[:participant_id] = mpi_profile[:participant_id]
-        target_veteran[:last_signed_in] = Time.now.utc
-        target_veteran[:va_profile] = ClaimsApi::Veteran.build_profile(mpi_profile.birth_date)
-        target_veteran
-      end
-
-      def file_number_check
-        if target_veteran&.mpi&.birls_id.present?
+      def file_number_check(icn: params[:veteranId])
+        if icn.present?
+          sponsor = build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
+          @file_number = sponsor&.birls_id || sponsor&.mpi&.birls_id
+        elsif target_veteran&.mpi&.birls_id.present?
           @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
         else
-          ClaimsApi::Logger.log('missing_file_number',
-                                detail: 'missing_file_number on request in application controller.')
+          claims_v2_logging('missing_file_number', icn: nil,
+                                                   message: 'missing_file_number on request in application controller.')
 
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
+      end
+
+      def claims_v2_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
+        ClaimsApi::Logger.log(tag,
+                              icn:,
+                              cid: token&.payload&.[]('cid'),
+                              current_user: current_user&.uuid,
+                              message:,
+                              api_version: 'V2',
+                              level:)
       end
     end
   end

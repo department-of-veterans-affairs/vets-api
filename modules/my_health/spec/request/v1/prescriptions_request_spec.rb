@@ -95,6 +95,29 @@ RSpec.describe 'prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
       end
 
+      it 'responds to GET #index with images' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_with_images_v1') do
+          get '/my_health/v1/prescriptions?&sort[]=prescription_name&sort[]=dispensed_date&include_image=true'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
+        item_index = JSON.parse(response.body)['data'].find_index { |item| item['attributes']['prescription_image'] }
+        expect(item_index).not_to be_nil
+      end
+
+      it 'responds to GET #get_prescription_image with image' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_prescription_image_v1') do
+          get '/my_health/v1/prescriptions?/prescriptions/get_prescription_image/00013264681'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
+        expect(JSON.parse(response.body)['data']).to be_truthy
+      end
+
       it 'responds to GET #index with pagination parameters' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
           get '/my_health/v1/prescriptions?page=1&per_page=10'
@@ -117,6 +140,21 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
         expect(JSON.parse(response.body)['meta']['pagination']['currentPage']).to eq(2)
         expect(JSON.parse(response.body)['meta']['pagination']['perPage']).to eq(20)
+      end
+
+      it 'responds to GET #index with prescription name as sort parameter' do
+        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_prescription_name') do
+          get '/my_health/v1/prescriptions?page=7&per_page=20&sort[]=prescription_name&sort[]=dispensed_date'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        response_data = JSON.parse(response.body)['data']
+        item_index = response_data.find_index { |item| item['orderable_item'] == 'GABAPENTIN' }
+
+        # Make sure 'Gabapentin' does not exist on final page and is being alphabetized correctly
+        expect(item_index).to be_nil
       end
 
       it 'responds to GET #index with refill_status=active' do
@@ -180,6 +218,24 @@ RSpec.describe 'prescriptions', type: :request do
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+        end
+
+        it 'responds to GET #index with sorted_dispensed_date' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_sorted_by_custom_field_list_of_all_prescriptions_v1') do
+            get '/my_health/v1/prescriptions?sort[]=-dispensed_date&sort[]=prescription_name', headers: inflection_header
+          end
+
+          res = JSON.parse(response.body)
+
+          dates = res['data'].map { |d| DateTime.parse(d['attributes']['sortedDispensedDate']) }
+          is_sorted = dates.each_cons(2).all? { |item1, item2| item1 >= item2 }
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(is_sorted).to be_truthy
+          expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
+
+          metadata = { 'prescriptionName' => 'ASC', 'dispensedDate' => 'DESC' }
+          expect(JSON.parse(response.body)['meta']['sort']).to eq(metadata)
         end
 
         it 'responds to GET #show of nested tracking resource when camel-inflected' do

@@ -6,6 +6,7 @@ module DhpConnectedDevices
   module Fitbit
     class FitbitController < ApplicationController
       include SentryLogging
+      service_tag 'connected-devices'
       before_action :feature_enabled
       before_action :user_verified
 

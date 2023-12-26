@@ -3,6 +3,8 @@
 module CovidResearch
   class ApplicationController < ActionController::API
     include ExceptionHandling
+    include Traceable
+    service_tag 'covid-research'
     #
     # protect_from_forgery with: :exception
     before_action :set_tags_and_extra_context

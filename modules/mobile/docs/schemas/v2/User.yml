@@ -40,4 +40,8 @@ properties:
         example: "1970-08-12"
       signinService:
         type: string
-        example: "IDME"
+        enum:
+          - IDME
+          - DSL
+          - MHV
+          - LOGINGOV

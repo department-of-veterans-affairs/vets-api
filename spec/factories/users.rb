@@ -455,5 +455,11 @@ FactoryBot.define do
         create(:terms_of_use_agreement, user_account: verification.user_account)
       end
     end
+
+    trait :idme_lock do
+      after(:build) do |user, _context|
+        create(:idme_user_verification, idme_uuid: user.idme_uuid, locked: true)
+      end
+    end
   end
 end

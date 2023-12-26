@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::EvidenceSubmissionBackup, type: :job do
   subject { described_class.new }
@@ -16,6 +17,8 @@ describe AppealsApi::EvidenceSubmissionBackup, type: :job do
            supportable: create(:notice_of_disagreement, status: 'complete'),
            upload_submission: create(:upload_submission, status: 'uploaded', guid: SecureRandom.uuid))
   end
+
+  it_behaves_like 'a monitored worker'
 
   # rubocop:disable RSpec/SubjectStub
   describe '#perform' do

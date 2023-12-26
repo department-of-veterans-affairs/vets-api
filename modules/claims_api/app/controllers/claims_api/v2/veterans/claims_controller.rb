@@ -14,7 +14,6 @@ module ClaimsApi
 
           render json: [] && return unless bgs_claims || lighthouse_claims
           mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
-
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
@@ -25,6 +24,7 @@ module ClaimsApi
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           if lighthouse_claim.blank? && bgs_claim.blank?
+            claims_v2_logging('claims_show', level: :warn, message: 'Claim not found.')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
@@ -39,10 +39,7 @@ module ClaimsApi
         private
 
         def evss_docs_service
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'starting service')
-          service = EVSS::DocumentsService.new(auth_headers)
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'service started')
-          service
+          EVSS::DocumentsService.new(auth_headers)
         end
 
         def bgs_phase_status_mapper
@@ -486,7 +483,7 @@ module ClaimsApi
         end
 
         def supporting_document?(id)
-          @supporting_documents.find { |doc| doc['tracked_item_id'] == id.to_i }.present?
+          @supporting_documents.find { |doc| doc[:tracked_item_id] == id.to_i }.present?
         end
 
         def find_tracked_item(id)
@@ -498,15 +495,11 @@ module ClaimsApi
         end
 
         def get_evss_documents(claim_id)
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs')
-          docs = evss_docs_service.get_claim_documents(claim_id).body
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'got docs')
-          docs
+          evss_docs_service.get_claim_documents(claim_id).body
         rescue => e
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs failed', exception: e)
-          log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
-                                :warning,
-                                body: e.message)
+          claims_v2_logging('evss_doc_service', level: 'error',
+                                                message: "getting docs failed in claims controller with e.message: ' \
+                            '#{e.message}, rid: #{request.request_id}")
           {}
         end
 
@@ -520,15 +513,16 @@ module ClaimsApi
                    file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
 
                    if file_number.nil?
-                     ClaimsApi::Logger.log('benefits_documents',
-                                           detail: 'calling benefits documents api ' \
-                                                   "for claim_id #{params[:id]} returned nil file number")
+                     claims_v2_logging('benefits_documents',
+                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
+                                                'returned a nil file number in claims controller v2')
 
                      return []
                    end
 
-                   ClaimsApi::Logger.log('benefits_documents',
-                                         detail: "calling benefits documents api for claim_id #{params[:id]}")
+                   claims_v2_logging('benefits_documents',
+                                     message: "calling benefits documents api for claim_id #{params[:id]} " \
+                                              'in claims controller v2')
                    supporting_docs_list = benefits_doc_api.search(params[:id],
                                                                   file_number)&.dig(:data)
                    # add with_indifferent_access so ['documents'] works below
@@ -541,9 +535,7 @@ module ClaimsApi
                  end
           return [] if docs.nil? || docs&.dig('documents').blank?
 
-          @supporting_documents = docs['documents']
-
-          docs['documents'].map do |doc|
+          @supporting_documents = docs['documents'].map do |doc|
             doc = doc.transform_keys(&:underscore) if benefits_documents_enabled?
             upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
             {

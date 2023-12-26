@@ -4,6 +4,8 @@ require 'efolder/service'
 
 module V0
   class EfolderController < ApplicationController
+    service_tag 'deprecated'
+
     def index
       render(json: service.list_documents)
     end

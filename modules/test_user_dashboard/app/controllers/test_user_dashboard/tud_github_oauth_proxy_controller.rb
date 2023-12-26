@@ -6,6 +6,8 @@ require 'net/http'
 
 module TestUserDashboard
   class TudGithubOAuthProxyController < ApplicationController
+    service_tag 'test-user-dashboard'
+
     def index
       code = params[:code]
       token = github_oauth_access_token_request(code:)

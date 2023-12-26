@@ -5,6 +5,8 @@ require 'date'
 module V0
   module VirtualAgent
     class VirtualAgentAppealController < AppealsBaseController
+      service_tag 'virtual-agent'
+
       def index
         if Settings.vsp_environment == 'staging'
           Rails.logger.info 'Getting appeals from Lighthouse for staging environment'
@@ -141,6 +143,7 @@ module V0
         'post_bva_dta_decision' => 'The {aoj_desc} corrected an error',
         'bva_decision_effectuation' => 'The {aoj_desc} corrected an error',
         'sc_received' => 'A reviewer is examining your new evidence',
+        'sc_recieved' => 'A reviewer is examining your new evidence',
         'hlr_received' => 'A senior reviewer is taking a new look at your case',
         'sc_decision' => 'The {aoj_desc} made a decision',
         'hlr_decision' => 'The {aoj_desc} made a decision',

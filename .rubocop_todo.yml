@@ -855,7 +855,6 @@ RSpec/Rails/HaveHttpStatus:
     - 'spec/requests/pension_claims_controller_spec.rb'
     - 'spec/requests/ppiu_request_spec.rb'
     - 'spec/requests/service_history_request_spec.rb'
-    - 'spec/requests/terms_and_conditions_request_spec.rb'
     - 'spec/requests/user_request_spec.rb'
     - 'spec/requests/v0/in_progress_forms/5655_request_spec.rb'
     - 'spec/requests/v0/lgy_coe_request_spec.rb'
@@ -1132,6 +1131,7 @@ Rails/I18nLocaleTexts:
     - 'app/models/message.rb'
     - 'lib/evss/pciu/phone_number.rb'
     - 'lib/va_profile/models/communication_permission.rb'
+    - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
     - 'modules/covid_vaccine/app/models/covid_vaccine/v0/raw_expanded_form_data.rb'
     - 'modules/covid_vaccine/app/models/covid_vaccine/v0/raw_form_data.rb'
@@ -1247,7 +1247,6 @@ Rails/UniqueValidationWithoutIndex:
   Exclude:
     - 'app/models/gibs_not_found_user.rb'
     - 'app/models/invalid_letter_address_edipi.rb'
-    - 'app/models/terms_and_conditions_acceptance.rb'
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
 
@@ -1518,8 +1517,7 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'app/models/concerns/redis_caching.rb'
     - 'app/models/form_profile.rb'
     - 'lib/common/client/base.rb'
-    - 'lib/common/client/concerns/mhv_fhir_session_client.rb'
-    - 'lib/common/client/concerns/mhv_jwt_session_client.rb'
+    - 'lib/common/client/concerns/mhv_locked_session_client.rb'
     - 'lib/common/client/concerns/mhv_session_based_client.rb'
     - 'lib/common/models/base.rb'
     - 'lib/common/models/collection.rb'

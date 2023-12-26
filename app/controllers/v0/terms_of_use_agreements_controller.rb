@@ -4,8 +4,10 @@ require 'terms_of_use/exceptions'
 
 module V0
   class TermsOfUseAgreementsController < ApplicationController
-    skip_before_action :authenticate
+    service_tag 'terms-of-use'
 
+    skip_before_action :verify_authenticity_token, only: [:update_provisioning]
+    skip_before_action :authenticate
     before_action :terms_authenticate
 
     def latest
@@ -19,7 +21,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
+    rescue TermsOfUse::Errors::AcceptorError => e
       render_error(e.message)
     end
 
@@ -29,7 +31,22 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
+    rescue TermsOfUse::Errors::DeclinerError => e
+      render_error(e.message)
+    end
+
+    def update_provisioning
+      provisioner = TermsOfUse::Provisioner.new(icn: current_user.icn,
+                                                first_name: current_user.first_name,
+                                                last_name: current_user.last_name,
+                                                mpi_gcids: current_user.mpi_gcids)
+      if provisioner.perform
+        create_cerner_cookie
+        render json: { provisioned: true }, status: :ok
+      else
+        render_error('Failed to provision')
+      end
+    rescue TermsOfUse::Errors::ProvisionerError => e
       render_error(e.message)
     end
 
@@ -38,6 +55,15 @@ module V0
     def recache_user
       current_user.needs_accepted_terms_of_use = current_user.user_account&.needs_accepted_terms_of_use?
       current_user.save
+    end
+
+    def create_cerner_cookie
+      cookies[TermsOfUse::Constants::PROVISIONER_COOKIE_NAME] = {
+        value: TermsOfUse::Constants::PROVISIONER_COOKIE_VALUE,
+        expires: TermsOfUse::Constants::PROVISIONER_COOKIE_EXPIRATION.from_now,
+        path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
+        domain: TermsOfUse::Constants::PROVISIONER_COOKIE_DOMAIN
+      }
     end
 
     def get_terms_of_use_agreements_for_version(version)

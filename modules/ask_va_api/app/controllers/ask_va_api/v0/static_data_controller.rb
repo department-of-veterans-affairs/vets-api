@@ -7,16 +7,9 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[index]
 
       def index
-        data = {
-          Emily: { 'data-info' => 'emily@oddball.io' },
-          Eddie: { 'data-info' => 'eddie.otero@oddball.io' },
-          Jacob: { 'data-info' => 'jacob@docme360.com' },
-          Joe: { 'data-info' => 'joe.hall@thoughtworks.com' },
-          Khoa: { 'data-info' => 'khoa.nguyen@oddball.io' }
-        }
-        render json: data, status: :ok
-      rescue => e
-        service_exception_handler(e)
+        service = Crm::Service.new(icn: 'a')
+        data = service.call(endpoint: 'topics')
+        render json: data.to_json, status: :ok
       end
 
       def categories
@@ -61,7 +54,7 @@ module AskVAApi
       end
 
       def mock_service
-        DynamicsMockService.new(sec_id: nil, logger: nil) if params[:mock]
+        DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)

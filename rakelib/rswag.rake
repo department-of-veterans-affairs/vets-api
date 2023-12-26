@@ -40,7 +40,7 @@ namespace :rswag do
       ENV['SWAGGER_DRY_RUN'] = '0'
       Rake::Task['rswag:specs:swaggerize'].invoke
 
-      %w[v1 v2].each { |version| strip_swagger_base_path(version) }
+      %w[v1 v2].each { |version| format_for_swagger(version) }
     end
 
     desc 'Generate rswag docs by environment for the claims_api'
@@ -51,7 +51,7 @@ namespace :rswag do
       %w[dev production].each do |environment|
         ENV['DOCUMENTATION_ENVIRONMENT'] = environment
         Rake::Task['rswag:specs:swaggerize'].invoke
-        %w[v1 v2].each { |version| strip_swagger_base_path(version, (version.eql?('v2') ? environment : nil)) }
+        %w[v1 v2].each { |version| format_for_swagger(version, (version.eql?('v2') ? environment : nil)) }
         Rake::Task['rswag:specs:swaggerize'].reenable
       end
     end
@@ -97,21 +97,75 @@ def generate_appeals_docs(dev: false)
   appeals_api_output_files(dev:).each { |file_path| rswag_to_oas!(file_path) }
 end
 
-def strip_swagger_base_path(version, env = nil)
-  # Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
-  # This removes the basePath value from the generated JSON file(s)
+# This method does two things
+# 1
+# Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
+# This removes the basePath value from the generated JSON file(s)
+# 2
+# To validate the null values for fields in the JSON correctly we use type: ['string', 'null']
+# Swagger displays that as stringnull so in order to make the docs remain readable we remove the null before writing
+def format_for_swagger(version, env = nil)
   path = "app/swagger/claims_api/#{version}/swagger.json"
   path = "app/swagger/claims_api/#{version}/#{env}/swagger.json" if version.eql?('v2')
   swagger_file_path = ClaimsApi::Engine.root.join(path)
-  temp_path = swagger_file_path.sub('swagger.json', 'temp.json').to_s
+  oas = JSON.parse(File.read(swagger_file_path.to_s))
 
-  File.open(temp_path, 'w') do |output_file|
-    File.foreach(swagger_file_path) do |line|
-      output_file.puts line unless line.include?('basePath')
+  remove_base_path!(oas)
+  clear_null_types!(oas) if version == 'v2'
+  clear_null_enums!(oas) if version == 'v2'
+  File.write(swagger_file_path, JSON.pretty_generate(oas))
+end
+
+def deep_transform(hash, transformer:, root: [])
+  return unless hash.is_a?(Hash)
+
+  ret = hash.map do |key, v|
+    v = transformer.call key, v, root
+    h_ret = v
+    proot = root.dup
+    if v.is_a? Hash
+      root.push(key)
+      h_ret = deep_transform(v, root: root.dup, transformer:)
+      root = proot
+    elsif v.is_a? Array
+      root.push(key)
+      h_ret = v.map do |val|
+        next deep_transform(val, root: root.dup, transformer:) if val.is_a?(Hash) || val.is_a?(Array)
+
+        next val
+      end
+      root = proot
+    end
+    [key, h_ret]
+  end
+  ret.to_h
+end
+
+def clear_null_types!(data)
+  transformer = lambda do |k, v, root|
+    if k == 'type' && v.is_a?(Array) && root[0] == 'paths'
+      r = v.excluding('null')
+      r.size > 1 ? r : r[0]
+    else
+      v
     end
   end
+  data.replace deep_transform(data, transformer:)
+end
 
-  FileUtils.mv(temp_path, swagger_file_path.to_s)
+def clear_null_enums!(data)
+  transformer = lambda do |k, v, root|
+    if k == 'enum' && v.is_a?(Array) && root.include?('schema')
+      v.compact
+    else
+      v
+    end
+  end
+  data.replace deep_transform(data, transformer:)
+end
+
+def remove_base_path!(data)
+  data.except!('basePath')
 end
 
 # Does file manipulation to make an rswag-output json file compatible to OAS v3

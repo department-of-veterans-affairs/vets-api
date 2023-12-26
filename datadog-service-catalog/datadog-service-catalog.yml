@@ -1,20 +1,5 @@
 ---
 schema-version: v2.1
-dd-service: debt-resolution
-team: vfs-debt
-tier: '1'
-lifecycle: production
-contacts:
-  - type: slack
-    contact: https://dsva.slack.com/archives/CPE4AJ6Q0
-links:
-  - name: Debt Resolution (vets-api)
-    type: dashboard
-    provider: Datadog
-    url: https://vagov.ddog-gov.com/dashboard/shm-nr4-75f/debt-resolution-vets-api
-integrations: {}
----
-schema-version: v2.1
 dd-service: dependent-change
 team: benefits
 application: 686c/674

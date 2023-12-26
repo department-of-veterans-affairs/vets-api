@@ -2,6 +2,8 @@
 
 module V1
   class NoticeOfDisagreementsController < AppealsBaseControllerV1
+    service_tag 'board-appeal'
+
     def show
       render json: decision_review_service.get_notice_of_disagreement(params[:id]).body
     rescue => e
@@ -12,12 +14,11 @@ module V1
     end
 
     def create
-      nod_response_body = decision_review_service
-                          .create_notice_of_disagreement(request_body: request_body_hash, user: @current_user)
-                          .body
-      submitted_appeal_uuid = nod_response_body.dig('data', 'id')
-      clear_in_progress_form(submitted_appeal_uuid)
-
+      nod_response_body = AppealSubmission.submit_nod(
+        current_user: @current_user,
+        request_body_hash:,
+        decision_review_service:
+      )
       render json: nod_response_body
     rescue => e
       request = begin
@@ -36,17 +37,6 @@ module V1
 
     def error_class(method:, exception_class:)
       "#{self.class.name}##{method} exception #{exception_class} (NOD_V1)"
-    end
-
-    def clear_in_progress_form(submitted_appeal_uuid)
-      ActiveRecord::Base.transaction do
-        AppealSubmission.create!(user_uuid: @current_user.uuid,
-                                 user_account: @current_user.user_account,
-                                 type_of_appeal: 'NOD',
-                                 submitted_appeal_uuid:)
-        # Clear in-progress form since submit was successful
-        InProgressForm.form_for_user('10182', @current_user)&.destroy!
-      end
     end
   end
 end

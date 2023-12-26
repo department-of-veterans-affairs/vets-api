@@ -1,19 +1,16 @@
 # frozen_string_literal: true
 
-require 'va_profile/disability/service'
 require 'va_profile/military_personnel/service'
 
 module VAProfile
   module Prefill
     class MilitaryInformation
       PREFILL_METHODS = %w[
-        compensable_va_service_connected
         currently_active_duty
         currently_active_duty_hash
         discharge_type
         guard_reserve_service_history
         hca_last_service_branch
-        is_va_service_connected
         last_discharge_date
         last_entry_date
         last_service_branch
@@ -24,7 +21,6 @@ module VAProfile
         service_periods
         sw_asia_combat
         tours_of_duty
-        va_compensation_type
       ].freeze
 
       HCA_SERVICE_BRANCHES = {
@@ -69,12 +65,6 @@ module VAProfile
       NOV_1998 = Date.new(1998, 11, 11)
       GULF_WAR_RANGE = (Date.new(1990, 8, 2)..NOV_1998)
 
-      # Disability ratings counted as lower
-      LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
-
-      # Disability ratings counted as higher
-      HIGHER_DISABILITY_RATING = 50
-
       # In https://github.com/department-of-veterans-affairs/va.gov-team/issues/41046
       # military service branches were modified to use an updated list from
       # Lighthouse BRD. The list below combines the branches from the former list
@@ -113,42 +103,10 @@ module VAProfile
         "Women's Army Corps"
       ].freeze
 
-      attr_reader :disability_service, :military_personnel_service
+      attr_reader :military_personnel_service
 
       def initialize(user)
-        @disability_service = VAProfile::Disability::Service.new(user)
         @military_personnel_service = VAProfile::MilitaryPersonnel::Service.new(user)
-      end
-
-      # @return [Boolean] true if veteran is paid for a disability
-      #  with a high disability percentage
-      #
-      # Rubocop wants this method to be named va_service_connected? but is_va_service_connected
-      # is the name of the method we're replacing.
-      #
-      # rubocop:disable Naming/PredicateName
-      def is_va_service_connected
-        combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
-      end
-      # rubocop:enable Naming/PredicateName
-
-      # @return [Boolean] true if veteran is paid for a disability
-      #  with a low disability percentage
-      def compensable_va_service_connected
-        LOWER_DISABILITY_RATINGS.include?(combined_service_connected_rating_percentage)
-      end
-
-      # @return [String] If veteran is paid for a disability, this method will
-      #  return which type of disability it is: highDisability or lowDisability
-      def va_compensation_type
-        high_disability = is_va_service_connected
-        low_disability = compensable_va_service_connected
-
-        if high_disability
-          'highDisability'
-        elsif low_disability
-          'lowDisability'
-        end
       end
 
       # @return [Boolean] true if the user is currently
@@ -291,17 +249,11 @@ module VAProfile
 
       private
 
-      def combined_service_connected_rating_percentage
-        disability_data&.disability_rating&.combined_service_connected_rating_percentage&.to_i || 0
-      end
-
-      def disability_data
-        @disability_data ||= disability_service.get_disability_data
-      end
-
       def deployed_to?(countries, date_range)
         deployments.each do |deployment|
-          deployment['deployment_locations']&.each do |location|
+          next if deployment['deployment_locations'].nil? # Skip if deployment_locations is nil
+
+          deployment['deployment_locations'].each do |location|
             location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
 
             if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)
@@ -315,10 +267,18 @@ module VAProfile
 
       # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
       def guard_reserve_service_by_date
-        military_service_episodes_by_date.select do |episode|
+        all_episodes = military_service_episodes_by_date.select do |episode|
           code = episode.personnel_category_type_code
           national_guard?(code) || reserve?(code)
-        end.sort_by(&:end_date).reverse
+        end
+
+        all_episodes.sort_by do |episode|
+          if episode.end_date.blank? # Handles nil and empty string
+            Time.zone.today + 3650
+          else
+            Date.parse(episode.end_date)
+          end
+        end.reverse
       end
 
       def latest_service_episode

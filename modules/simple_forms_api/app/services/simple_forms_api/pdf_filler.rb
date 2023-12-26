@@ -4,19 +4,20 @@ require 'common/file_helpers'
 
 module SimpleFormsApi
   class PdfFiller
-    attr_accessor :data, :form_number
+    attr_accessor :data, :form_number, :name
 
     TEMPLATE_BASE = Rails.root.join('modules', 'simple_forms_api', 'templates')
 
-    def initialize(form_number:, data:)
+    def initialize(form_number:, data:, name: nil)
       @data = data.with_indifferent_access
       @form_number = form_number
+      @name = name || form_number
     end
 
     def generate
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-      generated_form_path = "tmp/#{form_number}-tmp.pdf"
-      stamped_template_path = "tmp/#{form_number}-stamped.pdf"
+      generated_form_path = "tmp/#{name}-tmp.pdf"
+      stamped_template_path = "tmp/#{name}-stamped.pdf"
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       FileUtils.copy(template_form_path, stamped_template_path)
       PdfStamper.stamp_pdf(stamped_template_path, data)

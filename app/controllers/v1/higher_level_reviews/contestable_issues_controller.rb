@@ -3,6 +3,8 @@
 module V1
   module HigherLevelReviews
     class ContestableIssuesController < AppealsBaseControllerV1
+      service_tag 'higher-level-review'
+
       def index
         ci = decision_review_service
              .get_higher_level_review_contestable_issues(user: current_user, benefit_type: params[:benefit_type])

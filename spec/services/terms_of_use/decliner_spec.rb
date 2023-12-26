@@ -4,46 +4,92 @@ require 'rails_helper'
 
 RSpec.describe TermsOfUse::Decliner, type: :service do
   describe '#perform!' do
-    subject { decliner.perform! }
+    subject(:decliner) { described_class.new(user_account:, common_name:, version:) }
 
-    let(:user_account) { create(:user_account) }
+    let(:user_account) { create(:user_account, icn:) }
+    let(:icn) { '123456789' }
     let(:version) { 'v1' }
     let(:common_name) { 'some-common-name' }
-    let(:decliner) { described_class.new(user_account:, common_name:, version:) }
 
-    before do
-      allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
-    end
-
-    context 'when initialized without a common_name parameter' do
-      let(:common_name) { nil }
-      let(:expected_error) { TermsOfUse::Exceptions::CommonNameMissingError }
-
-      it 'fails validation' do
-        expect { subject }.to raise_error(expected_error)
+    describe 'validations' do
+      context 'when all attributes are present' do
+        it 'is valid' do
+          expect(decliner).to be_valid
+        end
       end
 
-      it 'does not create a new terms of use agreement' do
-        expect do
-          subject
-        rescue
-          nil
-        end.not_to change { user_account.terms_of_use_agreements.count }
+      context 'when attributes are missing' do
+        before do
+          allow(Rails.logger).to receive(:error)
+        end
+
+        let(:expected_log) do
+          "[TermsOfUse] [Decliner] Error: #{expected_error_message}"
+        end
+
+        context 'when user_account is missing' do
+          let(:user_account) { nil }
+          let(:expected_error_message) { 'Validation failed: User account can\'t be blank, Icn can\'t be blank' }
+
+          it 'is not valid' do
+            expect { decliner }.to raise_error(TermsOfUse::Errors::DeclinerError).with_message(expected_error_message)
+            expect(Rails.logger).to have_received(:error).with(expected_log, { user_account_id: nil })
+          end
+        end
+
+        context 'when common_name is missing' do
+          let(:common_name) { nil }
+          let(:expected_error_message) { 'Validation failed: Common name can\'t be blank' }
+
+          it 'is not valid' do
+            expect { decliner }.to raise_error(TermsOfUse::Errors::DeclinerError).with_message(expected_error_message)
+            expect(Rails.logger).to have_received(:error).with(expected_log, { user_account_id: user_account.id })
+          end
+        end
+
+        context 'when version is missing' do
+          let(:version) { nil }
+          let(:expected_error_message) { 'Validation failed: Version can\'t be blank' }
+
+          it 'is not valid' do
+            expect { decliner }.to raise_error(TermsOfUse::Errors::DeclinerError).with_message(expected_error_message)
+            expect(Rails.logger).to have_received(:error).with(expected_log, { user_account_id: user_account.id })
+          end
+        end
+
+        context 'when icn is missing' do
+          let(:icn) { nil }
+          let(:expected_error_message) { 'Validation failed: Icn can\'t be blank' }
+
+          it 'is not valid' do
+            expect { decliner }.to raise_error(TermsOfUse::Errors::DeclinerError).with_message(expected_error_message)
+            expect(Rails.logger).to have_received(:error).with(expected_log, { user_account_id: user_account.id })
+          end
+        end
       end
     end
 
-    context 'when initialized with a common_name parameter' do
+    describe '#perform!' do
+      let(:expected_attr_key) do
+        Digest::SHA256.hexdigest({ icn:, signature_name: common_name, version: }.to_json)
+      end
+
+      before do
+        allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
+      end
+
       it 'creates a new terms of use agreement with the given version' do
-        expect { subject }.to change { user_account.terms_of_use_agreements.count }.by(1)
+        expect { decliner.perform! }.to change { user_account.terms_of_use_agreements.count }.by(1)
         expect(user_account.terms_of_use_agreements.last.agreement_version).to eq(version)
       end
 
       it 'marks the terms of use agreement as declined' do
-        expect(subject).to be_declined
+        expect(decliner.perform!).to be_declined
       end
 
-      it 'enqueues the SignUpServiceUpdaterJob with the terms of use agreement id' do
-        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(subject.id, common_name)
+      it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
+        decliner.perform!
+        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(expected_attr_key)
       end
     end
   end

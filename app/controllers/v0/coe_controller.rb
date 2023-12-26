@@ -4,6 +4,8 @@ require 'lgy/service'
 
 module V0
   class CoeController < ApplicationController
+    service_tag 'home-loan-status'
+
     def status
       coe_status = lgy_service.coe_status
       render json: { data: { attributes: coe_status } }, status: :ok

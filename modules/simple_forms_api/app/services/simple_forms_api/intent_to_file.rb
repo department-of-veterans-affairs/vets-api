@@ -16,15 +16,17 @@ module SimpleFormsApi
       params['benefit_selection'].each { |benefit_type, is_selected| benefit_selections << benefit_type if is_selected }
       ssn = params.dig('veteran_id', 'ssn')
       expiration_date = nil
+      confirmation_number = nil
       benefit_selections.each do |benefit_type|
         type = benefit_type.downcase
         next if existing_intents[type]
 
         response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
+        confirmation_number = response.dig('data', 'id')
         expiration_date = response.dig('data', 'attributes', 'expirationDate')
       end
 
-      expiration_date
+      [confirmation_number, expiration_date]
     end
 
     def existing_intents

@@ -43,7 +43,6 @@ RSpec.describe 'BGS Claims management', type: :request do
 
   before do
     stub_poa_verification
-    stub_mpi
   end
 
   context 'index' do

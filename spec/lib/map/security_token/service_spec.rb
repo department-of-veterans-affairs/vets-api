@@ -62,6 +62,12 @@ describe MAP::SecurityToken::Service do
       it_behaves_like 'STS token request'
     end
 
+    context 'when input application is check in' do
+      let(:application) { :check_in }
+
+      it_behaves_like 'STS token request'
+    end
+
     context 'when input application is arbitrary' do
       let(:application) { :some_application }
       let(:expected_error) { MAP::SecurityToken::Errors::ApplicationMismatchError }

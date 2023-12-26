@@ -26,7 +26,7 @@ end
 class FormMilitaryInformation
   include Virtus.model
 
-  attribute :service_episodes_by_date, Array if Flipper.enabled?(:military_information_vaprofile)
+  attribute :service_episodes_by_date, Array
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
@@ -34,12 +34,9 @@ class FormMilitaryInformation
   attribute :discharge_type, String
   attribute :post_nov111998_combat, Boolean
   attribute :sw_asia_combat, Boolean
-  attribute :compensable_va_service_connected, Boolean
-  attribute :is_va_service_connected, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
-  attribute :va_compensation_type, String
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
@@ -195,12 +192,16 @@ class FormProfile
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
-    mappings = self.class.mappings_for_form(form_id)
-
     form = form_id == '1010EZ' ? '1010ez' : form_id
-    form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
+    if FormProfile.prefill_enabled_forms.include?(form)
+      mappings = self.class.mappings_for_form(form_id)
 
-    { form_data:, metadata: }
+      form_data = generate_prefill(mappings)
+
+      { form_data:, metadata: }
+    else
+      { metadata: }
+    end
   end
 
   def initialize_military_information_vaprofile

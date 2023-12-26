@@ -22,7 +22,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
   before do
     stub_poa_verification
-    stub_mpi
     Timecop.freeze(Time.zone.now)
     stub_claims_api_auth_token
   end
@@ -458,7 +457,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                 'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
                 'icn' => '1013062086V794840'
               }
-              allow_any_instance_of(Token).to receive(:payload).and_return(jwt_payload)
+              allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:payload).and_return(jwt_payload)
 
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
@@ -1650,10 +1649,6 @@ RSpec.describe 'Disability Claims ', type: :request do
               let(:receiving) { true }
               let(:will_receive) { true }
 
-              before do
-                stub_mpi
-              end
-
               it 'responds with a bad request' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('bgs/claims/claims') do
@@ -1672,10 +1667,6 @@ RSpec.describe 'Disability Claims ', type: :request do
             context "when both are 'false'" do
               let(:receiving) { false }
               let(:will_receive) { false }
-
-              before do
-                stub_mpi
-              end
 
               it 'responds with a bad request' do
                 mock_acg(scopes) do |auth_header|
@@ -1696,10 +1687,6 @@ RSpec.describe 'Disability Claims ', type: :request do
               let(:receiving) { false }
               let(:will_receive) { true }
 
-              before do
-                stub_mpi
-              end
-
               it 'responds with a 200' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('bgs/claims/claims') do
@@ -1718,10 +1705,6 @@ RSpec.describe 'Disability Claims ', type: :request do
             context "when 'receiving' is 'true' and 'willReceiveInFuture' is 'false'" do
               let(:receiving) { true }
               let(:will_receive) { false }
-
-              before do
-                stub_mpi
-              end
 
               it 'responds with a 200' do
                 mock_acg(scopes) do |auth_header|
@@ -1757,10 +1740,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "when 'amount' is below the minimum" do
             let(:military_retired_payment_amount) { 0 }
 
-            before do
-              stub_mpi
-            end
-
             it 'responds with an unprocessible entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('brd/countries') do
@@ -1776,10 +1755,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context "when 'amount' is above the maximum" do
             let(:military_retired_payment_amount) { 1_000_000 }
-
-            before do
-              stub_mpi
-            end
 
             it 'responds with an unprocessible entity' do
               mock_acg(scopes) do |auth_header|
@@ -1798,10 +1773,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context "when 'amount' is within limits" do
             let(:military_retired_payment_amount) { 100 }
-
-            before do
-              stub_mpi
-            end
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
@@ -1836,10 +1807,6 @@ RSpec.describe 'Disability Claims ', type: :request do
                 }
               end
 
-              before do
-                stub_mpi
-              end
-
               it 'responds with an unprocessible entity' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('brd/countries') do
@@ -1865,10 +1832,6 @@ RSpec.describe 'Disability Claims ', type: :request do
                     }
                   }
                 }
-              end
-
-              before do
-                stub_mpi
               end
 
               it 'responds with a 200' do
@@ -1907,10 +1870,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "when 'amount' is below the minimum" do
             let(:separation_payment_amount) { 0 }
 
-            before do
-              stub_mpi
-            end
-
             it 'responds with an unprocessible entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('brd/countries') do
@@ -1926,10 +1885,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context "when 'amount' is above the maximum" do
             let(:separation_payment_amount) { 1_000_000 }
-
-            before do
-              stub_mpi
-            end
 
             it 'responds with an unprocessible entity' do
               mock_acg(scopes) do |auth_header|
@@ -1948,10 +1903,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context "when 'amount' is within limits" do
             let(:separation_payment_amount) { 100 }
-
-            before do
-              stub_mpi
-            end
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
@@ -1986,10 +1937,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "when 'receivedDate' is not in the past" do
             let(:received_date) { Time.zone.today.to_s }
 
-            before do
-              stub_mpi
-            end
-
             it 'responds with a bad request' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('brd/countries') do
@@ -2005,10 +1952,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           context "when 'receivedDate' is in the past" do
             let(:received_date) { (Time.zone.today - 1.year).to_s }
-
-            before do
-              stub_mpi
-            end
 
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
@@ -2029,10 +1972,6 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     describe "'disabilities.secondaryDisabilities' validations" do
-      before do
-        stub_mpi
-      end
-
       context 'when disabilityActionType is NONE without secondaryDisabilities' do
         it 'raises an exception' do
           mock_acg(scopes) do |auth_header|
@@ -2271,8 +2210,6 @@ RSpec.describe 'Disability Claims ', type: :request do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
         before do
-          stub_mpi
-
           expect_any_instance_of(BGS::StandardDataService)
             .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
         end
@@ -2467,10 +2404,6 @@ RSpec.describe 'Disability Claims ', type: :request do
         context "when 'approximateBeginDate' is in the future" do
           let(:approximate_begin_date) { (Time.zone.today + 1.year).to_s }
 
-          before do
-            stub_mpi
-          end
-
           it 'responds with a bad request' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('brd/countries') do
@@ -2486,10 +2419,6 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         context "when 'approximateBeginDate' is in the past" do
           let(:approximate_begin_date) { (Time.zone.today - 1.year).to_s }
-
-          before do
-            stub_mpi
-          end
 
           it 'responds with a 200' do
             mock_acg(scopes) do |auth_header|
@@ -2531,10 +2460,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "when 'disability.name' is not 'Hepatitis'" do
             let(:disability_name) { 'PTSD (post traumatic stress disorder)' }
 
-            before do
-              stub_mpi
-            end
-
             it 'responds with a bad request' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('brd/countries') do
@@ -2567,10 +2492,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           context "when 'disability.name' is 'Hepatitis'" do
             let(:disability_name) { 'Hepatitis' }
 
-            before do
-              stub_mpi
-            end
-
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/claims/claims') do
@@ -2592,10 +2513,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           let(:disability_name) { 'PTSD (post traumatic stress disorder)' }
 
           context "when a valid 'confinements' is not included" do
-            before do
-              stub_mpi
-            end
-
             it 'responds with a bad request' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('brd/countries') do
@@ -2635,10 +2552,6 @@ RSpec.describe 'Disability Claims ', type: :request do
               ]
             end
 
-            before do
-              stub_mpi
-            end
-
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/claims/claims') do
@@ -2665,10 +2578,6 @@ RSpec.describe 'Disability Claims ', type: :request do
                 specialIssues: []
               }
             ]
-          end
-
-          before do
-            stub_mpi
           end
 
           it "passes 'special_issues' as an empty array to the constructor" do
@@ -2703,10 +2612,6 @@ RSpec.describe 'Disability Claims ', type: :request do
                 specialIssues: ['Asbestos']
               }
             ]
-          end
-
-          before do
-            stub_mpi
           end
 
           it "passes 'special_issues' an appropriate array to the constructor" do

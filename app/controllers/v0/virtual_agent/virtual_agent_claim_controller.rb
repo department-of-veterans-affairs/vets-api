@@ -8,6 +8,7 @@ module V0
   module VirtualAgent
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
+      service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
       unless Settings.vsp_environment.downcase == 'localhost' || Settings.vsp_environment.downcase == 'development'
         if Flipper.enabled?(:virtual_agent_lighthouse_claims, @current_user)
@@ -72,7 +73,7 @@ module V0
             data: data_for_three_most_recent_open_comp_claims_lighthouse(claims),
             meta: { sync_status: 'SUCCESS' }
           }
-        rescue Faraday::ClientError => e
+        rescue Faraday::ClientError, Faraday::ServerError => e
           report_or_error(cxdw_reporting_service, conversation_id)
           service_exception_handler(error)
           raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'

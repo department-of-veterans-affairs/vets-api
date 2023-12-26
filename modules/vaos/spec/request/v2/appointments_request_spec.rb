@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
+RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true do
   include SchemaMatchers
   mock_clinic = {
     'service_name': 'service_name',
@@ -157,6 +157,31 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       let(:end_date) { Time.zone.parse('2022-12-01T19:45:00Z') }
       let(:params) { { start: start_date, end: end_date } }
       let(:facility_error_msg) { 'Error fetching facility details' }
+
+      context 'as Judy Morrison' do
+        let(:current_user) { build(:user, :vaos) }
+        let(:start_date) { Time.zone.parse('2023-10-13T14:25:00Z') }
+        let(:end_date) { Time.zone.parse('2023-10-13T17:45:00Z') }
+        let(:params) { { start: start_date, end: end_date } }
+        let(:avs_path) do
+          '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
+        end
+
+        it 'fetches appointment list and includes avs on past booked appointments' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+              .and_return(avs_path)
+            get '/vaos/v2/appointments?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked',
+                params:, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data[0]['attributes']['avsPath']).to eq(avs_path)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+      end
 
       context 'requests a list of appointments' do
         it 'has access and returns va appointments and honors includes' do
@@ -410,7 +435,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
-        # TODO: verify this cc request spec with NPI changes
         it 'has access and returns appointment - cc proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed_with_facility_200',
                            match_requests_on: %i[method path query]) do
@@ -441,6 +465,23 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data['attributes']['status']).to eq('booked')
           end
         end
+
+        it 'updates the service name, physical location, friendly name, and location' do
+          appointment = { clinic: 'Test Clinic', location_id: 1 }
+
+          allow_any_instance_of(described_class).to receive(:get_clinic_memoized)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          allow_any_instance_of(described_class).to receive(:get_facility_memoized).and_return('Location')
+          allow_any_instance_of(described_class).to receive(:appointment).and_return(appointment)
+
+          get '/vaos/v2/appointments/70060', headers: inflection_header
+
+          data = json_body_for(response)
+          expect(data['serviceName']).to eq('Service Name')
+          expect(data['physicalLocation']).to eq('Physical Location')
+          expect(data['friendlyName']).to eq('Service Name')
+          expect(data['location']).to eq('Location')
+        end
       end
 
       context 'when the VAOS service errors on retrieving an appointment' do
@@ -469,6 +510,25 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
               expect(json_body.dig('attributes', 'requestedPeriods', 0, 'localStartTime'))
                 .to eq('2021-12-19T17:00:00.000-07:00')
             end
+          end
+        end
+
+        context 'when clinic and location_id are present' do
+          let(:updated_appointment) { { clinic: 'Test Clinic', location_id: 1 } }
+
+          it 'updates the service name, physical location, friendly name, and location' do
+            allow_any_instance_of(described_class).to receive(:get_clinic_memoized)
+              .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+            allow_any_instance_of(described_class).to receive(:get_facility_memoized).and_return('Location')
+            allow_any_instance_of(described_class).to receive(:updated_appointment).and_return(updated_appointment)
+
+            put '/vaos/v2/appointments/70060', params: { status: 'cancelled' }, headers: inflection_header
+
+            data = json_body_for(response)
+            expect(data['serviceName']).to eq('Service Name')
+            expect(data['physicalLocation']).to eq('Physical Location')
+            expect(data['friendlyName']).to eq('Service Name')
+            expect(data['location']).to eq('Location')
           end
         end
 

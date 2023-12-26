@@ -29,6 +29,7 @@ idme:
 map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
+  check_in_client_id: bc75b71c7e67
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/map/oauth.crt
   client_key_path: spec/fixtures/map/oauth.key
@@ -47,7 +48,9 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  logout_url: https://int.eauth.va.gov/slo/globallogout
+  logout_app_key: https://ssoe-sp-dev.va.gov
+  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
   request_signing: false
   relay: ~
   response_signing: false
@@ -75,6 +78,7 @@ sign_in:
 
 terms_of_use:
   current_version: v1
+  provisioner_cookie_domain: localhost
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -125,8 +129,8 @@ mcp:
     mock_vista: false
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   notifications:
-    job_interval: 90
-    batch_size: 100
+    job_interval: 10
+    batch_size: 10
 
 fsr:
   prefill: true
@@ -246,16 +250,16 @@ vet360:
     enabled: true
     timeout: 30
     mock: false
+  veteran_status:
+    cache_enabled: true
+    enabled: true
+    timeout: 30
+    mock: false
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
-  disability:
-    cache_enabled: false
-    enabled: true
-    timeout: 30
-    mock: false
 
 # Settings for IHub
 ihub:
@@ -640,6 +644,24 @@ vba_documents:
     registration_next_run_in_minutes: 15
     registration_max_retries: 3
 
+#Settings for Ask VA Api Module
+ask_va_api:
+  crm_api:
+    auth_url: https://login.microsoftonline.us
+    base_url: https://dev.integration.d365.va.gov
+    client_id: client_id
+    client_secret: secret
+    resource: resource
+    veis_api_path: veis/vagov.lob.ava/api
+    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    ocp_apim_subscription_key: subscription_key
+    redis_token_expiry: 3540 # 59 minutes
+    mock: true
+    service_name: VEIS-API
+  authentication:
+    max_auth_retry_limit: 3
+    retry_attempt_expiry: 604800 # 7 Days
+
 #Settings for Claims Api Module
 claims_api:
   pdf_generator_526:
@@ -920,6 +942,7 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: "peer"
+  url: "https://something.fake.va.gov"
 
 directory:
   url: http://example.com/services/apps/v0/
@@ -1247,6 +1270,7 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_secret_msft: fake_secret
   webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
@@ -1450,6 +1474,9 @@ chip:
     password: '12345'
 
 check_in:
+  map_api:
+    url: https://veteran.apps-staging.va.gov
+    service_name: MAP-API
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
@@ -1655,3 +1682,6 @@ avs:
 brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
+
+xlsx_file_fetcher:
+  github_access_token: ~

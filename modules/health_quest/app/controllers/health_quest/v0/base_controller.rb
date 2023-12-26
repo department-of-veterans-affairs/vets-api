@@ -3,6 +3,7 @@
 module HealthQuest
   module V0
     class BaseController < ::ApplicationController
+      service_tag 'health-questionnaire'
       before_action :authorize
 
       protected

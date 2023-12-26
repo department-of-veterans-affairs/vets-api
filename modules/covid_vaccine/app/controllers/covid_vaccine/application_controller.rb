@@ -2,6 +2,7 @@
 
 module CovidVaccine
   class ApplicationController < ::ApplicationController
+    service_tag 'covid-vaccine'
     before_action :check_flipper
     skip_before_action :authenticate
     before_action :validate_session

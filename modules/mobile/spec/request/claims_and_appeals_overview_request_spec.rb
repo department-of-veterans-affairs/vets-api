@@ -16,6 +16,8 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   end
 
   before do
+    Flipper.enable(:mobile_claims_log_decision_letter_sent)
+
     if lighthouse_flag
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
@@ -24,6 +26,8 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
       Flipper.disable(:mobile_lighthouse_claims)
     end
   end
+
+  after { Flipper.disable(:mobile_claims_log_decision_letter_sent) }
 
   describe '#index is polled an unauthorized user' do
     it 'and not user returns a 401 status' do
@@ -79,7 +83,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(open_appeal.dig('attributes', 'decisionLetterSent')).to eq(false)
             expect(decision_letter_sent_claim.dig('attributes', 'decisionLetterSent')).to eq(true)
 
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -111,7 +115,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents.length).to eq(2)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -134,7 +138,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             parsed_response_contents.each do |entry|
               expect(entry.dig('attributes', 'completed')).to eq(true)
             end
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -157,7 +161,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             parsed_response_contents.each do |entry|
               expect(entry.dig('attributes', 'completed')).to eq(false)
             end
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -185,7 +189,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(closed_appeal['type']).to eq('appeal')
             expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
             expect(closed_appeal.dig('attributes', 'displayTitle')).to eq('appeal')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -211,7 +215,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(closed_claim.dig('attributes', 'completed')).to eq(true)
             expect(open_claim['type']).to eq('claim')
             expect(closed_claim['type']).to eq('claim')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -233,7 +237,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
             expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -254,6 +258,24 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
           end
         end
+      end
+    end
+
+    describe 'active_claims_count' do
+      it 'aggregates all incomplete claims and appeals into active_claims_count' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+          end
+        end
+
+        expect(response).to have_http_status(:ok)
+        expected_count = lighthouse_flag ? 7 : 6
+        active_claims_count = response.parsed_body['data'].count do |item|
+          item['attributes']['completed'] == false
+        end
+        expect(active_claims_count).to eq(expected_count)
+        expect(response.parsed_body.dig('meta', 'activeClaimsCount')).to eq(expected_count)
       end
     end
 
@@ -296,7 +318,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
         expect(open_claim.dig('attributes', 'completed')).to eq(false)
         expect(open_claim['type']).to eq('claim')
-        expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+        expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
       end
     end
 
@@ -308,7 +330,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -318,7 +340,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:bad_gateway)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -334,7 +356,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -344,7 +366,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
           VCR.use_cassette('mobile/appeals/server_error') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:bad_gateway)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end

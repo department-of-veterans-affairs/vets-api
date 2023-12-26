@@ -25,10 +25,10 @@ module ClaimsApi
         begin
           response = service(auth_headers).submit(auto_claim, form_data)
         # Temporary errors (returning HTML, connection timeout), retry call
-        rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
+        rescue Faraday::ParsingError, Faraday::TimeoutError => e
           ClaimsApi::Logger.log('claims_establisher',
                                 retry: true,
-                                detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}")
+                                detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}, #{e.class}")
           raise e
         end
 
@@ -59,7 +59,7 @@ module ClaimsApi
     rescue ::Common::Exceptions::BackendServiceException => e
       ClaimsApi::Logger.log('claims_establisher',
                             retry: false,
-                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}")
+                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}, #{e.class}")
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
       auto_claim.form_data = orig_form_data

@@ -2,6 +2,7 @@
 
 module V0
   class IdCardAnnouncementSubscriptionController < ApplicationController
+    service_tag 'deprecated'
     skip_before_action :authenticate
 
     def create

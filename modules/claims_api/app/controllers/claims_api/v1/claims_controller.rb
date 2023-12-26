@@ -12,17 +12,14 @@ module ClaimsApi
 
       def index
         claims = claims_status_service.all(target_veteran.participant_id)
+        claims_v1_logging('claims_v1_index', message: 'Claims not found') if claims == []
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found') if claims == []
-
-        claims_v1_logging(target_veteran&.mpi_icn)
 
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
       rescue EVSS::ErrorMiddleware::EVSSError => e
-        log_message_to_sentry('Error in claims v1',
-                              :warning,
-                              body: e.message)
+        claims_v1_logging('claims_index', message: e.message)
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found')
       end
 
@@ -41,17 +38,15 @@ module ClaimsApi
           # NOTE: source doesn't seem to be accessible within a remote evss_claim
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         else
+          claims_v1_logging('claims_show', message: 'Claim not found')
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
         end
-        claims_v1_logging(target_veteran&.mpi_icn)
       rescue => e
-        unless e.is_a?(::Common::Exceptions::ResourceNotFound)
-          log_message_to_sentry('Error in claims show',
-                                :warning,
-                                body: e.message)
-        end
+        claims_v1_logging('claims_show', message: e.message) unless e.is_a?(::Common::Exceptions::ResourceNotFound)
+        claims_v1_logging('claims_show', message: e.message)
         raise if e.is_a?(::Common::Exceptions::UnprocessableEntity)
 
+        claims_v1_logging('claims_show', message: 'Claim not found')
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
       end
 

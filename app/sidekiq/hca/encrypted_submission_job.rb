@@ -2,6 +2,8 @@
 
 module HCA
   class EncryptedSubmissionJob < BaseEncryptedSubmissionJob
+    sidekiq_options retry: 14
+
     sidekiq_retries_exhausted do |msg, _e|
       health_care_application = HealthCareApplication.find(msg['args'][2])
       form = decrypt_form(msg['args'][1])

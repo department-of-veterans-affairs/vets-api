@@ -105,7 +105,7 @@ module AppealsApi
             start_date = Date.parse(start_date_str)
             end_date = Date.parse(end_date_str)
 
-            valid_date_ranges = start_date <= end_date && start_date < Time.zone.today && end_date < Time.zone.today
+            valid_date_ranges = start_date <= end_date && start_date <= Time.zone.today && end_date <= Time.zone.today
 
             add_date_range_error(schema_pointer, start_date, end_date) unless valid_date_ranges
           end

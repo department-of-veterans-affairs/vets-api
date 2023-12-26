@@ -51,7 +51,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     it 'successfully calls #submit for 674 submission' do
       expect(OpenStruct).to receive(:new)
         .with(hash_including(user_struct.to_h))
-        .and_return(user_struct).twice
+        .and_return(user_struct)
       expect do
         subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
       end.not_to raise_error
@@ -60,7 +60,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     it 'successfully calls #submit without a user_struct passed in by 686c' do
       expect(OpenStruct).to receive(:new)
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
-        .and_return(user_struct).twice
+        .and_return(user_struct)
       expect do
         subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
       end.not_to raise_error
@@ -69,7 +69,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     it 'sends confirmation email' do
       expect(OpenStruct).to receive(:new)
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
-        .and_return(user_struct).twice
+        .and_return(user_struct)
       expect(VANotify::EmailJob).to receive(:perform_async).with(
         user.va_profile_email,
         'fake_template_id',
@@ -93,7 +93,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     it 'raises error' do
       expect(OpenStruct).to receive(:new)
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
-        .and_return(user_struct).twice
+        .and_return(user_struct)
       expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 

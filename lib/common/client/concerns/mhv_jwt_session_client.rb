@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/client/concerns/mhv_locked_session_client'
+
 module Common
   module Client
     module Concerns
@@ -13,28 +15,16 @@ module Common
       #
       module MHVJwtSessionClient
         extend ActiveSupport::Concern
-        include SentryLogging
+        include MhvLockedSessionClient
 
-        ##
-        # @param session [Hash] a hash containing user_id with which the session will be found or built
-        #
-        def initialize(session:)
-          @session = self.class.client_session.find_or_build(session)
+        protected
+
+        def user_key
+          session.icn
         end
 
-        attr_reader :session
-
-        ##
-        # Ensures the MHV based session is not expired or incomplete.
-        #
-        # @return [MHVJwtSessionClient] instance of `self`
-        #
-        def authenticate
-          if session.expired?
-            @session = get_session
-            @session.save
-          end
-          self
+        def session_config_key
+          :mhv_mr_fhir_session_lock
         end
 
         ##
@@ -54,6 +44,8 @@ module Common
                              expires_at: session.expires_at,
                              token: jwt)
         end
+
+        private
 
         def get_jwt_from_headers(res_headers)
           # Get the JWT token from the headers
@@ -78,20 +70,6 @@ module Common
             1.hour.from_now.rfc2822
           end
         end
-
-        ##
-        # Override client_session method to use extended ::ClientSession classes
-        #
-        module ClassMethods
-          ##
-          # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
-          #
-          def client_session(klass = nil)
-            @client_session ||= klass
-          end
-        end
-
-        private
 
         def validate_session_params
           raise Common::Exceptions::ParameterMissing, 'ICN' if session.icn.blank?

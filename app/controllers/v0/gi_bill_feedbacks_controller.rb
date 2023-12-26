@@ -2,6 +2,7 @@
 
 module V0
   class GIBillFeedbacksController < ApplicationController
+    service_tag 'gibill-feedback'
     skip_before_action(:authenticate)
     before_action :load_user, only: :create
 

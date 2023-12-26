@@ -1,0 +1,38 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "915"
+        type:
+          type: string
+          example: "cemetery"
+        attributes:
+          type: object
+          required:
+            - name
+            - type
+          properties:
+            name:
+              type: string
+              example: "ABRAHAM LINCOLN NATIONAL CEMETERY"
+            type:
+              type: string
+              enum:
+                - N
+                - S
+                - I
+                - A
+                - M
+              description: 'N=NATIONAL, S=STATE, I=INTERIOR, A=ARMY, P=PRIVATE, M=MILITARY'
+              example: "N"

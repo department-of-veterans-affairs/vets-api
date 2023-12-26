@@ -339,10 +339,11 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'when type is slo' do
           let(:params) { { type: :slo } }
+          let(:expected_redirect_url) { "https://int.eauth.va.gov/slo/globallogout?appKey=#{expected_app_key}" }
+          let(:expected_app_key) { 'https%253A%252F%252Fssoe-sp-dev.va.gov' }
 
           it 'redirects to eauth' do
-            expect(call_endpoint)
-              .to redirect_to('https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov')
+            expect(call_endpoint).to redirect_to(expected_redirect_url)
           end
 
           it 'routes /v1/sessions/slo/new to SessionController#new' do
@@ -350,6 +351,15 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:slo', 'version:v1', 'client_id:vaweb'], **once)
             expect(response).to have_http_status(:found)
+          end
+
+          context 'when agreements_declined is true' do
+            let(:params) { { type: :slo, agreements_declined: true } }
+            let(:expected_app_key) { 'https%253A%252F%252Fdev-api.va.gov%252Fagreements_declined' }
+
+            it 'redirects to eauth with app key expected path' do
+              expect(call_endpoint).to redirect_to(expected_redirect_url)
+            end
           end
         end
       end
@@ -401,6 +411,8 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when type is slo' do
         let(:params) { { type: 'slo' } }
+        let(:expected_redirect_url) { "https://int.eauth.va.gov/slo/globallogout?appKey=#{expected_app_key}" }
+        let(:expected_app_key) { 'https%253A%252F%252Fssoe-sp-dev.va.gov' }
 
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
@@ -408,23 +420,50 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(User.find(uuid)).not_to be_nil
 
           call_endpoint
-          expect(response.location)
-            .to eq('https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov')
+          expect(response.location).to eq(expected_redirect_url)
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
           expect(User.find(uuid)).to be_nil
         end
+
+        context 'when agreements_declined is true' do
+          let(:params) { { type: 'slo', agreements_declined: true } }
+          let(:expected_app_key) { 'https%253A%252F%252Fdev-api.va.gov%252Fagreements_declined' }
+
+          it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
+            verify_session_cookie
+            expect(User.find(uuid)).not_to be_nil
+
+            call_endpoint
+            expect(response.location).to eq(expected_redirect_url)
+
+            expect(Session.find(token)).to be_nil
+            expect(session).to be_empty
+            expect(User.find(uuid)).to be_nil
+          end
+        end
       end
     end
   end
 
   describe 'GET #ssoe_slo_callback' do
-    subject(:call_endpoint) { get :ssoe_slo_callback }
+    subject(:call_endpoint) { get :ssoe_slo_callback, params: }
+
+    let(:params) { {} }
 
     it 'redirects on callback from external logout' do
       expect(call_endpoint).to redirect_to('http://127.0.0.1:3001/logout/')
+    end
+
+    context 'when agreements_declined is true' do
+      let(:params) { { agreements_declined: true } }
+      let(:expected_redirect_url) { 'http://127.0.0.1:3001/terms-of-use/declined' }
+
+      it 'redirects to terms-of-use-declined-page' do
+        expect(call_endpoint).to redirect_to(expected_redirect_url)
+      end
     end
   end
 

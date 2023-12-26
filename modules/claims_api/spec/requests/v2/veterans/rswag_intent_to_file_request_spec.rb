@@ -293,7 +293,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
 
           before do |example|
             stub_poa_verification
-            stub_mpi
 
             mock_ccg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do

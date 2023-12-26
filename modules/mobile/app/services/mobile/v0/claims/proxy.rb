@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/client'
-
 module Mobile
   module V0
     module Claims
@@ -49,7 +47,7 @@ module Mobile
 
         def get_claim(id)
           claim = claims_scope.find_by(evss_id: id)
-          raise Common::Exceptions::RecordNotFound, id unless claim
+          claim_not_found(id, __method__) unless claim
 
           raw_claim = claims_service.find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
@@ -74,6 +72,8 @@ module Mobile
 
         def request_decision(id)
           claim = EVSSClaim.for_user(@user).find_by(evss_id: id)
+          claim_not_found(id, __method__) unless claim
+
           jid = evss_claim_service.request_decision(claim)
           claim.update(requested_decision: true)
           jid
@@ -84,7 +84,7 @@ module Mobile
           params.require :file
           id = params[:id]
           claim = claims_scope.find_by(evss_id: id)
-          raise Common::Exceptions::RecordNotFound, id unless claim
+          claim_not_found(id, __method__) unless claim
 
           jid = submit_document(params[:file], id, params[:trackedItemId], params[:documentType], params[:password])
           StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
@@ -96,7 +96,7 @@ module Mobile
           params.require :files
           id = params[:id]
           claim = claims_scope.find_by(evss_id: id)
-          raise Common::Exceptions::RecordNotFound, id unless claim
+          claim_not_found(id, __method__) unless claim
 
           file_to_upload = generate_multi_image_pdf(params[:files])
           jid = submit_document(file_to_upload, id, params[:tracked_item_id], params[:document_type], params[:password])
@@ -188,6 +188,12 @@ module Mobile
 
         def claims_scope
           @claims_scope ||= EVSSClaim.for_user(@user)
+        end
+
+        # temporary logging for better understanding why claims are sometimes not found
+        def claim_not_found(id, method)
+          Rails.logger.info("Mobile user #{@user.uuid} claim #{id} not found for method #{method}")
+          raise Common::Exceptions::RecordNotFound, id
         end
 
         def generate_multi_image_pdf(image_list)

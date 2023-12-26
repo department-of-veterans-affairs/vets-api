@@ -12,6 +12,7 @@ module SimpleFormsApi
         stamp_method = "stamp#{data['form_number'].gsub('-', '')}".downcase
         send(stamp_method, stamped_template_path, data)
       end
+
       current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
@@ -28,11 +29,7 @@ module SimpleFormsApi
 
     def self.stamp214142(stamped_template_path, data)
       desired_stamps = [[50, 560]]
-      first_name = data.dig('preparer_identification', 'preparer_full_name', 'first')
-      middle_name = data.dig('preparer_identification', 'preparer_full_name', 'middle')
-      last_name = data.dig('preparer_identification', 'preparer_full_name', 'last')
-      suffix = data.dig('preparer_identification', 'preparer_full_name', 'suffix')
-      signature_text = "#{first_name} #{middle_name} #{last_name} #{suffix}"
+      signature_text = data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] },
@@ -40,12 +37,38 @@ module SimpleFormsApi
       ]
 
       multistamp(stamped_template_path, signature_text, page_configuration)
+
+      # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
+      if data['in_progress_form_created_at']
+        date_title = 'Application Submitted:'
+        date_text = data['in_progress_form_created_at']
+        stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
+      end
+    end
+
+    def self.stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
+      date_title_stamp_position = [440, 710]
+      date_text_stamp_position = [440, 690]
+      page_configuration = [
+        { type: :text, position: date_title_stamp_position },
+        { type: :new_page },
+        { type: :new_page }
+      ]
+
+      multistamp(stamped_template_path, date_title, page_configuration, 12)
+
+      page_configuration = [
+        { type: :text, position: date_text_stamp_position },
+        { type: :new_page },
+        { type: :new_page }
+      ]
+
+      multistamp(stamped_template_path, date_text, page_configuration, 12)
     end
 
     def self.stamp2110210(stamped_template_path, data)
       desired_stamps = [[50, 160]]
-      first_name, middle_name, last_name = get_name_to_stamp10210(data)
-      signature_text = "#{first_name} #{middle_name} #{last_name}"
+      signature_text = data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :new_page },
@@ -69,10 +92,7 @@ module SimpleFormsApi
 
     def self.stamp21p0847(stamped_template_path, data)
       desired_stamps = [[50, 190]]
-      first_name = data.dig('preparer_name', 'first')
-      middle_name = data.dig('preparer_name', 'middle')
-      last_name = data.dig('preparer_name', 'last')
-      signature_text = "#{first_name} #{middle_name} #{last_name}"
+      signature_text = data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] }
@@ -83,10 +103,7 @@ module SimpleFormsApi
 
     def self.stamp210972(stamped_template_path, data)
       desired_stamps = [[50, 465]]
-      first_name = data.dig('preparer_full_name', 'first')
-      middle_name = data.dig('preparer_full_name', 'middle')
-      last_name = data.dig('preparer_full_name', 'last')
-      signature_text = "#{first_name} #{middle_name} #{last_name}"
+      signature_text = data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :new_page },
@@ -98,7 +115,7 @@ module SimpleFormsApi
 
     def self.stamp210966(stamped_template_path, data)
       desired_stamps = [[50, 415]]
-      signature_text = signature_text_for210966(data)
+      signature_text = data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] }
@@ -107,13 +124,13 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.multistamp(stamped_template_path, signature_text, page_configuration)
+    def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
       stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         page_configuration.each do |config|
           case config[:type]
           when :text
-            pdf.draw_text signature_text, at: config[:position], size: 16
+            pdf.draw_text signature_text, at: config[:position], size: font_size
           when :new_page
             pdf.start_new_page
           end
@@ -126,27 +143,6 @@ module SimpleFormsApi
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
-    end
-
-    def self.get_name_to_stamp10210(data)
-      # claimant type values: 'veteran', 'non-veteran'
-      # claimant ownership values: 'self', 'third-party'
-      # third-party = witness
-      # self, veteran = veteran
-      # self, non-veteran = claimant
-      first_name = data.dig('veteran_full_name', 'first')
-      middle_name = data.dig('veteran_full_name', 'middle')
-      last_name = data.dig('veteran_full_name', 'last')
-      if data['claim_ownership'] == 'third-party'
-        first_name = data.dig('witness_full_name', 'first')
-        middle_name = data.dig('witness_full_name', 'middle')
-        last_name = data.dig('witness_full_name', 'last')
-      elsif data['claimant_type'] == 'non-veteran'
-        first_name = data.dig('claimant_full_name', 'first')
-        middle_name = data.dig('claimant_full_name', 'middle')
-        last_name = data.dig('claimant_full_name', 'last')
-      end
-      [first_name, middle_name, last_name]
     end
 
     def self.stamp(desired_stamps, stamped_template_path, text_only: true)
@@ -167,26 +163,6 @@ module SimpleFormsApi
     rescue
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise
-    end
-
-    def self.signature_text_for210966(data)
-      identity = data['preparer_identification']
-      first_name, middle_name, last_name = ''
-      if identity == 'VETERAN'
-        first_name = data.dig('veteran_full_name', 'first')
-        middle_name = data.dig('veteran_full_name', 'middle')
-        last_name = data.dig('veteran_full_name', 'last')
-      elsif identity == 'SURVIVING_DEPENDENT'
-        first_name = data.dig('surviving_dependent_full_name', 'first')
-        middle_name = data.dig('surviving_dependent_full_name', 'middle')
-        last_name = data.dig('surviving_dependent_full_name', 'last')
-      else
-        first_name = data.dig('third_party_preparer_full_name', 'first')
-        middle_name = data.dig('third_party_preparer_full_name', 'middle')
-        last_name = data.dig('third_party_preparer_full_name', 'last')
-      end
-
-      "#{first_name} #{middle_name} #{last_name}"
     end
   end
 end

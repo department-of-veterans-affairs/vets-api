@@ -50,6 +50,9 @@ development: &defaults
   medical_records_store:
     namespace: mr-service
     each_ttl: 1200
+  mhv_mr_fhir_session_lock:
+    namespace: mhv-mr-fhir-session-lock
+    each_ttl: 10
   mdot:
     namespace: mdot
     each_ttl: 1800
@@ -187,6 +190,12 @@ development: &defaults
   vanotify_confirmation_email_store:
     namespace: confirmation_email
     each_ttl: 600 # 10 minutes
+  va_profile_veteran_status:
+    namespace: va_profile_veteran_status
+    each_ttl: 86400
+  sidekiq_attr_package:
+    namespace: sidekiq_attr_package
+    each_ttl: 604800
 test:
   <<: *defaults
   redis:

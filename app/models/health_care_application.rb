@@ -131,6 +131,7 @@ class HealthCareApplication < ApplicationRecord
     effective_date
     primary_eligibility
     priority_group
+    can_submit_financial_info
   ].freeze
 
   def self.parsed_ee_data(ee_data, loa3)

@@ -11,6 +11,7 @@ module SignIn
 
     def perform
       find_valid_oauth_session
+      validate_credential_lock
       validate_terms_of_use if client_config.enforced_terms.present?
       anti_csrf_check if anti_csrf_enabled_client?
       detect_token_theft
@@ -19,6 +20,12 @@ module SignIn
     end
 
     private
+
+    def validate_credential_lock
+      if session.user_verification.locked
+        raise SignIn::Errors::CredentialLockedError.new(message: 'Credential is locked')
+      end
+    end
 
     def validate_terms_of_use
       if session.user_account.needs_accepted_terms_of_use?

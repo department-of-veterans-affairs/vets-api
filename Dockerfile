@@ -31,11 +31,8 @@ RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /et
 RUN echo "deb http://deb.debian.org/debian unstable main" >> /etc/apt/sources.list.d/unstable.list
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t "${RELEASE}" \
-    dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t unstable \
+    dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev \
     clamav clamdscan clamav-daemon
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t testing \
-    poppler-utils
 
 # The pki work below is for parity with the non-docker BRD deploys to mount certs into
 # the container, we need to get rid of it and refactor the configuration bits into

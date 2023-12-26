@@ -10,7 +10,12 @@ module VBADocuments
     sidekiq_options retry: 7, unique_for: 2.hours
 
     def perform
-      guids = VBADocuments::UploadSubmission.where(status: 'uploaded').pluck(:guid)
+      guids = if Flipper.enabled?(:decision_review_delay_evidence)
+                VBADocuments::UploadSubmission.not_from_appeals_api.where(status: 'uploaded').pluck(:guid)
+              else
+                VBADocuments::UploadSubmission.where(status: 'uploaded').pluck(:guid)
+              end
+
       guids.each do |guid|
         Rails.logger.info("Running VBADocuments::RunUnsuccessfulSubmissions for GUID #{guid}",
                           { 'job' => 'VBADocuments::RunUnsuccessfulSubmissions', guid: })

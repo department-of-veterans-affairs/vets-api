@@ -13,6 +13,7 @@ module SignIn
       ServiceAccountAccessToken.new(service_account_id: decoded_token.service_account_id,
                                     audience: decoded_token.aud,
                                     scopes: decoded_token.scopes,
+                                    user_attributes: decoded_token.user_attributes,
                                     user_identifier: decoded_token.sub,
                                     uuid: decoded_token.jti,
                                     version: decoded_token.version,
@@ -29,7 +30,7 @@ module SignIn
         with_validation,
         {
           verify_expiration: with_validation,
-          algorithm: Constants::AccessToken::JWT_ENCODE_ALGORITHM
+          algorithm: Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM
         }
       )&.first
       OpenStruct.new(decoded_jwt)

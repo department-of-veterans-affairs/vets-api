@@ -289,11 +289,8 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: ./schemas/AppointmentCheckin400Insurance.yml
-                  - $ref: ./schemas/AppointmentCheckin400Demographics.yml
-                  - $ref: ./schemas/AppointmentCheckin400Appointment.yml
-
+                $ref: ./schemas/AppointmentCheckinErrors400.yml
+          description: Bad request.
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -305,7 +302,11 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
+          description: An internal API error occurred.
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -789,6 +790,37 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/appointment
+  /v0/awards:
+    get:
+      description: Get current awards overview
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Awards.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/awards
   /v0/claim/{id}:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
@@ -1047,6 +1079,76 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/claims/decision-letters/{document_id}/download
+  /v0/claims/pre-need-burial:
+    post:
+      description: Submits a new Preneeds Burial application.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/CreatePreneedBurial.yml
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/CreatePreneedBurialResponse.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/claims/pre-need-burial
+  /v0/claims/pre-need-burial/cemeteries:
+    get:
+      description: Returns info on all cemeteries for preneed burial
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PreneedBurial.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/claims/pre-need-burial/cemeteries
   /v0/claims-and-appeals-overview:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
@@ -1206,6 +1308,74 @@ paths:
       security:
         - Bearer: []
       summary: /v0/community-care-providers
+  /v0/dependents:
+    get:
+      description: Returns a list of user's dependents. Dependent SSN is also available but is removed to limit PII exposure.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Dependents.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/dependents
+  /v0/dependents/request-decisions:
+    get:
+      description: Returns the list of dependents verifications and diaries
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/DependentsRequestDecisions.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/dependents/request-decisions
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user

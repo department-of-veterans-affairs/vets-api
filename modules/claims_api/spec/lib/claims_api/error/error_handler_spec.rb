@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'claims_api/special_issue_mappers/bgs'
 require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
@@ -29,7 +30,7 @@ describe ApplicationController, type: :controller do
   end
 
   it 'catches an invalid token' do
-    with_okta_user(scopes) do |auth_header|
+    mock_ccg(scopes) do |auth_header|
       # Following the normal headers: auth_header pattern fails due to
       # this rspec bug: https://github.com/rspec/rspec-rails/issues/1655
       # This is the recommended workaround from that issue thread.
@@ -46,7 +47,7 @@ describe ApplicationController, type: :controller do
   end
 
   it 'catches an expired token' do
-    with_okta_user(scopes) do |auth_header|
+    mock_ccg(scopes) do |auth_header|
       request.headers.merge!(auth_header)
 
       get :raise_expired_token_signature

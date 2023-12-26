@@ -21,7 +21,8 @@ http_interactions:
             "sid": "9A7AF40B2BC2471EA116891839113252",
             "data": {
               "patientInfo": {
-                "icn": "123498767V234859"
+                "icn": "123498767V234859",
+                "smokingStatus": "Current smoker"
               },
               "header": {
                 "timeZone": "US/Pacific"

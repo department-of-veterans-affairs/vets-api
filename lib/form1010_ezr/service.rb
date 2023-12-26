@@ -26,30 +26,73 @@ module Form1010Ezr
       @user = user
     end
 
-    # @param [HashWithIndifferentAccess] parsed_form JSON form data
-    def submit_form(parsed_form)
-      begin
-        configure_and_validate_form(parsed_form)
+    def submit_async(parsed_form)
+      HCA::EzrSubmissionJob.perform_async(
+        HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
+        HealthCareApplication.get_user_identifier(@user)
+      )
+    end
 
-        formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
-        content = Gyoku.xml(formatted)
-        submission = soap.build_request(:save_submit_form, message: content)
-        response = with_monitoring do
-          perform(:post, '', submission.body)
-        end
+    def submit_sync(parsed_form)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user, FORM_ID)
+      content = Gyoku.xml(formatted)
+      submission = soap.build_request(:save_submit_form, message: content)
+      response = with_monitoring do
+        perform(:post, '', submission.body)
       rescue => e
-        log_submission_failure(parsed_form)
-        Rails.logger.error "10-10EZR form submission failed: #{e.message}"
+        increment_failure('submit_form', e)
         raise e
+      ensure
+        increment_total('submit_form')
       end
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
+      form_submission_id = root.locate('formSubmissionId').first.text.to_i
+
+      # Log the 'formSubmissionId' for successful submissions
+      Rails.logger.info("SubmissionID=#{form_submission_id}")
 
       {
         success: true,
-        formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
+        formSubmissionId: form_submission_id,
         timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
+    end
+
+    # @param [HashWithIndifferentAccess] parsed_form JSON form data
+    def submit_form(parsed_form)
+      parsed_form = configure_and_validate_form(parsed_form)
+      if Flipper.enabled?(:ezr_async, @user)
+        submit_async(parsed_form)
+      else
+        submit_sync(parsed_form)
+      end
+    rescue => e
+      log_submission_failure(parsed_form)
+      Rails.logger.error "10-10EZR form submission failed: #{e.message}"
+      raise e
+    end
+
+    def log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+
+      if parsed_form.present?
+        PersonalInformationLog.create!(
+          data: parsed_form,
+          error_class: 'Form1010Ezr FailedWontRetry'
+        )
+
+        log_message_to_sentry(
+          '1010EZR total failure',
+          :error,
+          {
+            first_initial: parsed_form['veteranFullName']['first'][0],
+            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
+            last_initial: parsed_form['veteranFullName']['last'][0]
+          },
+          ezr: :total_failure
+        )
+      end
     end
 
     private
@@ -81,6 +124,15 @@ module Form1010Ezr
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
       override_parsed_form(parsed_form)
+      add_financial_flag(parsed_form)
+    end
+
+    def add_financial_flag(parsed_form)
+      if parsed_form['veteranGrossIncome'].present?
+        parsed_form.merge('discloseFinancialInformation' => true)
+      else
+        parsed_form
+      end
     end
 
     def log_validation_errors(parsed_form)
@@ -90,28 +142,6 @@ module Form1010Ezr
         data: parsed_form,
         error_class: 'Form1010Ezr ValidationError'
       )
-    end
-
-    def log_submission_failure(parsed_form)
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
-
-      if parsed_form.present?
-        PersonalInformationLog.create!(
-          data: parsed_form,
-          error_class: 'Form1010Ezr FailedWontRetry'
-        )
-
-        log_message_to_sentry(
-          '1010EZR total failure',
-          :error,
-          {
-            first_initial: parsed_form['veteranFullName']['first'][0],
-            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
-            last_initial: parsed_form['veteranFullName']['last'][0]
-          },
-          ezr: :total_failure
-        )
-      end
     end
   end
 end

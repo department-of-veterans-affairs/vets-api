@@ -4,18 +4,18 @@ class DynamicsMockService
   class FileNotFound < StandardError; end
   class InvalidJSONContent < StandardError; end
 
-  def initialize(sec_id: nil, logger: nil)
-    @sec_id = sec_id
+  def initialize(icn: nil, logger: nil)
+    @icn = icn
     @logger = logger
   end
 
   def call(endpoint:, method: :get, payload: {})
+    raise ArgumentError, 'Only :get method is supported' unless method == :get
+
     @payload = payload
-    if method == :get
-      file_path = "modules/ask_va_api/config/locales/#{sanitize_endpoint(endpoint)}"
-      data = JSON.parse(File.read(file_path), symbolize_names: true)[:data]
-      filter_mock_data(data)
-    end
+    file_path = file_path_for(endpoint)
+    data = read_and_parse_json(file_path)
+    filter_mock_data(data)
   rescue Errno::ENOENT
     raise FileNotFound, "Mock file not found for #{endpoint}"
   rescue JSON::ParserError
@@ -24,21 +24,32 @@ class DynamicsMockService
 
   private
 
+  def file_path_for(endpoint)
+    "modules/ask_va_api/config/locales/#{sanitize_endpoint(endpoint)}"
+  end
+
+  def read_and_parse_json(file_path)
+    JSON.parse(File.read(file_path), symbolize_names: true)[:data]
+  end
+
   def sanitize_endpoint(endpoint)
     "#{endpoint.tr('/', '_')}.json"
   end
 
   def filter_mock_data(data)
-    if @payload[:inquiry_number]
-      data.find { |i| i[:inquiryNumber] == @payload[:inquiry_number] } || {}
-    elsif @payload[:sec_id]
-      data.select { |i| i[:sec_id] == @payload[:sec_id] }.map { |i| i.except(:attachments) }
-    elsif @payload.blank?
-      data
-    else
-      key = @payload.keys.first
-      symbolize_key = key.to_s.gsub(/_([a-z])/) { ::Regexp.last_match(1).upcase }.to_sym
-      data.select { |i| i[symbolize_key] == @payload[key].to_i }
-    end
+    return data if @payload.blank?
+
+    key, value = @payload.first
+    key = camelize_key(key)
+    data.select { |item| item[key.to_sym].to_i == formatted_value(key, value).to_i }
+  end
+
+  def camelize_key(key)
+    parts = key.to_s.split('_')
+    parts[0] + parts[1..].collect(&:capitalize).join
+  end
+
+  def formatted_value(key, value)
+    key.to_s.end_with?('Id') ? value.to_i : value
   end
 end

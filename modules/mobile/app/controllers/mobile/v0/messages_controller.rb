@@ -12,6 +12,7 @@ module Mobile
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
         resource = resource.paginate(**pagination_params)
+        resource.metadata.merge!(message_counts(resource))
 
         render json: resource.data,
                serializer: CollectionSerializer,
@@ -62,6 +63,8 @@ module Mobile
         message_id = params[:id].try(:to_i)
         resource = client.get_message_history(message_id)
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
+
+        resource.metadata.merge!(message_counts(resource))
 
         render json: resource.data,
                serializer: CollectionSerializer,
@@ -121,6 +124,15 @@ module Mobile
 
       def upload_params
         @upload_params ||= { uploads: params[:uploads] }
+      end
+
+      def message_counts(resource)
+        {
+          message_counts: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
+            hash[:read] += 1 if obj[:read_receipt] || obj.read_receipt
+            hash[:unread] += 1 unless obj[:read_receipt] || obj.read_receipt
+          end
+        }
       end
     end
   end

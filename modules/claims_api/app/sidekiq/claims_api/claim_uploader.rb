@@ -19,6 +19,7 @@ module ClaimsApi
       doc_type = claim_object.is_a?(ClaimsApi::SupportingDocument) ? 'L023' : 'L122'
 
       if auto_claim.evss_id.nil?
+        ClaimsApi::Logger.log('claims_uploader', detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
         self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers
@@ -50,10 +51,10 @@ module ClaimsApi
     def claim_bd_upload_document(claim, doc_type, pdf_path)
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
-    rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
+    rescue Faraday::ParsingError, Faraday::TimeoutError => e
       ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
-                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}")
+                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
       raise e
     # Permanent failures, don't retry
     rescue => e
@@ -64,7 +65,7 @@ module ClaimsApi
                 end
       ClaimsApi::Logger.log('benefits_documents',
                             retry: false,
-                            detail: "/upload failure for claimId #{claim&.id}: #{message}")
+                            detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       {}
     end
 

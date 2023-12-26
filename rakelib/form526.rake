@@ -201,7 +201,7 @@ namespace :form526 do
 
       submissions_per_day[to_date_string(submission.created_at)] += 1
 
-      submission.form526_job_statuses.where.not(error_message: [nil, '']).each do |job_status|
+      submission.form526_job_statuses.where.not(error_message: [nil, '']).find_each do |job_status|
         if job_status.job_class == 'SubmitForm526AllClaim'
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         else
@@ -713,6 +713,6 @@ namespace :form526 do
       icns.first
     end
 
-    Form526Submission.where(id: args.extras).each { |sub| puts_mpi_profile sub }
+    Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }
   end
 end

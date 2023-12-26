@@ -10,6 +10,7 @@ require 'login/after_login_actions'
 
 module V1
   class SessionsController < ApplicationController
+    service_tag 'identity'
     skip_before_action :verify_authenticity_token
 
     REDIRECT_URLS = %w[signup mhv mhv_verified dslogon dslogon_verified idme idme_verified idme_signup
@@ -43,11 +44,19 @@ module V1
       if type == 'slo'
         Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}", sso_logging_info)
         reset_session
-        url = url_service.ssoe_slo_url
-        # due to shared url service implementation
-        # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
-        # extensions with their browser.
-        redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+        url = URI.parse(url_service.ssoe_slo_url)
+
+        app_key = if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
+                    Settings.saml_ssoe.tou_decline_logout_app_key
+                  else
+                    Settings.saml_ssoe.logout_app_key
+                  end
+
+        query_strings = { appKey: CGI.escape(app_key), clientId: params[:client_id] }.compact
+
+        url.query = query_strings.to_query
+
+        redirect_to url.to_s
       else
         render_login(type)
       end
@@ -56,7 +65,12 @@ module V1
 
     def ssoe_slo_callback
       Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
-      redirect_to url_service.logout_redirect_url
+
+      if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
+        redirect_to url_service.tou_declined_logout_redirect_url
+      else
+        redirect_to url_service.logout_redirect_url
+      end
     end
 
     def saml_callback

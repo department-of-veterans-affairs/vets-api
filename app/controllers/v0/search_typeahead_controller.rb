@@ -5,6 +5,7 @@ require 'search_typeahead/service'
 module V0
   class SearchTypeaheadController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
+    service_tag 'search'
 
     skip_before_action :authenticate
     skip_before_action :verify_authenticity_token

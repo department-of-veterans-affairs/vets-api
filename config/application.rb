@@ -17,6 +17,7 @@ require 'action_mailer/railtie'
 # require "sprockets/railtie"
 require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/statsd_middleware'
+require_relative '../lib/faraday_adapter_socks/faraday_adapter_socks'
 require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems

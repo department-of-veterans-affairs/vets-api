@@ -2,6 +2,8 @@
 
 module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
+    service_tag 'career-guidance-application'
+
     def create
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
 

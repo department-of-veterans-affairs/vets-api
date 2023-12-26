@@ -58,6 +58,10 @@ module SAML
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"
     end
 
+    def tou_declined_logout_redirect_url
+      "#{base_redirect_url}#{TERMS_OF_USE_DECLINED_PATH}"
+    end
+
     def terms_of_use_redirect_url
       application = @tracker&.payload_attr(:application) || 'vaweb'
       if TERMS_OF_USE_ENABLED_CLIENTS.include?(application)

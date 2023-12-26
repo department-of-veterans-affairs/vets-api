@@ -13,9 +13,13 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do
-      salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
+    sidekiq_retries_exhausted do |msg, error|
+      user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
+                         { user_uuid:, saved_claim_id:, icn:, error: })
       if Flipper.enabled?(:dependents_central_submission)
+        user ||= BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, vet_info)
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
                                                             KmsEncrypted::Box.new.encrypt(vet_info.to_json),
                                                             KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
@@ -28,12 +32,7 @@ module BGS
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
 
-      @user = if encrypted_user_struct_hash.present?
-                OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct_hash)))
-              else
-                generate_user_struct
-              end
-
+      @user = BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, @vet_info)
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 
@@ -48,10 +47,32 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.error('BGS::SubmitForm674Job failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
-      log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
-
+      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
+      salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
       raise
+    end
+
+    def self.generate_user_struct(encrypted_user_struct, vet_info)
+      if encrypted_user_struct.present?
+        return OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)))
+      end
+
+      info = vet_info['veteran_information']
+      full_name = info['full_name']
+      OpenStruct.new(
+        first_name: full_name['first'],
+        last_name: full_name['last'],
+        middle_name: full_name['middle'],
+        ssn: info['ssn'],
+        email: info['email'],
+        va_profile_email: info['va_profile_email'],
+        participant_id: info['participant_id'],
+        icn: info['icn'],
+        uuid: info['uuid'],
+        common_name: info['common_name']
+      )
     end
 
     private
@@ -74,23 +95,6 @@ module BGS
         template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
-      )
-    end
-
-    def generate_user_struct
-      info = vet_info['veteran_information']
-      full_name = info['full_name']
-      OpenStruct.new(
-        first_name: full_name['first'],
-        last_name: full_name['last'],
-        middle_name: full_name['middle'],
-        ssn: info['ssn'],
-        email: info['email'],
-        va_profile_email: info['va_profile_email'],
-        participant_id: info['participant_id'],
-        icn: info['icn'],
-        uuid: info['uuid'],
-        common_name: info['common_name']
       )
     end
   end

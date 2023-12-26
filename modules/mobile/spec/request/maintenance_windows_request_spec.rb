@@ -92,6 +92,15 @@ RSpec.describe 'maintenance windows', type: :request do
                 'startTime' => '2021-05-25T21:33:39.000Z',
                 'endTime' => '2021-05-25T22:33:39.000Z'
               }
+            },
+            {
+              'id' => '117dd7ff-419b-5807-9943-6c8ee6ad4ddd',
+              'type' => 'maintenance_window',
+              'attributes' => {
+                'service' => 'immunizations',
+                'startTime' => '2021-05-25T21:33:39.000Z',
+                'endTime' => '2021-05-25T22:33:39.000Z'
+              }
             }
           ]
         )
@@ -147,7 +156,7 @@ RSpec.describe 'maintenance windows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents])
+                                                          letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_eariest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_eariest_end_time])
 
@@ -157,7 +166,7 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
         expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents])
+                                                          letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_middle_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_middle_end_time])
 
@@ -167,7 +176,7 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
         expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents])
+                                                          letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_latest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_latest_end_time])
       end

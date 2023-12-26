@@ -25,7 +25,7 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(sec_id: nil)
+        Crm::Service.new(icn: nil)
       end
 
       def fetch_data(payload:)

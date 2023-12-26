@@ -37,7 +37,7 @@ module Webhooks
     def get_callback_urls(ids)
       callback_urls = {}
 
-      Webhooks::Notification.where(id: ids).each do |notify|
+      Webhooks::Notification.where(id: ids).find_each do |notify|
         callback_urls[notify.callback_url] ||= []
         callback_urls[notify.callback_url] << notify.id
       end
