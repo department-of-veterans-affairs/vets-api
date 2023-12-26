@@ -684,6 +684,18 @@
       "additionalProperties": false,
       "required": ["servicePeriods"],
       "properties": {
+        "alternateNames": {
+          "description": "List any other names under which the Veteran served, if applicable.",
+          "type": ["array", "null"],
+          "nullable": true,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "additionalProperties": false,
+            "examples": ["jane", "janey lee", "jane lee MacDonald"]
+          }
+        },
         "servicePeriods": {
           "description": "Identifies the Service dates and Branch the Veteran served in.",
           "type": "array",
@@ -726,56 +738,24 @@
             }
           }
         },
-        "confinements": {
-          "type": ["array", "null"],
-          "nullable": true,
-          "uniqueItems": true,
-          "items": {
-            "additionalProperties": false,
-            "type": "object",
-            "properties": {
-              "approximateBeginDate": {
-                "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
-                "type": ["string", "null"],
-                "nullable": true,
-                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
-                "example": "2018-06-06 or 2018-06"
-              },
-              "approximateEndDate": {
-                "type": ["string", "null"],
-                "nullable": true,
-                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
-                "example": "2018-06-06 or 2018-06"
-              }
-            }
-          }
-        },
-        "federalActivation": {
-          "type": ["object", "null"],
-          "nullable": true,
-          "additionalProperties": false,
-          "properties": {
-            "anticipatedSeparationDate": {
-              "description": "Anticipated date of separation. Date must be in the future.",
-              "type": ["string", "null"],
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "example": "2018-06-06",
-              "nullable": true
-            },
-            "activationDate": {
-              "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-              "type": ["string", "null"],
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "example": "2018-06-06",
-              "nullable": true
-            }
-          }
+        "servedInActiveCombatSince911": {
+          "type": ["string", "null"],
+          "enum": ["YES", "NO", null],
+          "description": "Did Veteran serve in a combat zone since 9-11-2001?",
+          "example": "YES",
+          "nullable": true
         },
         "reservesNationalGuardService": {
           "type": ["object", "null"],
           "nullable": true,
           "additionalProperties": false,
           "properties": {
+            "component": {
+              "type": ["string", "null"],
+              "nullable": true,
+              "description": "",
+              "enum": ["Reserves", "National Guard", null]
+            },
             "obligationTermsOfService": {
               "type": ["object", "null"],
               "nullable": true,
@@ -783,24 +763,18 @@
               "additionalProperties": false,
               "properties": {
                 "beginDate": {
-                "type": ["string", "null"],
-                "nullable": true,
+                  "type": ["string", "null"],
+                  "nullable": true,
                   "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                   "example": "2018-06-06"
                 },
                 "endDate": {
-                "type": ["string", "null"],
-                "nullable": true,
+                  "type": ["string", "null"],
+                  "nullable": true,
                   "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                   "example": "2018-06-06"
                 }
               }
-            },
-            "component": {
-              "type": ["string", "null"],
-              "nullable": true,
-              "description": "",
-              "enum": ["Reserves", "National Guard", null]
             },
             "unitName": {
               "type": ["string", "null"],
@@ -840,24 +814,50 @@
             }
           }
         },
-        "alternateNames": {
-          "description": "List any other names under which the Veteran served, if applicable.",
-          "type": ["array", "null"],
+        "federalActivation": {
+          "type": ["object", "null"],
           "nullable": true,
-          "maxItems": 100,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "additionalProperties": false,
-            "examples": ["jane", "janey lee", "jane lee MacDonald"]
+          "additionalProperties": false,
+          "properties": {
+            "activationDate": {
+              "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+              "type": ["string", "null"],
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-06",
+              "nullable": true
+            },
+            "anticipatedSeparationDate": {
+              "description": "Anticipated date of separation. Date must be in the future.",
+              "type": ["string", "null"],
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-06",
+              "nullable": true
+            }
           }
         },
-        "servedInActiveCombatSince911": {
-          "type": ["string", "null"],
-          "enum": ["YES", "NO", null],
-          "description": "Did Veteran serve in a combat zone since 9-11-2001?",
-          "example": "YES",
-          "nullable": true
+        "confinements": {
+          "type": ["array", "null"],
+          "nullable": true,
+          "uniqueItems": true,
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "properties": {
+              "approximateBeginDate": {
+                "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
+                "type": ["string", "null"],
+                "nullable": true,
+                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                "example": "2018-06-06 or 2018-06"
+              },
+              "approximateEndDate": {
+                "type": ["string", "null"],
+                "nullable": true,
+                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                "example": "2018-06-06 or 2018-06"
+              }
+            }
+          }
         }
       }
     },
