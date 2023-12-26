@@ -22,6 +22,7 @@ module Veteran
       attribute :lat
       attribute :long
       attribute :distance
+      attribute :user_types
 
       def distance
         object.distance / Veteran::Service::Constants::METERS_PER_MILE
