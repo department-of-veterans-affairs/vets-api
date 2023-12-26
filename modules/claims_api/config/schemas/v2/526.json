@@ -26,37 +26,10 @@
       "additionalProperties": false,
       "required": ["mailingAddress"],
       "properties": {
-        "currentVaEmployee": {
-          "type": ["boolean", "null"],
-          "description": "Set to true if Veteran is a VA employee.",
-          "default": false,
-          "nullable": true
-        },
         "serviceNumber": {
           "type": ["null", "string"],
           "description": "Service identification number",
           "nullable": true
-        },
-        "emailAddress": {
-          "description": "Information associated with the Veteran's email address.",
-          "type": ["object", "null"],
-          "nullable": true,
-          "properties": {
-            "email": {
-              "type": ["string", "null"],
-              "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
-              "description": "The most current email address of the Veteran.",
-              "maxLength": 50,
-              "nullable": true
-            },
-            "agreeToEmailRelatedToClaim": {
-              "type": ["boolean", "null"],
-              "description": "Agreement to email information relating to this claim.",
-              "example": true,
-              "default": false,
-              "nullable": true
-            }
-          }
         },
         "veteranNumber": {
           "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
@@ -120,6 +93,12 @@
               "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
               "example": "Portland"
             },
+            "state": {
+              "description": "State for the Veteran's current mailing address.",
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "OR"
+            },
             "country": {
               "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
               "type": "string",
@@ -137,14 +116,35 @@
               "pattern": "^\\d{4}?$",
               "example": "6789",
               "nullable": true
-            },
-            "state": {
-              "description": "State for the Veteran's current mailing address.",
-              "type": "string",
-              "pattern": "^[a-z,A-Z]{2}$",
-              "example": "OR"
             }
           }
+        },
+        "emailAddress": {
+          "description": "Information associated with the Veteran's email address.",
+          "type": ["object", "null"],
+          "nullable": true,
+          "properties": {
+            "email": {
+              "type": ["string", "null"],
+              "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+              "description": "The most current email address of the Veteran.",
+              "maxLength": 50,
+              "nullable": true
+            },
+            "agreeToEmailRelatedToClaim": {
+              "type": ["boolean", "null"],
+              "description": "Agreement to email information relating to this claim.",
+              "example": true,
+              "default": false,
+              "nullable": true
+            }
+          }
+        },
+        "currentVaEmployee": {
+          "type": ["boolean", "null"],
+          "description": "Set to true if Veteran is a VA employee.",
+          "default": false,
+          "nullable": true
         }
       }
     },
