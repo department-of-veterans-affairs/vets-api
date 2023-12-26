@@ -78,7 +78,7 @@ module ClaimsApi
         date = change_of_address.dig('dates', 'endDate')
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
           collect_error_messages(
-            detail: 'Change of address enddate cannot be included when typeOfAddressChange is PERMANENT',
+            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
             source: '/changeOfAddress/dates/endDate'
           )
         end
@@ -546,12 +546,14 @@ module ClaimsApi
 
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate')
-        return if max_date_valid.is_a?(Array)
 
-        if (ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid &&
-          (Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
-           180.days)) || (Date.strptime(ant_sep_date,
-                                        '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days)
+        return if max_date_valid.is_a?(Array) || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+
+        if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
+          max_period['activeDutyEndDate'], '%Y-%m-%d'
+        ) > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
+           180.days) || (Date.strptime(ant_sep_date,
+                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
 
           collect_error_messages(
             detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
@@ -569,6 +571,7 @@ module ClaimsApi
             break if begin_date_valid.is_a?(Array)
 
             age_exception(idx) if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
+
             if sp['activeDutyEndDate']
               end_date_valid = date_is_valid?(sp['activeDutyEndDate'],
                                               'serviceInformation/servicePeriods/activeDutyBeginDate')
@@ -806,6 +809,8 @@ module ClaimsApi
       end
 
       def validate_anticipated_seperation_date_in_past!(date)
+        return if date.blank?
+
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
           collect_error_messages(
             source: '/serviceInformation/federalActivation/',
@@ -994,6 +999,7 @@ module ClaimsApi
 
       def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
                                  title: 'Unprocessable Entity', status: '422')
+
         errors_array.push({ detail:, source:, title:, status: })
       end
 

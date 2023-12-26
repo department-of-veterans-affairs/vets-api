@@ -102,7 +102,8 @@ chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id:
 chatbot.update!(
   description: 'Chatbot',
   scopes: ['http://localhost:3000/v0/map_services/chatbot/token'],
-  access_token_audience: 'http://localhost:3001',
+  access_token_audience: 'http://localhost:3978/api/messages',
+  access_token_user_attributes: ['icn'],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sample_service_account.crt')]
 )

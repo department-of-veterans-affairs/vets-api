@@ -200,7 +200,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  'Change of address enddate cannot be included when typeOfAddressChange is PERMANENT'
+                  'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT'
                 )
               end
             end
