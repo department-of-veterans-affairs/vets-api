@@ -16,11 +16,6 @@
       "description": "Select type of claim program/process that applies to the Veteran.",
       "enum": ["STANDARD_CLAIM_PROCESS", "FDC_PROGRAM", "BDD_PROGRAM"]
     },
-    "claimantCertification": {
-      "type": "boolean",
-      "description": "Claimant certifies and authorizes release of information.",
-      "default": false
-    },
     "veteranIdentification": {
       "type": "object",
       "additionalProperties": false,
@@ -1009,6 +1004,11 @@
           "example": "123123123"
         }
       }
+    },
+    "claimantCertification": {
+      "type": "boolean",
+      "description": "Claimant certifies and authorizes release of information.",
+      "default": false
     }
   }
 }
