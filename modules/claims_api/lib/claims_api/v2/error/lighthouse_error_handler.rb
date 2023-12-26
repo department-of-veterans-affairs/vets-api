@@ -72,7 +72,9 @@ module ClaimsApi
         end
 
         def get_error_source(error)
-          error&.backtrace&.[](0).to_s
+          full_backtrace = error&.backtrace&.[](0).to_s
+          split_trace = full_backtrace.split('/', 7)
+          split_trace[6]
         end
       end
     end
