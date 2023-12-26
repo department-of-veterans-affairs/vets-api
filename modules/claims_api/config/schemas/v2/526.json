@@ -154,24 +154,6 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
-        "dates": {
-          "type": "object",
-          "properties": {
-            "beginDate": {
-              "description": "Begin date for the Veteran's new address.",
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "type": "string",
-              "example": "2018-06-04"
-            },
-            "endDate": {
-              "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
-              "type": ["string", "null"],
-              "nullable": true,
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "example": "2018-06-04"
-            }
-          }
-        },
         "typeOfAddressChange": {
           "description": "Temporary or Permanent change of address. If 'TEMPORARY', 'beginDate' and 'endDate' are required.",
           "type": "string",
@@ -205,6 +187,12 @@
           "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
           "example": "Portland"
         },
+        "state": {
+          "description": "State for the Veteran's new address.",
+          "type": "string",
+          "pattern": "^$|^[a-z,A-Z]{2}$",
+          "example": "OR"
+        },
         "country": {
           "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
           "type": "string",
@@ -223,11 +211,23 @@
           "pattern": "^$|^\\d{4}?$",
           "example": "6789"
         },
-        "state": {
-          "description": "State for the Veteran's new address.",
-          "type": "string",
-          "pattern": "^$|^[a-z,A-Z]{2}$",
-          "example": "OR"
+        "dates": {
+          "type": "object",
+          "properties": {
+            "beginDate": {
+              "description": "Begin date for the Veteran's new address.",
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "type": "string",
+              "example": "2018-06-04"
+            },
+            "endDate": {
+              "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
+              "type": ["string", "null"],
+              "nullable": true,
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-04"
+            }
+          }
         }
       }
     },
@@ -236,37 +236,6 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
-        "pointOfContact": {
-          "description": "Individual in direct contact with Veteran.",
-          "type": ["string", "null"],
-          "nullable": true,
-          "minLength": 1,
-          "maxLength": 100,
-          "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
-          "example": "Jane Doe"
-        },
-        "pointOfContactNumber": {
-          "type": ["object", "null"],
-          "nullable": true,
-          "additionalProperties": false,
-          "properties": {
-            "telephone": {
-              "description": "Primary phone of point of contact.",
-              "type": ["string", "null"],
-              "pattern": "^\\d{10}?$",
-              "example": "5555555",
-              "minLength": 10,
-              "maxLength": 10,
-              "nullable": true
-            },
-            "internationalTelephone": {
-              "description": "International phone of point of contact.",
-              "type": ["string", "null"],
-              "example": "+44 20 1234 5678",
-              "nullable": true
-            }
-          }
-        },
         "currentlyHomeless": {
           "type": ["object", "null"],
           "nullable": true,
@@ -318,6 +287,37 @@
               "nullable": true,
               "maxLength": 500,
               "example": "other living situation"
+            }
+          }
+        },
+        "pointOfContact": {
+          "description": "Individual in direct contact with Veteran.",
+          "type": ["string", "null"],
+          "nullable": true,
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
+          "example": "Jane Doe"
+        },
+        "pointOfContactNumber": {
+          "type": ["object", "null"],
+          "nullable": true,
+          "additionalProperties": false,
+          "properties": {
+            "telephone": {
+              "description": "Primary phone of point of contact.",
+              "type": ["string", "null"],
+              "pattern": "^\\d{10}?$",
+              "example": "5555555",
+              "minLength": 10,
+              "maxLength": 10,
+              "nullable": true
+            },
+            "internationalTelephone": {
+              "description": "International phone of point of contact.",
+              "type": ["string", "null"],
+              "example": "+44 20 1234 5678",
+              "nullable": true
             }
           }
         }
@@ -464,6 +464,18 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "hazardExposedTo": {
+                "type": ["string", "null"],
+                "nullable": true,
+                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "description": "Hazard the Veteran was exposed to."
+              },
+              "exposureLocation": {
+                "type": ["string", "null"],
+                "nullable": true,
+                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "description": "Location where the exposure happened."
+              },
               "exposureDates": {
                 "type": ["object", "null"],
                 "nullable": true,
@@ -484,18 +496,6 @@
                     "example": "2018-06 or 2018"
                   }
                 }
-              },
-              "exposureLocation": {
-                "type": ["string", "null"],
-                "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                "description": "Location where the exposure happened."
-              },
-              "hazardExposedTo": {
-                "type": ["string", "null"],
-                "nullable": true,
-                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                "description": "Hazard the Veteran was exposed to."
               }
             }
           }
