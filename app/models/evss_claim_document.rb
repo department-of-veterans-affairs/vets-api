@@ -91,11 +91,12 @@ class EVSSClaimDocument < Common::Base
     pdftk = PdfForms.new(Settings.binaries.pdftk)
     tempfile_without_pass = Tempfile.new(['decrypted_evss_claim_document', '.pdf'])
 
-    error_messages = pdftk.call_pdftk(file_obj.tempfile.path,
+    begin
+      pdftk.call_pdftk(file_obj.tempfile.path,
                                       'input_pw', password,
                                       'output', tempfile_without_pass.path)
-    if error_messages.present? && error_messages.include?('Error')
-      log_message_to_sentry(error_messages, 'warn')
+    rescue PdfForms::PdftkError => e
+      log_message_to_sentry(e.message, 'warn')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
 
