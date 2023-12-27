@@ -12,9 +12,8 @@ module SimpleFormsApi
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('name', 'first')
-        # 'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
-        # 'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'veteranFirstName' => @data.dig('application', 'applicant', 'name', 'first')
+        'veteranLastName' => @data.dig('application', 'applicant', 'name', 'last'),
         # 'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn'),
         # 'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         # 'source' => 'VA Platform Digital Forms',
