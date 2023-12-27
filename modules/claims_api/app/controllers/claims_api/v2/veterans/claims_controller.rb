@@ -96,15 +96,17 @@ module ClaimsApi
           structure.merge!(build_claim_phase_attributes(bgs_claim, 'show'))
         end
 
-        def map_claims(bgs_claims:, lighthouse_claims:)
+        def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
           extracted_claims = [bgs_claims&.dig(:benefit_claims_dto, :benefit_claim)].flatten.compact
           mapped_claims = extracted_claims.map do |bgs_claim|
             matching_claim = find_bgs_claim_in_lighthouse_collection(
               lighthouse_collection: lighthouse_claims,
               bgs_claim:
             )
-            # Remove duplicates from the return
-            lighthouse_claims.reject! { |claim| claim == matching_claim }
+            if matching_claim
+              # Remove duplicates from the return
+              lighthouse_claims.reject! { |claim| claim == matching_claim }
+            end
             # We either want the ID or nil for the lighthouse_id
             build_claim_structure(data: bgs_claim, lighthouse_id: matching_claim&.id,
                                   upstream_id: bgs_claim[:benefit_claim_id])
