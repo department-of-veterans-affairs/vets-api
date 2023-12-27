@@ -96,29 +96,24 @@ module ClaimsApi
           structure.merge!(build_claim_phase_attributes(bgs_claim, 'show'))
         end
 
-        def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
+        def map_claims(bgs_claims:, lighthouse_claims:)
           extracted_claims = [bgs_claims&.dig(:benefit_claims_dto, :benefit_claim)].flatten.compact
           mapped_claims = extracted_claims.map do |bgs_claim|
             matching_claim = find_bgs_claim_in_lighthouse_collection(
               lighthouse_collection: lighthouse_claims,
               bgs_claim:
             )
-            if matching_claim
-              lighthouse_claims.delete(matching_claim)
-              build_claim_structure(
-                data: bgs_claim,
-                lighthouse_id: matching_claim.id,
-                upstream_id: bgs_claim[:benefit_claim_id]
-              )
-            else
-              build_claim_structure(data: bgs_claim, lighthouse_id: nil, upstream_id: bgs_claim[:benefit_claim_id])
-            end
+            # Remove duplicates from the return
+            lighthouse_claims.reject! { |claim| claim == matching_claim }
+            # We either want the ID or nil for the lighthouse_id
+            build_claim_structure(data: bgs_claim, lighthouse_id: matching_claim&.id,
+                                  upstream_id: bgs_claim[:benefit_claim_id])
           end
 
           lighthouse_claims.each do |remaining_claim|
             # if claim wasn't matched earlier, then this claim is in a weird state where
-            #  it's 'established' in Lighthouse, but unknown to BGS.
-            #  shouldn't really ever happen, but if it does, skip it.
+            # it's 'established' in Lighthouse, but unknown to BGS.
+            # shouldn't really ever happen, but if it does, skip it.
             next if remaining_claim.status.casecmp?('established')
 
             mapped_claims << {
