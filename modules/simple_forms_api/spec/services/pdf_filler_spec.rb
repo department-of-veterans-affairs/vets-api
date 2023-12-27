@@ -51,4 +51,5 @@ describe SimpleFormsApi::PdfFiller do
   test_json_valid 'vba_21_0972.json.erb'
   test_json_valid 'vba_21_0966.json.erb'
   test_json_valid 'vba_40_0247.json.erb'
+  test_json_valid 'vba_40_10007.json.erb'
 end

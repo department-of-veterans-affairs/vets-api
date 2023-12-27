@@ -22,8 +22,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
             allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
 
             post '/simple_forms_api/v1/simple_forms', params: data
-
-            expect(response).to have_http_status(:ok)
+           expect(response).to have_http_status(:ok)
             expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
           ensure
             metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
@@ -43,6 +42,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_40_0247.json'
     test_submit_request 'vba_21_0966.json'
     test_submit_request 'vba_20_10206.json'
+    test_submit_request 'vba_40_10007.json'
 
     def self.test_saves_form_submission_attempt(test_payload)
       it 'saves a FormSubmissionAttempt' do
@@ -73,6 +73,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_saves_form_submission_attempt 'vba_40_0247.json'
     test_saves_form_submission_attempt 'vba_21_0966.json'
     test_saves_form_submission_attempt 'vba_20_10206.json'
+    test_saves_form_submission_attempt 'vba_40_10007.json'
 
     describe 'request with intent to file unauthenticated' do
       let(:expiration_date) { Time.zone.now }
