@@ -80,10 +80,7 @@ module DebtsApi
     def streamline_adjustments(form)
       if @streamlined_data
         if @is_streamlined
-          reasons = form.dig('personalIdentification', 'fsrReason')
-          reasons_array = reasons.nil? ? [] : reasons.split(',').map(&:strip)
-          reasons = reasons_array.push('Automatically Approved').uniq.join(', ')
-          form['personalIdentification']['fsrReason'] = reasons
+          form['personalIdentification']['fsrReason'] = 'Automatically Approved, Waiver'
         end
         form['streamlined'] = @is_streamlined
       end
