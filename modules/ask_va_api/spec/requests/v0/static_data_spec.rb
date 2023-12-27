@@ -31,7 +31,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
     before do
       entity = OpenStruct.new(id: nil, info: 'pong')
-      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'ping').and_return(entity)
+      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'topics').and_return(entity)
       get index_path
     end
 

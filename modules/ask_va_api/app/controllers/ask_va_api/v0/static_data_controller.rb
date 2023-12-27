@@ -8,7 +8,7 @@ module AskVAApi
 
       def index
         service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'ping')
+        data = service.call(endpoint: 'topics')
         render json: data.to_json, status: :ok
       end
 
