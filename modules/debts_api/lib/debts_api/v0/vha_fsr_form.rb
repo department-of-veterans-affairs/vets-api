@@ -79,7 +79,7 @@ module DebtsApi
 
     def streamline_adjustments(form)
       if @streamlined_data
-        form['personalIdentification']['fsrReason'] = 'Automatically Approved, Waiver' unless !@is_streamlined
+        form['personalIdentification']['fsrReason'] = 'Automatically Approved, Waiver' if @is_streamlined
         form['streamlined'] = @is_streamlined
       end
     end
