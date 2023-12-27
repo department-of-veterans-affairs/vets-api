@@ -199,46 +199,46 @@ RSpec.describe 'Claims', type: :request do
 
       describe 'mapping of claims' do
         describe 'handling duplicate claims in BGS and LH' do
-          context 'whenthere are multiple matching claims' do
-            let(:bgs_claims) do
-              {
-                benefit_claims_dto: {
-                  benefit_claim: [
-                    {
-                      benefit_claim_id: '600098191',
-                      claim_status: 'Pending',
-                      claim_status_type: 'Compensation',
-                      phase_chngd_dt: 'Wed, 18 Oct 2017',
-                      phase_type: 'Complete',
-                      ptcpnt_clmant_id: veteran_id,
-                      ptcpnt_vet_id: veteran_id,
-                      phase_type_change_ind: '76'
-                    },
-                    {
-                      benefit_claim_id: '600098192',
-                      claim_status: 'Pending',
-                      claim_status_type: 'Compensation',
-                      phase_chngd_dt: 'Wed, 18 Oct 2017',
-                      phase_type: 'Complete',
-                      ptcpnt_clmant_id: veteran_id,
-                      ptcpnt_vet_id: veteran_id,
-                      phase_type_change_ind: '76'
-                    },
-                    {
-                      benefit_claim_id: '600098193',
-                      claim_status: 'Pending',
-                      claim_status_type: 'Compensation',
-                      phase_chngd_dt: 'Wed, 18 Oct 2017',
-                      phase_type: 'Complete',
-                      ptcpnt_clmant_id: veteran_id,
-                      ptcpnt_vet_id: veteran_id,
-                      phase_type_change_ind: '76'
-                    }
-                  ]
-                }
+          let(:bgs_claims) do
+            {
+              benefit_claims_dto: {
+                benefit_claim: [
+                  {
+                    benefit_claim_id: '600098191',
+                    claim_status: 'Pending',
+                    claim_status_type: 'Compensation',
+                    phase_chngd_dt: 'Wed, 18 Oct 2017',
+                    phase_type: 'Complete',
+                    ptcpnt_clmant_id: veteran_id,
+                    ptcpnt_vet_id: veteran_id,
+                    phase_type_change_ind: '76'
+                  },
+                  {
+                    benefit_claim_id: '600098192',
+                    claim_status: 'Pending',
+                    claim_status_type: 'Compensation',
+                    phase_chngd_dt: 'Wed, 18 Oct 2017',
+                    phase_type: 'Complete',
+                    ptcpnt_clmant_id: veteran_id,
+                    ptcpnt_vet_id: veteran_id,
+                    phase_type_change_ind: '76'
+                  },
+                  {
+                    benefit_claim_id: '600098193',
+                    claim_status: 'Pending',
+                    claim_status_type: 'Compensation',
+                    phase_chngd_dt: 'Wed, 18 Oct 2017',
+                    phase_type: 'Complete',
+                    ptcpnt_clmant_id: veteran_id,
+                    ptcpnt_vet_id: veteran_id,
+                    phase_type_change_ind: '76'
+                  }
+                ]
               }
-            end
+            }
+          end
 
+          context 'when there are multiple matching claims' do
             it 'does not list duplicates for any matching claims between BGS and LH' do
               lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
                                                                 evss_id: '600098191')
@@ -260,6 +260,41 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response['data'].count).to eq(3)
+                end
+              end
+            end
+          end
+
+          context 'when there are unique LH and BGS claims' do
+            it 'lists unique claims and doe snot list duplicates for any matching claims between BGS and LH' do
+              lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                evss_id: '600098191')
+              lighthouse_claim_two = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                    evss_id: '600098193')
+              lighthouse_claim_three = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                      evss_id: '600098195')
+              lh_claims = []
+              lh_claims << lighthouse_claim
+              lh_claims << lighthouse_claim_two
+              lh_claims << lighthouse_claim_three
+
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:where).and_return(lh_claims)
+
+                  get all_claims_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response['data'].count).to eq(4)
+                  expect(json_response['data'][0]['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
+                  expect(json_response['data'][1]['attributes']['lighthouseId']).to eq(nil)
+                  expect(json_response['data'][2]['attributes']['lighthouseId']).to eq(lighthouse_claim_two.id)
+                  expect(json_response['data'][3]['attributes']['lighthouseId']).to eq(lighthouse_claim_three.id)
+                  expect(json_response['data'][3]['id']).to eq(nil)
                 end
               end
             end
