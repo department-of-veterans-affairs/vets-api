@@ -59,7 +59,8 @@ module MAP
           responseDate: Time.zone.now,
           icn:,
           signatureName: signature_name,
-          version: config.agreements_version_mapping[version]
+          version: config.agreements_version_mapping[version],
+          legalDisplayVersion: config.legal_display_version
         }.to_json
       end
 

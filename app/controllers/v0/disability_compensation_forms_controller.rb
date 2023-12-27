@@ -51,8 +51,18 @@ module V0
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
+      # if jid = 0 then the submission was prevented from going any further in the process
+      jid = 0
 
-      jid = submission.start
+      # Feature flag to stop submission from being submitted to third-party service
+      # With this on, the submission will NOT be processed by EVSS or Lighthouse,
+      # nor will it go to VBMS,
+      # but the line of code before this one creates the submission in the vets-api database
+      if Flipper.enabled?(:disability_compensation_prevent_submission_job, @current_user)
+        Rails.logger.info("Submission ID: #{submission.id} prevented from sending to third party service.")
+      else
+        jid = submission.start
+      end
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok

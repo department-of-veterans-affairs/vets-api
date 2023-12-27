@@ -57,6 +57,7 @@ class StatsdMiddleware
     dependents-view-dependents
     disability-my-rated-disabilities
     discharge-upgrade-instructions
+    ezr
     facilities
     feedback-tool
     gi

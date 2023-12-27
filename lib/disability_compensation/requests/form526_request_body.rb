@@ -64,7 +64,7 @@ module Requests
     include Virtus.model
     include ActiveModel::Serialization
 
-    attribute :served_in_gulf_war_hazard_locations, Boolean
+    attribute :served_in_gulf_war_hazard_locations, String
     attribute :service_dates, Dates
   end
 
@@ -72,7 +72,7 @@ module Requests
     include Virtus.model
     include ActiveModel::Serialization
 
-    attribute :served_in_herbicide_hazard_locations, Boolean
+    attribute :served_in_herbicide_hazard_locations, String
     attribute :other_locations_served, String
     attribute :service_dates, Dates
   end
@@ -103,7 +103,6 @@ module Requests
     attribute :disability_action_type, String
     attribute :classification_code, String
     attribute :service_relevance, String
-    attribute :approximate_date, String
   end
 
   class Disability
@@ -114,7 +113,6 @@ module Requests
     attribute :name, String
     attribute :classification_code, String
     attribute :service_relevance, String
-    attribute :approximate_date, String
     attribute :is_related_to_toxic_exposure, Boolean
     attribute :exposure_or_event_or_injury, String
     attribute :rated_disability_id, String
@@ -318,7 +316,6 @@ module Requests
 
     attribute :claimant_certification, Boolean
     attribute :claim_process_type, String
-    attribute :claim_date, String
     attribute :veteran_identification, VeteranIdentification
     attribute :change_of_address, ChangeOfAddress
     attribute :homeless, Homeless

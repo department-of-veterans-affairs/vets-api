@@ -7,8 +7,8 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[index]
 
       def index
-        service = Dynamics::Service.new(icn: 'a')
-        data = service.call(endpoint: 'ping')
+        service = Crm::Service.new(icn: 'a')
+        data = service.call(endpoint: 'topics')
         render json: data.to_json, status: :ok
       end
 

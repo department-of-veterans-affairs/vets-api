@@ -21,7 +21,7 @@ module Sidekiq
       include Sidekiq::Job
 
       sidekiq_options retry: 14
-      STATSD_KEY_PREFIX = 'worker.evss.form526_backup_submission_process.exhausted'
+      STATSD_KEY_PREFIX = 'worker.evss.form526_backup_submission_process'
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
@@ -46,7 +46,7 @@ module Sidekiq
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
-        StatsD.increment(STATSD_KEY_PREFIX)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
           'Form 526 Backup Submission Retries exhausted',

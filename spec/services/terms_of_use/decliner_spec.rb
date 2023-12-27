@@ -70,6 +70,10 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
     end
 
     describe '#perform!' do
+      let(:expected_attr_key) do
+        Digest::SHA256.hexdigest({ icn:, signature_name: common_name, version: }.to_json)
+      end
+
       before do
         allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
       end
@@ -85,7 +89,7 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
 
       it 'enqueues the SignUpServiceUpdaterJob with expected parameters' do
         decliner.perform!
-        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(icn, common_name, version)
+        expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(expected_attr_key)
       end
     end
   end

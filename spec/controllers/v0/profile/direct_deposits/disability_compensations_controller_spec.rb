@@ -333,6 +333,23 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         expect(e['code']).to eq('cnp.payment.routing.number.invalid.checksum')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
+
+      it 'returns a potential fraud error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud') do
+          expect { put(:update, params:) }
+            .to trigger_statsd_increment('cnp.payment.potential.fraud')
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('cnp.payment.potential.fraud')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
     end
   end
 end

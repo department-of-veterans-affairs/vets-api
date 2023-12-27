@@ -44,6 +44,22 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           expect(jid).not_to be_empty
         end
       end
+
+      it 'corrects for invalid characters in generated metadata' do
+        submission.form[Form526Submission::FORM_4142]['veteranFullName']
+                  .update('first' => 'Beyoncé', 'last' => 'Knowle$')
+        subject.perform_async(submission.id)
+        jid = subject.jobs.last['jid']
+        processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
+        request_body = processor.request_body
+        metadata_hash = JSON.parse(request_body['metadata'])
+        veteran_first_name = metadata_hash['veteranFirstName']
+        veteran_last_name = metadata_hash['veteranLastName']
+        transliterated_chars_regex = /[^\x00-\x7F]/
+
+        expect(veteran_first_name).not_to match(transliterated_chars_regex)
+        expect(veteran_last_name).not_to match(transliterated_chars_regex)
+      end
     end
 
     context 'with a submission timeout' do
@@ -98,7 +114,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
         subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
-          expect(StatsD).to receive(:increment).with(subject::STATSD_KEY_PREFIX)
+          expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
           expect(Rails).to receive(:logger).and_call_original
         end
         form526_job_status.reload

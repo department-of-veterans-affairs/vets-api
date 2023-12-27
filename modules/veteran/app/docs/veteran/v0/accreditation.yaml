@@ -68,7 +68,7 @@ paths:
           schema:
             type: string
             default: 'distance_asc'
-            enum: ['distance_asc', 'distance_desc', 'first_name_asc', 'first_name_desc', 'last_name_asc',
+            enum: ['distance_asc', 'first_name_asc', 'first_name_desc', 'last_name_asc',
                    'last_name_desc', 'name_asc', 'name_desc']
         - name: type
           in: query

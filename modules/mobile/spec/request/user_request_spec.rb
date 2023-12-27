@@ -323,40 +323,6 @@ RSpec.describe 'user', type: :request do
       end
     end
 
-    describe 'appointments precaching' do
-      context 'with mobile_precache_appointments flag on' do
-        before { Flipper.enable(:mobile_precache_appointments) }
-
-        it 'kicks off a pre cache appointments job' do
-          expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-          VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: sis_headers
-              end
-            end
-          end
-        end
-      end
-
-      context 'with mobile_precache_appointments flag off' do
-        before { Flipper.disable(:mobile_precache_appointments) }
-
-        after { Flipper.enable(:mobile_precache_appointments) }
-
-        it 'does not kick off a pre cache appointments job' do
-          expect(Mobile::V0::PreCacheAppointmentsJob).not_to receive(:perform_async)
-          VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: sis_headers
-              end
-            end
-          end
-        end
-      end
-    end
-
     context 'empty get_facility test' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
@@ -486,28 +452,6 @@ RSpec.describe 'user', type: :request do
     it 'returns an ok response' do
       post '/mobile/v0/user/logged-in', headers: sis_headers
       expect(response).to have_http_status(:ok)
-    end
-
-    describe 'appointments precaching' do
-      context 'with mobile_precache_appointments flag on' do
-        before { Flipper.enable(:mobile_precache_appointments) }
-
-        it 'kicks off a pre cache appointments job' do
-          expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-          post '/mobile/v0/user/logged-in', headers: sis_headers
-        end
-      end
-
-      context 'with mobile_precache_appointments flag off' do
-        before { Flipper.disable(:mobile_precache_appointments) }
-
-        after { Flipper.enable(:mobile_precache_appointments) }
-
-        it 'does not kick off a pre cache appointments job' do
-          expect(Mobile::V0::PreCacheAppointmentsJob).not_to receive(:perform_async)
-          post '/mobile/v0/user/logged-in', headers: sis_headers
-        end
-      end
     end
 
     describe 'vet360 linking' do

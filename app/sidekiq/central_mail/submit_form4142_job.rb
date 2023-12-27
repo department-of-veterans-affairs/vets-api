@@ -21,7 +21,7 @@ module CentralMail
       }
     )
 
-    STATSD_KEY_PREFIX = 'worker.evss.submit_form4142.exhausted'
+    STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
 
     # Sidekiq has built in exponential back-off functionality for retries
     # A max retry attempt of 10 will result in a run time of ~8 hours
@@ -56,7 +56,7 @@ module CentralMail
         bgjob_errors: bgjob_errors.merge(new_error)
       )
 
-      StatsD.increment(STATSD_KEY_PREFIX)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
       ::Rails.logger.warn(
         'Submit Form 4142 Retries exhausted',

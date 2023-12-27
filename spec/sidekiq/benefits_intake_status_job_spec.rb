@@ -19,14 +19,14 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'updating the form submission status' do
-      it 'updates the status with success from the bulk status report endpoint' do
+      it 'updates the status with vbms from the bulk status report endpoint' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_success') do
           pending_form_submissions = create_list(:form_submission, 1, :pending)
 
           BenefitsIntakeStatusJob.new.perform
 
           pending_form_submissions.each do |form_submission|
-            expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'success'
+            expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'vbms'
           end
         end
       end

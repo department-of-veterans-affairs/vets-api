@@ -151,6 +151,29 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
           'numberPages1' => 2
         )
       end
+
+      context 'with bad metadata names' do
+        let(:pension_burial) { create(:pension_burial_bad_names) }
+        let(:claim) { pension_burial.saved_claim }
+
+        it 'strips invalid characters from veteran name from the metadata', run_at: '2017-01-04 03:00:00 EDT' do
+          expect(job.generate_metadata).to eq(
+            'veteranFirstName' => 'WA',
+            'veteranLastName' => 'Ford',
+            'fileNumber' => '796043735',
+            'receiveDt' => '2017-01-04 01:00:00',
+            'zipCode' => '90210',
+            'uuid' => claim.guid,
+            'source' => 'va.gov',
+            'hashV' => 'hash1',
+            'numberAttachments' => 1,
+            'docType' => '21P-530',
+            'numberPages' => 1,
+            'ahash1' => 'hash2',
+            'numberPages1' => 2
+          )
+        end
+      end
     end
   end
 end

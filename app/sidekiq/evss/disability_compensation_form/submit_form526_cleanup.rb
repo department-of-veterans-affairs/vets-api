@@ -6,7 +6,7 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526Cleanup < Job
       include Sidekiq::Job
-      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup.exhausted'
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup'
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
@@ -31,7 +31,7 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
-        StatsD.increment(STATSD_KEY_PREFIX)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
           'Submit Form 526 Cleanup Retries exhausted',

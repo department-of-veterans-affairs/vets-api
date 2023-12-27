@@ -13,7 +13,7 @@ module DecisionReviewV1
       # @return [Hash] the generated request body
       attr_reader :request_body
 
-      def initialize(form_data:)
+      def initialize(form_data:, submission_id: nil)
         @form = form_data
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
@@ -21,18 +21,21 @@ module DecisionReviewV1
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
+        @submission = Form526Submission.find_by(id: submission_id)
       end
 
       def generate_stamp_pdf
         pdf = PdfFill::Filler.fill_ancillary_form(
           @form, @uuid, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5)
+        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
+                                                              timestamp: @submission&.created_at)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true
+          text_only: true,
+          timestamp: @submission&.created_at
         )
       end
 
@@ -66,7 +69,11 @@ module DecisionReviewV1
       end
 
       def received_date
-        date = Time.now.in_time_zone('Central Time (US & Canada)')
+        date = if @submission.nil?
+                 Time.now.in_time_zone('Central Time (US & Canada)')
+               else
+                 @submission.created_at.in_time_zone('Central Time (US & Canada)')
+               end
         date.strftime('%Y-%m-%d %H:%M:%S')
       end
     end

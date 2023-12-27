@@ -115,7 +115,7 @@ module SimpleFormsApi
           form_type: params[:form_number],
           benefits_intake_uuid: uuid_and_location[:uuid],
           form_data: params.to_json,
-          user_account: @current_user
+          user_account: @current_user&.user_account
         )
         FormSubmissionAttempt.create(form_submission:)
 
