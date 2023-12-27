@@ -11,13 +11,13 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
-  revision: b5b6c9803334f9ddc1c11e4f201fdc9f6353ef59
+  revision: 5f40ee08bd62bfdf8259201e5803050f2d326576
   branch: master
   specs:
-    apivore (1.6.2.vsp)
+    apivore (1.6.2.1.vsp)
       actionpack (>= 4)
-      hashie (~> 3.3)
-      json-schema (~> 2.5)
+      hashie (~> 5.0)
+      json-schema (~> 3.0)
       rspec (~> 3)
       rspec-expectations (~> 3.1)
       rspec-mocks (~> 3.1)
@@ -258,7 +258,8 @@ GEM
     blueprinter (0.30.0)
     bootsnap (1.17.0)
       msgpack (~> 1.2)
-    brakeman (6.1.0)
+    brakeman (6.1.1)
+      racc
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
@@ -302,7 +303,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (5.2.5)
+    coverband (6.0.1)
       redis (>= 3.0)
     crack (0.4.5)
       rexml
@@ -549,7 +550,7 @@ GEM
     hana (1.3.7)
     hashdiff (1.0.1)
     hashery (2.1.2)
-    hashie (3.6.0)
+    hashie (5.0.0)
     holidays (8.6.0)
     http-accept (1.7.0)
     http-cookie (1.0.5)
@@ -568,8 +569,8 @@ GEM
     jmespath (1.6.2)
     json (2.6.3)
     json (2.6.3-java)
-    json-schema (2.8.1)
-      addressable (>= 2.4)
+    json-schema (3.0.0)
+      addressable (>= 2.8)
     json_schemer (1.0.3)
       hana (~> 1.3)
       regexp_parser (~> 2.0)

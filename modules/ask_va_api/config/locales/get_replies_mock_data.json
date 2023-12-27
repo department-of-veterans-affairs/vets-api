@@ -1,10 +1,124 @@
-{ 
+{
   "data": [
-    { 
-      "inquiryNumber": "A-1",
-      "replyId": "R-1",
-      "reply": "Sergeant Joe Smith birthday is July 4th, 1980",
-      "sec_id": "0001740097"
+    {
+      "inquiryId": "1",
+      "id": "1",
+      "modifiedon": "1/2/23",
+      "status_reason": "Completed/Sent",
+      "description": "Your claim is still In Progress",
+      "message_type": "722310001: Response from VA",
+      "enable_reply": true,
+      "attachmentNames": [
+        {
+          "id": "12",
+          "name": "correspondence_1_attachment.pdf"
+        }
+      ]
+    },
+    {
+      "inquiryId": "2",
+      "id": "2",
+      "modifiedon": "1/21/23",
+      "status_reason": "Completed/Sent",
+      "description": "You can yours our website in your profile or call us.",
+      "message_type": "722310001: Response from VA",
+      "enable_reply": true,
+      "attachmentNames": [
+        {
+          "id": "13",
+          "name": "correspondence_2_attachment.pdf"
+        }
+      ]
+    },
+    {
+      "inquiryId": "2",
+      "id": "3",
+      "modifiedon": "1/22/23",
+      "status_reason": "Completed/Sent",
+      "description": "Which number can I call?",
+      "message_type": "722310000: Reply to VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "2",
+      "id": "4",
+      "modifiedon": "1/23/23",
+      "status_reason": "Completed/Sent",
+      "description": "Which number can I call?",
+      "message_type": "722310000: Reply to VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "5",
+      "modifiedon": "8/23/23",
+      "status_reason": "Completed/Sent",
+      "description": "Your claim is currently under review. We expect to complete processing within the next two weeks. No additional documents needed.",
+      "message_type": "722310001: Response from VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "6",
+      "modifiedon": "8/24/23",
+      "status_reason": "Completed/Sent",
+      "description": "I appreciate the update. Can you confirm if all my submitted documents have been received and are in order?",
+      "message_type": "722310000: Reply to VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "7",
+      "modifiedon": "8/24/23",
+      "status_reason": "Completed/Sent",
+      "description": "Yes, all your documents are received and complete. Your application is progressing without any issues at this stage.",
+      "message_type": "722310001: Response from VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "7",
+      "modifiedon": "8/25/23",
+      "status_reason": "Completed/Sent",
+      "description": "Great to hear! Could you advise on the potential outcomes of this process and any impact on my benefits?",
+      "message_type": "722310000: Reply to VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "8",
+      "modifiedon": "8/26/23",
+      "status_reason": "Completed/Sent",
+      "description": "The claim review may result in increased benefits, continuation at current level, or an adjustment. We'll notify you.",
+      "message_type": "722310001: Response from VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "8",
+      "modifiedon": "8/26/23",
+      "status_reason": "Completed/Sent",
+      "description": "Understood. In case of an adjustment, is there an option to appeal or provide additional supporting evidence?",
+      "message_type": "722310000: Reply to VA",
+      "enable_reply": true,
+      "attachmentNames": []
+    },
+    {
+      "inquiryId": "9",
+      "id": "9",
+      "modifiedon": "8/28/23",
+      "status_reason": "Completed/Sent",
+      "description": "Absolutely. You'll have the option to appeal and submit further evidence if needed. We'll guide you through the process.",
+      "message_type": "722310001: Response from VA",
+      "enable_reply": true,
+      "attachmentNames": []
     }
   ]
 }
