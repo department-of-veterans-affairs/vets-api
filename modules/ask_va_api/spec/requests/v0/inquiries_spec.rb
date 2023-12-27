@@ -10,8 +10,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
   end
-  let(:valid_inquiry_number) { mock_inquiries.first['inquiryNumber'] }
-  let(:invalid_inquiry_number) { 'invalid-number' }
+  let(:valid_id) { mock_inquiries.first['id'] }
+  let(:invalid_id) { 'invalid-id' }
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -43,7 +43,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             'attributes' =>
                { 'inquiry_number' => 'A-1',
                  'attachments' => [{ 'id' => '1', 'name' => 'testfile.txt' }],
-                 'correspondences' => { 'data' => nil },
+                 'correspondences' => nil,
                  'has_attachments' => true,
                  'has_been_split' => true,
                  'level_of_authentication' => 'Personal',
@@ -100,7 +100,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   end
 
   describe 'GET #show' do
-    let(:inquiry_number) { valid_inquiry_number }
+    let(:id) { valid_id }
     let(:expected_response) do
       { 'data' =>
         { 'id' => '1',
@@ -108,10 +108,24 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           'attributes' =>
           { 'inquiry_number' => 'A-1',
             'attachments' => [{ 'id' => '1', 'name' => 'testfile.txt' }],
-            'correspondences' =>
-            { 'data' => { 'id' => 'R-1', 'type' => 'correspondence',
-                          'attributes' => { 'inquiry_number' => 'A-1',
-                                            'correspondence' => 'Sergeant Joe Smith birthday is July 4th, 1980' } } },
+            'correspondences' => { 'data' => [{
+              'id' => '1',
+              'type' => 'correspondence',
+              'attributes' => {
+                'inquiry_id' => '1',
+                'message_type' => '722310001: Response from VA',
+                'modified_on' => '1/2/23',
+                'status_reason' => 'Completed/Sent',
+                'description' => 'Your claim is still In Progress',
+                'enable_reply' => true,
+                'attachments' => [
+                  {
+                    'id' => '12',
+                    'name' => 'correspondence_1_attachment.pdf'
+                  }
+                ]
+              }
+            }] },
             'has_attachments' => true,
             'has_been_split' => true,
             'level_of_authentication' => 'Personal',
@@ -126,14 +140,14 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     context 'when user is signed in' do
       before do
         sign_in(authorized_user)
-        get "#{inquiry_path}/#{inquiry_number}", params: { mock: true }
+        get "#{inquiry_path}/#{id}", params: { mock: true }
       end
 
       it { expect(response).to have_http_status(:ok) }
       it { expect(JSON.parse(response.body)).to eq(expected_response) }
 
-      context 'when the inquiry number is invalid' do
-        let(:inquiry_number) { invalid_inquiry_number }
+      context 'when the id is invalid' do
+        let(:id) { invalid_id }
 
         it { expect(response).to have_http_status(:bad_request) }
 
@@ -146,7 +160,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       before do
         allow(Crm::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
         sign_in(authorized_user)
-        get "#{inquiry_path}/#{inquiry_number}"
+        get "#{inquiry_path}/#{id}"
       end
 
       it { expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError') }
@@ -154,7 +168,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
     context 'when user is not signed in' do
       before do
-        get "#{inquiry_path}/#{inquiry_number}"
+        get "#{inquiry_path}/#{id}"
       end
 
       it { expect(response).to have_http_status(:unauthorized) }
@@ -248,8 +262,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     context 'when attachment is not found' do
       let(:id) { 'not_valid' }
 
-      it 'responds with 404' do
-        expect(response).to have_http_status(:unprocessable_entity)
+      it 'responds with 500' do
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
