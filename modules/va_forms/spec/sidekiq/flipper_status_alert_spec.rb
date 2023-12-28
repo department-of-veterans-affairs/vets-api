@@ -34,7 +34,7 @@ describe VAForms::FlipperStatusAlert, type: :job do
 
     it 'fetches enabled status of common and current env features when config file contains both' do
       allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1], 'production' => %w[feature2] })
-      bulk_checker_result = { enabled: [], disabled: %w[feature1 feature2], missing: [] }
+      bulk_checker_result = { enabled: [], disabled: %w[feature1 feature2] }
       expect(Flipper::Utilities::BulkFeatureChecker)
         .to receive(:enabled_status).with(%w[feature1 feature2]).and_return(bulk_checker_result)
 
@@ -45,7 +45,7 @@ describe VAForms::FlipperStatusAlert, type: :job do
 
     it 'fetches enabled status of common features only when config file contains no current env features' do
       allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1], 'development' => nil })
-      bulk_checker_result = { enabled: [], disabled: %w[feature1], missing: [] }
+      bulk_checker_result = { enabled: [], disabled: %w[feature1] }
       expect(Flipper::Utilities::BulkFeatureChecker)
         .to receive(:enabled_status).with(%w[feature1]).and_return(bulk_checker_result)
 
@@ -56,7 +56,7 @@ describe VAForms::FlipperStatusAlert, type: :job do
 
     it 'fetches enabled status of current env features only when config file contains no common features' do
       allow(YAML).to receive(:load_file).and_return({ 'common' => nil, 'staging' => %w[feature1] })
-      bulk_checker_result = { enabled: [], disabled: %w[feature1], missing: [] }
+      bulk_checker_result = { enabled: [], disabled: %w[feature1] }
       expect(Flipper::Utilities::BulkFeatureChecker)
         .to receive(:enabled_status).with(%w[feature1]).and_return(bulk_checker_result)
 
@@ -67,7 +67,7 @@ describe VAForms::FlipperStatusAlert, type: :job do
 
     it 'does not notify Slack when all features are enabled' do
       allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1 feature2] })
-      bulk_checker_result = { enabled: %w[feature1 feature2], disabled: [], missing: [] }
+      bulk_checker_result = { enabled: %w[feature1 feature2], disabled: [] }
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expect(VAForms::Slack::Messenger).not_to receive(:new)
 
@@ -76,7 +76,7 @@ describe VAForms::FlipperStatusAlert, type: :job do
 
     it 'notifies Slack when some features are disabled' do
       allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1 feature2 feature3] })
-      bulk_checker_result = { enabled: %w[feature1], disabled: %w[feature2 feature3], missing: [] }
+      bulk_checker_result = { enabled: %w[feature1], disabled: %w[feature2 feature3] }
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expected_notify = {
         class: described_class.name,
