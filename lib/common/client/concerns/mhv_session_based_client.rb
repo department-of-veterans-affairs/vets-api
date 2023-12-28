@@ -32,7 +32,7 @@ module Common
         end
 
         def session_config_key
-          :mhv_sm_session_lock
+          :mhv_session_lock
         end
 
         ##

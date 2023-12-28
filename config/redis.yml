@@ -53,8 +53,8 @@ development: &defaults
   mhv_mr_fhir_session_lock:
     namespace: mhv-mr-fhir-session-lock
     each_ttl: 10
-  mhv_sm_session_lock:
-    namespace: mhv-sm-session-lock
+  mhv_session_lock:
+    namespace: mhv-session-lock
     each_ttl: 10
   mdot:
     namespace: mdot
