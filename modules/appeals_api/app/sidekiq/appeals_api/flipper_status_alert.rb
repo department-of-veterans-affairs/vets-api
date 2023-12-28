@@ -15,8 +15,8 @@ module AppealsApi
     def perform
       features_to_check = load_features_from_config
       if features_to_check.present?
-        @feature_statuses = Flipper::Utilities::BulkFeatureChecker.enabled_status(features_to_check)
-        notify_slack unless @feature_statuses[:disabled].empty?
+        feature_statuses = Flipper::Utilities::BulkFeatureChecker.enabled_status(features_to_check)
+        notify_slack(feature_statuses[:disabled]) unless feature_statuses[:disabled].empty?
       end
     end
 
@@ -56,11 +56,11 @@ module AppealsApi
       end
     end
 
-    def notify_slack
+    def notify_slack(disabled_features)
       slack_details = {
         class: self.class.name,
         warning: "#{WARNING_EMOJI} One or more features expected to be enabled were found to be disabled.",
-        disabled_flags: "#{TRAFFIC_LIGHT_EMOJI} #{@feature_statuses[:disabled].join(', ')} #{TRAFFIC_LIGHT_EMOJI}"
+        disabled_flags: "#{TRAFFIC_LIGHT_EMOJI} #{disabled_features.join(', ')} #{TRAFFIC_LIGHT_EMOJI}"
       }
       AppealsApi::Slack::Messager.new(slack_details).notify!
     end
