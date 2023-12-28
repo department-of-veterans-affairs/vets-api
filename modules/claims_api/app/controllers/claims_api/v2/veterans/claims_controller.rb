@@ -128,7 +128,7 @@ module ClaimsApi
 
             mapped_claims << {
               lighthouse_id: remaining_claim.id,
-              type: remaining_claim.claim_type,
+              claim_type: remaining_claim.claim_type,
               status: bgs_phase_status_mapper.name(remaining_claim)
             }
           end

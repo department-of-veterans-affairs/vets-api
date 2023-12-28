@@ -294,6 +294,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data'][1]['attributes']['lighthouseId']).to eq(nil)
                   expect(json_response['data'][2]['attributes']['lighthouseId']).to eq(lighthouse_claim_two.id)
                   expect(json_response['data'][3]['attributes']['lighthouseId']).to eq(lighthouse_claim_three.id)
+                  expect(json_response['data'][3]['attributes']['claimType']).to eq('Compensation')
                   expect(json_response['data'][3]['id']).to eq(nil)
                 end
               end
