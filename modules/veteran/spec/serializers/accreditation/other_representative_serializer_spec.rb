@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Veteran::Accreditation::RepresentativeSerializer do
+RSpec.describe Veteran::Accreditation::OtherRepresentativeSerializer do
   before do
     create(:representative,
            representative_id: '123abc',

@@ -2,7 +2,7 @@
 
 module Veteran
   module Accreditation
-    class VSORepresentativesSerializer < BaseRepresentativesSerializer
+    class VSORepresentativeSerializer < BaseRepresentativeSerializer
       attribute :full_name
       attribute :address_line1
       attribute :address_line2

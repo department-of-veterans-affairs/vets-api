@@ -8,7 +8,7 @@ module Veteran
       private
 
       def serializer_klass
-        'Veteran::Accreditation::VSORepresentativesSerializer'.constantize
+        'Veteran::Accreditation::VSORepresentativeSerializer'.constantize
       end
 
       def representative_query
