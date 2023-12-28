@@ -25,7 +25,7 @@ module Veteran
       attribute :organization_names
 
       def organization_names
-        object.try(:organization_name)
+        object.try(:organization_names)
       end
     end
   end
