@@ -16,7 +16,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
                               first_name: 'Bobby', last_name: 'Low') # ~6 miles from Washington, D.C.
 
-      create(:representative, representative_id: '234', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
+      create(:representative, representative_id: '234', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'], # rubocop:disable Layout/LineLength
                               long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
                               first_name: 'Eliseo', last_name: 'Schroeder') # ~25 miles from Washington, D.C.
 
@@ -45,8 +45,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
       create(:organization, poa: 'A13', long: -77.466316, lat: 38.309875, location: 'POINT(-77.466316 38.309875)',
                             name: 'Washington Department of Veterans Affairs') # ~47 miles from Washington, D.C.
 
-      create(:organization, poa: 'A14', long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
-                            name: 'Virginia Department of Veterans Services') # ~57 miles from Washington, D.C.
+      # create(:organization, poa: 'A14', long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
+      #                       name: 'Virginia Department of Veterans Services') # ~57 miles from Washington, D.C.
     end
 
     it 'does not include veteran service officer outside of max distance' do
@@ -57,81 +57,107 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
       expect(parsed_response['data'].pluck('id')).not_to include('567')
     end
 
-    # it 'sorts by distance_asc by default' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369 }
+    it 'sorts by distance_asc by default' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369 }
 
-    #   parsed_response = JSON.parse(response.body)
+      parsed_response = JSON.parse(response.body)
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 345 456])
-    # end
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 345 456])
+    end
 
-    # it 'can sort by first_name_asc' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
+    it 'can sort by first_name_asc' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
 
-    #   parsed_response = JSON.parse(response.body)
+      parsed_response = JSON.parse(response.body)
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 456 345])
-    # end
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 456 345])
+    end
 
-    # it 'can sort by first_name_desc' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, sort: 'first_name_desc' }
+    it 'can sort by first_name_desc' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_desc' }
 
-    #   parsed_response = JSON.parse(response.body)
+      parsed_response = JSON.parse(response.body)
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[345 456 234 123])
-    # end
+      expect(parsed_response['data'].pluck('id')).to eq(%w[345 456 234 123])
+    end
 
-    # it 'can sort by last_name_asc' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, sort: 'last_name_asc' }
+    it 'can sort by last_name_asc' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'last_name_asc' }
 
-    #   parsed_response = JSON.parse(response.body)
+      parsed_response = JSON.parse(response.body)
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[123 456 234 345])
-    # end
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123 456 234 345])
+    end
 
-    # it 'can sort by last_name_desc' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, sort: 'last_name_desc' }
+    it 'can sort by last_name_desc' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'last_name_desc' }
 
-    #   parsed_response = JSON.parse(response.body)
+      parsed_response = JSON.parse(response.body)
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[345 234 456 123])
-    # end
+      expect(parsed_response['data'].pluck('id')).to eq(%w[345 234 456 123])
+    end
 
-    # it 'can sort fuzzy search on name' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
+    it "can sort fuzzy search on a representative's name" do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
 
-    #   parsed_response = JSON.parse(response.body)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123])
+    end
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[123])
-    # end
+    it "can sort fuzzy search on a organization's name that a represenative belogns to" do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Alabama dept' }
 
-    # it 'serializes with the correct model and distance' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 345])
+    end
 
-    #   parsed_response = JSON.parse(response.body)
+    it 'serializes with the correct model and distance' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
 
-    #   expect(parsed_response['data'][0]['attributes']['full_name']).to eq('Bob Law')
-    #   expect(parsed_response['data'][0]['attributes']['distance']).to be_within(0.05).of(6.0292)
-    # end
+      parsed_response = JSON.parse(response.body)
 
-    # it 'paginates' do
-    #   get '/services/veteran/v0/vso_accredited_representatives',
-    #       params: { type: 'attorney', lat: 38.9072, long: -77.0369, page: 1, per_page: 2 }
+      expect(parsed_response['data'][0]['attributes']['full_name']).to eq('Bob Law')
+      expect(parsed_response['data'][0]['attributes']['distance']).to be_within(0.05).of(6.0292)
+    end
 
-    #   parsed_response = JSON.parse(response.body)
+    it 'paginates' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, page: 1, per_page: 2 }
 
-    #   expect(parsed_response['data'].pluck('id')).to eq(%w[123 234])
-    #   expect(parsed_response['meta']['pagination']['current_page']).to eq(1)
-    #   expect(parsed_response['meta']['pagination']['per_page']).to eq(2)
-    #   expect(parsed_response['meta']['pagination']['total_pages']).to eq(2)
-    #   expect(parsed_response['meta']['pagination']['total_entries']).to eq(4)
-    # end
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123 234])
+      expect(parsed_response['meta']['pagination']['current_page']).to eq(1)
+      expect(parsed_response['meta']['pagination']['per_page']).to eq(2)
+      expect(parsed_response['meta']['pagination']['total_pages']).to eq(2)
+      expect(parsed_response['meta']['pagination']['total_entries']).to eq(4)
+    end
+
+    it 'returns a list of the organization names that each representative belongs to' do
+      get '/services/veteran/v0/vso_accredited_representatives',
+          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
+
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 456 345])
+      expect(parsed_response['data'][0]['attributes']['organization_names']).to eq([
+                                                                                     'Washington Department of Veterans Affairs', 'Alabama Department of Veterans Affairs' # rubocop:disable Layout/LineLength
+                                                                                   ])
+      expect(parsed_response['data'][1]['attributes']['organization_names']).to eq([
+                                                                                     'Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs', 'Missouri Veterans Commission' # rubocop:disable Layout/LineLength
+                                                                                   ])
+      expect(parsed_response['data'][2]['attributes']['organization_names']).to eq([
+                                                                                     'Washington Department of Veterans Affairs' # rubocop:disable Layout/LineLength
+                                                                                   ])
+      expect(parsed_response['data'][3]['attributes']['organization_names']).to eq([
+                                                                                     'Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs'  # rubocop:disable Layout/LineLength
+                                                                                   ])
+    end
   end
 end
