@@ -266,7 +266,7 @@ RSpec.describe 'Claims', type: :request do
           end
 
           context 'when there are unique LH and BGS claims' do
-            it 'lists unique claims and doe snot list duplicates for any matching claims between BGS and LH' do
+            it 'lists unique claims and does not list duplicates for any matching claims between BGS and LH' do
               lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
                                                                 evss_id: '600098191')
               lighthouse_claim_two = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
