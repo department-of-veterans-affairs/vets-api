@@ -17,7 +17,7 @@ describe AppealsApi::FlipperStatusAlert, type: :job do
 
     let(:missing_file_message) { "#{warning_emoji} #{described_class} features file does not exist." }
     let(:no_features_message) { "#{warning_emoji} #{described_class} has no configured enabled features." }
-    let(:flag_status_message) { "#{warning_emoji} One or more features expected to be enabled were found to be disabled." }
+    let(:flag_message) { "#{warning_emoji} One or more features expected to be enabled were found to be disabled." }
 
     before do
       allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
@@ -99,7 +99,7 @@ describe AppealsApi::FlipperStatusAlert, type: :job do
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expected_notify = {
         class: described_class.name,
-        warning: flag_status_message,
+        warning: flag_message,
         disabled_flags: "#{traffic_light_emoji} feature2, feature3 #{traffic_light_emoji}"
       }
       expect(AppealsApi::Slack::Messager).to receive(:new).with(expected_notify).and_return(messager_instance)
