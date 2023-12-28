@@ -346,7 +346,7 @@ module HCA
           if contact_types.include?(contact_type)
             contact = {
               fullName: {},
-              contactRelation: get_locate_value(association, 'relationship').downcase.upcase_first,
+              relationship: get_locate_value(association, 'relationship').downcase.upcase_first,
               contactType: get_locate_value(association, 'contactType'),
               primaryPhone: get_locate_value(association, 'primaryPhone'),
               address: lambda {
