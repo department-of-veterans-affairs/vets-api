@@ -10,7 +10,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:pdf_info) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
     let(:upload_received) { FactoryBot.create(:upload_submission, status: 'received') }
-    let(:upload2_received) { FactoryBot.create(:upload_submission, guid: SecureRandom.uuid, status: 'received') }
+    let(:upload2_received) { FactoryBot.create(:upload_submission, status: 'received') }
 
     context 'with in-flight submissions' do
       it 'returns status of a single upload submissions' do
