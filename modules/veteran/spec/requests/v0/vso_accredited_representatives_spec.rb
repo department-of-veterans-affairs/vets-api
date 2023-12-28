@@ -141,23 +141,22 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
     end
 
     it 'returns a list of the organization names that each representative belongs to' do
+      expected_organization_names = [
+        ['Washington Department of Veterans Affairs', 'Alabama Department of Veterans Affairs'],
+        ['Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs',
+         'Missouri Veterans Commission'],
+        ['Washington Department of Veterans Affairs'],
+        ['Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs']
+      ]
       get '/services/veteran/v0/vso_accredited_representatives',
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
 
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['data'].pluck('id')).to eq(%w[123 234 456 345])
-      expect(parsed_response['data'][0]['attributes']['organization_names']).to eq([
-                                                                                     'Washington Department of Veterans Affairs', 'Alabama Department of Veterans Affairs' # rubocop:disable Layout/LineLength
-                                                                                   ])
-      expect(parsed_response['data'][1]['attributes']['organization_names']).to eq([
-                                                                                     'Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs', 'Missouri Veterans Commission' # rubocop:disable Layout/LineLength
-                                                                                   ])
-      expect(parsed_response['data'][2]['attributes']['organization_names']).to eq([
-                                                                                     'Washington Department of Veterans Affairs' # rubocop:disable Layout/LineLength
-                                                                                   ])
-      expect(parsed_response['data'][3]['attributes']['organization_names']).to eq([
-                                                                                     'Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs'  # rubocop:disable Layout/LineLength
-                                                                                   ])
+
+      parsed_response['data'].each_with_index do |data, index|
+        expect(data['attributes']['organization_names']).to eq(expected_organization_names[index])
+      end
     end
   end
 end
