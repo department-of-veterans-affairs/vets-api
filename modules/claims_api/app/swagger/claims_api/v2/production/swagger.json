@@ -1287,7 +1287,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "90f233a8-bb73-4ace-a472-22dbe48b4fe2",
+                    "id": "b6e57a70-ef37-469a-9fd2-f2527166aa04",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1468,7 +1468,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2023-12-28"
+                          "anticipatedSeparationDate": "2023-12-30"
                         },
                         "confinements": [
                           {
@@ -3925,136 +3925,145 @@
                       },
                       "toxicExposure": {
                         "gulfWarHazardService": {
-                          "servedInGulfWarHazardLocations": "YES",
-                          "serviceDates": {
-                            "beginDate": "1999-07",
-                            "endDate": "2005-01"
-                          }
+                          "servedInGulfWarHazardLocations": "NO"
                         },
                         "herbicideHazardService": {
                           "servedInHerbicideHazardLocations": "YES",
-                          "otherLocationsServed": "Guam",
+                          "otherLocationsServed": "Other locations served",
                           "serviceDates": {
-                            "beginDate": "2002-03",
-                            "endDate": "2004-10"
+                            "beginDate": "1972-05",
+                            "endDate": "1980-10"
                           }
                         },
                         "additionalHazardExposures": {
                           "additionalExposures": [
-                            "ASBESTOS",
-                            "SHIPBOARD_HAZARD_AND_DEFENSE"
+                            "OTHER"
                           ],
-                          "specifyOtherExposures": "Other exposure details",
+                          "specifyOtherExposures": "Agent Orange",
                           "exposureDates": {
-                            "beginDate": "2011-07",
-                            "endDate": "2013-10"
+                            "beginDate": "1972-05",
+                            "endDate": "1980-10"
                           }
                         },
                         "multipleExposures": [
                           {
-                            "hazardExposedTo": "Hazard",
-                            "exposureLocation": "Guam",
+                            "hazardExposedTo": "Agent Orange",
+                            "exposureLocation": "Vietnam",
                             "exposureDates": {
-                              "beginDate": "2012-12",
-                              "endDate": "2013-07"
+                              "beginDate": "1972-05",
+                              "endDate": "1973-01"
+                            }
+                          },
+                          {
+                            "hazardExposedTo": "Agent Orange",
+                            "exposureLocation": "Vietnam",
+                            "exposureDates": {
+                              "beginDate": "1979-04",
+                              "endDate": "1980-10"
                             }
                           }
                         ]
                       },
                       "disabilities": [
                         {
+                          "name": "Diabetes",
+                          "exposureOrEventOrInjury": "Agent Orange",
+                          "serviceRelevance": "Service in Vietnam War",
+                          "approximateDate": "1975-05",
+                          "disabilityActionType": "NEW",
+                          "isRelatedToToxicExposure": true
+                        },
+                        {
                           "name": "Hearing Loss",
                           "exposureOrEventOrInjury": "Noise",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "1988-07",
-                          "disabilityActionType": "NEW",
+                          "approximateDate": "1968-07",
+                          "disabilityActionType": "INCREASE",
+                          "classificationCode": "8987",
+                          "ratedDisabilityId": "1234567",
+                          "diagnosticCode": 5678,
                           "isRelatedToToxicExposure": false
                         }
                       ],
                       "treatments": [
                         {
-                          "beginDate": "2009-04",
+                          "beginDate": "2021-04",
                           "treatedDisabilityNames": [
-                            "Hearing Loss"
+                            "Diabetes"
                           ],
                           "center": {
-                            "name": "Center One",
+                            "name": "ATLANTA VA MEDICAL CENTER",
                             "state": "GA",
-                            "city": "Decatur"
+                            "city": "ATLANTA"
                           }
                         },
                         {
-                          "beginDate": "2009-03",
+                          "beginDate": "1996-03",
                           "treatedDisabilityNames": [
                             "Hearing Loss"
                           ],
                           "center": {
-                            "name": "Center One",
+                            "name": "ATLANTA VA MEDICAL CENTER",
                             "state": "GA",
-                            "city": "Decatur"
+                            "city": "ATLANTA"
                           }
                         }
                       ],
                       "serviceInformation": {
+                        "alternateNames": [
+                          "Jon Doe",
+                          "Jane Doe"
+                        ],
                         "servicePeriods": [
                           {
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2023-10-30",
-                            "separationLocationCode": "98282"
+                            "activeDutyBeginDate": "1964-11-14",
+                            "activeDutyEndDate": "1980-10-30",
+                            "separationLocationCode": "98289"
                           }
                         ],
                         "servedInActiveCombatSince911": "NO",
                         "reservesNationalGuardService": {
                           "component": "National Guard",
                           "obligationTermsOfService": {
-                            "beginDate": "2016-11-24",
-                            "endDate": "2017-11-17"
+                            "beginDate": "1990-11-24",
+                            "endDate": "1995-11-17"
                           },
                           "unitName": "National Guard Unit Name",
-                          "unitAddress": "1243 pine court",
+                          "unitAddress": "1243 Main Street",
                           "unitPhone": {
                             "areaCode": "555",
                             "phoneNumber": "5555555"
                           },
                           "receivingInactiveDutyTrainingPay": "YES"
                         },
-                        "federalActivation": {
-                          "activationDate": "2023-02-10",
-                          "anticipatedSeparationDate": "2023-12-03"
-                        },
                         "confinements": [
                           {
-                            "approximateBeginDate": "2016-06-11",
-                            "approximateEndDate": "2016-09-11"
-                          },
-                          {
-                            "approximateBeginDate": "2019-06",
-                            "approximateEndDate": "2019-07"
+                            "approximateBeginDate": "1970-06-11",
+                            "approximateEndDate": "1970-09-11"
                           }
                         ]
                       },
                       "servicePay": {
                         "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "YES",
+                        "futureMilitaryRetiredPay": "NO",
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
-                          "branchOfService": "Army",
-                          "monthlyAmount": 840.75
+                          "branchOfService": "Air Force",
+                          "monthlyAmount": 240.75
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
-                        "receivedSeparationOrSeverancePay": "NO",
+                        "receivedSeparationOrSeverancePay": "YES",
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
-                          "branchOfService": "Naval Academy",
-                          "preTaxAmountReceived": 379.25
+                          "branchOfService": "Air Force",
+                          "preTaxAmountReceived": 179.25
                         },
-                        "favorTrainingPay": true
+                        "favorTrainingPay": false
                       },
                       "directDeposit": {
-                        "noAccount": false,
                         "accountNumber": "123123123123",
                         "accountType": "CHECKING",
                         "financialInstitutionName": "Chase",
@@ -5454,136 +5463,145 @@
                       },
                       "toxicExposure": {
                         "gulfWarHazardService": {
-                          "servedInGulfWarHazardLocations": "YES",
-                          "serviceDates": {
-                            "beginDate": "1999-07",
-                            "endDate": "2005-01"
-                          }
+                          "servedInGulfWarHazardLocations": "NO"
                         },
                         "herbicideHazardService": {
                           "servedInHerbicideHazardLocations": "YES",
-                          "otherLocationsServed": "Guam",
+                          "otherLocationsServed": "Other locations served",
                           "serviceDates": {
-                            "beginDate": "2002-03",
-                            "endDate": "2004-10"
+                            "beginDate": "1972-05",
+                            "endDate": "1980-10"
                           }
                         },
                         "additionalHazardExposures": {
                           "additionalExposures": [
-                            "ASBESTOS",
-                            "SHIPBOARD_HAZARD_AND_DEFENSE"
+                            "OTHER"
                           ],
-                          "specifyOtherExposures": "Other exposure details",
+                          "specifyOtherExposures": "Agent Orange",
                           "exposureDates": {
-                            "beginDate": "2011-07",
-                            "endDate": "2013-10"
+                            "beginDate": "1972-05",
+                            "endDate": "1980-10"
                           }
                         },
                         "multipleExposures": [
                           {
-                            "hazardExposedTo": "Hazard",
-                            "exposureLocation": "Guam",
+                            "hazardExposedTo": "Agent Orange",
+                            "exposureLocation": "Vietnam",
                             "exposureDates": {
-                              "beginDate": "2012-12",
-                              "endDate": "2013-07"
+                              "beginDate": "1972-05",
+                              "endDate": "1973-01"
+                            }
+                          },
+                          {
+                            "hazardExposedTo": "Agent Orange",
+                            "exposureLocation": "Vietnam",
+                            "exposureDates": {
+                              "beginDate": "1979-04",
+                              "endDate": "1980-10"
                             }
                           }
                         ]
                       },
                       "disabilities": [
                         {
+                          "name": "Diabetes",
+                          "exposureOrEventOrInjury": "Agent Orange",
+                          "serviceRelevance": "Service in Vietnam War",
+                          "approximateDate": "1975-05",
+                          "disabilityActionType": "NEW",
+                          "isRelatedToToxicExposure": true
+                        },
+                        {
                           "name": "Hearing Loss",
                           "exposureOrEventOrInjury": "Noise",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "1988-07",
-                          "disabilityActionType": "NEW",
+                          "approximateDate": "1968-07",
+                          "disabilityActionType": "INCREASE",
+                          "classificationCode": "8987",
+                          "ratedDisabilityId": "1234567",
+                          "diagnosticCode": 5678,
                           "isRelatedToToxicExposure": false
                         }
                       ],
                       "treatments": [
                         {
-                          "beginDate": "2009-04",
+                          "beginDate": "2021-04",
                           "treatedDisabilityNames": [
-                            "Hearing Loss"
+                            "Diabetes"
                           ],
                           "center": {
-                            "name": "Center One",
+                            "name": "ATLANTA VA MEDICAL CENTER",
                             "state": "GA",
-                            "city": "Decatur"
+                            "city": "ATLANTA"
                           }
                         },
                         {
-                          "beginDate": "2009-03",
+                          "beginDate": "1996-03",
                           "treatedDisabilityNames": [
                             "Hearing Loss"
                           ],
                           "center": {
-                            "name": "Center One",
+                            "name": "ATLANTA VA MEDICAL CENTER",
                             "state": "GA",
-                            "city": "Decatur"
+                            "city": "ATLANTA"
                           }
                         }
                       ],
                       "serviceInformation": {
+                        "alternateNames": [
+                          "Jon Doe",
+                          "Jane Doe"
+                        ],
                         "servicePeriods": [
                           {
                             "serviceBranch": "Air Force",
                             "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2023-10-30",
-                            "separationLocationCode": "98282"
+                            "activeDutyBeginDate": "1964-11-14",
+                            "activeDutyEndDate": "1980-10-30",
+                            "separationLocationCode": "98289"
                           }
                         ],
                         "servedInActiveCombatSince911": "NO",
                         "reservesNationalGuardService": {
                           "component": "National Guard",
                           "obligationTermsOfService": {
-                            "beginDate": "2016-11-24",
-                            "endDate": "2017-11-17"
+                            "beginDate": "1990-11-24",
+                            "endDate": "1995-11-17"
                           },
                           "unitName": "National Guard Unit Name",
-                          "unitAddress": "1243 pine court",
+                          "unitAddress": "1243 Main Street",
                           "unitPhone": {
                             "areaCode": "555",
                             "phoneNumber": "5555555"
                           },
                           "receivingInactiveDutyTrainingPay": "YES"
                         },
-                        "federalActivation": {
-                          "activationDate": "2023-02-10",
-                          "anticipatedSeparationDate": "2023-12-03"
-                        },
                         "confinements": [
                           {
-                            "approximateBeginDate": "2016-06-11",
-                            "approximateEndDate": "2016-09-11"
-                          },
-                          {
-                            "approximateBeginDate": "2019-06",
-                            "approximateEndDate": "2019-07"
+                            "approximateBeginDate": "1970-06-11",
+                            "approximateEndDate": "1970-09-11"
                           }
                         ]
                       },
                       "servicePay": {
                         "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "YES",
+                        "futureMilitaryRetiredPay": "NO",
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
-                          "branchOfService": "Army",
-                          "monthlyAmount": 840.75
+                          "branchOfService": "Air Force",
+                          "monthlyAmount": 240.75
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
-                        "receivedSeparationOrSeverancePay": "NO",
+                        "receivedSeparationOrSeverancePay": "YES",
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
-                          "branchOfService": "Naval Academy",
-                          "preTaxAmountReceived": 379.25
+                          "branchOfService": "Air Force",
+                          "preTaxAmountReceived": 179.25
                         },
-                        "favorTrainingPay": true
+                        "favorTrainingPay": false
                       },
                       "directDeposit": {
-                        "noAccount": false,
                         "accountNumber": "123123123123",
                         "accountType": "CHECKING",
                         "financialInstitutionName": "Chase",
@@ -5655,7 +5673,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c0183ed9-9f00-4a6c-97c4-504b1134daa2",
+                    "id": "02253098-1eb6-47b7-a1e8-3780120d27ba",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6347,8 +6365,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-26",
-                      "expirationDate": "2024-12-26",
+                      "creationDate": "2023-12-28",
+                      "expirationDate": "2024-12-28",
                       "type": "compensation",
                       "status": "active"
                     }
