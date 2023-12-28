@@ -756,7 +756,7 @@ config/initializers/okcomputer.rb @department-of-veterans-affairs/va-api-enginee
 config/initializers/override_redirect_to_logging.rb @department-of-veterans-affairs/vsp-identity
 config/initializers/rack_attack.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/rack_timeout.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-config/initializers/raven.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/initializers/sentry.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/renderers.rb @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/rgeo.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/rswag-ui.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

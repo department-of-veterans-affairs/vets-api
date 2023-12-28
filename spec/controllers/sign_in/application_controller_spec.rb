@@ -400,7 +400,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     let(:client_type) { 'mhv_session' }
     let(:sign_in_method) { SignIn::Constants::Auth::IDME }
     let(:authn_context) { LOA::IDME_LOA3 }
-    let(:tags_context) { { controller_name:, sign_in_method:, sign_in_acct_type: nil } }
+    let(:set_tags) { { controller_name:, sign_in_method:, sign_in_acct_type: nil } }
     let(:loa) { { current: 3, highest: 3 } }
     let(:user_context) do
       { id: access_token_object.user_uuid, authn_context:, loa:, mhv_icn: user_account.icn }
@@ -421,24 +421,24 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     it 'makes a call to sentry with request uuid and service unavailable error' do
-      expect(Raven).to receive(:extra_context).once.with(request_uuid: nil)
-      expect(Raven).to receive(:extra_context).once.with(va_exception_error)
+      expect(Sentry).to receive(:set_extras).once.with(request_uuid: nil)
+      expect(Sentry).to receive(:set_extras).once.with(va_exception_error)
       subject
     end
 
     it 'makes a call to sentry with appropriate tags' do
-      expect(Raven).to receive(:tags_context).once.with(tags_context)
-      expect(Raven).to receive(:tags_context).once.with(error: client_type)
+      expect(Sentry).to receive(:set_tags).once.with(tags_context)
+      expect(Sentry).to receive(:set_tags).once.with(error: client_type)
       subject
     end
 
     it 'makes a call to sentry with the appropriate user context' do
-      expect(Raven).to receive(:user_context).once.with(user_context)
+      expect(Sentry).to receive(:set_user).once.with(user_context)
       subject
     end
 
     it 'captures the exception for sentry' do
-      expect(Raven).to receive(:capture_exception).once
+      expect(Sentry).to receive(:capture_exception).once
       subject
     end
 

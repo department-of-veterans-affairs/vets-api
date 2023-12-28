@@ -5,7 +5,8 @@ require 'lighthouse/benefits_documents/service'
 module V0
   class BenefitsDocumentsController < ApplicationController
     before_action { authorize :lighthouse, :access? }
-    Raven.tags_context(team: 'benefits-claim-appeal-status', feature: 'benefits-documents')
+    Sentry.set_tags(team: 'benefits-claim-appeal-status', feature: 'benefits-documents')
+
     service_tag 'claims-shared'
 
     def create

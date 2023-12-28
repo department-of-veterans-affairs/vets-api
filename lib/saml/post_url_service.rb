@@ -34,8 +34,8 @@ module SAML
       @query_params = {}
       @tracker = initialize_tracker(params)
 
-      Raven.extra_context(params:)
-      Raven.user_context(session:, user:)
+      Sentry.set_extras(params:)
+      Sentry.set_user(session:, user:)
     end
 
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
