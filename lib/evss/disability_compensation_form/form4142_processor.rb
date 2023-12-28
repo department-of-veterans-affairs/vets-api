@@ -80,7 +80,7 @@ module EVSS
           'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           'receiveDt' => received_date,
           'uuid' => jid,
-          'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+          'zipCode' => address['country'] == 'USA' ? format_zip(address['postalCode']) : FOREIGN_POSTALCODE,
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
           'numberAttachments' => 0,
@@ -89,14 +89,20 @@ module EVSS
         }.to_json
       end
 
+      def format_zip(postal_code)
+        digits_only = postal_code.gsub(/\D/, '')
+        formatted_zip = "#{digits_only[0, 5]}-#{digits_only[5, 4]}" if digits_only.size == 9
+        formatted_zip || digits_only[0, 5]
+      end
+
       def received_date
         date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
         date.strftime('%Y-%m-%d %H:%M:%S')
       end
 
-      # Corrects or replaces with an empty string any characters not matching upstream validators
+      # Corrects or replaces with an empty string any characters not matching downstream validators
       def transliterate(name)
-        I18n.transliterate(name).gsub(%r{[^A-Za-z'/ -]}, '')
+        I18n.transliterate(name).gsub(%r{[^A-Za-z/ -]}, '')
       end
     end
   end
