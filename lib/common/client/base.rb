@@ -85,7 +85,7 @@ module Common
 
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
-            # warn("Breakers is not implemented for service: #{config.service_name}")
+            warn("Breakers is not implemented for service: #{config.service_name}")
           end
 
           connection

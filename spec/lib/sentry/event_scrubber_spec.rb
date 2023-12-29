@@ -1,14 +1,15 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'sentry/event_scrubber'
 
 RSpec.describe Sentry::EventScrubber do
-
-  let(:unclean_event) {{ email: "test@example.com", zipCode: "12345" }}
+  let(:unclean_event) { { email: 'test@example.com', zipCode: '12345' } }
   let(:cleaned_event) { Sentry::EventScrubber.new(unclean_event, nil).cleaned_event }
   let(:ppiu_request) do
     {
       'tags' => {
-        'controller_name' => "ppiu",
+        'controller_name' => 'ppiu',
         'sign_in_method' => { 'service_name' => SignIn::Constants::Auth::IDME, 'acct_type' => nil }
       },
       'request' => {
@@ -22,7 +23,7 @@ RSpec.describe Sentry::EventScrubber do
       exception: {
         values: [
           {
-            type: "Common::Exceptions::GatewayTimeout",
+            type: 'Common::Exceptions::GatewayTimeout',
             value: 'Common::Exceptions::GatewayTimeout',
             module: 'Common::Exceptions',
             stacktrace: nil
@@ -32,11 +33,11 @@ RSpec.describe Sentry::EventScrubber do
     }
   end
 
-  describe "#cleaned_event" do
-    it 'filters emails and PII ' do
+  describe '#cleaned_event' do
+    it 'filters emails and PII' do
       cleaned_event = Sentry::EventScrubber.new(unclean_event, nil).cleaned_event
-      expect(cleaned_event["email"]).to eq("[FILTERED EMAIL]")
-      expect(cleaned_event["zipCode"]).to eq('FILTERED-CLIENTSIDE')
+      expect(cleaned_event['email']).to eq('[FILTERED EMAIL]')
+      expect(cleaned_event['zipCode']).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'sets the :level to 30 (warning)' do
@@ -49,5 +50,4 @@ RSpec.describe Sentry::EventScrubber do
       expect(cleaned_event['request']['data']).to eql(Sentry::Scrubbers::PIISanitizer::FILTER_MASK)
     end
   end
-
 end

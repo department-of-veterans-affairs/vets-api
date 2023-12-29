@@ -8,8 +8,6 @@ require 'sentry/event_scrubber'
 # This needs to be manually tested
 # https://github.com/getsentry/sentry-ruby/issues/1583
 transport = Class.new(Sentry::HTTPTransport) do
-  STATSD_ERROR_KEY = 'worker.sentry.error'
-
   def send_data(data)
     super
   rescue Sentry::ExternalError => e
@@ -17,7 +15,7 @@ transport = Class.new(Sentry::HTTPTransport) do
       "Error performing Sentry#send_data: #{e.message}",
       original_event: data
     )
-    StatsD.increment(STATSD_ERROR_KEY)
+    StatsD.increment('worker.sentry.error')
   end
 end
 
@@ -28,13 +26,11 @@ Rails.application.reloader.to_prepare do
     # No longer need to ignore 'ActionController::InvalidAuthenticityToken'
     # https://github.com/getsentry/sentry-ruby/blob/master/sentry-ruby/lib/sentry/configuration.rb#L354
 
-
     # config.async is deprecated and could get removed
     # https://github.com/getsentry/sentry-ruby/issues/1522
 
     # https://docs.sentry.io/platforms/ruby/guides/rails/configuration/options/#transport-options
     config.transport.transport_class = transport
-
 
     # Sentry removed processors
     # https://www.comptia.org/certifications/security

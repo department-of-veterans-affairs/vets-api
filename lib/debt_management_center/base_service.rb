@@ -28,7 +28,7 @@ module DebtManagementCenter
 
     def save_error_details(error)
       Sentry.set_tags(external_service: self.class.to_s.underscore)
-      Sentry.set_extras( url: config.base_path, message: error.message, body: error.body)
+      Sentry.set_extras(url: config.base_path, message: error.message, body: error.body)
     end
 
     def handle_error(error)
