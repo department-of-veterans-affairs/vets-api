@@ -881,7 +881,7 @@ lib/form526_backup_submission/service.rb @department-of-veterans-affairs/Benefit
 lib/form526_backup_submission/utilities @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/form526_backup_submission/utilities/convert_to_pdf.rb @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/formatters @department-of-veterans-affairs/vsp-identity
-lib/form @department-of-veterans-affairs/backend-review-group
+lib/forms @department-of-veterans-affairs/backend-review-group
 lib/generators @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/gi/client.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/gi/configuration.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
