@@ -19,9 +19,9 @@ FactoryBot.define do
     is_trackable                    { false }
     cmop_division_phone             { nil }
     in_cerner_transition            { false }
-    not_refillable_display_message  { 'A refill request cannot be submitted at this time.' }
+    not_refillable_display_message  { 'test' }
     cmop_ndc_number                 { nil }
-    user_id                         { 16955936 }
+    user_id                         { 16_955_936 }
     provider_first_name             { 'MOHAMMAD' }
     provider_last_name              { 'ISLAM' }
     remarks                         { nil }
