@@ -400,7 +400,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     let(:client_type) { 'mhv_session' }
     let(:sign_in_method) { SignIn::Constants::Auth::IDME }
     let(:authn_context) { LOA::IDME_LOA3 }
-    let(:set_tags) { { controller_name:, sign_in_method:, sign_in_acct_type: nil } }
+    let(:tags_context) { { controller_name:, sign_in_method:, sign_in_acct_type: nil } }
     let(:loa) { { current: 3, highest: 3 } }
     let(:user_context) do
       { id: access_token_object.user_uuid, authn_context:, loa:, mhv_icn: user_account.icn }

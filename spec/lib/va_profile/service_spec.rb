@@ -40,7 +40,7 @@ describe VAProfile::Service do
       let(:error) { Common::Client::Errors::ParsingError.new }
 
       it 'logs an error message to sentry', :aggregate_failures do
-        expect(Senty).to receive(:set_extras)
+        expect(Sentry).to receive(:set_extras)
 
         expect { subject.send('handle_error', error) }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
