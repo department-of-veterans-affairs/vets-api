@@ -10,19 +10,18 @@ describe PrescriptionDetails do
 
     it 'has attributes' do
       expect(subject).to have_attributes(refill_status: 'active', refill_remaining: 9, facility_name: 'ABC1223',
-                                          is_refillable: true, is_trackable: false, prescription_id: 1_435_525,
-                                          quantity: 10,  prescription_number: '2719324',
-                                          prescription_name: 'Drug 1 250MG TAB', station_number: '23',
-                                          cmop_division_phone: nil, in_cerner_transition: false,
-                                          not_refillable_display_message: 'A refill request cannot be submitted at this time. Please review the prescription status and fill date. If you need more of this medication, please call the pharmacy phone number on your prescription label.',
-                                          cmop_ndc_number: nil, user_id: 16955936, provider_first_name: 'MOHAMMAD',
-                                          provider_last_name: 'ISLAM', remarks: nil, division_name: 'DAYTON',
-                                          institution_id: nil, dial_cmop_division_phone: '',
-                                          disp_status: 'Active: Refill in Process', ndc: '00173-9447-00',
-                                          reason: nil, prescription_number_index: 'RX', prescription_source: 'RX',
-                                          disclaimer: nil, indication_for_use: nil, indication_for_use_flag: nil,
-                                          category: 'Rx Medication', tracking: false
-                                        )
+                                         is_refillable: true, is_trackable: false, prescription_id: 1_435_525,
+                                         quantity: 10,  prescription_number: '2719324',
+                                         prescription_name: 'Drug 1 250MG TAB', station_number: '23',
+                                         cmop_division_phone: nil, in_cerner_transition: false,
+                                         not_refillable_display_message: 'A refill request cannot be submitted at this time.',
+                                         cmop_ndc_number: nil, user_id: 16955936, provider_first_name: 'MOHAMMAD',
+                                         provider_last_name: 'ISLAM', remarks: nil, division_name: 'DAYTON',
+                                         institution_id: nil, dial_cmop_division_phone: '',
+                                         disp_status: 'Active: Refill in Process', ndc: '00173_9447_00',
+                                         reason: nil, prescription_number_index: 'RX', prescription_source: 'RX',
+                                         disclaimer: nil, indication_for_use: nil, indication_for_use_flag: nil,
+                                         category: 'Rx Medication', tracking: false)
     end
 
     it 'has additional aliased rubyesque methods' do
@@ -35,8 +34,7 @@ describe PrescriptionDetails do
                                          ordered_date: Time.parse('Tue, 29 Mar 2016 00:00:00 EDT').in_time_zone,
                                          expiration_date: Time.parse('Thu, 30 Mar 2017 00:00:00 EDT').in_time_zone,
                                          dispensed_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone,
-                                         modified_date: Time.parse('2023-08-11T15:56:58.000Z').in_time_zone
-                                        )
+                                         modified_date: Time.parse('2023-08-11T15:56:58.000Z').in_time_zone)
     end
   end
 end

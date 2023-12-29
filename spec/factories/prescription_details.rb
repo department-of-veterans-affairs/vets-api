@@ -19,7 +19,7 @@ FactoryBot.define do
     is_trackable                    { false }
     cmop_division_phone             { nil }
     in_cerner_transition            { false }
-    not_refillable_display_message  { 'A refill request cannot be submitted at this time. Please review the prescription status and fill date. If you need more of this medication, please call the pharmacy phone number on your prescription label.' }
+    not_refillable_display_message  { 'A refill request cannot be submitted at this time.' }
     cmop_ndc_number                 { nil }
     user_id                         { 16955936 }
     provider_first_name             { 'MOHAMMAD' }
@@ -30,7 +30,7 @@ FactoryBot.define do
     institution_id                  { nil }
     dial_cmop_division_phone        { '' }
     disp_status                     { 'Active: Refill in Process' }
-    ndc                             { '00173-9447-00' }
+    ndc                             { '00173_9447_00' }
     reason                          { nil }
     prescription_number_index       { 'RX' }
     prescription_source             { 'RX' }
