@@ -47,7 +47,7 @@ module ClaimsApi
         get_service_pay
         direct_deposit_information
         deep_compact(@pdf_data[:data][:attributes])
-
+byebug
         @pdf_data
       end
 
@@ -241,12 +241,21 @@ module ClaimsApi
         multi = @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
         if multi
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
-            multiple_service_dates_begin = exp[:exposureDates][:beginDate]
-            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] = regex_date_conversion(multiple_service_dates_begin)
-            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
-            multiple_service_dates_end = exp[:exposureDates][:endDate]
-            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] = regex_date_conversion(multiple_service_dates_end)
-            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
+            byebug
+            deep_compact(exp)
+            if exp.empty? 
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(index)
+            else
+              multiple_service_dates_begin = exp[:exposureDates][:beginDate]
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] = regex_date_conversion(multiple_service_dates_begin)
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
+              multiple_service_dates_end = exp[:exposureDates][:endDate]
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] = regex_date_conversion(multiple_service_dates_end)
+              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
+            end
+          end
+          if @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].empty?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure].delete(:multipleExposures)
           end
         end
         @pdf_data
@@ -453,11 +462,11 @@ module ClaimsApi
 
       def get_treatments
         @auto_claim['treatments'].map do |tx|
-          center = "#{tx['center']['name']}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
-          name = tx['treatedDisabilityNames'].join(', ')
-          tx['treatmentDetails'] = "#{name} - #{center}"
+          center = "#{tx.dig('center', 'name')}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
+          name = tx['treatedDisabilityNames'].join(', ') if tx['treatedDisabilityNames'].present?
+          tx['treatmentDetails'] = name.blank? ? center : "#{name} - #{center}"
           tx['dateOfTreatment'] = regex_date_conversion(tx['beginDate']) if tx['beginDate'].present?
-          tx['doNotHaveDate'] = tx['beginDate'].nil?
+          tx['doNotHaveDate'] = tx['beginDate'].blank?
           tx.delete('center')
           tx.delete('treatedDisabilityNames')
           tx.delete('beginDate')
