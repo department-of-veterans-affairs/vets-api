@@ -21,6 +21,7 @@ module Veteran
       attribute :email
       attribute :lat
       attribute :long
+      attribute :user_types
       attribute :distance
     end
   end

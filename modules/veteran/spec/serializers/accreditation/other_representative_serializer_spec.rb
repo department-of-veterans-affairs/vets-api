@@ -99,7 +99,7 @@ RSpec.describe Veteran::Accreditation::OtherRepresentativeSerializer do
                                      email
                                      lat
                                      long
-                                     distance
-                                     user_types])
+                                     user_types
+                                     distance])
   end
 end
