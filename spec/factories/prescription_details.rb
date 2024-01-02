@@ -38,6 +38,6 @@ FactoryBot.define do
     indication_for_use              { nil }
     indication_for_use_flag         { nil }
     category                        { 'Rx Medication' }
-    tracking                        { false } 
+    tracking                        { false }
   end
 end
