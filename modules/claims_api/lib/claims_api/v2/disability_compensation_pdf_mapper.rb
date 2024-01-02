@@ -47,7 +47,7 @@ module ClaimsApi
         get_service_pay
         direct_deposit_information
         deep_compact(@pdf_data[:data][:attributes])
-byebug
+        byebug
         @pdf_data
       end
 
@@ -242,7 +242,7 @@ byebug
         if multi
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
             deep_compact(exp)
-            if exp.empty? 
+            if exp.empty?
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(index)
             else
               multiple_service_dates_begin = exp[:exposureDates][:beginDate]

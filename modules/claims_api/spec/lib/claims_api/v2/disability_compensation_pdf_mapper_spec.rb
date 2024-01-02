@@ -358,7 +358,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 5, treatment centers null data' do
-      it 'maps the attributes correctly' do        
+      it 'maps the attributes correctly' do
         form_attributes['treatments'][0]['treatedDisabilityNames'] = nil
         form_attributes['treatments'][0]['center']['name'] = nil
         form_attributes['treatments'][0]['center']['city'] = nil
@@ -370,7 +370,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         start_date = tx_center_data[0][:dateOfTreatment]
         no_date = tx_center_data[0][:doNotHaveDate]
-        treatment_details = tx_center_data[0][:treatmentDetails]
 
         expect(start_date).to eq(nil)
         expect(no_date).to eq(true)
