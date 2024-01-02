@@ -147,83 +147,64 @@ module PdfFill
           }
         },
         # 3b
-        'servicePeriods' => {
-          limit: 1,
-          first_key: 'serviceNumber',
-          'activeServiceDateRange' => {
-            'from' => {
-              'month' => {
-                key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Month[0]'
-              },
-              'day' => {
-                key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Day[0]'
-              },
-              'year' => {
-                key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Year[0]'
-              }
+        'activeServiceDateRange' => {
+          'from' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Month[0]'
             },
-            'to' => {
-              'month' => {
-                key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Month[0]'
-              },
-              'day' => {
-                key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Day[0]'
-              },
-              'year' => {
-                key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Year[0]'
-              }
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Day[0]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Year[0]'
             }
           },
-          'activeServiceDateRangeFromOverflow' => {
-            question_num: 3,
-            question_suffix: 'B',
-            question_text: 'DATE INITIALLY ENTERED ACTIVE DUTY'
-          },
-          'activeServiceDateRangeToOverflow' => {
-            question_num: 3,
-            question_suffix: 'C',
-            question_text: 'FINAL RELEASE DATE FROM ACTIVE DUTY'
-          },
-          # 3e
-          'serviceBranch' => {
-            'army' => {
-              key: 'form1[0].#subform[48].Army[0]'
+          'to' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Month[0]'
             },
-            'navy' => {
-              key: 'form1[0].#subform[48].Navy[0]'
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Day[0]'
             },
-            'airForce' => {
-              key: 'form1[0].#subform[48].Air_Force[0]'
-            },
-            'coastGuard' => {
-              key: 'form1[0].#subform[48].Coast_Guard[0]'
-            },
-            'marineCorps' => {
-              key: 'form1[0].#subform[48].Marine_Corps[0]'
-            },
-            'spaceForce' => {
-              key: 'form1[0].#subform[48].Space_Force[0]'
-            },
-            'usphs' => {
-              key: 'form1[0].#subform[48].USPHS[0]'
-            },
-            'noaa' => {
-              key: 'form1[0].#subform[48].NOAA[0]'
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Year[0]'
             }
-          },
-          'serviceBranchOverflow' => {
-            question_num: 3,
-            question_suffix: 'E',
-            question_text: 'BRANCH OF SERVICE'
-          },
-          # 3d
-          'serviceNumber' => {
-            limit: 12,
-            question_num: 3,
-            question_suffix: 'D',
-            question_text: 'YOUR SERVICE NUMBER',
-            key: 'form1[0].#subform[48].Your_Service_Number[0]'
           }
+        },
+        # 3e
+        'serviceBranch' => {
+          'ARMY' => {
+            key: 'form1[0].#subform[48].Army[0]'
+          },
+          'NAVY' => {
+            key: 'form1[0].#subform[48].Navy[0]'
+          },
+          'AIR_FORCE' => {
+            key: 'form1[0].#subform[48].Air_Force[0]'
+          },
+          'COAST_GUARD' => {
+            key: 'form1[0].#subform[48].Coast_Guard[0]'
+          },
+          'MARINE_CORPS' => {
+            key: 'form1[0].#subform[48].Marine_Corps[0]'
+          },
+          'SPACE_FORCE' => {
+            key: 'form1[0].#subform[48].Space_Force[0]'
+          },
+          'USPHS' => {
+            key: 'form1[0].#subform[48].USPHS[0]'
+          },
+          'NOAA' => {
+            key: 'form1[0].#subform[48].NOAA[0]'
+          }
+        },
+        # 3d
+        'serviceNumber' => {
+          limit: 12,
+          question_num: 3,
+          question_suffix: 'D',
+          question_text: 'YOUR SERVICE NUMBER',
+          key: 'form1[0].#subform[48].Your_Service_Number[0]'
         },
         # 3f
         'placeOfSeparationLineOne' => {
@@ -291,8 +272,8 @@ module PdfFill
         },
         'vaMedicalCenters' => {
           limit: 1,
-          first_key: 'facility',
-          'facility' => {
+          first_key: 'medicalCenter',
+          'medicalCenter' => {
             limit: 33,
             question_num: 4,
             question_suffix: 'F',
@@ -306,31 +287,84 @@ module PdfFill
         },
         'federalMedicalCenters' => {
           limit: 1,
-          first_key: 'facility',
-          'facility' => {
+          first_key: 'medicalCenter',
+          'medicalCenter' => {
             limit: 44,
             question_num: 4,
             question_suffix: 'G',
             question_text: 'Specify Federal Facility',
             key: 'form1[0].#subform[49].Facility[1]'
           }
-        }
+        },
         # 5a
-        # form1[0].#subform[49].RadioButtonList[9]
-        # 5b
-        # form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]
-        # 5c
-        # form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]
-        # 5d
-        # form1[0].#subform[49].Date_You_Last_Worked_Month[0]
-        # form1[0].#subform[49].Date_You_Last_Worked_Day[0]
-        # form1[0].#subform[49].Date_You_Last_Worked_Year[0]
-        # 5e
-        # form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]
-        # 5f
-        # form1[0].#subform[49].What_Was_Your_Job_Title[0]
-        # 5g
-        # form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]
+        'currentEmployment' => {
+          key: 'form1[0].#subform[49].RadioButtonList[9]'
+        },
+        'currentEmployers' => {
+          limit: 1,
+          first_key: 'jobType',
+          # 5b
+          'jobType' => {
+            limit: 35,
+            question_num: 5,
+            question_suffix: 'B',
+            question_text: 'WHAT KIND OF WORK ARE YOU CURRENTLY DOING',
+            key: 'form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]'
+          },
+          # 5c
+          'jobHoursWeek' => {
+            limit: 3,
+            question_num: 5,
+            question_suffix: 'B',
+            question_text: 'HOW MANY HOURS PER WEEK DO YOU AVERAGE',
+            key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]'
+          },
+        },
+        'previousEmployers' => {
+          limit: 1,
+          first_key: 'jobTitle',
+          # 5d
+          'jobDate' => {
+            'month' => {
+              key: 'form1[0].#subform[49].Date_You_Last_Worked_Month[0]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[49].Date_You_Last_Worked_Day[0]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[49].Date_You_Last_Worked_Year[0]'
+            }
+          },
+          'jobDateOverflow' => {
+            question_num: 5,
+            question_suffix: 'D',
+            question_text: 'WHEN DID YOU LAST WORK'
+          },
+          # 5e
+          'jobHoursWeek' => {
+            limit: 3,
+            question_num: 5,
+            question_suffix: 'E',
+            question_text: 'HOW MANY HOURS PER WEEK DID YOU AVERAGE',
+            key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]'
+          },
+          # 5f
+          'jobTitle' => {
+            limit: 30,
+            question_num: 5,
+            question_suffix: 'F',
+            question_text: 'WHAT WAS YOUR JOB TITLE',
+            key: 'form1[0].#subform[49].What_Was_Your_Job_Title[0]'
+          },
+          # 5g
+          'jobType' => {
+            limit: 27,
+            question_num: 5,
+            question_suffix: 'G',
+            question_text: 'WHAT KIND OF WORK DID YOU DO',
+            key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
+          }
+        }
       }.freeze
 
       def merge_fields(_options = {})
@@ -364,16 +398,17 @@ module PdfFill
 
       # SECTION III: VETERAN'S SERVICE INFORMATION
       def expand_veteran_service_information
-        @form_data['servicePeriods'] = @form_data['servicePeriods']&.map do |sp|
-          sp.merge(expand_service_period(sp))
-        end
+        @form_data['activeServiceDateRange'] = {
+          'from' => split_date(@form_data.dig('activeServiceDateRange', 'from')),
+          'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
+        }
+        @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
 
         @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
-
         if @form_data['pow'].zero?
           @form_data['powDateRange'] ||= {}
-          @form_data['powDateRange']['from'] = split_date(@form_data['powDateRange']['from'])
-          @form_data['powDateRange']['to'] = split_date(@form_data['powDateRange']['to'])
+          @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
+          @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
         end
 
         place_of_separation = @form_data['placeOfSeparation'].to_s
@@ -402,57 +437,20 @@ module PdfFill
 
         @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
         @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
-
-        @form_data['vaMedicalCenters'] = @form_data['vaMedicalCenters']&.map { |mc| { 'facility' => mc } }
-        @form_data['federalMedicalCenters'] = @form_data['federalMedicalCenters']&.map { |mc| { 'facility' => mc } }
       end
 
       # SECTION V: EMPLOYMENT HISTORY
       def expand_employment_history
         @form_data['currentEmployment'] = to_radio_yes_no(@form_data['currentEmployment'])
-        # @form_data['currentEmployersOverflow'] = generate_employers_overflow(@form_data['currentEmployers'])
-        @form_data['currentEmployerJobType'] = @form_data.dig('currentEmployers', 0, 'jobTypes').to_s
-        @form_data['currentEmployerJobTitle'] = @form_data.dig('currentEmployers', 0, 'jobTitle').to_s
-        @form_data['currentEmployerJobHoursWeek'] = @form_data.dig('currentEmployers', 0, 'jobHoursWeek').to_s
-        if @form_data['currentEmployment'] == 2
-          @form_data['currentEmployerJobType'] = ''
-          @form_data['currentEmployerJobTitle'] = ''
-          @form_data['currentEmployerJobHoursWeek'] = ''
+
+        @form_data['previousEmployers'] = @form_data['previousEmployers']&.map do |pe|
+          pe.merge({
+                     'jobDate' => split_date(pe['jobDate']),
+                     'jobDateOverflow' => pe['jobDate']
+                   })
         end
 
-        # @form_data['previousEmployersOverflow'] = generate_employers_overflow(@form_data['previousEmployers'])
-        @form_data['previousEmployersJobDate'] = split_date(@form_data.dig('previousEmployers', 0, 'jobDate').to_s)
-        @form_data['previousEmployersJobType'] = @form_data.dig('previousEmployers', 0, 'j  obTypes').to_s
-        @form_data['previousEmployersJobTitle'] = @form_data.dig('previousEmployers', 0, 'jobTitle')&.to_s
-        @form_data['previousEmployersJobHoursWeek'] = @form_data.dig('previousEmployers', 0, 'jobHoursWeek').to_s
-      end
-
-      def expand_service_period(service_period)
-        return unless service_period.is_a?(Hash)
-
-        {
-          'activeServiceDateRange' => {
-            'from' => split_date(service_period.dig('activeServiceDateRange', 'from')),
-            'to' => split_date(service_period.dig('activeServiceDateRange', 'to'))
-          },
-          'serviceBranch' => expand_service_branch(service_period['serviceBranch'].to_s),
-          'activeServiceDateRangeFromOverflow' => service_period.dig('activeServiceDateRange', 'from'),
-          'activeServiceDateRangeToOverflow' => service_period.dig('activeServiceDateRange', 'to'),
-          'serviceBranchOverflow' => service_period['serviceBranch'].to_s.titleize
-        }
-      end
-
-      def expand_service_branch(service_branch)
-        {
-          'army' => service_branch.casecmp('army').zero?,
-          'navy' => service_branch.casecmp('navy').zero?,
-          'airForce' => service_branch.casecmp('air force').zero?,
-          'coastGuard' => service_branch.casecmp('coast guard').zero?,
-          'marineCorps' => service_branch.casecmp('marine corps').zero?,
-          'spaceForce' => service_branch.casecmp('space force').zero?,
-          'usphs' => service_branch.casecmp('usphs').zero?,
-          'noaa' => service_branch.casecmp('noaa').zero?
-        }
+        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 2
       end
 
       def to_radio_yes_no(obj)

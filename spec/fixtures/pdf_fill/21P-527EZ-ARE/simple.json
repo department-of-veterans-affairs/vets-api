@@ -1,12 +1,30 @@
 {
-  "noRapidProcessing": false,
   "receivesIncome": false,
   "homeOwnership": false,
   "assetTransfer": false,
   "medicalExpenses": false,
   "hasCareExpenses": false,
-  "netWorthEstimation": 0,
+  "netWorthEstimation": 10000,
   "totalNetWorth": false,
+  "expectedIncome": {
+    "salary": 1,
+    "interest": 1
+  },
+  "monthlyIncome": {
+    "socialSecurity": 1,
+    "civilService": 1,
+    "railroad": 1,
+    "blackLung": 1,
+    "serviceRetirement": 1,
+    "ssi": 1
+  },
+  "netWorth": {
+    "bank": 1,
+    "interestBank": 1,
+    "ira": 1,
+    "stocks": 1,
+    "realProperty": 1
+  },
   "maritalStatus": "Never Married",
   "previousEmployers": [
     {
@@ -22,16 +40,15 @@
   "specialMonthlyPension": false,
   "nursingHome": false,
   "socialSecurityDisability": true,
-  "servicePeriods": [
-    {
-      "serviceBranch": "Coast Guard",
-      "activeServiceDateRange": {
-        "from": "2020-12-12",
-        "to": "2022-12-12"
-      },
-      "serviceNumber": "12345"
-    }
-  ],
+  "serviceBranch": {
+    "NAVY": true,
+    "COAST_GUARD": false
+  },
+  "activeServiceDateRange": {
+    "from": "2015-02-02",
+    "to": "2017-03-19"
+  },
+  "serviceNumber": "01245",
   "email": "veteran@example.com",
   "mobilePhone": "555-555-5555",
   "veteranAddress": {
@@ -48,24 +65,5 @@
   "veteranSocialSecurityNumber": "111223333",
   "veteranDateOfBirth": "1990-12-12",
   "isOver65": false,
-  "netWorth": {
-    "bank": 0,
-    "interestBank": 0,
-    "ira": 0,
-    "stocks": 0,
-    "realProperty": 0
-  },
-  "monthlyIncome": {
-    "socialSecurity": 0,
-    "civilService": 0,
-    "railroad": 0,
-    "blackLung": 0,
-    "serviceRetirement": 0,
-    "ssi": 0
-  },
-  "expectedIncome": {
-    "salary": 0,
-    "interest": 0
-  },
   "privacyAgreementAccepted": true
 }

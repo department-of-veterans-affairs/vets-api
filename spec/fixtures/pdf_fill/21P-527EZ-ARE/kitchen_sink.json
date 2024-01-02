@@ -1,67 +1,80 @@
 {
   "noRapidProcessing": false,
+  "receivesIncome": false,
   "homeOwnership": false,
-  "totalNetWorth": false,
+  "assetTransfer": false,
+  "medicalExpenses": false,
+  "hasCareExpenses": false,
+  "totalNetWorth": true,
   "maritalStatus": "Never Married",
-  "previousEmployers": [
+  "currentEmployers": [
     {
-      "jobDate": "2020-12-12",
-      "jobType": "Train conductor",
+      "jobType": "First job working",
       "jobHoursWeek": 40,
-      "jobTitle": "Conductor"
+      "jobTitle": "Job title"
     }
   ],
-  "currentEmployment": false,
+  "currentEmployment": true,
+  "federalMedicalCenters": [
+    {
+      "medicalCenter": "First medical center"
+    }
+  ],
   "federalTreatmentHistory": true,
+  "vaMedicalCenters": [
+    {
+      "medicalCenter": "First medical center"
+    }
+  ],
   "vaTreatmentHistory": true,
-  "specialMonthlyPension": false,
+  "specialMonthlyPension": true,
+  "medicaidCoverage": true,
   "nursingHome": true,
-  "socialSecurityDisability": false,
-  "medicalCondition": true,
-  "medicaidStatus": true,
+  "socialSecurityDisability": true,
+  "isOver65": true,
+  "powDateRange": {
+    "from": "2001-04-02",
+    "to": "2002-04-02"
+  },
   "previousNames": [
     {
-      "first": "Other",
-      "last": "Name",
+      "first": "First",
+      "middle": "Middle",
+      "last": "Last",
       "suffix": "Jr."
     }
   ],
-  "placeOfSeparation": "1234 Separation Rd, City, ST 12345",
-  "servicePeriods": [
-    {
-      "serviceBranch": "Coast Guard",
-      "activeServiceDateRange": {
-        "from": "2020-12-12",
-        "to": "2022-12-12"
-      },
-      "serviceNumber": "12345"
-    }
-  ],
+  "placeOfSeparation": "Separation place",
+  "serviceBranch": {
+    "ARMY": true
+  },
+  "activeServiceDateRange": {
+    "from": "2001-01-01",
+    "to": "2002-01-01"
+  },
+  "serviceNumber": "12345678",
   "email": "veteran@example.com",
+  "phone": "123-456-7777",
   "mobilePhone": "555-555-5555",
-  "internationalPhone": "55-555-555-5555",
+  "internationalPhone": "11-234-123-1233",
   "veteranAddress": {
     "country": "USA",
     "street": "123 Main St",
-    "street2": "456",
+    "street2": "Apt 1234",
     "city": "Brooklyn",
     "state": "NY",
     "postalCode": "11225"
   },
   "veteranFullName": {
     "first": "Firstname",
-    "middle": "M",
-    "last": "Lastname"
-  },
-  "powDateRange": {
-    "from": "2021-04-10",
-    "to": "2021-05-10"
+    "middle": "Middle",
+    "last": "Lastname",
+    "suffix": "Jr."
   },
   "veteranSocialSecurityNumber": "111223333",
   "vaClaimsHistory": true,
-  "vaFileNumber": "12345678",
+  "vaFileNumber": "123456789",
   "veteranDateOfBirth": "1990-12-12",
-  "isOver65": false,
   "netWorth": {
     "bank": 0,
     "interestBank": 0,
@@ -81,11 +94,5 @@
     "salary": 0,
     "interest": 0
   },
-  "vaMedicalCenters": [
-    "John D. Dingell VA Medical Center"
-  ],
-  "federalMedicalCenters": [
-    "Federal Medical Center"
-  ],
   "privacyAgreementAccepted": true
 }

@@ -1,73 +1,86 @@
 {
   "noRapidProcessing": false,
+  "receivesIncome": false,
   "homeOwnership": false,
-  "totalNetWorth": false,
+  "assetTransfer": false,
+  "medicalExpenses": false,
+  "hasCareExpenses": false,
+  "totalNetWorth": true,
   "maritalStatus": "Never Married",
-  "previousEmployers": [
+  "currentEmployers": [
     {
-      "jobDate": "2020-12-12",
-      "jobType": "Train conductor",
+      "jobType": "First job working",
       "jobHoursWeek": 40,
-      "jobTitle": "Conductor"
+      "jobTitle": "Job title"
     }
   ],
-  "currentEmployment": 2,
+  "currentEmployment": 0,
+  "federalMedicalCenters": [
+    {
+      "medicalCenter": "First medical center"
+    }
+  ],
   "federalTreatmentHistory": 0,
+  "vaMedicalCenters": [
+    {
+      "medicalCenter": "First medical center"
+    }
+  ],
   "vaTreatmentHistory": 0,
-  "specialMonthlyPension": 2,
+  "specialMonthlyPension": 0,
+  "medicaidCoverage": true,
   "nursingHome": 0,
-  "socialSecurityDisability": 2,
-  "medicalCondition": 0,
-  "medicaidStatus": 0,
+  "socialSecurityDisability": 0,
+  "isOver65": true,
+  "powDateRange": {
+    "from": {
+      "month": "04",
+      "day": "02",
+      "year": "2001"
+    },
+    "to": {
+      "month": "04",
+      "day": "02",
+      "year": "2002"
+    }
+  },
   "previousNames": [
     {
-      "first": "Other",
-      "last": "Name",
+      "first": "First",
+      "middle": "Middle",
+      "last": "Last",
       "suffix": "Jr."
     }
   ],
-  "placeOfSeparation": "1234 Separation Rd, City, ST 12345",
-  "servicePeriods": [
-    {
-      "serviceBranch": {
-        "army": false,
-        "navy": false,
-        "airForce": false,
-        "coastGuard": true,
-        "marineCorps": false,
-        "spaceForce": false,
-        "usphs": false,
-        "noaa": false
-      },
-      "activeServiceDateRange": {
-        "from": {
-          "month": "12",
-          "day": "12",
-          "year": "2020"
-        },
-        "to": {
-          "month": "12",
-          "day": "12",
-          "year": "2022"
-        }
-      },
-      "serviceNumber": "12345",
-      "activeServiceDateRangeFromOverflow": "2020-12-12",
-      "activeServiceDateRangeToOverflow": "2022-12-12",
-      "serviceBranchOverflow": "Coast Guard"
+  "placeOfSeparation": "Separation place",
+  "serviceBranch": {
+    "ARMY": true
+  },
+  "activeServiceDateRange": {
+    "from": {
+      "month": "01",
+      "day": "01",
+      "year": "2001"
+    },
+    "to": {
+      "month": "01",
+      "day": "01",
+      "year": "2002"
     }
-  ],
+  },
+  "serviceNumber": "12345678",
   "email": "veteran@example.com",
+  "phone": "123-456-7777",
   "mobilePhone": {
     "phone_area_code": "555",
     "phone_first_three_numbers": "555",
     "phone_last_four_numbers": "5555"
   },
-  "internationalPhone": "55-555-555-5555",
+  "internationalPhone": "11-234-123-1233",
   "veteranAddress": {
     "country": "USA",
     "street": "123 Main St",
-    "street2": "456",
+    "street2": "Apt 1234",
     "city": "Brooklyn",
     "state": "NY",
     "postalCode": {
@@ -77,20 +90,9 @@
   },
   "veteranFullName": {
     "first": "Firstname",
-    "middle": "M",
-    "last": "Lastname"
-  },
-  "powDateRange": {
-    "from": {
-      "month": "04",
-      "day": "10",
-      "year": "2021"
-    },
-    "to": {
-      "month": "05",
-      "day": "10",
-      "year": "2021"
-    }
+    "middle": "Middle",
+    "last": "Lastname",
+    "suffix": "Jr."
   },
   "veteranSocialSecurityNumber": {
     "first": "111",
@@ -98,13 +100,12 @@
     "third": "3333"
   },
   "vaClaimsHistory": true,
-  "vaFileNumber": "12345678",
+  "vaFileNumber": "123456789",
   "veteranDateOfBirth": {
     "month": "12",
     "day": "12",
     "year": "1990"
   },
-  "isOver65": false,
   "netWorth": {
     "bank": 0,
     "interestBank": 0,
@@ -124,30 +125,12 @@
     "salary": 0,
     "interest": 0
   },
-  "vaMedicalCenters": [
-    {
-      "facility": "John D. Dingell VA Medical Center"
-    }
-  ],
-  "federalMedicalCenters": [
-    {
-      "facility": "Federal Medical Center"
-    }
-  ],
   "privacyAgreementAccepted": true,
   "vaPreviouslyFiled": 0,
   "pow": 0,
-  "placeOfSeparationLineOne": "1234 Separation Rd",
-  "placeOfSeparationLineTwo": ", City, ST 12345",
-  "currentEmployerJobType": "",
-  "currentEmployerJobTitle": "",
-  "currentEmployerJobHoursWeek": "",
-  "previousEmployersJobDate": {
-    "month": "12",
-    "day": "12",
-    "year": "2020"
-  },
-  "previousEmployersJobType": "",
-  "previousEmployersJobTitle": "Conductor",
-  "previousEmployersJobHoursWeek": "40"
+  "placeOfSeparationLineOne": "Separation place",
+  "placeOfSeparationLineTwo": null,
+  "medicaidStatus": 2,
+  "medicalCondition": "Off",
+  "previousEmployers": null
 }
