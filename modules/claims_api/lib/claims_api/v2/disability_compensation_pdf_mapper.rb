@@ -487,10 +487,15 @@ module ClaimsApi
           @pdf_data[:data][:attributes][:serviceInformation][:servedInActiveCombatSince911] =
             served_in_active_combat_since911 == true ? 'YES' : 'NO'
         end
+        byebug
         served_in_reserves_or_national_guard =
           @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard]
-        @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard] =
+        if served_in_reserves_or_national_guard.nil?
+          @pdf_data[:data][:attributes][:serviceInformation].delete(:servedInReservesOrNationalGuard)
+        else
+          @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard] =
           served_in_reserves_or_national_guard == true ? 'YES' : 'NO'
+        end
 
         @pdf_data
       end
