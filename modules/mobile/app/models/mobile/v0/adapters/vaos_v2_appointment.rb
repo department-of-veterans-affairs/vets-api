@@ -206,8 +206,9 @@ module Mobile
                                 vista_status: appointment.dig(:extension, :vista_status),
                                 facility_id:,
                                 clinic: appointment[:clinic])
+              return CANCELLATION_REASON[:prov]
             end
-            return CANCELLATION_REASON[:prov]
+            return nil
           end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)
