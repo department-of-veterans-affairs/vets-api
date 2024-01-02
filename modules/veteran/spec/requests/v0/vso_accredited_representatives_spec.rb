@@ -99,7 +99,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
       expect(parsed_response['data'].pluck('id')).to eq(%w[456 234 111 345])
     end
 
-    it "can fuzzy search on a name that doesn't exist and return an empty array" do
+    it 'returns an empty array when performing a fuzzy search on a non-existent name' do
       get '/services/veteran/v0/vso_accredited_representatives',
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'No Name' }
 
