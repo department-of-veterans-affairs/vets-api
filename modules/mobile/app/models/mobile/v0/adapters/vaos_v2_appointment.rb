@@ -186,7 +186,7 @@ module Mobile
         end
 
         def cancel_id
-          return nil unless cancellable
+          return nil unless cancellable?
 
           appointment[:id]
         end
