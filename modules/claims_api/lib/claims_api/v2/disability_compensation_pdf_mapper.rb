@@ -241,7 +241,6 @@ byebug
         multi = @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
         if multi
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
-            byebug
             deep_compact(exp)
             if exp.empty? 
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(index)
@@ -254,7 +253,7 @@ byebug
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
             end
           end
-          if @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].empty?
+          if @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].empty?
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure].delete(:multipleExposures)
           end
         end

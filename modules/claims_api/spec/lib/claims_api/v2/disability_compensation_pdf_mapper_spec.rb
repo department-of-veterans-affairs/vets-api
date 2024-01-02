@@ -358,32 +358,27 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     context '526 section 5, treatment centers null data' do
-      it 'maps the attributes correctly' do
-        
-        # form_attributes['treatments'][0] = treatments
+      it 'maps the attributes correctly' do        
         form_attributes['treatments'][0]['treatedDisabilityNames'] = nil
-        # ["Traumatic Brain Injury", "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders", "Cancer - Musculoskeletal - Elbow"]
         form_attributes['treatments'][0]['center']['name'] = nil
         form_attributes['treatments'][0]['center']['city'] = nil
         form_attributes['treatments'][0]['center']['state'] = nil
         form_attributes['treatments'][0]['beginDate'] = nil
         mapper.map_claim
-byebug
+
         tx_center_data = pdf_data[:data][:attributes][:claimInformation][:treatments]
 
         start_date = tx_center_data[0][:dateOfTreatment]
         no_date = tx_center_data[0][:doNotHaveDate]
         treatment_details = tx_center_data[0][:treatmentDetails]
 
-        # expect(start_date).to eq({ month: '03', year: '2009' })
-        # expect(no_date).to eq(false)
-        # expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
+        expect(start_date).to eq(nil)
+        expect(no_date).to eq(true)
       end
     end
 
     context '526 section 5, multiple exposures null data' do
       it 'maps the attributes correctly' do
-        byebug
         toxic_exp_data = form_attributes['toxicExposure']
         toxic_exp_data['multipleExposures'][0]['exposureDates']['beginDate'] = nil
         toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
@@ -391,14 +386,9 @@ byebug
         toxic_exp_data['multipleExposures'][0]['hazardExposedTo'] = nil
 
         mapper.map_claim
-byebug
+
         exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-
-
-        multi_exp_begin_date = exposure_info[:multipleExposures][0][:exposureDates][:start]
-        multi_exp_end_date = exposure_info[:multipleExposures][0][:exposureDates][:end]
-        multi_exp_location = exposure_info[:multipleExposures][0][:exposureLocation]
-        multi_exp_hazard = exposure_info[:multipleExposures][0][:hazardExposedTo]
+        expect(exposure_info[:multipleExposures]).to eq(nil)
       end
     end
 
