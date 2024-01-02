@@ -11,7 +11,7 @@ def openapi_spec
 end
 
 # rubocop:disable RSpec/VariableName, Layout/LineLength
-describe 'Appeals Status', swagger_doc:, type: :request do
+describe 'Appeals Status', openapi_spec:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
