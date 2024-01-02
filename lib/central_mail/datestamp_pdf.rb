@@ -22,6 +22,7 @@ module CentralMail
     # rubocop:disable Metrics/ParameterLists
     def generate_stamp(stamp_path, text, x, y, text_only, size = 10, form_submission_date = nil)
       timestamp = form_submission_date || Time.zone.now
+      puts timestamp
       unless text_only
         text += " #{I18n.l(timestamp, format: :pdf_stamp)}"
         text += ". #{@append_to_stamp}" if @append_to_stamp

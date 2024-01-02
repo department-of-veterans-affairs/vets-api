@@ -71,6 +71,7 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
+      puts file_path
       hash_converter = HashConverter.new(form_class.date_strftime)
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
