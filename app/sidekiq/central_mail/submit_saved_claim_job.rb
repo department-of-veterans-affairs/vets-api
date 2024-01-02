@@ -123,7 +123,6 @@ module CentralMail
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
-
       metadata = {
         'veteranFirstName' => remove_invalid_characters(veteran_full_name['first']),
         'veteranLastName' => remove_invalid_characters(veteran_full_name['last']),
@@ -164,7 +163,12 @@ module CentralMail
     def remove_invalid_characters(str)
       # Replace characters that do not match the pattern with an empty string
       str = I18n.transliterate(str)
-      @claim.respond_to?(:central_mail_submission) ? str.gsub(%r{^([A-Za-z/ -]+$)}, '') : str
+      pattern = %r{[^A-Za-z\/ -]}
+      if @claim.respond_to?(:central_mail_submission)
+        str.gsub(pattern, '')
+      else
+        str
+      end
     end
   end
 end
