@@ -544,8 +544,14 @@ module ClaimsApi
                      end: regex_date_conversion(sp[:activeDutyEndDate]) })
         end
         sorted = arr&.sort_by { |sp| sp[:activeDutyEndDate] }
-        sorted.pop if sorted.count > 1
-        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = sorted
+
+        if sorted.count > 1
+          sorted.pop
+          @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = sorted
+        else
+          @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = {}
+        end
+
         @pdf_data[:data][:attributes][:serviceInformation].delete(:servicePeriods)
         @pdf_data
       end

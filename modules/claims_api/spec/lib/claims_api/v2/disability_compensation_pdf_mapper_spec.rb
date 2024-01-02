@@ -367,8 +367,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         component = serv_info[:serviceComponent]
         recent_start = serv_info[:mostRecentActiveService][:start]
         recent_end = serv_info[:mostRecentActiveService][:end]
-        addtl_start = serv_info[:additionalPeriodsOfService][0][:start]
-        addtl_end = serv_info[:additionalPeriodsOfService][0][:end]
+        addtl_start = serv_info&.dig('additionalPeriodsOfService', '0', 'start')
+        addtl_end = serv_info&.dig('additionalPeriodsOfService', '0', 'end')
         last_sep = serv_info[:placeOfLastOrAnticipatedSeparation]
         pow = serv_info[:confinedAsPrisonerOfWar]
         pow_start = serv_info[:prisonerOfWarConfinement][:confinementDates][0][:start]
@@ -394,8 +394,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(component).to eq('ACTIVE')
         expect(recent_start).to eq({ month: '11', day: '14', year: '2008' })
         expect(recent_end).to eq({ month: '10', day: '30', year: '2023' })
-        expect(addtl_start).to eq({ month: '11', day: '14', year: '2008' })
-        expect(addtl_end).to eq({ month: '10', day: '30', year: '2023' })
+        expect(addtl_start).to eq(nil)
+        expect(addtl_end).to eq(nil)
         expect(last_sep).to eq('Aberdeen Proving Ground')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
