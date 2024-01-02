@@ -682,14 +682,13 @@ module ClaimsApi
       end
 
       def validate_reserves_required_values!(service_information)
-        validate_title_ten_activiation_values!(service_information)
+        validate_title_ten_activation_values!(service_information)
         reserves = service_information&.dig('reservesNationalGuardService')
 
         return if reserves.blank?
 
         # if reserves is not empty the we require tos dates
         validate_reserves_tos_dates!(reserves)
-        validate_title_ten_activiation_values!(reserves)
       end
 
       def validate_reserves_tos_dates!(reserves)
@@ -712,7 +711,7 @@ module ClaimsApi
         end
       end
 
-      def validate_title_ten_activiation_values!(service_information)
+      def validate_title_ten_activation_values!(service_information)
         title_ten_activation = service_information&.dig('federalActivation')
         title_ten_activation_date = title_ten_activation&.dig('activationDate')
         anticipated_seperation_date = title_ten_activation&.dig('anticipatedSeparationDate')
@@ -729,7 +728,7 @@ module ClaimsApi
         return if anticipated_seperation_date.blank?
 
         # we know the dates are present
-        if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
+        if activation_date_not_after_duty_begin_date?(title_ten_activation_date)
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'The federal activation date must be after the earliest service period active duty begin date.'
           )
@@ -738,7 +737,7 @@ module ClaimsApi
         validate_anticipated_seperation_date_in_past!(anticipated_seperation_date)
       end
 
-      def activation_date_not_afterduty_begin_date?(activation_date)
+      def activation_date_not_after_duty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']
         service_periods = service_information&.dig('servicePeriods')
 
