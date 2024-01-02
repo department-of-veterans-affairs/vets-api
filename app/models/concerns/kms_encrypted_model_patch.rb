@@ -3,8 +3,6 @@
 module KmsEncryptedModelPatch
   extend self
 
-  KMS_KEY_ROTATION_DATE = Date.new(Time.zone.today.year, 10, 12)
-
   # rubocop:disable Naming/PredicateName
   def has_kms_key
     # implicitly calls #has_kms_key with specified options, so that we don't need to require it
@@ -13,8 +11,12 @@ module KmsEncryptedModelPatch
   end
   # rubocop:enable Naming/PredicateName
 
+  def kms_key_rotation_date
+    Date.new(Time.zone.today.year, 10, 12)
+  end
+
   def kms_version
-    Time.zone.today < KMS_KEY_ROTATION_DATE ? Time.zone.today.year - 1 : Time.zone.today.year
+    Time.zone.today < kms_key_rotation_date ? Time.zone.today.year - 1 : Time.zone.today.year
   end
 
   private
