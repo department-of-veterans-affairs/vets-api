@@ -1,23 +1,12 @@
 GIT
-  remote: https://github.com/department-of-veterans-affairs/active_model_serializers
-  revision: 19015caa80227e5ae5d62179129edcaa43fb3d9d
-  branch: master
-  specs:
-    active_model_serializers (0.10.4.vsp)
-      actionpack (>= 4.1)
-      activemodel (>= 4.1)
-      case_transform (>= 0.2)
-      jsonapi (= 0.1.1.beta6)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
-  revision: b5b6c9803334f9ddc1c11e4f201fdc9f6353ef59
+  revision: 5f40ee08bd62bfdf8259201e5803050f2d326576
   branch: master
   specs:
-    apivore (1.6.2.vsp)
+    apivore (1.6.2.1.vsp)
       actionpack (>= 4)
-      hashie (~> 3.3)
-      json-schema (~> 2.5)
+      hashie (~> 5.0)
+      json-schema (~> 3.0)
       rspec (~> 3)
       rspec-expectations (~> 3.1)
       rspec-mocks (~> 3.1)
@@ -57,10 +46,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6b17e3975a42babafa14f4cfb9db7e376cd7fafe
+  revision: 8d6ce88b1ad3cc7e9b99d27d26083b367c3866fb
   branch: master
   specs:
-    vets_json_schema (20.33.5)
+    vets_json_schema (20.33.6)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -214,6 +203,11 @@ GEM
     Ascii85 (1.1.0)
     aasm (5.5.0)
       concurrent-ruby (~> 1.0)
+    active_model_serializers (0.10.14)
+      actionpack (>= 4.1)
+      activemodel (>= 4.1)
+      case_transform (>= 0.2)
+      jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     activerecord-import (1.5.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (7.1.1)
@@ -258,7 +252,8 @@ GEM
     blueprinter (0.30.0)
     bootsnap (1.17.0)
       msgpack (~> 1.2)
-    brakeman (6.1.0)
+    brakeman (6.1.1)
+      racc
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
@@ -302,7 +297,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (5.2.5)
+    coverband (6.0.1)
       redis (>= 3.0)
     crack (0.4.5)
       rexml
@@ -395,10 +390,10 @@ GEM
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
-    factory_bot (6.2.0)
+    factory_bot (6.4.5)
       activesupport (>= 5.0.0)
-    factory_bot_rails (6.2.0)
-      factory_bot (~> 6.2.0)
+    factory_bot_rails (6.4.3)
+      factory_bot (~> 6.4)
       railties (>= 5.0.0)
     faker (3.2.1)
       i18n (>= 1.8.11, < 2)
@@ -549,7 +544,7 @@ GEM
     hana (1.3.7)
     hashdiff (1.0.1)
     hashery (2.1.2)
-    hashie (3.6.0)
+    hashie (5.0.0)
     holidays (8.6.0)
     http-accept (1.7.0)
     http-cookie (1.0.5)
@@ -568,15 +563,12 @@ GEM
     jmespath (1.6.2)
     json (2.6.3)
     json (2.6.3-java)
-    json-schema (2.8.1)
-      addressable (>= 2.4)
+    json-schema (3.0.0)
+      addressable (>= 2.8)
     json_schemer (1.0.3)
       hana (~> 1.3)
       regexp_parser (~> 2.0)
       simpleidn (~> 0.2)
-    jsonapi (0.1.1.beta6)
-      jsonapi-parser (= 0.1.1.beta3)
-      jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
     jsonapi-serializer (2.2.0)
@@ -603,7 +595,7 @@ GEM
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     lockbox (1.3.0)
-    loofah (2.21.4)
+    loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.2.9)
@@ -649,7 +641,7 @@ GEM
     nio4r (2.5.9)
     nio4r (2.5.9-java)
     no_proxy_fix (0.1.2)
-    nokogiri (1.15.4)
+    nokogiri (1.15.5)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nori (2.6.0)
@@ -689,8 +681,9 @@ GEM
     patience_diff (1.2.0)
       optimist (~> 3.0)
     pdf-core (0.9.0)
-    pdf-forms (1.3.0)
+    pdf-forms (1.5.0)
       cliver (~> 0.3.2)
+      rexml (~> 3.2, >= 3.2.6)
       safe_shell (>= 1.0.3, < 2.0)
     pdf-inspector (1.3.0)
       pdf-reader (>= 1.0, < 3.0.a)
@@ -1052,7 +1045,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
-  active_model_serializers!
+  active_model_serializers
   activerecord-import
   activerecord-postgis-adapter
   addressable
