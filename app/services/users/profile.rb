@@ -103,7 +103,7 @@ module Users
     end
 
     def form_526_required_identifiers
-      if Flipper.enabled?(:form_526_required_identifiers_in_user_object)
+      if Flipper.enabled?(:form_526_required_identifiers_in_user_object, user)
         return { form526_required_identifier_presence: Users::Form526UserIdentifiersStatusService.call(user) }
       end
 
