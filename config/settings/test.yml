@@ -402,12 +402,3 @@ ask_va:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
-
-vye:
-  ivr_key: 'e2d97780-cdb1-2238-7cf9-6b5cc920df8a'
-  scrypt:
-    salt: '09527a4a-fbc3-8ca8-4ce0-59f36ed90a61'
-    N: 16384
-    r: 8
-    p: 1
-    length: 16
