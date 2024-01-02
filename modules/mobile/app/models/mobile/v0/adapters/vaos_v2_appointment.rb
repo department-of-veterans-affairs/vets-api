@@ -191,8 +191,8 @@ module Mobile
           appointment[:id]
         end
 
-        def cancellable
-          @cancellable ||= appointment[:cancellable] && appointment[:kind] != 'telehealth'
+        def cancellable?
+          appointment[:cancellable] && appointment[:kind] != 'telehealth'
         end
 
         def type_of_care(service_type)
