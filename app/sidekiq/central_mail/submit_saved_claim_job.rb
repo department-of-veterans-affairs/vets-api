@@ -164,7 +164,7 @@ module CentralMail
     def remove_invalid_characters(str)
       # Replace characters that do not match the pattern with an empty string
       str = I18n.transliterate(str)
-      @claim.respond_to?(:central_mail_submission) ? str.gsub(%r{[^A-Za-z'/ -]}, '') : str
+      @claim.respond_to?(:central_mail_submission) ? str.gsub(%r{^([A-Za-z/ -]+$)}, '') : str
     end
   end
 end
