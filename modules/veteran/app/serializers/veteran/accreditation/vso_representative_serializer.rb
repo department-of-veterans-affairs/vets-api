@@ -24,9 +24,7 @@ module Veteran
       attribute :distance
       attribute :organization_names
 
-      def organization_names
-        object.try(:organization_names)
-      end
+      delegate :organization_names, to: :object
     end
   end
 end
