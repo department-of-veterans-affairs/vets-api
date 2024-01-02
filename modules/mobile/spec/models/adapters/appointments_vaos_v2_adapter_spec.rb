@@ -549,7 +549,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                      'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                      'status' => 'SUBMITTED',
-                                     'status_detail' => nil
+                                     'status_detail' => nil,
                                      'time_zone' => 'America/Denver',
                                      'vetext_id' => '442;3210908.06',
                                      'reason' => nil,
