@@ -15,7 +15,7 @@ module Veteran
         query = base_query
                 .joins('JOIN LATERAL UNNEST(veteran_representatives.poa_codes) AS UnnestedPoaCode ON true')
                 .joins('JOIN veteran_organizations ON UnnestedPoaCode = veteran_organizations.poa')
-                .select("veteran_representatives.*, array_agg(veteran_organizations.name) AS organization_names, #{distance_query_string}") # rubocop:disable Layout/LineLength
+                .select("veteran_representatives.*, array_agg(veteran_organizations.name ORDER BY veteran_organizations.name) AS organization_names, #{distance_query_string}") # rubocop:disable Layout/LineLength
                 .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
                 .group(Veteran::Service::Representative.column_names.map { |col| "veteran_representatives.#{col}" })
 

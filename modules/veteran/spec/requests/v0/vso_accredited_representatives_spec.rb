@@ -147,9 +147,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
 
     it 'returns a list of the organization names that each representative belongs to' do
       expected_organization_names = [
-        ['Washington Department of Veterans Affairs', 'Alabama Department of Veterans Affairs'],
-        ['Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs',
-         'Missouri Veterans Commission'],
+        ['Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs'],
+        ['Alabama Department of Veterans Affairs', 'Missouri Veterans Commission', 'Washington Department of Veterans Affairs'], # rubocop:disable Layout/LineLength
         ['Washington Department of Veterans Affairs'],
         ['Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs']
       ]
