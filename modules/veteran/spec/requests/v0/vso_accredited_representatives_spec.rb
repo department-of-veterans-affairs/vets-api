@@ -2,33 +2,32 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
+RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
   context 'when searching for a veteran service officer' do
     before do
       Flipper.enable(:find_a_rep)
-
       # Create representatives
       create(:representative, representative_id: '111', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
                               first_name: 'Bob', last_name: 'Law') # ~6 miles from Washington, D.C.
 
-      create(:representative, representative_id: '999', poa_codes: ['A13'], user_types: ['claim_agents'],
+      create(:representative, representative_id: '112', poa_codes: ['A13'], user_types: ['claim_agents'],
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
                               first_name: 'Bobby', last_name: 'Low') # ~6 miles from Washington, D.C.
 
-      create(:representative, representative_id: '234', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'], # rubocop:disable Layout/LineLength
+      create(:representative, representative_id: '113', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'], # rubocop:disable Layout/LineLength
                               long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
                               first_name: 'Bobbie', last_name: 'Lew') # ~25 miles from Washington, D.C.
 
-      create(:representative, representative_id: '345', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
+      create(:representative, representative_id: '114', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
                               long: -76.609383, lat: 39.299236, location: 'POINT(-76.609383 39.299236)',
                               first_name: 'Robert', last_name: 'Lanyard') # ~35 miles from Washington, D.C.
 
-      create(:representative, representative_id: '456', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
+      create(:representative, representative_id: '115', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
                               long: -77.466316, lat: 38.309875, location: 'POINT(-77.466316 38.309875)',
                               first_name: 'Gerard', last_name: 'Ortiz') # ~47 miles from Washington, D.C.
 
-      create(:representative, representative_id: '567', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
+      create(:representative, representative_id: '116', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
                               long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
                               first_name: 'Adriane', last_name: 'Crona') # ~57 miles from Washington, D.C.
 
@@ -51,7 +50,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369 }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['data'].pluck('id')).not_to include('567')
+
+      expect(parsed_response['data'].pluck('id')).not_to include('116')
     end
 
     it 'sorts by distance_asc by default' do
@@ -60,7 +60,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
 
       parsed_response = JSON.parse(response.body)
 
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 234 345 456])
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113 114 115])
     end
 
     it 'can sort by first_name_asc' do
@@ -69,7 +69,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
 
       parsed_response = JSON.parse(response.body)
 
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 234 456 345])
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113 115 114])
     end
 
     it 'can sort by first_name_desc' do
@@ -78,7 +78,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
 
       parsed_response = JSON.parse(response.body)
 
-      expect(parsed_response['data'].pluck('id')).to eq(%w[345 456 234 111])
+      expect(parsed_response['data'].pluck('id')).to eq(%w[114 115 113 111])
     end
 
     it 'can sort by last_name_asc' do
@@ -87,7 +87,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
 
       parsed_response = JSON.parse(response.body)
 
-      expect(parsed_response['data'].pluck('id')).to eq(%w[345 111 234 456])
+      expect(parsed_response['data'].pluck('id')).to eq(%w[114 111 113 115])
     end
 
     it 'can sort by last_name_desc' do
@@ -96,7 +96,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
 
       parsed_response = JSON.parse(response.body)
 
-      expect(parsed_response['data'].pluck('id')).to eq(%w[456 234 111 345])
+      expect(parsed_response['data'].pluck('id')).to eq(%w[115 113 111 114])
     end
 
     it 'returns an empty array when performing a fuzzy search on a non-existent name' do
@@ -104,6 +104,7 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'No Name' }
 
       parsed_response = JSON.parse(response.body)
+
       expect(parsed_response['data'].pluck('id')).to eq([])
     end
 
@@ -112,7 +113,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 234])
+
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113])
     end
 
     it 'returns accurate results for fuzzy searches on organization names linked to representatives' do
@@ -120,7 +122,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Alabama dept' }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 234 345])
+
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113 114])
     end
 
     it 'serializes with the correct model and distance' do
@@ -138,7 +141,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, page: 1, per_page: 2 }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 234])
+
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113])
       expect(parsed_response['meta']['pagination']['current_page']).to eq(1)
       expect(parsed_response['meta']['pagination']['per_page']).to eq(2)
       expect(parsed_response['meta']['pagination']['total_pages']).to eq(2)
@@ -156,7 +160,8 @@ RSpec.describe 'Find a Rep - VSO Representatives spec', type: :request do
           params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
 
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 234 456 345])
+
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113 115 114])
 
       parsed_response['data'].each_with_index do |data, index|
         expect(data['attributes']['organization_names']).to eq(expected_organization_names[index])

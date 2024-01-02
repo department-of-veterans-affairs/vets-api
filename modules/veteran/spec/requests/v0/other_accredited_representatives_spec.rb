@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Find a Rep - Other Representatives spec', type: :request do
+RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
   context 'when find a rep is disabled' do
     before do
       Flipper.disable(:find_a_rep)
