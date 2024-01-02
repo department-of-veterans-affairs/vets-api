@@ -336,10 +336,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission:
-    actor_type: user
-    description: Manage whether dependent claims will submit to central processing
-    enable_in_development: true
   dependents_encrypt_jobs:
     actor_type: user
     description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.

@@ -47,6 +47,21 @@ module CustomPaginationLinks
   end
 end
 
+# In v0.10.14 as_json removes id if id is blank
+# This monkey patch is to override as_json and let nil be ""
+# https://github.com/rails-api/active_model_serializers/blob/v0.10.14/lib/active_model_serializers/adapter/json_api/resource_identifier.rb#L43
+module ActiveModelSerializers
+  module Adapter
+    class JsonApi
+      class ResourceIdentifier
+        def as_json
+          { id: id.to_s, type: }
+        end
+      end
+    end
+  end
+end
+
 # Prepend the custom module so that it overrides those in the gem.
 ActiveModelSerializers::Adapter::JsonApi::PaginationLinks.prepend CustomPaginationLinks
 ActiveModelSerializers.config.adapter = :json_api
