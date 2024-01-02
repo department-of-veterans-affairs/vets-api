@@ -47,7 +47,7 @@ module ClaimsApi
         get_service_pay
         direct_deposit_information
         deep_compact(@pdf_data[:data][:attributes])
-        byebug
+
         @pdf_data
       end
 
