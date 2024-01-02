@@ -595,6 +595,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  letters_check_discrepancies:
+    actor_type: user
+    description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
