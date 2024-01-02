@@ -115,9 +115,8 @@ module VBADocuments
 
     def validate_zip_code(zip_code)
       unless VALID_ZIP_CODE_REGEX.match?(zip_code)
-        # rubocop:disable Layout/LineLength
-        detail = 'Zip code must be a string of either five digits ("XXXXX") or five digits followed by a hyphen and four more digits ("XXXXX-XXXX"). Use "00000" for Veterans with non-US addresses.'
-        # rubocop:enable Layout/LineLength
+        detail = 'Zip code must be a string of either five digits ("XXXXX") or five digits followed by a hyphen ' \
+                 'and four more digits ("XXXXX-XXXX"). Use "00000" for Veterans with non-US addresses.'
         raise VBADocuments::UploadError.new(code: 'DOC102', detail:)
       end
     end
