@@ -1286,7 +1286,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0526ba54-efbd-41ff-82cb-e85abd3b417a",
+                    "id": "84b319bd-a125-447b-9ab9-9456f826ddcb",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -5672,7 +5672,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "08396a0c-e15b-44ee-adec-9fd1b2221603",
+                    "id": "255b458f-1413-477b-9026-24bac87570e0",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
