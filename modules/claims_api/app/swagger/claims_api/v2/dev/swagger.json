@@ -36,7 +36,7 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
@@ -50,7 +50,7 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
@@ -1287,7 +1287,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8aece12b-a8be-467f-84eb-7d0c87c8e95d",
+                    "id": "1edbe141-c2e9-4ddf-ba31-bf5dfa9986b3",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1333,7 +1333,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-12-16",
+                          "anticipatedSeparationDate": "2023-12-21",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -5655,7 +5655,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a7afcdae-206e-49ba-a22b-8e866688de45",
+                    "id": "27762f38-bff6-4196-b7a1-63c491127158",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7714,8 +7714,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-14",
-                      "expirationDate": "2024-12-14",
+                      "creationDate": "2023-12-19",
+                      "expirationDate": "2024-12-19",
                       "type": "compensation",
                       "status": "active"
                     }

@@ -58,18 +58,18 @@ RSpec.describe DynamicsMockService do
         }
       end
 
-      context 'with inquiry_number payload' do
-        let(:payload) { { inquiry_number: 'A-1' } }
+      context 'with id payload' do
+        let(:payload) { { id: '1' } }
 
-        it 'filters data based on inquiry number' do
-          expect(service.call(endpoint:, payload:)).to eq(expected_result)
+        it 'filters data based on id' do
+          expect(service.call(endpoint:, payload:)).to eq([expected_result])
         end
 
-        context 'with non-existent inquiry_number' do
-          let(:payload) { { inquiry_number: 99 } }
+        context 'with non-existent id' do
+          let(:payload) { { id: '99' } }
 
           it 'returns an empty hash' do
-            expect(service.call(endpoint:, payload:)).to eq({})
+            expect(service.call(endpoint:, payload:)).to eq([])
           end
         end
       end
