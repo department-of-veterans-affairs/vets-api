@@ -1,0 +1,26 @@
+meta {
+  name: List Contestable Issues
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/higher_level_reviews/contestable_issues/{{benefit_type}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-VA-Receipt-Date: {{receipt_date}}
+  X-VA-SSN: {{veteran_ssn}}
+  apikey: {{api_key}}
+  ~X-VA-File-Number: {{veteran_file_number}}
+}
+
+vars:pre-request {
+  benefit_type: compensation
+}
+
+assert {
+  res.status: eq 200
+}
