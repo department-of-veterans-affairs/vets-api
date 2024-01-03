@@ -9,7 +9,7 @@ require 'bgs_service/local_bgs'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
-         swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
+         openapi_spec: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
   path '/veterans/{veteranId}/power-of-attorney' do
