@@ -1,0 +1,29 @@
+meta {
+  name: Schemas
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_uri}}/services/appeals/appealable-issues/v0/schemas/{{schema_name}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  schema_name: params
+  oauth_scope: system/AppealableIssues.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}
