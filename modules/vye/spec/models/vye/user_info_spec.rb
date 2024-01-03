@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Vye::UserInfo, type: :model do
+  before do
+    stub_const 'Vye::GenDigest::Common::GEN_DIGEST_CONFIG', Vye::GenDigest::Common.get_gen_digest_config
+  end
+
   describe 'create' do
     it 'creates a new record' do
       expect do
@@ -17,7 +21,8 @@ RSpec.describe Vye::UserInfo, type: :model do
     let!(:user_info) { FactoryBot.create(:vye_user_info, icn: user.icn) }
 
     it 'finds the user info by icn' do
-      expect(Vye::UserInfo.find_and_update_icn(user:)).to eq(user_info)
+      u = Vye::UserInfo.find_and_update_icn(user:)
+      expect(u).to eq(user_info)
     end
   end
 

@@ -8,11 +8,13 @@ module Vye
     extend ActiveSupport::Concern
 
     module Common
-      GEN_DIGEST_CONFIG =
-        [Settings.vye.scrypt, %i[salt N r p length]]
-        .then { |s, l| l.collect { |m| [m, s.send(m)] } }
-        .then { |pairs| Hash[*pairs.flatten] }
-        .freeze
+      def self.get_gen_digest_config
+        Settings.vye.scrypt.to_h
+                .slice(*%i[salt N r p length])
+                .freeze
+      end
+
+      GEN_DIGEST_CONFIG = Flipper.enabled?(:vye_load_scrypt_config) ? get_gen_digest_config : nil
 
       def gen_digest(value)
         value&.then { |v| Base64.encode64(OpenSSL::KDF.scrypt(v, **GEN_DIGEST_CONFIG)).strip }

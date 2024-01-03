@@ -1280,3 +1280,6 @@ features:
   virtual_agent_enable_nlu_pva_testing:
     actor_type: user
     description: If enabled, allows for connecting to NLU PVA
+  vye_load_scrypt_config:
+    actor_type: user
+    description: Master toggle for the VYE application
