@@ -4,10 +4,14 @@ require 'rails_helper'
 
 RSpec.describe AskVAApi::Inquiries::Creator do
   let(:icn) { '123456' }
-  let(:service) { instance_double(Dynamics::Service) }
+  let(:service) { instance_double(Crm::Service) }
   let(:creator) { described_class.new(icn:, service:) }
   let(:params) { { first_name: 'Fake', last_name: 'Smith' } }
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+
+  before do
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+  end
 
   describe '#initialize' do
     context 'when service is provided' do
@@ -20,7 +24,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       let(:creator) { described_class.new(icn:) }
 
       it 'sets a default service' do
-        expect(creator.service).to be_a(Dynamics::Service)
+        expect(creator.service).to be_a(Crm::Service)
       end
     end
   end

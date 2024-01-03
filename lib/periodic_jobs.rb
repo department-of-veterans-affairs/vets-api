@@ -37,6 +37,9 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
 
+  mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
+
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
 
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')

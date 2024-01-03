@@ -1,0 +1,35 @@
+meta {
+  name: List Appealable Issues
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_uri}}/services/appeals/appealable-issues/v0/appealable-issues/{{decision_review_type}}?benefitType=compensation&receiptDate=2020-02-02&icn={{veteran_icn}}
+  body: none
+  auth: bearer
+}
+
+query {
+  benefitType: compensation
+  receiptDate: 2020-02-02
+  icn: {{veteran_icn}}
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/AppealableIssues.read
+  decision_review_type: higher-level-reviews
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_07_022820) do
+ActiveRecord::Schema.define(version: 2023_12_15_141617) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -637,13 +637,13 @@ ActiveRecord::Schema.define(version: 2023_12_07_022820) do
     t.string "form_type", null: false
     t.uuid "benefits_intake_uuid"
     t.uuid "submitted_claim_uuid"
-    t.jsonb "form_data", default: {}
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
     t.bigint "in_progress_form_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "form_data_ciphertext"
     t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
     t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
@@ -1229,6 +1229,120 @@ ActiveRecord::Schema.define(version: 2023_12_07_022820) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
+  end
+
+  create_table "vye_address_changes", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "rpo"
+    t.string "benefit_type"
+    t.text "veteran_name_ciphertext"
+    t.text "address1_ciphertext"
+    t.text "address2_ciphertext"
+    t.text "address3_ciphertext"
+    t.text "address4_ciphertext"
+    t.text "city_ciphertext"
+    t.text "state_ciphertext"
+    t.text "zip_code_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
+  end
+
+  create_table "vye_awards", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "cur_award_ind"
+    t.datetime "award_begin_date"
+    t.datetime "award_end_date"
+    t.integer "training_time"
+    t.datetime "payment_date"
+    t.decimal "monthly_rate"
+    t.string "begin_rsn"
+    t.string "end_rsn"
+    t.string "type_training"
+    t.integer "number_hours"
+    t.string "type_hours"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
+  end
+
+  create_table "vye_direct_deposit_changes", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "rpo"
+    t.string "ben_type"
+    t.text "full_name_ciphertext"
+    t.text "phone_ciphertext"
+    t.text "phone2_ciphertext"
+    t.text "email_ciphertext"
+    t.text "acct_no_ciphertext"
+    t.text "acct_type_ciphertext"
+    t.text "routing_no_ciphertext"
+    t.text "chk_digit_ciphertext"
+    t.text "bank_name_ciphertext"
+    t.text "bank_phone_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
+  end
+
+  create_table "vye_pending_documents", force: :cascade do |t|
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
+    t.string "claim_no_ciphertext"
+    t.string "doc_type"
+    t.datetime "queue_date"
+    t.string "rpo"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
+  end
+
+  create_table "vye_user_infos", force: :cascade do |t|
+    t.string "icn"
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
+    t.text "file_number_ciphertext"
+    t.string "suffix"
+    t.text "full_name_ciphertext"
+    t.text "address_line2_ciphertext"
+    t.text "address_line3_ciphertext"
+    t.text "address_line4_ciphertext"
+    t.text "address_line5_ciphertext"
+    t.text "address_line6_ciphertext"
+    t.text "zip_ciphertext"
+    t.text "dob_ciphertext"
+    t.text "stub_nm_ciphertext"
+    t.string "mr_status"
+    t.string "rem_ent"
+    t.datetime "cert_issue_date"
+    t.datetime "del_date"
+    t.datetime "date_last_certified"
+    t.integer "rpo_code"
+    t.string "fac_code"
+    t.decimal "payment_amt"
+    t.string "indicator"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["icn"], name: "index_vye_user_infos_on_icn"
+    t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
+  end
+
+  create_table "vye_verifications", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.integer "award_id"
+    t.string "change_flag"
+    t.integer "rpo_code"
+    t.boolean "rpo_flag"
+    t.datetime "act_begin"
+    t.datetime "act_end"
+    t.string "source_ind"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|

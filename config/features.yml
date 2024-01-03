@@ -336,10 +336,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission:
-    actor_type: user
-    description: Manage whether dependent claims will submit to central processing
-    enable_in_development: true
   dependents_encrypt_jobs:
     actor_type: user
     description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.
@@ -458,11 +454,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_rep:
+  find_a_representative:
+    actor_type: user
+    description: Enables frontend of Find a Representative
+    enable_in_development: true
+  find_a_representative_enable_api:
     actor_type: user
     description: Enables the Find a Rep search endpoint
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enable_frontend:
     actor_type: user
     description: Enables frontend of Find a Representative
     enable_in_development: true
@@ -528,6 +528,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  form2010206:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 20-10206
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
@@ -598,6 +601,10 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
+    enable_in_development: true
+  letters_check_discrepancies:
+    actor_type: user
+    description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
   loop_pages:
     actor_type: user
@@ -697,18 +704,14 @@ features:
   military_information_vaprofile:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
-    enable_in_development: false
+    enable_in_development: true
   military_information_vaprofile_vic:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile for the VIC form
-    enable_in_development: false
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
-  mobile_precache_appointments:
-    actor_type: user
-    description: enables us to easily turn off pre-caching appointments if our requests are overwhelming the upstream service
-    enable_in_development: true
   mobile_filter_doc_27_decision_letters_out:
     actor_type: user
     description: filters out doc type 27 decision letters out of list of decision letters for mobile
@@ -738,7 +741,7 @@ features:
     actor_type: user
     description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
-    description: "When enabled, will allow display of PDF cert warnings in find-a-form"
+    description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
   pre_entry_covid19_screener:
@@ -747,9 +750,6 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
-  show_authenticated_menu_enhancements:
-    actor_type: user
-    description: Exposes new links for dependents and letters in the header dropdown for authenticated users
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
@@ -1223,16 +1223,15 @@ features:
   disability_compensation_lighthouse_ppiu_direct_deposit_provider:
     actor_type: user
     description: If enabled uses the lighthouse ppiu/direct deposit endpoint in the form526 submission workflow
+  disability_compensation_prevent_submission_job:
+    actor_type: user
+    description: If enabled, the submission form526 record will be created, but there will be submission job
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
   drupal_footer:
     actor_type: user
     description: If enabled, pulls Drupal data to populate most of the global footer
-  my_va_lighthouse_claims:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to view benefit claims
-    enable_in_development: true
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
@@ -1272,10 +1271,19 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  pension_claim_submission_to_lighthouse:
+    actor_type: user
+    description: Pension claim submission uses Lighthouse API
   veteran_status_updated:
     actor_type: user
     description: Enable the veteran post-emis status
-    enable_in_development: false
+    enable_in_development: true
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
+  virtual_agent_enable_msft_pva_testing:
+    actor_type: user
+    description: If enabled, allows for connecting to MSFT PVA
+  virtual_agent_enable_nlu_pva_testing:
+    actor_type: user
+    description: If enabled, allows for connecting to NLU PVA

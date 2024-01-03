@@ -2,43 +2,68 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::Categories::Retriever do
-  subject(:retriever) { described_class.new }
-
-  let(:service) { instance_double(Dynamics::Service) }
-  let(:entity) { instance_double(AskVAApi::Categories::Entity) }
-  let(:error_message) { 'Some error occurred' }
-
-  before do
-    allow(Dynamics::Service).to receive(:new).and_return(service)
-    allow(AskVAApi::Categories::Entity).to receive(:new).and_return(entity)
-    allow(service).to receive(:call)
-  end
-
-  describe '#call' do
-    context 'when Dynamics raise an error' do
-      let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-      let(:endpoint) { AskVAApi::Categories::ENDPOINT }
-      let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
-
-      before do
-        allow(service).to receive(:call)
-          .with(endpoint:)
-          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
+module AskVAApi
+  module Categories
+    RSpec.describe Retriever do
+      let(:mock_data) do
+        '{ "Topics": [{"id": 1, "name": "Category 1", "parentId": null},' \
+          '{"id": 2, "name": "Category 2", "parentId": 1}]}'
       end
+      let(:parsed_data) { [{ id: 1, name: 'Category 1', parentId: nil }] }
+      let(:static_data_service) { instance_double(Crm::StaticData) }
 
-      it 'raises an Error' do
-        expect do
-          retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
+      describe '#call' do
+        context 'when using mock data' do
+          subject(:retriever) { described_class.new(user_mock_data: true) }
+          it 'reads from a file and returns an array of Entity instances' do
+            expect(retriever.call).to all(be_a(Entity))
+          end
+        end
+
+        context 'when not using mock data' do
+          subject(:retriever) { described_class.new(user_mock_data: false) }
+
+          before do
+            allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+            allow(static_data_service).to receive(:call).and_return(mock_data)
+          end
+
+          it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
+            expect(retriever.call).to all(be_a(Entity))
+          end
+        end
+
+        context 'when an error occurs during data retrieval' do
+          subject(:retriever) { described_class.new }
+
+          before do
+            allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+            allow(static_data_service).to receive(:call).and_raise(StandardError)
+            allow(ErrorHandler).to receive(:handle_service_error)
+          end
+
+          it 'rescues the error and calls the ErrorHandler' do
+            expect { retriever.call }.not_to raise_error
+            expect(ErrorHandler).to have_received(:handle_service_error).with(instance_of(StandardError))
+          end
+        end
+
+        context 'when JSON parsing fails' do
+          subject(:retriever) { described_class.new }
+
+          before do
+            allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+            allow(static_data_service).to receive(:call).and_return('invalid json')
+            allow(ErrorHandler).to receive(:handle_service_error).and_raise(ErrorHandler::ServiceError,
+                                                                            "unexpected token at 'invalid json'")
+          end
+
+          it 'rescues the JSON::ParserError and calls the ErrorHandler' do
+            expect { retriever.call }.to raise_error(ErrorHandler::ServiceError,
+                                                     "unexpected token at 'invalid json'")
+          end
+        end
       end
-    end
-
-    it 'returns an Entity object with correct data' do
-      allow(service).to receive(:call)
-        .with(endpoint: 'get_categories_mock_data')
-        .and_return([double])
-      expect(retriever.call).to eq([entity])
     end
   end
 end

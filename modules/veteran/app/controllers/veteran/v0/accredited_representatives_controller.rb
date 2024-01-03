@@ -15,10 +15,9 @@ module Veteran
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
 
-      PERMITTED_TYPES = %w[attorney claim_agents organization].freeze
+      PERMITTED_TYPES = 'attorney'
 
-      PERMITTED_ORGANIZATION_SORTS = %w[distance_asc distance_desc name_asc name_desc].freeze
-      PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc distance_desc first_name_asc first_name_desc last_name_asc
+      PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
       def index
         collection = Common::Collection.new(model_klass, data: accreditation_query)
@@ -32,24 +31,12 @@ module Veteran
 
       private
 
-      def organization_search?
-        @organization_search ||= search_params[:type] == 'organization'
-      end
-
       def model_klass
-        @model_klass ||= if organization_search?
-                           'Veteran::Service::Organization'.constantize
-                         else
-                           'Veteran::Service::Representative'.constantize
-                         end
+        @model_klass ||= 'Veteran::Service::Representative'.constantize
       end
 
       def serializer_klass
-        if organization_search?
-          'Veteran::Accreditation::OrganizationSerializer'.constantize
-        else
-          'Veteran::Accreditation::RepresentativeSerializer'.constantize
-        end
+        'Veteran::Accreditation::RepresentativeSerializer'.constantize
       end
 
       def base_query
@@ -58,13 +45,9 @@ module Veteran
       end
 
       def model_adjusted_query
-        if organization_search?
-          base_query.select("veteran_organizations.*, #{distance_query_string}")
-        else
-          base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-            '? = ANY(user_types) ', search_params[:type]
-          )
-        end
+        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
+          '? = ANY(user_types) ', search_params[:type]
+        )
       end
 
       def accreditation_query
@@ -105,9 +88,6 @@ module Veteran
         when 'distance_asc'
           [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) ASC'),
            search_params[:long], search_params[:lat]]
-        when 'distance_desc'
-          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) DESC'),
-           search_params[:long], search_params[:lat]]
         when 'name_asc' then 'name ASC'
         when 'name_desc' then 'name DESC'
         when 'first_name_asc' then 'first_name ASC'
@@ -118,7 +98,7 @@ module Veteran
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:find_a_rep)
+        routing_error unless Flipper.enabled?(:find_a_representative_enable_api)
       end
 
       def verify_type
@@ -129,15 +109,8 @@ module Veteran
 
       def verify_sort
         return unless search_params[:sort]
-
-        if organization_search?
-          unless PERMITTED_ORGANIZATION_SORTS.include?(search_params[:sort])
-            raise Common::Exceptions::InvalidFieldValue.new('sort', search_params[:sort])
-          end
-        else
-          unless PERMITTED_REPRESENTATIVE_SORTS.include?(search_params[:sort])
-            raise Common::Exceptions::InvalidFieldValue.new('sort', search_params[:sort])
-          end
+        unless PERMITTED_REPRESENTATIVE_SORTS.include?(search_params[:sort])
+          raise Common::Exceptions::InvalidFieldValue.new('sort', search_params[:sort])
         end
       end
 

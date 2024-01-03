@@ -41,7 +41,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
         subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
-          expect(StatsD).to receive(:increment).with(subject::STATSD_KEY_PREFIX)
+          expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
           expect(Rails).to receive(:logger).and_call_original
         end
         form526_job_status.reload
@@ -90,6 +90,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 expect(job_status.job_id).to eq(jid)
                 expect(job_status.status).to eq('success')
                 submission = Form526Submission.last
+                expect(submission.form['form4142']).not_to be(nil)
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
               end
             end

@@ -7,7 +7,7 @@ module EVSS
     class UploadBddInstructions < Job
       extend Logging::ThirdPartyTransaction::MethodWrapper
 
-      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions.exhausted'
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -35,7 +35,7 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
-        StatsD.increment(STATSD_KEY_PREFIX)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         ::Rails.logger.warn(
           'Submit Form 526 Upload BDD Instructions Retries exhausted',
