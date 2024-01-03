@@ -5,7 +5,7 @@ module AskVAApi
     class Retriever
       attr_reader :user_mock_data
 
-      def initialize(user_mock_data: false)
+      def initialize(user_mock_data:)
         @user_mock_data = user_mock_data
       end
 
@@ -23,12 +23,12 @@ module AskVAApi
 
       def fetch_data
         data = if user_mock_data
-                 File.read('modules/ask_va_api/config/locales/static_data.json')
+                 static = File.read('modules/ask_va_api/config/locales/static_data.json')
+                 JSON.parse(static, symbolize_names: true)
                else
                  Crm::StaticData.new.call
                end
-
-        JSON.parse(data, symbolize_names: true)[:Topics].select { |t| t[:parentId].nil? }
+        data[:Topics].select { |t| t[:parentId].nil? }
       end
     end
   end
