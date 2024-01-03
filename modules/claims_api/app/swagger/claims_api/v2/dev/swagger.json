@@ -1286,7 +1286,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1edbe141-c2e9-4ddf-ba31-bf5dfa9986b3",
+                    "id": "dcbb9b3a-7c92-48ce-829c-186b5b1aae9f",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1332,7 +1332,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-12-21",
+                          "anticipatedSeparationDate": "2024-01-05",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -5654,7 +5654,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "27762f38-bff6-4196-b7a1-63c491127158",
+                    "id": "b345476a-9e19-4b3a-829b-3972a657e8da",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5805,7 +5805,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": ""
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
                       }
                     }
                   ]
@@ -7713,8 +7713,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-19",
-                      "expirationDate": "2024-12-19",
+                      "creationDate": "2024-01-03",
+                      "expirationDate": "2025-01-03",
                       "type": "compensation",
                       "status": "active"
                     }
