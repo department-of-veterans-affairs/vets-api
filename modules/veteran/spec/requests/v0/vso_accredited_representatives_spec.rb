@@ -1,9 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'accredited_representatives_shared_spec'
 
 RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
+  include_examples 'base_accredited_representatives_controller_shared_examples',
+                   '/services/veteran/v0/vso_accredited_representatives', 'veteran_service_officer'
+
   context 'when searching for a veteran service officer' do
+    let(:path) { '/services/veteran/v0/vso_accredited_representatives' }
+    let(:type) { 'veteran_service_officer' }
+
     before do
       Flipper.enable(:find_a_rep)
       # Create representatives
@@ -46,8 +53,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'does not include veteran service officer outside of max distance' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369 }
+      get path, params: { type:, lat: 38.9072, long: -77.0369 }
 
       parsed_response = JSON.parse(response.body)
 
@@ -55,8 +61,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'sorts by distance_asc by default' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369 }
+      get path, params: { type:, lat: 38.9072, long: -77.0369 }
 
       parsed_response = JSON.parse(response.body)
 
@@ -64,8 +69,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'can sort by first_name_asc' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -73,8 +77,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'can sort by first_name_desc' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_desc' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, sort: 'first_name_desc' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -82,8 +85,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'can sort by last_name_asc' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'last_name_asc' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, sort: 'last_name_asc' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -91,8 +93,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'can sort by last_name_desc' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'last_name_desc' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, sort: 'last_name_desc' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -100,8 +101,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'returns an empty array when performing a fuzzy search on a non-existent name' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'No Name' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, name: 'No Name' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -109,8 +109,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it "returns accurate results for fuzzy searches on a representative's name" do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, name: 'Bob Law' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -118,8 +117,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'returns accurate results for fuzzy searches on organization names linked to representatives' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Alabama dept' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, name: 'Alabama dept' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -127,8 +125,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'serializes with the correct model and distance' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, name: 'Bob Law' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, name: 'Bob Law' }
 
       parsed_response = JSON.parse(response.body)
 
@@ -137,8 +134,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     end
 
     it 'paginates' do
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, page: 1, per_page: 2 }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, page: 1, per_page: 2 }
 
       parsed_response = JSON.parse(response.body)
 
@@ -156,8 +152,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
         ['Washington Department of Veterans Affairs'],
         ['Alabama Department of Veterans Affairs', 'Washington Department of Veterans Affairs']
       ]
-      get '/services/veteran/v0/vso_accredited_representatives',
-          params: { type: 'veteran_service_officer', lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
+      get path, params: { type:, lat: 38.9072, long: -77.0369, sort: 'first_name_asc' }
 
       parsed_response = JSON.parse(response.body)
 
