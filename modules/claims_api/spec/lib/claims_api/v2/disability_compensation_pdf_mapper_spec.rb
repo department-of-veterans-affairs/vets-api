@@ -355,6 +355,17 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(no_date).to eq(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
+
+      it 'maps correctly when treatment center information is not provided' do
+        form_attributes['treatments'][0]['center'] = nil
+
+        mapper.map_claim
+        details = 'Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat ' \
+                  '- Mental Disorders, Cancer - Musculoskeletal - Elbow'
+        treatment_info = pdf_data[:data][:attributes][:claimInformation][:treatments]
+        treatment_details = treatment_info[0][:treatmentDetails]
+        expect(treatment_details).to eq(details)
+      end
     end
 
     context '526 section 6, service info' do

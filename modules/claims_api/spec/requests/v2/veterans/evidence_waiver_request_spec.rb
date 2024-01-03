@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 
 RSpec.describe 'Evidence Waiver 5103', type: :request,
-                                       swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
+                                       openapi_spec: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:veteran_id) { '1012667145V762142' }
   let(:sponsor_id) { '1012861229V078999' }
   let(:claim_id) { '600131328' }
