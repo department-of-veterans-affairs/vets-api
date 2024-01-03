@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'representative_serializer_shared_spec'
 
-RSpec.describe Veteran::Accreditation::OtherRepresentativeSerializer do
+RSpec.describe 'BaseRepresentativeSerializer' do
   before do
     create(:representative,
            representative_id: '123abc',
@@ -28,57 +29,17 @@ RSpec.describe Veteran::Accreditation::OtherRepresentativeSerializer do
            user_types: ['attorney'])
   end
 
-  it 'includes the specified model attributes' do
-    representative = Veteran::Service::Representative
-                     .where(representative_id: '123abc')
-                     .select('veteran_representatives.*, 4023.36 as distance')
-                     .first
-    result = serialize(representative, serializer_class: described_class)
-
-    attributes = JSON.parse(result)['data']['attributes']
-
-    %w[full_name
-       address_line1
-       address_line2
-       address_line3
-       address_type
-       city
-       country_name
-       country_code_iso3
-       province
-       international_postal_code
-       state_code
-       zip_code
-       zip_suffix
-       poa_codes
-       phone
-       email
-       lat
-       long
-       user_types].each do |attr|
-      expect(attributes[attr]).to eq(representative.public_send(attr))
-    end
+  def representative
+    Veteran::Service::Representative
+      .where(representative_id: '123abc')
+      .select('veteran_representatives.*, 4023.36 as distance')
+      .first
   end
 
-  it 'includes the distance in miles' do
-    representative = Veteran::Service::Representative
-                     .where(representative_id: '123abc')
-                     .select('veteran_representatives.*, 4023.36 as distance')
-                     .first
-    result = serialize(representative, serializer_class: described_class)
-
-    attributes = JSON.parse(result)['data']['attributes']
-
-    expect(attributes['distance']).to eq('2.5')
-  end
+  include_examples 'a representative serializer', Veteran::Accreditation::BaseRepresentativeSerializer
 
   it 'does not include any extra attributes' do
-    representative = Veteran::Service::Representative
-                     .where(representative_id: '123abc')
-                     .select('veteran_representatives.*, 4023.36 as distance')
-                     .first
-    result = serialize(representative, serializer_class: described_class)
-
+    result = serialize(representative, serializer_class: Veteran::Accreditation::BaseRepresentativeSerializer)
     attributes = JSON.parse(result)['data']['attributes']
 
     expect(attributes.keys).to eq(%w[full_name
