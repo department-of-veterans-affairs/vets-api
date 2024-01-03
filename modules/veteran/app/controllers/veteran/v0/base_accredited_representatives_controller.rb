@@ -23,7 +23,7 @@ module Veteran
 
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: serializer_klass,
+               each_serializer: serializer_class,
                meta: resource.metadata
       end
 

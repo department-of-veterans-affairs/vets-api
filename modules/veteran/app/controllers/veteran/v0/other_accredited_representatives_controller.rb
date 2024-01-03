@@ -7,7 +7,7 @@ module Veteran
 
       private
 
-      def serializer_klass
+      def serializer_class
         'Veteran::Accreditation::BaseRepresentativeSerializer'.constantize
       end
 
