@@ -148,7 +148,7 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       it 'updates fsrReason' do
         vha_form = form_builder.vha_forms.first.form_data
         reasons = vha_form['personalIdentification']['fsrReason']
-        expect(reasons.include?('Automatically Approved')).to eq(true)
+        expect(reasons).to eq('Automatically Approved, Waiver')
       end
 
       it 'does not change fsrReason for non-streamlined waivers' do

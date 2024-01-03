@@ -1,0 +1,22 @@
+meta {
+  name: List Legacy Appeals
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/legacy_appeals
+  body: none
+  auth: none
+}
+
+headers {
+  X-VA-SSN: {{veteran_ssn}}
+  X-VA-ICN: {{veteran_icn}}
+  apikey: {{api_key}}
+  ~X-VA-File-Number: {{veteran_file_number}}
+}
+
+assert {
+  res.status: eq 200
+}

@@ -36,7 +36,7 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
@@ -50,7 +50,7 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
@@ -1287,7 +1287,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "30e7b70f-7b50-4cb2-a543-6d4da2e30a19",
+                    "id": "5381c513-d161-40c8-805b-9cd9b9bb1b17",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1333,7 +1333,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-12-15",
+                          "anticipatedSeparationDate": "2023-12-21",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -5655,7 +5655,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "49d25afc-197f-48e1-a430-338e23345179",
+                    "id": "37940f0e-5e09-46b8-8313-64984818f91c",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5806,7 +5806,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": "/Users/rockwellrice/Documents/oddball/vets-api/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
+                        "pointer": ""
                       }
                     }
                   ]
@@ -6347,8 +6347,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-13",
-                      "expirationDate": "2024-12-13",
+                      "creationDate": "2023-12-19",
+                      "expirationDate": "2024-12-19",
                       "type": "compensation",
                       "status": "active"
                     }
