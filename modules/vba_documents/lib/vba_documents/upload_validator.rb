@@ -12,6 +12,7 @@ module VBADocuments
     include PDFUtilities
 
     VALID_VETERAN_NAME_REGEX = %r{\A[a-zA-Z\-/\s]{1,50}\z}
+    VALID_ZIP_CODE_REGEX = /\A\d{5}(-\d{4})?\z/
 
     def validate_parts(model, parts)
       unless parts.key?(META_PART_NAME)
@@ -54,6 +55,7 @@ module VBADocuments
 
       validate_veteran_name(metadata['veteranFirstName'].strip, metadata['veteranLastName'].strip)
       validate_line_of_business(metadata['businessLine'], submission_version)
+      validate_zip_code(metadata['zipCode'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
@@ -108,6 +110,14 @@ module VBADocuments
       unless VALID_LOB.keys.include?(lob.to_s.upcase)
         msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+      end
+    end
+
+    def validate_zip_code(zip_code)
+      unless VALID_ZIP_CODE_REGEX.match?(zip_code)
+        detail = 'Zip code must be a string of either five digits ("XXXXX") or five digits followed by a hyphen ' \
+                 'and four more digits ("XXXXX-XXXX"). Use "00000" for Veterans with non-US addresses.'
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail:)
       end
     end
 

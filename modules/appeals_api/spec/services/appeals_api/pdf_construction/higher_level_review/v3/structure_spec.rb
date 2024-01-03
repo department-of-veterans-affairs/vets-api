@@ -19,7 +19,8 @@ module AppealsApi
 
           describe '#insert_overlaid_pages' do
             it 'returns a temporary overlaid pdf path' do
-              form_fill_path = Prawn::Document.new.render_file("/tmp/#{higher_level_review.id}.pdf")
+              form_fill_path = "/tmp/#{higher_level_review.id}.pdf"
+              Prawn::Document.new.render_file(form_fill_path)
               result = described_class.new(higher_level_review).insert_overlaid_pages(form_fill_path)
 
               expect(result).to eq("/tmp/#{higher_level_review.id}-overlaid-form-fill-tmp.pdf")

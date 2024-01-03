@@ -47,7 +47,7 @@
         "parameters": [
           {
             "name": "icn",
-            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN). Optional when using a veteran-scoped token. Required when using a representative- or system-scoped token.",
             "example": "1012832025V743496",
             "schema": {
               "type": "string",
@@ -56,7 +56,7 @@
               "maxLength": 17
             },
             "in": "query",
-            "required": true
+            "required": false
           },
           {
             "name": "X-VA-User",
@@ -71,9 +71,800 @@
         ],
         "responses": {
           "200": {
-            "description": "Appeals retrieved successfully",
+            "description": "Successfully fetching appeals",
             "content": {
               "application/json": {
+                "examples": {
+                  "with a veteran-scoped token (no 'icn' parameter necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": false,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "vba",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2002-09-23",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2003-01-06",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2003-06-18",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2003-09-30",
+                                "type": "ftr"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+                              {
+                                "active": false,
+                                "date": "2003-09-30",
+                                "description": "Service connection, lumbosacral strain",
+                                "diagnosticCode": "5295",
+                                "lastAction": "withdrawn"
+                              }
+                            ],
+                            "location": "bva",
+                            "programArea": "compensation",
+                            "status": {
+                              "details": {
+                              },
+                              "type": "ftr"
+                            },
+                            "type": "original",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "1196201",
+                          "type": "legacyAppeal"
+                        },
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": true,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "vba",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2008-04-24",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2008-06-11",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2010-09-10",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2010-11-08",
+                                "type": "form9"
+                              },
+                              {
+                                "date": "2014-01-03",
+                                "type": "ssoc"
+                              },
+                              {
+                                "date": "2014-07-28",
+                                "type": "certified"
+                              },
+                              {
+                                "date": "2015-04-17",
+                                "type": "hearing_held"
+                              },
+                              {
+                                "date": "2015-07-24",
+                                "type": "bva_decision"
+                              },
+                              {
+                                "date": "2015-10-06",
+                                "type": "ssoc"
+                              },
+                              {
+                                "date": "2016-05-03",
+                                "type": "bva_decision"
+                              },
+                              {
+                                "date": "2018-01-16",
+                                "type": "ssoc"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "Increased rating, migraines",
+                                "diagnosticCode": "8100",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "Increased rating, limitation of leg motion",
+                                "diagnosticCode": "5260",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "100% rating for individual unemployability",
+                                "diagnosticCode": null,
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, ankylosis of hip",
+                                "diagnosticCode": "5250",
+                                "lastAction": null
+                              },
+                              {
+                                "active": true,
+                                "date": "2015-07-24",
+                                "description": "Service connection, degenerative spinal arthritis",
+                                "diagnosticCode": "5242",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, hearing loss",
+                                "diagnosticCode": "6100",
+                                "lastAction": null
+                              },
+                              {
+                                "active": true,
+                                "date": "2015-07-24",
+                                "description": "Service connection, sciatic nerve paralysis",
+                                "diagnosticCode": "8520",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, arthritis due to trauma",
+                                "diagnosticCode": "5010",
+                                "lastAction": null
+                              },
+                              {
+                                "active": false,
+                                "date": "2015-07-24",
+                                "description": "New and material evidence for service connection, degenerative spinal arthritis",
+                                "diagnosticCode": "5242",
+                                "lastAction": "allowed"
+                              }
+                            ],
+                            "location": "aoj",
+                            "programArea": "compensation",
+                            "status": {
+                              "details": {
+                              },
+                              "type": "remand_ssoc"
+                            },
+                            "type": "post_remand",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "3294289",
+                          "type": "legacyAppeal"
+                        },
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": false,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "other",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2010-08-11",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2010-09-17",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2013-09-26",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2013-10-02",
+                                "type": "form9"
+                              },
+                              {
+                                "date": "2014-07-28",
+                                "type": "certified"
+                              },
+                              {
+                                "date": "2015-02-26",
+                                "type": "merged"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+
+                            ],
+                            "location": "bva",
+                            "programArea": null,
+                            "status": {
+                              "details": {
+                              },
+                              "type": "other_close"
+                            },
+                            "type": "original",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "2348605",
+                          "type": "legacyAppeal"
+                        }
+                      ]
+                    }
+                  },
+                  "with a representative-scoped token ('icn' parameter is necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": false,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "vba",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2002-09-23",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2003-01-06",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2003-06-18",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2003-09-30",
+                                "type": "ftr"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+                              {
+                                "active": false,
+                                "date": "2003-09-30",
+                                "description": "Service connection, lumbosacral strain",
+                                "diagnosticCode": "5295",
+                                "lastAction": "withdrawn"
+                              }
+                            ],
+                            "location": "bva",
+                            "programArea": "compensation",
+                            "status": {
+                              "details": {
+                              },
+                              "type": "ftr"
+                            },
+                            "type": "original",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "1196201",
+                          "type": "legacyAppeal"
+                        },
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": true,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "vba",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2008-04-24",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2008-06-11",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2010-09-10",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2010-11-08",
+                                "type": "form9"
+                              },
+                              {
+                                "date": "2014-01-03",
+                                "type": "ssoc"
+                              },
+                              {
+                                "date": "2014-07-28",
+                                "type": "certified"
+                              },
+                              {
+                                "date": "2015-04-17",
+                                "type": "hearing_held"
+                              },
+                              {
+                                "date": "2015-07-24",
+                                "type": "bva_decision"
+                              },
+                              {
+                                "date": "2015-10-06",
+                                "type": "ssoc"
+                              },
+                              {
+                                "date": "2016-05-03",
+                                "type": "bva_decision"
+                              },
+                              {
+                                "date": "2018-01-16",
+                                "type": "ssoc"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "Increased rating, migraines",
+                                "diagnosticCode": "8100",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "Increased rating, limitation of leg motion",
+                                "diagnosticCode": "5260",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "100% rating for individual unemployability",
+                                "diagnosticCode": null,
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, ankylosis of hip",
+                                "diagnosticCode": "5250",
+                                "lastAction": null
+                              },
+                              {
+                                "active": true,
+                                "date": "2015-07-24",
+                                "description": "Service connection, degenerative spinal arthritis",
+                                "diagnosticCode": "5242",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, hearing loss",
+                                "diagnosticCode": "6100",
+                                "lastAction": null
+                              },
+                              {
+                                "active": true,
+                                "date": "2015-07-24",
+                                "description": "Service connection, sciatic nerve paralysis",
+                                "diagnosticCode": "8520",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, arthritis due to trauma",
+                                "diagnosticCode": "5010",
+                                "lastAction": null
+                              },
+                              {
+                                "active": false,
+                                "date": "2015-07-24",
+                                "description": "New and material evidence for service connection, degenerative spinal arthritis",
+                                "diagnosticCode": "5242",
+                                "lastAction": "allowed"
+                              }
+                            ],
+                            "location": "aoj",
+                            "programArea": "compensation",
+                            "status": {
+                              "details": {
+                              },
+                              "type": "remand_ssoc"
+                            },
+                            "type": "post_remand",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "3294289",
+                          "type": "legacyAppeal"
+                        },
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": false,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "other",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2010-08-11",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2010-09-17",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2013-09-26",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2013-10-02",
+                                "type": "form9"
+                              },
+                              {
+                                "date": "2014-07-28",
+                                "type": "certified"
+                              },
+                              {
+                                "date": "2015-02-26",
+                                "type": "merged"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+
+                            ],
+                            "location": "bva",
+                            "programArea": null,
+                            "status": {
+                              "details": {
+                              },
+                              "type": "other_close"
+                            },
+                            "type": "original",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "2348605",
+                          "type": "legacyAppeal"
+                        }
+                      ]
+                    }
+                  },
+                  "with a system-scoped token ('icn' parameter is necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": false,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "vba",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2002-09-23",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2003-01-06",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2003-06-18",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2003-09-30",
+                                "type": "ftr"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+                              {
+                                "active": false,
+                                "date": "2003-09-30",
+                                "description": "Service connection, lumbosacral strain",
+                                "diagnosticCode": "5295",
+                                "lastAction": "withdrawn"
+                              }
+                            ],
+                            "location": "bva",
+                            "programArea": "compensation",
+                            "status": {
+                              "details": {
+                              },
+                              "type": "ftr"
+                            },
+                            "type": "original",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "1196201",
+                          "type": "legacyAppeal"
+                        },
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": true,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "vba",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2008-04-24",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2008-06-11",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2010-09-10",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2010-11-08",
+                                "type": "form9"
+                              },
+                              {
+                                "date": "2014-01-03",
+                                "type": "ssoc"
+                              },
+                              {
+                                "date": "2014-07-28",
+                                "type": "certified"
+                              },
+                              {
+                                "date": "2015-04-17",
+                                "type": "hearing_held"
+                              },
+                              {
+                                "date": "2015-07-24",
+                                "type": "bva_decision"
+                              },
+                              {
+                                "date": "2015-10-06",
+                                "type": "ssoc"
+                              },
+                              {
+                                "date": "2016-05-03",
+                                "type": "bva_decision"
+                              },
+                              {
+                                "date": "2018-01-16",
+                                "type": "ssoc"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "Increased rating, migraines",
+                                "diagnosticCode": "8100",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "Increased rating, limitation of leg motion",
+                                "diagnosticCode": "5260",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": true,
+                                "date": "2016-05-03",
+                                "description": "100% rating for individual unemployability",
+                                "diagnosticCode": null,
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, ankylosis of hip",
+                                "diagnosticCode": "5250",
+                                "lastAction": null
+                              },
+                              {
+                                "active": true,
+                                "date": "2015-07-24",
+                                "description": "Service connection, degenerative spinal arthritis",
+                                "diagnosticCode": "5242",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, hearing loss",
+                                "diagnosticCode": "6100",
+                                "lastAction": null
+                              },
+                              {
+                                "active": true,
+                                "date": "2015-07-24",
+                                "description": "Service connection, sciatic nerve paralysis",
+                                "diagnosticCode": "8520",
+                                "lastAction": "remand"
+                              },
+                              {
+                                "active": false,
+                                "date": null,
+                                "description": "Service connection, arthritis due to trauma",
+                                "diagnosticCode": "5010",
+                                "lastAction": null
+                              },
+                              {
+                                "active": false,
+                                "date": "2015-07-24",
+                                "description": "New and material evidence for service connection, degenerative spinal arthritis",
+                                "diagnosticCode": "5242",
+                                "lastAction": "allowed"
+                              }
+                            ],
+                            "location": "aoj",
+                            "programArea": "compensation",
+                            "status": {
+                              "details": {
+                              },
+                              "type": "remand_ssoc"
+                            },
+                            "type": "post_remand",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "3294289",
+                          "type": "legacyAppeal"
+                        },
+                        {
+                          "attributes": {
+                            "appealIds": [
+
+                            ],
+                            "active": false,
+                            "alerts": [
+
+                            ],
+                            "aod": false,
+                            "aoj": "other",
+                            "description": "",
+                            "docket": null,
+                            "events": [
+                              {
+                                "date": "2010-08-11",
+                                "type": "claim_decision"
+                              },
+                              {
+                                "date": "2010-09-17",
+                                "type": "nod"
+                              },
+                              {
+                                "date": "2013-09-26",
+                                "type": "soc"
+                              },
+                              {
+                                "date": "2013-10-02",
+                                "type": "form9"
+                              },
+                              {
+                                "date": "2014-07-28",
+                                "type": "certified"
+                              },
+                              {
+                                "date": "2015-02-26",
+                                "type": "merged"
+                              }
+                            ],
+                            "evidence": [
+
+                            ],
+                            "incompleteHistory": false,
+                            "issues": [
+
+                            ],
+                            "location": "bva",
+                            "programArea": null,
+                            "status": {
+                              "details": {
+                              },
+                              "type": "other_close"
+                            },
+                            "type": "original",
+                            "updated": "2018-01-19T10:20:42-05:00"
+                          },
+                          "id": "2348605",
+                          "type": "legacyAppeal"
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "type": "object",
                   "properties": {
@@ -89,9 +880,59 @@
             }
           },
           "400": {
-            "description": "Missing 'icn' parameter",
+            "description": "Missing parameters",
             "content": {
               "application/json": {
+                "examples": {
+                  "with a representative-scoped token and no 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The required parameter \"icn\", is missing",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  },
+                  "with a system-scoped token and no 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The required parameter \"icn\", is missing",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden requests",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "with a veteran-scoped token and an optional 'icn' parameter that does not match the Veteran's ICN": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "Invalid 'icn' parameter: Veterans may access only their own records",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
                 }
@@ -99,9 +940,23 @@
             }
           },
           "422": {
-            "description": "Invalid ICN",
+            "description": "Invalid 'icn' parameter",
             "content": {
               "application/json": {
+                "examples": {
+                  "with an incorrectly formatted 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Unprocessable Entity",
+                          "detail": "'icn' parameter has an invalid format. Pattern: /^[0-9]{10}V[0-9]{6}$/",
+                          "code": "422",
+                          "status": "422"
+                        }
+                      ]
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
                 }
