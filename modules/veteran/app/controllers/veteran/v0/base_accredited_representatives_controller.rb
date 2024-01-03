@@ -74,7 +74,7 @@ module Veteran
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:find_a_rep)
+        routing_error unless Flipper.enabled?(:find_a_representative_enable_api)
       end
 
       def verify_sort

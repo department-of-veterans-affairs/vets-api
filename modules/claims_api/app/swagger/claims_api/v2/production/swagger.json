@@ -1287,7 +1287,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "30e7b70f-7b50-4cb2-a543-6d4da2e30a19",
+                    "id": "5381c513-d161-40c8-805b-9cd9b9bb1b17",
                     "type": "forms/526",
                     "attributes": {
                       "veteranIdentification": {
@@ -1333,7 +1333,7 @@
                           }
                         ],
                         "federalActivation": {
-                          "anticipatedSeparationDate": "2023-12-15",
+                          "anticipatedSeparationDate": "2023-12-23",
                           "activationDate": "2023-10-01"
                         },
                         "reservesNationalGuardService": {
@@ -2260,7 +2260,9 @@
                                     "type": "object",
                                     "required": [
                                       "serviceBranch",
-                                      "serviceComponent"
+                                      "serviceComponent",
+                                      "activeDutyBeginDate",
+                                      "activeDutyEndDate"
                                     ],
                                     "properties": {
                                       "serviceBranch": {
@@ -2280,14 +2282,12 @@
                                       "activeDutyBeginDate": {
                                         "description": "Date started active duty.",
                                         "type": "string",
-                                        "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
                                         "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                         "type": "string",
-                                        "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
@@ -3519,7 +3519,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -3539,14 +3541,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -5048,7 +5048,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -5068,14 +5070,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -5655,7 +5655,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "49d25afc-197f-48e1-a430-338e23345179",
+                    "id": "37940f0e-5e09-46b8-8313-64984818f91c",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5806,7 +5806,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": ""
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
                       }
                     }
                   ]
@@ -6347,8 +6347,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-13",
-                      "expirationDate": "2024-12-13",
+                      "creationDate": "2023-12-21",
+                      "expirationDate": "2024-12-21",
                       "type": "compensation",
                       "status": "active"
                     }
