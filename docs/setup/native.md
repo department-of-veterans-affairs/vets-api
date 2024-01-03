@@ -208,61 +208,73 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 9. Updating Postgres and PostGIS if you already have them installed
 
    Backup your existing database
+   ```bash
+   sudo su -
+   cd /home
+   mkdir postgres
+   chown postgres: postgres
+   exit
+   sudo su - postgres
+   cd /home/postgres
+   pg_dumpall > backup.sql
+   ```
 
-   - `sudo su -`
-   - `cd /home`
-   - `mkdir postgres`
-   - `chown postgres: postgres`
-   - `exit`
-   - `sudo su - postgres`
-   - `cd /home/postgres`
-   - `pg_dumpall > backup.sql`
-
-   - Backup your configuration files
-     replace the hash symbols with the database version eg 11
-   - `cp /etc/postgresql/##/main/pg_hba.conf .`
-   - `cp /etc/postgresql/##/main/postgresql.conf .`
+   Backup your configuration files (replace hashes with the db vsn eg 11)
+   ```bash
+   cp /etc/postgresql/##/main/pg_hba.conf .
+   cp /etc/postgresql/##/main/postgresql.conf .
+   ```
    
 
-   - Remove any unwanted versions besides the current version
-     replace the hash symbols with the database version eg 11
-   - `dpkg -l | grep postgres`
-   - `sudo apt --purge remove postgresql-## postgresql-client-##`
-     repeat the above command for each unwanted version
-   - `sudo apt autoremove`
-     
-   - Upgrade database
-   - `sudo apt update`
+   Remove any unwanted versions (replace hashes with the db vsn eg 11)
+   ```bash
+   dpkg -l | grep postgres
+   sudo apt --purge remove postgresql-## postgresql-client-##
+   
+        repeat the above command for each unwanted version
 
-     upgrade any packages that need to be updated
-   - `sudo apt upgrade`
+   sudo apt autoremove
+   ```
 
-     replace the hash symbols with the database version eg 14
-   - `sudo apt install postgresql-## postgresql-server-dev-##`
+   Upgrade any packages that need to be updated
+   ```bash
+   sudo apt update
+   sudo apt upgrade
+   ```
+
+   Upgrade the database (replace hashes with the new db vsn eg 14)
+   ```bash
+   sudo apt install postgresql-## postgresql-server-dev-##
+   
 
    Very important! the upgrade will fail later if you don't install postgis in the updated postgresql
 
-     replace the hash symbols with the database version eg 14
-     replace the n with the postgis version eg 3
-   - `sudo apt install postgresql-##-postgis-n`
-   - `sudo apt install postgresql-##-postgis-n-scripts`
+   replace the hash symbols with the database version eg 14
+   replace the n with the postgis version eg 3
 
-   - List all installed versions (again)
-   - `dpkg -l | grep postgres`
+     sudo apt install postgresql-##-postgis-n
+     sudo apt install postgresql-##-postgis-n-scripts
+
+
+   List all installed versions (again)
+
+     dpkg -l | grep postgres
+
    you should see the current version and the version you just installed
 
-   - Stop the postgresql service
-   - `sudo systemctl stop postgresql.service`
+   Stop the postgresql service
+   
+     sudo systemctl stop postgresql.service
 
-     Check the status of the postgresql, it should be stopped
-   - `systemctl status postgresql.service`
+   Check the status of the postgresql, it should be stopped
+     systemctl status postgresql.service
 
-   NOTE: The install sets up a cluster, which needs then to be removed for the upgrade.
-     replace the hash symbols with the UPDATED version eg 14
-   - `sudo pg_dropcluster ## main --stop`
+   The install sets up a cluster, which needs then to be removed for the upgrade.
+   replace the hashes with the UPDATED version eg 14
+     sudo pg_dropcluster ## main --stop
 
-     replace the hash symbols with the CURRENT version eg 11
-   - `sudo pg_upgradecluster ## main`
+   replace the hashes with the CURRENT version eg 11
+     sudo pg_upgradecluster ## main
 
      At the end, you should see this with current version red and updated version green:
      Example 11 and 14
@@ -277,23 +289,27 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
       14  main    5432 online postgres /var/lib/postgresql/14/main /var/log/postgresql/postgresql-14-main.log
       =====
 
-   - Check the status of postgresql (it should be running)
-   - `systemctl status postgresql.service`
+   Check the status of postgresql (it should be running)
+     systemctl status postgresql.service
 
-   - Check the processes of postgresql running, you should see the upgraded version in the processes running
-   - `ps -efa | grep postgres`
+   Check the processes of postgresql running, you should see the upgraded version in the processes running
+     ps -efa | grep postgres
 
-   - Check the port postgresql is running on, it should be 5432 unless you customized it
-   - `sudo netstat -anp | grep 543`
+   Check the port postgresql is running on, it should be 5432 unless you customized it
+     sudo netstat -anp | grep 543
 
-   - Login to the postgres user and check the version
-   - `sudo su postgres`
-   - `psql -c "SELECT version();"`
+   Login to the postgres user and check the version
+     sudo su postgres
+     psql -c "SELECT version();"
+
      You should see the version you upgraded to
-   - `exit`
-   
-   - Remove the old cluster
-     replace the hash symbols with the CURRENT version eg 11
-   - `sudo pg_dropcluster ## main`
 
-     Done!!!
+     exit
+   
+   Remove the old cluster
+
+   replace hashes with the CURRENT version eg 11
+     sudo pg_dropcluster ## main
+     
+   Done!!!
+  ```
