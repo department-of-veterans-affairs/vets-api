@@ -39,5 +39,57 @@ FactoryBot.define do
     indication_for_use_flag         { nil }
     category                        { 'Rx Medication' }
     tracking                        { false }
+    rx_rf_records {
+      [
+        [
+          "rf_record",
+          [
+            {
+              "refillStatus": "suspended",
+              "refillSubmitDate": "Wed, 11 Jan 2023 00:00:00 EDT",
+              "refillDate": "Sat, 15 Jul 2023 00:00:00 EDT",
+              "refillRemaining": 4,
+              "facilityName": "DAYT29",
+              "isRefillable": false,
+              "isTrackable": false,
+              "prescriptionId": 22332828,
+              "sig": nil,
+              "orderedDate": "Fri, 04 Aug 2023 00:00:00 EDT",
+              "quantity": nil,
+              "expirationDate": nil,
+              "prescriptionNumber": "2720542",
+              "prescriptionName": "ONDANSETRON 8 MG TAB",
+              "dispensedDate": nil,
+              "stationNumber": "989",
+              "inCernerTransition": false,
+              "notRefillableDisplayMessage": nil,
+              "cmopDivisionPhone": nil,
+              "cmopNdcNumber": nil,
+              "id": 22332828,
+              "userId": 16955936,
+              "providerFirstName": nil,
+              "providerLastName": nil,
+              "remarks": nil,
+              "divisionName": nil,
+              "modifiedDate": nil,
+              "institutionId": nil,
+              "dialCmopDivisionPhone": "",
+              "dispStatus": "Suspended",
+              "ndc": nil,
+              "reason": nil,
+              "prescriptionNumberIndex": "RF1",
+              "prescriptionSource": "RF",
+              "disclaimer": nil,
+              "indicationForUse": nil,
+              "indicationForUseFlag": nil,
+              "category": "Rx Medication",
+              "trackingList": nil,
+              "rxRfRecords": nil,
+              "tracking": false
+            }
+          ]
+        ]
+      ]
+    }
   end
 end

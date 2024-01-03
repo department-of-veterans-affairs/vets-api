@@ -36,5 +36,9 @@ describe PrescriptionDetails do
                                          dispensed_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone,
                                          modified_date: Time.parse('2023-08-11T15:56:58.000Z').in_time_zone)
     end
+
+    it 'has method attribute sorted_dispensed_date' do
+      expect(subject).to have_attributes(sorted_dispensed_date: Date.new(0))
+    end
   end
 end
