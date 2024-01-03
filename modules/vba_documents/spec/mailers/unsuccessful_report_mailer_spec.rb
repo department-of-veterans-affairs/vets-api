@@ -95,9 +95,9 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
 
   describe '.fetch_recipients' do
     let(:recipients) { get_fixture_yml('reports/unsuccessful_report/report_recipients.yml') }
-    let(:slack_alert_email) { Settings.vba_documents.slack.default_alert_email }
 
-    context 'when environment is prod' do
+    context 'when environment is prod and slack alerts are enabled' do
+      let(:slack_alert_email) { 'no-reply@example.slack.com' }
       let(:expected_result) do
         [
           'wile.e.coyote@va.gov',
@@ -111,15 +111,16 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('prod')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(true)
       end
 
       it 'returns the recipients list for prod + all environments + the Slack alert email' do
-        expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+        with_settings(Settings.vba_documents.slack, enabled: true, default_alert_email: slack_alert_email) do
+          expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+        end
       end
     end
 
-    context 'when environment is staging' do
+    context 'when environment is staging and slack alerts are not enabled' do
       let(:expected_result) do
         %w[
           wile.e.coyote@va.gov
@@ -132,15 +133,16 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('staging')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(false)
       end
 
       it 'returns the recipients list for staging + all environments' do
-        expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+        with_settings(Settings.vba_documents.slack, enabled: false) do
+          expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+        end
       end
     end
 
-    context 'when environment is dev' do
+    context 'when environment is dev and slack alerts are not enabled' do
       let(:expected_result) do
         %w[
           wile.e.coyote@va.gov
@@ -151,11 +153,12 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('dev')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(false)
       end
 
-      it 'returns the recipients list all environments only' do
-        expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+      it 'returns the recipients list for dev + all environments' do
+        with_settings(Settings.vba_documents.slack, enabled: false) do
+          expect(described_class.fetch_recipients.sort).to eql(expected_result.sort)
+        end
       end
     end
   end

@@ -336,10 +336,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission:
-    actor_type: user
-    description: Manage whether dependent claims will submit to central processing
-    enable_in_development: true
   dependents_encrypt_jobs:
     actor_type: user
     description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.
@@ -1277,3 +1273,6 @@ features:
   virtual_agent_enable_msft_pva_testing:
     actor_type: user
     description: If enabled, allows for connecting to MSFT PVA
+  virtual_agent_enable_nlu_pva_testing:
+    actor_type: user
+    description: If enabled, allows for connecting to NLU PVA

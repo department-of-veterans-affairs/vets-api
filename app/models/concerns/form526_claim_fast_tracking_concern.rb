@@ -15,6 +15,7 @@ module Form526ClaimFastTrackingConcern
 
   DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
+  OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -113,7 +114,9 @@ module Form526ClaimFastTrackingConcern
   end
 
   def prepare_for_ep_merge!
-    pending_eps = open_claims.select { |claim| EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) }
+    pending_eps = open_claims.select do |claim|
+      EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
+    end
     StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_count", pending_eps.count)
     return unless pending_eps.count == 1
 

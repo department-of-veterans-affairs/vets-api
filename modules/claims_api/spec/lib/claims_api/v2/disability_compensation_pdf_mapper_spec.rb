@@ -321,7 +321,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
-        expect(date).to eq('March 2018')
+        expect(date).to eq('03/11/2018')
         expect(yyyy_date_format).to eq('2015')
         expect(event).to eq('EXPOSURE')
         expect(attribut_count).to eq(4)
@@ -368,6 +368,17 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(start_date).to eq({ month: '03', year: '2009' })
         expect(no_date).to eq(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
+      end
+
+      it 'maps correctly when treatment center information is not provided' do
+        form_attributes['treatments'][0]['center'] = nil
+
+        mapper.map_claim
+        details = 'Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat ' \
+                  '- Mental Disorders, Cancer - Musculoskeletal - Elbow'
+        treatment_info = pdf_data[:data][:attributes][:claimInformation][:treatments]
+        treatment_details = treatment_info[0][:treatmentDetails]
+        expect(treatment_details).to eq(details)
       end
     end
 
