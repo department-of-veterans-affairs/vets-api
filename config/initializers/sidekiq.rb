@@ -45,6 +45,10 @@ Rails.application.reloader.to_prepare do
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
+
+    config.death_handlers << lambda do |job, ex|
+      Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
+    end
   end
 
   Sidekiq.configure_client do |config|

@@ -2616,7 +2616,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/SecureMessageDetail.yml
+                $ref: ./schemas/PostSecureMessageDetail.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -2762,7 +2762,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/SecureMessageDetail.yml
+                $ref: ./schemas/GetSecureMessageDetail.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -2923,7 +2923,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/SecureMessageDetail.yml
+                $ref: ./schemas/PostSecureMessageDetail.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
