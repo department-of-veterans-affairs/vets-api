@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'DisabilityCompensation', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
+describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
                                    vcr: 'claims_api/disability_comp' do
   let(:scopes) { %w[system/claim.read system/claim.write] }
 
