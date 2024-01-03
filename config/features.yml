@@ -336,10 +336,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission:
-    actor_type: user
-    description: Manage whether dependent claims will submit to central processing
-    enable_in_development: true
   dependents_encrypt_jobs:
     actor_type: user
     description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.
@@ -458,11 +454,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_rep:
+  find_a_representative:
+    actor_type: user
+    description: Enables frontend of Find a Representative
+    enable_in_development: true
+  find_a_representative_enable_api:
     actor_type: user
     description: Enables the Find a Rep search endpoint
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enable_frontend:
     actor_type: user
     description: Enables frontend of Find a Representative
     enable_in_development: true
@@ -599,6 +599,10 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
+  letters_check_discrepancies:
+    actor_type: user
+    description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
   loop_pages:
     actor_type: user
     description: Enable new list loop pattern
@@ -697,11 +701,11 @@ features:
   military_information_vaprofile:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
-    enable_in_development: false
+    enable_in_development: true
   military_information_vaprofile_vic:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile for the VIC form
-    enable_in_development: false
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -734,7 +738,7 @@ features:
     actor_type: user
     description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
-    description: "When enabled, will allow display of PDF cert warnings in find-a-form"
+    description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
   pre_entry_covid19_screener:
@@ -1270,7 +1274,7 @@ features:
   veteran_status_updated:
     actor_type: user
     description: Enable the veteran post-emis status
-    enable_in_development: false
+    enable_in_development: true
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
