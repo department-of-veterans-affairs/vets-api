@@ -124,7 +124,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
 
   def set_session_object
     @session_object = if Rails.env.test?
-                        session
+                        ActionController::TestSession.new(uuid: session[:uuid], token: session[:token])
                       else
                         Session.find(session[:token])
                       end
