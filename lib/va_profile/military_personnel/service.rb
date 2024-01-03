@@ -7,6 +7,7 @@ require 'va_profile/stats'
 require 'va_profile/models/service_history'
 require_relative 'configuration'
 require_relative 'service_history_response'
+# Test commit
 
 module VAProfile
   module MilitaryPersonnel
