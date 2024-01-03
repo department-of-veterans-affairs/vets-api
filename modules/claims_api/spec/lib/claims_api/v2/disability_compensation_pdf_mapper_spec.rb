@@ -329,6 +329,20 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(secondary_event).to eq('EXPOSURE')
         expect(secondary_relevance).to eq('ABCDEFG')
       end
+
+      it 'maps the secondary disability name to the primary disability correctly' do
+        disability_name = form_attributes['disabilities'][0]['name']
+        secondary_disability_name = form_attributes['disabilities'][0]['secondaryDisabilities'][0]['name']
+        sd_label = "#{secondary_disability_name} secondary to: #{disability_name}"
+
+        mapper.map_claim
+
+        claim_info = pdf_data[:data][:attributes][:claimInformation]
+
+        secondary_disability_label = claim_info[:disabilities][3][:disability]
+
+        expect(secondary_disability_label).to eq(sd_label)
+      end
     end
 
     context '526 section 5, claim info: disabilities, & has conditions attribute' do
@@ -429,7 +443,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(served_after_nine_eleven).to eq('NO')
       end
 
-      it 'maps homservice info correctly with a nil phone number' do
+      it 'maps service info correctly with a nil phone number' do
         form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = nil
         form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = nil
         mapper.map_claim
