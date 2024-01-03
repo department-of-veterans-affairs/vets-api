@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/va21p527ez'
+# require 'pdf_fill/forms/va21p527ez', TODO: re-adding new form in follow up PR
 require 'pdf_fill/forms/va21p530'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
