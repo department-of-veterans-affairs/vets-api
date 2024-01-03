@@ -13,7 +13,7 @@ module AskVAApi
       end
 
       def categories
-        get_resource('categories', service: mock_service)
+        get_resource('categories', user_mock_data: params[:user_mock_data])
         render json: @categories.payload, status: @categories.status
       end
 
