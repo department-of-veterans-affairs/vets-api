@@ -8,7 +8,7 @@ module Common
       # should lock during session creation, to prevent threads from making simultaneous
       # authentication API calls.
       #
-      # All refrences to "session" in this module refer to the upstream MHV session.
+      # All references to "session" in this module refer to the upstream MHV session.
       #
       # @see MedicalRecords::Client
       #
@@ -19,8 +19,8 @@ module Common
         extend ActiveSupport::Concern
         include SentryLogging
 
-        LOCK_RETRY_DELAY = 1 # Number of seconds to wait between attempts to acquire a session lock
-        RETRY_ATTEMPTS = 11 # How many times to attempt to acquire a session lock
+        LOCK_RETRY_DELAY = 0.3 # Number of seconds to wait between attempts to acquire a session lock
+        RETRY_ATTEMPTS = 30 # How many times to attempt await of acquiring a session lock by a preceding request
 
         attr_reader :session
 
