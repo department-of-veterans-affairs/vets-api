@@ -16,8 +16,9 @@ module Veteran
       DEFAULT_SORT = 'distance_asc'
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
+
       def index
-        collection = Common::Collection.new(representative_klass, data: representative_query)
+        collection = Common::Collection.new(Veteran::Service::Representative, data: representative_query)
         resource = collection.paginate(**pagination_params)
 
         render json: resource.data,
@@ -28,13 +29,9 @@ module Veteran
 
       private
 
-      def representative_klass
-        @representative_klass ||= 'Veteran::Service::Representative'.constantize
-      end
-
       def base_query
-        representative_klass.find_within_max_distance(search_params[:long],
-                                                      search_params[:lat]).order(sort_query_string)
+        Veteran::Service::Representative.find_within_max_distance(search_params[:long],
+                                                                  search_params[:lat]).order(sort_query_string)
       end
 
       def search_params
