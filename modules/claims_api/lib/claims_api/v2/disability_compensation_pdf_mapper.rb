@@ -408,7 +408,9 @@ module ClaimsApi
           disability.delete('disabilityActionType')
           disability.delete('isRelatedToToxicExposure')
           sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
-            secondary_disability['disability'] = secondary_disability['name']
+            # if secondary disability is present a name is required
+            # so it is safe to assume both names are present
+            secondary_disability['disability'] = "#{secondary_disability['name']} secondary to: #{disability['disability']}"
             if secondary_disability['approximateDate'].present?
               approx_date = make_date_string_month_first(secondary_disability['approximateDate'], secondary_disability['approximateDate'].length)
               secondary_disability['approximateDate'] = approx_date
@@ -569,8 +571,14 @@ module ClaimsApi
                      make_date_object(sp[:activeDutyEndDate], sp[:activeDutyEndDate].length) })
         end
         sorted = arr&.sort_by { |sp| sp[:activeDutyEndDate] }
-        sorted.pop if sorted.count > 1
-        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = sorted
+
+        if sorted.count > 1
+          sorted.pop
+          @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = sorted
+        else
+          @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = {}
+        end
+
         @pdf_data[:data][:attributes][:serviceInformation].delete(:servicePeriods)
         @pdf_data
       end
