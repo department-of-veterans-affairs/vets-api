@@ -28,6 +28,10 @@ module Veteran
 
       private
 
+      def serializer_class
+        raise NotImplementedError, 'serializer_class must be implemented'
+      end
+
       def base_query
         Veteran::Service::Representative.find_within_max_distance(search_params[:long],
                                                                   search_params[:lat]).order(sort_query_string)
