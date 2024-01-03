@@ -62,7 +62,7 @@
   "F[0].#subform[2].AMOUNT_OF_MONEY_OWED_VA[0]": "<%= form.data['limited_information_items']&.include?('Amount of money owed to VA') ? 1 : 0 %>",
   "F[0].#subform[2].REQUEST_A_BENEFIT_PAYMENT_LETTER[0]": "<%= form.data['limited_information_items']&.include?('Request a benefit payment letter') ? 1 : 0 %>",
   "F[0].#subform[2].CHANGE_OF_ADDRESS_OR_DIRECT_DEPOSIT[0]": "<%= form.data['limited_information_items']&.include?('Change of address or direct deposit') ? 1 : 0 %>",
-  "F[0].#subform[2].OTHER_Specify_Below[0]": "<%= form.data['limited_information_items']&.include?('Other (Specify below)') ? 1 : 0 %>",
+  "F[0].#subform[2].OTHER_Specify_Below[0]": "<%= form.data['limited_information_other']&.present? ? 1 : 0 %>",
   "F[0].#subform[2].International_Telephone_Number_If_Applicable[5]": "<%= form.data['limited_information_other'] %>",
 
   "F[0].#subform[2].One_time_only[0]": "<%= form.data['release_duration'] == 'onceOnly' ? 1 : 0 %>",
