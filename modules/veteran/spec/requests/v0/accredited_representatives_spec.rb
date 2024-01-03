@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
   context 'when find a rep is disabled' do
     before do
-      Flipper.disable(:find_a_rep)
+      Flipper.disable(:find_a_representative_enable_api)
     end
 
     it 'returns a not found routing error' do
@@ -21,7 +21,7 @@ RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
 
   context 'when find a rep is enabled' do
     before do
-      Flipper.enable(:find_a_rep)
+      Flipper.enable(:find_a_representative_enable_api)
     end
 
     context 'when a required param is missing' do
