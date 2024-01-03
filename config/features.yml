@@ -454,11 +454,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_rep:
+  find_a_representative:
+    actor_type: user
+    description: Enables frontend of Find a Representative
+    enable_in_development: true
+  find_a_representative_enable_api:
     actor_type: user
     description: Enables the Find a Rep search endpoint
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enable_frontend:
     actor_type: user
     description: Enables frontend of Find a Representative
     enable_in_development: true
@@ -730,7 +734,7 @@ features:
     actor_type: user
     description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
-    description: "When enabled, will allow display of PDF cert warnings in find-a-form"
+    description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
   pre_entry_covid19_screener:
