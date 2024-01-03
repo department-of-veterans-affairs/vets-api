@@ -8,6 +8,10 @@ module TestSessionExtension
     self[:uuid]
   end
 
+  def token
+    self[:token]
+  end
+
   def expire(_ttl)
     nil
   end
