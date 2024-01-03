@@ -5,7 +5,6 @@ module AuthenticatedSessionHelper
     user = user.persisted? ? user : User.create(user)
     token ||= 'abracadabra'
     session_object = ActionController::TestSession.new(uuid: user.uuid, token:)
-    # session_object = Session.create(uuid: user.uuid, token:)
     session_options = { key: 'api_session', secure: false, http_only: true }
     if raw
       Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
