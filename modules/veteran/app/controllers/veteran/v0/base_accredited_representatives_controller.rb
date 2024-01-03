@@ -6,7 +6,6 @@ module Veteran
       service_tag 'lighthouse-veteran'
       skip_before_action :authenticate
       before_action :feature_enabled
-      before_action :verify_type
       before_action :verify_sort
       before_action :verify_long
       before_action :verify_lat

@@ -3,7 +3,9 @@
 module Veteran
   module V0
     class OtherAccreditedRepresentativesController < BaseAccreditedRepresentativesController
-      PERMITTED_TYPE = 'attorney'
+      before_action :verify_type
+
+      PERMITTED_TYPE = %w[attorney].freeze
 
       private
 
@@ -26,7 +28,7 @@ module Veteran
       end
 
       def verify_type
-        unless search_params[:type] == PERMITTED_TYPE
+        unless PERMITTED_TYPE.include?(search_params[:type])
           raise Common::Exceptions::InvalidFieldValue.new('type', search_params[:type])
         end
       end

@@ -3,6 +3,8 @@
 module Veteran
   module V0
     class VSOAccreditedRepresentativesController < BaseAccreditedRepresentativesController
+      before_action :verify_type
+
       PERMITTED_TYPE = 'veteran_service_officer'
 
       private
