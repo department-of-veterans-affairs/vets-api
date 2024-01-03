@@ -7,7 +7,7 @@ require 'string_helpers'
 
 module PdfFill
   module Forms
-    class Va21p527ezare < FormBase
+    class Va21p527ez < FormBase
       include FormHelper
       KEY = {
         # 1a
