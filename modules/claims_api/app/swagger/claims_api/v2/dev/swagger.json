@@ -3,7 +3,7 @@
   "info": {
     "title": "Benefits Claims",
     "version": "v2",
-    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n\nAdditional functionality will be added over time.\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if: \n\n-   You are a consumer outside of VA and do not have the necessary VA agreements to use this API, and/or\n-   You want automatic establishment of power of attorney (21-22 or 21-22a)\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted to Lighthouse\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n\nAdditional functionality will be added over time.\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if: \n\n-   You are a consumer outside of VA and do not have the necessary VA agreements to use this API, and/or\n-   You want automatic establishment of power of attorney (21-22 or 21-22a)\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted for processing\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
   },
   "tags": [
     {
@@ -36,7 +36,7 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
@@ -50,7 +50,7 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
@@ -343,7 +343,6 @@
             ]
           }
         ],
-        "description": "Retrieves all claims for Veteran.",
         "parameters": [
           {
             "name": "veteranId",
@@ -443,7 +442,7 @@
                               "claimDate": {
                                 "format": "date",
                                 "type": "string",
-                                "description": "Date in YYYY-MM-DD the claim was first filed",
+                                "description": "Date the claim was first filed. In YYYY-MM-DD format.",
                                 "example": "2018-06-04"
                               },
                               "claimPhaseDates": {
@@ -576,7 +575,7 @@
     },
     "/veterans/{veteranId}/claims/{id}": {
       "get": {
-        "summary": "Find claim by ID",
+        "summary": "Find claim by ID.",
         "tags": [
           "Claims"
         ],
@@ -603,7 +602,7 @@
           {
             "name": "id",
             "in": "path",
-            "example": "1234",
+            "example": "600400703",
             "description": "The ID of the claim being requested",
             "required": true,
             "schema": {
@@ -762,7 +761,7 @@
                         "attributes"
                       ],
                       "additionalProperties": false,
-                      "description": "Claim with some details for the given Veteran info",
+                      "description": "Claim details",
                       "properties": {
                         "id": {
                           "type": "string",
@@ -804,7 +803,7 @@
                           "properties": {
                             "claimTypeCode": {
                               "type": "string",
-                              "description": "Type Code of benefit claim",
+                              "description": "Type code of benefit claim",
                               "example": "400PREDSCHRG"
                             },
                             "claimType": {
@@ -964,7 +963,7 @@
                             },
                             "jurisdiction": {
                               "type": "string",
-                              "description": "Current station of jurisdiction"
+                              "description": "Regional office to which the claim is currently assigned."
                             },
                             "lighthouseId": {
                               "type": "string",
@@ -976,14 +975,14 @@
                               "format": "date",
                               "type": "string",
                               "nullable": true,
-                              "description": "Minimum Estimated Claim Completion Date",
+                              "description": "Minimum estimated claim completion date",
                               "example": "2019-06-04"
                             },
                             "maxEstClaimDate": {
                               "format": "date",
                               "type": "string",
                               "nullable": true,
-                              "description": "Maximum Estimated Claim Completion Date",
+                              "description": "Maximum estimated claim completion date",
                               "example": "2019-09-04"
                             },
                             "status": {
@@ -1002,12 +1001,12 @@
                             },
                             "submitterApplicationCode": {
                               "type": "string",
-                              "description": "Application Code of benefit claim submitter",
+                              "description": "Application code of benefit claim submitter",
                               "example": "EBN"
                             },
                             "submitterRoleCode": {
                               "type": "string",
-                              "description": "Role Code of benefit claim submitter",
+                              "description": "Role code of benefit claim submitter",
                               "example": "VET"
                             },
                             "supportingDocuments": {
@@ -1063,7 +1062,7 @@
                                     "type": "string",
                                     "nullable": true,
                                     "description": "Description of the tracked item",
-                                    "example": "Buddy mentioned - No complete address"
+                                    "example": "You may also submit statements from individuals having knowledge of your claimed condition."
                                   },
                                   "requestedDate": {
                                     "format": "date",
@@ -1081,7 +1080,7 @@
                                     "type": "string",
                                     "nullable": true,
                                     "description": "Description of the tracked item",
-                                    "example": "Buddy mentioned - No complete address"
+                                    "example": "Submit buddy statement(s)"
                                   },
                                   "receivedDate": {
                                     "format": "date",
@@ -1287,7 +1286,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "36d7cd82-6eaa-40c9-811f-b80a5c83a51f",
+                    "id": "09613dae-974d-41bd-aff2-2f0de9ad8a12",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1468,7 +1467,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2023-12-30"
+                          "anticipatedSeparationDate": "2024-01-05"
                         },
                         "confinements": [
                           {
@@ -2271,7 +2270,9 @@
                                     "type": "object",
                                     "required": [
                                       "serviceBranch",
-                                      "serviceComponent"
+                                      "serviceComponent",
+                                      "activeDutyBeginDate",
+                                      "activeDutyEndDate"
                                     ],
                                     "properties": {
                                       "serviceBranch": {
@@ -2291,14 +2292,12 @@
                                       "activeDutyBeginDate": {
                                         "description": "Date started active duty.",
                                         "type": "string",
-                                        "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
                                         "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                         "type": "string",
-                                        "nullable": true,
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
                                       },
@@ -3530,7 +3529,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -3550,14 +3551,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -5068,7 +5067,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -5088,14 +5089,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -5673,7 +5672,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9e5417a4-6c71-420c-b392-338e7f09f0a0",
+                    "id": "e8daf7d6-a8ad-4e60-adc1-8adecba10cd3",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5824,7 +5823,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": "modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:74:in `attachments'"
                       }
                     }
                   ]
@@ -6722,7 +6721,9 @@
                                   "type": "object",
                                   "required": [
                                     "serviceBranch",
-                                    "serviceComponent"
+                                    "serviceComponent",
+                                    "activeDutyBeginDate",
+                                    "activeDutyEndDate"
                                   ],
                                   "properties": {
                                     "serviceBranch": {
@@ -6742,14 +6743,12 @@
                                     "activeDutyBeginDate": {
                                       "description": "Date started active duty.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
                                       "description": "Date completed active duty.  If in the future, 'separationLocationCode' is required.",
                                       "type": "string",
-                                      "nullable": true,
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
                                     },
@@ -7741,8 +7740,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-12-28",
-                      "expirationDate": "2024-12-28",
+                      "creationDate": "2024-01-03",
+                      "expirationDate": "2025-01-03",
                       "type": "compensation",
                       "status": "active"
                     }

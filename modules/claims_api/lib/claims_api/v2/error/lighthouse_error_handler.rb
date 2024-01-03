@@ -58,8 +58,10 @@ module ClaimsApi
 
         def get_error_source(error)
           full_backtrace = error&.backtrace&.[](0).to_s
-          split_trace = full_backtrace.split('/', 7)
-          split_trace[6]
+          split_trace = full_backtrace.split('vets-api')
+          return full_backtrace if split_trace.length == 1
+
+          split_trace[1]
         end
       end
     end

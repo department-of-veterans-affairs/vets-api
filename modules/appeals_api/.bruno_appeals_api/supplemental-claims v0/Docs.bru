@@ -1,0 +1,15 @@
+meta {
+  name: Docs
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{base_uri}}/services/appeals/supplemental-claims/v0/docs
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}
