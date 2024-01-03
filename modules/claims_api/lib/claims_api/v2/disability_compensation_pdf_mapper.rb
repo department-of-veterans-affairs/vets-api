@@ -201,12 +201,16 @@ module ClaimsApi
         end
         if gulf[:serviceDates].present?
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:start] =
-            make_date_object(gulfwar_service_dates_begin, gulfwar_service_dates_begin.length)
+          if gulfwar_service_dates_begin.present?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:start] =
+              make_date_object(gulfwar_service_dates_begin, gulfwar_service_dates_begin.length)
+          end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates].delete(:beginDate)
           gulfwar_service_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:endDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:end] =
-            make_date_object(gulfwar_service_dates_end, gulfwar_service_dates_end.length)
+          if gulfwar_service_dates_end.present?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:end] =
+              make_date_object(gulfwar_service_dates_end, gulfwar_service_dates_end.length)
+          end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates].delete(:endDate)
         end
       end
@@ -469,7 +473,7 @@ module ClaimsApi
           names = tx['treatedDisabilityNames']
           name = names.join(', ') if names.present?
           tx['treatmentDetails'] = [name, center].compact.join(' - ')
-          tx['dateOfTreatment'] = regex_date_conversion(tx['beginDate']) if tx['beginDate'].present?
+          tx['dateOfTreatment'] = make_date_object(tx['beginDate'], tx['beginDate'].length) if tx['beginDate'].present?
           tx['doNotHaveDate'] = tx['beginDate'].nil?
           tx.delete('center')
           tx.delete('treatedDisabilityNames')
