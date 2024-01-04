@@ -1,14 +1,5 @@
 # frozen_string_literal: true
 
-class Hash
-  def enabled?
-    false
-  end
-  def loaded?
-    false
-  end
-end
-
 module AuthenticatedSessionHelper
   def sign_in(user = FactoryBot.build(:user, :loa3), token = nil, raw = false)
     user = user.persisted? ? user : User.create(user)
@@ -19,7 +10,7 @@ module AuthenticatedSessionHelper
       Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
     elsif cookies.is_a?(ActionDispatch::Cookies::CookieJar)
       # binding.pry
-      request.session = session_object.to_hash
+      request.session = ActionController::TestSession.new(session_object.to_hash)
     else
       raw_session_cookie = Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
       cookies.merge(raw_session_cookie)

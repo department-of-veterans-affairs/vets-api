@@ -38,10 +38,9 @@ module AppealsApi
 
     def preloaded_evidence_submissions
       evidence_submissions = EvidenceSubmission.uploaded.preload(:supportable)
-
-      preloader = ActiveRecord::Associations::Preloader.new
-      preloader.preload(evidence_submissions.select { |es| APPEAL_TYPES.include?(es.supportable_type) },
-                        supportable: :status)
+      supported_evidence_submissions = evidence_submissions.select { |es| APPEAL_TYPES.include?(es.supportable_type) }
+      preloader = ActiveRecord::Associations::Preloader.new(records: supported_evidence_submissions, associations: {supportable: :status})
+      preloader.call
 
       evidence_submissions
     end
