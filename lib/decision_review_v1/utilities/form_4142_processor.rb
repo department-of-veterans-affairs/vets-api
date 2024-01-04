@@ -3,6 +3,7 @@
 require 'pdf_fill/filler'
 require 'central_mail/datestamp_pdf'
 require 'decision_review_v1/utilities/constants'
+require 'simple_forms_api_submission/metadata_validator'
 
 module DecisionReviewV1
   module Processor
@@ -49,9 +50,10 @@ module DecisionReviewV1
       end
 
       def generate_metadata
-        veteran_full_name = @form['veteranFullName']
         address = @form['veteranAddress']
-        {
+        country_is_us = address['country'] == 'USA'
+        veteran_full_name = @form['veteranFullName']
+        metadata = {
           'veteranFirstName' => veteran_full_name['first'],
           'veteranLastName' => veteran_full_name['last'],
           'fileNumber' => @form['vaFileNumber'] || @form['veteranSocialSecurityNumber'],
@@ -59,13 +61,17 @@ module DecisionReviewV1
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
           'uuid' => @uuid,
-          'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+          'zipCode' => address['postalCode'],
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
           'numberAttachments' => 0,
           'docType' => FORM_ID,
           'numberPages' => PDF::Reader.new(@pdf_path).pages.size
-        }.to_json
+        }
+
+        SimpleFormsApiSubmission::MetadataValidator.validate(
+          metadata, zip_code_is_us_based: country_is_us
+        ).to_json
       end
 
       def received_date
