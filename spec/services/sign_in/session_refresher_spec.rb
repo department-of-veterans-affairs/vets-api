@@ -132,12 +132,19 @@ RSpec.describe SignIn::SessionRefresher do
                 let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
                 let(:updated_session_expiration) { Time.zone.now + refresh_token_duration }
 
+                # This example has a failure due to precision
+                # expected `SignIn::OAuthSession#refresh_expiration` to have
+                # initially been:
+                   #<ActiveSupport::TimeWithZone 2024-01-04 01:23:09+(439437107/1000000000) +00:00 (UTC)>,
+                # but was
+                  #<ActiveSupport::TimeWithZone 2024-01-04 01:23:09+(439437/1000000) +00:00 (UTC)>
+                # be_within((0.1).second fixes the precision issue
                 it 'updates the session with a new expiration time' do
                   expect do
                     subject
                     session.reload
-                  end.to change(session, :refresh_expiration).from(session_expiration.strftime("%s%L"))
-                                                             .to(updated_session_expiration.strftime("%s%L"))
+                  end.to change(session, :refresh_expiration).from(session_expiration)
+                                                             .to(be_within((0.1).second).of(updated_session_expiration))
                 end
               end
 
@@ -149,8 +156,8 @@ RSpec.describe SignIn::SessionRefresher do
                   expect do
                     subject
                     session.reload
-                  end.to change(session, :refresh_expiration).from(session_expiration.strftime("%s%L"))
-                                                             .to(updated_session_expiration.strftime("%s%L"))
+                  end.to change(session, :refresh_expiration).from(session_expiration)
+                                                             .to(be_within((0.1).second).of(updated_session_expiration))
                 end
               end
 
