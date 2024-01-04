@@ -24,182 +24,31 @@
           "attributes": {
             "type": "object",
             "required": [
-              "appointmentType",
-              "cancelId",
-              "comment",
-              "healthcareService",
-              "location",
-              "minutesDuration",
-              "phoneOnly",
-              "startDateLocal",
-              "startDateUtc",
-              "status",
-              "statusDetail",
-              "timeZone",
-              "vetextId"
+              "cvxCode",
+              "date",
+              "groupName",
+              "manufacturer",
+              "note",
+              "shortDescription"
             ],
             "properties": {
-              "appointmentType": {
+              "cvxCode": {
+                "type": "integer"
+              },
+              "date": {
                 "type": "string"
               },
-              "cancelId": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "comment": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "healthcareProvider": {
-                "type": ["string", "null"]
-              },
-              "healthcareService": {
+              "groupName": {
                 "type": "string"
               },
-              "location": {
-                "type": "object",
-                "required": [
-                  "name",
-                  "address",
-                  "lat",
-                  "long",
-                  "phone",
-                  "url",
-                  "code"
-                ],
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "address": {
-                    "id": "#/properties/data/items/anyOf/0/properties/attributes/properties/location/properties/address",
-                    "type": "object",
-                    "required": [
-                      "street",
-                      "city",
-                      "state",
-                      "zipCode"
-                    ],
-                    "properties": {
-                      "street": {
-                        "type": "string"
-                      },
-                      "city": {
-                        "type": "string"
-                      },
-                      "state": {
-                        "type": "string"
-                      },
-                      "zipCode": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "lat": {
-                    "type": [
-                      "number",
-                      "null"
-                    ]
-                  },
-                  "long": {
-                    "type": [
-                      "number",
-                      "null"
-                    ]
-                  },
-                  "phone": {
-                    "type": "object",
-                    "required": [
-                      "areaCode",
-                      "number",
-                      "extension"
-                    ],
-                    "properties": {
-                      "areaCode": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
-                      },
-                      "number": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
-                      },
-                      "extension": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "code": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                }
-              },
-              "minutesDuration": {
-                "type": [
-                  "integer",
-                  "null"
-                ]
-              },
-              "phoneOnly": {
-                "type": "boolean"
-              },
-              "startDateLocal": {
+              "manufacturer": {
                 "type": "string"
               },
-              "startDateUtc": {
+              "note": {
                 "type": "string"
               },
-              "status": {
-                "type": "string",
-                "enum": [
-                  "BOOKED",
-                  "CANCELLED",
-                  "HIDDEN"
-                ]
-              },
-              "statusDetail": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "enum": [
-                  "CANCELLED BY CLINIC & AUTO RE-BOOK",
-                  "CANCELLED BY CLINIC",
-                  "CANCELLED BY PATIENT & AUTO-REBOOK",
-                  "CANCELLED BY PATIENT",
-                  null
-                ]
-              },
-              "timeZone": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "vetextId": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+              "shortDescription": {
+                "type": "string"
               }
             }
           }
@@ -211,9 +60,6 @@
         "pagination"
       ],
       "properties": {
-        "errors": {
-          "type": "null"
-        },
         "pagination": {
           "type": "object",
           "required": [
