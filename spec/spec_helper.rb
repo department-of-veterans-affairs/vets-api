@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'action_controller'
-require 'action_controller/test_case'
 require 'fakeredis/rspec'
 require 'i18n'
 require 'support/spec_builders'
@@ -13,15 +11,11 @@ require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
 require 'support/sidekiq/batch'
 require 'support/stub_va_profile'
-require 'support/test_session_extension'
 require 'support/okta_users_helpers'
 require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
-
-# Extend the TestSession to provide a few methods that exist on Session objects
-ActionController::TestSession.include(TestSessionExtension)
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
