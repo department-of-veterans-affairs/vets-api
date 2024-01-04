@@ -2,18 +2,17 @@
 
 module AskVAApi
   module Topics
-    ENDPOINT = 'get_topics_mock_data'
-
     class Retriever
-      attr_reader :service, :category_id
+      attr_reader :user_mock_data,
+                  :category_id
 
-      def initialize(category_id:, service: nil)
-        @service = service || default_service
+      def initialize(category_id:, user_mock_data:)
+        @user_mock_data = user_mock_data
         @category_id = category_id
       end
 
       def call
-        topics_array = fetch_data(payload: { category_id: })
+        topics_array = fetch_data
 
         topics_array.map do |topic|
           Entity.new(topic)
@@ -24,12 +23,15 @@ module AskVAApi
 
       private
 
-      def default_service
-        Crm::Service.new(icn: nil)
-      end
+      def fetch_data
+        data = if user_mock_data
+                 static = File.read('modules/ask_va_api/config/locales/static_data.json')
+                 JSON.parse(static, symbolize_names: true)
+               else
+                 Crm::StaticData.new.call
+               end
 
-      def fetch_data(payload:)
-        service.call(endpoint: ENDPOINT, payload:)
+        data[:Topics].select { |t| t[:parentId] == category_id }
       end
     end
   end
