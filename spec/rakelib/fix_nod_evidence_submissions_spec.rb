@@ -152,11 +152,10 @@ describe 'fix NOD evidence submission rake task', type: :request do
     it 'logs an error message with the AppealsApi::NoticeOfDisagreement id' do
       appeal_submission_single_upload.update(submitted_appeal_uuid: 'something else')
 
-      expected_error_message = "Error while attempting to complete NOD evidence submission: \
-                                Couldn't find AppealSubmission"
+      error_message = "Error while attempting to complete NOD evidence submission: Couldn't find AppealSubmission"
       expected_appeals_api_nod_id = appeals_api_nod_submission_v2_single_upload.id
       expect(Rails.logger).to receive(:error) do |error_log|
-        expect(error_log[:message]).to include(expected_error_message)
+        expect(error_log[:message]).to include(error_message)
         expect(error_log[:appeals_api_nod_id]).to include(expected_appeals_api_nod_id)
         expect(error_log[:backtrace]).to be_an(Array)
       end
