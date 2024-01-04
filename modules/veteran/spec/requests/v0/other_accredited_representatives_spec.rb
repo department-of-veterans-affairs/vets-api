@@ -85,7 +85,7 @@ RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
       expect(parsed_response['data'].pluck('id')).to eq(%w[345 234 456 123])
     end
 
-    it 'can sort fuzzy search on name' do
+    it 'can fuzzy search on name' do
       get path, params: { type:, lat: 38.9072, long: -77.0369, name: 'Bob Law' }
 
       parsed_response = JSON.parse(response.body)
