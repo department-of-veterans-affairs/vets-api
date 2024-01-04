@@ -51,7 +51,9 @@ describe PrescriptionDetails do
   end
 
   context 'sorted_dispensed_date test cases with nil' do
-    subject { described_class.new(attributes_for(:prescription_details, rx_rf_records: [['rf_record',[{refill_date: 'Sat, 15 Jul 2023 00:00:00 EDT', dispensed_date: nil}]]])) }
+    subject { described_class.new(attributes_for(:prescription_details, 
+              rx_rf_records: [['rf_record', [{ refill_date: 'Sat, 15 Jul 2023 00:00:00 EDT', 
+                                               dispensed_date: nil }]]])) }
 
     it 'sorted_dispensed_date should be Date.new(0) because rx_rf_records is empty array' do
       expect(subject).to have_attributes(sorted_dispensed_date: Date.new(0))
