@@ -80,7 +80,7 @@
   "veteranAddress": {
     "country": "USA",
     "street": "123 Main St",
-    "street2": "Apt 1234",
+    "street2": "1234",
     "city": "Brooklyn",
     "state": "NY",
     "postalCode": {
