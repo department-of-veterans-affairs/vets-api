@@ -136,8 +136,8 @@ RSpec.describe SignIn::SessionRefresher do
                   expect do
                     subject
                     session.reload
-                  end.to change(session, :refresh_expiration).from(session_expiration)
-                                                             .to(updated_session_expiration)
+                  end.to change(session, :refresh_expiration).from(session_expiration.strftime("%s%L"))
+                                                             .to(updated_session_expiration.strftime("%s%L"))
                 end
               end
 
@@ -149,8 +149,8 @@ RSpec.describe SignIn::SessionRefresher do
                   expect do
                     subject
                     session.reload
-                  end.to change(session, :refresh_expiration).from(session_expiration)
-                                                             .to(updated_session_expiration)
+                  end.to change(session, :refresh_expiration).from(session_expiration.strftime("%s%L"))
+                                                             .to(updated_session_expiration.strftime("%s%L"))
                 end
               end
 
