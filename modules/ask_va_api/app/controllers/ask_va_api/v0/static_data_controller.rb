@@ -8,12 +8,12 @@ module AskVAApi
 
       def index
         service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'ping')
+        data = service.call(endpoint: 'topics')
         render json: data.to_json, status: :ok
       end
 
       def categories
-        get_resource('categories', service: mock_service)
+        get_resource('categories', user_mock_data: params[:user_mock_data])
         render json: @categories.payload, status: @categories.status
       end
 
