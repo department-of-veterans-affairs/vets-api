@@ -364,6 +364,34 @@ module PdfFill
             question_suffix: 'G',
             question_text: 'WHAT KIND OF WORK DID YOU DO',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
+          },
+          # 11a
+          '' => {
+            limit: 30,
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'NAME OF FINANCIAL INSTITUTION',
+            key: 'form1[0].#subform[54].Name_Of_Financial_Institution[0]'
+          },
+          # 11b
+          '' => {
+            key: 'form1[0].#subform[54].RadioButtonList[55]'
+          },
+          # 11c
+          '' => {
+            limit: 9,
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'ROUTING NUMBER',
+            key: 'form1[0].#subform[54].Routing_Number[0]'
+          },
+          # 11d
+          '' => {
+            limit: 15,
+            question_num: 11,
+            question_suffix: 'D',
+            question_text: 'ACCOUNT NUMBER',
+            key: 'form1[0].#subform[54].Account_Number[0]'
           }
         }
       }.freeze
@@ -374,6 +402,7 @@ module PdfFill
         expand_veteran_service_information
         expand_pension_information
         expand_employment_history
+        expand_direct_deposit_information
 
         @form_data
       end
@@ -452,6 +481,11 @@ module PdfFill
         end
 
         @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 2
+      end
+
+      # SECTION XI: DIRECT DEPOSIT INFORMATION
+      def expand_direct_deposit_information
+
       end
 
       def to_radio_yes_no(obj)
