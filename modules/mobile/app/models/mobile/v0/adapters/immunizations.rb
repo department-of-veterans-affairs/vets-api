@@ -51,9 +51,15 @@ module Mobile
           manufacturer.presence
         end
 
-        def group_name(vaccine_code)
-          group_name = vaccine_code.dig(:coding, 1, :display)
-          group_name&.slice!('VACCINE GROUP: ')
+        def group_name(vaccine_codes)
+          filtered_codes = vaccine_codes[:coding].select { |v| v[:display].include?('VACCINE GROUP: ') }
+
+          if filtered_codes.empty?
+            group_name = vaccine_codes.dig(:coding, 1, :display) || vaccine_codes.dig(:coding, 0, :display)
+          else
+            group_name = filtered_codes.dig(0, :display)
+            group_name&.slice!('VACCINE GROUP: ')
+          end
           group_name.presence
         end
 

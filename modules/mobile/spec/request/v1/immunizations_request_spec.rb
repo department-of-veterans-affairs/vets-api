@@ -32,33 +32,23 @@ RSpec.describe 'immunizations', type: :request do
       it 'matches the expected schema' do
         # TODO: this should use the matcher helper instead (was throwing an Oj::ParseError)
         # expect().to match_json_schema('immunizations')
-        expected_response = {
-          'data' => [{
-            'id' => 'I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000',
-            'type' => 'immunization',
-            'attributes' => {
-              'cvxCode' => 207,
-              'date' => '2021-01-14T09:30:21Z',
-              'doseNumber' => nil,
-              'doseSeries' => nil,
-              'groupName' => 'COVID-19',
-              'manufacturer' => nil,
-              'note' => 'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
-              'reaction' => nil,
-              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
-            },
-            'relationships' => {
-              'location' => {
-                'data' => { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
-                'links' => {
-                  'related' => 'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000'
-                }
-              }
-            }
-          }],
-          'meta' => { 'pagination' =>
-                        { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } }
-        }
+        expected_response = { 'data' =>
+                               [{ 'id' => 'I2-QGX75BMCEGXFC57E47NAWSKSBE000000',
+                                  'type' => 'immunization',
+                                  'attributes' =>
+                                   { 'cvxCode' => 88,
+                                     'date' => '2022-03-13T09:59:25Z',
+                                     'doseNumber' => 'Series 1',
+                                     'doseSeries' => nil,
+                                     'groupName' => 'FLU',
+                                     'manufacturer' => nil,
+                                     'note' => 'Sample Immunization Note.',
+                                     'reaction' => 'Other',
+                                     'shortDescription' => 'Influenza, seasonal, injectable, preservative free' },
+                                  'relationships' => { 'location' => { 'data' => nil,
+                                                                       'links' => { 'related' => nil } } } }],
+                              'meta' => { 'pagination' => { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 11,
+                                                            'totalEntries' => 11 } } }
 
         expect(response.parsed_body).to eq(expected_response)
       end
@@ -66,9 +56,8 @@ RSpec.describe 'immunizations', type: :request do
       context 'for items that do not have locations' do
         it 'has a blank relationship' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 15 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
           end
-
           expect(response.parsed_body['data'][0]['relationships']).to eq(
             {
               'location' => {
@@ -85,18 +74,17 @@ RSpec.describe 'immunizations', type: :request do
       context 'for items that do have a location' do
         it 'has a relationship' do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 13 } }
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 11 } }
           end
-
           expect(response.parsed_body['data'][0]['relationships']).to eq(
             {
               'location' => {
                 'data' => {
-                  'id' => 'I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000',
+                  'id' => 'I2-2TKGVAXW355BKTBNRE4BP7N7XE000000',
                   'type' => 'location'
                 },
                 'links' => {
-                  'related' => 'www.example.com/mobile/v0/health/locations/I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000'
+                  'related' => 'www.example.com/mobile/v0/health/locations/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000'
                 }
               }
             }
@@ -121,7 +109,7 @@ RSpec.describe 'immunizations', type: :request do
     context 'when the note is null or an empty array' do
       before do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations_blank_note', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 15, number: 1 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 12, number: 1 } }
         end
       end
 
@@ -147,17 +135,17 @@ RSpec.describe 'immunizations', type: :request do
     describe 'vaccine group name and manufacturer population' do
       let(:immunizations_request_non_covid_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 13 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 11 } }
         end
       end
       let(:immunizations_request_covid_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 2 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
         end
       end
       let(:immunizations_request_covid_no_manufacturer_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 1 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 2 } }
         end
       end
       let(:immunizations_request_non_covid_with_manufacturer_paginated) do
@@ -170,18 +158,16 @@ RSpec.describe 'immunizations', type: :request do
         it 'uses the vaccine manufacturer in the response' do
           immunizations_request_covid_paginated
           expect(response.parsed_body['data'][0]['attributes']).to eq(
-            {
-              'cvxCode' => 207,
-              'date' => '2020-12-18T12:24:55Z',
-              'doseNumber' => nil,
+            { 'cvxCode' => 213,
+              'date' => '2021-04-18T09:59:25Z',
+              'doseNumber' => 'Series 1',
               'doseSeries' => nil,
               'groupName' => 'COVID-19',
-              'manufacturer' => 'Moderna US, Inc.',
-              'note' =>
-                'Dose #1 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
-              'reaction' => nil,
-              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
-            }
+              'manufacturer' => 'TEST MANUFACTURER',
+              'note' => 'Sample Immunization Note.',
+              'reaction' => 'Other',
+              'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30' \
+                                    ' mcg/0.3mL dose' }
           )
         end
       end
@@ -189,19 +175,18 @@ RSpec.describe 'immunizations', type: :request do
       context 'when an immunization group name is COVID-19 and there is no manufacturer provided' do
         it 'sets manufacturer to nil' do
           immunizations_request_covid_no_manufacturer_paginated
+
           expect(response.parsed_body['data'][0]['attributes']).to eq(
-            {
-              'cvxCode' => 207,
-              'date' => '2021-01-14T09:30:21Z',
-              'doseNumber' => nil,
+            { 'cvxCode' => 213,
+              'date' => '2021-05-09T09:59:25Z',
+              'doseNumber' => 'Series 1',
               'doseSeries' => nil,
               'groupName' => 'COVID-19',
               'manufacturer' => nil,
-              'note' =>
-                'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
-              'reaction' => nil,
-              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
-            }
+              'note' => 'Sample Immunization Note.',
+              'reaction' => 'Other',
+              'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30' \
+                                    ' mcg/0.3mL dose' }
           )
         end
 
@@ -216,18 +201,15 @@ RSpec.describe 'immunizations', type: :request do
         it 'sets manufacturer to nil' do
           immunizations_request_non_covid_with_manufacturer_paginated
           expect(response.parsed_body['data'][0]['attributes']).to eq(
-            {
-              'cvxCode' => 33,
-              'date' => '2016-04-28T12:24:55Z',
+            { 'cvxCode' => 88,
+              'date' => '2019-02-24T09:59:25Z',
               'doseNumber' => 'Series 1',
-              'doseSeries' => 1,
-              'groupName' => 'PneumoPPV',
+              'doseSeries' => nil,
+              'groupName' => 'FLU',
               'manufacturer' => nil,
-              'note' =>
-                'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
+              'note' => 'Sample Immunization Note.',
               'reaction' => 'Other',
-              'shortDescription' => 'pneumococcal polysaccharide PPV23'
-            }
+              'shortDescription' => 'Influenza, seasonal, injectable, preservative free' }
           )
         end
       end
@@ -235,21 +217,16 @@ RSpec.describe 'immunizations', type: :request do
       context 'when an immunization group name is not COVID-19 and there is no manufacturer provided' do
         it 'sets manufacturer to nil' do
           immunizations_request_non_covid_paginated
-
           expect(response.parsed_body['data'][0]['attributes']).to eq(
-            {
-              'cvxCode' => 140,
-              'date' => '2011-03-31T12:24:55Z',
+            { 'cvxCode' => 88,
+              'date' => '2014-01-26T09:59:25Z',
               'doseNumber' => 'Series 1',
-              'doseSeries' => 1,
+              'doseSeries' => nil,
               'groupName' => 'FLU',
               'manufacturer' => nil,
-              'note' =>
-                'Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
+              'note' => 'Sample Immunization Note.',
               'reaction' => 'Other',
-              'shortDescription' =>
-                'Influenza, seasonal, injectable, preservative free'
-            }
+              'shortDescription' => 'Influenza, seasonal, injectable, preservative free' }
           )
         end
       end
@@ -262,19 +239,18 @@ RSpec.describe 'immunizations', type: :request do
         end
 
         ids = response.parsed_body['data'].map { |i| i['id'] }
+
         # these are the last ten records in the vcr cassette
-        expected_ids = %w[
-          I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000
-          I2-N7A6Q5AU6W5C6O4O7QEDZ3SJXM000000
-          I2-NGT2EAUYD7N7LUFJCFJY3C5KYY000000
-          I2-2ZWOY2V6JJQLVARKAO25HI2V2M000000
-          I2-JYYSRLCG3BN646ZPICW25IEOFQ000000
-          I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000
-          I2-GY27FURWILSYXZTY2GQRNJH57U000000
-          I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000
-          I2-VLMNAJAIAEAA3TR34PW5VHUFPM000000
-          I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000
-        ]
+        expected_ids = %w[I2-QGX75BMCEGXFC57E47NAWSKSBE000000
+                          I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000
+                          I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000
+                          I2-7JXLIQNPFQ6UNKAHYRLOGQBDOM000000
+                          I2-XTVY4IDSEUWVYC25SST25RG5KU000000
+                          I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000
+                          I2-ZADCZ325X75FWLZPJA7P2HZEQA000000
+                          I2-I3ONOUAJAMKX53U6O47NNBSP4E000000
+                          I2-B5JBSVYHGRPUHI4NQCXYBVDXLM000000
+                          I2-2LHIGUUW23DRPLBKWXTFDWCYSQ000000]
 
         expect(ids).to eq(expected_ids)
       end
@@ -287,7 +263,7 @@ RSpec.describe 'immunizations', type: :request do
         ids = response.parsed_body['data'].map { |i| i['id'] }
 
         # these are the fifth and sixth from last records in the vcr cassette
-        expect(ids).to eq(%w[I2-JYYSRLCG3BN646ZPICW25IEOFQ000000 I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000])
+        expect(ids).to eq(%w[I2-XTVY4IDSEUWVYC25SST25RG5KU000000 I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000])
       end
     end
 
@@ -298,24 +274,17 @@ RSpec.describe 'immunizations', type: :request do
         end
 
         dates = response.parsed_body['data'].collect { |i| i['attributes']['date'] }
-
-        expect(dates).to eq(%w[
-                              2021-01-14T09:30:21Z
-                              2020-12-18T12:24:55Z
-                              2018-05-10T12:24:55Z
-                              2017-05-04T12:24:55Z
-                              2016-04-28T12:24:55Z
-                              2016-04-28T12:24:55Z
-                              2015-04-23T12:24:55Z
-                              2015-04-23T12:24:55Z
-                              2014-04-17T12:24:55Z
-                              2013-04-11T12:24:55Z
-                              2012-04-05T12:24:55Z
-                              2012-04-05T12:24:55Z
-                              2011-03-31T12:24:55Z
-                              2010-03-25T12:24:55Z
-                              2009-03-19T12:24:55Z
-                            ])
+        expect(dates).to eq(['2022-03-13T09:59:25Z',
+                             '2021-05-09T09:59:25Z',
+                             '2021-04-18T09:59:25Z',
+                             '2020-03-01T09:59:25Z',
+                             '2020-03-01T09:59:25Z',
+                             '2019-02-24T09:59:25Z',
+                             '2018-02-18T09:59:25Z',
+                             '2017-02-12T09:59:25Z',
+                             '2016-02-07T09:59:25Z',
+                             '2015-02-01T09:59:25Z',
+                             '2014-01-26T09:59:25Z'])
       end
     end
 
@@ -369,33 +338,28 @@ RSpec.describe 'immunizations', type: :request do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 10 } }
           end
-          expect(response.parsed_body['data'][4]['attributes']).to eq(
-            {
-              'cvxCode' => 140,
-              'date' => '2016-04-28T12:24:55Z',
-              'doseNumber' => nil,
+
+          expect(response.parsed_body['data'][3]['attributes']).to eq(
+            { 'cvxCode' => 88,
+              'date' => '2020-03-01T09:59:25Z',
+              'doseNumber' => 'Series 1',
               'doseSeries' => nil,
               'groupName' => 'FLU',
               'manufacturer' => nil,
-              'note' =>
-                'Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered.',
-              'reaction' => 'Anaphylaxis or collapse',
-              'shortDescription' => 'Influenza, seasonal, injectable, preservative free'
-            }
-          )
-          expect(response.parsed_body['data'][5]['attributes']).to eq(
-            {
-              'cvxCode' => 33,
-              'date' => '2016-04-28T12:24:55Z',
-              'doseNumber' => 'Series 1',
-              'doseSeries' => 1,
-              'groupName' => 'PneumoPPV',
-              'manufacturer' => nil,
-              'note' =>
-                'Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered.',
+              'note' => 'Sample Immunization Note.',
               'reaction' => 'Other',
-              'shortDescription' => 'pneumococcal polysaccharide PPV23'
-            }
+              'shortDescription' => 'Influenza, seasonal, injectable, preservative free' }
+          )
+          expect(response.parsed_body['data'][4]['attributes']).to eq(
+            { 'cvxCode' => 139,
+              'date' => '2020-03-01T09:59:25Z',
+              'doseNumber' => 'Series 1',
+              'doseSeries' => nil,
+              'groupName' => 'Td',
+              'manufacturer' => nil,
+              'note' => 'Sample Immunization Note.',
+              'reaction' => 'Other',
+              'shortDescription' => 'Td (adult) preservative free' }
           )
         end
       end
@@ -447,6 +411,47 @@ RSpec.describe 'immunizations', type: :request do
               'shortDescription' => 'Influenza, seasonal, injectable, preservative free'
             }
           )
+        end
+      end
+
+      context 'VACCINE GROUP is not included in vaccine code display' do
+        before do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_vaccine_codes',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: sis_headers
+          end
+        end
+
+        context '2 vaccine codes exists' do
+          it 'returns second coding display' do
+            expect(response.parsed_body['data'][0]['attributes']).to eq(
+              { 'cvxCode' => 140,
+                'date' => '2023-03-13T09:59:25Z',
+                'doseNumber' => 'Series 1',
+                'doseSeries' => nil,
+                'groupName' => 'FLU',
+                'manufacturer' => nil,
+                'note' => 'Sample Immunization Note.',
+                'reaction' => 'Other',
+                'shortDescription' => 'Influenza, seasonal, injectable, preservative free' }
+            )
+          end
+        end
+
+        context 'only 1 vaccine code exists' do
+          it 'returns first coding display' do
+            expect(response.parsed_body['data'][1]['attributes']).to eq(
+              { 'cvxCode' => 140,
+                'date' => '2022-03-13T09:59:25Z',
+                'doseNumber' => 'Series 1',
+                'doseSeries' => nil,
+                'groupName' => 'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE',
+                'manufacturer' => nil,
+                'note' => 'Sample Immunization Note.',
+                'reaction' => 'Other',
+                'shortDescription' => 'Influenza, seasonal, injectable, preservative free' }
+            )
+          end
         end
       end
     end

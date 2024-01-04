@@ -104,908 +104,344 @@ http_interactions:
           - chunked
       body:
         encoding: ASCII-8BIT
-        string: '{
-  "resourceType": "Bundle",
-  "type": "searchset",
-  "total": 16,
-  "link": [
-    {
-      "relation": "first",
-      "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization?patient=1012845672V157064&_count=30&page=1"
-    },
-    {
-      "relation": "self",
-      "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization?patient=1012845672V157064&_count=30&page=1"
-    },
-    {
-      "relation": "last",
-      "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization?patient=1012845672V157064&_count=30&page=1"
-    }
-  ],
-  "entry": [
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2009-03-19T12:24:55Z",
-        "primarySource": true,
-        "doseQuantity": {
-          "value": 0.5,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Vomiting"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Booster",
-            "seriesDosesPositiveInt": 1
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-A7XD2XUPAZQ5H4Y5D6HD4RFEQ000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-A7XD2XUPAZQ5H4Y5D6HD4RFEQ000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2009-03-19T12:24:55Z",
-        "primarySource": true,
-        "doseQuantity": {
-          "value": 0.5,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Vomiting"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Booster",
-            "seriesDosesPositiveInt": 1
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-6SIQZNJCIOAQOGES6YOTSQAWJY000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-6SIQZNJCIOAQOGES6YOTSQAWJY000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2010-03-25T12:24:55Z",
-        "primarySource": true,
-        "doseQuantity": {
-          "value": 0.3,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #46 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Vomiting"
-            }
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-RWRNZDHNNCHLJJKJDJVVVAZHNQ000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-RWRNZDHNNCHLJJKJDJVVVAZHNQ000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2011-03-31T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000",
-          "display": "VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)"
-        },
-        "doseQuantity": {
-          "value": 0.3,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #47 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Other"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Series 1",
-            "seriesDosesPositiveInt": 1
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-YYBTWDMLX6WLFV3GBSIGT5CZO4000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-YYBTWDMLX6WLFV3GBSIGT5CZO4000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2012-04-05T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000",
-          "display": "MENTAL HEALTH SERVICES"
-        },
-        "doseQuantity": {
-          "value": 2,
-          "unit": "ug/mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "ug/mL"
-        },
-        "note": [
-          {
-            "text": "Dose #48 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Anaphylaxis or collapse"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Booster",
-            "seriesDosesPositiveInt": 1
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-LA34JJPECU7NQFSNCRULFSVQ3M000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-LA34JJPECU7NQFSNCRULFSVQ3M000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "113",
-              "display": "TD (ADULT), 5 LF TETANUS TOXOID, PRESERVATIVE FREE, ADSORBED"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "139",
-              "display": "VACCINE GROUP: Td"
-            }
-          ],
-          "text": "Td (adult), 5 Lf tetanus toxoid, preservative free, adsorbed"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2012-04-05T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000",
-          "display": "MENTAL HEALTH SERVICES"
-        },
-        "doseQuantity": {
-          "value": 2,
-          "system": "http://unitsofmeasure.org"
-        },
-        "note": [
-          {
-            "text": "Dose #3 of 8 of Td (adult) preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Respiratory distress"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Booster",
-            "seriesDosesPositiveInt": 1
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-DOUHUYLFJLLPSJLACUDAJF5GF4000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2013-04-11T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
-          "display": "TEM MH PSO TRS IND93EH 2"
-        },
-        "doseQuantity": {
-          "value": 0.5,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #49 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Convulsions"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Series 1",
-            "seriesDosesPositiveInt": 2
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-VLMNAJAIAEAA3TR34PW5VHUFPM000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-VLMNAJAIAEAA3TR34PW5VHUFPM000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2014-04-17T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
-          "display": "TEM MH PSO TRS IND93EH 2"
-        },
-        "doseQuantity": {
-          "value": 0.5,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #50 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Local reaction or swelling"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Series 1",
-            "seriesDosesPositiveInt": 2
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-GY27FURWILSYXZTY2GQRNJH57U000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-GY27FURWILSYXZTY2GQRNJH57U000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2015-04-23T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000",
-          "display": "MENTAL HEALTH SERVICES"
-        },
-        "doseQuantity": {
-          "value": 0.3,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #51 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Vomiting"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Series 1",
-            "seriesDosesPositiveInt": 2
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-F3CW7J5IRY6PVIEVDMRL4R4W6M000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "133",
-              "display": "PNEUMOCOCCAL CONJUGATE PCV 13"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "152",
-              "display": "VACCINE GROUP: PneumoPCV"
-            }
-          ],
-          "text": "Pneumococcal conjugate PCV 13"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2015-04-23T12:24:55Z",
-        "primarySource": true,
-        "doseQuantity": {
-          "value": 0.5,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #1 of 5 of Pneumococcal conjugate PCV 13 vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Vomiting"
-            }
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-JYYSRLCG3BN646ZPICW25IEOFQ000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-JYYSRLCG3BN646ZPICW25IEOFQ000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2016-04-28T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000",
-          "display": "MENTAL HEALTH SERVICES"
-        },
-        "note": [
-          {
-            "text": "Dose #52 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Anaphylaxis or collapse"
-            }
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "33",
-              "display": "PNEUMOCOCCAL POLYSACCHARIDE PPV23"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "33",
-              "display": "VACCINE GROUP: PneumoPPV"
-            }
-          ],
-          "text": "pneumococcal polysaccharide PPV23"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2016-04-28T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
-          "display": "TEM MH PSO TRS IND93EH 2"
-        },
-        "manufacturer": {
-          "display": "Merck and Co., Inc."
-        },
-        "doseQuantity": {
-          "value": 0.5,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #1 of 1 of pneumococcal polysaccharide vaccine  23 valent vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Other"
-            }
-          }
-        ],
-        "protocolApplied": [
-          {
-            "doseNumberString": "Series 1",
-            "seriesDosesPositiveInt": 1
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-2ZWOY2V6JJQLVARKAO25HI2V2M000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-2ZWOY2V6JJQLVARKAO25HI2V2M000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2017-05-04T12:24:55Z",
-        "primarySource": true,
-        "doseQuantity": {
-          "value": 0.3,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #53 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Fever"
-            }
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-NGT2EAUYD7N7LUFJCFJY3C5KYY000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-NGT2EAUYD7N7LUFJCFJY3C5KYY000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "140",
-              "display": "INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "88",
-              "display": "VACCINE GROUP: FLU"
-            }
-          ],
-          "text": "Influenza, seasonal, injectable, preservative free"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2018-05-10T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
-          "display": "TEM MH PSO TRS IND93EH 2"
-        },
-        "doseQuantity": {
-          "value": 2,
-          "unit": "ug/mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "ug/mL"
-        },
-        "note": [
-          {
-            "text": "Dose #54 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
-          }
-        ],
-        "reaction": [
-          {
-            "detail": {
-              "display": "Respiratory distress"
-            }
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-N7A6Q5AU6W5C6O4O7QEDZ3SJXM000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-N7A6Q5AU6W5C6O4O7QEDZ3SJXM000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "207",
-              "display": "COVID-19 (MODERNA), MRNA, LNP-S, PF, 100 MCG OR 50 MCG DOSE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "213",
-              "display": "VACCINE GROUP: COVID-19"
-            }
-          ],
-          "text": "COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2020-12-18T12:24:55Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
-          "display": "TEM MH PSO TRS IND93EH 2"
-        },
-        "manufacturer": {
-          "display": "Moderna US, Inc."
-        },
-        "doseQuantity": {
-          "value": 0.3,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #1 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered."
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    },
-    {
-      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000",
-      "resource": {
-        "resourceType": "Immunization",
-        "id": "I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000",
-        "status": "completed",
-        "vaccineCode": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "207",
-              "display": "COVID-19 (MODERNA), MRNA, LNP-S, PF, 100 MCG OR 50 MCG DOSE"
-            },
-            {
-              "system": "http://hl7.org/fhir/sid/cvx",
-              "code": "213",
-              "display": "VACCINE GROUP: COVID-19"
-            }
-          ],
-          "text": "COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064",
-          "display": "Mr. Florentino8 Raynor401"
-        },
-        "occurrenceDateTime": "2021-01-14T09:30:21Z",
-        "primarySource": true,
-        "location": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000",
-          "display": "TEM MH PSO TRS IND93EH 2"
-        },
-        "doseQuantity": {
-          "value": 0.3,
-          "unit": "mL",
-          "system": "http://unitsofmeasure.org",
-          "code": "mL"
-        },
-        "note": [
-          {
-            "text": "Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered."
-          }
-        ]
-      },
-      "search": {
-        "mode": "match"
-      }
-    }
-  ]
-}'
+        string: '{"resourceType":"Bundle",
+ "type":"searchset",
+ "total":12,
+ "link":
+  [{"relation":"first", "url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization?_count=30&patient=1012845331V153043&page=1"},
+   {"relation":"self", "url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization?_count=30&patient=1012845331V153043&page=1"},
+   {"relation":"last", "url":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization?_count=30&patient=1012845331V153043&page=1"}],
+ "entry":
+  [{"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-DVLM364Y226KFCCINORJP7MP5A000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-DVLM364Y226KFCCINORJP7MP5A000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-2L3EXKQSE5DZT5CMC6M7LOXZLU000000"},
+      "occurrenceDateTime":"2014-01-26T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "doseQuantity":{"value":4.7, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-MET4XF4STMH3G6677HABC6YTDY000000",
+           "display":"Dr. Lucas404 Polanco94"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-2LHIGUUW23DRPLBKWXTFDWCYSQ000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-2LHIGUUW23DRPLBKWXTFDWCYSQ000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-THFQQTPDYCFF4636CO52FIMCWA000000"},
+      "occurrenceDateTime":"2015-02-01T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":4.0, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-IKNW3GDLHXFEWXCXE3PKD4C6QE000000",
+           "display":"Dr. Len277 Wintheiser220 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-B5JBSVYHGRPUHI4NQCXYBVDXLM000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-B5JBSVYHGRPUHI4NQCXYBVDXLM000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-VTKN2HKBKZOKGIJSLMGVAE436Y000000"},
+      "occurrenceDateTime":"2016-02-07T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":0.6, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-3EXO7RURQMHUAF3EMMGNDRS4FI000000",
+           "display":"Dr. Lucius907 Fisher429"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-I3ONOUAJAMKX53U6O47NNBSP4E000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-I3ONOUAJAMKX53U6O47NNBSP4E000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-PM7BUCUJ2BHIS5BRMAN2NPFJR4000000"},
+      "occurrenceDateTime":"2017-02-12T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":7.8, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-UT4YUNJV4OT36EOLL3LCKSV5I4000000",
+           "display":"Dr. Joe656 Kiehn525 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-ZADCZ325X75FWLZPJA7P2HZEQA000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-ZADCZ325X75FWLZPJA7P2HZEQA000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-E4NZXDZI745PMMZGIS3U26SV2A000000"},
+      "occurrenceDateTime":"2018-02-18T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":0.3, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-BDULT2GG5KUBWEUW7TPWDWGBAE000000",
+           "display":"Dr. Zella14 Wehner319 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-MV6IWBVS47FY6PFEMN72B442CE000000"},
+      "occurrenceDateTime":"2019-02-24T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":5.2, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-PSV72IHQB63VH5FAMIUMCUEMR4000000",
+           "display":"Dr. Lance203 Langworth352"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-7JXLIQNPFQ6UNKAHYRLOGQBDOM000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-7JXLIQNPFQ6UNKAHYRLOGQBDOM000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-ZR2YFQELCATFKNZWZL6MKU3WQU000000"},
+      "occurrenceDateTime":"2020-03-01T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":1.6, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-YILLALR7R6FZV3TK3SBUWSC42Q000000",
+           "display":"Dr. Jamison785 Davis923 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-347UVDOCZ6X52AVZLT2LKP22BE000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-347UVDOCZ6X52AVZLT2LKP22BE000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-RZPLENVNXUWF7AFT3D4VUFKGF4000000"},
+      "occurrenceDateTime":"2020-03-01T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":9.3, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-X4WNBF4TLFNIOXRTKVCV26TA2I000000",
+           "display":"Dr. Christian753 Mills423 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-XTVY4IDSEUWVYC25SST25RG5KU000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-XTVY4IDSEUWVYC25SST25RG5KU000000",
+      "meta":{"lastUpdated":"2020-03-01T09:59:25Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"139", "display":"VACCINE GROUP: Td"}],
+        "text":"Td (adult) preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-RZPLENVNXUWF7AFT3D4VUFKGF4000000"},
+      "occurrenceDateTime":"2020-03-01T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":6.1, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-X4WNBF4TLFNIOXRTKVCV26TA2I000000",
+           "display":"Dr. Christian753 Mills423 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"213", "display":"VACCINE GROUP: COVID-19"}],
+        "text":"SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-RHLYB4ZJAJAIHTJ33KDZT77TEM000000"},
+      "occurrenceDateTime":"2021-04-18T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-YVJX3UTR33TUBWWMPIRJQP34FA000000",
+        "display":"TEST VA FACILITY"},
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":8.5, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-56ELYHV4IKIRXLLRC2BJW7B2PQ000000",
+           "display":"Dr. Neal874 Casper496"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"213", "display":"VACCINE GROUP: COVID-19"}],
+        "text":"SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-IX2OSZSJRZYEF6O5QP224BIW7A000000"},
+      "occurrenceDateTime":"2021-05-09T09:59:25Z",
+      "primarySource":true,
+      "location":
+       {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-YVJX3UTR33TUBWWMPIRJQP34FA000000",
+        "display":"TEST VA FACILITY"},
+      "doseQuantity":{"value":2.3, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-2P7ZRNGUTEEISB74G62CWJ66LU000000",
+           "display":"Dr. Merrilee429 Daugherty69 MD"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+   {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-QGX75BMCEGXFC57E47NAWSKSBE000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-QGX75BMCEGXFC57E47NAWSKSBE000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-7BBEY7QOFXKFBOTUOYF27FP2WM000000"},
+      "occurrenceDateTime":"2022-03-13T09:59:25Z",
+      "primarySource":true,
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":1.3, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-E2D3ZLNJPQSHCCAMYA6LTCK6UI000000",
+           "display":"Dr. Carrol931 Wilderman619"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}},
+    {"fullUrl":"https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-QGX75BMCEGXFC57E47NAWSKSBE000000",
+    "resource":
+     {"resourceType":"Immunization",
+      "id":"I2-QGX75BMCEGXFC57E47NAWSKSBE000000",
+      "meta":{"lastUpdated":"2022-11-25T00:00:00Z"},
+      "status":"completed",
+      "vaccineCode":
+       {"coding":[{"system":"http://hl7.org/fhir/sid/cvx", "code":"88", "display":"VACCINE GROUP: FLU"}],
+        "text":"Influenza, seasonal, injectable, preservative free"},
+      "patient":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043", "display":"JUDY MORRISON"},
+      "encounter":{"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-7BBEY7QOFXKFBOTUOYF27FP2WM000000"},
+      "occurrenceDateTime":"2022-03-13T09:59:25Z",
+      "primarySource":true,
+      "manufacturer":{"display":"TEST MANUFACTURER"},
+      "doseQuantity":{"value":1.3, "unit":"mL", "system":"http://unitsofmeasure.org", "code":"mL"},
+      "performer":
+       [{"actor":
+          {"reference":"https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-E2D3ZLNJPQSHCCAMYA6LTCK6UI000000",
+           "display":"Dr. Carrol931 Wilderman619"}}],
+      "note":[{"text":"Sample Immunization Note."}],
+      "reaction":[{"detail":{"display":"Other"}}],
+      "protocolApplied":[{"doseNumberString":"Series 1"}]},
+    "search":{"mode":"match"}}
+    ]}'
     recorded_at: Wed, 20 Oct 2021 15:59:19 GMT
 recorded_with: VCR 6.0.0
