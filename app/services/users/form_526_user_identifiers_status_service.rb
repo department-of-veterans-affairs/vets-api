@@ -6,8 +6,8 @@ module Users
   class Form526UserIdentifiersStatusService
     FORM526_REQUIRED_IDENTIFIERS = %w[participant_id birls_id ssn birth_date edipi].freeze
 
-    def self.call(*args)
-      new(*args).call
+    def self.call(*)
+      new(*).call
     end
 
     def initialize(user)
