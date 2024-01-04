@@ -37,7 +37,7 @@ module SimpleFormsApiSubmission
     end
 
     def self.validate_zip_code(metadata, zip_code_is_us_based)
-      zip_code = metadata['zipCode'].dup.gsub(/[0-9]/, '')
+      zip_code = metadata['zipCode'].dup.gsub(/[^0-9]/, '')
       validate_presence_and_stringiness(zip_code, 'zip code')
 
       zip_code.insert(5, '-') if zip_code.match?(/\A[0-9]{9}\z/)
