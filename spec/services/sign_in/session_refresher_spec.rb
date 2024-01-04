@@ -110,7 +110,7 @@ RSpec.describe SignIn::SessionRefresher do
 
           context 'and client in session does not match an existing client configuration' do
             let(:expected_error) { ActiveRecord::RecordNotFound }
-            let(:expected_error_message) { "Couldn't find SignIn::ClientConfig" }
+            let(:expected_error_message) { /Couldn't find SignIn::ClientConfig/ }
             let(:arbitrary_client_id) { 'some-client-id' }
 
             before do
