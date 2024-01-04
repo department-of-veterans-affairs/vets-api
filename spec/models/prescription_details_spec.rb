@@ -42,15 +42,15 @@ describe PrescriptionDetails do
     end
   end
 
-  context 'sorted_dispensed_date test cases' do
-    subject { described_class.new(prescription_details_attributes) }    
+  context 'sorted_dispensed_date test cases with dispensed_date' do
+    subject { described_class.new(prescription_details_attributes) }
 
     it 'sorted_dispensed_date should be same as dispensed_date' do
       expect(subject).to have_attributes(sorted_dispensed_date: Date.parse('Thu, 21 Apr 2016'))
     end
   end
 
-  context 'sorted_dispensed_date test cases' do
+  context 'sorted_dispensed_date test cases with nil' do
     subject { described_class.new(attributes_for(:prescription_details, rx_rf_records: [
               [
                 'rf_record',
