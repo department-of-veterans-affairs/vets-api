@@ -52,7 +52,7 @@ module Mobile
         end
 
         def group_name(vaccine_codes)
-          filtered_codes = vaccine_codes[:coding].select { |v| v[:display].include?('VACCINE GROUP: ') }
+          filtered_codes = vaccine_codes[:coding].select { |v| v[:display]&.include?('VACCINE GROUP: ') }
 
           if filtered_codes.empty?
             group_name = vaccine_codes.dig(:coding, 1, :display) || vaccine_codes.dig(:coding, 0, :display)
