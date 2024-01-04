@@ -9,6 +9,7 @@ module PdfFill
   module Forms
     class Va21p527ez < FormBase
       include FormHelper
+      include FormHelper::PhoneNumberFormatting
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -318,7 +319,7 @@ module PdfFill
             question_suffix: 'B',
             question_text: 'HOW MANY HOURS PER WEEK DO YOU AVERAGE',
             key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]'
-          },
+          }
         },
         'previousEmployers' => {
           limit: 1,
