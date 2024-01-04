@@ -5,11 +5,7 @@ require 'rails_helper'
 module AskVAApi
   module Categories
     RSpec.describe Retriever do
-      let(:mock_data) do
-        '{ "Topics": [{"id": 1, "name": "Category 1", "parentId": null},' \
-          '{"id": 2, "name": "Category 2", "parentId": 1}]}'
-      end
-      let(:parsed_data) { [{ id: 1, name: 'Category 1', parentId: nil }] }
+      let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
       let(:static_data_service) { instance_double(Crm::StaticData) }
 
       describe '#call' do
@@ -25,7 +21,7 @@ module AskVAApi
 
           before do
             allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
-            allow(static_data_service).to receive(:call).and_return(mock_data)
+            allow(static_data_service).to receive(:call).and_return(parsed_data)
           end
 
           it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
@@ -34,7 +30,7 @@ module AskVAApi
         end
 
         context 'when an error occurs during data retrieval' do
-          subject(:retriever) { described_class.new }
+          subject(:retriever) { described_class.new(user_mock_data: false) }
 
           before do
             allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
@@ -49,7 +45,7 @@ module AskVAApi
         end
 
         context 'when JSON parsing fails' do
-          subject(:retriever) { described_class.new }
+          subject(:retriever) { described_class.new(user_mock_data: false) }
 
           before do
             allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
