@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Methods that normally exist on the Session class but not on 
+# Methods that normally exist on the Session class but not on
 # the ActionController::TestSession class, for use in testing
 
 module TestSessionExtension
