@@ -701,11 +701,11 @@ features:
   military_information_vaprofile:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
-    enable_in_development: false
+    enable_in_development: true
   military_information_vaprofile_vic:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile for the VIC form
-    enable_in_development: false
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -1274,7 +1274,7 @@ features:
   veteran_status_updated:
     actor_type: user
     description: Enable the veteran post-emis status
-    enable_in_development: false
+    enable_in_development: true
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
