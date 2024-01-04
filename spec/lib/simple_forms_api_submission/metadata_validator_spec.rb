@@ -254,9 +254,8 @@ describe SimpleFormsApiSubmission::MetadataValidator do
         'docType' => '21-0845',
         'businessLine' => 'CMP'
       }
-      zip_code_is_us_based = false
 
-      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based)
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: false)
 
       expect(validated_metadata).to eq expected_metadata
     end

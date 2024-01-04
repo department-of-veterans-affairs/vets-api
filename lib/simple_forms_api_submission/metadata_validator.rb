@@ -2,7 +2,7 @@
 
 module SimpleFormsApiSubmission
   class MetadataValidator
-    def self.validate(metadata, zip_code_is_us_based = true)
+    def self.validate(metadata, zip_code_is_us_based: true)
       validate_first_name(metadata)
         .then { |m| validate_last_name(m) }
         .then { |m| validate_file_number(m) }
@@ -39,10 +39,8 @@ module SimpleFormsApiSubmission
     def self.validate_zip_code(metadata, zip_code_is_us_based)
       zip_code = metadata['zipCode'].dup
       validate_presence_and_stringiness(zip_code, 'zip code')
-      if zip_code.match?(/\A[0-9]{9}\z/)
-        zip_code = zip_code.insert(5, '-')
-      end
-
+      
+      zip_code.insert(5, '-') if zip_code.match?(/\A[0-9]{9}\z/)
       zip_code = '00000' unless zip_code.match?(/\A[0-9]{5}(-[0-9]{4})?\z/)
       zip_code = '00000' unless zip_code_is_us_based
       metadata['zipCode'] = zip_code
