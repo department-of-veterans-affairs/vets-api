@@ -321,13 +321,27 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
-        expect(date).to eq('March 2018')
+        expect(date).to eq('03/11/2018')
         expect(yyyy_date_format).to eq('2015')
         expect(event).to eq('EXPOSURE')
         expect(attribut_count).to eq(4)
         expect(secondary_name).to eq('Cancer - Musculoskeletal - Elbow')
         expect(secondary_event).to eq('EXPOSURE')
         expect(secondary_relevance).to eq('ABCDEFG')
+      end
+
+      it 'maps the secondary disability name to the primary disability correctly' do
+        disability_name = form_attributes['disabilities'][0]['name']
+        secondary_disability_name = form_attributes['disabilities'][0]['secondaryDisabilities'][0]['name']
+        sd_label = "#{secondary_disability_name} secondary to: #{disability_name}"
+
+        mapper.map_claim
+
+        claim_info = pdf_data[:data][:attributes][:claimInformation]
+
+        secondary_disability_label = claim_info[:disabilities][3][:disability]
+
+        expect(secondary_disability_label).to eq(sd_label)
       end
     end
 
@@ -378,8 +392,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         component = serv_info[:serviceComponent]
         recent_start = serv_info[:mostRecentActiveService][:start]
         recent_end = serv_info[:mostRecentActiveService][:end]
-        addtl_start = serv_info[:additionalPeriodsOfService][0][:start]
-        addtl_end = serv_info[:additionalPeriodsOfService][0][:end]
+        addtl_start = serv_info&.dig('additionalPeriodsOfService', '0', 'start')
+        addtl_end = serv_info&.dig('additionalPeriodsOfService', '0', 'end')
         last_sep = serv_info[:placeOfLastOrAnticipatedSeparation]
         pow = serv_info[:confinedAsPrisonerOfWar]
         pow_start = serv_info[:prisonerOfWarConfinement][:confinementDates][0][:start]
@@ -405,8 +419,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(component).to eq('ACTIVE')
         expect(recent_start).to eq({ month: '11', day: '14', year: '2008' })
         expect(recent_end).to eq({ month: '10', day: '30', year: '2023' })
-        expect(addtl_start).to eq({ month: '11', day: '14', year: '2008' })
-        expect(addtl_end).to eq({ month: '10', day: '30', year: '2023' })
+        expect(addtl_start).to eq(nil)
+        expect(addtl_end).to eq(nil)
         expect(last_sep).to eq('Aberdeen Proving Ground')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
@@ -429,7 +443,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(served_after_nine_eleven).to eq('NO')
       end
 
-      it 'maps homservice info correctly with a nil phone number' do
+      it 'maps service info correctly with a nil phone number' do
         form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = nil
         form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = nil
         mapper.map_claim
