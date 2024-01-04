@@ -1219,6 +1219,7 @@ DEPENDENCIES
   swagger-blocks
   test_user_dashboard!
   timecop
+  travel_pay!
   typhoeus
   tzinfo-data
   utf8-cleaner
