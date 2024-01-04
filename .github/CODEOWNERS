@@ -983,7 +983,7 @@ modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels
 modules/veteran @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/accredited-representation-management
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-modules/travel_pay @department-of-veterans-affairs/travel-pay-integration
+modules/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 modules/vye @department-of-veterans-affairs/govcio-vye-codereviewers @department-of-veterans-affairs/backend-review-group
 rakelib/appeals_api_oauth.rake @department-of-veterans-affairs/backend-review-group
 rakelib/breakers_outage.rake @department-of-veterans-affairs/backend-review-group
