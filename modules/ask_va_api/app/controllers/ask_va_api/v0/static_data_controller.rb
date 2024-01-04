@@ -13,7 +13,7 @@ module AskVAApi
       end
 
       def categories
-        get_resource('categories', service: mock_service)
+        get_resource('categories', user_mock_data: params[:user_mock_data])
         render json: @categories.payload, status: @categories.status
       end
 
@@ -28,12 +28,12 @@ module AskVAApi
       end
 
       def subtopics
-        get_resource('sub_topics', topic_id: params[:topic_id], service: mock_service)
+        get_resource('sub_topics', topic_id: params[:topic_id], user_mock_data: params[:user_mock_data])
         render json: @sub_topics.payload, status: @sub_topics.status
       end
 
       def topics
-        get_resource('topics', category_id: params[:category_id], service: mock_service)
+        get_resource('topics', category_id: params[:category_id], user_mock_data: params[:user_mock_data])
         render json: @topics.payload, status: @topics.status
       end
 
