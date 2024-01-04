@@ -8,10 +8,9 @@ RSpec.describe 'immunizations', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }
-  let!(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
 
   before(:all) do
-    allow(File).to receive(:read).and_return(rsa_key.to_s)
+    allow(File).to receive(:read).and_return(OpenSSL::PKey::RSA.generate(2048).to_s)
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
   end
 
