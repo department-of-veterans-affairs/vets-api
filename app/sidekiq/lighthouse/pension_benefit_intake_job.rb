@@ -2,6 +2,7 @@
 
 require 'benefits_intake_service/service'
 require 'central_mail/datestamp_pdf'
+require 'simple_forms_api_submission/metadata_validator'
 
 module Lighthouse
   class PensionBenefitIntakeJob
@@ -10,6 +11,8 @@ module Lighthouse
     class PensionBenefitIntakeError < StandardError; end
 
     FOREIGN_POSTALCODE = '00000'
+    PENSION_BUSINESSLINE = 'PMC'
+    PENSION_SOURCE = 'app/sidekiq/lighthouse/pension_benefit_intake_job.rb'
 
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
@@ -41,10 +44,11 @@ module Lighthouse
       Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt',
                           claim_id: @claim.id, uuid: @lighthouse_service.uuid })
 
+      @metadata = generate_form_metadata_lh
       response = @lighthouse_service.upload_form(
         main_document: split_file_and_path(@form_path),
         attachments: @attachment_paths.map(&method(:split_file_and_path)),
-        form_metadata: generate_form_metadata_lh
+        form_metadata: @metadata
       )
 
       check_success(response)
@@ -87,6 +91,7 @@ module Lighthouse
 
     # Generate form metadata to send in upload to Benefits Intake API
     #
+    # @see https://developer.va.gov/explore/api/benefits-intake/docs
     # @see SavedClaim.parsed_form
     # @return [Hash]
     def generate_form_metadata_lh
@@ -94,14 +99,18 @@ module Lighthouse
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
 
-      {
-        veteran_first_name: veteran_full_name['first'],
-        veteran_last_name: veteran_full_name['last'],
-        file_number: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        zip: address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        doc_type: @claim.form_id,
-        claim_date: @claim.created_at
+      metadata = {
+        'veteranFirstName' => veteran_full_name['first'],
+        'veteranLastName' => veteran_full_name['last'],
+        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+        'docType' => @claim.form_id,
+        'businessLine' => PENSION_BUSINESSLINE,
+        'source' => PENSION_SOURCE,
+        'claimDate' => @claim.created_at
       }
+
+      SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
     end
 
     # Check benefits service upload_form response. On success send confirmation email.
