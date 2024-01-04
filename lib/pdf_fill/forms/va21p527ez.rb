@@ -364,9 +364,11 @@ module PdfFill
             question_suffix: 'G',
             question_text: 'WHAT KIND OF WORK DID YOU DO',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
-          },
+          }
+        },
+        'bankAccount' => {
           # 11a
-          '' => {
+          'bankName' => {
             limit: 30,
             question_num: 11,
             question_suffix: 'A',
@@ -374,11 +376,11 @@ module PdfFill
             key: 'form1[0].#subform[54].Name_Of_Financial_Institution[0]'
           },
           # 11b
-          '' => {
+          'accountType' => {
             key: 'form1[0].#subform[54].RadioButtonList[55]'
           },
           # 11c
-          '' => {
+          'routingNumber' => {
             limit: 9,
             question_num: 11,
             question_suffix: 'C',
@@ -386,13 +388,16 @@ module PdfFill
             key: 'form1[0].#subform[54].Routing_Number[0]'
           },
           # 11d
-          '' => {
+          'accountNumber' => {
             limit: 15,
             question_num: 11,
             question_suffix: 'D',
             question_text: 'ACCOUNT NUMBER',
             key: 'form1[0].#subform[54].Account_Number[0]'
           }
+        },
+        'signature' => {
+          key: 'form1[0].#subform[54].SignatureField1[0]'
         }
       }.freeze
 
@@ -403,6 +408,8 @@ module PdfFill
         expand_pension_information
         expand_employment_history
         expand_direct_deposit_information
+
+        @form_data['signature'] = 'Test signature'
 
         @form_data
       end
@@ -485,11 +492,19 @@ module PdfFill
 
       # SECTION XI: DIRECT DEPOSIT INFORMATION
       def expand_direct_deposit_information
+        account_type = @form_data.dig('bankAccount', 'accountType')
 
+        @form_data['bankAccount'] = @form_data['bankAccount'].to_h.merge(
+          'accountType' => case account_type
+                           when 'checking' then 0
+                           when 'savings' then 1
+                           else 2 if @form_data['bankAccount'].nil?
+                           end
+        )
       end
 
       def to_radio_yes_no(obj)
-        obj ? 0 : 2
+        obj ? 0 : 1
       end
     end
   end
