@@ -136,7 +136,7 @@ describe SimpleFormsApiSubmission::MetadataValidator do
       it 'returns metadata with disallowed characters of veteran last name stripped or corrected' do
         metadata = {
           'veteranFirstName' => 'John',
-          'veteranLastName' => '2Jöhn~! - Jo/hn?\\',
+          'veteranLastName' => '2Jöh’n~! - J\'o/hn?\\',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
           'source' => 'VA Platform Digital Forms',
