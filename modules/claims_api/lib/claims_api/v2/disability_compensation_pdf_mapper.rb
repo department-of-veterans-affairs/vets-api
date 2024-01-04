@@ -246,7 +246,7 @@ module ClaimsApi
         end
       end
 
-      def multiple_exposures
+      def multiple_exposures # rubocop:disable Metrics/MethodLength
         multi = @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
         if multi
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
