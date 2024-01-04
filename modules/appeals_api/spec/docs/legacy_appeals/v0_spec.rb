@@ -7,12 +7,12 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup
-RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
+RSpec.describe 'Legacy Appeals', openapi_spec:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 

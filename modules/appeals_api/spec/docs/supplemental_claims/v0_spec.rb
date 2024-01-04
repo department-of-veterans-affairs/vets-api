@@ -8,12 +8,12 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/supplemental_claims/v0/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength
-RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
+RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
