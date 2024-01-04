@@ -157,6 +157,7 @@ RSpec.describe 'immunizations', type: :request do
       context 'when an immunization group name is COVID-19 and there is a manufacturer provided' do
         it 'uses the vaccine manufacturer in the response' do
           immunizations_request_covid_paginated
+          p response.parsed_body
           expect(response.parsed_body['data'][0]['attributes']).to eq(
             { 'cvxCode' => 213,
               'date' => '2021-04-18T09:59:25Z',
@@ -175,6 +176,7 @@ RSpec.describe 'immunizations', type: :request do
       context 'when an immunization group name is COVID-19 and there is no manufacturer provided' do
         it 'sets manufacturer to nil' do
           immunizations_request_covid_no_manufacturer_paginated
+          p response.parsed_body
 
           expect(response.parsed_body['data'][0]['attributes']).to eq(
             { 'cvxCode' => 213,
