@@ -41,14 +41,16 @@ class FormAttachment < ApplicationRecord
     pdftk = PdfForms.new(Settings.binaries.pdftk)
     tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
 
-    error_messages = pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
-    if error_messages.present? && error_messages.include?('Error')
-      log_message_to_sentry(error_messages, 'warn')
+    begin
+      pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
+    rescue PdfForms::PdftkError => e
+      log_message_to_sentry(e.message, 'warn')
       raise Common::Exceptions::UnprocessableEntity.new(
         detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
         source: 'FormAttachment.unlock_pdf'
       )
     end
+
     file.tempfile.unlink
     file.tempfile = tmpf
     file
