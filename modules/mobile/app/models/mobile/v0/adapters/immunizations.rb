@@ -96,7 +96,7 @@ module Mobile
 
           series = protocol_applied.first
 
-          series[:series_doses_positive_int] || series[:series_doses_string]
+          series[:series_doses_positive_int] || series[:series_doses_string] || series[:dose_number_string]
         end
 
         def note(note)
