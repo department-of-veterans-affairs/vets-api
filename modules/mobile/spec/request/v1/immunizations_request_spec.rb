@@ -31,7 +31,17 @@ RSpec.describe 'immunizations', type: :request do
 
       it 'matches the expected schema' do
         # TODO: this should use the matcher helper instead (was throwing an Oj::ParseError)
-        # expect().to match_json_schema('immunizations')
+        # expect(response.parsed_body).to match_json_schema('modules/mobile/docs/schemas/v1/Immunizations.yml', strict: true)
+        schema_file = 'modules/mobile/docs/schemas/v1/Immunizations.yml'
+        # can also handle permitted classes at gem level: https://stackoverflow.com/questions/71332602/upgrading-to-ruby-3-1-causes-psychdisallowedclass-exception-when-using-yaml-lo
+        # json_schema = YAML.load_file('modules/mobile/docs/schemas/v1/Immunizations.yml', permitted_classes: [Matrix, OpenStruct, Symbol, Time])
+        json_schema = Openapi3Parser.load_file(schema_file)
+
+binding.pry
+
+        errors = JSON::Validator.fully_validate(json_schema, response.parsed_body, strict: true)
+        expect(errors).to be_empty
+
         expected_response = {
           'data' => [{
             'id' => 'I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000',

@@ -104,6 +104,7 @@ gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
+gem "openapi3_parser", "~> 0.9.0"
 gem 'operating_hours'
 gem 'ox'
 gem 'paper_trail'
