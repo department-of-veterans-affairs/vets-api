@@ -32,6 +32,7 @@ module Lighthouse
     # Raises PensionBenefitIntakeError
     #
     # @param [Integer] saved_claim_id
+    # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
       @saved_claim_id = saved_claim_id
       @claim = SavedClaim::Pension.find(saved_claim_id)
@@ -59,6 +60,7 @@ module Lighthouse
     ensure
       cleanup_file_paths
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Create a temp stamped PDF, validate the PDF satisfies Benefits Intake specification
     #
