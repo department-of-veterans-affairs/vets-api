@@ -153,6 +153,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             submission.reload
             expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
           end
+
+          context 'when pending claim has lifecycle status not considered open for EP400 merge' do
+            let(:open_claims_cassette) { 'evss/claims/claims_pending_decision_approval' }
+
+            it 'does not save any claim ID for EP400 merge' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              submission.reload
+              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
+            end
+          end
         end
       end
     end
