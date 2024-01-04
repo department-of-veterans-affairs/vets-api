@@ -38,7 +38,7 @@ describe PrescriptionDetails do
     end
 
     it 'has method attribute sorted_dispensed_date' do
-      expect(subject).to have_attributes(sorted_dispensed_date: Date.new(0))
+      expect(subject).to have_attributes(sorted_dispensed_date: Date.parse('Thu, 21 Apr 2016'))
     end
   end
 end
