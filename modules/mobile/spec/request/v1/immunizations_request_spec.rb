@@ -117,9 +117,6 @@ RSpec.describe 'immunizations', type: :request do
           get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 11 } }
         end
       end
-      let(:immunizations_request_covid_paginated) do
-
-      end
       let(:immunizations_request_covid_no_manufacturer_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
           get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 2 } }
@@ -136,11 +133,11 @@ RSpec.describe 'immunizations', type: :request do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
           end
-          p "Immunization test output: #{response.parsed_body}"
-          covid_immunization = response.parsed_body['data'].select do |i|
-            i.dig('attributes', 'date') == '2021-04-18T09:59:25Z'
+          covid_with_manufacturer_immunization = response.parsed_body['data'].select do |i|
+            i['id'] == 'I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000'
           end
-          expect(covid_immunization.dig(0, 'attributes')).to eq(
+
+          expect(covid_with_manufacturer_immunization.dig(0, 'attributes')).to eq(
             { 'cvxCode' => 213,
               'date' => '2021-04-18T09:59:25Z',
               'doseNumber' => 'Series 1',
@@ -149,7 +146,8 @@ RSpec.describe 'immunizations', type: :request do
               'manufacturer' => 'TEST MANUFACTURER',
               'note' => 'Sample Immunization Note.',
               'reaction' => 'Other',
-              'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose' }
+              'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30' \
+                                    ' mcg/0.3mL dose' }
           )
         end
       end
@@ -159,10 +157,11 @@ RSpec.describe 'immunizations', type: :request do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
             get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
           end
-          p "Immunization test output: #{response.parsed_body}"
+
           covid_no_manufacturer_immunization = response.parsed_body['data'].select do |i|
-            i.dig('attributes', 'date') == '2021-05-09T09:59:25Z'
+            i['id'] == 'I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000'
           end
+
           expect(covid_no_manufacturer_immunization.dig(0, 'attributes')).to eq(
             { 'cvxCode' => 213,
               'date' => '2021-05-09T09:59:25Z',
