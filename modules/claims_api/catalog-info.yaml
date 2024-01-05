@@ -6,9 +6,8 @@ metadata:
   annotations:
     github.com/project-slug: https://github.com/department-of-veterans-affairs/vets-api
     datadog/production-monitor-id: '98a-nx5-icf'
-    datadog/sandbox-monitor-id: '2ne-mbd-mve' # // status tab
-    hub.lighthouse.va.gov/api-id: '' # // release notes tab
-    # Lighthouse hub > catalog > benefits claims api > release notes > "If your API has published it's release notes on https://developer.va.gov/, then use the altId of your API as defined by the https://github.com/department-of-veterans-affairs/lighthouse-platform-backend"
+    datadog/sandbox-monitor-id: '2ne-mbd-mve' # status tab
+    hub.lighthouse.va.gov/api-id: 'claims' # release notes tab
   title: Benefits Claims API v1
   tags:
     - lighthouse
