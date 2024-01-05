@@ -470,7 +470,7 @@ module PdfFill
         @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'].zero?
 
         # If "NO," skip question 4D
-        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 2
+        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 1
 
         @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
         @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
@@ -487,7 +487,7 @@ module PdfFill
                    })
         end
 
-        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 2
+        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
 
       # SECTION XI: DIRECT DEPOSIT INFORMATION

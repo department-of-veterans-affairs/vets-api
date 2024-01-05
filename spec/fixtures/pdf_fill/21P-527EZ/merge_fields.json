@@ -130,7 +130,7 @@
   "pow": 0,
   "placeOfSeparationLineOne": "Separation place",
   "placeOfSeparationLineTwo": null,
-  "medicaidStatus": 2,
+  "medicaidStatus": 1,
   "medicalCondition": "Off",
   "previousEmployers": null
 }
