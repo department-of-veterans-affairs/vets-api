@@ -154,6 +154,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
           end
 
+          context 'when EP400 merge API call is enabled' do
+            before { Flipper.enable(:disability_526_ep_merge_api) }
+            after { Flipper.disable(:disability_526_ep_merge_api) }
+
+            it 'adds the EP400 special issue to the submission' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              expect(submission.reload.disabilities.first).to include('specialIssues' => ['EP400 Merge Project'])
+            end
+          end
+
           context 'when pending claim has lifecycle status not considered open for EP400 merge' do
             let(:open_claims_cassette) { 'evss/claims/claims_pending_decision_approval' }
 
