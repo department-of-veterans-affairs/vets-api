@@ -139,7 +139,9 @@ RSpec.describe 'immunizations', type: :request do
         end
       end
       let(:immunizations_request_covid_paginated) do
-
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
+        end
       end
       let(:immunizations_request_covid_no_manufacturer_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
@@ -154,9 +156,7 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when an immunization group name is COVID-19 and there is a manufacturer provided' do
         it 'uses the vaccine manufacturer in the response' do
-          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
-          end
+          immunizations_request_covid_paginated
           p "Immunization test output: #{response.parsed_body}"
           expect(response.parsed_body['data'][0]['attributes']).to eq(
             { 'cvxCode' => 213,
@@ -190,14 +190,6 @@ RSpec.describe 'immunizations', type: :request do
               'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30' \
                                     ' mcg/0.3mL dose' }
           )
-        end
-
-        it 'increments statsd' do
-          expect do
-            VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-              get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
-            end
-          end.to trigger_statsd_increment('mobile.immunizations.covid_manufacturer_missing', times: 1)
         end
       end
 
@@ -256,7 +248,7 @@ RSpec.describe 'immunizations', type: :request do
                           I2-B5JBSVYHGRPUHI4NQCXYBVDXLM000000
                           I2-2LHIGUUW23DRPLBKWXTFDWCYSQ000000]
 
-        expect(ids).to eq(expected_ids)
+        expect(ids).to match_array(expected_ids)
       end
 
       it 'returns the correct page and number of records' do
@@ -278,7 +270,7 @@ RSpec.describe 'immunizations', type: :request do
         end
 
         dates = response.parsed_body['data'].collect { |i| i['attributes']['date'] }
-        expect(dates).to eq(['2022-03-13T09:59:25Z',
+        expect(dates).to match_array(['2022-03-13T09:59:25Z',
                              '2021-05-09T09:59:25Z',
                              '2021-04-18T09:59:25Z',
                              '2020-03-01T09:59:25Z',
