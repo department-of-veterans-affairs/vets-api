@@ -6,12 +6,11 @@ require 'rake'
 describe 'contact info via veteran icn task', type: :request do
   let(:user) { build(:disabilities_compensation_user) }
   let(:expected_csv) do
-
   end
   let(:icn1) { 'test-icn-1' }
   let(:icn2) { 'test-icn-2' }
   let(:icn3) { 'test-icn-3' }
-  
+
   let(:vet360_id1) { 'test-vet360-id1' }
   let(:vet360_id2) { 'test-vet360-id2' }
   let(:vet360_id3) { 'test-vet360-id3' }
@@ -46,7 +45,7 @@ describe 'contact info via veteran icn task', type: :request do
   let(:expected_result1) do
     address = mpi_profile1.address
     [
-      icn1, bgs_person1[:file_nbr], vet360_profile1.emails.first.email_address, 
+      icn1, bgs_person1[:file_nbr], vet360_profile1.emails.first.email_address,
       "#{address.street}, #{address.city} #{address.postal_code}, #{address.country}"
     ]
   end
@@ -55,7 +54,7 @@ describe 'contact info via veteran icn task', type: :request do
     address = mpi_profile2.address
     active_email = vet360_profile2.emails.select { |email| email.effective_end_date.nil? }.first
     [
-      icn2, bgs_person2[:file_nbr], active_email.email_address, 
+      icn2, bgs_person2[:file_nbr], active_email.email_address,
       "#{address.street}, #{address.city} #{address.postal_code}, #{address.country}"
     ]
   end
@@ -64,7 +63,7 @@ describe 'contact info via veteran icn task', type: :request do
     address = mpi_profile3.address
     file_number = bgs_person3[:file_nbr].delete('-')
     [
-      icn3, file_number, vet360_profile3.emails.first.email_address, 
+      icn3, file_number, vet360_profile3.emails.first.email_address,
       "#{address.street}, #{address.street2}, #{address.city} #{address.postal_code}, #{address.country}"
     ]
   end
@@ -88,44 +87,51 @@ describe 'contact info via veteran icn task', type: :request do
     end
 
     it 'generates a csv with expected values' do
-      allow(MPI::Service).to receive(:new).exactly(6).times.and_return(double())
+      allow(MPI::Service).to receive(:new).exactly(6).times.and_return(double)
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
-                              .exactly(1).times
-                              .with(identifier: icn1, identifier_type: 'ICN')
-                              .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile1))
+                              .once
+        .with(identifier: icn1, identifier_type: 'ICN')
+        .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile1))
 
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
-                              .exactly(1).times
-                              .with(identifier: icn2, identifier_type: 'ICN')
-                              .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile2))
-      
+                              .once
+        .with(identifier: icn2, identifier_type: 'ICN')
+        .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile2))
+
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
-                              .exactly(1).times
-                              .with(identifier: icn3, identifier_type: 'ICN')
-                              .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile3))
+                              .once
+        .with(identifier: icn3, identifier_type: 'ICN')
+        .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile3))
 
       expect(VAProfile::ContactInformation::Service).to receive(:get_person)
-                              .exactly(1).times
-                              .with(vet360_id1)
-                              .and_return(double(VAProfile::ContactInformation::PersonResponse, person: vet360_profile1))
+        .once
+        .with(vet360_id1)
+        .and_return(double(VAProfile::ContactInformation::PersonResponse,
+                           person: vet360_profile1))
 
       expect(VAProfile::ContactInformation::Service).to receive(:get_person)
-                              .exactly(1).times
-                              .with(vet360_id2)
-                              .and_return(double(VAProfile::ContactInformation::PersonResponse, person: vet360_profile2))
+        .once
+        .with(vet360_id2)
+        .and_return(double(VAProfile::ContactInformation::PersonResponse,
+                           person: vet360_profile2))
 
       expect(VAProfile::ContactInformation::Service).to receive(:get_person)
-                              .exactly(1).times
-                              .with(vet360_id3)
-                              .and_return(double(VAProfile::ContactInformation::PersonResponse, person: vet360_profile3))
+        .once
+        .with(vet360_id3)
+        .and_return(double(VAProfile::ContactInformation::PersonResponse,
+                           person: vet360_profile3))
 
       expect(BGS::Services).to receive(:new).exactly(4).times.and_return(double(BGS::Services, config: {}))
 
       # NOTE: Using `receive_message_chain` is not recommended,
       # but we aren't testing BGS as a part of these specs, just need to stub to allow the script to run
-      # Also can't chain a count (i.e. `exactly`) to the `expect` because receive_message_chain isn't intended to use the whole interface
-      allow(BGS::Services.new(external_uid: anything, external_key: anything)).to receive_message_chain(:people, :find_person_by_ptcpnt_id)
-                                                                               .and_return(bgs_person1, bgs_person2, bgs_person3)
+      # Also can't chain a count (i.e. `exactly`) to the `expect`
+      # because receive_message_chain isn't intended to use the whole interface
+      # rubocop:disable RSpec/MessageChain
+      allow(BGS::Services.new(external_uid: anything,
+                              external_key: anything)).to receive_message_chain(:people, :find_person_by_ptcpnt_id)
+        .and_return(bgs_person1, bgs_person2, bgs_person3)
+      # rubocop:enable RSpec/MessageChain
 
       run_rake_task
       result = CSV.read(path_to_csv)
@@ -136,42 +142,48 @@ describe 'contact info via veteran icn task', type: :request do
     end
 
     it 'logs an error message with the veteran_icn' do
-      allow(MPI::Service).to receive(:new).exactly(6).times.and_return(double())
+      allow(MPI::Service).to receive(:new).exactly(6).times.and_return(double)
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
-                              .exactly(1).times
-                              .with(identifier: icn1, identifier_type: 'ICN')
-                              .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile1))
+                              .once
+        .with(identifier: icn1, identifier_type: 'ICN')
+        .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile1))
 
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
-                              .exactly(1).times
-                              .with(identifier: icn2, identifier_type: 'ICN')
-                              .and_return(double(MPI::Responses::FindProfileResponse, profile: nil))
-      
-      expect(MPI::Service.new).to receive(:find_profile_by_identifier)
-                              .exactly(1).times
-                              .with(identifier: icn3, identifier_type: 'ICN')
-                              .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile3))
+                              .once
+        .with(identifier: icn2, identifier_type: 'ICN')
+        .and_return(double(MPI::Responses::FindProfileResponse, profile: nil))
 
-      expect(VAProfile::ContactInformation::Service).to receive(:get_person)
-                              .exactly(1).times
-                              .with(vet360_id1)
-                              .and_return(double(VAProfile::ContactInformation::PersonResponse, person: vet360_profile1))
+      expect(MPI::Service.new).to receive(:find_profile_by_identifier)
+                              .once
+        .with(identifier: icn3, identifier_type: 'ICN')
+        .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile3))
 
       expect(VAProfile::ContactInformation::Service).to receive(:get_person)
-                              .exactly(1).times
-                              .with(vet360_id3)
-                              .and_return(double(VAProfile::ContactInformation::PersonResponse, person: vet360_profile3))
+        .once
+        .with(vet360_id1)
+        .and_return(double(VAProfile::ContactInformation::PersonResponse,
+                           person: vet360_profile1))
+
+      expect(VAProfile::ContactInformation::Service).to receive(:get_person)
+        .once
+        .with(vet360_id3)
+        .and_return(double(VAProfile::ContactInformation::PersonResponse,
+                           person: vet360_profile3))
 
       expect(BGS::Services).to receive(:new).exactly(3).times.and_return(double(BGS::Services, config: {}))
 
       # NOTE: Using `receive_message_chain` is not recommended,
       # but we aren't testing BGS as a part of these specs, just need to stub to allow the script to run
-      # Also can't chain a count (i.e. `exactly`) to the `expect` because receive_message_chain isn't intended to use the whole interface
-      allow(BGS::Services.new(external_uid: anything, external_key: anything)).to receive_message_chain(:people, :find_person_by_ptcpnt_id)
-                                                                               .and_return(bgs_person1, bgs_person3)
+      # Also can't chain a count (i.e. `exactly`) to the `expect`
+      # because receive_message_chain isn't intended to use the whole interface
+      # rubocop:disable RSpec/MessageChain
+      allow(BGS::Services.new(external_uid: anything,
+                              external_key: anything)).to receive_message_chain(:people, :find_person_by_ptcpnt_id)
+        .and_return(bgs_person1, bgs_person3)
+      # rubocop:enable RSpec/MessageChain
 
       expected_error_message = {
-        message: "Error while attempting to retrieve veteran contact information: No mpi profile!",
+        message: 'Error while attempting to retrieve veteran contact information: No mpi profile!',
         veteran_icn: icn2,
         backtrace: kind_of(Array)
       }
@@ -180,7 +192,7 @@ describe 'contact info via veteran icn task', type: :request do
       run_rake_task
 
       result = CSV.read(path_to_csv)
-      first_row, second_row = result 
+      first_row, second_row = result
       expect(first_row).to eq(expected_result1)
       # 2nd row will be test veteran #3 since veteran #2 encountered an error
       expect(second_row).to eq(expected_result3)
