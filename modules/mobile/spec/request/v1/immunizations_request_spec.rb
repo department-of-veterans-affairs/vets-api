@@ -118,9 +118,7 @@ RSpec.describe 'immunizations', type: :request do
         end
       end
       let(:immunizations_request_covid_paginated) do
-        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
-        end
+
       end
       let(:immunizations_request_covid_no_manufacturer_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
@@ -135,7 +133,9 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when an immunization group name is COVID-19 and there is a manufacturer provided' do
         it 'uses the vaccine manufacturer in the response' do
-          immunizations_request_covid_paginated
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
+          end
           p "Immunization test output: #{response.parsed_body}"
           covid_immunization = response.parsed_body['data'].select do |i|
             i.dig('attributes', 'date') == '2021-04-18T09:59:25Z'
@@ -156,10 +156,14 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when an immunization group name is COVID-19 and there is no manufacturer provided' do
         it 'sets manufacturer to nil' do
-          immunizations_request_covid_no_manufacturer_paginated
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
+          end
           p "Immunization test output: #{response.parsed_body}"
-
-          expect(response.parsed_body['data'][0]['attributes']).to eq(
+          covid_no_manufacturer_immunization = response.parsed_body['data'].select do |i|
+            i.dig('attributes', 'date') == '2021-05-09T09:59:25Z'
+          end
+          expect(covid_no_manufacturer_immunization.dig(0, 'attributes')).to eq(
             { 'cvxCode' => 213,
               'date' => '2021-05-09T09:59:25Z',
               'doseNumber' => 'Series 1',
@@ -175,7 +179,9 @@ RSpec.describe 'immunizations', type: :request do
 
         it 'increments statsd' do
           expect do
-            immunizations_request_covid_paginated
+            VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
+            end
           end.to trigger_statsd_increment('mobile.immunizations.covid_manufacturer_missing', times: 1)
         end
       end
