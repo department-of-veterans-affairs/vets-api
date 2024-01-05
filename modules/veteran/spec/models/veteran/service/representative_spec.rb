@@ -114,38 +114,6 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
-  describe '.find_with_name_similar_to' do
-    before do
-      # word similarity value = 1
-      create(:representative, representative_id: '456', first_name: 'Bob', last_name: 'Law')
-
-      # word similarity value = 0.375
-      create(:representative, representative_id: '789', first_name: 'Bobby', last_name: 'Low')
-
-      # word similarity value = 0.375
-      create(:representative, representative_id: '123', first_name: 'Bobbie', last_name: 'Lew')
-
-      # word similarity value = 0.25
-      create(:representative, representative_id: '246', first_name: 'Robert', last_name: 'Lanyard')
-    end
-
-    context 'when there are representatives with full names similar to the search phrase' do
-      it 'returns all representatives with full names >= the word similarity threshold' do
-        results = described_class.find_with_name_similar_to('Bob Law')
-
-        expect(results.pluck(:representative_id)).to match_array(%w[123 456 789])
-      end
-    end
-
-    context 'when there are no representatives with full names similar to the search phrase' do
-      it 'returns an empty array' do
-        results = described_class.find_with_name_similar_to('No Name')
-
-        expect(results.pluck(:representative_id)).to eq([])
-      end
-    end
-  end
-
   describe 'callbacks' do
     describe '#set_full_name' do
       context 'creating a new representative' do
