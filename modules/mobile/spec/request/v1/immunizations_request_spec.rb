@@ -29,27 +29,7 @@ RSpec.describe 'immunizations', type: :request do
       end
 
       it 'matches the expected schema' do
-        # TODO: this should use the matcher helper instead (was throwing an Oj::ParseError)
-        # expect().to match_json_schema('immunizations')
-        expected_response = { 'data' =>
-                               [{ 'id' => 'I2-QGX75BMCEGXFC57E47NAWSKSBE000000',
-                                  'type' => 'immunization',
-                                  'attributes' =>
-                                   { 'cvxCode' => 88,
-                                     'date' => '2022-03-13T09:59:25Z',
-                                     'doseNumber' => 'Series 1',
-                                     'doseSeries' => 'Series 1',
-                                     'groupName' => 'FLU',
-                                     'manufacturer' => nil,
-                                     'note' => 'Sample Immunization Note.',
-                                     'reaction' => 'Other',
-                                     'shortDescription' => 'Influenza, seasonal, injectable, preservative free' },
-                                  'relationships' => { 'location' => { 'data' => nil,
-                                                                       'links' => { 'related' => nil } } } }],
-                              'meta' => { 'pagination' => { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 11,
-                                                            'totalEntries' => 11 } } }
-
-        expect(response.parsed_body).to eq(expected_response)
+        expect(response.body).to match_json_schema('v1/immunizations')
       end
 
       context 'for items that do not have locations' do
@@ -139,7 +119,7 @@ RSpec.describe 'immunizations', type: :request do
       end
       let(:immunizations_request_covid_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
+          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 14, number: 1 } }
         end
       end
       let(:immunizations_request_covid_no_manufacturer_paginated) do
@@ -157,7 +137,10 @@ RSpec.describe 'immunizations', type: :request do
         it 'uses the vaccine manufacturer in the response' do
           immunizations_request_covid_paginated
           p "Immunization test output: #{response.parsed_body}"
-          expect(response.parsed_body['data'][0]['attributes']).to eq(
+          covid_immunization = response.parsed_body['data'].select do |i|
+            i.dig('attributes', 'date') == '2021-04-18T09:59:25Z'
+          end
+          expect(covid_immunization.dig(0, 'attributes')).to eq(
             { 'cvxCode' => 213,
               'date' => '2021-04-18T09:59:25Z',
               'doseNumber' => 'Series 1',
@@ -166,8 +149,7 @@ RSpec.describe 'immunizations', type: :request do
               'manufacturer' => 'TEST MANUFACTURER',
               'note' => 'Sample Immunization Note.',
               'reaction' => 'Other',
-              'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30' \
-                                    ' mcg/0.3mL dose' }
+              'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30 mcg/0.3mL dose' }
           )
         end
       end
@@ -189,6 +171,12 @@ RSpec.describe 'immunizations', type: :request do
               'shortDescription' => 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 30' \
                                     ' mcg/0.3mL dose' }
           )
+        end
+
+        it 'increments statsd' do
+          expect do
+            immunizations_request_covid_paginated
+          end.to trigger_statsd_increment('mobile.immunizations.covid_manufacturer_missing', times: 1)
         end
       end
 
@@ -270,16 +258,16 @@ RSpec.describe 'immunizations', type: :request do
 
         dates = response.parsed_body['data'].collect { |i| i['attributes']['date'] }
         expect(dates).to match_array(['2022-03-13T09:59:25Z',
-                             '2021-05-09T09:59:25Z',
-                             '2021-04-18T09:59:25Z',
-                             '2020-03-01T09:59:25Z',
-                             '2020-03-01T09:59:25Z',
-                             '2019-02-24T09:59:25Z',
-                             '2018-02-18T09:59:25Z',
-                             '2017-02-12T09:59:25Z',
-                             '2016-02-07T09:59:25Z',
-                             '2015-02-01T09:59:25Z',
-                             '2014-01-26T09:59:25Z'])
+                                      '2021-05-09T09:59:25Z',
+                                      '2021-04-18T09:59:25Z',
+                                      '2020-03-01T09:59:25Z',
+                                      '2020-03-01T09:59:25Z',
+                                      '2019-02-24T09:59:25Z',
+                                      '2018-02-18T09:59:25Z',
+                                      '2017-02-12T09:59:25Z',
+                                      '2016-02-07T09:59:25Z',
+                                      '2015-02-01T09:59:25Z',
+                                      '2014-01-26T09:59:25Z'])
       end
     end
 

@@ -23,7 +23,6 @@ module Mobile
       #
       # @return [String] the encoded token as JWT::Encode string
       #
-
       def token
         JWT.encode(claims, rsa_key, 'RS512')
       end

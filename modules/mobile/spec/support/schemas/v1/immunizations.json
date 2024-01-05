@@ -42,7 +42,7 @@
                 "type": "string"
               },
               "manufacturer": {
-                "type": "string"
+                "type": ["string","null"]
               },
               "note": {
                 "type": "string"
