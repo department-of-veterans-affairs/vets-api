@@ -8,13 +8,14 @@ RSpec.describe 'immunizations', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }
+  let(:rsa_key) { "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAmdq2dVE93zsNOZ2vC1mL4kLUWqcq6jldLb3VTaJjiuyodKAH\nletsiMCh+seA2O7XiKGX7EQU+70lzobFhnwonBFpuDp7rlAUsANais3PyB/iS7Md\n5ER9NW4xtQUefDZa6CE4KH8pcJpsj6xYYs2UOLtkle6SSDLWr7db29U6xR4aBucl\nvae/Or52CqtRo6FB/IAM0NQOWaNbvwYKnqXckhIbLzIkt2BGybwj9sEzHSFVnF6T\n9tUR5V5yQ+pef10gQYgQGEvIItQ91yrz/hayTwzPhBcd63B+mP9t0fGsb72DviN5\nz7g+SBdvpJdake4HniVyGeW6sDy8NLX6G1A90QIDAQABAoIBAFfjDUlVAFANjo90\nGPMV0weL/3xNdAFahXTEtR1k/xH0AIKmi87DLjusNptn7Z1+Slb9YCiR956aPQeO\nCzW4pQYKGGcp2U8I5dhqAgW6bdA3DnEJv7COwyuLaA+s/e4cqq9hko/nnAd73znv\nTIocP2hs+5d+McfWarbzuiCI3MqOdafJsS7bbS7ILSSlAhZHdgC3aoajb99j1ugX\n/mcfiIaXwsd9caraKuUDDl3mThLf+Enlw/0kFu1L7a/+AtLPQiWCd2hbBU1ZdugB\nmgUfmewKrTnjq5JgIAJAZInUK2SLgIxPI1lkYBOvCjUGHdiBWE75XDrQtrLkaCa7\nvUDGXjECgYEAy0jx8A7cshnBfY2K/PcF/R2kq18swK6Beqx/U5M3m9uH1lwGSMvv\nidvdGRLTV4h/U6W9WgPm16IrBAN8DbJSmqYlOaCxXYemVz3AjXMMU1FnsPqxNEUw\n0AY0qilp7P51ndwJ8IKYa90NVF40XmOKetNnoIkQyj7LmcTHpLX1240CgYEAwcBS\nTDXztC79gSoI6zNZPqWHo5GMBAJSHs7Eg845CKjqouxLDbvOkqlMb87iL2iGxSqQ\nsUZ/xvm0lUAOj+zYRMMo0Qu29hMbw6VwwoZoJjIOLAnHQCwZ0sIi/dl5ElYpVK7g\nlWvz3PLPbBg71mjqUw4j/jC6j5qX3ZN4OZ2luFUCgYANF8SlXn+uZORGbuBdzJcx\nJ0Cc3QNn4ZVrTkLhIiE5w5jrIIAzHhdufJ+v5rt/7sWsoIcijg/HIaW9m2/Y/fw+\nA6dwH75stLjs84g8VAWeNCcGig7xu+cZ7txjfUlaP0VaBnsJZ4/jmpgqL+sVjTm1\nEXqiJ1HShNreK4NkQ2fzXQKBgQCFjD/twf5yQzV/c27kV+d68/Pzfd5J4SOjkpgH\n1fygCHZ6yG7PT5WKp+FE7BAh52WFv9ouJ07p4rJjcdzXvcQwWWjn9rAtG2y2xXFc\n0/Iz6aq1FiReCkfeauxdlyoJxpQEh+nLdLaJpF/uvSF5n6VsjEGo8wOU+lUVaJGk\n/RH+ZQKBgEgaDkncaIAY86EGfWWKnleN7/SST9YhDHxXkt6ylFdl2XdrwyLkOspz\nFGEKTc1a/FJKpicXR5c3fbRXT+QAr0MX3a0k4RkfACOipf/a0d9tjKIju+fIDnSs\nN0KhVF8ND3FmJUwFF1FkqyRVj0HJBYPIAgkWaCqBPzCL/RsubFox\n-----END RSA PRIVATE KEY-----\n" }
 
-  before(:all) do
-    allow(File).to receive(:read).and_return(OpenSSL::PKey::RSA.generate(2048).to_s)
+  before do
+    allow(File).to receive(:read).and_return(rsa_key)
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
   end
 
-  after(:all) { Timecop.return }
+  after { Timecop.return }
 
   describe 'GET /mobile/v1/health/immunizations' do
     context 'when the expected fields have data' do
@@ -138,9 +139,7 @@ RSpec.describe 'immunizations', type: :request do
         end
       end
       let(:immunizations_request_covid_paginated) do
-        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
-        end
+
       end
       let(:immunizations_request_covid_no_manufacturer_paginated) do
         VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
@@ -155,7 +154,9 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when an immunization group name is COVID-19 and there is a manufacturer provided' do
         it 'uses the vaccine manufacturer in the response' do
-          immunizations_request_covid_paginated
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
+          end
           p "Immunization test output: #{response.parsed_body}"
           expect(response.parsed_body['data'][0]['attributes']).to eq(
             { 'cvxCode' => 213,
@@ -193,7 +194,9 @@ RSpec.describe 'immunizations', type: :request do
 
         it 'increments statsd' do
           expect do
-            immunizations_request_covid_paginated
+            VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 1, number: 3 } }
+            end
           end.to trigger_statsd_increment('mobile.immunizations.covid_manufacturer_missing', times: 1)
         end
       end
