@@ -4,12 +4,12 @@ require 'common/file_helpers'
 
 module SimpleFormsApi
   class PdfFiller
-    attr_accessor :data, :form_number, :name
+    attr_accessor :form, :form_number, :name
 
     TEMPLATE_BASE = Rails.root.join('modules', 'simple_forms_api', 'templates')
 
-    def initialize(form_number:, data:, name: nil)
-      @data = data.with_indifferent_access
+    def initialize(form_number:, form:, name: nil)
+      @form = form
       @form_number = form_number
       @name = name || form_number
     end
@@ -20,7 +20,7 @@ module SimpleFormsApi
       stamped_template_path = "tmp/#{name}-stamped.pdf"
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       FileUtils.copy(template_form_path, stamped_template_path)
-      PdfStamper.stamp_pdf(stamped_template_path, data)
+      PdfStamper.stamp_pdf(stamped_template_path, form)
       pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
       generated_form_path
     ensure
@@ -30,14 +30,9 @@ module SimpleFormsApi
     def mapped_data
       template = Rails.root.join('modules', 'simple_forms_api', 'app', 'form_mappings', "#{form_number}.json.erb").read
       b = binding
-      b.local_variable_set(:data, data)
+      b.local_variable_set(:data, form)
       result = ERB.new(template).result(b)
       JSON.parse(escape_json_string(result))
-    end
-
-    def metadata
-      klass = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-      klass.metadata
     end
 
     def escape_json_string(str)

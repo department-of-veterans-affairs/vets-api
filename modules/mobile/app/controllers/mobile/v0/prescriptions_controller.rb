@@ -48,6 +48,8 @@ module Mobile
       def status_meta(resource)
         {
           prescription_status_count: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
+            hash['isRefillable'] += 1 if obj.is_refillable
+
             if obj.is_trackable || %w[active submitted providerHold activeParked
                                       refillinprocess].include?(obj.refill_status)
               hash['active'] += 1

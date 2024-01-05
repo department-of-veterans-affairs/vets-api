@@ -65,7 +65,7 @@ module DocHelpers
   end
 
   # @param [Hash] opts
-  # @option opts [String] :cassette The name of the cassette to use, if any
+  # @option opts [String|String[]] :cassette The name(s) of the cassette(s) to use, if any
   # @option opts [String] :desc The description of the test. Required.
   # @option opts [Boolean] :extract_desc Whether to use the example name
   # @option opts [Symbol] :response_wrapper Method name to wrap the response, to modify the output of the example
@@ -77,9 +77,11 @@ module DocHelpers
       scopes = opts.fetch(:scopes, [])
       valid = opts.fetch(:token_valid, true)
       if opts[:cassette]
-        VCR.use_cassette(opts[:cassette]) do
-          with_rswag_auth(scopes, valid:) { submit_request(example.metadata) }
-        end
+        cassettes = opts[:cassette].is_a?(String) ? [opts[:cassette]] : opts[:cassette]
+
+        cassettes.each { |c| VCR.insert_cassette(c) }
+        with_rswag_auth(scopes, valid:) { submit_request(example.metadata) }
+        cassettes.each { |c| VCR.eject_cassette(c) }
       else
         with_rswag_auth(scopes, valid:) { submit_request(example.metadata) }
       end

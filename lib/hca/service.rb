@@ -21,7 +21,7 @@ module HCA
 
     # @param [HashWithIndifferentAccess] form JSON form data
     def submit_form(form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier, '10-10EZ')
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
 

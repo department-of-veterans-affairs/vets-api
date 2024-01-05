@@ -6,9 +6,11 @@ module AppealsApi::LegacyAppeals::V0
   class LegacyAppealsController < AppealsApi::ApplicationController
     include AppealsApi::CaseflowRequest
     include AppealsApi::OpenidAuth
+    include AppealsApi::IcnParameterValidation
     include AppealsApi::Schemas
 
     skip_before_action :authenticate
+    before_action :validate_icn_parameter!, only: %i[index]
     before_action :validate_json_schema, only: %i[index]
 
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'legacy_appeals' }.freeze
@@ -32,7 +34,7 @@ module AppealsApi::LegacyAppeals::V0
     end
 
     def get_caseflow_response
-      caseflow_service.get_legacy_appeals headers: { 'X-VA-SSN' => icn_to_ssn!(params[:icn]) }
+      caseflow_service.get_legacy_appeals headers: { 'X-VA-SSN' => icn_to_ssn!(veteran_icn) }
     end
 
     def token_validation_api_key

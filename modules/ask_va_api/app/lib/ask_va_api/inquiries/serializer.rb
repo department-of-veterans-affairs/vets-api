@@ -20,7 +20,11 @@ module AskVAApi
                  :veteran_relationship
 
       attribute :correspondences do |obj|
-        AskVAApi::Correspondences::Serializer.new(obj.correspondences).serializable_hash
+        if obj.correspondences.blank?
+          obj.correspondences
+        else
+          AskVAApi::Correspondences::Serializer.new(obj.correspondences).serializable_hash
+        end
       end
     end
   end

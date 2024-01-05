@@ -100,10 +100,6 @@ RSpec.describe BGS::SubmitForm686cEncryptedJob, type: :job do
   end
 
   context 'when submission raises error' do
-    before do
-      Flipper.enable(:dependents_central_submission)
-    end
-
     it 'raises error' do
       expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm686cJob::Invalid686cClaim)

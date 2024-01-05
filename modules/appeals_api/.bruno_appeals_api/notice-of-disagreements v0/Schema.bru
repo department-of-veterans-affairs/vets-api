@@ -1,0 +1,28 @@
+meta {
+  name: Schema
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base_uri}}/services/appeals/notice-of-disagreements/v0/schemas/10182
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/NoticeOfDisagreements.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

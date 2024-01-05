@@ -69,7 +69,7 @@ module SimpleFormsApi
       additional_form_data['certificates'] = additional_form_data['additional_copies']
       filler = SimpleFormsApi::PdfFiller.new(
         form_number: 'vba_40_0247',
-        data: additional_form_data,
+        form: SimpleFormsApi::VBA400247.new(additional_form_data),
         name: 'vba_40_0247_additional_address'
       )
 

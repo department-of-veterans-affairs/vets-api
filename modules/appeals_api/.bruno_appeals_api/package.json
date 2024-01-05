@@ -1,0 +1,14 @@
+{
+  "name": "appeals_api_bruno_scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "helpers.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsrsasign": "^10.9.0"
+  }
+}

@@ -5,7 +5,7 @@ module AskVAApi
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
       before_action :get_inquiries_by_icn, only: [:index]
-      before_action :get_inquiry_by_inquiry_number, only: [:show]
+      before_action :get_inquiry_by_id, only: [:show]
       skip_before_action :authenticate, only: %i[unauth_create upload_attachment]
       skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
 
@@ -42,9 +42,10 @@ module AskVAApi
         params.permit(:first_name, :last_name).to_h
       end
 
-      def get_inquiry_by_inquiry_number
-        inq = retriever.fetch_by_inquiry_number(inquiry_number: params[:inquiry_number])
-        raise InvalidInquiryError if inq.inquiry_number.nil?
+      def get_inquiry_by_id
+        inq = retriever.fetch_by_id(id: params[:id])
+
+        raise InvalidInquiryError if inq.is_a?(Hash)
 
         @inquiry = Result.new(payload: Inquiries::Serializer.new(inq).serializable_hash, status: :ok)
       end
@@ -57,7 +58,7 @@ module AskVAApi
       def get_attachment
         att = Attachments::Retriever.new(id: params[:id], service: mock_service).call
 
-        raise InvalidAttachmentError if att.file_name.nil? || att.file_content.nil?
+        raise InvalidAttachmentError if att.blank?
 
         Result.new(payload: Attachments::Serializer.new(att).serializable_hash, status: :ok)
       end

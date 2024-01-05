@@ -1,0 +1,20 @@
+meta {
+  name: Download SC
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/supplemental_claims/{{dr_sc_id}}/download
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{api_key}}
+  X-VA-ICN: {{veteran_icn}}
+}
+
+assert {
+  res.status: eq 200
+}

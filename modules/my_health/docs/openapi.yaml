@@ -1114,7 +1114,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/SecureMessageListInThread.yml
+                oneOf:
+                  - $ref: ./schemas/SecureMessageListInThread.yml
+                  - $ref: ./schemas/SecureMessageListInThreadWithFullBody.yml
           description: OK
         "401":
           content:
@@ -1130,6 +1132,12 @@ paths:
           description: Not authorized for access to secure messages
       summary: /v1/messaging/messages/{id}/thread
       parameters:
+        - name: full_body
+          in: query
+          description: Include the full body of the messages and attachments meta in the response
+          required: false
+          schema:
+            type: boolean
         - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/recipients:
     get:

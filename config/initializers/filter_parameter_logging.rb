@@ -23,6 +23,7 @@ ALLOWLIST = %w[
   showCompleted
   excludeProvidedMessage
   document_id
+  document_type
   category
   cookie_id
   reply_id

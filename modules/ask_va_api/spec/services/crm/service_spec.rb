@@ -52,7 +52,9 @@ RSpec.describe Crm::Service do
         before do
           allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
           allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
-                                                                           icn: '123').and_return(response)
+                                                                           icn: '123',
+                                                                           organizationName: 'iris-dev')
+                                                                     .and_return(response)
         end
 
         it 'returns a parsed response' do
@@ -98,7 +100,9 @@ RSpec.describe Crm::Service do
       before do
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
         allow_any_instance_of(Faraday::Connection).to receive(:get).with('veis/vagov.lob.ava/api/inquiries',
-                                                                         { icn: '123' }).and_raise(exception)
+                                                                         { icn: '123',
+                                                                           organizationName: 'iris-dev' })
+                                                                   .and_raise(exception)
       end
 
       it 'raises a service error' do

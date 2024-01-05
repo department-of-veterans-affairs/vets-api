@@ -2,7 +2,7 @@
     "personal_identification": {
         "ssn": "1234",
         "file_number": "5678",
-        "fsr_reason": ""
+        "fsr_reason": "waiver, monthly"
     },
     "personal_data": {
         "veteran_full_name": {
@@ -208,21 +208,24 @@
         {
             "debt_type": "COPAY",
             "p_h_amt_due": "100",
-            "station": {"facilit_y_num": "123"}
+            "station": {"facilit_y_num": "123"},
+            "resolution_option": "waiver"
         },
         {
             "debt_type": "COPAY",
             "p_h_amt_due": "200",
             "station": {
                 "facilit_y_num": "123"
-            }
+            },
+            "resolution_option": "waiver"
         },
         {
             "debt_type": "COPAY",
             "p_h_amt_due": "300",
             "station": {
                 "facilit_y_num": "999"
-            }
+            },
+            "resolution_option": "monthly"
         }
     ],
     "streamlined":{

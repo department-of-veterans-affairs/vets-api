@@ -32,6 +32,38 @@ RSpec.describe VBADocuments::UploadValidations do
     end
   end
 
+  describe '#validate_metadata' do
+    let(:included_values) { {} }
+    let(:input) { JSON.parse(File.read(get_fixture('valid_metadata.json'))).merge(included_values).to_json }
+    let(:output) { validate_metadata(input, submission_version: 1) }
+
+    it 'validates valid metadata' do
+      expect { output }.not_to raise_error
+    end
+
+    context 'when zipCode is a number' do
+      let(:included_values) { { 'zipCode' => 12_345 } }
+
+      it 'raises a DOC102 error' do
+        expect { output }.to raise_error(VBADocuments::UploadError) do |e|
+          expect(e.code).to eq('DOC102')
+          expect(e.detail).to include('Non-string values for keys: zipCode')
+        end
+      end
+    end
+
+    context 'when zipCode is the wrong length' do
+      let(:included_values) { { 'zipCode' => '123' } }
+
+      it 'raises a DOC102 error' do
+        expect { output }.to raise_error(VBADocuments::UploadError) do |e|
+          expect(e.code).to eq('DOC102')
+          expect(e.detail).to include('five digits')
+        end
+      end
+    end
+  end
+
   describe '#validate_documents' do
     it 'validates a valid PDF' do
       expect { validate_documents(parts) }.not_to raise_error

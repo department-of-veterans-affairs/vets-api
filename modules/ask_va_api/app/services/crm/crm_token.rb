@@ -4,7 +4,7 @@ module Crm
   class CrmToken
     extend Forwardable
 
-    attr_reader :settings, :logger
+    attr_reader :settings, :logger, :cache_client
 
     def_delegators :settings,
                    :auth_url,
@@ -16,18 +16,18 @@ module Crm
 
     def initialize
       @settings = Settings.ask_va_api.crm_api
-      @redis = RedisClient.new
+      @cache_client = RedisClient.new
       @logger = LogService.new
     end
 
     def call
-      token = @redis.token
+      token = cache_client.fetch('token')
 
       return token if token.present?
 
       access_token = get_token
 
-      @redis.cache_data(data: access_token, name: 'token')
+      cache_client.store_data(key: 'token', data: access_token, ttl: 3540)
 
       access_token
     end

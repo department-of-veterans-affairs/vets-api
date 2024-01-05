@@ -44,6 +44,11 @@ module ClaimsApi
       end
 
       poa_form.save
+    rescue BGS::ShareError => e
+      poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
+      poa_form.vbms_error_message = e.respond_to?(:message) ? e.message : 'BGS::ShareError'
+      poa_form.save
+      ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
     end
 
     def allow_address_change?(poa_form, power_of_attorney_id)

@@ -50,11 +50,19 @@ module AppealsApi
       # modules_appeals_api.enable_unsafe_mode = true in settings.local.yml
       return if unsafe_mode?
 
-      token_validation_client.validate_token!(
+      @token_validation_result = token_validation_client.validate_token!(
         audience: audience_url,
         scopes: DEFAULT_OAUTH_SCOPES[request.method.to_sym] + self.class::OAUTH_SCOPES[request.method.to_sym],
         token: auth_token
       )
+    end
+
+    def token_validation_result
+      if @token_validation_result.blank? && !Rails.env.production?
+        raise 'You must call `validate_auth_token!` before accessing `token_validation_result`'
+      end
+
+      @token_validation_result
     end
 
     private

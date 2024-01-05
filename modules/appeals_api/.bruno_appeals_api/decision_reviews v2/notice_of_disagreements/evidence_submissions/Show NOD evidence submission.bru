@@ -1,0 +1,19 @@
+meta {
+  name: Show NOD evidence submission
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/notice_of_disagreements/evidence_submissions/{{dr_nod_evidence_submission_id}}
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

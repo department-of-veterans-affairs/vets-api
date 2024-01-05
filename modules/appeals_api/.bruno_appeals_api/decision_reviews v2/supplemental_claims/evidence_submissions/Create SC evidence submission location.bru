@@ -1,0 +1,31 @@
+meta {
+  name: Create SC evidence submission location
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions?sc_uuid={{dr_sc_id}}
+  body: none
+  auth: none
+}
+
+query {
+  sc_uuid: {{dr_sc_id}}
+}
+
+headers {
+  X-VA-SSN: {{veteran_ssn}}
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  if (res.body.data) {
+    bru.setVar('dr_sc_evidence_submission_location', res.body.data.attributes.location);
+    bru.setVar('dr_sc_evidence_submission_id', res.body.data.id);
+  }
+}
