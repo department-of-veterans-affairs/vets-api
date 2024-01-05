@@ -116,9 +116,10 @@ RSpec.describe SignIn::SessionCreator do
 
         it 'returns a Session Container with expected OAuth Session and fields' do
           session = subject.session
+          session.reload
           expect(session.handle).to eq(expected_handle)
           expect(session.hashed_refresh_token).to eq(expected_double_hashed_parent_refresh_token)
-          expect(session.refresh_creation.strftime('%s%L')).to eq(expected_created_time.strftime('%s%L'))
+          expect(session.refresh_creation).to eq(expected_created_time)
           expect(session.client_id).to eq(client_id)
           expect(session.user_attributes_hash.values).to eq(expected_user_attributes.values)
         end
