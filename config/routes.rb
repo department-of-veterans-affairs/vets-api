@@ -48,6 +48,8 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
+    resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
+    resource :virtual_agent_token_nlu, only: [:create], controller: :virtual_agent_token_nlu
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
@@ -458,6 +460,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount VAOS::Engine, at: '/vaos'
+  mount Vye::Engine, at: '/vye'
   # End Modules
 
   require 'sidekiq/web'

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/va21p527ez'
+# require 'pdf_fill/forms/va21p527ez', TODO: re-adding new form in follow up PR
 require 'pdf_fill/forms/va21p530'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
@@ -49,12 +49,14 @@ module EVSS
         pdf = PdfFill::Filler.fill_ancillary_form(
           @submission.form[Form526Submission::FORM_4142], @submission.submitted_claim_id, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5)
+        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
+                                                              timestamp: @submission.created_at)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true
+          text_only: true,
+          timestamp: @submission.created_at
         )
       end
 
@@ -73,8 +75,8 @@ module EVSS
         address = form['veteranAddress']
 
         {
-          'veteranFirstName' => veteran_full_name['first'],
-          'veteranLastName' => veteran_full_name['last'],
+          'veteranFirstName' => transliterate(veteran_full_name['first']),
+          'veteranLastName' => transliterate(veteran_full_name['last']),
           'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           'receiveDt' => received_date,
           'uuid' => jid,
@@ -88,9 +90,13 @@ module EVSS
       end
 
       def received_date
-        date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
-        date = date.in_time_zone('Central Time (US & Canada)')
+        date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
         date.strftime('%Y-%m-%d %H:%M:%S')
+      end
+
+      # Corrects or replaces with an empty string any characters not matching upstream validators
+      def transliterate(name)
+        I18n.transliterate(name).gsub(%r{[^A-Za-z'/ -]}, '')
       end
     end
   end

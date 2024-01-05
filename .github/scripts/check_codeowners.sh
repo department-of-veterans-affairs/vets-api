@@ -37,7 +37,7 @@ check_in_codeowners() {
     return 1
 }
 
-for FILE in $CHANGED_FILES; do
+for FILE in "${CHANGED_FILES}"; do
   # Ignore files starting with a dot
   if [[ $FILE == .* ]]; then
     echo "Ignoring file $FILE"

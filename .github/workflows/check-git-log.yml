@@ -1,9 +1,9 @@
-name: Check Git Log for EMIS Cassettes (PII)
+name: Check Git Log for EMIS Cassettes
 
 on:
   push:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 * * * *'
 
 jobs:
   check-git-log:
@@ -15,9 +15,18 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Only check current branch unless we're triggered via schedule/cron
+      id: vars
+      run: |
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          echo "GIT_LOG_ARGS=--all" >> $GITHUB_ENV
+        else
+          echo "GIT_LOG_ARGS=" >> $GITHUB_ENV
+        fi
+
     - name: Run git log command
       run: |
-        LOG=$(git log --all --oneline -- spec/support/vcr_cassettes/emis)
+        LOG=$(git log $GIT_LOG_ARGS --oneline -- spec/support/vcr_cassettes/emis)
         if [ -n "$LOG" ]; then
           echo "$LOG" | awk '{print $1}' > bad-shas.txt
           echo "EMIs Cassettes found in git history"
