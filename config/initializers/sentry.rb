@@ -23,18 +23,12 @@ Rails.application.reloader.to_prepare do
   Sentry.init do |config|
     config.dsn = Settings.sentry.dsn if Settings.sentry.dsn
     config.environment = Settings.vsp_environment if Settings.vsp_environment
-    # No longer need to ignore 'ActionController::InvalidAuthenticityToken'
-    # https://github.com/getsentry/sentry-ruby/blob/master/sentry-ruby/lib/sentry/configuration.rb#L354
-
-    # config.async is deprecated and could get removed
-    # https://github.com/getsentry/sentry-ruby/issues/1522
 
     # https://docs.sentry.io/platforms/ruby/guides/rails/configuration/options/#transport-options
     config.transport.transport_class = transport
 
     # Sentry removed processors
-    # https://www.comptia.org/certifications/security
-
+    # https://docs.sentry.io/platforms/ruby/migration/#removed-processors
     config.before_send = lambda do |event, hint|
       return Sentry::EventScrubber.new(event, hint).cleaned_event
     end
