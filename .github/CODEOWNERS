@@ -927,7 +927,7 @@ lib/periodic_jobs.rb @department-of-veterans-affairs/va-api-engineers @departmen
 lib/preneeds @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/rx @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/backend-review-group
 lib/saml @department-of-veterans-affairs/vsp-identity
-lib/salesforce @department-of-veterans-affairs/backend-review-group
+lib/salesforce @department-of-veterans-affairs/govcio-vfep-codereviewers
 lib/search @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/sentry @department-of-veterans-affairs/backend-review-group
 lib/sentry_logging.rb @department-of-veterans-affairs/backend-review-group
