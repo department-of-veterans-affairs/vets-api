@@ -34,21 +34,61 @@ RSpec.describe V0::LettersDiscrepancyController, type: :controller do
           VCR.use_cassette('evss/letters/letters_discrepancy_less_than_lh') do
             get(:index)
 
-            # expect(Rails.logger).to have_received(:info).with('Caseflow Request',
-            #   'va_user' => 'adhoc.test.user',
-            #   'lookup_identifier' => hash)
-
             lh_letters = %w[commissary proof_of_service medicare_partd minimum_essential_coverage
                             service_verification civil_service benefit_summary benefit_verification]
             evss_letters = %w[commissary proof_of_service medicare_partd minimum_essential_coverage
                               service_verification civil_service benefit_summary]
 
-            expect(Rails.logger).to have_received(:info).with('Letters Generator Discrepancies',
-                                                                  { message_type: 'lh.letters_generator.letters_discrepancy',
-                                                                    lh_letter_diff: 1,
-                                                                    evss_letter_diff: 0,
-                                                                    lh_letters: lh_letters.join(', '),
-                                                                    evss_letters: evss_letters.join(', ') })
+            expect(Rails.logger)
+              .to have_received(:info)
+              .with('Letters Generator Discrepancies',
+                    { message_type: 'lh.letters_generator.letters_discrepancy',
+                      lh_letter_diff: 1,
+                      evss_letter_diff: 0,
+                      lh_letters: lh_letters.sort.join(', '),
+                      evss_letters: evss_letters.sort.join(', ') })
+          end
+        end
+      end
+
+      it 'when EVSS returns more letters than Lighthouse' do
+        VCR.use_cassette('lighthouse/letters_generator/letters_discrepancy_less_than_evss') do
+          VCR.use_cassette('evss/letters/letters_discrepancy_same') do
+            get(:index)
+
+            lh_letters = %w[commissary proof_of_service medicare_partd minimum_essential_coverage
+                            service_verification civil_service benefit_summary]
+            evss_letters = %w[commissary proof_of_service medicare_partd minimum_essential_coverage
+                              service_verification civil_service benefit_summary benefit_verification]
+
+            expect(Rails.logger)
+              .to have_received(:info)
+              .with('Letters Generator Discrepancies',
+                    { message_type: 'lh.letters_generator.letters_discrepancy',
+                      lh_letter_diff: 0,
+                      evss_letter_diff: 1,
+                      lh_letters: lh_letters.sort.join(', '),
+                      evss_letters: evss_letters.sort.join(', ') })
+          end
+        end
+      end
+
+      it 'when EVSS and Lighthouse return the same amount of letters, but different types' do
+        VCR.use_cassette('lighthouse/letters_generator/letters_discrepancy_same_length_diff_types') do
+          VCR.use_cassette('evss/letters/letters_discrepancy_same_length_diff_types') do
+            get(:index)
+
+            lh_letters = %w[commissary proof_of_service benefit_summary]
+            evss_letters = %w[commissary proof_of_service medicare_partd]
+
+            expect(Rails.logger)
+              .to have_received(:info)
+              .with('Letters Generator Discrepancies',
+                    { message_type: 'lh.letters_generator.letters_discrepancy',
+                      lh_letter_diff: 1,
+                      evss_letter_diff: 1,
+                      lh_letters: lh_letters.sort.join(', '),
+                      evss_letters: evss_letters.sort.join(', ') })
           end
         end
       end

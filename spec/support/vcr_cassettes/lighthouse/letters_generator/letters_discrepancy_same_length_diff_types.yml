@@ -64,12 +64,7 @@ http_interactions:
         to determine eligibility on potential letters, BGS Veteran requires fileNumber","severity":"WARN"},{"key":"letterDestination.fileNumber.missing","text":"Unable
         to determine eligibility on potential letters, BGS Veteran requires fileNumber","severity":"WARN"}],"letters":[{"letterName":"Benefit
         Summary Letter","letterType":"BENEFIT_SUMMARY"},{"letterName":"Proof of Service
-        Letter","letterType":"PROOF_OF_SERVICE"},{"letterName":"Commissary Letter","letterType":"COMMISSARY"},{"letterName":"Proof
-        of Creditable Prescription Drug Coverage Letter","letterType":"MEDICARE_PARTD"},{"letterName":"Proof
-        of Minimum Essential Coverage Letter","letterType":"MINIMUM_ESSENTIAL_COVERAGE"},{"letterName":"Service
-        Verification Letter","letterType":"SERVICE_VERIFICATION"},{"letterName":"Civil
-        Service Preference Letter","letterType":"CIVIL_SERVICE"},{"letterName":"Benefit
-        Verification Letter","letterType":"BENEFIT_VERIFICATION"}],"letterDestination":{"country":"United
+        Letter","letterType":"PROOF_OF_SERVICE"},{"letterName":"Commissary Letter","letterType":"COMMISSARY"}],"letterDestination":{"country":"United
         States","addressLine1":"1708 Tiburon Blvd","addressLine2":null,"addressLine3":null,"city":"Tiburon","state":"CA","zipCode":"94921","fullName":"Jesse
         Gray"},"militaryServices":[{"branch":"Army","characterOfService":"HONORABLE","releasedDateTime":"1984-12-12T00:00:00Z","enteredDateTime":"1977-08-30T00:00:00Z"}],"benefitInformation":{"serviceConnectedPercentage":60,"awardEffectiveDateTime":"2021-12-01T00:00:00Z","monthlyAwardAmount":{"value":1288.03,"currency":"USD"},"serviceConnectedDisabilities":true,"nonServiceConnectedPension":false,"individualUnemployabilityGranted":false,"chapter35Eligibility":true,"specialMonthlyCompensation":false,"adaptedHousing":false,"chapter35EligibilityDateTime":"2018-03-14T05:00:00Z","hasDeathResultOfDisability":false,"hasSurvivorsIndemnityCompensationAward":false,"hasSurvivorsPensionAward":false}}'
   recorded_at: Tue, 18 Apr 2023 16:22:34 GMT
