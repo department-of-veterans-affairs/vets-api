@@ -427,7 +427,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-        byebug
         expect(exposure_info[:additionalHazardExposures]).to eq(nil)
       end
     end
