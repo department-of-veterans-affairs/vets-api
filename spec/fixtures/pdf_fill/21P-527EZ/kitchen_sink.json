@@ -208,6 +208,8 @@
   ],
   "spouseSocialSecurityNumber": "342342444",
   "spouseVaFileNumber": "23423444",
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Doe",
   "totalNetWorth": false,
   "transferredAssets": true,
   "vaClaimsHistory": true,

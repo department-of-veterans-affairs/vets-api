@@ -396,8 +396,19 @@ module PdfFill
             key: 'form1[0].#subform[54].Account_Number[0]'
           }
         },
-        'signature' => {
+        'statementOfTruthSignature' => {
           key: 'form1[0].#subform[54].SignatureField1[0]'
+        },
+        'signatureDate' => {
+          'month' => {
+            key: 'form1[0].#subform[54].Date_Signed_Month[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[54].Date_Signed_Day[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[54].Date_Signed_Year[0]'
+          }
         }
       }.freeze
 
@@ -408,8 +419,7 @@ module PdfFill
         expand_pension_information
         expand_employment_history
         expand_direct_deposit_information
-
-        @form_data['signature'] = 'Test signature'
+        expand_claim_certification_and_signature
 
         @form_data
       end
@@ -501,6 +511,12 @@ module PdfFill
                            else 2 if @form_data['bankAccount'].nil?
                            end
         )
+      end
+
+      # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
+      def expand_claim_certification_and_signature
+        # form was signed today
+        @form_data['signatureDate'] = split_date(Time.now.strftime("%Y-%m-%d"))
       end
 
       def to_radio_yes_no(obj)
