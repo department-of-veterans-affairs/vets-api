@@ -251,7 +251,7 @@ GEM
       i18n
     bindex (0.8.1)
     blueprinter (0.30.0)
-    bootsnap (1.16.0)
+    bootsnap (1.17.0)
       msgpack (~> 1.2)
     brakeman (6.1.1)
       racc
@@ -298,7 +298,7 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (5.2.5)
+    coverband (6.0.1)
       redis (>= 3.0)
     crack (0.4.5)
       rexml
