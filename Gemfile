@@ -25,6 +25,7 @@ path 'modules' do
   gem 'my_health'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
+  gem 'travel_pay'
   gem 'va_forms'
   gem 'va_notify'
   gem 'vaos'
