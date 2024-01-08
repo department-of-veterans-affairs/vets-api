@@ -658,6 +658,10 @@ features:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
     enable_in_development: true
+  mhv_medical_records_display_notes:
+    actor_type: user
+    description: Show/hide content related to Notes in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_sidenav:
     actor_type: user
     description: Show/hide the Medical Records side navigation
