@@ -12,6 +12,7 @@ require 'lighthouse/letters_generator/veteran_sponsor_resolver'
 
 module V0
   class LettersDiscrepancyController < ApplicationController
+    service_tag 'letters'
     before_action { authorize :evss, :access_letters? }
     before_action { authorize :lighthouse, :access? }
 
