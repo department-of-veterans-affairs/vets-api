@@ -39,6 +39,8 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
+        # collect errors and pass back to the controller
+        raise_error_collection if @errors
       end
 
       def validate_form_526_change_of_address!
@@ -54,7 +56,7 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
 
-        form_object_desc = 'change of address'
+        form_object_desc = '/changeOfAddress'
 
         raise_exception_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
       end
@@ -67,7 +69,7 @@ module ClaimsApi
         begin
           nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
-          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
+          collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end
 
@@ -75,11 +77,13 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'endDate')
         if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: '"changeOfAddress.dates.endDate" cannot be included when typeOfAddressChange is PERMANENT'
+          collect_error_messages(
+            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
+            source: '/changeOfAddress/dates/endDate'
           )
         end
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+        return if change_of_address['dates']['beginDate'].blank? # nothing to check against
 
         form_object_desc = 'a TEMPORARY change of address'
 
@@ -88,21 +92,26 @@ module ClaimsApi
         return if Date.strptime(date,
                                 '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
+        collect_error_messages(source: '/changeOfAddress/dates/endDate', detail: 'endDate is not a valid date.')
       end
 
       def validate_form_526_change_of_address_country!
         country = form_attributes.dig('changeOfAddress', 'country')
         return if country.nil? || valid_countries.include?(country)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', country)
+        collect_error_messages(
+          source: '/changeOfAddress/country',
+          detail: 'The country provided is not a valid.'
+        )
       end
 
       def validate_form_526_claimant_certification!
         return unless form_attributes['claimantCertification'] == false
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
-                                                          form_attributes['claimantCertification'])
+        collect_error_messages(
+          source: '/claimantCertification',
+          detail: 'claimantCertification must not be false.'
+        )
       end
 
       def validate_form_526_identification!
@@ -113,8 +122,9 @@ module ClaimsApi
       def validate_form_526_service_number!
         service_num = form_attributes.dig('veteranIdentification', 'serviceNumber')
         return if service_num.nil?
+
         if service_num.length > 9
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: "serviceNumber, #{service_num} is too long")
+          collect_error_messages(source: '/veteranIdentification/serviceNumber', detail: 'serviceNumber is too long.')
         end
       end
 
@@ -122,7 +132,10 @@ module ClaimsApi
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
         return if valid_countries.include?(mailing_address['country'])
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('country', mailing_address['country'])
+        collect_error_messages(
+          source: '/veteranIdentification/mailingAddress/country',
+          detail: 'The country provided is not valid.'
+        )
       end
 
       def validate_form_526_disabilities!
@@ -135,30 +148,34 @@ module ClaimsApi
       def validate_form_526_disability_classification_code!
         return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
 
-        form_attributes['disabilities'].each do |disability|
+        form_attributes['disabilities'].each_with_index do |disability, idx|
           next if disability['classificationCode'].blank?
 
           if brd_classification_ids.include?(disability['classificationCode'].to_i)
-            validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i)
+
+            validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i, idx)
           else
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.classificationCode' must match an active code " \
-                      'returned from the /disabilities endpoint of the Benefits ' \
-                      'Reference Data API.'
-            )
+            collect_error_messages(source: "/disabilities/#{idx}/classificationCode",
+                                   detail: 'The classificationCode must match an active code ' \
+                                           'returned from the /disabilities endpoint of the Benefits ' \
+                                           'Reference Data API.')
           end
         end
       end
 
-      def validate_form_526_disability_code_enddate!(classification_code)
+      def validate_form_526_disability_code_enddate!(classification_code, idx, sd_idx = nil)
         reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
-        end_date_time = reference_disability[:endDateTime]
+        end_date_time = reference_disability[:endDateTime] if reference_disability
         return if end_date_time.nil?
 
         if Date.parse(end_date_time) < Time.zone.today
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "'disabilities.classificationCode' is no longer active."
-          )
+          source_message = if sd_idx
+                             "disabilities/#{idx}/secondaryDisability/#{sd_idx}/classificationCode"
+                           else
+                             "disabilities/#{idx}/classificationCode"
+                           end
+          collect_error_messages(source: source_message,
+                                 detail: 'The classificationCode is no longer active.')
         end
       end
 
@@ -174,7 +191,8 @@ module ClaimsApi
 
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
-          raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
+          collect_error_messages(source: "disabilities/#{idx}/approximateDate",
+                                 detail: 'The approximateDate is not valid.')
         end
       end
 
@@ -182,109 +200,103 @@ module ClaimsApi
         disabilities = form_attributes['disabilities']
         return if disabilities.blank?
 
-        disabilities.each do |disability|
+        disabilities.each_with_index do |disability, idx|
           disability_action_type = disability&.dig('disabilityActionType')
           service_relevance = disability&.dig('serviceRelevance')
           if disability_action_type == 'NEW' && service_relevance.blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.serviceRelevance' is required if 'disabilities.disabilityActionType' is NEW."
-            )
+            collect_error_messages(source: "disabilities/#{idx}/serviceRelevance",
+                                   detail: 'The serviceRelevance is required if ' \
+                                           "disabilityActionType' is NEW.")
           end
         end
       end
 
       def validate_form_526_disability_secondary_disabilities!
-        form_attributes['disabilities'].each do |disability|
+        form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           next if disability['secondaryDisabilities'].blank?
 
-          validate_form_526_disability_secondary_disability_required_fields!(disability)
+          validate_form_526_disability_secondary_disability_required_fields!(disability, dis_idx)
 
-          disability['secondaryDisabilities'].each do |secondary_disability|
+          disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
             if secondary_disability['classificationCode'].present?
-              validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
-              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i)
+              validate_form_526_disability_secondary_disability_classification_code!(secondary_disability, dis_idx,
+                                                                                     sd_idx)
+              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i, dis_idx,
+                                                         sd_idx)
             end
 
             if secondary_disability['approximateDate'].present?
-              validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+              validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability, dis_idx,
+                                                                                        sd_idx)
             end
           end
         end
       end
 
-      def validate_form_526_disability_secondary_disability_required_fields!(disability)
-        disability['secondaryDisabilities'].each do |secondary_disability|
+      def validate_form_526_disability_secondary_disability_required_fields!(disability, disability_idx)
+        disability['secondaryDisabilities'].each_with_index do |secondary_disability, sd_idx|
           sd_name = secondary_disability&.dig('name')
           sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
           sd_service_relevance = secondary_disability&.dig('serviceRelevance')
 
-          form_object_desc = 'secondary disability'
+          form_object_desc = "/disability/#{disability_idx}/secondaryDisability/#{sd_idx}"
 
-          raise_exception_if_value_not_present('name', form_object_desc) if sd_name.blank?
+          raise_exception_if_value_not_present('name', "#{form_object_desc}/name") if sd_name.blank?
+
           if sd_disability_action_type.blank?
-            raise_exception_if_value_not_present('disability action type',
-                                                 form_object_desc)
+            raise_exception_if_value_not_present('disabilityActionType',
+                                                 "#{form_object_desc}/disabilityActionType")
           end
           if sd_service_relevance.blank?
             raise_exception_if_value_not_present('service relevance',
-                                                 form_object_desc)
+                                                 "#{form_object_desc}/serviceRelevance")
           end
         end
       end
 
-      def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
+      def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability, dis_idx, sd_idx)
         return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'disabilities.secondaryDisabilities.classificationCode' must match an active code " \
-                  'returned from the /disabilities endpoint of the Benefits Reference Data API.'
-        )
+        collect_error_messages(source: "disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/classificationCode",
+                               detail: 'classificationCode must match an active code ' \
+                                       'returned from the /disabilities endpoint of the Benefits Reference Data API.')
       end
 
-      def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+      def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability, dis_idx,
+                                                                                    sd_idx)
         date_is_valid?(secondary_disability['approximateDate'], 'disabilities.secondaryDisabilities.approximateDate')
 
         return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
 
-        raise ::Common::Exceptions::InvalidFieldValue.new(
-          'disabilities.secondaryDisabilities.approximateDate',
-          secondary_disability['approximateDate']
-        )
-      rescue ArgumentError
-        raise ::Common::Exceptions::InvalidFieldValue.new(
-          'disabilities.secondaryDisabilities.approximateDate',
-          secondary_disability['approximateDate']
-        )
+        collect_error_messages(source: "/disabilities/#{dis_idx}/secondaryDisability/#{sd_idx}/approximateDate",
+                               detail: 'approximateDate must be a date in the past.')
       end
 
       def validate_form_526_veteran_homelessness! # rubocop:disable Metrics/MethodLength
         handle_empty_other_description
 
         if too_many_homelessness_attributes_provided?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "Must define only one of 'homeless.currentlyHomeless' or " \
-                    "'homeless.riskOfBecomingHomeless'"
-          )
+          collect_error_messages(source: '/homeless/',
+                                 detail: "Must define only one of 'homeless/currentlyHomeless' or " \
+                                         "'homeless/riskOfBecomingHomeless'")
         end
 
         if unnecessary_homelessness_point_of_contact_provided?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "If 'homeless.pointOfContact' is defined, then one of " \
-                    "'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is required"
-          )
+          collect_error_messages(source: '/homeless/',
+                                 detail: "If 'homeless/pointOfContact' is defined, then one of " \
+                                         "'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless'" \
+                                         ' is required')
         end
 
         if missing_point_of_contact?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "If one of 'homeless.currentlyHomeless' or 'homeless.riskOfBecomingHomeless' is " \
-                    "defined, then 'homeless.pointOfContact' is required"
-          )
+          collect_error_messages(source: '/homeless/',
+                                 detail: "If one of 'homeless/currentlyHomeless' or 'homeless/riskOfBecomingHomeless'" \
+                                         " is defined, then 'homeless/pointOfContact' is required")
         end
 
         if international_phone_too_long?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'International telephone number must be shorter than 25 characters'
-          )
+          collect_error_messages(source: '/homeless/pointOfContactNumber/internationalTelephone',
+                                 detail: 'International telephone number must be shorter than 25 characters')
         end
       end
 
@@ -347,20 +359,19 @@ module ClaimsApi
         begin_date = gulf_war_service&.dig('serviceDates', 'beginDate')
         end_date = gulf_war_service&.dig('serviceDates', 'endDate')
 
-        begin_property = 'toxicExposure/gulfWarHazardService/serviceDates/beginDate'
-        end_property = 'toxicExposure/gulfWarHazardService/serviceDates/endDate'
+        begin_prop = '/toxicExposure/gulfWarHazardService/serviceDates/beginDate'
+        end_prop = '/toxicExposure/gulfWarHazardService/serviceDates/endDate'
 
-        validate_gulf_war_service_date(begin_date) unless begin_date.nil? || !date_is_valid?(begin_date,
-                                                                                             begin_property)
-        validate_gulf_war_service_date(end_date) unless end_date.nil? || !date_is_valid?(end_date,
-                                                                                         end_property)
+        validate_gulf_war_service_date(begin_date, begin_prop) unless begin_date.nil? || !date_is_valid?(begin_date,
+                                                                                                         begin_prop)
+        validate_gulf_war_service_date(end_date, end_prop) unless end_date.nil? || !date_is_valid?(end_date,
+                                                                                                   end_prop)
       end
 
-      def validate_gulf_war_service_date(date)
+      def validate_gulf_war_service_date(date, prop)
         if date_has_day?(date) # this date should not have the day
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Service dates must be in the format of yyyy-mm or yyyy'
-          )
+          collect_error_messages(source: prop.to_s,
+                                 detail: 'Service dates must be in the format of yyyy-mm or yyyy')
         end
       end
 
@@ -380,10 +391,10 @@ module ClaimsApi
         return unless receiving_attr == future_attr
 
         # EVSS does not allow both attributes to be the same value (unless that value is nil)
-        raise ::Common::Exceptions::InvalidFieldValue.new(
-          "'servicePay.receivingMilitaryRetiredPay' and 'servicePay.futureMilitaryRetiredPay '" \
-          'should not be the same value', receiving_attr
-        )
+        collect_error_messages(source: '/servicePay/',
+                               detail: "'servicePay/receivingMilitaryRetiredPay' and " \
+                                       "'servicePay/futureMilitaryRetiredPay " \
+                                       'should not be the same value')
       end
 
       def validate_from_526_military_retired_pay_branch!
@@ -392,11 +403,10 @@ module ClaimsApi
         branch = form_attributes.dig('servicePay', 'militaryRetiredPay', 'branchOfService')
         return if branch.nil? || brd_service_branch_names.include?(branch)
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'servicePay.militaryRetiredPay.branchOfService' must match a service branch " \
-                  'returned from the /service-branches endpoint of the Benefits ' \
-                  'Reference Data API.'
-        )
+        collect_error_messages(source: '/servicePay/militaryRetiredPay/branchOfService',
+                               detail: "'servicePay.militaryRetiredPay.branchOfService' must match a service branch " \
+                                       'returned from the /service-branches endpoint of the Benefits ' \
+                                       'Reference Data API.')
       end
 
       def validate_form_526_future_military_retired_pay!
@@ -405,10 +415,9 @@ module ClaimsApi
         return if future_attr.nil?
 
         if future_attr == 'YES' && future_explanation_attr.blank?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "If 'servicePay.futureMilitaryRetiredPay' is true, then " \
-                    "'servicePay.futureMilitaryRetiredPayExplanation' is required"
-          )
+          collect_error_messages(source: '/servicePay/',
+                                 detail: "If 'servicePay/futureMilitaryRetiredPay' is true, then " \
+                                         "'servicePay/futureMilitaryRetiredPayExplanation' is required")
         end
       end
 
@@ -419,19 +428,18 @@ module ClaimsApi
 
         return if date_is_valid_against_current_time_after_check_on_format?(separation_pay_received_date)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('separationSeverancePay.datePaymentReceived',
-                                                          separation_pay_received_date)
+        collect_error_messages(source: '/servicePay/separationSeverancePay/datePaymentReceived',
+                               detail: 'datePaymentReceived must be a date in the past.')
       end
 
       def validate_from_526_separation_severance_pay_branch!
         branch = form_attributes.dig('servicePay', 'separationSeverancePay', 'branchOfService')
         return if branch.nil? || brd_service_branch_names.include?(branch)
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'servicePay.separationSeverancePay.branchOfService' must match a service branch " \
-                  'returned from the /service-branches endpoint of the Benefits ' \
-                  'Reference Data API.'
-        )
+        collect_error_messages(source: '/servicePay/separationSeverancePay/branchOfService',
+                               detail: "'servicePay/separationSeverancePay/branchOfService' must match a service " \
+                                       'branch returned from the /service-branches endpoint of the Benefits ' \
+                                       'Reference Data API.')
       end
 
       def validate_form_526_treatments!
@@ -449,7 +457,8 @@ module ClaimsApi
         treated_disability_names.each do |treatment|
           next if declared_disability_names.include?(treatment)
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/treatments/treatedDisabilityNames',
             detail: 'The treated disability must match a disability listed above'
           )
         end
@@ -470,12 +479,13 @@ module ClaimsApi
           per['activeDutyBeginDate']
         end
         if first_service_period['activeDutyBeginDate']
-          return unless date_is_valid?(first_service_period['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+          return if date_is_valid?(first_service_period['activeDutyBeginDate'],
+                                   'serviceInformation/servicePeriods/activeDutyBeginDate').is_a?(Array)
 
           first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'],
                                              '%Y-%m-%d')
         end
-        treatments.each do |treatment|
+        treatments.each_with_index do |treatment, idx|
           next if treatment['beginDate'].nil?
 
           treatment_begin_date = if type_of_date_format(treatment['beginDate']) == 'yyyy-mm'
@@ -484,14 +494,16 @@ module ClaimsApi
                                    Date.strptime(treatment['beginDate'], '%Y')
 
                                  else
-                                   raise ::Common::Exceptions::UnprocessableEntity.new(
+                                   collect_error_messages(
+                                     source: "/treatments/#{idx}/beginDate",
                                      detail: 'Each treatment begin date must be in the format of yyyy-mm or yyyy.'
                                    )
                                  end
           next if first_service_date.blank? || treatment_begin_date >= first_service_date
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'."
+          collect_error_messages(
+            source: "/treatments/#{idx}/beginDate",
+            detail: 'Each treatment begin date must be after the first activeDutyBeginDate.'
           )
         end
       end
@@ -501,7 +513,7 @@ module ClaimsApi
         disabilities.each do |disability|
           names << disability['name'].strip.downcase
           disability['secondaryDisabilities']&.each do |secondary|
-            names << secondary['name'].strip.downcase
+            names << secondary['name']&.strip&.downcase
           end
         end
         names
@@ -511,7 +523,8 @@ module ClaimsApi
         service_information = form_attributes['serviceInformation']
 
         if service_information.blank?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/',
             detail: 'Service information is required'
           )
         end
@@ -531,68 +544,89 @@ module ClaimsApi
         end
         max_active_duty_end_date = max_period['activeDutyEndDate']
 
-        return unless date_is_valid?(max_active_duty_end_date, 'servicePeriod.activeDutyBeginDate')
+        max_date_valid = date_is_valid?(max_active_duty_end_date,
+                                        'serviceInformation/servicePeriods/activeDutyBeginDate')
 
-        if ant_sep_date.present? && max_active_duty_end_date.present? &&
-           ((Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
+        return if max_date_valid.is_a?(Array) || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+
+        if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
+          max_period['activeDutyEndDate'], '%Y-%m-%d'
+        ) > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
            180.days) || (Date.strptime(ant_sep_date,
                                        '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
             detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
           )
         end
       end
 
-      def validate_service_periods!(service_information, target_veteran)
+      def validate_service_periods!(service_information, target_veteran) # rubocop:disable Metrics/MethodLength
         date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
         age_thirteen = date_of_birth.next_year(13)
-        service_information['servicePeriods'].each do |sp|
+        service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
-            next unless date_is_valid?(sp['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+            begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'],
+                                              'serviceInformation/servicePeriods/activeDutyBeginDate')
+            break if begin_date_valid.is_a?(Array)
 
-            age_exception if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
+            age_exception(idx) if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
 
             if sp['activeDutyEndDate']
-              next unless date_is_valid?(sp['activeDutyEndDate'], 'servicePeriod.activeDutyBeginDate')
+              end_date_valid = date_is_valid?(sp['activeDutyEndDate'],
+                                              'serviceInformation/servicePeriods/activeDutyBeginDate')
+              break if end_date_valid.is_a?(Array)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
               )
-                begin_date_exception
+                begin_date_exception(idx)
               end
             end
           end
 
           if sp['activeDutyEndDate'] && Date.strptime(sp['activeDutyEndDate'],
                                                       '%Y-%m-%d') > Time.zone.now && sp['separationLocationCode'].blank?
-            location_code_exception
+            location_code_exception(idx)
           end
         end
       end
 
-      def age_exception
-        raise ::Common::Exceptions::UnprocessableEntity.new(
+      def age_exception(idx)
+        collect_error_messages(
+          source: "/serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate",
           detail: "Active Duty Begin Date cannot be on or before Veteran's thirteenth birthday."
         )
       end
 
-      def begin_date_exception
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: 'Active Duty End Date needs to be after Active Duty Start Date'
+      def begin_date_exception(idx)
+        collect_error_messages(
+          source: "/serviceInformation/servicePeriods/#{idx}/activeDutyEndDate",
+          detail: 'activeDutyEndDate needs to be after activeDutyBeginDate'
         )
       end
 
-      def location_code_exception
-        raise ::Common::Exceptions::UnprocessableEntity.new(
+      def location_code_exception(idx)
+        collect_error_messages(
+          source: "/serviceInformation/servicePeriods/#{idx}/separationLocationCode",
           detail: 'If Active Duty End Date is in the future a Separation Location Code is required.'
         )
       end
 
+      def detect_invalid_active_duty_enddate(service_information)
+        service_information['servicePeriods'].detect do |service_period|
+          errors = date_is_valid?(service_period['activeDutyEndDate'],
+                                  'serviceInformation/servicePeriods/activeDutyEndDate')
+          return true if errors.is_a?(Array)
+        end
+      end
+
       def validate_form_526_location_codes!(service_information)
         # only retrieve separation locations if we'll need them
+        invalid_end_date = detect_invalid_active_duty_enddate(service_information).is_a?(Array)
+
         need_locations = service_information['servicePeriods'].detect do |service_period|
-          if service_period['activeDutyEndDate']
+          if invalid_end_date && service_period['activeDutyEndDate']
             Date.strptime(service_period['activeDutyEndDate'],
                           '%Y-%m-%d') > Time.zone.today
           end
@@ -600,8 +634,10 @@ module ClaimsApi
         separation_locations = retrieve_separation_locations if need_locations
 
         service_information['servicePeriods'].each do |service_period|
-          next if service_period['activeDutyEndDate'] && Date.strptime(service_period['activeDutyEndDate'],
-                                                                       '%Y-%m-%d') <= Time.zone.today
+          if invalid_end_date && (service_period['activeDutyEndDate'] &&
+            Date.strptime(service_period['activeDutyEndDate'], '%Y-%m-%d') <= Time.zone.today)
+            next
+          end
           next if separation_locations&.any? do |location|
                     if service_period['separationLocationCode']
                       @location_code = service_period['separationLocationCode']
@@ -616,22 +652,24 @@ module ClaimsApi
 
         return if confinements.blank?
 
-        confinements.each do |confinement|
+        confinements.each_with_index do |confinement, idx|
           approximate_begin_date = confinement&.dig('approximateBeginDate')
           approximate_end_date = confinement&.dig('approximateEndDate')
 
-          form_object_desc = 'a confinement period'
+          form_object_desc = "/confinement/#{idx}"
+
           if approximate_begin_date.blank?
             raise_exception_if_value_not_present('approximate begin date',
-                                                 form_object_desc)
+                                                 "#{form_object_desc}/approximateBeginDate")
           end
           if approximate_end_date.blank?
             raise_exception_if_value_not_present('approximate end date',
-                                                 form_object_desc)
+                                                 "#{form_object_desc}/approximateEndDate")
           end
 
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
+            collect_error_messages(
+              source: "/confinements/#{idx}/",
               detail: 'Confinement approximate end date must be after approximate begin date.'
             )
           end
@@ -644,7 +682,8 @@ module ClaimsApi
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
           if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                                               approximate_begin_date)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
+            collect_error_messages(
+              source: "/confinements/#{idx}/approximateBeginDate",
               detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
             )
           end
@@ -662,7 +701,8 @@ module ClaimsApi
         duplicate_names_check = alternate_names.detect { |e| alternate_names.rindex(e) != alternate_names.index(e) }
 
         unless duplicate_names_check.nil?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/alternateNames',
             detail: 'Names entered as an alternate name must be unique.'
           )
         end
@@ -670,10 +710,11 @@ module ClaimsApi
 
       def validate_service_branch_names!(service_information)
         downcase_branches = brd_service_branch_names.map(&:downcase)
-        service_information['servicePeriods'].each do |sp|
+        service_information['servicePeriods'].each_with_index do |sp, idx|
           unless downcase_branches.include?(sp['serviceBranch'].downcase)
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'servicePeriods.serviceBranch' must match a service branch " \
+            collect_error_messages(
+              source: "/serviceInformation/servicePeriods/#{idx}/serviceBranch",
+              detail: 'serviceBranch must match a service branch ' \
                       'returned from the /service-branches endpoint of the Benefits ' \
                       'Reference Data API.'
             )
@@ -704,10 +745,12 @@ module ClaimsApi
         # if one is present both need to be present
         raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
         raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
-
-        if Date.strptime(tos_start_date, '%Y-%m-%d') > Date.strptime(tos_end_date, '%Y-%m-%d')
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Terms of service begin date must be before the terms of service end date.'
+        if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
+                                                                              '%Y-%m-%d') > Date.strptime(tos_end_date,
+                                                                                                          '%Y-%m-%d'))
+          collect_error_messages(
+            detail: 'Terms of service begin date must be before the terms of service end date.',
+            source: '/serviceInformation/reservesNationalGuardService/obligationTermsOfService'
           )
         end
       end
@@ -719,21 +762,22 @@ module ClaimsApi
 
         return if title_ten_activation.blank?
 
-        form_obj_desc = 'title 10 activation'
+        form_obj_desc = '/serviceInformation/federalActivation'
 
         if title_ten_activation_date.blank?
-          raise_exception_if_value_not_present('title 10 activation date',
+          raise_exception_if_value_not_present('federalActivation',
                                                form_obj_desc)
         end
 
         if anticipated_seperation_date.blank?
-          raise_exception_if_value_not_present('anticipated seperation date',
-                                               form_obj_desc)
+          raise_exception_if_value_not_present('anticipatedSeperationDate',
+                                               "#{form_obj_desc}/anticipatedSeparationDate")
         end
         # we know the dates are present
         if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
           )
         end
 
@@ -747,6 +791,8 @@ module ClaimsApi
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
         # return true if activationDate is an earlier date
+        return if date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
         return false if earliest_active_duty_begin_date['activeDutyBeginDate'].nil?
 
         Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
@@ -755,15 +801,19 @@ module ClaimsApi
 
       def find_earliest_active_duty_begin_date(service_periods)
         service_periods.min_by do |a|
-          next unless date_is_valid?(a['activeDutyBeginDate'], 'servicePeriod.activeDutyBeginDate')
+          next if date_is_valid?(a['activeDutyBeginDate'],
+                                 'servicePeriod.activeDutyBeginDate').is_a?(Array)
 
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
         end
       end
 
       def validate_anticipated_seperation_date_in_past!(date)
+        return if date.blank?
+
         if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
             detail: 'The anticipated separation date must be a date in the future.'
           )
         end
@@ -775,22 +825,23 @@ module ClaimsApi
 
         account_check = direct_deposit&.dig('noAccount')
 
-        account_check.present? && account_check == true ? validate_no_account! : validate_account_values!
+        account_check.present? && account_check == true ? validate_no_account : validate_account_values!
       end
 
-      def validate_no_account!
+      def validate_no_account
         acc_vals = form_attributes['directDeposit']
 
-        raise_exception_on_invalid_account_values('account type') if acc_vals['accountType'].present?
-        raise_exception_on_invalid_account_values('account number') if acc_vals['accountNumber'].present?
-        raise_exception_on_invalid_account_values('routing number') if acc_vals['routingNumber'].present?
+        raise_exception_on_invalid_account_values('accountType') if acc_vals['accountType'].present?
+        raise_exception_on_invalid_account_values('accountNumber') if acc_vals['accountNumber'].present?
+        raise_exception_on_invalid_account_values('routingNumber') if acc_vals['routingNumber'].present?
         if acc_vals['financialInstitutionName'].present?
-          raise_exception_on_invalid_account_values('financial institution name')
+          raise_exception_on_invalid_account_values('financialInstitutionName')
         end
       end
 
       def raise_exception_on_invalid_account_values(account_detail)
-        raise ::Common::Exceptions::UnprocessableEntity.new(
+        collect_error_messages(
+          source: "/directDeposit/#{account_detail}",
           detail: "If the claimant has no account the #{account_detail} field must be left empty."
         )
       end
@@ -804,18 +855,24 @@ module ClaimsApi
         account_number = direct_deposit_account_vals&.dig('accountNumber')
         routing_number = direct_deposit_account_vals&.dig('routingNumber')
 
-        form_object_desc = 'direct deposit'
-
         if account_type.blank? || valid_account_types.exclude?(account_type)
-          raise_exception_if_value_not_present('account type (CHECKING/SAVINGS)', form_object_desc)
+          collect_error_messages(detail: 'accountType is missing or blank',
+                                 source: '/directDeposit/accountType')
         end
-        raise_exception_if_value_not_present('account number', form_object_desc) if account_number.blank?
-        raise_exception_if_value_not_present('routing number', form_object_desc) if routing_number.blank?
+        if account_number.blank?
+          collect_error_messages(detail: 'accountNumber is missing or blank',
+                                 source: '/directDeposit/accountNumber')
+        end
+        if routing_number.blank?
+          collect_error_messages(detail: 'routingNumber is missing or blank',
+                                 source: '/directDeposit/routingNumber')
+        end
       end
 
       def raise_exception_if_value_not_present(val, form_obj_description)
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "The #{val} is required for #{form_obj_description}."
+        collect_error_messages(
+          detail: "The #{val} is required for #{form_obj_description}.",
+          source: form_obj_description
         )
       end
 
@@ -826,12 +883,13 @@ module ClaimsApi
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
         unless active_dates.compact.any? do |a|
-          next unless date_is_valid?(a, 'servicePeriods.activeDutyEndDate')
+          next unless date_is_valid?(a, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
           Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
                                                 claim_date.next_day(BDD_UPPER_LIMIT))
         end
-          raise ::Common::Exceptions::UnprocessableEntity.new(
+          collect_error_messages(
+            source: '/serviceInformation/servicePeriods/',
             detail: "Must have an activeDutyEndDate or anticipatedSeparationDate between #{BDD_LOWER_LIMIT}" \
                     " & #{BDD_UPPER_LIMIT} days from claim date."
           )
@@ -907,7 +965,7 @@ module ClaimsApi
       end
 
       def duty_begin_date_is_after_approximate_begin_date?(begin_date, approximate_begin_date)
-        return unless date_is_valid?(begin_date, 'servicePeriod.activeDutyBeginDate')
+        return if date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
       end
@@ -928,10 +986,26 @@ module ClaimsApi
         end
       end
 
-      def raise_date_error(date, property)
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "#{date} is not a valid date for #{property}."
+      def raise_date_error(date, property = '/')
+        collect_error_messages(
+          detail: "#{date} is not a valid date.",
+          source: property
         )
+      end
+
+      def errors_array
+        @errors ||= []
+      end
+
+      def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
+                                 title: 'Unprocessable Entity', status: '422')
+
+        errors_array.push({ detail:, source:, title:, status: })
+      end
+
+      def raise_error_collection
+        errors_array.uniq! { |e| e[:detail] }
+        errors_array # set up the object to match other error returns
       end
     end
   end

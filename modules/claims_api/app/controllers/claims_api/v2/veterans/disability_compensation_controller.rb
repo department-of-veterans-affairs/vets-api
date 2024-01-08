@@ -115,7 +115,8 @@ module ClaimsApi
 
         def shared_validation
           validate_json_schema
-          validate_form_526_submission_values!(target_veteran)
+          errors = validate_form_526_submission_values!(target_veteran)
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError, errors if errors
         end
 
         def documents_service(params, claim)
