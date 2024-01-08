@@ -44,8 +44,8 @@ class FormAttachment < ApplicationRecord
     begin
       pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
     rescue PdfForms::PdftkError => e
-      file_regex = /\/(?:\w+\/)*[\w-]+\.pdf\b/.freeze
-      password_regex = /(input_pw).*?(output)/.freeze
+      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+      password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
       log_message_to_sentry(sanitized_message, 'warn')
       raise Common::Exceptions::UnprocessableEntity.new(
