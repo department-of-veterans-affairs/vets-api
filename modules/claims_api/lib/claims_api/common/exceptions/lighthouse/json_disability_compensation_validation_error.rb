@@ -8,7 +8,7 @@ module ClaimsApi
         # from the 526 validations file
         class JsonDisabilityCompensationValidationError < StandardError
           def initialize(errors)
-            @errors = errors
+            @errors = { errors: } # errors comes in as an array from the JSON validator
 
             super
           end

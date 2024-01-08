@@ -6,7 +6,7 @@ module ClaimsApi
       module Lighthouse
         class UnprocessableEntity < StandardError
           def initialize(errors)
-            @errors = errors
+            @errors = { errors: [errors] }
 
             super
           end

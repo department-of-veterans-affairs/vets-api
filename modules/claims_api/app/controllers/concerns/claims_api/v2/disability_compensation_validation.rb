@@ -1005,7 +1005,7 @@ module ClaimsApi
 
       def raise_error_collection
         errors_array.uniq! { |e| e[:detail] }
-        { errors: errors_array } # set up the object to match other error returns
+        errors_array # set up the object to match other error returns
       end
     end
   end

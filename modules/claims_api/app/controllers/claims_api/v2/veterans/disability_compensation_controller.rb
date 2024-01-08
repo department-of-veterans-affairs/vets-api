@@ -43,7 +43,7 @@ module ClaimsApi
 
           if auto_claim.errors.present?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              { errors: [{ detail: auto_claim.errors.messages.to_s }] }
+              detail: auto_claim.errors.messages.to_s
             )
           end
 
@@ -64,7 +64,7 @@ module ClaimsApi
         def attachments
           if params.keys.select { |key| key.include? 'attachment' }.count > 10
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              { errors: [{ detail: 'Too many attachments.' }] }
+              detail: 'Too many attachments.'
             )
           end
 

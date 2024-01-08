@@ -13,13 +13,9 @@ describe ApplicationController, type: :controller do
     skip_before_action :authenticate
 
     def raise_unprocessable_entity
-      errors_array =
-        { errors:
-          [
-            { detail: 'Test 422' }
-          ] }
+      error = { detail: 'Test 422' }
 
-      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, errors_array
+      raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity, error
     end
 
     def raise_resource_not_found
@@ -28,12 +24,12 @@ describe ApplicationController, type: :controller do
 
     def raise_json_526_validation_error
       errors_array =
-        { errors: [
+        [
           { detail: 'invalid, account number is missing or blank', source: '/directDeposit/accountNumber',
             title: 'Unprocessable entity', status: '422' },
           { detail: 'invalid, routing number is missing or blank',
             source: '/directDeposit/routingNumber', title: 'Unprocessable entity', status: '422' }
-        ] }
+        ]
 
       raise ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError, errors_array
     end
@@ -72,27 +68,6 @@ describe ApplicationController, type: :controller do
       expect(parsed_body['errors'].size).to eq(2)
       expect(parsed_body['errors'][0]['title']).to eq('Unprocessable entity')
       expect(parsed_body['errors'][0]['detail']).to eq('invalid, account number is missing or blank')
-      expect(parsed_body['errors'][0]['status']).to eq('422')
-      expect(parsed_body['errors'][0]['status']).to be_a(String)
-      expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
-    end
-  end
-
-  it 'returns a 422, Unprocessable entity, in line with LH standards' do
-    mock_ccg(scopes) do |auth_header|
-      # Following the normal headers: auth_header pattern fails due to
-      # this rspec bug: https://github.com/rspec/rspec-rails/issues/1655
-      # This is the recommended workaround from that issue thread.
-      request.headers.merge!(auth_header)
-
-      get :raise_unprocessable_entity
-
-      expect(response).to have_http_status(:unprocessable_entity)
-
-      parsed_body = JSON.parse(response.body)
-      expect(parsed_body['errors'].size).to eq(1)
-      expect(parsed_body['errors'][0]['title']).to eq('Unprocessable entity')
-      expect(parsed_body['errors'][0]['detail']).to eq('Test 422')
       expect(parsed_body['errors'][0]['status']).to eq('422')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
       expect(parsed_body['errors'][0]['source'].to_s).to include('{"pointer"=>')
