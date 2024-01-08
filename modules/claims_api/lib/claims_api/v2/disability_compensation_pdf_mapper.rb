@@ -508,8 +508,12 @@ module ClaimsApi
         end
         served_in_reserves_or_national_guard =
           @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard]
-        @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard] =
-          served_in_reserves_or_national_guard == true ? 'YES' : 'NO'
+        if served_in_reserves_or_national_guard.nil?
+          @pdf_data[:data][:attributes][:serviceInformation].delete(:servedInReservesOrNationalGuard)
+        else
+          @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard] =
+            served_in_reserves_or_national_guard == true ? 'YES' : 'NO'
+        end
 
         @pdf_data
       end
