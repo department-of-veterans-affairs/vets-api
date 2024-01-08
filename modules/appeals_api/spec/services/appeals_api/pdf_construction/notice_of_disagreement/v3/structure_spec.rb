@@ -15,7 +15,8 @@ describe AppealsApi::PdfConstruction::NoticeOfDisagreement::V3::Structure do
 
   describe '#insert_overlaid_pages' do
     it 'returns a temporary overlaid pdf path' do
-      form_fill_path = Prawn::Document.new.render_file("/tmp/#{notice_of_disagreement.id}.pdf")
+      form_fill_path = "/tmp/#{notice_of_disagreement.id}.pdf"
+      Prawn::Document.new.render_file(form_fill_path)
       result = described_class.new(notice_of_disagreement).insert_overlaid_pages(form_fill_path)
 
       expect(result).to eq("/tmp/#{notice_of_disagreement.id}-overlaid-form-fill-tmp.pdf")
