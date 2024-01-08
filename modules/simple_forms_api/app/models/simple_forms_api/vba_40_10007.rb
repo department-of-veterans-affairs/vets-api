@@ -21,5 +21,31 @@ module SimpleFormsApi
         # 'businessLine' => 'CMP'
       }
     end
+
+    def service(num, field, date)
+      service_records = data.dig("application", "veteran", "service_records")
+      if service_records
+        if date
+          return service_records[num][field][date]
+        else
+          return service_records[num][field] 
+        end
+      else
+        return ''
+      end
+    end
+
+    def service_branch(num, field, date)
+      service_records = data.dig("application", "veteran", "service_records")
+      if service_records
+        if date
+          return service_records[num][field][date]
+        else
+          return service_records[num][field] 
+        end
+      else
+        return ''
+      end
+    end         
   end
 end

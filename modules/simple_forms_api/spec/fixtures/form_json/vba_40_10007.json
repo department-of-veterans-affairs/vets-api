@@ -44,7 +44,28 @@
           },
           "service_branch": "AL",
           "discharge_type": "2",
-          "highest_rank": "sdsfdfdfd"
+          "highest_rank": "General",
+          "national_guard_state": "IL"
+        },
+        {
+          "date_range": {
+            "from": "1990-01-01",
+            "to": "2000-01-01"
+          },
+          "service_branch": "CL",
+          "discharge_type": "2",
+          "highest_rank": "Private",
+          "national_guard_state": "IL"
+        },
+        {
+          "date_range": {
+            "from": "1990-01-01",
+            "to": "2000-01-01"
+          },
+          "service_branch": "NL",
+          "discharge_type": "2",
+          "highest_rank": "Captain",
+          "national_guard_state": "IL"
         }
       ],
       "military_service_number": "RA1234567",
@@ -61,7 +82,7 @@
         "not_spanish_hispanic_latino": true,
         "is_native_hawaiian_or_other_pacific_islander": true,
         "is_white": true
-    },
+      },
       "marital_status": "Divorced",
       "current_name": {
         "first": "Ben",
@@ -75,6 +96,11 @@
       "place_of_birth": "Springwood"
     },
     "claimant": {
+      "desired_cemetery": {
+        "id": "122",
+        "label": "FOREST HOME CEMETERY",
+        "widget": "autosuggest"
+      },
       "address": {
         "street": "123 Elm St",
         "street2": "APT 2B",
