@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Va21p527ez < FormBase
@@ -523,7 +524,7 @@ module PdfFill
       def expand_claim_certification_and_signature
         @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
         # form was signed today
-        @form_data['signatureDate'] = split_date(Time.now.strftime("%Y-%m-%d"))
+        @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
       end
 
       def to_radio_yes_no(obj)
@@ -536,3 +537,4 @@ module PdfFill
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
