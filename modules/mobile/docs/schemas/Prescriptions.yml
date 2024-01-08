@@ -16,14 +16,21 @@ properties:
       prescriptionStatusCount:
         type: object
         description: |
-          The number of prescriptions in each status for the user. "active" contains prescriptions that are active,
+          Count of different types of prescriptions. "active" contains prescriptions that have a `refillStatus` of active,
           submitted, providcerHold, activeParked, refillinprocess, and/or prescriptions that have a tracking number 
-          associated with them.
+          associated with them. If a prescriptions does not meet the criteria for "active", it appends it's `refillStatus` to the list. 
+          This means the list can change for each response depending on the statuses of the prescriptions. 
+          See `refillStatus` enum for all possible values. "isRefillable" is a separate count of prescriptions with `isRefillable` set to true. 
+          A prescription can be counted in both `isRefillable` and any other status count.
         example:
             active: 1
-            discontinued: 0
-            expired: 0
-            historical: 0
-            pending: 0
-            submitted: 0
-            total: 1
+            isRefillable: 1
+            discontinued: 1
+            expired: 2
+            historical: 3
+            pending: 1
+            transferred: 2
+            submitted: 1
+            hold: 1
+            unknown: 2
+            total: 14

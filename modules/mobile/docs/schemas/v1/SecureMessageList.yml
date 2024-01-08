@@ -149,10 +149,13 @@ properties:
             example: 15
       messageCounts:
         type: object
+        description: |
+          Count of read and unread messages. `readReceipt` field containing "READ" count towards "read" count 
+          while a null value will count towards "unread". If there is a 0 count either field, the key will not be included.
         properties:
-          unread:
+          read:
             type: integer
             example: 5
-          total:
+          unread:
             type: integer
             example: 15
