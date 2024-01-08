@@ -396,9 +396,15 @@ module PdfFill
             key: 'form1[0].#subform[54].Account_Number[0]'
           }
         },
+        # 12a
+        'noRapidProcessing' => {
+          key: 'form1[0].#subform[54].CheckBox_I_Do_Not_Want_My_Claim_Considered_For_Rapid_Processing_Under_The_F_D_C_Program_Because_I_Plan_To_Submit_Further_Evidence_In_Support_Of_My_Claim[0]'
+        },
+        # 12b
         'statementOfTruthSignature' => {
           key: 'form1[0].#subform[54].SignatureField1[0]'
         },
+        # 12c
         'signatureDate' => {
           'month' => {
             key: 'form1[0].#subform[54].Date_Signed_Month[0]'
@@ -515,12 +521,17 @@ module PdfFill
 
       # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
       def expand_claim_certification_and_signature
+        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
         # form was signed today
         @form_data['signatureDate'] = split_date(Time.now.strftime("%Y-%m-%d"))
       end
 
       def to_radio_yes_no(obj)
         obj ? 0 : 1
+      end
+
+      def to_checkbox_on_off(obj)
+        obj ? 1 : 'Off'
       end
     end
   end

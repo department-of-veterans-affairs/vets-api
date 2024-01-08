@@ -155,6 +155,7 @@
   "medicalExpenses": true,
   "mobilePhone": "313-867-5309",
   "netWorthEstimation": 18000,
+  "noRapidProcessing": true,
   "nursingHome": true,
   "otherExplanation": "Personal reason",
   "phone": "212-867-5309",
