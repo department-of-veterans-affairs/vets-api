@@ -68,7 +68,8 @@ describe 'contact info via veteran icn task', type: :request do
     ]
   end
 
-  let(:path_to_csv) { 'tmp/contact_info_rake_task_output.csv' }
+  let(:csv_filename) { 'contact_info_rake_task_output.csv' }
+  let(:path_to_csv) { "tmp/#{csv_filename}" }
 
   before :all do
     Rake.application.rake_require '../rakelib/contact_info_via_veteran_icn'
@@ -83,10 +84,36 @@ describe 'contact info via veteran icn task', type: :request do
     let(:icn_list) { "#{icn1} #{icn2} #{icn3}" }
     let :run_rake_task do
       Rake::Task['veteran_contact_info:build_contact_info_csv'].reenable
-      Rake.application.invoke_task "veteran_contact_info:build_contact_info_csv[#{path_to_csv}, #{icn_list}]"
+      Rake.application.invoke_task "veteran_contact_info:build_contact_info_csv[#{csv_filename}, #{icn_list}]"
     end
 
     it 'generates a csv with expected values' do
+      # Set up S3 mocks
+      expect(Settings).to receive(:decision_review).exactly(6).times.and_return(double)
+      expect(Settings.decision_review).to receive(:s3).exactly(5).times.and_return(double)
+      expect(Settings.decision_review.s3).to receive(:bucket)
+        .and_return('bucket')
+      expect(Settings.decision_review.s3).to receive(:region)
+        .and_return('region')
+      expect(Settings.decision_review.s3).to receive(:access_key_id).and_return('key')
+      expect(Settings.decision_review.s3).to receive(:secret_access_key)
+        .and_return('secret')
+
+      s3 = double
+      expect(Aws::S3::Resource).to receive(:new).once.with(
+        region: 'region',
+        access_key_id: 'key',
+        secret_access_key: 'secret'
+      ).and_return(s3)
+      bucket = double
+      expect(s3).to receive(:bucket).once.with('bucket').and_return(bucket)
+      obj = double
+      expect(bucket).to receive(:object).once.with(csv_filename).and_return(obj)
+      expect(obj).to receive(:upload_file).once.with(path_to_csv, content_type: 'text/csv')
+      url = 'http://test'
+      expect(obj).to receive(:presigned_url).once.with(:get, expires_in: 1.week.to_i).and_return(url)
+
+      # Set up MPI mocks
       allow(MPI::Service).to receive(:new).exactly(6).times.and_return(double)
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
                               .once
@@ -103,6 +130,7 @@ describe 'contact info via veteran icn task', type: :request do
         .with(identifier: icn3, identifier_type: 'ICN')
         .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile3))
 
+      # Set up Vet360 mocks
       expect(VAProfile::ContactInformation::Service).to receive(:get_person)
         .once
         .with(vet360_id1)
@@ -121,6 +149,7 @@ describe 'contact info via veteran icn task', type: :request do
         .and_return(double(VAProfile::ContactInformation::PersonResponse,
                            person: vet360_profile3))
 
+      # Set up BGS mocks
       expect(BGS::Services).to receive(:new).exactly(4).times.and_return(double(BGS::Services, config: {}))
 
       # NOTE: Using `receive_message_chain` is not recommended,
@@ -134,6 +163,8 @@ describe 'contact info via veteran icn task', type: :request do
       # rubocop:enable RSpec/MessageChain
 
       run_rake_task
+
+      # Assertions
       result = CSV.read(path_to_csv)
       first_row, second_row, third_row = result
       expect(first_row).to eq(expected_result1)
@@ -142,6 +173,32 @@ describe 'contact info via veteran icn task', type: :request do
     end
 
     it 'logs an error message with the veteran_icn' do
+      # Set up S3 mocks
+      expect(Settings).to receive(:decision_review).exactly(6).times.and_return(double)
+      expect(Settings.decision_review).to receive(:s3).exactly(5).times.and_return(double)
+      expect(Settings.decision_review.s3).to receive(:bucket)
+        .and_return('bucket')
+      expect(Settings.decision_review.s3).to receive(:region)
+        .and_return('region')
+      expect(Settings.decision_review.s3).to receive(:access_key_id).and_return('key')
+      expect(Settings.decision_review.s3).to receive(:secret_access_key)
+        .and_return('secret')
+
+      s3 = double
+      expect(Aws::S3::Resource).to receive(:new).once.with(
+        region: 'region',
+        access_key_id: 'key',
+        secret_access_key: 'secret'
+      ).and_return(s3)
+      bucket = double
+      expect(s3).to receive(:bucket).once.with('bucket').and_return(bucket)
+      obj = double
+      expect(bucket).to receive(:object).once.with(csv_filename).and_return(obj)
+      expect(obj).to receive(:upload_file).once.with(path_to_csv, content_type: 'text/csv')
+      url = 'http://test'
+      expect(obj).to receive(:presigned_url).once.with(:get, expires_in: 1.week.to_i).and_return(url)
+
+      # Set up MPI mocks
       allow(MPI::Service).to receive(:new).exactly(6).times.and_return(double)
       expect(MPI::Service.new).to receive(:find_profile_by_identifier)
                               .once
@@ -158,6 +215,7 @@ describe 'contact info via veteran icn task', type: :request do
         .with(identifier: icn3, identifier_type: 'ICN')
         .and_return(double(MPI::Responses::FindProfileResponse, profile: mpi_profile3))
 
+      # Set up Vet360 mocks
       expect(VAProfile::ContactInformation::Service).to receive(:get_person)
         .once
         .with(vet360_id1)
@@ -170,6 +228,7 @@ describe 'contact info via veteran icn task', type: :request do
         .and_return(double(VAProfile::ContactInformation::PersonResponse,
                            person: vet360_profile3))
 
+      # Set up BGS mocks
       expect(BGS::Services).to receive(:new).exactly(3).times.and_return(double(BGS::Services, config: {}))
 
       # NOTE: Using `receive_message_chain` is not recommended,
@@ -191,6 +250,7 @@ describe 'contact info via veteran icn task', type: :request do
       expect(Rails.logger).to receive(:error).with(expected_error_message)
       run_rake_task
 
+      # Assertions
       result = CSV.read(path_to_csv)
       first_row, second_row = result
       expect(first_row).to eq(expected_result1)

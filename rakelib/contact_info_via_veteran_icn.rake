@@ -32,6 +32,30 @@ namespace :veteran_contact_info do
       current_emails.first.email_address
     end
 
+    def upload_to_s3(_csv, csv_filename, csv_path, url_life_length: 1.week.to_i)
+      s3_settings = Settings.decision_review.s3
+
+      begin
+        # Do we need a separate bucket for this file upload?
+        s3_bucket = s3_settings.bucket
+        Rails.logger.info('Uploading contact info CSV to S3...')
+        s3_resource = Aws::S3::Resource.new(
+          region: s3_settings.region,
+          access_key_id: s3_settings.access_key_id,
+          secret_access_key: s3_settings.secret_access_key
+        )
+
+        obj = s3_resource.bucket(s3_bucket).object(csv_filename)
+        obj.upload_file(csv_path, content_type: 'text/csv')
+        obj.presigned_url(:get, expires_in: url_life_length)
+      rescue => e
+        Rails.logger.error({
+                             message: "Error while attempting to upload contact info CSV to S3: #{e.message}",
+                             backtrace: e&.backtrace
+                           })
+      end
+    end
+
     def get_data(icn)
       mpi_service = MPI::Service.new
       mpi_profile = mpi_service.find_profile_by_identifier(identifier: icn, identifier_type: 'ICN')&.profile
@@ -68,7 +92,8 @@ namespace :veteran_contact_info do
 
     icn_list = args[:icn_list].split
     csv_filename = args[:csv_filename]
-    CSV.open(csv_filename, 'wb') do |csv|
+    csv_path = "tmp/#{csv_filename}"
+    contact_info_csv = CSV.open(csv_path, 'wb') do |csv|
       icn_list.each do |icn|
         Rails.logger.info({ message: 'Retrieving contact information for veteran...', icn: })
         contact_data = get_data(icn)
@@ -81,6 +106,9 @@ namespace :veteran_contact_info do
                              backtrace: e&.backtrace
                            })
       end
+      csv
     end
+
+    upload_to_s3(contact_info_csv, csv_filename, csv_path)
   end
 end
