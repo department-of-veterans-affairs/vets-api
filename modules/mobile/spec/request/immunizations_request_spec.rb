@@ -20,7 +20,7 @@ RSpec.describe 'immunizations', type: :request do
   describe 'GET /mobile/v0/health/immunizations' do
     context 'when the expected fields have data' do
       before do
-        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_old', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
         end
       end
@@ -483,7 +483,7 @@ RSpec.describe 'immunizations', type: :request do
 
     describe 'vaccine group name and manufacturer population' do
       let(:immunizations_request) do
-        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_old', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
         end
       end
@@ -634,6 +634,7 @@ RSpec.describe 'immunizations', type: :request do
           VCR.use_cassette('mobile/lighthouse_health/get_immunizations_blank_group_name',
                            match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
+
             expect(response).to have_http_status(:ok)
           end
         end
@@ -643,7 +644,7 @@ RSpec.describe 'immunizations', type: :request do
     describe 'order' do
       context 'date is available' do
         it 'is sorted by descending date, then alphabetically by group name within a date' do
-          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_old', match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: sis_headers, params: nil
           end
           dates = response.parsed_body['data'].map { |imm| imm['attributes']['date'] }
