@@ -34,7 +34,8 @@ module Form1010Ezr
     end
 
     def submit_sync(parsed_form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
+      form = configure_and_validate_form(parsed_form)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
       response = with_monitoring do
@@ -110,9 +111,12 @@ module Form1010Ezr
     # Add required fields not included in the JSON schema, but are
     # required in the Enrollment System API
     def post_fill_required_fields(parsed_form)
-      required_fields = HCA::EzrPostfill.post_fill_hash(@user)
-
-      parsed_form.merge!(required_fields)
+      parsed_form.merge!(
+        {
+          'isEssentialAcaCoverage' => false,
+          'vaMedicalFacility' => '589'
+        }
+      )
     end
 
     def configure_and_validate_form(parsed_form)
