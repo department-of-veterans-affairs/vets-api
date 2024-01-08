@@ -73,6 +73,7 @@ unless ENV['NOCOVERAGE']
     add_group 'Services', 'app/services'
     add_group 'Swagger', 'app/swagger'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
