@@ -4,6 +4,8 @@ require 'date'
 require 'concurrent'
 require 'lighthouse/benefits_claims/service'
 
+VALID_BASE_EP_CODES = %w[020 010 110].freeze
+
 module V0
   module VirtualAgent
     class VirtualAgentClaimStatusController < ApplicationController
@@ -14,19 +16,17 @@ module V0
         before_action { authorize :lighthouse, :access? }
       end
 
-      @@valid_base_ep_codes = ["020", "010", "110"]
-
       def index
         render json: {
-            data: poll_claims_from_lighthouse,
-            meta: { sync_status: 'SUCCESS' }
+          data: poll_claims_from_lighthouse,
+          meta: { sync_status: 'SUCCESS' }
         }
       end
 
       def show
         render json: {
-            data: get_claim_from_lighthouse(params[:id]),
-            meta: { sync_status: 'SUCCESS' }
+          data: get_claim_from_lighthouse(params[:id]),
+          meta: { sync_status: 'SUCCESS' }
         }
       end
 
@@ -37,10 +37,11 @@ module V0
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
         conversation_id = params[:conversation_id]
         begin
-          puts "claims #{raw_claim_list}"
-          claims = order_claims_lighthouse(raw_claim_list.select { |claim| @@valid_base_ep_codes.include?(claim['attributes']['baseEndProductCode']) })
+          claims = order_claims_lighthouse(raw_claim_list.select do |claim|
+                                             VALID_BASE_EP_CODES.include?(claim['attributes']['baseEndProductCode'])
+                                           end)
           report_or_error(cxdw_reporting_service, conversation_id)
-          return claims
+          claims
         rescue Faraday::ClientError => e
           report_or_error(cxdw_reporting_service, conversation_id)
           service_exception_handler(error)
@@ -49,7 +50,7 @@ module V0
       end
 
       def get_claim_from_lighthouse(id)
-        return lighthouse_service.get_claim(id)
+        lighthouse_service.get_claim(id)
       end
 
       def lighthouse_service
@@ -64,7 +65,10 @@ module V0
 
       def order_claims_lighthouse(claims)
         claims
-          .sort_by { |claim| Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'], "%Y-%m-%d").to_time.to_i }
+          .sort_by do |claim|
+          Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
+                        '%Y-%m-%d').to_time.to_i
+        end
           .reverse
       end
 
