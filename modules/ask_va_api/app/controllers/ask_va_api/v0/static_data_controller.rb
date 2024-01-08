@@ -48,6 +48,8 @@ module AskVAApi
         camelize_resource = resource_type.camelize
         retriever_class = "AskVAApi::#{camelize_resource}::Retriever".constantize
         serializer_class = "AskVAApi::#{camelize_resource}::Serializer".constantize
+        entity_class = "AskVAApi::#{camelize_resource}::Entity".constantize
+        options.merge!(entity_class:) unless %w[provinces states zipcodes].include?(resource_type)
         data = retriever_class.new(**options).call
         serialized_data = serializer_class.new(data).serializable_hash
         instance_variable_set("@#{resource_type}", Result.new(payload: serialized_data, status: :ok))

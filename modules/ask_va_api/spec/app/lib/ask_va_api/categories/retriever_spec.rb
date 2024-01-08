@@ -7,17 +7,18 @@ module AskVAApi
     RSpec.describe Retriever do
       let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
       let(:static_data_service) { instance_double(Crm::StaticData) }
+      let(:entity_class) { AskVAApi::Categories::Entity }
 
       describe '#call' do
         context 'when using mock data' do
-          subject(:retriever) { described_class.new(user_mock_data: true) }
+          subject(:retriever) { described_class.new(user_mock_data: true, entity_class:) }
           it 'reads from a file and returns an array of Entity instances' do
             expect(retriever.call).to all(be_a(Entity))
           end
         end
 
         context 'when not using mock data' do
-          subject(:retriever) { described_class.new(user_mock_data: false) }
+          subject(:retriever) { described_class.new(user_mock_data: false, entity_class:) }
 
           before do
             allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
@@ -30,7 +31,7 @@ module AskVAApi
         end
 
         context 'when an error occurs during data retrieval' do
-          subject(:retriever) { described_class.new(user_mock_data: false) }
+          subject(:retriever) { described_class.new(user_mock_data: false, entity_class:) }
 
           before do
             allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
@@ -45,7 +46,7 @@ module AskVAApi
         end
 
         context 'when JSON parsing fails' do
-          subject(:retriever) { described_class.new(user_mock_data: false) }
+          subject(:retriever) { described_class.new(user_mock_data: false, entity_class:) }
 
           before do
             allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
