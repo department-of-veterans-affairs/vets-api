@@ -44,7 +44,10 @@ class FormAttachment < ApplicationRecord
     begin
       pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
     rescue PdfForms::PdftkError => e
-      log_message_to_sentry(e.message, 'warn')
+      file_regex = /\/(?:\w+\/)*[\w-]+\.pdf\b/.freeze
+      password_regex = /(input_pw).*?(output)/.freeze
+      sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
+      log_message_to_sentry(sanitized_message, 'warn')
       raise Common::Exceptions::UnprocessableEntity.new(
         detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
         source: 'FormAttachment.unlock_pdf'
