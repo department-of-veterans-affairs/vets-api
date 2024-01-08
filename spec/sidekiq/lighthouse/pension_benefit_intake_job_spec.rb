@@ -94,12 +94,14 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     it 'returns expected hash' do
       expect(job.generate_form_metadata_lh).to include(
-        veteran_first_name: be_a(String),
-        veteran_last_name: be_a(String),
-        file_number: be_a(String),
-        zip: be_a(String),
-        doc_type: be_a(String),
-        claim_date: be_a(ActiveSupport::TimeWithZone)
+        'veteranFirstName' => be_a(String),
+        'veteranLastName' => be_a(String),
+        'fileNumber' => be_a(String),
+        'zipCode' => be_a(String),
+        'docType' => be_a(String),
+        'businessLine' => eq(described_class::PENSION_BUSINESSLINE),
+        'source' => eq(described_class::PENSION_SOURCE),
+        'claimDate' => be_a(ActiveSupport::TimeWithZone)
       )
     end
     # generate_form_metadata_lh
@@ -113,6 +115,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
+      expect(job).to receive(:form_submission_polling)
       job.check_success(response)
     end
 
@@ -130,5 +133,36 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     end
     # check_success
   end
+
+  describe '#form_submission_polling' do
+    let(:service) { double('service') }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      job.instance_variable_set(:@lighthouse_service, service)
+      allow(service).to receive(:uuid).and_return('UUID')
+
+      allow(FormSubmission).to receive(:create)
+      allow(FormSubmissionAttempt).to receive(:create)
+      allow(Datadog::Tracing).to receive(:active_trace)
+    end
+
+    it 'creates polling entries' do
+      form_submission = { test: 'submission' }
+      expect(FormSubmission).to receive(:create).with(
+        form_type: claim.form_id,
+        form_data: claim.to_json,
+        benefits_intake_uuid: service.uuid,
+        saved_claim: claim,
+        saved_claim_id: claim.id
+      ).and_return(form_submission)
+      expect(FormSubmissionAttempt).to receive(:create).with(form_submission:)
+      expect(Datadog::Tracing).to receive(:active_trace)
+
+      job.form_submission_polling
+    end
+    # form_submission_polling
+  end
+
   # Rspec.describe
 end

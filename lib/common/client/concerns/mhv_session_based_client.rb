@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/client/concerns/mhv_locked_session_client'
+
 module Common
   module Client
     module Concerns
@@ -16,28 +18,21 @@ module Common
       #
       module MHVSessionBasedClient
         extend ActiveSupport::Concern
+        include MhvLockedSessionClient
         include SentryLogging
-
-        ##
-        # @param session [Hash] a hash containing user_id with which the session will be found or built
-        #
-        def initialize(session:)
-          @session = self.class.client_session.find_or_build(session)
-        end
 
         attr_reader :session
 
-        ##
-        # Ensures the MHV based session is not expired
-        #
-        # @return [MHVSessionBasedClient] instance of `self`
-        #
-        def authenticate
-          if session.expired?
-            @session = get_session
-            @session.save
-          end
-          self
+        def user_key
+          session.user_id
+        end
+
+        def invalid?(session)
+          session.expired?
+        end
+
+        def session_config_key
+          :mhv_session_lock
         end
 
         ##
@@ -50,22 +45,11 @@ module Common
           env = get_session_tagged
           req_headers = env.request_headers
           res_headers = env.response_headers
-          @session.class.new(user_id: req_headers['mhvCorrelationId'],
-                             expires_at: res_headers['expires'],
-                             token: res_headers['token'])
-        end
-
-        ##
-        # Override client_session method to use extended ::ClientSession classes
-        #
-        module ClassMethods
-          ##
-          # @return [Rx::ClientSession] if an Rx (Prescription) client session
-          # @return [SM::ClientSession] if a SM (Secure Messaging) client session
-          #
-          def client_session(klass = nil)
-            @client_session ||= klass
-          end
+          new_session = @session.class.new(user_id: req_headers['mhvCorrelationId'],
+                                           expires_at: res_headers['expires'],
+                                           token: res_headers['token'])
+          new_session.save
+          new_session
         end
 
         private
