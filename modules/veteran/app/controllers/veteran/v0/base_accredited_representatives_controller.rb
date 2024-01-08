@@ -2,11 +2,10 @@
 
 module Veteran
   module V0
-    class AccreditedRepresentativesController < ApplicationController
+    class BaseAccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
       skip_before_action :authenticate
       before_action :feature_enabled
-      before_action :verify_type
       before_action :verify_sort
       before_action :verify_long
       before_action :verify_lat
@@ -14,48 +13,28 @@ module Veteran
       DEFAULT_PAGE = 1
       DEFAULT_PER_PAGE = 10
       DEFAULT_SORT = 'distance_asc'
-
-      PERMITTED_TYPES = 'attorney'
-
       PERMITTED_REPRESENTATIVE_SORTS = %w[distance_asc first_name_asc first_name_desc last_name_asc
                                           last_name_desc].freeze
+
       def index
-        collection = Common::Collection.new(model_klass, data: accreditation_query)
+        collection = Common::Collection.new(Veteran::Service::Representative, data: representative_query)
         resource = collection.paginate(**pagination_params)
 
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: serializer_klass,
+               each_serializer: serializer_class,
                meta: resource.metadata
       end
 
       private
 
-      def model_klass
-        @model_klass ||= 'Veteran::Service::Representative'.constantize
-      end
-
-      def serializer_klass
-        'Veteran::Accreditation::RepresentativeSerializer'.constantize
+      def serializer_class
+        raise NotImplementedError, 'serializer_class must be implemented'
       end
 
       def base_query
-        model_klass.find_within_max_distance(search_params[:long],
-                                             search_params[:lat]).order(sort_query_string)
-      end
-
-      def model_adjusted_query
-        base_query.select("veteran_representatives.*, #{distance_query_string}").where(
-          '? = ANY(user_types) ', search_params[:type]
-        )
-      end
-
-      def accreditation_query
-        if search_params[:name]
-          model_adjusted_query.find_with_name_similar_to(search_params[:name])
-        else
-          model_adjusted_query
-        end
+        Veteran::Service::Representative.find_within_max_distance(search_params[:long],
+                                                                  search_params[:lat]).order(sort_query_string)
       end
 
       def search_params
@@ -77,7 +56,7 @@ module Veteran
       def distance_query_string
         ActiveRecord::Base
           .sanitize_sql_array([
-                                'ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) as distance',
+                                'ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) as distance', # rubocop:disable Layout/LineLength
                                 search_params[:long],
                                 search_params[:lat]
                               ])
@@ -86,7 +65,7 @@ module Veteran
       def sort_query_string
         case sort_param
         when 'distance_asc'
-          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, location) ASC'),
+          [Arel.sql('ST_Distance(ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, veteran_representatives.location) ASC'), # rubocop:disable Layout/LineLength
            search_params[:long], search_params[:lat]]
         when 'name_asc' then 'name ASC'
         when 'name_desc' then 'name DESC'
@@ -98,13 +77,7 @@ module Veteran
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:find_a_rep)
-      end
-
-      def verify_type
-        unless PERMITTED_TYPES.include?(search_params[:type])
-          raise Common::Exceptions::InvalidFieldValue.new('type', search_params[:type])
-        end
+        routing_error unless Flipper.enabled?(:find_a_representative_enable_api)
       end
 
       def verify_sort

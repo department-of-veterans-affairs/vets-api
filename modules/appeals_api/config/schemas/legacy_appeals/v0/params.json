@@ -6,6 +6,5 @@
     "icn": {
       "$ref": "icn.json"
     }
-  },
-  "required": ["icn"]
+  }
 }
