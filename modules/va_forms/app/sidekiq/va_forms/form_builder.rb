@@ -22,9 +22,9 @@ module VAForms
       if error.message == FORM_FETCH_ERROR_MESSAGE
         form = VAForms::Form.find_by(row_id:)
         url = VAForms::Form.normalized_form_url(args.dig('fieldVaFormUrl', 'uri'))
-        previously_valid = form&.valid_pdf
+        form_previously_valid = form&.valid_pdf
         form&.update!(valid_pdf: false, sha256: nil, url:)
-        if previously_valid
+        if form_previously_valid
           VAForms::Slack::Messenger.new(
             {
               class: self.class.name,
