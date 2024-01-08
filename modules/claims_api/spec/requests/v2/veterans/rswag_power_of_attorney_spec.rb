@@ -9,7 +9,7 @@ require 'bgs_service/local_bgs'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
-         swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
+         openapi_spec: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
   path '/veterans/{veteranId}/power-of-attorney' do
@@ -105,7 +105,7 @@ describe 'PowerOfAttorney',
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+                                                      'power_of_attorney', 'default.json')))
 
           let(:Authorization) { nil }
 
@@ -122,6 +122,45 @@ describe 'PowerOfAttorney',
           end
 
           it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 422 response' do
+        response '422', 'Unprocessable Entity' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                                      'power_of_attorney', 'default.json')))
+
+          before do |example|
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              .and_return({ person_poa_history: nil })
+            Veteran::Service::Representative.new(representative_id: '12345',
+                                                 poa_codes: [poa_code],
+                                                 first_name: 'Firstname',
+                                                 last_name: 'Lastname',
+                                                 phone: '555-555-5555').save!
+            Veteran::Service::Representative.new(representative_id: '54321',
+                                                 poa_codes: [poa_code],
+                                                 first_name: 'Another',
+                                                 last_name: 'Name',
+                                                 phone: '222-222-2222').save!
+            mock_ccg(scopes) do |auth_header|
+              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 422 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -211,7 +250,7 @@ describe 'PowerOfAttorney',
       xdescribe 'Getting a 401 response', document: false do
         response '401', 'Unauthorized' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+                                                      'power_of_attorney', 'default.json')))
 
           let(:Authorization) { nil }
 
@@ -236,7 +275,7 @@ describe 'PowerOfAttorney',
       xdescribe 'Getting a 422 response', document: false do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+                                                      'power_of_attorney', 'default.json')))
 
           before do |example|
             mock_ccg(scopes) do |auth_header|
@@ -353,7 +392,7 @@ describe 'PowerOfAttorney',
       xdescribe 'Getting a 401 response', document: false do
         response '401', 'Unauthorized' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+                                                      'power_of_attorney', 'default.json')))
 
           let(:Authorization) { nil }
 
@@ -378,7 +417,7 @@ describe 'PowerOfAttorney',
       xdescribe 'Getting a 422 response', document: false do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+                                                      'power_of_attorney', 'default.json')))
 
           before do |example|
             mock_ccg(scopes) do |auth_header|

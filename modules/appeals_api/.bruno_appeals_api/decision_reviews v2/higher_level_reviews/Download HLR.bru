@@ -1,0 +1,20 @@
+meta {
+  name: Download HLR
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/higher_level_reviews/{{dr_hlr_id}}/download
+  body: none
+  auth: none
+}
+
+headers {
+  X-VA-ICN: {{veteran_icn}}
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

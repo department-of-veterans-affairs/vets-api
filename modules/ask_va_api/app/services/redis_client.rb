@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 class RedisClient
-  def token
+  def fetch(key)
     Rails.cache.read(
-      'token',
+      key,
       namespace: 'crm-api-cache'
     )
   end
 
-  def cache_data(data:, name:)
+  def store_data(key:, data:, ttl:)
     Rails.cache.write(
-      name,
+      key,
       data,
       namespace: 'crm-api-cache',
-      expires_in: 3540
+      expires_in: ttl
     )
   end
 end

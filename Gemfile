@@ -25,6 +25,7 @@ path 'modules' do
   gem 'my_health'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
+  gem 'travel_pay'
   gem 'va_forms'
   gem 'va_notify'
   gem 'vaos'
@@ -37,7 +38,7 @@ end
 gem 'rails', github: 'rails/rails', branch: '6-1-stable'
 
 gem 'aasm'
-gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
+gem 'active_model_serializers'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
 gem 'addressable'
