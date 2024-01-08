@@ -172,6 +172,7 @@ PATH
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails (~> 6.1.5)
+    travel_pay (0.1.0)
     va_forms (0.0.1)
       faraday
       nokogiri
@@ -1212,6 +1213,7 @@ DEPENDENCIES
   swagger-blocks
   test_user_dashboard!
   timecop
+  travel_pay!
   typhoeus
   tzinfo-data
   utf8-cleaner
