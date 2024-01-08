@@ -11,7 +11,7 @@ module ClaimsApi
             super
           end
 
-          def errors_array
+          def errors
             errors_array = []
             @errors[:errors].each do |err|
               errors_array << {
