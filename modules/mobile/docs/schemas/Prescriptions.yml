@@ -19,7 +19,7 @@ properties:
           Count of different types of prescriptions. "active" contains prescriptions that have a `refillStatus` of active,
           submitted, providcerHold, activeParked, refillinprocess, and/or prescriptions that have a tracking number 
           associated with them. If a prescriptions does not meet the criteria for "active", it appends it's `refillStatus` to the list. 
-          This means the list can change for each response depending on the statuses of the prescriptions. 
+          If a refillStatus is not present in any prescription, it will not be included in this list.
           See `refillStatus` enum for all possible values. "isRefillable" is a separate count of prescriptions with `isRefillable` set to true. 
           A prescription can be counted in both `isRefillable` and any other status count.
         example:
