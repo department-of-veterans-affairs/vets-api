@@ -219,12 +219,16 @@ module ClaimsApi
         herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService).present?
         if herb
           herbicide_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:beginDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:start] =
-            make_date_object(herbicide_service_dates_begin, herbicide_service_dates_begin.length)
+          if herbicide_service_dates_begin.present?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:start] =
+              make_date_object(herbicide_service_dates_begin, herbicide_service_dates_begin.length)
+          end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:beginDate)
           herbicide_service_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:endDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:end] =
-            make_date_object(herbicide_service_dates_end, herbicide_service_dates_end.length)
+          if herbicide_service_dates_end.present?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:end] =
+              make_date_object(herbicide_service_dates_end, herbicide_service_dates_end.length)
+          end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:endDate)
           served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
@@ -236,12 +240,16 @@ module ClaimsApi
         add = @pdf_data&.dig(:data, :attributes, :toxicExposure, :additionalHazardExposures).present?
         if add
           additional_exposure_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:beginDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:start] =
-            make_date_object(additional_exposure_dates_begin, additional_exposure_dates_begin.length)
+          if additional_exposure_dates_begin.present?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:start] =
+              make_date_object(additional_exposure_dates_begin, additional_exposure_dates_begin.length)
+          end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates].delete(:beginDate)
           additional_exposure_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:endDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:end] =
-            make_date_object(additional_exposure_dates_end, additional_exposure_dates_end.length)
+          if additional_exposure_dates_end.present?
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:end] =
+              make_date_object(additional_exposure_dates_end, additional_exposure_dates_end.length)
+          end
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates].delete(:endDate)
         end
       end

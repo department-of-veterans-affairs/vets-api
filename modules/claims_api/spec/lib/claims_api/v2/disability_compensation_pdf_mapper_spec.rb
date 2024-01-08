@@ -401,6 +401,37 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
     end
 
+    context '526 section 5, herbicideHazardService exposures null data' do
+      it 'maps the attributes correctly' do
+        toxic_exp_data = form_attributes['toxicExposure']
+        toxic_exp_data['herbicideHazardService']['serviceDates']['beginDate'] = nil
+        toxic_exp_data['herbicideHazardService']['serviceDates']['endDate'] = nil
+        toxic_exp_data['herbicideHazardService']['servedInHerbicideHazardLocations'] = nil
+        toxic_exp_data['herbicideHazardService']['otherLocationsServed'] = nil
+
+        mapper.map_claim
+
+        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+        expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq('NO')
+      end
+    end
+
+    context '526 section 5, additionalHazardExposures null data' do
+      it 'maps the attributes correctly' do
+        toxic_exp_data = form_attributes['toxicExposure']
+        toxic_exp_data['additionalHazardExposures']['exposureDates']['beginDate'] = nil
+        toxic_exp_data['additionalHazardExposures']['exposureDates']['endDate'] = nil
+        toxic_exp_data['additionalHazardExposures']['additionalExposures'] = nil
+        toxic_exp_data['additionalHazardExposures']['specifyOtherExposures'] = nil
+
+        mapper.map_claim
+
+        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+        byebug
+        expect(exposure_info[:additionalHazardExposures]).to eq(nil)
+      end
+    end
+
     context '526 section 5, multiple exposures null data' do
       it 'maps the attributes correctly' do
         toxic_exp_data = form_attributes['toxicExposure']
