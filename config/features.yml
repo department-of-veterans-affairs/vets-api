@@ -304,12 +304,6 @@ features:
   decision_review_monthly_stats_report_enabled:
     actor_type: user
     description: Enables the monthly decision review stats report email
-  decision_review_higher_level_review_pdf_v3:
-    actor_type: user
-    description: Defaults to v3 of the Higher-Level Review PDF form instead of v2
-  decision_review_supplemental_claim_pdf_v3:
-    actor_type: user
-    description: Defaults to v3 of the Supplemental Claim PDF form instead of v2
   decision_review_sc_pact_act_boolean:
     actor_type: user
     description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
