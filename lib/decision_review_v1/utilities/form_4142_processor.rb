@@ -51,7 +51,7 @@ module DecisionReviewV1
 
       def generate_metadata
         address = @form['veteranAddress']
-        country_is_us = address['country'] == 'US' || address['countryCodeISO2'] == 'US'
+        country_is_us = address['country'] == 'US'
         veteran_full_name = @form['veteranFullName']
         metadata = {
           'veteranFirstName' => veteran_full_name['first'],
@@ -61,7 +61,7 @@ module DecisionReviewV1
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
           'uuid' => @uuid,
-          'zipCode' => address['postalCode'] || address['zipCode5'],
+          'zipCode' => address['postalCode'],
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
           'numberAttachments' => 0,
