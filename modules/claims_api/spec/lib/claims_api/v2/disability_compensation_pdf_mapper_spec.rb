@@ -451,6 +451,14 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
         expect(actual).to eq(nil)
       end
+
+      it 'maps servedInReservesOrNationalGuard info correctly with a nil' do
+        form_attributes['serviceInformation']['reservesNationalGuardService'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard]
+        expect(actual).to eq(nil)
+      end
     end
 
     context '526 section 7, service pay' do
