@@ -29,9 +29,9 @@ module DecisionReviewV1
           "vaFileNumber": user.ssn.to_s.strip.presence,
           "veteranSocialSecurityNumber": user.ssn.to_s.strip.presence,
           "veteranFullName": {
-            "first": user.first_name.to_s.strip.first(50),
+            "first": user.first_name.to_s,
             "middle": middle_initial(user),
-            "last": user.last_name.to_s.strip.first(50).presence
+            "last": user.last_name.to_s.presence
           },
           "veteranDateOfBirth": user.birth_date.to_s.strip.presence,
           "veteranAddress": vet['address'].merge(
