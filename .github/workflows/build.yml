@@ -1,10 +1,13 @@
 name: Test, Lint, Build & Push to ECR & Update Manifests
 # IMPORTANT: REFACTOR BACK TO SEPARARATE JOBS AFTER K8s is merged to master and uncomment the deploy.yml
 on:
-  workflow_call:
+  pull_request:
+    branches:
+      - k8s
   push:
     branches:
       - k8s
+  workflow_call:
   workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
@@ -130,6 +133,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build_and_push:
+    if: github.ref == 'refs/heads/k8s'
     needs: [tests, linting_and_security]
     name: Build and Push
     env:
@@ -167,6 +171,7 @@ jobs:
           cache-to: type=inline
 
   deploy: # REMOVE THIS AFTER K8s is merged to master and uncomment the deploy.yml
+    if: github.ref == 'refs/heads/k8s'
     needs: [tests, linting_and_security, build_and_push]
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
     with:
@@ -179,7 +184,7 @@ jobs:
 
   notify_on_failure:
     runs-on: ubuntu-latest
-    if: ${{ failure() }}
+    if: failure() && github.ref == 'refs/heads/k8s'
     needs: [tests, linting_and_security, build_and_push, deploy]
     steps:
       - name: Configure AWS Credentials
