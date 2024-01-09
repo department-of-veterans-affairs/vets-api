@@ -5,7 +5,6 @@
 require 'sentry/event_scrubber'
 
 # This custom Transport class is need to log the error
-# This needs to be manually tested
 # https://github.com/getsentry/sentry-ruby/issues/1583
 transport = Class.new(Sentry::HTTPTransport) do
   def send_data(data)
