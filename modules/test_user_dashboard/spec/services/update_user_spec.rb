@@ -25,7 +25,7 @@ describe TestUserDashboard::UpdateUser do
       end
 
       it 'sets the test account to be checked out' do
-        expect(tud_account.checkout_time.to_f.round(3)).to eq(@timestamp.to_f.round(3))
+        expect(tud_account.checkout_time.round(3)).to eq(@timestamp.round(3))
       end
     end
 
