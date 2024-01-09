@@ -29,7 +29,7 @@ RSpec.describe EVSSClaimDocument do
             password: bad_password
           )
 
-          expect(document.valid?).to be_falsey
+          expect(document).not_to be_valid
           expect(error_message).not_to include(file_name)
           expect(error_message).not_to include(bad_password)
         end
