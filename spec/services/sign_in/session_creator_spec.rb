@@ -78,7 +78,7 @@ RSpec.describe SignIn::SessionCreator do
 
       context 'expected session' do
         let(:expected_handle) { SecureRandom.uuid }
-        let(:expected_created_time) { Time.zone.now }
+        let(:expected_created_time) { Time.zone.now.round(3) }
         let(:expected_token_uuid) { SecureRandom.uuid }
         let(:expected_parent_token_uuid) { SecureRandom.uuid }
         let(:expected_user_uuid) { user_uuid }
@@ -118,7 +118,7 @@ RSpec.describe SignIn::SessionCreator do
           session = subject.session
           expect(session.handle).to eq(expected_handle)
           expect(session.hashed_refresh_token).to eq(expected_double_hashed_parent_refresh_token)
-          expect(session.refresh_creation.to_f.truncate(3)).to eq(expected_created_time.to_f.truncate(3))
+          expect(session.refresh_creation.round(3)).to eq(expected_created_time)
           expect(session.client_id).to eq(client_id)
           expect(session.user_attributes_hash.values).to eq(expected_user_attributes.values)
         end
@@ -127,7 +127,7 @@ RSpec.describe SignIn::SessionCreator do
           let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
 
           it 'creates a session with the expected expiration time' do
-            expect(subject.session.refresh_expiration.to_f.truncate(3)).to eq(expected_expiration_time.to_f.truncate(3))
+            expect(subject.session.refresh_expiration.round(3)).to eq(expected_expiration_time)
           end
         end
 
@@ -135,7 +135,7 @@ RSpec.describe SignIn::SessionCreator do
           let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS }
 
           it 'creates a session with the expected expiration time' do
-            expect(subject.session.refresh_expiration.to_f.truncate(3)).to eq(expected_expiration_time.to_f.truncate(3))
+            expect(subject.session.refresh_expiration.round(3)).to eq(expected_expiration_time)
           end
         end
       end

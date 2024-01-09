@@ -37,7 +37,7 @@ RSpec.describe SignIn::SessionRefresher do
                user_verification:,
                client_id:)
       end
-      let(:session_expiration) { Time.zone.now + 5.minutes }
+      let(:session_expiration) { (Time.zone.now + 5.minutes).round(3) }
       let(:client_id) { client_config.client_id }
       let(:client_config) do
         create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:, enforced_terms:)
@@ -130,35 +130,27 @@ RSpec.describe SignIn::SessionRefresher do
 
               context 'and client is configured with a short refresh token expiration time' do
                 let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
-                let(:updated_session_expiration) { Time.zone.now + refresh_token_duration }
+                let(:updated_session_expiration) { (Time.zone.now + refresh_token_duration).round(3) }
 
-                # This example has a failure due to precision
-                # expected `SignIn::OAuthSession#refresh_expiration` to have
-                # initially been:
-                # <ActiveSupport::TimeWithZone 2024-01-04 01:23:09+(439437107/1000000000) +00:00 (UTC)>,
-                # but was
-                # <ActiveSupport::TimeWithZone 2024-01-04 01:23:09+(439437/1000000) +00:00 (UTC)>
-                # be_within((0.1).second fixes the precision issue
                 it 'updates the session with a new expiration time' do
                   expect do
                     subject
                     session.reload
-                  end.to change(session, :refresh_expiration).from(be_within(0.1.seconds).of(session_expiration))
-                                                             .to(be_within(0.1.seconds).of(updated_session_expiration))
+                  end.to change(session, :refresh_expiration).from(session_expiration)
+                                                             .to(updated_session_expiration)
                 end
               end
 
               context 'and client is configured with a long refresh token expiration time' do
                 let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS }
-                let(:updated_session_expiration) { Time.zone.now + refresh_token_duration }
+                let(:updated_session_expiration) { (Time.zone.now + refresh_token_duration).round(3) }
 
-                # for explanation for using be_within see above
                 it 'updates the session with a new expiration time' do
                   expect do
                     subject
                     session.reload
-                  end.to change(session, :refresh_expiration).from(be_within(0.1.seconds).of(session_expiration))
-                                                             .to(be_within(0.1.seconds).of(updated_session_expiration))
+                  end.to change(session, :refresh_expiration).from(session_expiration)
+                                                             .to(updated_session_expiration)
                 end
               end
 
