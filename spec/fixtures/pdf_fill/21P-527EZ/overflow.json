@@ -1,0 +1,128 @@
+{
+  "noRapidProcessing": false,
+  "receivesIncome": false,
+  "homeOwnership": false,
+  "assetTransfer": false,
+  "medicalExpenses": false,
+  "hasCareExpenses": false,
+  "totalNetWorth": true,
+  "maritalStatus": "Never Married",
+  "currentEmployers": [
+    {
+      "jobType": "First job working xxxxxxxxx",
+      "jobHoursWeek": 168,
+      "jobTitle": "Job title xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    {
+      "jobType": "Second job employment xxxxxxxxxxxxx",
+      "jobHoursWeek": 168,
+      "jobTitle": "Second job title xxxxxxxxxxxxxxxx"
+    }
+  ],
+  "currentEmployment": true,
+  "federalMedicalCenters": [
+    {
+      "medicalCenter": "First federal medical center xxxxxxxxxxxxxxxxxxxxx"
+    },
+    {
+      "medicalCenter": "Second federal medical center xxxxxxxxxxxxxxxxxxx"
+    }
+  ],
+  "federalTreatmentHistory": true,
+  "vaMedicalCenters": [
+    {
+      "medicalCenter": "First medical center xxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    {
+      "medicalCenter": "Second medical center xxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  ],
+  "vaTreatmentHistory": true,
+  "specialMonthlyPension": true,
+  "medicaidCoverage": true,
+  "nursingHome": true,
+  "socialSecurityDisability": true,
+  "isOver65": true,
+  "powDateRange": {
+    "from": "2001-04-02",
+    "to": "2002-04-02"
+  },
+  "previousNames": [
+    {
+      "first": "Firstothernamexxxxxxxxxxxxxxxx",
+      "middle": "Middleothernamexxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "last": "Lastothernamexxxxxxxxxxxxxxxxx",
+      "suffix": "Jr."
+    },
+    {
+      "first": "Secondothernamexxxxxxxxxxxxxxx",
+      "middle": "Secondmiddelothernamexxxxxxxxxxxxxx",
+      "last": "Secondlastothernamexxxxxxxxxxx",
+      "suffix": "Jr."
+    },
+    {
+      "first": "Thirdfirstothernamexxxxxxxxxxx",
+      "middle": "Thirdmiddleothernamexxxxxxxxxxxxx",
+      "last": "Thirdlastothernamexxxxxxxxxxxx",
+      "suffix": "Jr."
+    }
+  ],
+  "placeOfSeparation": "Separationxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "serviceBranch": {
+    "ARMY": true,
+    "NAVY": true,
+    "AIR_FORCE": true,
+    "COAST_GUARD": true,
+    "MARIVE_CORPS": true,
+    "SPACE_FORCE": true,
+    "USPHS": true,
+    "NOAA": true
+  },
+  "activeServiceDateRange": {
+    "from": "2001-01-01",
+    "to": "2002-01-01"
+  },
+  "serviceNumber": "12345678",
+  "email": "veteran@example.comxxxxxxxxxxxxxxxxxxxxxx",
+  "phone": "123-456-7777",
+  "mobilePhone": "555-555-5555",
+  "internationalPhone": "1-234-123-1233-123123123123123123",
+  "veteranAddress": {
+    "country": "USA",
+    "street": "123 Main Stxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "street2": "Apt 1234xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "city": "Brooklynxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "state": "NY",
+    "postalCode": "11225"
+  },
+  "veteranFullName": {
+    "first": "Firstnamexxxxxxxxxxxxxxxxxxxxx",
+    "middle": "Middlenamexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "last": "Lastnamexxxxxxxxxxxxxxxxxxxxxx",
+    "suffix": "Jr."
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "vaClaimsHistory": true,
+  "vaFileNumber": "123456789",
+  "veteranDateOfBirth": "1990-12-12",
+  "netWorth": {
+    "bank": 0,
+    "interestBank": 0,
+    "ira": 0,
+    "stocks": 0,
+    "realProperty": 0
+  },
+  "monthlyIncome": {
+    "socialSecurity": 0,
+    "civilService": 0,
+    "railroad": 0,
+    "blackLung": 0,
+    "serviceRetirement": 0,
+    "ssi": 0
+  },
+  "expectedIncome": {
+    "salary": 0,
+    "interest": 0
+  },
+  "privacyAgreementAccepted": true
+}
