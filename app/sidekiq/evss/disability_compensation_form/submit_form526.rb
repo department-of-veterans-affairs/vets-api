@@ -118,7 +118,7 @@ module EVSS
 
           response_handler(response)
         end
-        submission.send_post_evss_notifications!
+        send_post_evss_notifications
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
@@ -133,6 +133,14 @@ module EVSS
       # rubocop:enable Metrics/MethodLength
 
       private
+
+      def send_post_evss_notifications
+        submission.send_post_evss_notifications!
+      rescue Breakers::OutageException
+        # [wipn8923] START HERRE - we need to retry this without recreating the whold submissions,
+        # which is what the retryable error handler will do
+        # it should probably go to it's own worker
+      end
 
       def submit_complete_form
         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
