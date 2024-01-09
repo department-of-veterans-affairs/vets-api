@@ -20,8 +20,6 @@ class AppealsApi::RswagConfig
       },
       tags:,
       paths: {},
-      # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
-      basePath: base_path_template.gsub('{version}', version),
       components: {
         securitySchemes: name == 'decision_reviews' ? decision_reviews_security_schemes : oauth_security_schemes(name),
         schemas: schemas(api_name: name, version:)
@@ -213,15 +211,16 @@ class AppealsApi::RswagConfig
       merge_schemas(
         hlr_create_schemas,
         hlr_response_schemas,
-        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID X-VA-User documentUploadMetadata]),
-        shared_schemas.slice(*%w[address phone timezone nonBlankString])
+        generic_schemas.slice(*%i[errorModel uuid]),
+        shared_schemas.slice(*%w[address fileNumber icn nonBlankString phone ssn timezone])
       )
     when 'notice_of_disagreements'
       merge_schemas(
         nod_create_schemas,
         nod_response_schemas,
         appealable_issues_response_schemas.slice(*%i[appealableIssue]),
-        generic_schemas.slice(*%i[errorModel uuid])
+        generic_schemas.slice(*%i[errorModel uuid]),
+        shared_schemas.slice(*%w[address fileNumber icn nonBlankString phone ssn timezone])
       )
     when 'supplemental_claims'
       merge_schemas(
@@ -229,18 +228,19 @@ class AppealsApi::RswagConfig
         sc_response_schemas,
         appealable_issues_response_schemas.slice(*%i[appealableIssue]),
         generic_schemas.slice(*%i[errorModel documentUploadMetadata]),
-        shared_schemas.slice(*%w[address icn phone ssn timezone nonBlankString])
+        shared_schemas.slice(*%w[address fileNumber icn nonBlankString phone ssn timezone])
       )
     when 'appealable_issues'
       merge_schemas(
         appealable_issues_response_schemas,
-        generic_schemas.slice(*%i[errorModel])
+        generic_schemas.slice(*%i[errorModel]),
+        shared_schemas.slice(*%w[icn])
       )
     when 'legacy_appeals'
       merge_schemas(
         legacy_appeals_schema,
-        generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%w[nonBlankString])
+        generic_schemas.slice(*%i[errorModel]),
+        shared_schemas.slice(*%w[icn nonBlankString])
       )
     when 'appeals_status'
       merge_schemas(
@@ -1238,6 +1238,7 @@ class AppealsApi::RswagConfig
     # Keys are strings to override older, non-shared-schema definitions
     {
       'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'address.json')))['properties']['address'],
+      'fileNumber' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'fileNumber.json')))['properties']['fileNumber'],
       'icn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'icn.json')))['properties']['icn'],
       'nonBlankString' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'nonBlankString.json')))['properties']['nonBlankString'],
       'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],

@@ -47,43 +47,143 @@
         "parameters": [
           {
             "name": "icn",
-            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
-            "example": "1234567890V123456",
-            "required": true,
+            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN). Optional when using a veteran-scoped token. Required when using a representative- or system-scoped token.",
+            "example": "1012832025V743496",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]{10}V[0-9]{6}$",
               "minLength": 17,
               "maxLength": 17
             },
-            "in": "query"
+            "in": "query",
+            "required": false
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns eligible legacy appeals for a Veteran",
+            "description": "Retrieve legacy appeals for the Veteran with the supplied ICN",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "with a veteran-scoped token (no 'icn' parameter necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "2760964",
+                          "type": "legacyAppeal",
+                          "attributes": {
+                            "issues": [
+                              {
+                                "summary": "Service connection, pancreatitis"
+                              }
+                            ],
+                            "veteranFullName": "Elda Z Quigley",
+                            "decisionDate": "2021-05-04T00:00:00.000Z",
+                            "latestSocSsocDate": "2021-06-12"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "with a representative-scoped token ('icn' parameter is necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "2760964",
+                          "type": "legacyAppeal",
+                          "attributes": {
+                            "issues": [
+                              {
+                                "summary": "Service connection, pancreatitis"
+                              }
+                            ],
+                            "veteranFullName": "Elda Z Quigley",
+                            "decisionDate": "2021-05-04T00:00:00.000Z",
+                            "latestSocSsocDate": "2021-06-12"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "with a system-scoped token ('icn' parameter is necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "2760964",
+                          "type": "legacyAppeal",
+                          "attributes": {
+                            "issues": [
+                              {
+                                "summary": "Service connection, pancreatitis"
+                              }
+                            ],
+                            "veteranFullName": "Elda Z Quigley",
+                            "decisionDate": "2021-05-04T00:00:00.000Z",
+                            "latestSocSsocDate": "2021-06-12"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/legacyAppeals"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing ICN parameter",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "with a representative-scoped token and no 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The required parameter \"icn\", is missing",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  },
+                  "with a system-scoped token and no 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The required parameter \"icn\", is missing",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access forbidden",
             "content": {
               "application/json": {
                 "example": {
-                  "data": [
+                  "errors": [
                     {
-                      "id": "2760964",
-                      "type": "legacyAppeal",
-                      "attributes": {
-                        "issues": [
-                          {
-                            "summary": "Service connection, pancreatitis"
-                          }
-                        ],
-                        "veteranFullName": "Elda Z Quigley",
-                        "decisionDate": "2021-05-04T00:00:00.000Z",
-                        "latestSocSsocDate": "2021-06-12"
-                      }
+                      "title": "Forbidden",
+                      "detail": "Invalid 'icn' parameter: Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
                     }
                   ]
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/legacyAppeals"
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -109,37 +209,18 @@
             }
           },
           "422": {
-            "description": "Header Errors",
+            "description": "Invalid 'icn' parameter",
             "content": {
               "application/json": {
                 "examples": {
-                  "when ICN formatted incorrectly": {
+                  "when ICN is formatted incorrectly": {
                     "value": {
                       "errors": [
                         {
-                          "title": "Invalid length",
-                          "detail": "'12345' did not fit within the defined length limits",
-                          "code": "142",
-                          "source": {
-                            "pointer": "/icn"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "max_length": 17,
-                            "min_length": 17
-                          }
-                        },
-                        {
-                          "title": "Invalid pattern",
-                          "detail": "'12345' did not match the defined pattern",
-                          "code": "143",
-                          "source": {
-                            "pointer": "/icn"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "regex": "^[0-9]{10}V[0-9]{6}$"
-                          }
+                          "title": "Unprocessable Entity",
+                          "detail": "'icn' parameter has an invalid format. Pattern: /^[0-9]{10}V[0-9]{6}$/",
+                          "code": "422",
+                          "status": "422"
                         }
                       ]
                     }
@@ -172,36 +253,21 @@
             }
           },
           "502": {
-            "description": "Unknown Error",
+            "description": "Unknown upstream error",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "properties": {
-                          "status": {
-                            "type": "string",
-                            "example": "502"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "example": "Received a 500 response from the upstream server"
-                          },
-                          "code": {
-                            "type": "string",
-                            "example": "CASEFLOWSTATUS500"
-                          },
-                          "title": {
-                            "type": "string",
-                            "example": "Bad Gateway"
-                          }
-                        }
-                      }
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Bad Gateway",
+                      "detail": "Received an unusable response from Caseflow",
+                      "code": "502",
+                      "status": "502"
                     }
-                  }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -331,6 +397,14 @@
           }
         }
       },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17,
+        "example": "1012832025V743496"
+      },
       "legacyAppeal": {
         "properties": {
           "type": {
@@ -391,33 +465,6 @@
       "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": "string",
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": "^[0-9]{10}V[0-9]{6}$"
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

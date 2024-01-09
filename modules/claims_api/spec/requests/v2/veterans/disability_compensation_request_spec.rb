@@ -849,12 +849,15 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when gulf war service is set to No, and service dates are not present' do
           let(:gulf_war_hazard_service) { 'NO' }
+          let(:service_dates) { nil }
 
           it 'responds with accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
                 gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:accepted)
@@ -866,7 +869,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:gulf_war_hazard_service) { 'YES' }
           let(:service_dates) { nil }
 
-          it 'responds with unprocessable entity' do
+          it 'responds with 202' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
@@ -875,7 +878,53 @@ RSpec.describe 'Disability Claims', type: :request do
                 service_dates
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when gulf war service is set to YES, and service dates only have beginDate' do
+          let(:gulf_war_hazard_service) { 'YES' }
+          let(:service_dates) do
+            {
+              beginDate: '2005-01',
+              endDate: nil
+            }
+          end
+
+          it 'responds with 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when gulf war service is set to YES, and service dates only have endDate' do
+          let(:gulf_war_hazard_service) { 'YES' }
+          let(:service_dates) do
+            {
+              beginDate: nil,
+              endDate: '2005-01'
+            }
+          end
+
+          it 'responds with 202' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['servedInGulfWarHazardLocations'] =
+                gulf_war_hazard_service
+              json['data']['attributes']['toxicExposure']['gulfWarHazardService']['serviceDates'] =
+                service_dates
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1958,13 +2007,13 @@ RSpec.describe 'Disability Claims', type: :request do
             ]
           end
 
-          it 'responds with a 202' do
+          it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -1981,13 +2030,13 @@ RSpec.describe 'Disability Claims', type: :request do
             ]
           end
 
-          it 'responds with a 202' do
+          it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2003,13 +2052,13 @@ RSpec.describe 'Disability Claims', type: :request do
             ]
           end
 
-          it 'responds with a 202' do
+          it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -3137,7 +3186,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:anticipated_separation_date) { '2024-06-16' }
+          let(:anticipated_separation_date) { claim_date + 81.days }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
@@ -3266,13 +3315,13 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context 'when activationDate is not after the earliest servicePeriod.activeDutyBeginDate' do
-            let(:title_10_activation_date) { '2005-05-05' }
+            let(:title_10_activation_date) { '1994-05-05' }
             let(:service_periods) do
               [
                 {
                   serviceBranch: 'Public Health Service',
-                  activeDutyBeginDate: '1980-02-05',
-                  activeDutyEndDate: '1990-01-02',
+                  activeDutyBeginDate: '1995-02-05',
+                  activeDutyEndDate: '1999-01-02',
                   serviceComponent: 'Reserves',
                   separationLocationCode: 'ABCDEFGHIJKLMN'
                 },

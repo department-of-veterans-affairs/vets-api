@@ -1,0 +1,21 @@
+meta {
+  name: List appeals statuses
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v0/appeals
+  body: none
+  auth: none
+}
+
+headers {
+  X-VA-SSN: {{veteran_ssn}}
+  X-VA-User: {{veteran_email}}
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

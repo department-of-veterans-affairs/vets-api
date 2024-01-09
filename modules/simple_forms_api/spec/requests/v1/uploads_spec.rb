@@ -42,6 +42,37 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_21_0845.json'
     test_submit_request 'vba_40_0247.json'
     test_submit_request 'vba_21_0966.json'
+    test_submit_request 'vba_20_10206.json'
+
+    def self.test_saves_form_submission_attempt(test_payload)
+      it 'saves a FormSubmissionAttempt' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', test_payload)
+            data = JSON.parse(fixture_path.read)
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+
+            expect do
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end.to change(FormSubmissionAttempt, :count).by(1)
+          ensure
+            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+          end
+        end
+      end
+    end
+
+    test_saves_form_submission_attempt 'vha_10_10d.json'
+    test_saves_form_submission_attempt 'vba_26_4555.json'
+    test_saves_form_submission_attempt 'vba_21_4142.json'
+    test_saves_form_submission_attempt 'vba_21_10210.json'
+    test_saves_form_submission_attempt 'vba_21p_0847.json'
+    test_saves_form_submission_attempt 'vba_21_0972.json'
+    test_saves_form_submission_attempt 'vba_21_0845.json'
+    test_saves_form_submission_attempt 'vba_40_0247.json'
+    test_saves_form_submission_attempt 'vba_21_0966.json'
+    test_saves_form_submission_attempt 'vba_20_10206.json'
 
     describe 'request with intent to file unauthenticated' do
       let(:expiration_date) { Time.zone.now }

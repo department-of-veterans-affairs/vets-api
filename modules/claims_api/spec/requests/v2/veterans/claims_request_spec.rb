@@ -198,6 +198,110 @@ RSpec.describe 'Claims', type: :request do
       end
 
       describe 'mapping of claims' do
+        describe 'handling duplicate claims in BGS and LH' do
+          let(:bgs_claims) do
+            {
+              benefit_claims_dto: {
+                benefit_claim: [
+                  {
+                    benefit_claim_id: '600098191',
+                    claim_status: 'Pending',
+                    claim_status_type: 'Compensation',
+                    phase_chngd_dt: 'Wed, 18 Oct 2017',
+                    phase_type: 'Complete',
+                    ptcpnt_clmant_id: veteran_id,
+                    ptcpnt_vet_id: veteran_id,
+                    phase_type_change_ind: '76'
+                  },
+                  {
+                    benefit_claim_id: '600098192',
+                    claim_status: 'Pending',
+                    claim_status_type: 'Compensation',
+                    phase_chngd_dt: 'Wed, 18 Oct 2017',
+                    phase_type: 'Complete',
+                    ptcpnt_clmant_id: veteran_id,
+                    ptcpnt_vet_id: veteran_id,
+                    phase_type_change_ind: '76'
+                  },
+                  {
+                    benefit_claim_id: '600098193',
+                    claim_status: 'Pending',
+                    claim_status_type: 'Compensation',
+                    phase_chngd_dt: 'Wed, 18 Oct 2017',
+                    phase_type: 'Complete',
+                    ptcpnt_clmant_id: veteran_id,
+                    ptcpnt_vet_id: veteran_id,
+                    phase_type_change_ind: '76'
+                  }
+                ]
+              }
+            }
+          end
+
+          context 'when there are multiple matching claims' do
+            it 'does not list duplicates for any matching claims between BGS and LH' do
+              lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                evss_id: '600098191')
+              lighthouse_claim_two = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                    evss_id: '600098193')
+              lh_claims = []
+              lh_claims << lighthouse_claim
+              lh_claims << lighthouse_claim_two
+
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:where).and_return(lh_claims)
+
+                  get all_claims_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response['data'].count).to eq(3)
+                end
+              end
+            end
+          end
+
+          context 'when there are unique LH and BGS claims' do
+            it 'lists unique claims and does not list duplicates for any matching claims between BGS and LH' do
+              lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                evss_id: '600098191')
+              lighthouse_claim_two = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                    evss_id: '600098193')
+              lighthouse_claim_three = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                      evss_id: '600098195')
+              lh_claims = []
+              lh_claims << lighthouse_claim
+              lh_claims << lighthouse_claim_two
+              lh_claims << lighthouse_claim_three
+
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:where).and_return(lh_claims)
+
+                  get all_claims_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response['data'].count).to eq(4)
+                  expect(json_response['data'][0]['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
+                  expect(json_response['data'][1]['attributes']['lighthouseId']).to eq(nil)
+                  expect(json_response['data'][2]['attributes']['lighthouseId']).to eq(lighthouse_claim_two.id)
+                  expect(json_response['data'][3]['attributes']['lighthouseId']).to eq(lighthouse_claim_three.id)
+                  expect(json_response['data'][3]['attributes']['claimType']).to eq('Compensation')
+                  expect(json_response['data'][3]['id']).to eq(nil)
+                end
+              end
+            end
+          end
+        end
+
         describe "handling 'lighthouseId' and 'claimId'" do
           context 'when BGS and Lighthouse claims exist' do
             let(:bgs_claims) do
@@ -1158,6 +1262,34 @@ RSpec.describe 'Claims', type: :request do
                   )
                   expect(json_response['data']['attributes']['trackedItems'][0]['overdue']).to eq(true)
                   expect(json_response['data']['attributes']['trackedItems'][1]['overdue']).to eq(false)
+                end
+              end
+            end
+          end
+        end
+
+        context 'it has tracked items that show SUBMITTED_AWAITING_REVIEW when it should' do
+          let(:claim_id_with_items) { '600236068' }
+          let(:claim_by_id_with_items_path) do
+            "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id_with_items}"
+          end
+
+          it "returns a claim with 'tracked_items'" do
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_item_service/get_claim_documents_with_tracked_item_ids') do
+                VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
+                  allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
+
+                  get claim_by_id_with_items_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+
+                  first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
+                  resp_tracked_items = json_response['data']['attributes']['trackedItems']
+                  expect(response.status).to eq(200)
+                  expect(json_response['data']['id']).to eq(claim_id_with_items)
+                  expect(first_doc_id).to eq(293_439)
+                  expect(resp_tracked_items[0]['status']).to eq('SUBMITTED_AWAITING_REVIEW')
                 end
               end
             end

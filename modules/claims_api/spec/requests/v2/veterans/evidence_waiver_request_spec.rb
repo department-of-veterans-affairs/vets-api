@@ -4,8 +4,9 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 
 RSpec.describe 'Evidence Waiver 5103', type: :request,
-                                       swagger_doc: Rswag::TextHelpers.new.claims_api_docs, production: false do
+                                       openapi_spec: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:veteran_id) { '1012667145V762142' }
+  let(:sponsor_id) { '1012861229V078999' }
   let(:claim_id) { '600131328' }
   let(:sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}/5103" }
   let(:error_sub_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/abc123/5103" }
@@ -57,6 +58,36 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
                   post error_sub_path, headers: auth_header
 
                   expect(response.status).to eq(404)
+                end
+              end
+            end
+          end
+
+          context 'when sponsorICN is provided' do
+            it 'passes for a valid type' do
+              bgs_claim_response = build(:bgs_response_with_one_lc_status).to_h
+              bgs_claim_response[:benefit_claim_details_dto][:bnft_claim_type_cd] = '140ISCD'
+              expect_any_instance_of(ClaimsApi::LocalBGS)
+                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
+
+              mock_ccg(scopes) do |auth_header|
+                allow_any_instance_of(ClaimsApi::LocalBGS)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+
+                post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
+
+                expect(response.status).to eq(200)
+              end
+            end
+
+            it 'silently passes for an invalid type' do
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                  allow_any_instance_of(ClaimsApi::LocalBGS)
+                    .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
+                  post sub_path, params: { sponsorIcn: sponsor_id }, headers: auth_header
+
+                  expect(response.status).to eq(200)
                 end
               end
             end

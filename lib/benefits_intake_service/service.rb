@@ -24,6 +24,15 @@ module BenefitsIntakeService
 
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
+    # Validate a file satisfies Benefits Intake specifications. File must be a PDF.
+    # @param [String] doc_path
+    def validate_document(doc_path:)
+      # TODO: allow headers: to be passed to function if/when other file types are allowed
+      headers = { 'Content-Type': 'application/pdf' }
+      request_body = File.read(doc_path, mode: 'rb')
+      perform :post, 'uploads/validate_document', request_body, headers
+    end
+
     # TODO: Remove param and clean up Form526BackupSubmissionProcess::Processor to use instance vars
     def initialize(with_upload_location: false)
       super()
@@ -50,6 +59,20 @@ module BenefitsIntakeService
       headers = {}
       request_body = {}
       perform :post, 'uploads', request_body, headers
+    end
+
+    def get_bulk_status_of_uploads(ids)
+      body = { ids: }.to_json
+      response = perform(
+        :post,
+        'uploads/report',
+        body,
+        { 'Content-Type' => 'application/json', 'accept' => 'application/json' }
+      )
+
+      raise response.body unless response.success?
+
+      response
     end
 
     def get_file_path_from_objs(file)

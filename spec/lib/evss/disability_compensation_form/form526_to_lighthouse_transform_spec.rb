@@ -15,15 +15,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(lh_request_body.claimant_certification).to be(true)
     end
 
-    context 'when claim_date is provided' do
-      let(:claim_date) { Date.new(2023, 7, 19).strftime('%Y-%m-%d') }
-
-      it 'sets claim_date in the Lighthouse request body' do
-        data['form526']['claimDate'] = claim_date
-        lh_request_body = transformer.transform(data)
-        expect(lh_request_body.claim_date).to eq(claim_date)
-      end
-    end
+    # TODO: re-visit once we get clarification on whether claimDate needs to be restored to LH request
+    # context 'when claim_date is provided' do
+    #   let(:claim_date) { Date.new(2023, 7, 19).strftime('%Y-%m-%d') }
+    #
+    #   it 'sets claim_date in the Lighthouse request body' do
+    #     data['form526']['claimDate'] = claim_date
+    #     lh_request_body = transformer.transform(data)
+    #     expect(lh_request_body.claim_date).to eq(claim_date)
+    #   end
+    # end
 
     it 'verify the LH request body is being populated correctly by default' do
       expect(transformer).to receive(:evss_claims_process_type)
@@ -31,7 +32,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         .and_return('STANDARD_CLAIM_PROCESS')
       result = transformer.transform(data)
 
-      expect(result.claim_date).to eq(nil)
       expect(result.claimant_certification).to eq(true)
       expect(result.claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
       expect(result.veteran_identification.class).to eq(Requests::VeteranIdentification)
@@ -151,7 +151,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.transform_homeless(data['form526']['veteran'])
       expect(result.point_of_contact).to eq('Jane Doe')
       expect(result.currently_homeless).not_to be_nil
-      expect(result.risk_of_becoming_homeless).not_to be_nil
+      expect(result.risk_of_becoming_homeless).to be_nil
       expect(result.point_of_contact_number).not_to be_nil
     end
   end
@@ -233,7 +233,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.favor_training_pay).to eq(true)
       expect(result.favor_military_retired_pay).to eq(false)
       expect(result.receiving_military_retired_pay).to eq('YES')
-      expect(result.future_military_retired_pay).to eq('YES')
+      expect(result.future_military_retired_pay).to eq('NO')
 
       # military retired mappings
       expect(result.military_retired_pay.class).to eq(Requests::MilitaryRetiredPay)

@@ -105,14 +105,17 @@ module BenefitsClaims
       # if we're coming straight from the transformation service without
       # making this a jsonapi request body first ({data: {type:, attributes}}),
       # this will put it in the correct format for transmission
-      if body['attributes'].blank?
-        body = {
-          data: {
-            type: 'form/526',
-            attributes: body
-          }
-        }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
-      end
+
+      body = {
+        data: {
+          type: 'form/526',
+          attributes: body
+        }
+      }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+
+      # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
+      # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
+      fix_current_va_employee(body)
 
       response = config.post(
         path,
@@ -126,6 +129,16 @@ module BenefitsClaims
     end
 
     private
+
+    def fix_current_va_employee(body)
+      if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
+           field['currentVAEmployee']
+         end&.key?('currentVAEmployee')
+        body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+          body['data']['attributes']['veteranIdentification']['currentVAEmployee']
+        body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
 
     def submit_response(response, body_only)
       if body_only
