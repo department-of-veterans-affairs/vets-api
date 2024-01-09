@@ -399,7 +399,9 @@ module PdfFill
         },
         # 12a
         'noRapidProcessing' => {
+          # rubocop:disable Layout/LineLength
           key: 'form1[0].#subform[54].CheckBox_I_Do_Not_Want_My_Claim_Considered_For_Rapid_Processing_Under_The_F_D_C_Program_Because_I_Plan_To_Submit_Further_Evidence_In_Support_Of_My_Claim[0]'
+          # rubocop:enable Layout/LineLength
         },
         # 12b
         'statementOfTruthSignature' => {

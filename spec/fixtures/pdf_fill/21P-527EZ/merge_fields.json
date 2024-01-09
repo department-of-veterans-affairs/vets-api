@@ -1,136 +1,286 @@
 {
-  "noRapidProcessing": false,
-  "receivesIncome": false,
-  "homeOwnership": false,
-  "assetTransfer": false,
-  "medicalExpenses": false,
-  "hasCareExpenses": false,
-  "totalNetWorth": true,
-  "maritalStatus": "Never Married",
+  "activeServiceDateRange": {
+    "from": {
+      "month": "03",
+      "day": "02",
+      "year": "2003"
+    },
+    "to": {
+      "month": "03",
+      "day": "20",
+      "year": "2007"
+    }
+  },
+  "bankAccount": {
+    "accountNumber": "001122334455",
+    "accountType": 1,
+    "bankName": "Best Bank",
+    "routingNumber": "123123123"
+  },
+  "careExpenses": [
+    {
+      "careDateRange": {
+        "from": "2020-08-01",
+        "to": "2023-05-25"
+      },
+      "careType": "Care facility",
+      "hoursPerWeek": 20,
+      "paymentAmount": 2500,
+      "paymentFrequency": "Once a month",
+      "provider": "NYC Care Provider",
+      "ratePerHour": 100,
+      "recipients": "Veteran"
+    },
+    {
+      "careDateRange": {
+        "from": "2020-08-01"
+      },
+      "careType": "Care facility",
+      "childName": "Joe Doe",
+      "hoursPerWeek": 10,
+      "noCareEndDate": true,
+      "paymentAmount": 22500,
+      "paymentFrequency": "Once a year",
+      "provider": "LA Care Provider",
+      "ratePerHour": 200,
+      "recipients": "Veteran’s child"
+    }
+  ],
   "currentEmployers": [
     {
-      "jobType": "First job working",
-      "jobHoursWeek": 40,
-      "jobTitle": "Job title"
+      "jobHoursWeek": 20,
+      "jobTitle": "Manager",
+      "jobType": "Customer service"
+    },
+    {
+      "jobHoursWeek": 20,
+      "jobTitle": "Representative",
+      "jobType": "Customer service"
     }
   ],
   "currentEmployment": 0,
+  "currentSpouseMaritalHistory": "Yes",
+  "currentSpouseMonthlySupport": 2444,
+  "dependents": [
+    {
+      "attendingCollege": true,
+      "childAddress": {
+        "city": "Hadley",
+        "country": "USA",
+        "postalCode": "01050",
+        "state": "ME",
+        "street": "123 8th st"
+      },
+      "childDateOfBirth": "1997-03-02",
+      "childInHousehold": false,
+      "childPlaceOfBirth": "Tallahassee, FL",
+      "childRelationship": "biological",
+      "childSocialSecurityNumber": "324234444",
+      "disabled": true,
+      "fullName": {
+        "first": "Bobby",
+        "last": "Doe"
+      },
+      "married": true,
+      "monthlyPayment": 3444,
+      "personWhoLivesWithChild": {
+        "first": "Joe",
+        "last": "Smith"
+      },
+      "previouslyMarried": true
+    },
+    {
+      "childDateOfBirth": "1993-03-02",
+      "childInHousehold": true,
+      "childPlaceOfBirth": "Troy, MT",
+      "childRelationship": "adopted",
+      "disabled": false,
+      "fullName": {
+        "first": "Emily",
+        "last": "Doe"
+      },
+      "previouslyMarried": false,
+      "view:noSsN": true
+    }
+  ],
+  "email": "test@example.com",
   "federalMedicalCenters": [
     {
-      "medicalCenter": "First medical center"
+      "medicalCenter": "Memphis Health Care"
+    },
+    {
+      "medicalCenter": "Nashville Health Care"
     }
   ],
   "federalTreatmentHistory": 0,
-  "vaMedicalCenters": [
+  "hasCareExpenses": true,
+  "homeAcreageMoreThanTwo": true,
+  "homeAcreageValue": 75000,
+  "homeOwnership": true,
+  "incomeSources": [
     {
-      "medicalCenter": "First medical center"
+      "amount": 278,
+      "payer": "John Doe",
+      "receiver": "Jane Doe",
+      "typeOfIncome": "Social Security"
     }
   ],
-  "vaTreatmentHistory": 0,
-  "specialMonthlyPension": 0,
-  "medicaidCoverage": true,
+  "internationalPhone": "001-212-456-7890",
+  "isOver65": false,
+  "landMarketable": true,
+  "liveWithSpouse": false,
+  "maritalStatus": "Separated",
+  "marriages": [
+    {
+      "dateOfMarriage": "1989-03-02",
+      "locationOfMarriage": "Dallas",
+      "spouseFullName": {
+        "first": "Jessica",
+        "last": "Doe"
+      },
+      "view:pastMarriage": {
+        "dateOfSeparation": "1990-03-02",
+        "locationOfSeparation": "San Antonio, TX",
+        "reasonForSeparation": "Divorce"
+      }
+    },
+    {
+      "dateOfMarriage": "1994-03-02",
+      "locationOfMarriage": "North Adams, MA",
+      "spouseFullName": {
+        "first": "Meg",
+        "last": "Doe"
+      },
+      "view:currentMarriage": {
+        "marriageType": "Other",
+        "otherExplanation": "Personal"
+      }
+    }
+  ],
+  "medicaidCoverage": false,
+  "medicaidStatus": 0,
+  "medicalCondition": 1,
+  "medicalExpenses": true,
+  "mobilePhone": {
+    "phone_area_code": "313",
+    "phone_first_three_numbers": "867",
+    "phone_last_four_numbers": "5309"
+  },
+  "netWorthEstimation": 18000,
+  "noRapidProcessing": 1,
   "nursingHome": 0,
-  "socialSecurityDisability": 0,
-  "isOver65": true,
+  "otherExplanation": "Personal reason",
+  "phone": "212-867-5309",
+  "placeOfSeparation": "Northampton, MA",
   "powDateRange": {
     "from": {
-      "month": "04",
-      "day": "02",
-      "year": "2001"
+      "month": "02",
+      "day": "26",
+      "year": "1971"
     },
     "to": {
-      "month": "04",
+      "month": "03",
       "day": "02",
-      "year": "2002"
+      "year": "1973"
     }
   },
   "previousNames": [
     {
-      "first": "First",
-      "middle": "Middle",
-      "last": "Last",
-      "suffix": "Jr."
+      "first": "John",
+      "last": "Doe"
+    },
+    {
+      "first": "Jane",
+      "last": "Doe"
     }
   ],
-  "placeOfSeparation": "Separation place",
+  "reasonForCurrentSeparation": "Other",
+  "receivesIncome": true,
   "serviceBranch": {
     "ARMY": true
   },
-  "activeServiceDateRange": {
-    "from": {
-      "month": "01",
-      "day": "01",
-      "year": "2001"
-    },
-    "to": {
-      "month": "01",
-      "day": "01",
-      "year": "2002"
-    }
-  },
-  "serviceNumber": "12345678",
-  "email": "veteran@example.com",
-  "phone": "123-456-7777",
-  "mobilePhone": {
-    "phone_area_code": "555",
-    "phone_first_three_numbers": "555",
-    "phone_last_four_numbers": "5555"
-  },
-  "internationalPhone": "11-234-123-1233",
-  "veteranAddress": {
+  "serviceNumber": "123456",
+  "socialSecurityDisability": 1,
+  "specialMonthlyPension": 1,
+  "spouseAddress": {
+    "city": "Pittsfield",
     "country": "USA",
-    "street": "123 Main St",
-    "street2": "1234",
-    "city": "Brooklyn",
-    "state": "NY",
-    "postalCode": {
-      "firstFive": "11225",
-      "lastFour": ""
+    "postalCode": "01050",
+    "state": "MA",
+    "street": "123 7th st",
+    "street2": "Apt 3"
+  },
+  "spouseDateOfBirth": "1960-01-01",
+  "spouseIsVeteran": true,
+  "spouseMarriages": [
+    {
+      "dateOfMarriage": "1980-03-02",
+      "dateOfSeparation": "1990-03-02",
+      "locationOfMarriage": "Seattle, WA",
+      "locationOfSeparation": "Tacoma, WA",
+      "reasonForSeparation": "Death",
+      "spouseFullName": {
+        "first": "Joe",
+        "last": "Generic",
+        "middle": "F",
+        "suffix": "Jr."
+      }
     }
+  ],
+  "spouseSocialSecurityNumber": "342342444",
+  "spouseVaFileNumber": "23423444",
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Doe",
+  "totalNetWorth": false,
+  "transferredAssets": true,
+  "vaClaimsHistory": true,
+  "vaFileNumber": "12345678",
+  "vaMedicalCenters": [
+    {
+      "medicalCenter": "Dallas Fort Worth VA Medical Center"
+    }
+  ],
+  "vaTreatmentHistory": 0,
+  "veteranAddress": {
+    "city": "Hadley",
+    "country": "USA",
+    "isMilitary": false,
+    "postalCode": {
+      "firstFive": "01050",
+      "lastFour": ""
+    },
+    "state": "ME",
+    "street": "123 8th st",
+    "street2": "Apt A-3"
+  },
+  "veteranDateOfBirth": {
+    "month": "01",
+    "day": "01",
+    "year": "1960"
   },
   "veteranFullName": {
-    "first": "Firstname",
-    "middle": "Middle",
-    "last": "Lastname",
-    "suffix": "Jr."
+    "first": "John",
+    "last": "Doe",
+    "middle": "Edmund",
+    "suffix": "Sr."
   },
   "veteranSocialSecurityNumber": {
-    "first": "111",
-    "second": "22",
-    "third": "3333"
+    "first": "123",
+    "second": "12",
+    "third": "3123"
   },
-  "vaClaimsHistory": true,
-  "vaFileNumber": "123456789",
-  "veteranDateOfBirth": {
-    "month": "12",
-    "day": "12",
-    "year": "1990"
-  },
-  "netWorth": {
-    "bank": 0,
-    "interestBank": 0,
-    "ira": 0,
-    "stocks": 0,
-    "realProperty": 0
-  },
-  "monthlyIncome": {
-    "socialSecurity": 0,
-    "civilService": 0,
-    "railroad": 0,
-    "blackLung": 0,
-    "serviceRetirement": 0,
-    "ssi": 0
-  },
-  "expectedIncome": {
-    "salary": 0,
-    "interest": 0
-  },
-  "privacyAgreementAccepted": true,
+  "view:aidAttendance": true,
+  "view:hasDependents": true,
+  "view:powStatus": true,
+  "view:serveUnderOtherNames": true,
   "vaPreviouslyFiled": 0,
   "pow": 0,
-  "placeOfSeparationLineOne": "Separation place",
+  "placeOfSeparationLineOne": "Northampton, MA",
   "placeOfSeparationLineTwo": null,
-  "medicaidStatus": 1,
-  "medicalCondition": "Off",
-  "previousEmployers": null
+  "previousEmployers": null,
+  "signatureDate": {
+    "month": "12",
+    "day": "31",
+    "year": "2016"
+  }
 }
