@@ -1282,4 +1282,4 @@ features:
     description: If enabled, allows for connecting to NLU PVA
   vye_load_scrypt_config:
     actor_type: user
-    description: Master toggle for the VYE application
+    description: If enabled, allowed for scrypt configs to be loaded.

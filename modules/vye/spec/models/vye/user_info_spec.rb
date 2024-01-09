@@ -4,7 +4,9 @@ require 'rails_helper'
 
 RSpec.describe Vye::UserInfo, type: :model do
   before do
-    stub_const 'Vye::GenDigest::Common::GEN_DIGEST_CONFIG', Vye::GenDigest::Common.get_gen_digest_config
+    Flipper.enable(:vye_load_scrypt_config)
+    settings = Config.load_files(Rails.root / 'config/settings.yml', Vye::Engine.root / 'config/settings/test.yml')
+    Vye::UserInfo.extract_scrypt_config settings
   end
 
   describe 'create' do

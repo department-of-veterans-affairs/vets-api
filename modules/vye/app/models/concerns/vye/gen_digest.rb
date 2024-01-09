@@ -8,16 +8,28 @@ module Vye
     extend ActiveSupport::Concern
 
     module Common
-      def self.get_gen_digest_config
-        Settings.vye.scrypt.to_h
-                .slice(*%i[salt N r p length])
-                .freeze
+      module_eval do
+        store = nil
+
+        define_method :scrypt_config do
+          store || extract_scrypt_config
+        end
+
+        define_method :extract_scrypt_config do |settings = Settings|
+          return unless Flipper.enabled?(:vye_load_scrypt_config)
+
+          store =
+            settings
+            &.vye
+            &.scrypt
+            &.to_h
+            &.slice(:salt, :N, :r, :p, :length)
+            &.freeze
+        end
       end
 
-      GEN_DIGEST_CONFIG = Flipper.enabled?(:vye_load_scrypt_config) ? get_gen_digest_config : nil
-
       def gen_digest(value)
-        value&.then { |v| Base64.encode64(OpenSSL::KDF.scrypt(v, **GEN_DIGEST_CONFIG)).strip }
+        value&.then { |v| Base64.encode64(OpenSSL::KDF.scrypt(v, **scrypt_config)).strip }
       end
     end
 

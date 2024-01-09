@@ -1698,7 +1698,10 @@ vye:
   # | r    | Block size parameter                                 |
   # | p    | Parallelization parameter                            |
   #
-  # See OpenSSL documentation for more information. (https://ruby-doc.org/core-3.1.2/OpenSSL/KDF.html#method-c-scrypt)
+  # See OpenSSL documentation for more information:
+  #   https://ruby-doc.org/core-3.1.2/OpenSSL/KDF.html#method-c-scrypt
+  # See OWASP Cheat Sheet Series for more information about the best configuration for production:
+  #   https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt
   scrypt:
     salt: ~
     N: 16384
