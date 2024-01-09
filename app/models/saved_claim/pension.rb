@@ -37,4 +37,8 @@ class SavedClaim::Pension < SavedClaim
   def upload_to_lighthouse
     Lighthouse::PensionBenefitIntakeJob.perform_async(id)
   end
+
+  def form_matches_schema
+    true # TODO: remove this when schema updates are in place
+  end
 end
