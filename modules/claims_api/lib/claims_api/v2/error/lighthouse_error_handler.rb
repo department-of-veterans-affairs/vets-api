@@ -54,7 +54,13 @@ module ClaimsApi
         end
 
         def render_json_error(error)
-          render json: { errors: error.errors_array }, status: error.status_code
+          if @disability_compensation_validation_errors
+            @disability_compensation_validation_errors.concat(error.errors_array)
+          else
+            @disability_compensation_validation_errors = error.errors_array
+          end
+
+          render json: { errors: @disability_compensation_validation_errors }, status: error.status_code
         end
 
         def format_source(error)
