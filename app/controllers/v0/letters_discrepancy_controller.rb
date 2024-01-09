@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
+# NOTE: extra imports shouldn't be needed in theory, but
+# they sometimes cause the services to not load if they're not there
+
 # imports needed for evss
-require 'common/exceptions/record_not_found'
-require 'evss/letters/download_service'
+require 'common/exceptions/record_not_found' # this shouldn't be needed
+require 'evss/letters/download_service' # this shouldn't be needed
 require 'evss/letters/service'
 
 # imports needed for lighthouse
 require 'lighthouse/letters_generator/service'
-require 'lighthouse/letters_generator/service_error'
-require 'lighthouse/letters_generator/veteran_sponsor_resolver'
+require 'lighthouse/letters_generator/service_error' # this shouldn't be needed
+require 'lighthouse/letters_generator/veteran_sponsor_resolver' # this shouldn't be needed
 
 module V0
   class LettersDiscrepancyController < ApplicationController
