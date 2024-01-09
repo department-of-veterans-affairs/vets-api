@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "identifier",
+          "kind",
+          "status",
+          "service_type",
+          "patient_icn",
+          "location_id",
+          "clinic",
+          "start",
+          "cancelation_reason",
+          "cancellable",
+          "extension"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "array"
+          },
+          "kind": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": ["string", "null"]
+          },
+          "service_type": {
+            "type": "string"
+          },
+          "patient_icn": {
+            "type": "string"
+          },
+          "location_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "clinic": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "cancelation_reason": {
+            "type": "object"
+          },
+          "cancellable": {
+            "type": "boolean"
+          },
+          "extension": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

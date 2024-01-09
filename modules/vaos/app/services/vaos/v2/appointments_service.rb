@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/errors'
+require 'common/schema_checker'
 require 'json'
 require 'memoist'
 
@@ -28,6 +29,8 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
+          # UpstreamSchemaValidationJob.perform_sync(response, 'foo')
+          Common::SchemaChecker.new(response, 'modules/vaos/app/schemas/appointments.json').validate
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
