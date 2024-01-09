@@ -5,7 +5,8 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
   def self.test_pdf_fill(form_number, test_payload = form_number)
-    xit 'fills out a PDF from a templated JSON file - pending temporarily' do
+    it 'fills out a PDF from a templated JSON file - pending temporarily' do
+      skip 'pending temporarily'
       expected_pdf_path = "tmp/#{form_number}-tmp.pdf"
 
       # remove the pdf if it already exists
