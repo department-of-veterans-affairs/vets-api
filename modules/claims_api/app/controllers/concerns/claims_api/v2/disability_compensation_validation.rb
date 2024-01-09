@@ -117,6 +117,8 @@ module ClaimsApi
       end
 
       def validate_form_526_identification!
+        return if form_attributes['veteranIdentification'].nil? || form_attributes['veteranIdentification'].blank?
+
         validate_form_526_current_mailing_address_country!
         validate_form_526_service_number!
       end
@@ -132,10 +134,6 @@ module ClaimsApi
 
       def validate_form_526_current_mailing_address_country!
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
-        if mailing_address.empty?
-          collect_error_messages(source: '/veteranIdentification/mailingAddress',
-                                 detail: 'Mailing address is required.')
-        end
         return if valid_countries.include?(mailing_address['country'])
 
         collect_error_messages(
@@ -145,6 +143,8 @@ module ClaimsApi
       end
 
       def validate_form_526_disabilities!
+        return if form_attributes['disabilities'].nil? || form_attributes['disabilities'].blank?
+
         validate_form_526_disability_classification_code!
         validate_form_526_disability_approximate_begin_date!
         validate_form_526_disability_service_relevance!
@@ -525,12 +525,8 @@ module ClaimsApi
       def validate_form_526_service_information!(target_veteran)
         service_information = form_attributes['serviceInformation']
 
-        if service_information.blank?
-          collect_error_messages(
-            source: '/serviceInformation/',
-            detail: 'Service information is required'
-          )
-        end
+        return if service_information.nil? || service_information.blank?
+
         validate_claim_date_to_active_duty_end_date!(service_information)
         validate_service_periods!(service_information, target_veteran)
         validate_service_branch_names!(service_information)
@@ -550,7 +546,7 @@ module ClaimsApi
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate')
 
-        return if max_date_valid.is_a?(Array) || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+        return if max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
 
         if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
           max_period['activeDutyEndDate'], '%Y-%m-%d'
@@ -977,7 +973,7 @@ module ClaimsApi
       end
 
       def duty_begin_date_is_after_approximate_begin_date?(begin_date, approximate_begin_date)
-        return if date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
+        return unless date_is_valid?(begin_date, 'serviceInformation/servicePeriods/activeDutyEndDate')
 
         date_regex_groups(begin_date) > date_regex_groups(approximate_begin_date)
       end
