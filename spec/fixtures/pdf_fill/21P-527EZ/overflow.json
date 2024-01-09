@@ -124,7 +124,5 @@
     "salary": 0,
     "interest": 0
   },
-  "privacyAgreementAccepted": true,
-  "statementOfTruthCertified": true,
-  "statementOfTruthSignature": "John Doe"
+  "privacyAgreementAccepted": true
 }

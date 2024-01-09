@@ -65,7 +65,5 @@
   "veteranSocialSecurityNumber": "111223333",
   "veteranDateOfBirth": "1990-12-12",
   "isOver65": false,
-  "privacyAgreementAccepted": true,
-  "statementOfTruthCertified": true,
-  "statementOfTruthSignature": "John Doe"
+  "privacyAgreementAccepted": true
 }
