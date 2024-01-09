@@ -9,11 +9,15 @@ module RepAddresses
     include Sidekiq::Job
     include SentryLogging
 
-    SHEETS_TO_PROCESS = %w[Attorneys Agents].freeze
-    BATCH_SIZE = 5000
+    SHEETS_TO_PROCESS = %w[Agents Attorneys Representatives].freeze
+    BATCH_SIZE = 200
 
     def perform
-      file_content = RepAddresses::XlsxFileFetcher.new.fetch
+      # file_content = RepAddresses::XlsxFileFetcher.new.fetch
+      file_path = ''
+
+      # Read the file content into a string
+      file_content = File.read(file_path)
 
       unless file_content
         log_error('Failed to fetch file or file content is empty')
@@ -73,23 +77,21 @@ module RepAddresses
     # @param column_map [Hash] The column index map for the sheet.
     # @return [String] The JSON representation of the row data.
     def create_json_data(row, sheet_name, column_map)
-      common_data = build_common_data(row, sheet_name, column_map)
-
-      case sheet_name
-      when 'Attorneys', 'Agents'
-        build_data_for_attorneys_and_agents(common_data, row, sheet_name, column_map).to_json
-      else
-        log_error("Unexpected sheet encountered: #{sheet_name}")
-        {}.to_json
-      end
+      build_data(row, sheet_name, column_map).to_json
+      # data = build_data(row, sheet_name, column_map)
+      # data.to_json
     rescue => e
       log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
     end
 
-    def build_common_data(row, column_map)
+    def build_data(row, sheet_name, column_map)
+      # binding.pry if sheet_name == 'Representatives'
       zip_code5, zip_code4 = format_zip_code(row, column_map)
 
       {
+        id: row[column_map['Number']].value,
+        type: 'representative',
+        email_address: format_email_address(row, sheet_name, column_map),
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
           address_line1: format_address_line1(row, column_map),
@@ -140,17 +142,29 @@ module RepAddresses
       zip4.length < 4 ? zip4.rjust(4, '0') : zip4
     end
 
-    def build_data_for_attorneys_and_agents(common_data, row, sheet_name, column_map)
-      email_address_column_name = sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
-      common_data.merge({
-                          type: 'representative',
-                          id: row[column_map['Number']].value,
-                          email_address: value_or_nil(row[column_map[email_address_column_name]].value)
-                        })
+    def format_email_address(row, sheet_name, column_map)
+      column_name = email_address_column_name(sheet_name)
+      email_address_candidate = row[column_map[column_name]].value
+      email?(email_address_candidate) ? email_address_candidate : nil
+    end
+
+    def email_address_column_name(sheet_name)
+      sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
     end
 
     def value_or_nil(value_candidate)
       value_candidate.blank? || value_candidate.empty? || value_candidate.downcase == 'null' ? nil : value_candidate
+    end
+
+    def email?(email_address_candidate)
+      email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+
+      if email_regex.match?(email_address_candidate)
+        true
+      else
+        puts email_address_candidate
+        false
+      end
     end
 
     # Logs an error to Sentry.
