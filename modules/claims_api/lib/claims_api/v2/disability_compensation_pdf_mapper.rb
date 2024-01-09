@@ -263,12 +263,16 @@ module ClaimsApi
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures].delete_at(index)
             else
               multiple_service_dates_begin = exp[:exposureDates][:beginDate]
-              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] =
-                make_date_object(multiple_service_dates_begin, multiple_service_dates_begin.length)
+              if multiple_service_dates_begin.present?
+                @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] =
+                  make_date_object(multiple_service_dates_begin, multiple_service_dates_begin.length)
+              end
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
               multiple_service_dates_end = exp[:exposureDates][:endDate]
-              @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] =
-                make_date_object(multiple_service_dates_end, multiple_service_dates_end.length)
+              if multiple_service_dates_end.present?
+                @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] =
+                  make_date_object(multiple_service_dates_end, multiple_service_dates_end.length)
+              end
               @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
             end
           end

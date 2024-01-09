@@ -446,6 +446,22 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
     end
 
+    context '526 section 5, multiple exposures null data' do
+      it 'maps the attributes correctly' do
+        toxic_exp_data = form_attributes['toxicExposure']
+        toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
+
+
+        mapper.map_claim
+
+        exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+        expect(exposure_info[:multipleExposures][0][:exposureLocation]).to eq('Guam')
+        expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
+        expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:month]).to eq('12')
+        expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:year]).to eq('2012')
+      end
+    end
+
     context '526 section 6, service info' do
       it 'maps the attributes correctly' do
         mapper.map_claim
