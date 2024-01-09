@@ -610,6 +610,8 @@ RSpec.describe SAML::PostURLService do
             let(:expected_login_redirect_url) do
               "#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=idme"
             end
+            let(:expected_log_message) { 'Redirecting to /terms-of-use' }
+            let(:expected_log_payload) { { type: :ssoe } }
 
             context 'when tracker application is within TERMS_OF_USE_ENABLED_CLIENTS' do
               let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
@@ -624,12 +626,22 @@ RSpec.describe SAML::PostURLService do
                   expect(subject.terms_of_use_redirect_url)
                     .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
                 end
+
+                it 'logs expected message and payload' do
+                  expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                  subject.terms_of_use_redirect_url
+                end
               end
 
               context 'and authentication is not occurring on a review instance' do
                 it 'has a login redirect url as a parameter embedded in terms of use page with success' do
                   expect(subject.terms_of_use_redirect_url)
                     .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+                end
+
+                it 'logs expected message and payload' do
+                  expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                  subject.terms_of_use_redirect_url
                 end
               end
             end
@@ -640,6 +652,11 @@ RSpec.describe SAML::PostURLService do
               it 'has a login redirect url as a parameter embedded in terms of use page with success' do
                 expect(subject.terms_of_use_redirect_url)
                   .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+              end
+
+              it 'logs expected message and payload' do
+                expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                subject.terms_of_use_redirect_url
               end
             end
 
