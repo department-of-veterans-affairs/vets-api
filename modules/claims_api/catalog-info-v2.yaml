@@ -1,0 +1,61 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: benefits-claims-v2
+  description: The Benefits Claims API is a suite of services that enables VA developers to build applications that let Veterans view and submit certain claims and claim-related information to the VA. We provide the ability to auto-establish claims by submitting structured data that can return realtime validations, allowing for better data quality.
+  annotations:
+    github.com/project-slug: https://github.com/department-of-veterans-affairs/vets-api
+    datadog/production-monitor-id: '98a-nx5-icf'
+    datadog/sandbox-monitor-id: '2ne-mbd-mve' # status tab
+    hub.lighthouse.va.gov/api-id: 'claims' # release notes tab
+  title: Benefits Claims API v2
+  tags:
+    - lighthouse
+  links:
+    - url: https://developer.va.gov/explore/api/benefits-claims/docs?version=v2
+      title: Public Docs
+      icon: web
+    - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1663867462895/b0161ab939bba7d08f6bea07e3663d9d5cea22d4?sender=u9943b9a042c336e83bb20590 
+      title: Claim Status Data Flow Diagram
+      icon: web
+    - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1663867462895/b0161ab939bba7d08f6bea07e3663d9d5cea22d4?sender=u9943b9a042c336e83bb20590
+      title: ITF Process Flow Diagram
+      icon: web
+    - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1663867462895/b0161ab939bba7d08f6bea07e3663d9d5cea22d4?sender=u9943b9a042c336e83bb20590
+      title: 526EZ Process Flow Diagram
+      icon: web
+  api-attributes:
+    doc: 
+      - va-net
+      - no-pub
+      - oas
+    arch:
+      - rest
+    lower:
+      - auto
+    prod:
+      - approve
+      - more-than-2
+    perf:
+      - p95-greater
+    reli:
+      - slo-99
+    status:
+      - status-historic
+      - logs
+      - metrics
+    sup:
+      - contact
+      - sup-with-team
+      - maint-active
+    host:
+      - cloud-auto
+    test:
+      - test-avail-doc
+spec:
+  type: openapi
+  lifecycle: production
+  owner: lighthouse-dash
+  system: vets-api
+  definition:
+    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/app/swagger/claims_api/v2/swagger.json
