@@ -28,25 +28,21 @@ module V0
       evss_letters = evss_response.letters.map(&:letter_type)
 
       # Return if there are no differences
-      render json: [] and return if lh_letters.sort == evss_letters.sort
+      unless lh_letters.sort == evss_letters.sort
+        # Find difference between letters returned by each service
+        lh_letter_diff = lh_letters.difference(evss_letters).count
+        evss_letter_diff = evss_letters.difference(lh_letters).count
+        # Log differences (will be monitored in DataDog)
+        log_title = 'Letters Generator Discrepancies'
+        ::Rails.logger.info(log_title,
+                            { message_type: 'lh.letters_generator.letters_discrepancy',
+                              lh_letter_diff:,
+                              evss_letter_diff:,
+                              lh_letters: lh_letters.sort.join(', '),
+                              evss_letters: evss_letters.sort.join(', ') })
+      end
 
-      # Find difference between letters returned by each service
-      lh_letter_diff = lh_letters.difference(evss_letters).count
-      evss_letter_diff = evss_letters.difference(lh_letters).count
-
-      # Log differences (will be monitored in DataDog)
-      log_title = 'Letters Generator Discrepancies'
-      ::Rails.logger.info(log_title,
-                          { message_type: 'lh.letters_generator.letters_discrepancy',
-                            lh_letter_diff:,
-                            evss_letter_diff:,
-                            lh_letters: lh_letters.sort.join(', '),
-                            evss_letters: evss_letters.sort.join(', ') })
-
-      render json: { data: [] }
-
-      # When the controller sends a log to DataDog, there is a monitor in
-      # DataDog that will send an alert to our slack channel
+      render json: []
     end
 
     private
