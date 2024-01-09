@@ -18,6 +18,8 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
 
       def validate_form_526_submission_values!(target_veteran)
+        return if form_attributes.empty?
+
         validate_claim_process_type_bdd! if bdd_claim?
         # ensure 'claimantCertification' is true
         validate_form_526_claimant_certification!
@@ -130,6 +132,10 @@ module ClaimsApi
 
       def validate_form_526_current_mailing_address_country!
         mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        if mailing_address.empty?
+          collect_error_messages(source: '/veteranIdentification/mailingAddress',
+                                 detail: 'Mailing address is required.')
+        end
         return if valid_countries.include?(mailing_address['country'])
 
         collect_error_messages(
@@ -187,7 +193,7 @@ module ClaimsApi
           approx_begin_date = disability['approximateDate']
           next if approx_begin_date.blank?
 
-          date_is_valid?(approx_begin_date, "disability/#{idx}/approximateDate")
+          next unless date_is_valid?(approx_begin_date, "disability/#{idx}/approximateDate")
 
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
@@ -264,7 +270,8 @@ module ClaimsApi
 
       def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability, dis_idx,
                                                                                     sd_idx)
-        date_is_valid?(secondary_disability['approximateDate'], 'disabilities.secondaryDisabilities.approximateDate')
+        return unless date_is_valid?(secondary_disability['approximateDate'],
+                                     'disabilities.secondaryDisabilities.approximateDate')
 
         return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
 
@@ -479,27 +486,23 @@ module ClaimsApi
           per['activeDutyBeginDate']
         end
         if first_service_period['activeDutyBeginDate']
-          return if date_is_valid?(first_service_period['activeDutyBeginDate'],
-                                   'serviceInformation/servicePeriods/activeDutyBeginDate').is_a?(Array)
+          return unless date_is_valid?(first_service_period['activeDutyBeginDate'],
+                                       'serviceInformation/servicePeriods/activeDutyBeginDate')
 
           first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'],
                                              '%Y-%m-%d')
         end
         treatments.each_with_index do |treatment, idx|
           next if treatment['beginDate'].nil?
+          next unless date_is_valid?(treatment['beginDate'], "/treatments/#{idx}/beginDate")
 
           treatment_begin_date = if type_of_date_format(treatment['beginDate']) == 'yyyy-mm'
                                    Date.strptime(treatment['beginDate'], '%Y-%m')
                                  elsif type_of_date_format(treatment['beginDate']) == 'yyyy'
                                    Date.strptime(treatment['beginDate'], '%Y')
-
-                                 else
-                                   collect_error_messages(
-                                     source: "/treatments/#{idx}/beginDate",
-                                     detail: 'Each treatment begin date must be in the format of yyyy-mm or yyyy.'
-                                   )
                                  end
-          next if first_service_date.blank? || treatment_begin_date >= first_service_date
+
+          next if first_service_date.blank? || treatment_begin_date.nil? || treatment_begin_date >= first_service_date
 
           collect_error_messages(
             source: "/treatments/#{idx}/beginDate",
@@ -566,16 +569,14 @@ module ClaimsApi
         age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
-            begin_date_valid = date_is_valid?(sp['activeDutyBeginDate'],
-                                              'serviceInformation/servicePeriods/activeDutyBeginDate')
-            break if begin_date_valid.is_a?(Array)
+            next unless date_is_valid?(sp['activeDutyBeginDate'],
+                                       'serviceInformation/servicePeriods/activeDutyBeginDate')
 
             age_exception(idx) if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') <= age_thirteen
 
             if sp['activeDutyEndDate']
-              end_date_valid = date_is_valid?(sp['activeDutyEndDate'],
-                                              'serviceInformation/servicePeriods/activeDutyBeginDate')
-              break if end_date_valid.is_a?(Array)
+              next unless date_is_valid?(sp['activeDutyEndDate'],
+                                         'serviceInformation/servicePeriods/activeDutyBeginDate')
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
@@ -667,6 +668,8 @@ module ClaimsApi
                                                  "#{form_object_desc}/approximateEndDate")
           end
 
+          next if approximate_begin_date.blank? || approximate_end_date.blank?
+
           if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             collect_error_messages(
               source: "/confinements/#{idx}/",
@@ -678,6 +681,8 @@ module ClaimsApi
           earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
+          next unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                     'serviceInformation/servicePeriods/activeDutyEndDate')
 
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
           if duty_begin_date_is_after_approximate_begin_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
@@ -791,18 +796,26 @@ module ClaimsApi
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
         # return true if activationDate is an earlier date
-        return if date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                 'serviceInformation/servicePeriods/activeDutyEndDate').is_a?(Array)
+        return unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                     'serviceInformation/servicePeriods/activeDutyEndDate')
+
         return false if earliest_active_duty_begin_date['activeDutyBeginDate'].nil?
 
-        Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                                    '%Y-%m-%d')
+        if activation_date.blank?
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The activationDate must be present for federalActivation.'
+          )
+        else
+          Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                                      '%Y-%m-%d')
+        end
       end
 
       def find_earliest_active_duty_begin_date(service_periods)
         service_periods.min_by do |a|
-          next if date_is_valid?(a['activeDutyBeginDate'],
-                                 'servicePeriod.activeDutyBeginDate').is_a?(Array)
+          next unless date_is_valid?(a['activeDutyBeginDate'],
+                                     'servicePeriod/activeDutyBeginDate')
 
           Date.strptime(a['activeDutyBeginDate'], '%Y-%m-%d') if a['activeDutyBeginDate']
         end
@@ -951,6 +964,8 @@ module ClaimsApi
       end
 
       def make_date_string(date_object, date_length)
+        return if date_object.nil? || date_length.zero?
+
         if date_length == 4
           "#{date_object[:year]}-01-01".to_date
         elsif date_length == 7
@@ -983,13 +998,14 @@ module ClaimsApi
           true
         else
           raise_date_error(date, property)
+          false
         end
       end
 
       def raise_date_error(date, property = '/')
         collect_error_messages(
           detail: "#{date} is not a valid date.",
-          source: property
+          source: "data/attributes/#{property}"
         )
       end
 

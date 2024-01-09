@@ -27,7 +27,7 @@ module ClaimsApi
                           render_error(err)
                         end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
-              render_json_error(
+              render_json_errors(
                 ::ClaimsApi::Common::Exceptions::Lighthouse::JsonValidationError.new(err.to_json_api)
               )
             end
@@ -35,8 +35,8 @@ module ClaimsApi
             rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
               render_error(err)
             end
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |err|
-              render_json_error(err)
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
+              render_validation_errors(errs)
             end
           end
         end
@@ -53,7 +53,7 @@ module ClaimsApi
           }, status: error.status_code
         end
 
-        def render_json_error(error)
+        def render_json_errors(error)
           if @disability_compensation_validation_errors
             @disability_compensation_validation_errors.concat(error.errors_array)
           else
@@ -61,6 +61,10 @@ module ClaimsApi
           end
 
           render json: { errors: @disability_compensation_validation_errors }, status: error.status_code
+        end
+
+        def render_validation_errors(errors)
+          render json: { errors: errors.errors_array }, status: errors.status_code
         end
 
         def format_source(error)

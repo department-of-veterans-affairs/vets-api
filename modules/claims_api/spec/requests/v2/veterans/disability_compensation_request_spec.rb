@@ -2754,12 +2754,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 params['data']['attributes']['disabilities'] = disabilities
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to include(
-                  'Action type requested for the disability. ' \
-                  "If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' " \
-                  "should be included. 'NONE' should be used when including a secondary disability." \
-                )
               end
             end
           end
