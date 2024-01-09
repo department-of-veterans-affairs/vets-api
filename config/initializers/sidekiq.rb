@@ -23,7 +23,6 @@ Rails.application.reloader.to_prepare do
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
-      chain.add Sidekiq::SetCurrentRetry
       chain.add Sidekiq::ErrorTag
 
       if Settings.dogstatsd.enabled == true
