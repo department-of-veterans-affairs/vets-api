@@ -70,16 +70,16 @@ module BenefitsClaims
     end
 
     ##
+    # Makes a POST request
+    #
     # @return [Faraday::Response] response from POST request
     #
-    def post5103(path, params, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      connection.post(path, params.merge({ Authorization: "Bearer #{
-        access_token(
-          lighthouse_client_id,
-          lighthouse_rsa_key_path,
-          options
-        )
-      }" }))
+    def post5103(path, body, params, options = {})
+      connection.post(path) do |req|
+        req.body = body
+        req.params = params
+        req.headers['Authorization'] = "Bearer #{access_token(nil, nil, options)}"
+      end
     end
 
     ##
