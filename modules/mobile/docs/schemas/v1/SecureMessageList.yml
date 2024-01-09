@@ -151,7 +151,7 @@ properties:
         type: object
         description: |
           Count of read and unread messages. `readReceipt` field containing "READ" count towards "read" count 
-          while a null value will count towards "unread". if either read or unread is 0, the key will not be included.
+          while a null value will count towards "unread". If either read or unread is 0, the key will not be included.
         properties:
           read:
             type: integer
