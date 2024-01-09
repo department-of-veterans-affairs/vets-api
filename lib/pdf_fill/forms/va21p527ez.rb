@@ -367,6 +367,123 @@ module PdfFill
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
           }
         },
+        # 6a
+        'maritalStatus' => {
+          key: 'form1[0].#subform[49].RadioButtonList[10]'
+        },
+        'currentMarriage' => {
+          # 6b
+          'spouseFullName' => {
+            'first' => {
+              key: 'form1[0].#subform[49].Spouses_Current_Legal_Name_First_Name[0]'
+            },
+            'middle' => {
+              key: 'form1[0].#subform[49].Spouses_Middle_Initial1[0]'
+            },
+            'last' => {
+              key: 'form1[0].#subform[49].Spouses_Last_Name[0]'
+            }
+          },
+          # 6e
+          'dateOfMarriage' => {
+            'month' => {
+              key: 'form1[0].#subform[49].Date_Of_Marriage_Month[0]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[49].Date_Of_Marriage_Day[0]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[49].Date_Of_Marriage_Year[0]'
+            }
+          },
+          'locationOfMarriage' => {
+            key: 'form1[0].#subform[49].Place_Of_Marriage_City_And_State_Or_Country[0]'
+          },
+          # 6f
+          'view:currentMarriage' => {
+            'marriageType' => {
+              key: 'form1[0].#subform[49].RadioButtonList[11]'
+            },
+            'otherExplanation' => {
+              key: 'form1[0].#subform[49].Other_Specify[0]'
+            }
+          }
+        },
+        # 6c
+        'spouseDateOfBirth' => {
+          'month' => {
+            key: 'form1[0].#subform[49].DOB_Month[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[49].DOB_Day[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[49].DOB_Year[0]'
+          }
+        },
+        # 6d
+        'spouseSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_FirstThreeNumbers[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_SecondTwoNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_LastFourNumbers[0]'
+          }
+        },
+        # 6g
+        'spouseIsVeteran' => {
+          key: 'form1[0].#subform[49].RadioButtonList[12]'
+        },
+        # 6h
+        'spouseVaFileNumber' => {
+          key: 'form1[0].#subform[49].Spouses_VAFileNumber_If_Any[0]'
+        },
+        # 6i
+        'reasonForCurrentSeparation' => {
+          key: 'form1[0].#subform[49].RadioButtonList[13]'
+        },
+        # form1[0].#subform[49].Other_Specify[1]
+        # 6j
+        'spouseAddress' => {
+          'street' => {
+            key: 'form1[0].#subform[49].Number_And_Street[0]'
+          },
+          'street2' => {
+            key: 'form1[0].#subform[49].Apt_Or_Unit_Number[1]'
+          },
+          'city' => {
+            key: 'form1[0].#subform[49].City[1]'
+          },
+          'state' => {
+            key: 'form1[0].#subform[49].State_Or_Province[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[49].Country[1]'
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[49].Zip_Postal_Code[2]'
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[49].Zip_Postal_Code[3]'
+            }
+          }
+        },
+        # 6k
+        'currentSpouseMonthlySupport' => {
+          'part_two' => {
+            key: 'form1[0].#subform[49].Monthly_Amount[0]'
+          },
+          'part_one' => {
+            key: 'form1[0].#subform[49].Monthly_Amount[1]'
+          },
+          'part_cents' => {
+            key: 'form1[0].#subform[49].Monthly_Amount[2]'
+          }
+        },
         'bankAccount' => {
           # 11a
           'bankName' => {
@@ -425,6 +542,7 @@ module PdfFill
         expand_veteran_service_information
         expand_pension_information
         expand_employment_history
+        expand_marital_status
         expand_direct_deposit_information
         expand_claim_certification_and_signature
 
@@ -507,6 +625,25 @@ module PdfFill
         @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
 
+      # SECTION VI: MARITAL STATUS
+      def expand_marital_status
+        marital_status = @form_data['maritalStatus']
+        @form_data['maritalStatus'] = case marital_status
+                                      when 'Married' then 0
+                                      when 'Separated' then 1
+                                      else 2
+                                      end
+        @form_data['currentMarriage'] = @form_data['marriages'].find { |marriage| marriage.key?('view:currentMarriage') }
+        @form_data['currentMarriage']['dateOfMarriage'] = split_date(@form_data.dig('currentMarriage', 'dateOfMarriage'))
+        marriage_type = @form_data['currentMarriage']['view:currentMarriage']['marriageType']
+        @form_data['currentMarriage']['view:currentMarriage']['marriageType'] = marriage_type == 'Ceremonial' ? 0 : 1
+        @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
+        @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
+        @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
+        @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data.dig('spouseAddress', 'postalCode'))
+        @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
+      end
+
       # SECTION XI: DIRECT DEPOSIT INFORMATION
       def expand_direct_deposit_information
         account_type = @form_data.dig('bankAccount', 'accountType')
@@ -525,6 +662,22 @@ module PdfFill
         @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
         # form was signed today
         @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
+      end
+
+      def split_currency_amount(amount)
+        return {} if amount.negative? || amount >= 10_000_000
+
+        number_map = {
+          1 => 'one',
+          2 => 'two',
+          3 => 'three'
+        }
+
+        arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
+        split_hash = { 'part_cents' => arr.last }
+        arr.pop
+        arr.each_with_index { |x, i| split_hash["part_#{number_map[arr.length - i]}"] = x }
+        split_hash
       end
 
       def to_radio_yes_no(obj)
