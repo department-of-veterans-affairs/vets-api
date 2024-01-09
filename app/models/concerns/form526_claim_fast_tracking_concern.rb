@@ -15,6 +15,7 @@ module Form526ClaimFastTrackingConcern
 
   DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
+  EP_MERGE_SPECIAL_ISSUE = 'EP400 Merge Project'
   OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
@@ -124,6 +125,7 @@ module Form526ClaimFastTrackingConcern
     days_ago = (Time.zone.today - date).round
     StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
     save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
+    add_ep_merge_special_issue! if Flipper.enabled?(:disability_526_ep_merge_api)
   end
 
   def get_claim_type
@@ -206,6 +208,14 @@ module Form526ClaimFastTrackingConcern
                               .find { |rated| rated_id == rated.rated_disability_id }
                               &.decision_code == 'NOTSVCCON')
     end
+  end
+
+  def add_ep_merge_special_issue!
+    disabilities.each do |disability|
+      disability['specialIssues'] ||= []
+      disability['specialIssues'].append(EP_MERGE_SPECIAL_ISSUE).uniq!
+    end
+    update!(form_json: JSON.dump(form))
   end
 
   private
