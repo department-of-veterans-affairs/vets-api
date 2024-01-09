@@ -12,20 +12,20 @@ RSpec.describe LighthouseDocument do
 
       context 'when provided password is incorrect' do
         it 'logs a sanitized message to Sentry' do
-
           error_message = nil
           allow_any_instance_of(LighthouseDocument).to receive(:log_message_to_sentry) do |_, message, _level|
             error_message = message
           end
 
-          tempfile = Tempfile.new(['',"-#{file_name}"])
-          file_obj = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf', tempfile: tempfile)
+          tempfile = Tempfile.new(['', "-#{file_name}"])
+          file_obj = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf',
+                                                            tempfile:)
 
           document = LighthouseDocument.new(
-            file_obj: file_obj,
-            file_name: file_name,
-            tracked_item_id: tracked_item_id,
-            document_type: document_type,
+            file_obj:,
+            file_name:,
+            tracked_item_id:,
+            document_type:,
             password: bad_password
           )
 

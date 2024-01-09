@@ -16,16 +16,18 @@ RSpec.describe FormAttachment do
 
       context 'when provided password is incorrect' do
         it 'logs a sanitized message to Sentry' do
-
           error_message = nil
           allow_any_instance_of(FormAttachment).to receive(:log_message_to_sentry) do |_, message, _level|
             error_message = message
           end
 
-          tempfile = Tempfile.new(['',"-#{file_name}"])
-          file = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf', tempfile: tempfile)
+          tempfile = Tempfile.new(['', "-#{file_name}"])
+          file = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf',
+                                                        tempfile:)
 
-          expect { preneed_attachment.set_file_data!(file, bad_password) }.to raise_error(Common::Exceptions::UnprocessableEntity)
+          expect do
+            preneed_attachment.set_file_data!(file, bad_password)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
           expect(error_message).not_to include(file_name)
           expect(error_message).not_to include(bad_password)
         end
