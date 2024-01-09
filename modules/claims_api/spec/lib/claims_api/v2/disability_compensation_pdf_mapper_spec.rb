@@ -446,11 +446,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
     end
 
-    context '526 section 5, multiple exposures null data' do
+    context '526 section 5, multiple exposures null endDate' do
       it 'maps the attributes correctly' do
         toxic_exp_data = form_attributes['toxicExposure']
         toxic_exp_data['multipleExposures'][0]['exposureDates']['endDate'] = nil
-
 
         mapper.map_claim
 
