@@ -98,7 +98,7 @@ class LighthouseDocument < Common::Base
                        'input_pw', password,
                        'output', tempfile_without_pass.path)
     rescue PdfForms::PdftkError => e
-      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b/}
+      file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
       log_message_to_sentry(sanitized_message, 'warn')
