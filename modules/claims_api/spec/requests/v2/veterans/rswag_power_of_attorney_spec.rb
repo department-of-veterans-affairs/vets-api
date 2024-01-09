@@ -22,7 +22,7 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves current Power of Attorney for Veteran.'
+      description 'Retrieves current Power of Attorney for Veteran or empty data if no POA is assigned.'
 
       let(:Authorization) { 'Bearer token' }
       parameter name: 'veteranId',
@@ -64,34 +64,6 @@ describe 'PowerOfAttorney',
             example.metadata[:response][:content] = {
               'application/json' => {
                 example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 200 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'No POA assigned to Veteran' do
-        let(:bgs_poa) { { person_org_name: nil } }
-
-        response '204', 'Successful response with no current Power of Attorney' do
-          before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
-              .and_return({ person_poa_history: nil })
-            mock_ccg(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: response.body
               }
             }
           end
