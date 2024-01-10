@@ -73,6 +73,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :letters_discrepancy, only: [:index]
+
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
