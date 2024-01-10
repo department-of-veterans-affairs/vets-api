@@ -1,4 +1,14 @@
 {
+  "serviceBranch": {
+    "army": true,
+    "navy": true
+  },
+  "activeServiceDateRange": {
+    "from": "2003-03-02",
+    "to": "2007-03-20"
+  },
+  "serviceNumber": "123456",
+  "noRapidProcessing": false,
   "veteranFullName": {
     "first": "John",
     "middle": "Edmund",
@@ -9,14 +19,6 @@
   "vaClaimsHistory": true,
   "vaFileNumber": "12345678",
   "veteranDateOfBirth": "1960-01-01",
-  "serviceBranch": {
-    "ARMY": true
-  },
-  "activeServiceDateRange": {
-    "from": "2003-03-02",
-    "to": "2007-03-20"
-  },
-  "serviceNumber": "123456",
   "serveUnderOtherNames": true,
   "previousNames": [
     {
@@ -72,7 +74,6 @@
   "spouseSocialSecurityNumber": "342342444",
   "spouseIsVeteran": true,
   "spouseVaFileNumber": "23423444",
-  "view:liveWithSpouse": false,
   "spouseAddress": {
     "street": "123 7th st",
     "street2": "Apt 3",
@@ -104,7 +105,6 @@
     "last": "Doe"
   },
   "dateOfCurrentMarriage": "1989-03-02",
-  "currentSpouseMonthlySupport": 999999,
   "currentSpouseMaritalHistory": "Yes",
   "marriages": [
     {
@@ -114,12 +114,10 @@
       },
       "dateOfMarriage": "1989-03-02",
       "locationOfMarriage": "Dallas",
-      "marriageType": "Ceremonial",
-      "view:pastMarriage": {
-        "reasonForSeparation": "Divorce",
-        "dateOfSeparation": "1990-03-02",
-        "locationOfSeparation": "San Antonio, TX"
-      }
+      "marriageType": "In a civil or religious ceremony with an officiant who signed my marriage license",
+      "reasonForSeparation": "Divorce",
+      "dateOfSeparation": "1990-03-02",
+      "locationOfSeparation": "San Antonio, TX"
     },
     {
       "spouseFullName": {
@@ -128,12 +126,9 @@
       },
       "dateOfMarriage": "1994-03-02",
       "locationOfMarriage": "North Adams, MA",
-      "view:currentMarriage": {
-        "marriageType": "Ceremonial"
-      }
+      "marriageType": "In a civil or religious ceremony with an officiant who signed my marriage license"
     }
   ],
-  "view:hasDependents": true,
   "dependents": [
     {
       "childInHousehold": false,
@@ -152,8 +147,6 @@
       "childPlaceOfBirth": "Tallahassee, FL",
       "childSocialSecurityNumber": "324234444",
       "childRelationship": "biological",
-      "attendingCollege": true,
-      "disabled": true,
       "previouslyMarried": true,
       "married": true,
       "fullName": {
@@ -165,9 +158,8 @@
     {
       "childInHousehold": true,
       "childPlaceOfBirth": "Troy, MT",
-      "view:noSSN": true,
+      "childSocialSecurityNumber": "123123111",
       "childRelationship": "adopted",
-      "disabled": false,
       "previouslyMarried": false,
       "fullName": {
         "first": "Emily",
@@ -210,16 +202,6 @@
     }
   ],
   "hasMedicalExpenses": true,
-  "medicalExpenses": [
-    {
-      "recipients": "VETERAN",
-      "provider": "NYC Care Provider",
-      "purpose": "Care",
-      "paymentDate": "2022-12-01",
-      "paymentFrequency": "ONCE_MONTH",
-      "paymentAmount": 1000
-    }
-  ],
   "transferredAssets": true,
   "homeOwnership": true,
   "homeAcreageMoreThanTwo": true,
@@ -230,7 +212,7 @@
       "typeOfIncome": "SOCIAL_SECURITY",
       "receiver": "Jane Doe",
       "payer": "John Doe",
-      "amount": 278.0
+      "amount": 278
     }
   ],
   "bankAccount": {
@@ -252,6 +234,6 @@
   "phone": "212-867-5309",
   "mobilePhone": "313-867-5309",
   "internationalPhone": "001-212-456-7890",
-  "view:aidAttendance": true,
-  "isOver65": false
+  "isOver65": false,
+  "privacyAgreementAccepted": true
 }
