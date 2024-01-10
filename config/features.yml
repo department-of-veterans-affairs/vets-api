@@ -907,9 +907,9 @@ features:
     action_type: user
     description: Enables the new header
     enable_in_development: true
-  show_meb_unverified_user_alert:
+  show_dgi_direct_deposit_1990EZ:
     actor_type: user
-    description: Display an alert to unauthenticated users on the MEB introduction page.
+    description: Displays prefill enabled direct deposit component on 1990EZ form.
     enable_in_development: true
   show_meb_1990EZ_maintenance_alert:
     actor_type: user
