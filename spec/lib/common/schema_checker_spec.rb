@@ -70,7 +70,7 @@ describe Common::SchemaChecker do
     end
   end
 
-  context "when nested property is contains additional properties" do
+  context "when nested property contains additional properties" do
     it 'logs an error with details' do
       expect(Rails.logger).to receive(:error)
       body = valid_response_body[:data].first
@@ -78,6 +78,12 @@ describe Common::SchemaChecker do
       response = response_object.call(body, true)
       Common::SchemaChecker.new(response, 'modules/vaos/app/schemas/appointments.json').validate
     end
+  end
+
+  context 'when property is of wrong type' do
+  end
+
+  context 'when property violates not null constraint' do
   end
 
   context 'when request was unsuccessful' do

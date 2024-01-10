@@ -8,7 +8,6 @@ module Common
     end
 
     def validate
-      start_time = Time.zone.now
       # add feature flag check
       # return unless Rails.env.development?
       return unless @response.success?
@@ -27,10 +26,6 @@ module Common
     # blanket rescue to ensure that this doesn't stop code execution 
     rescue => e
       Rails.logger.error('Schema validation internal error', details: error_details(e))
-    ensure
-      end_time = Time.zone.now
-      elapsed_time = end_time - start_time
-      Rails.logger.info('Schema validation time', schema_file: @schema, elapsed_time:)
     end
 
     def error_details(details)
