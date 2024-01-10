@@ -172,6 +172,7 @@ PATH
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails (~> 6.1.5)
+    travel_pay (0.1.0)
     va_forms (0.0.1)
       faraday
       nokogiri
@@ -638,8 +639,8 @@ GEM
       net-protocol
     net-ssh (7.2.0)
     netrc (0.11.0)
-    nio4r (2.5.9)
-    nio4r (2.5.9-java)
+    nio4r (2.7.0)
+    nio4r (2.7.0-java)
     no_proxy_fix (0.1.2)
     nokogiri (1.15.5)
       mini_portile2 (~> 2.8.2)
@@ -720,9 +721,9 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     public_suffix (5.0.4)
-    puma (6.4.0)
+    puma (6.4.2)
       nio4r (~> 2.0)
-    puma (6.4.0-java)
+    puma (6.4.2-java)
       nio4r (~> 2.0)
     pundit (2.3.1)
       activesupport (>= 3.0.0)
@@ -1212,6 +1213,7 @@ DEPENDENCIES
   swagger-blocks
   test_user_dashboard!
   timecop
+  travel_pay!
   typhoeus
   tzinfo-data
   utf8-cleaner

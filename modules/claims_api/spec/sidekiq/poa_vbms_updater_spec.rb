@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is present and allowed' do
-    let(:allow_poa_c_add) { 'y' }
+    let(:allow_poa_c_add) { 'Y' }
     let(:consent_address_change) { true }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -28,7 +28,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is present and not allowed' do
-    let(:allow_poa_c_add) { 'n' }
+    let(:allow_poa_c_add) { 'N' }
     let(:consent_address_change) { false }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -39,7 +39,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is not present' do
-    let(:allow_poa_c_add) { 'n' }
+    let(:allow_poa_c_add) { 'N' }
     let(:consent_address_change) { nil }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -50,7 +50,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when BGS fails the error is handled' do
-    let(:allow_poa_c_add) { 'y' }
+    let(:allow_poa_c_add) { 'Y' }
     let(:consent_address_change) { true }
 
     it 'marks the form as errored' do

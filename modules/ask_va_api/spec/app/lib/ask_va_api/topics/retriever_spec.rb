@@ -3,10 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Topics::Retriever do
-  subject(:retriever) { described_class.new(category_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:) }
+  subject(:retriever) do
+    described_class.new(category_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
+  end
 
   let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
   let(:static_data_service) { instance_double(Crm::StaticData) }
+  let(:entity_class) { AskVAApi::Topics::Entity }
   let(:user_mock_data) { true }
 
   describe '#call' do

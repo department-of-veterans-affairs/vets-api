@@ -6,16 +6,6 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   skip_before_action :authenticate
   before_action :check_schema_type
 
-  ACCEPTED_SCHEMA_TYPES = %w[
-    address
-    fileNumber
-    icn
-    nonBlankString
-    phone
-    ssn
-    timezone
-  ].freeze
-
   FORM_NUMBERS = {
     'notice_of_disagreements' => '10182',
     'higher_level_reviews' => '200996',
@@ -23,7 +13,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   }.freeze
 
   def show
-    render json: file_as_json
+    render json: AppealsApi::FormSchemas.load_shared_schema(schema_type, api_version)
   end
 
   private
@@ -48,16 +38,8 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
     @schema_type ||= params[:schema_type]
   end
 
-  def shared_schemas_file
-    Rails.root.join('modules', 'appeals_api', 'config', 'schemas', 'shared', api_version, "#{schema_type}.json")
-  end
-
-  def file_as_json
-    JSON.parse File.read shared_schemas_file
-  end
-
   def check_schema_type
-    unless schema_type.in?(ACCEPTED_SCHEMA_TYPES)
+    unless schema_type.in?(AppealsApi::FormSchemas::ALL_SHARED_SCHEMA_TYPES)
       render json: { errors: [invalid_schema_type_error] },
              status: :not_found
     end
@@ -70,7 +52,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
       code: 'InvalidSchemaType',
       status: '404',
       source: { parameter: schema_type },
-      meta: { 'available_options': [schema_form_name] + ACCEPTED_SCHEMA_TYPES }
+      meta: { 'available_options': [schema_form_name] + AppealsApi::FormSchemas::ALL_SHARED_SCHEMA_TYPES }
     }
   end
 end
