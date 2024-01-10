@@ -10,6 +10,23 @@ module PdfFill
     class Va21p527ez < FormBase
       include FormHelper
       include FormHelper::PhoneNumberFormatting
+
+      ITERATOR = PdfFill::HashConverter::ITERATOR
+
+      RECIPIENTS = {
+        'VETERAN' => 0,
+        'SPOUSE' => 1,
+        'CHILD' => 2
+      }.freeze
+
+      INCOME_TYPES = {
+        'SOCIAL_SECURITY' => 0,
+        'INTEREST_DIVIDEND' => 1,
+        'RETIREMENT' => 2,
+        'PENSION' => 3,
+        'OTHER' => 4
+      }.freeze
+
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -56,7 +73,7 @@ module PdfFill
           }
         },
         # 1d
-        'vaPreviouslyFiled' => {
+        'vaClaimsHistory' => {
           key: 'form1[0].#subform[48].RadioButtonList[0]'
         },
         # 1e
@@ -365,8 +382,122 @@ module PdfFill
             question_text: 'WHAT KIND OF WORK DID YOU DO',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
           }
+        },
+        # 9a
+        'totalNetWorth' => {
+          key: 'form1[0].#subform[51].RadioButtonList[21]'
+        },
+        'netWorthEstimation' => {
+          'lastThree' => {
+            key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[0]'
+          },
+          'firstTwo' => {
+            key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[1]'
+          }
+        },
+        # 9b
+        'transferredAssets' => {
+          key: 'form1[0].#subform[51].RadioButtonList[22]'
+        },
+        # 9c
+        'homeOwnership' => {
+          key: 'form1[0].#subform[51].RadioButtonList[23]'
+        },
+        # 9d
+        'homeAcreageMoreThanTwo' => {
+          key: 'form1[0].#subform[51].RadioButtonList[24]'
+        },
+        # 9e
+        'homeAcreageValue' => {
+          'part_one' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[0]'
+          },
+          'part_three' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[1]'
+          },
+          'part_two' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[2]'
+          }
+        },
+        # 9f
+        'landMarketable' => {
+          key: 'form1[0].#subform[51].RadioButtonList[25]'
+        },
+        # 9g
+        'moreThanFourIncomeSources' => {
+          key: 'form1[0].#subform[51].RadioButtonList[26]'
+        },
+        # 9h-k
+        'incomeSources' => {
+          limit: 4,
+          first_key: 'childName',
+          # (1) Recipient
+          'receiver' => {
+            key: "Income_Recipient[#{ITERATOR}]",
+          },
+          # 'receiverOverflow' => {
+          #   question_num: 9,
+          #   question_suffix: '(1)',
+          #   question_text: 'INCOME RECIPIENT',
+          # },
+          'childName' => {
+            key: "Income_Recipient_Child[#{ITERATOR}]",
+            # limit: 29,
+            # question_num: 9,
+            # question_suffix: '(1)',
+            # question_text: 'CHILD NAME',
+          },
+          # (2) Income Type
+          'typeOfIncome' => {
+            key: "Income_Type[#{ITERATOR}]",
+          },
+          # 'typeOfIncomeOverflow' => {
+          #   question_num: 9,
+          #   question_suffix: '(2)',
+          #   question_text: 'INCOME TYPE',
+          # },
+          'otherTypeExplanation' => {
+            key: "Other_Specify_Type_Of_Income[#{ITERATOR}]",
+            # limit: 31,
+            # question_num: 9,
+            # question_suffix: '(2)',
+            # question_text: 'OTHER INCOME TYPE EXPLANATION',
+          },
+          # (3) Income Payer
+          'payer' => {
+            key: "Name_Of_Income_Payer[#{ITERATOR}]",
+            # limit: 25,
+            # question_num: 9,
+            # question_suffix: '(3)',
+            # question_text: 'PAYER NAME',
+          },
+          # (4) Gross Monthly Income
+          'amount' => {
+            'part_two' => {
+              key: "Income_Monthly_Amount_First_Three[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Income_Monthly_Amount_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Income_Monthly_Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          # 'amountOverflow' => {
+          #   question_num: 9,
+          #   question_suffix: '(4)',
+          #   question_text: 'CURRENT GROSS MONTHLY INCOME',
+          # }
+          'incomeSourceOverflow' => {
+            question_num: 9,
+            question_text: 'INCOME SOURCE'
+          }
         }
       }.freeze
+      
+      def self.hash_converter
+        PdfFill::Va21p527ezHashConverter
+      end
 
       def merge_fields(_options = {})
         expand_veteran_identification_information
@@ -374,6 +505,7 @@ module PdfFill
         expand_veteran_service_information
         expand_pension_information
         expand_employment_history
+        expand_income
 
         @form_data
       end
@@ -386,7 +518,7 @@ module PdfFill
         @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
         @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
         @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
-        @form_data['vaPreviouslyFiled'] = to_radio_yes_no(@form_data['vaFileNumber'].present?)
+        @form_data['vaClaimsHistory'] = to_radio_yes_no(@form_data['vaClaimsHistory'])
       end
 
       # SECTION II: VETERAN'S CONTACT INFORMATION
@@ -452,6 +584,51 @@ module PdfFill
         end
 
         @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
+      end
+
+      # SECTION IX: INCOME AND ASSETS
+      def expand_income
+        @form_data['totalNetWorth'] = to_radio_yes_no(@form_data['totalNetWorth'])
+        @form_data['netWorthEstimation'] = split_currency_amount(@form_data['netWorthEstimation']) if @form_data['netWorthEstimation']
+        @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
+        @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
+        @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
+        @form_data['homeAcreageValue'] = split_currency_amount(@form_data['homeAcreageValue']) if @form_data['homeAcreageValue'].present?
+        @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
+        @form_data['moreThanFourIncomeSources'] = to_radio_yes_no(@form_data['incomeSources'].length > 4)
+        @form_data['incomeSources'] = @form_data['incomeSources']&.map do |is|
+          is.merge({
+                     'receiver' => 0, # TODO: Update this once the front-end is updated post MVP
+                    #  'receiverOverflow' => 'VETERAN', # TODO: Update this once the front-end is updated post MVP
+                     'typeOfIncome' => INCOME_TYPES.dig(is['typeOfIncome']),
+                    #  'typeOfIncomeOverflow' => is['typeOfIncome'],
+                     'amount' => split_currency_amount(is.dig('amount')),
+                    #  'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(is.dig('amount'))
+                     'incomeSourceOverflow' => build_income_source_overflow(is)
+                   })
+        end
+      end
+
+      def build_income_source_overflow(income_source)
+        str = ""
+        income_source.each { |k,v| str += "#{k.snakecase.humanize}: #{v}\n" }
+        str
+      end
+
+      def split_currency_amount(amount)
+        return {} if amount.negative?
+
+        number_map = {
+          1 => 'one',
+          2 => 'two',
+          3 => 'three'
+        }
+
+        arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
+        split_hash = { 'part_cents' => arr.last }
+        arr.pop
+        arr.each_with_index { |x, i| split_hash["part_#{number_map[arr.length - i]}"] = x }
+        split_hash
       end
 
       def to_radio_yes_no(obj)
