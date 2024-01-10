@@ -4,8 +4,6 @@ require 'date'
 require 'concurrent'
 require 'lighthouse/benefits_claims/service'
 
-# VALID_BASE_EP_CODES = %w[020 010 110].freeze
-
 module V0
   module VirtualAgent
     class VirtualAgentClaimStatusController < ApplicationController
