@@ -40,9 +40,5 @@ module Common
     def log_schema_errors(details)
       Rails.logger.error('Schema discrepancy found', details:)
     end
-
-    def log_validation_time
-
-    end
   end
 end

@@ -14,58 +14,31 @@
           "identifier",
           "kind",
           "status",
-          "service_type",
-          "patient_icn",
           "location_id",
           "clinic",
           "start",
-          "cancelation_reason",
           "cancellable",
           "extension"
         ],
+        "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "identifier": {
-            "type": "array"
-          },
-          "kind": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "status": {
-            "type": ["string", "null"]
-          },
-          "service_type": {
-            "type": "string"
-          },
-          "patient_icn": {
-            "type": "string"
-          },
-          "location_id": {
-            "type": [
-              "integer",
-              "null"
-            ]
-          },
-          "clinic": {
-            "type": "string"
-          },
-          "start": {
-            "type": "string"
-          },
-          "cancelation_reason": {
-            "type": "object"
-          },
-          "cancellable": {
-            "type": "boolean"
-          },
-          "extension": {
-            "type": "object"
-          }
+          "id": { "type": "string" },
+          "identifier": { "type": "array" },
+          "kind": { "type": ["string", "null"] },
+          "status": { "type": ["string", "null"] },
+          "service_type": { "type": "string" },
+          "patient_icn": { "type": "string" },
+          "location_id": { "type": ["string", "null"] },
+          "clinic": { "type": "string" },
+          "start": { "type": "string" },
+          "end": { "type": "string" },
+          "minutes_duration": { "type": "integer" },
+          "comment": { "type": "string" },
+          "patient_instruction": { "type": "string" },
+          "telehealth": { "type": "object" },
+          "cancelation_reason": { "type": "object" },
+          "cancellable": { "type": "boolean" },
+          "extension": { "type": "object" }
         }
       }
     }
