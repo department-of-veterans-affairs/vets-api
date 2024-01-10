@@ -19,4 +19,60 @@ RSpec.describe VAForms::Form, type: :model do
       expect(form.last_revision_on).to eq(form.first_issued_on)
     end
   end
+
+  describe '.normalized_form_url' do
+    context 'when the url starts with http' do
+      let(:starting_url) { 'http://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf' }
+      let(:ending_url) { 'https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf' }
+
+      it 'returns the url with http replaced with https' do
+        expect(described_class.normalized_form_url(starting_url)).to eq(ending_url)
+      end
+    end
+
+    context 'when the url does not start with http' do
+      let(:starting_url) { './medical/pdf/vha10-10171-fill.pdf' }
+      let(:ending_url) { 'https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf' }
+
+      it 'calls the expanded_va_url method' do
+        expect(described_class).to receive(:expanded_va_url).with(starting_url).and_return(ending_url)
+        described_class.normalized_form_url(starting_url)
+      end
+    end
+
+    it 'returns the encoded url' do
+      starting_url = 'https://www.va.gov/vaforms/medical/pdf/VHA 10-10171 (Fill).pdf'
+      ending_url = 'https://www.va.gov/vaforms/medical/pdf/VHA%2010-10171%20(Fill).pdf'
+
+      expect(described_class.normalized_form_url(starting_url)).to eq(ending_url)
+    end
+  end
+
+  describe '.expanded_va_url' do
+    context 'when the url starts with ./medical' do
+      let(:starting_url) { './medical/pdf/vha10-10171-fill.pdf' }
+      let(:ending_url) { 'https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf' }
+
+      it 'returns the expanded url' do
+        expect(described_class.expanded_va_url(starting_url)).to eq(ending_url)
+      end
+    end
+
+    context 'when the url starts with ./va' do
+      let(:starting_url) { './va/pdf/10182-fill.pdf' }
+      let(:ending_url) { 'https://www.va.gov/vaforms/va/pdf/10182-fill.pdf' }
+
+      it 'returns the expanded url' do
+        expect(described_class.expanded_va_url(starting_url)).to eq(ending_url)
+      end
+    end
+
+    context 'when the url does not start with ./medical or ./va' do
+      let(:starting_url) { './pdf/10182-fill.pdf' }
+
+      it 'raises an ArgumentError' do
+        expect { described_class.expanded_va_url(starting_url) }.to raise_error(ArgumentError)
+      end
+    end
+  end
 end
