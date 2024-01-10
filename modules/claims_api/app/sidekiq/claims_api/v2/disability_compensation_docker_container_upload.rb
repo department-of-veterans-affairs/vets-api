@@ -34,7 +34,7 @@ module ClaimsApi
         queue_flash_updater(auto_claim.flashes, auto_claim&.id)
         # now upload to benefits documents
         start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
-      rescue Faraday::ParsingError, Faraday::TimeoutError => e
+      rescue Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         error_status = get_error_status_code(e)
