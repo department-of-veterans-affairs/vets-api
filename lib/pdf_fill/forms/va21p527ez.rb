@@ -375,12 +375,20 @@ module PdfFill
           # 6b
           'spouseFullName' => {
             'first' => {
+              limit: 12,
+              question_num: 6,
+              question_suffix: 'B',
+              question_text: 'SPOUSE\'S CURRENT FIRST NAME',
               key: 'form1[0].#subform[49].Spouses_Current_Legal_Name_First_Name[0]'
             },
             'middle' => {
               key: 'form1[0].#subform[49].Spouses_Middle_Initial1[0]'
             },
             'last' => {
+              limit: 18,
+              question_num: 6,
+              question_suffix: 'B',
+              question_text: 'SPOUSE\'S CURRENT LAST NAME',
               key: 'form1[0].#subform[49].Spouses_Last_Name[0]'
             }
           },
@@ -397,6 +405,10 @@ module PdfFill
             }
           },
           'locationOfMarriage' => {
+            limit: 22,
+            question_num: 6,
+            question_suffix: 'E',
+            question_text: 'PLACE OF MARRIAGE CITY AND STATE OR COUNTRY',
             key: 'form1[0].#subform[49].Place_Of_Marriage_City_And_State_Or_Country[0]'
           },
           # 6f
@@ -405,6 +417,10 @@ module PdfFill
               key: 'form1[0].#subform[49].RadioButtonList[11]'
             },
             'otherExplanation' => {
+              limit: 22,
+              question_num: 6,
+              question_suffix: 'F',
+              question_text: 'SPECIFY TYPE OF MARRIAGE',
               key: 'form1[0].#subform[49].Other_Specify[0]'
             }
           }
@@ -449,12 +465,24 @@ module PdfFill
         # 6j
         'spouseAddress' => {
           'street' => {
+            limit: 30,
+            question_num: 6,
+            question_suffix: 'J',
+            question_text: 'SPOUSE MAILING ADDRESS STREET',
             key: 'form1[0].#subform[49].Number_And_Street[0]'
           },
           'street2' => {
+            limit: 5,
+            question_num: 6,
+            question_suffix: 'J',
+            question_text: 'SPOUSE MAILING ADDRESS APT NUMBER',
             key: 'form1[0].#subform[49].Apt_Or_Unit_Number[1]'
           },
           'city' => {
+            limit: 18,
+            question_num: 6,
+            question_suffix: 'J',
+            question_text: 'SPOUSE MAILING ADDRESS CITY',
             key: 'form1[0].#subform[49].City[1]'
           },
           'state' => {
