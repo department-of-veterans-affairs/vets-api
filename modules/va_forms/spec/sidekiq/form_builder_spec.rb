@@ -16,6 +16,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
 
   let(:valid_pdf_cassette) { 'va_forms/valid_pdf' }
   let(:not_found_pdf_cassette) { 'va_forms/pdf_not_found' }
+
   let(:form_fetch_error_message) { described_class::FORM_FETCH_ERROR_MESSAGE }
 
   before do
@@ -27,7 +28,6 @@ RSpec.describe VAForms::FormBuilder, type: :job do
   end
 
   describe '#perform' do
-    let(:cassette) { nil }
     let(:form_name) { '21-0966' }
     let(:url) { 'https://www.vba.va.gov/pubs/forms/VBA-21-0966-ARE.pdf' }
     let(:valid_sha256) { 'b1ee32f44d7c17871e4aba19101ba6d55742674e6e1627498d618a356ea6bc78' }
@@ -40,7 +40,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
     let(:result) do
       form = VAForms::Form.create!(url:, form_name:, sha256:, title:, valid_pdf:, row_id:)
       with_settings(Settings.va_forms.slack, enabled: enable_notifications) do
-        VCR.use_cassette(cassette) do
+        VCR.use_cassette(valid_pdf_cassette) do
           form_builder.perform(form_data)
         end
       end
@@ -48,8 +48,6 @@ RSpec.describe VAForms::FormBuilder, type: :job do
     end
 
     context 'when the form url returns a valid body' do
-      let(:cassette) { valid_pdf_cassette }
-
       it 'correctly updates attributes based on the new form data' do
         expect(result).to have_attributes(
           form_name: '21-0966',
