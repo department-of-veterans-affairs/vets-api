@@ -3811,7 +3811,6 @@ RSpec.describe 'Disability Claims', type: :request do
 
     it 'creates a new claim if duplicate submit occurs (does not use md5 lookup)' do
       mock_ccg(scopes) do |auth_header|
-        # we do need this here since it is running twice for 1 test
         VCR.use_cassette('claims_api/disability_comp') do
           json = JSON.parse(data)
           post submit_path, params: json.to_json, headers: auth_header
@@ -3821,7 +3820,6 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
       mock_ccg(scopes) do |auth_header|
-        # we do need this here since it is running twice for 1 test
         VCR.use_cassette('claims_api/disability_comp') do
           json = JSON.parse(data)
           post submit_path, params: json.to_json, headers: auth_header
