@@ -739,6 +739,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  post_911_gibill_statuses_new_error_handling:
+    actor_type: user
+    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
+    enabled_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
