@@ -120,35 +120,42 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
     end
   end
-end
 
-RSpec.describe '#render_error_json' do
-  let(:controller) { V0::Post911GIBillStatusesController.new }
-  let(:response) { double(error_type: 'unknown', status: 500, body: 'Unknown error') }
+  describe '#render_error_json' do
+    let(:controller) { V0::Post911GIBillStatusesController.new }
+    let(:response) { double(error_type: 'unknown', status: 500, body: 'Unknown error') }
 
-  before do
-    controller.instance_variable_set(:@current_user, User.new)
-  end
-
-  context 'when the feature toggle is enabled' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:post_911_gibill_statuses_new_error_handling, controller.instance_variable_get(:@current_user)).and_return(true)
+      controller.instance_variable_set(:@current_user, User.new)
     end
 
-    it 'raises an InternalServerError including an exception with a detailed message to `raise Common::Exceptions::InternalServerError`' do
-      expect { controller.send(:render_error_json, response) }.to raise_error(Common::Exceptions::InternalServerError) do |error|
-        expect(error.exception.message).to eq('An unknown error occurred. Response error type: unknown, status: 500, body: Unknown error')
+    context 'when the feature toggle is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:post_911_gibill_statuses_new_error_handling,
+                                                  controller.instance_variable_get(:@current_user)).and_return(true)
+      end
+
+      it 'raises an InternalServerError including an exception with a detailed message' do
+        expect_block = expect do
+          controller.send(:render_error_json, response)
+        end
+
+        expect_block.to raise_error(Common::Exceptions::InternalServerError) do |error|
+          expected_msg = 'An unknown error occurred. Response error type: unknown, status: 500, body: Unknown error'
+          expect(error.exception.message).to eq(expected_msg)
+        end
       end
     end
-  end
 
-  context 'when the feature toggle is disabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:post_911_gibill_statuses_new_error_handling, controller.instance_variable_get(:@current_user)).and_return(false)
-    end
+    context 'when the feature toggle is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:post_911_gibill_statuses_new_error_handling,
+                                                  controller.instance_variable_get(:@current_user)).and_return(false)
+      end
 
-    it 'raises an ArgumentError because an exception is not passed to `raise Common::Exceptions::InternalServerError`' do
-      expect { controller.send(:render_error_json, response) }.to raise_error(ArgumentError)
+      it 'raises an ArgumentError because an exception argument is not supplied' do
+        expect { controller.send(:render_error_json, response) }.to raise_error(ArgumentError)
+      end
     end
   end
 end
