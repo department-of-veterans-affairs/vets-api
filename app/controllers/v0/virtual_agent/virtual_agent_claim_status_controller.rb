@@ -4,7 +4,7 @@ require 'date'
 require 'concurrent'
 require 'lighthouse/benefits_claims/service'
 
-VALID_BASE_EP_CODES = %w[020 010 110].freeze
+# VALID_BASE_EP_CODES = %w[020 010 110].freeze
 
 module V0
   module VirtualAgent
@@ -37,9 +37,7 @@ module V0
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
         conversation_id = params[:conversation_id]
         begin
-          claims = order_claims_lighthouse(raw_claim_list.select do |claim|
-                                             VALID_BASE_EP_CODES.include?(claim['attributes']['baseEndProductCode'])
-                                           end)
+          claims = order_claims_lighthouse(raw_claim_list)
           report_or_error(cxdw_reporting_service, conversation_id)
           claims
         rescue Faraday::ClientError => e

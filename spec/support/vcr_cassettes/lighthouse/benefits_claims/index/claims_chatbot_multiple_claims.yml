@@ -1,0 +1,137 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 09 Jul 2023 19:11:50 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '12'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Etag:
+      - W/"b5a51c7379c34e017d07228732153262"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - bcf87c84c487e5f21187f052ee057c86c76cf903
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 256390f3-536e-43f1-abfe-c70c319336ca
+      X-Runtime:
+      - '1.865665'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+          "data": [
+            {
+              "id": "600173992",
+              "type": "claim",
+              "attributes": {
+                "baseEndProductCode": "403",
+                "claimDate": "2023-12-02",
+                "claimPhaseDates": { "phaseChangeDate": "2023-12-05" },
+                "claimType": "Compensation",
+                "closeDate": null,
+                "decisionLetterSent": false,
+                "developmentLetterSent": false,
+                "documentsNeeded": false,
+                "endProductCode": "403",
+                "evidenceWaiverSubmitted5103": false,
+                "lighthouseId": null,
+                "status": "INITIAL_REVIEW"
+              }
+            },
+            {
+              "id": "600173694",
+              "type": "claim",
+              "attributes": {
+                "baseEndProductCode": "110",
+                "claimDate": "2023-05-23",
+                "claimPhaseDates": { "phaseChangeDate": "2023-06-17" },
+                "claimType": "Compensation",
+                "closeDate": null,
+                "decisionLetterSent": false,
+                "developmentLetterSent": false,
+                "documentsNeeded": false,
+                "endProductCode": "110",
+                "evidenceWaiverSubmitted5103": false,
+                "lighthouseId": null,
+                "status": "PREPARATION_FOR_NOTIFICATION"
+              }
+            },
+            {
+              "id": "600342023",
+              "type": "claim",
+              "attributes": {
+                "baseEndProductCode": "020",
+                "claimDate": "2022-11-07",
+                "claimPhaseDates": { "phaseChangeDate": "2023-11-07" },
+                "claimType": "Compensation",
+                "closeDate": "2023-11-07",
+                "decisionLetterSent": true,
+                "developmentLetterSent": false,
+                "documentsNeeded": false,
+                "endProductCode": "020",
+                "evidenceWaiverSubmitted5103": false,
+                "lighthouseId": null,
+                "status": "COMPLETE"
+              }
+            },
+          ]
+        }'
+  recorded_at: Sun, 09 Jul 2023 19:11:50 GMT
+recorded_with: VCR 6.1.0
