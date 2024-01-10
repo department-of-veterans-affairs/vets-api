@@ -65,9 +65,24 @@ module VBADocuments
     def healthcheck
       render json: {
         description: 'VBA Documents API health check',
-        status: 'UP',
+        status: s3_is_healthy? ? 'UP' : 'DOWN',
         time: Time.zone.now.to_formatted_s(:iso8601)
       }
+    end
+
+    # treat s3 as a Benefits Intake internal resource as opposed to an upstream service per VA
+    def s3_is_healthy?
+      return @s3_healthy unless @s3_healthy.nil?
+
+      begin
+        s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
+          access_key_id: Settings.vba_documents.s3.aws_access_key_id,
+          secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
+        s3.client.head_bucket({bucket: Settings.vba_documents.s3.bucket})
+        return true
+      rescue => ex
+        return false
+      end
     end
 
     def upstream_healthcheck
