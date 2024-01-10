@@ -6,7 +6,6 @@ require 'va_forms/regex_helper'
 module VAForms
   class FormBuilder
     include Sidekiq::Job
-    include SentryLogging
 
     FORM_FETCH_ERROR_MESSAGE = 'The form could not be fetched from the url provided.'
     STATSD_KEY_PREFIX = 'api.va_forms.form_builder'
@@ -22,8 +21,8 @@ module VAForms
       if error.message == FORM_FETCH_ERROR_MESSAGE
         form = VAForms::Form.find_by(row_id:)
         url = VAForms::Form.normalized_form_url(args.dig('fieldVaFormUrl', 'uri'))
-        form_previously_valid = form&.valid_pdf
-        form&.update!(valid_pdf: false, sha256: nil, url:)
+        form_previously_valid = form.valid_pdf
+        form.update!(valid_pdf: false, sha256: nil, url:)
         if form_previously_valid
           VAForms::Slack::Messenger.new(
             {
@@ -51,9 +50,10 @@ module VAForms
     def build_and_save_form(form_data)
       form = find_or_initialize_form(form_data)
       attrs = gather_form_attributes(form_data)
+      url = VAForms::Form.normalized_form_url(form_data.dig('fieldVaFormUrl', 'uri'))
+      attrs[:url] = url if form.new_record?
       form.update!(attrs) # The job can fail later, so save current progress
 
-      url = VAForms::Form.normalized_form_url(form_data.dig('fieldVaFormUrl', 'uri'))
       attrs = check_form_validity(form, attrs, url)
       form.update!(attrs)
     end
