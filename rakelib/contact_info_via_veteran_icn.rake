@@ -36,7 +36,6 @@ namespace :veteran_contact_info do
       s3_settings = Settings.decision_review.s3
 
       begin
-        # Do we need a separate bucket for this file upload?
         s3_bucket = s3_settings.bucket
         Rails.logger.info('Uploading contact info CSV to S3...')
         s3_resource = Aws::S3::Resource.new(
@@ -68,7 +67,7 @@ namespace :veteran_contact_info do
 
       vet360_profile = VAProfile::ContactInformation::Service.get_person(mpi_profile.vet360_id.to_s)&.person
 
-      raise 'No vet360 profile!' if vet360_profile.nil? # do we want to alternatively grab their login email?
+      raise 'No vet360 profile!' if vet360_profile.nil?
 
       email = retrieve_current_email(vet360_profile)
       common_name = build_common_name(mpi_profile)
@@ -95,14 +94,15 @@ namespace :veteran_contact_info do
     csv_path = "tmp/#{csv_filename}"
     contact_info_csv = CSV.open(csv_path, 'wb') do |csv|
       icn_list.each do |icn|
-        Rails.logger.info({ message: 'Retrieving contact information for veteran...', icn: })
+        user_account_id = UserAccount.find_by(icn:).id
+        Rails.logger.info({ message: 'Retrieving contact information for veteran...', user_account_id: })
         contact_data = get_data(icn)
 
         csv << contact_data
       rescue => e
         Rails.logger.error({
                              message: "Error while attempting to retrieve veteran contact information: #{e.message}",
-                             veteran_icn: icn,
+                             user_account_id:,
                              backtrace: e&.backtrace
                            })
       end

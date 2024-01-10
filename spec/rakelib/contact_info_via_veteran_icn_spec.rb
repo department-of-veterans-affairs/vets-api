@@ -4,12 +4,13 @@ require 'rails_helper'
 require 'rake'
 
 describe 'contact info via veteran icn task', type: :request do
-  let(:user) { build(:disabilities_compensation_user) }
-  let(:expected_csv) do
-  end
   let(:icn1) { 'test-icn-1' }
   let(:icn2) { 'test-icn-2' }
   let(:icn3) { 'test-icn-3' }
+
+  let!(:user_account1) { create(:user_account, icn: icn1) }
+  let!(:user_account2) { create(:user_account, icn: icn2) }
+  let!(:user_account3) { create(:user_account, icn: icn3) }
 
   let(:vet360_id1) { 'test-vet360-id1' }
   let(:vet360_id2) { 'test-vet360-id2' }
@@ -243,7 +244,7 @@ describe 'contact info via veteran icn task', type: :request do
 
       expected_error_message = {
         message: 'Error while attempting to retrieve veteran contact information: No mpi profile!',
-        veteran_icn: icn2,
+        user_account_id: user_account2.id,
         backtrace: kind_of(Array)
       }
 
