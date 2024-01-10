@@ -1,0 +1,69 @@
+{
+  "receivesIncome": false,
+  "homeOwnership": false,
+  "assetTransfer": false,
+  "medicalExpenses": false,
+  "hasCareExpenses": false,
+  "netWorthEstimation": 10000,
+  "totalNetWorth": false,
+  "expectedIncome": {
+    "salary": 1,
+    "interest": 1
+  },
+  "monthlyIncome": {
+    "socialSecurity": 1,
+    "civilService": 1,
+    "railroad": 1,
+    "blackLung": 1,
+    "serviceRetirement": 1,
+    "ssi": 1
+  },
+  "netWorth": {
+    "bank": 1,
+    "interestBank": 1,
+    "ira": 1,
+    "stocks": 1,
+    "realProperty": 1
+  },
+  "maritalStatus": "Never Married",
+  "previousEmployers": [
+    {
+      "jobDate": "2020-12-12",
+      "jobType": "Train conductor",
+      "jobHoursWeek": 40,
+      "jobTitle": "Conductor"
+    }
+  ],
+  "currentEmployment": false,
+  "federalTreatmentHistory": false,
+  "vaTreatmentHistory": false,
+  "specialMonthlyPension": false,
+  "nursingHome": false,
+  "socialSecurityDisability": true,
+  "serviceBranch": {
+    "NAVY": true,
+    "COAST_GUARD": false
+  },
+  "activeServiceDateRange": {
+    "from": "2015-02-02",
+    "to": "2017-03-19"
+  },
+  "serviceNumber": "01245",
+  "email": "veteran@example.com",
+  "mobilePhone": "555-555-5555",
+  "veteranAddress": {
+    "country": "USA",
+    "street": "123 Main St",
+    "city": "Brooklyn",
+    "state": "NY",
+    "postalCode": "11225"
+  },
+  "veteranFullName": {
+    "first": "Firstname",
+    "last": "Lastname"
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "veteranDateOfBirth": "1990-12-12",
+  "isOver65": false,
+  "privacyAgreementAccepted": true
+}
