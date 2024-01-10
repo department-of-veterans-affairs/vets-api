@@ -23,22 +23,75 @@
         "additionalProperties": false,
         "properties": {
           "id": { "type": "string" },
-          "identifier": { "type": "array" },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "system": { "type": "string" },
+                "value": { "type": "string" }
+              }
+            }
+          },
           "kind": { "type": ["string", "null"] },
           "status": { "type": ["string", "null"] },
           "service_type": { "type": "string" },
           "patient_icn": { "type": "string" },
           "location_id": { "type": ["string", "null"] },
           "clinic": { "type": "string" },
+          "practitioners": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "identifier": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "system": { "type": "string" },
+                      "value": {"type": "string"}
+                    }
+                  }
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "family": {"type": "string"},
+                    "given": {"type": "string"}
+                  }
+                },
+                "practice_name": { "type": "string" }
+              }
+            }
+          },
           "start": { "type": "string" },
           "end": { "type": "string" },
           "minutes_duration": { "type": "integer" },
           "comment": { "type": "string" },
-          "patient_instruction": { "type": "string" },
-          "telehealth": { "type": "object" },
           "cancelation_reason": { "type": "object" },
           "cancellable": { "type": "boolean" },
-          "extension": { "type": "object" }
+          "patient_instruction": { "type": "string" },
+          "telehealth": {
+            "type": "object",
+            "properties": {
+              "group": { "type": "boolean" },
+              "vvs_kind": { "type": "string" }
+            }
+          },
+          "extension": {
+            "type": "object",
+            "properties": {
+              "cc_location": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

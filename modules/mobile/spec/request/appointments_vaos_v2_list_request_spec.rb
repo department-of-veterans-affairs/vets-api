@@ -346,5 +346,18 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
       end
     end
+
+    describe "schema validation" do
+      it "does not log errors" do
+        expect(Rails.logger).not_to receive(:error)
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: sis_headers, params:
+            end
+          end
+        end
+      end
+    end
   end
 end
