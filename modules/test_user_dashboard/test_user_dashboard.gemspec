@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
   spec.test_files = Dir['spec/**/*']
 
-  spec.add_dependency 'rails', '~> 7.0.8'
+  spec.add_dependency 'rails', '~> 7.1.2'
 
   spec.add_development_dependency 'factory_bot_rails'
   spec.add_development_dependency 'rspec-rails'
