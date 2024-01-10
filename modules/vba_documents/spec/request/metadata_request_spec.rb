@@ -14,7 +14,6 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
   describe '#healthcheck' do
     context 'v1' do
       it 'returns a successful health check' do
-
         s3_client = instance_double(Aws::S3::Client)
         allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)
 

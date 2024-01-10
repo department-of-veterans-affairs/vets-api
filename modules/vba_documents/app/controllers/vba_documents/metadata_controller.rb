@@ -76,12 +76,12 @@ module VBADocuments
 
       begin
         s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
-          access_key_id: Settings.vba_documents.s3.aws_access_key_id,
-          secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
-        s3.client.head_bucket({bucket: Settings.vba_documents.s3.bucket})
-        return true
-      rescue => ex
-        return false
+                                   access_key_id: Settings.vba_documents.s3.aws_access_key_id,
+                                   secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
+        s3.client.head_bucket({ bucket: Settings.vba_documents.s3.bucket })
+        true
+      rescue
+        false
       end
     end
 
