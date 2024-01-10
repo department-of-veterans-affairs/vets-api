@@ -58,4 +58,4 @@ spec:
   owner: lighthouse-dash
   system: vets-api
   definition:
-    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/app/swagger/claims_api/v2/swagger.json
+    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/app/swagger/claims_api/v2/production/swagger.json
