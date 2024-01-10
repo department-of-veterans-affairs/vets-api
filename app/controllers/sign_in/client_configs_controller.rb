@@ -2,6 +2,7 @@
 
 module SignIn
   class ClientConfigsController < SignIn::ServiceAccountApplicationController
+    service_tag 'identity'
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
     before_action :set_client_config, only: %i[show update destroy]
 

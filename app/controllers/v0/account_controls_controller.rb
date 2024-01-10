@@ -2,6 +2,7 @@
 
 module V0
   class AccountControlsController < SignIn::ServiceAccountApplicationController
+    service_tag 'identity'
     VALID_CSP_TYPES = %w[logingov idme dslogon mhv].freeze
 
     def credential_index
