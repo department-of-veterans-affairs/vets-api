@@ -41,3 +41,4 @@ properties:
       activeClaimsCount:
         type: number
         example: 3
+        description: Count of claims with `completed` set to false
