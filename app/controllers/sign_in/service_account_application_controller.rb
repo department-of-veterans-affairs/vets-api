@@ -9,6 +9,7 @@ module SignIn
     include Headers
     include SentryLogging
     include SentryControllerLogging
+    include Traceable
 
     before_action :authenticate_service_account
     skip_before_action :authenticate
