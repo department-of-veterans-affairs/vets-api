@@ -57,6 +57,29 @@ describe Common::SchemaChecker do
     end
   end
 
+  context "when nested property is missing required properties" do
+    it 'logs an error with details' do
+      expect(Rails.logger).to receive(:error)
+      body = valid_response_body[:data].first
+      body[:cancelation_reason][:coding] = [{
+        code: 'pat',
+        display: 'The appointment was cancelled by the patient'
+      }]
+      response = response_object.call(body, true)
+      Common::SchemaChecker.new(response, 'modules/vaos/app/schemas/appointments.json').validate
+    end
+  end
+
+  context "when nested property is contains additional properties" do
+    it 'logs an error with details' do
+      expect(Rails.logger).to receive(:error)
+      body = valid_response_body[:data].first
+      body[:cancelation_reason][:coding][0][:foo] = 'bar'
+      response = response_object.call(body, true)
+      Common::SchemaChecker.new(response, 'modules/vaos/app/schemas/appointments.json').validate
+    end
+  end
+
   context 'when request was unsuccessful' do
     it 'does not check the schema' do
       expect(Rails.logger).not_to receive(:error)

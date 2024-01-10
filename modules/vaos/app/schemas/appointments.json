@@ -69,7 +69,23 @@
           "end": { "type": "string" },
           "minutes_duration": { "type": "integer" },
           "comment": { "type": "string" },
-          "cancelation_reason": { "type": "object" },
+          "cancelation_reason": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["system"],
+                  "properties": {
+                    "system": { "type": "string" },
+                    "code": { "type": "string" },
+                    "display": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
           "cancellable": { "type": "boolean" },
           "patient_instruction": { "type": "string" },
           "telehealth": {
