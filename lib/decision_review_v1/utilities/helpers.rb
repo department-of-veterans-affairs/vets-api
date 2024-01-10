@@ -29,12 +29,15 @@ module DecisionReviewV1
           "vaFileNumber": user.ssn.to_s.strip.presence,
           "veteranSocialSecurityNumber": user.ssn.to_s.strip.presence,
           "veteranFullName": {
-            "first": user.first_name.to_s.strip.first(12),
+            "first": user.first_name.to_s,
             "middle": middle_initial(user),
-            "last": user.last_name.to_s.strip.first(18).presence
+            "last": user.last_name.to_s.presence
           },
           "veteranDateOfBirth": user.birth_date.to_s.strip.presence,
-          "veteranAddress": vet['address'].merge('country' => vet['address']['countryCodeISO2']),
+          "veteranAddress": vet['address'].merge(
+            'country' => vet['address']['countryCodeISO2'],
+            'postalCode' => vet['address']['zipCode5']
+          ),
           "email": vet['email'],
           "veteranPhone": "#{vet['phone']['areaCode']}#{vet['phone']['phoneNumber']}"
         }
