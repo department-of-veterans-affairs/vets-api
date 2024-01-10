@@ -186,6 +186,26 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           service.perform(claim.id)
         end.not_to change(subject.jobs, :size)
       end
+
+      it 'does not retry when form526.VirusFound error gets returned' do
+        body = {
+          messages: [
+            { key: 'form526.VirusFound',
+              severity: 'FATAL',
+              text: 'Error calling external service to establish the claim during submit.' }
+          ]
+        }
+        # Rubocop formatting
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       'form526.VirusFound', {}, nil, body
+                                     ))
+        )
+
+        expect do
+          service.perform(claim.id)
+        end.not_to change(subject.jobs, :size)
+      end
     end
   end
 end

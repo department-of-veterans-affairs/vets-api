@@ -12,7 +12,7 @@ module ClaimsApi
       include SentryLogging
       include Sidekiq::MonitoredWorker
 
-      NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
+      NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess', 'form526.VirusFound'].freeze
       LOG_TAG = '526_v2_claim_service_base'
 
       protected

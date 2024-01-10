@@ -51,7 +51,7 @@ module ClaimsApi
     def claim_bd_upload_document(claim, doc_type, pdf_path)
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
-    rescue Faraday::ParsingError, Faraday::TimeoutError => e
+    rescue ::Common::Exceptions::BackendServiceException, Faraday::TimeoutError => e
       ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
                             detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
