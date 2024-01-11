@@ -123,6 +123,12 @@ class ClaimsApi::RswagConfig
             description: <<~VERBIAGE
               Allows authenticated and authorized users to automatically establish a Disability Compensation Claim (21-526EZ) in VBMS
             VERBIAGE
+          },
+          {
+            name: 'Power of Attorney',
+            description: <<~VERBIAGE
+              Allows authenticated and authorized users to retrieve the active power of attorney for a Veteran
+            VERBIAGE
           }
         ],
         components: {
