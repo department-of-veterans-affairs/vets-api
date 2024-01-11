@@ -29,12 +29,8 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
 
-          if response.success? # && feature enabled && Rails.env.development?
-            UpstreamSchemaValidationJob.perform_async(
-              response.response_body.to_json,
-              'modules/vaos/app/schemas/appointments.json'
-            )
-          end
+          validate_appointments_schema(response)
+
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
@@ -576,6 +572,15 @@ module VAOS
 
       def date_format(date)
         date.strftime('%Y-%m-%dT%TZ')
+      end
+
+      def validate_appointments_schema(response)
+        if response.success? && Flipper.enabled?(:schema_validation_appointments_index)
+          UpstreamSchemaValidationJob.perform_async(
+            response.response_body.to_json,
+            'modules/vaos/app/schemas/appointments.json'
+          )
+        end
       end
     end
   end
