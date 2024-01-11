@@ -916,8 +916,8 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.14.0)
       concurrent-ruby (~> 1.0)
-    sentry-raven (3.1.2)
-      faraday (>= 1.0)
+    sentry-ruby (5.15.2)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
     shoulda-matchers (5.3.0)
       activesupport (>= 5.2.0)
@@ -1197,7 +1197,7 @@ DEPENDENCIES
   rufus-scheduler
   savon
   seedbank
-  sentry-raven
+  sentry-ruby
   shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
