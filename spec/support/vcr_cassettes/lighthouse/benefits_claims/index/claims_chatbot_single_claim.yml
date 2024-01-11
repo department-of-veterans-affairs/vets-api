@@ -94,7 +94,7 @@ http_interactions:
                 "lighthouseId": null,
                 "status": "PREPARATION_FOR_NOTIFICATION"
               }
-            },
+            }
           ]
         }'
   recorded_at: Sun, 09 Jul 2023 19:11:50 GMT

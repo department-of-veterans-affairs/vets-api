@@ -10,8 +10,6 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
   describe 'GET /v0/virtual_agent/claims from lighthouse' do
     context 'authorized' do
       before do
-        Flipper.enable(:virtual_agent_lighthouse_claims)
-
         sign_in_as(user)
 
         @mock_cxdw_reporting_service = instance_double(V0::VirtualAgent::ReportToCxdw)
@@ -29,72 +27,70 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_multiple_claims') do
             get '/v0/virtual_agent/claims'
           end
-
+        
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data'].size).to equal(3)
           expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
-          expect(JSON.parse(response.body)['data']).to include([
-                                                                 {
-                                                                   'id' => '600173992',
-                                                                   'type' => 'claim',
-                                                                   'attributes' => {
-                                                                     'baseEndProductCode' => '403',
-                                                                     'claimDate' => '2023-12-02',
-                                                                     'claimPhaseDates' => {
-                                                                       'phaseChangeDate' => '2023-12-05'
-                                                                     },
-                                                                     'claimType' => 'Compensation',
-                                                                     'closeDate' => nil,
-                                                                     'decisionLetterSent' => false,
-                                                                     'developmentLetterSent' => false,
-                                                                     'documentsNeeded' => false,
-                                                                     'endProductCode' => '403',
-                                                                     'evidenceWaiverSubmitted5103' => false,
-                                                                     'lighthouseId' => nil,
-                                                                     'status' => 'INITIAL_REVIEW'
-                                                                   }
-                                                                 },
-                                                                 {
-                                                                   'id' => '600342023',
-                                                                   'type' => 'claim',
-                                                                   'attributes' => {
-                                                                     'baseEndProductCode' => '020',
-                                                                     'claimDate' => '2022-11-07',
-                                                                     'claimPhaseDates' => {
-                                                                       'phaseChangeDate' => '2023-11-07'
-                                                                     },
-                                                                     'claimType' => 'Compensation',
-                                                                     'closeDate' => '2023-11-07',
-                                                                     'decisionLetterSent' => true,
-                                                                     'developmentLetterSent' => false,
-                                                                     'documentsNeeded' => false,
-                                                                     'endProductCode' => '020',
-                                                                     'evidenceWaiverSubmitted5103' => false,
-                                                                     'lighthouseId' => nil,
-                                                                     'status' => 'COMPLETE'
-                                                                   }
-                                                                 },
-                                                                 {
-                                                                   'id' => '600173694',
-                                                                   'type' => 'claim',
-                                                                   'attributes' => {
-                                                                     'baseEndProductCode' => '110',
-                                                                     'claimDate' => '2023-05-23',
-                                                                     'claimPhaseDates' => {
-                                                                       'phaseChangeDate' => '2023-06-17'
-                                                                     },
-                                                                     'claimType' => 'Compensation',
-                                                                     'closeDate' => nil,
-                                                                     'decisionLetterSent' => false,
-                                                                     'developmentLetterSent' => false,
-                                                                     'documentsNeeded' => false,
-                                                                     'endProductCode' => '110',
-                                                                     'evidenceWaiverSubmitted5103' => false,
-                                                                     'lighthouseId' => nil,
-                                                                     'status' => 'PREPARATION_FOR_NOTIFICATION'
-                                                                   }
+          expect(JSON.parse(response.body)['data']).to eq([{
+                                                                 'id' => '600173992',
+                                                                 'type' => 'claim',
+                                                                 'attributes' => {
+                                                                   'baseEndProductCode' => '403',
+                                                                   'claimDate' => '2023-12-02',
+                                                                   'claimPhaseDates' => {
+                                                                     'phaseChangeDate' => '2023-12-05'
+                                                                   },
+                                                                   'claimType' => 'Compensation',
+                                                                   'closeDate' => nil,
+                                                                   'decisionLetterSent' => false,
+                                                                   'developmentLetterSent' => false,
+                                                                   'documentsNeeded' => false,
+                                                                   'endProductCode' => '403',
+                                                                   'evidenceWaiverSubmitted5103' => false,
+                                                                   'lighthouseId' => nil,
+                                                                   'status' => 'INITIAL_REVIEW'
                                                                  }
-                                                               ])
+                                                               },
+                                                                {
+                                                                  'id' => '600342023',
+                                                                  'type' => 'claim',
+                                                                  'attributes' => {
+                                                                    'baseEndProductCode' => '020',
+                                                                    'claimDate' => '2022-11-07',
+                                                                    'claimPhaseDates' => {
+                                                                      'phaseChangeDate' => '2023-11-07'
+                                                                    },
+                                                                    'claimType' => 'Compensation',
+                                                                    'closeDate' => '2023-11-07',
+                                                                    'decisionLetterSent' => true,
+                                                                    'developmentLetterSent' => false,
+                                                                    'documentsNeeded' => false,
+                                                                    'endProductCode' => '020',
+                                                                    'evidenceWaiverSubmitted5103' => false,
+                                                                    'lighthouseId' => nil,
+                                                                    'status' => 'COMPLETE'
+                                                                  }
+                                                                },
+                                                                {
+                                                                  'id' => '600173694',
+                                                                  'type' => 'claim',
+                                                                  'attributes' => {
+                                                                    'baseEndProductCode' => '110',
+                                                                    'claimDate' => '2023-05-23',
+                                                                    'claimPhaseDates' => {
+                                                                      'phaseChangeDate' => '2023-06-17'
+                                                                    },
+                                                                    'claimType' => 'Compensation',
+                                                                    'closeDate' => nil,
+                                                                    'decisionLetterSent' => false,
+                                                                    'developmentLetterSent' => false,
+                                                                    'documentsNeeded' => false,
+                                                                    'endProductCode' => '110',
+                                                                    'evidenceWaiverSubmitted5103' => false,
+                                                                    'lighthouseId' => nil,
+                                                                    'status' => 'PREPARATION_FOR_NOTIFICATION'
+                                                                  }
+                                                                }])
         end
       end
 
@@ -108,28 +104,26 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
           expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
           expect(JSON.parse(response.body)['data']).to be_a(Array)
           expect(JSON.parse(response.body)['data'].size).to equal(1)
-          expect(JSON.parse(response.body)['data']).to include([
-                                                                 {
-                                                                   'id' => '600173694',
-                                                                   'type' => 'claim',
-                                                                   'attributes' => {
-                                                                     'baseEndProductCode' => '110',
-                                                                     'claimDate' => '2023-05-23',
-                                                                     'claimPhaseDates' => {
-                                                                       'phaseChangeDate' => '2023-06-17'
-                                                                     },
-                                                                     'claimType' => 'Compensation',
-                                                                     'closeDate' => nil,
-                                                                     'decisionLetterSent' => false,
-                                                                     'developmentLetterSent' => false,
-                                                                     'documentsNeeded' => false,
-                                                                     'endProductCode' => '110',
-                                                                     'evidenceWaiverSubmitted5103' => false,
-                                                                     'lighthouseId' => nil,
-                                                                     'status' => 'PREPARATION_FOR_NOTIFICATION'
-                                                                   }
+          expect(JSON.parse(response.body)['data']).to eq([{
+                                                                 'id' => '600173694',
+                                                                 'type' => 'claim',
+                                                                 'attributes' => {
+                                                                   'baseEndProductCode' => '110',
+                                                                   'claimDate' => '2023-05-23',
+                                                                   'claimPhaseDates' => {
+                                                                     'phaseChangeDate' => '2023-06-17'
+                                                                   },
+                                                                   'claimType' => 'Compensation',
+                                                                   'closeDate' => nil,
+                                                                   'decisionLetterSent' => false,
+                                                                   'developmentLetterSent' => false,
+                                                                   'documentsNeeded' => false,
+                                                                   'endProductCode' => '110',
+                                                                   'evidenceWaiverSubmitted5103' => false,
+                                                                   'lighthouseId' => nil,
+                                                                   'status' => 'PREPARATION_FOR_NOTIFICATION'
                                                                  }
-                                                               ])
+                                                               }])
         end
       end
 
@@ -142,7 +136,7 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
           expect(JSON.parse(response.body)['data']).to be_a(Array)
-          expect(JSON.parse(response.body)['data'].size).to equal(0)
+          expect(JSON.parse(response.body)['data'].size).to eq(0)
         end
       end
     end
