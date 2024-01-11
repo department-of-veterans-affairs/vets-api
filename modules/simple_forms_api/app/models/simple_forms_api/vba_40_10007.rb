@@ -22,6 +22,35 @@ module SimpleFormsApi
       }
     end
 
+    def handle_attachments(file_path)
+      attachments = get_attachments
+      if attachments.count.positive?
+        combined_pdf = CombinePDF.new
+        combined_pdf << CombinePDF.load(file_path)
+        attachments.each do |attachment|
+          combined_pdf << CombinePDF.load(attachment)
+        end
+
+        combined_pdf.save file_path
+      end
+    end
+
+    private
+
+    def get_attachments
+      attachments = []
+
+      supporting_documents = @data['veteran_supporting_documents']
+      if supporting_documents
+        confirmation_codes = []
+        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
+
+        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+      end
+
+      attachments
+    end
+
     def service(num, field, date)
       service_records = data.dig("application", "veteran", "service_records")
       if service_records
@@ -35,14 +64,10 @@ module SimpleFormsApi
       end
     end
 
-    def service_branch(num, field, date)
-      service_records = data.dig("application", "veteran", "service_records")
-      if service_records
-        if date
-          return service_records[num][field][date]
-        else
-          return service_records[num][field] 
-        end
+    def currently_buried(num, field)
+      name = data.dig("application", "applicant", "currently_buried_persons")
+      if name
+          return name[num]["name"][field] 
       else
         return ''
       end
