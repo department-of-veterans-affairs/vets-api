@@ -617,7 +617,7 @@ RSpec.describe SAML::PostURLService do
               before { allow(Settings).to receive(:vsp_environment).and_return(env) }
 
               it 'returns the appropriate list of clients depending on the environment' do
-                expect(subject.what_clients_are_enabled)
+                expect(subject.enabled_tou_clients)
                   .to eq(list)
               end
             end

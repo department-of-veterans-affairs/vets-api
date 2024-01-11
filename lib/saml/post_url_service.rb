@@ -64,7 +64,7 @@ module SAML
 
     def terms_of_use_redirect_url
       application = @tracker&.payload_attr(:application) || 'vaweb'
-      if what_clients_are_enabled.include?(application)
+      if enabled_tou_clients.include?(application)
         Rails.logger.info('Redirecting to /terms-of-use', type: :ssoe)
         add_query(terms_of_use_url, { redirect_url: login_redirect_url })
       else
@@ -72,13 +72,7 @@ module SAML
       end
     end
 
-    def what_clients_are_enabled
-      if Settings.vsp_environment == 'production'
-        TERMS_OF_USE_ENABLED_CLIENTS
-      else
-        TERMS_OF_USE_ENABLED_CLIENTS_STAGING
-      end
-    end
+
 
     # logout URL for SSOe
     def ssoe_slo_url
@@ -120,5 +114,15 @@ module SAML
       login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
     end
+
+    private
+    def enabled_tou_clients
+      if Settings.vsp_environment == 'production'
+        TERMS_OF_USE_ENABLED_CLIENTS
+      else
+        TERMS_OF_USE_ENABLED_CLIENTS_STAGING
+      end
+    end
+
   end
 end
