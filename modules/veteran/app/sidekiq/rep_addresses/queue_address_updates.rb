@@ -5,19 +5,18 @@ require 'sentry_logging'
 require 'roo'
 
 module RepAddresses
+  # A Sidekiq job class for processing address and email updates from an Excel file.
+  # This job fetches the file content, processes each sheet, and enqueues updates.
   class QueueAddressUpdates
     include Sidekiq::Job
     include SentryLogging
 
-    SHEETS_TO_PROCESS = %w[Agents Attorneys Representatives].freeze
-    BATCH_SIZE = 200
+    SHEETS_TO_PROCESS = %w[Attorneys Representatives].freeze
+    BATCH_SIZE = 5000
 
+    # Performs the job of fetching and processing the file content.
     def perform
-      # file_content = RepAddresses::XlsxFileFetcher.new.fetch
-      file_path = ''
-
-      # Read the file content into a string
-      file_content = File.read(file_path)
+      file_content = RepAddresses::XlsxFileFetcher.new.fetch
 
       unless file_content
         log_error('Failed to fetch file or file content is empty')
@@ -46,9 +45,9 @@ module RepAddresses
         batch.description = "Batching #{sheet_name} sheet records"
 
         batch.jobs do
-          xlsx.sheet(sheet_name).each_row_streaming(header: true).each_slice(BATCH_SIZE) do |rows_batch|
+          xlsx.sheet(sheet_name).each_row_streaming(header: true, pad_cells: true).each_slice(BATCH_SIZE) do |rows_batch|
             rows_batch.each_with_index do |row, index|
-              next if index.zero?
+              next if index.zero? || row.length < column_map.length
 
               json_data = create_json_data(row, sheet_name, column_map)
               RepAddresses::UpdateAddresses.perform_async(json_data)
@@ -77,16 +76,8 @@ module RepAddresses
     # @param column_map [Hash] The column index map for the sheet.
     # @return [String] The JSON representation of the row data.
     def create_json_data(row, sheet_name, column_map)
-      build_data(row, sheet_name, column_map).to_json
-      # data = build_data(row, sheet_name, column_map)
-      # data.to_json
-    rescue => e
-      log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
-    end
-
-    def build_data(row, sheet_name, column_map)
-      # binding.pry if sheet_name == 'Representatives'
-      zip_code5, zip_code4 = format_zip_code(row, column_map)
+      is_vso = sheet_name == 'VSOs'
+      zip_code5, zip_code4 = format_zip_code(row, column_map, is_vso)
 
       {
         id: row[column_map['Number']].value,
@@ -94,40 +85,51 @@ module RepAddresses
         email_address: format_email_address(row, sheet_name, column_map),
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
-          address_line1: format_address_line1(row, column_map),
-          address_line2: format_address_line2(row, column_map),
-          address_line3: format_address_line3(row, column_map),
-          city: format_city(row, column_map),
-          state_province: { code: format_state_province_code(row, column_map) },
+          address_line1: format_address_line1(row, column_map, is_vso),
+          address_line2: format_address_line2(row, column_map, is_vso),
+          address_line3: format_address_line3(row, column_map, is_vso),
+          city: format_city(row, column_map, is_vso),
+          state_province: { code: format_state_province_code(row, column_map, is_vso) },
           zip_code5:,
           zip_code4:,
           country_code_iso3: 'US'
         }
-      }
+      }.to_json
+    rescue => e
+      log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
     end
 
-    def format_address_line1(row, column_map)
-      value_or_nil(row[column_map['WorkAddress1']].value.to_s)
+    def format_address_line1(row, column_map, is_vso)
+      cell = is_vso ? row[column_map['Organization.AddressLine1']] : row[column_map['WorkAddress1']]
+      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
     end
 
-    def format_address_line2(row, column_map)
-      value_or_nil(row[column_map['WorkAddress2']].value.to_s)
+    def format_address_line2(row, column_map, is_vso)
+      cell = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
+      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
     end
 
-    def format_address_line3(row, column_map)
-      value_or_nil(row[column_map['WorkAddress3']].value.to_s)
+    def format_address_line3(row, column_map, is_vso)
+      cell = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
+      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
     end
 
-    def format_city(row, column_map)
-      value_or_nil(row[column_map['WorkCity']].value.to_s)
+    def format_city(row, column_map, is_vso)
+      cell = is_vso ? row[column_map['Organization.City']] : row[column_map['WorkCity']]
+      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
     end
 
-    def format_state_province_code(row, column_map)
-      value_or_nil(row[column_map['WorkState']].value.to_s)
+    def format_state_province_code(row, column_map, is_vso)
+      cell = is_vso ? row[column_map['Organization.State']] : row[column_map['WorkState']]
+      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
     end
 
-    def format_zip_code(row, column_map)
-      zip_code = row[column_map['WorkZip']].value.to_s
+    def format_zip_code(row, column_map, is_vso)
+      cell = is_vso ? row[column_map['Organization.ZipCode']] : row[column_map['WorkZip']]
+
+      return [nil, nil] if cell.nil?
+
+      zip_code = cell.value.to_s
       is_zip_plus4 = zip_code.include?('-')
       zip5 = is_zip_plus4 ? format_zip5(zip_code.split('-').first) : format_zip5(zip_code)
       zip4 = is_zip_plus4 ? format_zip4(zip_code.split('-').last) : nil
@@ -144,27 +146,33 @@ module RepAddresses
 
     def format_email_address(row, sheet_name, column_map)
       column_name = email_address_column_name(sheet_name)
-      email_address_candidate = row[column_map[column_name]].value
-      email?(email_address_candidate) ? email_address_candidate : nil
+      email_address_cell = row[column_map[column_name]]
+      email?(email_address_cell) ? rstrip_cell_value(email_address_cell.value) : nil
     end
 
     def email_address_column_name(sheet_name)
       sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
     end
 
-    def value_or_nil(value_candidate)
-      value_candidate.blank? || value_candidate.empty? || value_candidate.downcase == 'null' ? nil : value_candidate
+    def email?(email_address_cell)
+      return false if email_address_cell.nil?
+
+      email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+      email_regex.match?(rstrip_cell_value(email_address_cell.value))
     end
 
-    def email?(email_address_candidate)
-      email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+    def rstrip_cell_value(value)
+      value.to_s.rstrip
+    end
 
-      if email_regex.match?(email_address_candidate)
-        true
-      else
-        puts email_address_candidate
-        false
-      end
+    def format_vso_poa(vso_poa)
+      vso_poa.to_s.rjust(3, '0')
+    end
+
+    def return_value_or_nil(value)
+      value.blank? || value.empty? || value.downcase == 'null' ? nil : value
+    rescue => e
+      log_error("Unexpected value: #{e.message}")
     end
 
     # Logs an error to Sentry.
