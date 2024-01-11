@@ -23,7 +23,7 @@ module VAForms
       row_id = form_data['fieldVaFormRowId']
 
       # Ensure that the form is marked "valid_pdf: false" if successive form fetches have failed
-      if error_class.to_s == VAForms::FormBuilder::FormFetchError.to_s
+      if error_class.to_s == FormFetchError.to_s
         form = VAForms::Form.find_by(row_id:)
         url = VAForms::Form.normalized_form_url(form_data.dig('fieldVaFormUrl', 'uri'))
         form_previously_valid = form.valid_pdf
