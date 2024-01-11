@@ -70,11 +70,11 @@ module BenefitsClaims
     end
 
     ##
-    # Makes a POST request
+    # Makes a POST request with custom query parameters
     #
     # @return [Faraday::Response] response from POST request
     #
-    def post5103(path, body, params, options = {})
+    def post_with_params(path, body, params, options = {})
       connection.post(path) do |req|
         req.body = body
         req.params = params
