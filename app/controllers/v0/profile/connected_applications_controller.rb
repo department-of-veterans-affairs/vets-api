@@ -49,7 +49,6 @@ module V0
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
         response = Faraday.get(url_with_params, {}, headers)
-        presponse = JSON.parse(response.body)
         if response.status == 200
           parsed_response = JSON.parse(response.body)
           lhapps = parsed_response['apps']
