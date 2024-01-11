@@ -29,6 +29,7 @@ require_relative '../lib/olive_branch_patch'
 module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
+    # https://guides.rubyonrails.org/configuring.html#default-values-for-target-version-7-0
     config.load_defaults 7.0
 
     # Configuration for the application, engines, and railties goes here.
@@ -40,6 +41,8 @@ module VetsAPI
     # config.eager_load_paths << Rails.root.join("extras")
 
     # RAILS 7 CONFIG START
+    config.action_controller.raise_on_open_redirects = false
+
     # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and
     # from Rails 7.1 will use the default Ruby implementation.
     config.active_support.remove_deprecated_time_with_zone_name = false
