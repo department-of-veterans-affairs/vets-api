@@ -3,7 +3,7 @@
 require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service_exception'
-require 'lighthouse/benefits_claims/veteran_sponsor_resolver'
+require 'lighthouse/benefits_claims/user_icn_resolver'
 require 'lighthouse/service_exception'
 
 module BenefitsClaims
@@ -41,10 +41,10 @@ module BenefitsClaims
     def submit5103(user, id, options = {})
       # Gets the sponsor's icn if one exists
       sponsor_icn = UserICNResolver.resolve_icn(user)
-      is_dependent = BenefitsClaims::UserICNResolver.dependent?(user)
+      is_dependent = UserICNResolver.dependent?(user)
       params = {}
       params[:sponsorIcn] = sponsor_icn if is_dependent
-      config.post5103("#{@icn}/claims/#{id}/5103", params, nil, nil, options).body
+      config.post_with_params("#{@icn}/claims/#{id}/5103", params, nil, nil, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
