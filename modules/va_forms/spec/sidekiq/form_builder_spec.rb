@@ -17,7 +17,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
   let(:valid_pdf_cassette) { 'va_forms/valid_pdf' }
   let(:not_found_pdf_cassette) { 'va_forms/pdf_not_found' }
 
-  let(:form_fetch_error_message) { described_class::FORM_FETCH_ERROR_MESSAGE }
+  let(:form_fetch_error_message) { 'The form could not be fetched from the url provided.' }
 
   before do
     Sidekiq::Job.clear_all
@@ -80,7 +80,8 @@ RSpec.describe VAForms::FormBuilder, type: :job do
 
       it 'raises an error' do
         VCR.use_cassette(not_found_pdf_cassette) do
-          expect { form_builder.perform(form_data) }.to raise_error(RuntimeError, form_fetch_error_message)
+          expect { form_builder.perform(form_data) }
+            .to raise_error(described_class::FormFetchError, form_fetch_error_message)
         end
       end
     end
@@ -143,46 +144,69 @@ RSpec.describe VAForms::FormBuilder, type: :job do
     end
 
     context 'when all retries are exhausted' do
-      let(:msg) { { 'jid' => 123, 'args' => { 'fieldVaFormNumber' => form_name, 'fieldVaFormRowId' => row_id } } }
       let(:error) { RuntimeError.new('an error occurred!') }
-      let(:error_message) do
-        "#{described_class.class.name} failed to import form_name: #{form_name}, row_id: #{row_id} into forms database."
-      end
-
-      it 'logs an error' do
-        described_class.within_sidekiq_retries_exhausted_block(msg, error) do
-          expect(Rails.logger).to receive(:error).with(error_message, error.message)
-        end
+      let(:msg) do
+        {
+          'jid' => 123,
+          'error_class' => 'RuntimeError',
+          'error_message' => 'an error occurred!',
+          'args' => [{
+            'fieldVaFormNumber' => form_name,
+            'fieldVaFormRowId' => row_id
+          }]
+        }
       end
 
       it 'increments the StatsD counter' do
         described_class.within_sidekiq_retries_exhausted_block(msg, error) do
           expect(StatsD).to(receive(:increment))
-                        .with("#{described_class::STATSD_KEY_PREFIX}.failure", tags: { form_name:, row_id: })
+                        .with("#{described_class::STATSD_KEY_PREFIX}.exhausted", tags: { form_name:, row_id: })
                         .exactly(1).time
         end
       end
 
+      it 'logs a warning to the Rails console' do
+        described_class.within_sidekiq_retries_exhausted_block(msg, error) do
+          expect(Rails.logger).to receive(:warn).with(
+            'VAForms::FormBuilder retries exhausted',
+            {
+              job_id: 123,
+              error_class: 'RuntimeError',
+              error_message: 'an error occurred!',
+              form_name:,
+              row_id:,
+              form_data: {
+                'fieldVaFormNumber' => form_name,
+                'fieldVaFormRowId' => row_id
+              }
+            }
+          )
+        end
+      end
+
       context 'and the error was a form fetch error' do
+        let(:error) { described_class::FormFetchError.new(form_fetch_error_message) }
         let(:msg) do
           {
-            'jid' => 123,
-            'args' => {
+            'jid' => 456,
+            'error_class' => described_class::FormFetchError.to_s,
+            'error_message' => form_fetch_error_message,
+            'args' => [{
               'fieldVaFormNumber' => form_name,
               'fieldVaFormRowId' => row_id,
               'fieldVaFormUrl' => {
                 'uri' => url
               }
-            }
+            }]
           }
         end
-        let(:error) { RuntimeError.new(form_fetch_error_message) }
 
         it 'updates the url-related form attributes' do
           form = VAForms::Form.create!(url:, form_name:, sha256:, title:, valid_pdf:, row_id:)
 
           described_class.within_sidekiq_retries_exhausted_block(msg, error) do
-            expect(Rails.logger).to receive(:error).with(error_message, error.message)
+            expect(StatsD).to(receive(:increment)).exactly(1).time
+            expect(Rails.logger).to receive(:warn)
           end
 
           form.reload
@@ -194,7 +218,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
         context 'and the form was previously valid' do
           let(:expected_notify) do
             {
-              class: described_class.class.name,
+              class: described_class.to_s,
               message: "URL for form_name: #{form_name}, row_id: #{row_id} no longer returns a valid PDF or web page.",
               form_url: url
             }
