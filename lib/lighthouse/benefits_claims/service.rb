@@ -39,11 +39,9 @@ module BenefitsClaims
     end
 
     def submit5103(user, id, options = {})
-      # Gets the sponsor's icn if one exists
-      sponsor_icn = UserICNResolver.resolve_icn(user)
-      is_dependent = UserICNResolver.dependent?(user)
+      is_dependent = SponsorResolver.dependent?(user)
       params = {}
-      params[:sponsorIcn] = sponsor_icn if is_dependent
+      params[:sponsorIcn] = SponsorResolver.sponsor_icn(user) if is_dependent
       config.post_with_params("#{@icn}/claims/#{id}/5103", params, nil, nil, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
