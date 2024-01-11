@@ -218,7 +218,7 @@ module ClaimsApi
           primary_special_issues = disability['specialIssues'] || []
           secondary_special_issues = []
           (disability['secondaryDisabilities'] || []).each do |secondary_disability|
-            secondary_special_issues += (secondary_disability['specialIssues'] || [])
+            secondary_special_issues += secondary_disability['specialIssues'] || []
           end
           special_issues = primary_special_issues + secondary_special_issues
 

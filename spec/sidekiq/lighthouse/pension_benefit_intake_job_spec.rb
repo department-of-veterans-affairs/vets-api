@@ -94,12 +94,14 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     it 'returns expected hash' do
       expect(job.generate_form_metadata_lh).to include(
-        veteran_first_name: be_a(String),
-        veteran_last_name: be_a(String),
-        file_number: be_a(String),
-        zip: be_a(String),
-        doc_type: be_a(String),
-        claim_date: be_a(ActiveSupport::TimeWithZone)
+        'veteranFirstName' => be_a(String),
+        'veteranLastName' => be_a(String),
+        'fileNumber' => be_a(String),
+        'zipCode' => be_a(String),
+        'docType' => be_a(String),
+        'businessLine' => eq(described_class::PENSION_BUSINESSLINE),
+        'source' => eq(described_class::PENSION_SOURCE),
+        'claimDate' => be_a(ActiveSupport::TimeWithZone)
       )
     end
     # generate_form_metadata_lh
@@ -160,6 +162,15 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       job.form_submission_polling
     end
     # form_submission_polling
+  end
+
+  describe 'sidekiq_retries_exhausted block' do
+    it 'logs a distrinct error when retries are exhausted' do
+      Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+      end
+    end
   end
 
   # Rspec.describe
