@@ -27,6 +27,17 @@ module PdfFill
         'OTHER' => 4
       }.freeze
 
+      CARE_TYPES = {
+        'CARE_FACILITY' => 0,
+        'IN_HOME_CARE_PROVIDER' => 1
+      }.freeze
+
+      PAYMENT_FREQUENCY = {
+        'ONCE_MONTH' => 0,
+        'ONCE_YEAR' => 1,
+        'ONE_TIME' => 2
+      }.freeze
+
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -435,41 +446,41 @@ module PdfFill
           'receiver' => {
             key: "Income_Recipient[#{ITERATOR}]",
           },
-          # 'receiverOverflow' => {
-          #   question_num: 9,
-          #   question_suffix: '(1)',
-          #   question_text: 'INCOME RECIPIENT',
-          # },
+          'receiverOverflow' => {
+            question_num: 9,
+            question_suffix: '(1)',
+            question_text: 'INCOME RECIPIENT',
+          },
           'childName' => {
             key: "Income_Recipient_Child[#{ITERATOR}]",
-            # limit: 29,
-            # question_num: 9,
-            # question_suffix: '(1)',
-            # question_text: 'CHILD NAME',
+            limit: 29,
+            question_num: 9,
+            question_suffix: '(1)',
+            question_text: 'CHILD NAME',
           },
           # (2) Income Type
           'typeOfIncome' => {
             key: "Income_Type[#{ITERATOR}]",
           },
-          # 'typeOfIncomeOverflow' => {
-          #   question_num: 9,
-          #   question_suffix: '(2)',
-          #   question_text: 'INCOME TYPE',
-          # },
+          'typeOfIncomeOverflow' => {
+            question_num: 9,
+            question_suffix: '(2)',
+            question_text: 'INCOME TYPE',
+          },
           'otherTypeExplanation' => {
             key: "Other_Specify_Type_Of_Income[#{ITERATOR}]",
-            # limit: 31,
-            # question_num: 9,
-            # question_suffix: '(2)',
-            # question_text: 'OTHER INCOME TYPE EXPLANATION',
+            limit: 31,
+            question_num: 9,
+            question_suffix: '(2)',
+            question_text: 'OTHER INCOME TYPE EXPLANATION',
           },
           # (3) Income Payer
           'payer' => {
             key: "Name_Of_Income_Payer[#{ITERATOR}]",
-            # limit: 25,
-            # question_num: 9,
-            # question_suffix: '(3)',
-            # question_text: 'PAYER NAME',
+            limit: 25,
+            question_num: 9,
+            question_suffix: '(3)',
+            question_text: 'PAYER NAME',
           },
           # (4) Gross Monthly Income
           'amount' => {
@@ -483,21 +494,215 @@ module PdfFill
               key: "Income_Monthly_Amount_Cents[#{ITERATOR}]"
             }
           },
-          # 'amountOverflow' => {
-          #   question_num: 9,
-          #   question_suffix: '(4)',
-          #   question_text: 'CURRENT GROSS MONTHLY INCOME',
-          # }
-          'incomeSourceOverflow' => {
+          'amountOverflow' => {
             question_num: 9,
-            question_text: 'INCOME SOURCE'
+            question_suffix: '(4)',
+            question_text: 'CURRENT GROSS MONTHLY INCOME',
+          }
+        },
+        # 10a
+        'hasAnyExpenses' => {
+          key: 'Has_Any_Expenses_Yes_No'
+        },
+        # 10b-d
+        'careExpenses' => {
+          limit: 3,
+          first_key: 'childName',
+          # (1) Recipient
+          'recipients' => {
+            key: "Care_Expenses.Recipient[#{ITERATOR}]",
+          },
+          'recipientsOverflow' => {
+            question_num: 10,
+            question_suffix: '(1)',
+            question_text: 'CARE EXPENSE RECIPIENT',
+          },
+          'childName' => {
+            key: "Care_Expenses.Child_Specify[#{ITERATOR}]",
+            limit: 45,
+            question_num: 10,
+            question_suffix: '(1)',
+            question_text: 'CARE EXPENSE CHILD NAME',
+          },
+          # (2) Provider
+          'provider' => {
+            key: "Care_Expenses.Name_Of_Provider[#{ITERATOR}]",
+            limit: 70,
+            question_num: 10,
+            question_suffix: '(2)',
+            question_text: 'CARE EXPENSE PROVIDER NAME',
+          },
+          'careType' => {
+            key: "Care_Expenses.Care_Type[#{ITERATOR}]"
+          },
+          'careTypeOverflow' => {
+            question_num: 10,
+            question_suffix: '(2)',
+            question_text: 'CARE TYPE',
+          },
+          # (3) Rate Per Hour
+          'ratePerHour' => {
+            'part_one' => {
+              key: "Care_Expenses.Rate_Per_Hour_Amount[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Care_Expenses.Rate_Per_Hour_Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'ratePerHourOverflow' => {
+            question_num: 10,
+            question_suffix: '(3)',
+            question_text: 'CARE EXPENSE RATE PER HOUR',
+          },
+          'hoursPerWeek' => {
+            limit: 3,
+            question_num: 10,
+            question_suffix: '(3)',
+            question_text: 'HOURS PER WEEK CARE RECEIVED',
+            key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
+          },
+          # (4) Provider Start/End Dates
+          'careDateRange' => {
+            'from' => {
+              'month' => {
+                key: "Care_Expenses.Provider_Start_Date_Month[#{ITERATOR}]"
+              },
+              'day' => {
+                key: "Care_Expenses.Provider_Start_Date_Day[#{ITERATOR}]"
+              },
+              'year' => {
+                key: "Care_Expenses.Provider_Start_Date_Year[#{ITERATOR}]"
+              }
+            },
+            'to' => {
+              'month' => {
+                key: "Care_Expenses.Provider_End_Date_Month[#{ITERATOR}]"
+              },
+              'day' => {
+                key: "Care_Expenses.Provider_End_Date_Day[#{ITERATOR}]"
+              },
+              'year' => {
+                key: "Care_Expenses.Provider_End_Date_Year[#{ITERATOR}]"
+              }
+            }
+          },
+          'careDateRangeOverflow' => {
+            question_num: 10,
+            question_suffix: '(4)',
+            question_text: 'DATE RANGE CARE RECEIVED',
+          },
+          'noCareEndDate' => {
+            key: "Care_Expenses.CheckBox_No_End_Date[#{ITERATOR}]"
+          },
+          # (5) Payment Frequency
+          'paymentFrequency' => {
+            key: "Care_Expenses.Payment_Frequency[#{ITERATOR}]"
+          },
+          'paymentFrequencyOverflow' => {
+            question_num: 10,
+            question_suffix: '(5)',
+            question_text: 'CARE EXPENSE PAYMENT FREQUENCY',
+          },
+          # (6) Rate Per Frequency
+          'paymentAmount' => {
+            'part_two' => {
+              key: "Care_Expenses.Rate_Per_Frequency_Amount_First_Three[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Care_Expenses.Rate_Per_Frequency_Amount_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Care_Expenses.Rate_Per_Frequency_Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'paymentAmountOverflow' => {
+            question_num: 10,
+            question_suffix: '(6)',
+            question_text: 'CARE EXPENSE PAYMENT AMOUNT',
+          }
+        },
+        # 10e-j
+        'medicalExpenses' => {
+          limit: 3,
+          first_key: 'childName',
+          # (1) Recipient
+          'recipients' => {
+            key: "Med_Expenses.Recipient[#{ITERATOR}]",
+          },
+          'recipientsOverflow' => {
+            question_num: 9,
+            question_suffix: '(1)',
+            question_text: 'MEDICAL EXPENSE RECIPIENT',
+          },
+          'childName' => {
+            key: "Med_Expenses.Child_Specify[#{ITERATOR}]",
+            limit: 45,
+            question_num: 10,
+            question_suffix: '(1)',
+            question_text: 'MEDICAL EXPENSE CHILD NAME',
+          },
+          # (2) Provider
+          'provider' => {
+            key: "Med_Expenses.Paid_To[#{ITERATOR}]",
+            limit: 108,
+            question_num: 10,
+            question_suffix: '(2)',
+            question_text: 'MEDICAL EXPENSE PROVIDER NAME',
+          },
+          # (3) Purpose
+          'purpose' => {
+            key: "Med_Expenses.Purpose[#{ITERATOR}]",
+            limit: 108,
+            question_num: 10,
+            question_suffix: '(3)',
+            question_text: 'MEDICAL EXPENSE PURPOSE',
+          },
+          # (4) Payment Date
+          'paymentDate' => {
+            'month' => {
+              key: "Med_Expenses.Date_Costs_Incurred_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Med_Expenses.Date_Costs_Incurred_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Med_Expenses.Date_Costs_Incurred_Year[#{ITERATOR}]"
+            }
+          },
+          'paymentDateOverflow' => {
+            question_num: 10,
+            question_suffix: '(4)',
+            question_text: 'MEDICAL EXPENSE PAYMENT DATE',
+          },
+          # (5) Payment Frequency
+          'paymentFrequency' => {
+            key: "Med_Expenses.Payment_Frequency[#{ITERATOR}]"
+          },
+          'paymentFrequencyOverflow' => {
+            question_num: 10,
+            question_suffix: '(5)',
+            question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY',
+          },
+          # (6) Rate Per Frequency
+          'paymentAmount' => {
+            'part_two' => {
+              limit: 2,
+              key: "Med_Expenses.Amount_First_Two[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Med_Expenses.Amount_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Med_Expenses.Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'paymentAmountOverflow' => {
+            question_num: 10,
+            question_suffix: '(6)',
+            question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT',
           }
         }
       }.freeze
-      
-      def self.hash_converter
-        PdfFill::Va21p527ezHashConverter
-      end
 
       def merge_fields(_options = {})
         expand_veteran_identification_information
@@ -506,6 +711,7 @@ module PdfFill
         expand_pension_information
         expand_employment_history
         expand_income
+        expand_expenses
 
         @form_data
       end
@@ -599,24 +805,59 @@ module PdfFill
         @form_data['incomeSources'] = @form_data['incomeSources']&.map do |is|
           is.merge({
                      'receiver' => 0, # TODO: Update this once the front-end is updated post MVP
-                    #  'receiverOverflow' => 'VETERAN', # TODO: Update this once the front-end is updated post MVP
+                     'receiverOverflow' => 'VETERAN', # TODO: Update this once the front-end is updated post MVP
                      'typeOfIncome' => INCOME_TYPES.dig(is['typeOfIncome']),
-                    #  'typeOfIncomeOverflow' => is['typeOfIncome'],
+                     'typeOfIncomeOverflow' => is['typeOfIncome'],
                      'amount' => split_currency_amount(is.dig('amount')),
-                    #  'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(is.dig('amount'))
-                     'incomeSourceOverflow' => build_income_source_overflow(is)
+                     'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(is.dig('amount'))
                    })
         end
       end
 
-      def build_income_source_overflow(income_source)
-        str = ""
-        income_source.each { |k,v| str += "#{k.snakecase.humanize}: #{v}\n" }
-        str
+      # SECTION X: CARE/MEDICAL EXPENSES
+      def expand_expenses
+        @form_data['hasAnyExpenses'] = to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
+        @form_data['careExpenses'] = @form_data['careExpenses']&.map do |ce|
+          ce.merge({
+                     'recipients' => RECIPIENTS.dig(ce['recipients']),
+                     'recipientsOverflow' => ce['recipients']&.humanize,
+                     'careType' => CARE_TYPES.dig(ce['careType']),
+                     'careTypeOverflow' => ce['careType']&.humanize,
+                     'ratePerHour' => split_currency_amount(ce.dig('ratePerHour')),
+                     'ratePerHourOverflow' => ActiveSupport::NumberHelper.number_to_currency(ce.dig('ratePerHour')),
+                     'hoursPerWeek' => ce['hoursPerWeek'].to_s,
+                     'careDateRange' => {
+                      'from' => split_date(ce.dig('careDateRange', 'from')),
+                      'to' => split_date(ce.dig('careDateRange', 'to'))
+                     },
+                     'careDateRangeOverflow' => build_date_range_string(ce.dig('careDateRange')),
+                     'noCareEndDate' => to_radio_yes_no(ce.dig('noCareEndDate')),
+                     'paymentFrequency' => PAYMENT_FREQUENCY.dig(ce['paymentFrequency']),
+                     'paymentFrequencyOverflow' => ce['paymentFrequency'],
+                     'paymentAmount' => split_currency_amount(ce.dig('paymentAmount')),
+                     'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(ce.dig('paymentAmount'))
+                   })
+        end
+        @form_data['medicalExpenses'] = @form_data['medicalExpenses']&.map do |me|
+          me.merge({
+                     'recipients' => RECIPIENTS.dig(me['recipients']),
+                     'recipientsOverflow' => me['recipients']&.humanize,
+                     'paymentDate' => split_date(me.dig('paymentDate')),
+                     'paymentDateOverflow' => me.dig('paymentDate'),
+                     'paymentFrequency' => PAYMENT_FREQUENCY.dig(me['paymentFrequency']),
+                     'paymentFrequencyOverflow' => me['paymentFrequency'],
+                     'paymentAmount' => split_currency_amount(me.dig('paymentAmount')),
+                     'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(me.dig('paymentAmount'))
+                   })
+        end
+      end
+
+      def build_date_range_string(date_range)
+        "#{date_range.dig('from')} - #{date_range.dig('to') || 'No End Date'}"
       end
 
       def split_currency_amount(amount)
-        return {} if amount.negative?
+        return {} if amount.nil? || amount.negative?
 
         number_map = {
           1 => 'one',
