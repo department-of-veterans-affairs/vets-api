@@ -249,6 +249,8 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
+    bigdecimal (3.1.5)
+    bigdecimal (3.1.5-java)
     bindex (0.8.1)
     blueprinter (0.30.0)
     bootsnap (1.17.0)
@@ -373,7 +375,8 @@ GEM
       dry-types (>= 1.7, < 2)
       ice_nine (~> 0.11)
       zeitwerk (~> 2.6)
-    dry-types (1.7.1)
+    dry-types (1.7.2)
+      bigdecimal (~> 3.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.0)
       dry-inflector (~> 1.0)
