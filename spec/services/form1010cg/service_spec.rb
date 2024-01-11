@@ -402,7 +402,7 @@ RSpec.describe Form1010cg::Service do
   describe '#build_metadata' do
     it 'returns the icn for each subject on the form and the veteran\'s status' do
       %w[veteran primaryCaregiver secondaryCaregiverOne].each_with_index do |form_subject, index|
-        return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : "ICN_#{index}".to_sym
+        return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : :"ICN_#{index}"
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
 
