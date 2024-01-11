@@ -8,7 +8,7 @@ module VBADocuments
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'vba_documents' }
-      Raven.tags_context(source: 'vba_documents')
+      Sentry.set_tags(source: 'vba_documents')
     end
 
     def consumer
