@@ -265,7 +265,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'when email is provided' do
-      it 'will provid that email in the mvi search' do
+      it 'provids that email in the mvi search' do
         veteran_email = 'veteran-email@example.com'
         veteran_data = build_claim_data_for(:veteran) do |data|
           data['email'] = veteran_email
@@ -309,7 +309,7 @@ RSpec.describe Form1010cg::Service do
         )
       end
 
-      it 'will log the result of a successful search' do
+      it 'logs the result of a successful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
             create(:find_profile_response, profile: double(icn: :ICN_123))
@@ -325,7 +325,7 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
-      it 'will log the result of a unsuccessful search' do
+      it 'logs the result of a unsuccessful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
             create(:find_profile_not_found_response, error: double(message: 'some-message'))
@@ -341,7 +341,7 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
-      it 'will log when a search is skipped' do
+      it 'logs when a search is skipped' do
         subject = described_class.new(
           build(
             :caregivers_assistance_claim,
@@ -380,7 +380,7 @@ RSpec.describe Form1010cg::Service do
         end.to raise_error(StandardError)
       end
 
-      it 'will not log the search result when reading from cache' do
+      it 'does not log the search result when reading from cache' do
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
           create(:find_profile_response, profile: double(icn: :ICN_123))
         )
@@ -423,13 +423,13 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#assert_veteran_status' do
-    it 'will raise error if veteran\'s icn can not be found' do
+    it "raises error if veteran's icn can not be found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
-    it 'will not raise error if veteran\'s icn is found' do
+    it "does not raise error if veteran's icn is found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
 
       expect(subject.assert_veteran_status).to eq(nil)
