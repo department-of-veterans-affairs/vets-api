@@ -24,7 +24,7 @@ RSpec.describe SAML::PostURLService do
       Timecop.return
     end
 
-    SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, _values|
+    SAML::URLService::VIRTUAL_HOST_MAPPINGS.each_key do |vhost_url|
       context "virtual host: #{vhost_url}" do
         let(:saml_settings) do
           callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
