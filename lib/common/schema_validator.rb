@@ -10,10 +10,7 @@ module Common
     def validate
       errors = JSON::Validator.fully_validate(parsed_schema, parsed_response)
 
-      if errors.any?
-        details = error_details(errors)
-        log_schema_errors(details)
-      end
+      log_schema_errors(errors) if errors.any?
     end
 
     private
@@ -33,12 +30,8 @@ module Common
       Rails.logger.error('Schema validator received invalid JSON schema file ', file_contents:, details: e)
     end
 
-    def error_details(details)
-      { schema_file: @schema, response: @response, details: }
-    end
-
     def log_schema_errors(details)
-      Rails.logger.error('Schema discrepancy found', details:)
+      Rails.logger.error('Schema discrepancy found', schema_file: @schema, response: @response, details:)
     end
   end
 end

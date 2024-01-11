@@ -35,9 +35,16 @@ describe Common::SchemaValidator do
 
   context 'when response has additional attributes' do
     it 'logs an error with details' do
-      expect(Rails.logger).to receive(:error) # .with('blah')
-      body = valid_response_body['data'].first.merge('foo' => 'bar')
-      Common::SchemaValidator.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+      valid_response_body['data'].first['foo'] = 'bar'
+      expect(Rails.logger).to receive(:error).with(
+        'Schema discrepancy found',
+        {
+          details: ["The property '#/data/0' contains additional properties [\"foo\"] outside of the schema when none are allowed in schema 8b8ed896-a2bb-559d-b423-701585478d9c"],
+          response: valid_response_body.to_json,
+          schema_file: 'modules/vaos/app/schemas/appointments.json'
+        }
+      )
+      Common::SchemaValidator.new(valid_response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 
