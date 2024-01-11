@@ -20,7 +20,6 @@ module VAProfile
         faraday.response :snakecase, symbolize: false
         faraday.response :json, content_type: /\bjson/ # ensures only json content types parsed
         faraday.adapter Faraday.default_adapter
-        faraday.ssl.verify = false
       end
     end
 

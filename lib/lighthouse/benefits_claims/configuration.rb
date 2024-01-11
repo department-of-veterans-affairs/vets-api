@@ -95,8 +95,6 @@ module BenefitsClaims
         faraday.request :multipart
         faraday.request :json
 
-        faraday.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-
         faraday.response :betamocks if use_mocks?
         faraday.response :json, content_type: /\bjson/
         faraday.adapter Faraday.default_adapter
