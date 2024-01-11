@@ -17,7 +17,7 @@ module V0
 
     def create
       if @claim.valid?
-        Raven.tags_context(claim_guid: @claim.guid)
+        Sentry.set_tags(claim_guid: @claim.guid)
         auditor.record_caregivers(@claim)
 
         ::Form1010cg::Service.new(@claim).assert_veteran_status

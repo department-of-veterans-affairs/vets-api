@@ -165,8 +165,8 @@ module ClaimsApi
       end
 
       def chg_addr_zip
-        zip_first_five = (@auto_claim&.dig('changeOfAddress', 'zipFirstFive') || '')
-        zip_last_four = (@auto_claim&.dig('changeOfAddress', 'zipLastFour') || '')
+        zip_first_five = @auto_claim&.dig('changeOfAddress', 'zipFirstFive') || ''
+        zip_last_four = @auto_claim&.dig('changeOfAddress', 'zipLastFour') || ''
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
               else
@@ -284,7 +284,7 @@ module ClaimsApi
       end
 
       def deep_compact(hash)
-        hash.each { |_, value| deep_compact(value) if value.is_a? Hash }
+        hash.each_value { |value| deep_compact(value) if value.is_a? Hash }
         hash.select! { |_, value| exists?(value) }
         hash
       end
@@ -358,8 +358,8 @@ module ClaimsApi
       end
 
       def zip
-        zip_first_five = (@auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipFirstFive') || '')
-        zip_last_four = (@auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || '')
+        zip_first_five = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipFirstFive') || ''
+        zip_last_four = @auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || ''
         zip = if zip_last_four.present?
                 "#{zip_first_five}-#{zip_last_four}"
               else
@@ -551,7 +551,7 @@ module ClaimsApi
 
       def get_most_recent_period
         @pdf_data[:data][:attributes][:serviceInformation][:servicePeriods].max_by do |sp|
-          (sp[:activeDutyEndDate].presence || {})
+          sp[:activeDutyEndDate].presence || {}
         end
       end
 

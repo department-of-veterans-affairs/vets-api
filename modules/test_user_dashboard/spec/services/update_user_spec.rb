@@ -20,12 +20,12 @@ describe TestUserDashboard::UpdateUser do
     context 'when a user logs in' do
       before do
         tud_account.update(last_name: 'Changed', ssn: '123456789', services: [])
-        @timestamp = Time.current
+        @timestamp = Time.current.round(3)
         TestUserDashboard::UpdateUser.new(user).call(@timestamp)
       end
 
       it 'sets the test account to be checked out' do
-        expect(tud_account.checkout_time.round(3)).to eq(@timestamp.round(3))
+        expect(tud_account.checkout_time).to eq(@timestamp)
       end
     end
 

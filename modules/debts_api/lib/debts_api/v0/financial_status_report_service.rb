@@ -176,14 +176,14 @@ module DebtsApi
         enabled_flags = []
       end
       debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
-      debt_type = debts&.pluck('debtType')&.first
+      debt_type = debts&.pick('debtType')
       {
         'combined' => form_builder.is_combined,
         'debt_amounts' => debt_amounts,
         'debt_type' => debt_type,
         'flags' => enabled_flags,
         'streamlined' => form_builder.streamlined_data,
-        'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
+        'zipcode' => form.dig('personalData', 'address', 'zipOrPostalCode') || '???'
       }
     end
 
