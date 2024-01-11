@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/schema_checker'
+require 'common/schema_validator'
 
-describe Common::SchemaChecker do
+describe Common::SchemaValidator do
   let(:valid_response_body) do
     { 'data' =>
     [{ 'id' => '121133',
@@ -29,7 +29,7 @@ describe Common::SchemaChecker do
   context 'when response matches schema' do
     it 'does not log an error' do
       expect(Rails.logger).not_to receive(:error)
-      Common::SchemaChecker.new(valid_response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+      Common::SchemaValidator.new(valid_response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 
@@ -37,7 +37,7 @@ describe Common::SchemaChecker do
     it 'logs an error with details' do
       expect(Rails.logger).to receive(:error) # .with('blah')
       body = valid_response_body['data'].first.merge('foo' => 'bar')
-      Common::SchemaChecker.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+      Common::SchemaValidator.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 
@@ -45,7 +45,7 @@ describe Common::SchemaChecker do
     it 'logs an error with details' do
       expect(Rails.logger).to receive(:error)
       body = valid_response_body['data'].first.except(:id)
-      Common::SchemaChecker.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+      Common::SchemaValidator.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 
@@ -57,7 +57,7 @@ describe Common::SchemaChecker do
         code: 'pat',
         display: 'The appointment was cancelled by the patient'
       }]
-      Common::SchemaChecker.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+      Common::SchemaValidator.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 
@@ -66,7 +66,7 @@ describe Common::SchemaChecker do
       expect(Rails.logger).to receive(:error)
       body = valid_response_body['data'].first
       body['cancelation_reason']['coding'][0]['foo'] = 'bar'
-      Common::SchemaChecker.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+      Common::SchemaValidator.new(body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 

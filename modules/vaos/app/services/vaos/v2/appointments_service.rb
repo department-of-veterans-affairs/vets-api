@@ -2,7 +2,6 @@
 
 require 'common/exceptions'
 require 'common/client/errors'
-require 'common/schema_checker'
 require 'json'
 require 'memoist'
 
