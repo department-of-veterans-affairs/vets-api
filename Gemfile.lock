@@ -209,7 +209,7 @@ GEM
       activemodel (>= 4.1)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
-    activerecord-import (1.5.0)
+    activerecord-import (1.5.1)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (7.1.1)
       activerecord (~> 6.1)
