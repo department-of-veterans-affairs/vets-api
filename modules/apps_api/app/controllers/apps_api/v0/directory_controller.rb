@@ -52,17 +52,13 @@ module AppsApi
 
       def scopes
         directory_service = Okta::DirectoryService.new
-        begin
-          parsed_scopes = directory_service.scopes(params[:category])
-          if parsed_scopes.any?
-            render json: {
-              data: parsed_scopes
-            }
-          else
-            head :no_content
-          end
-        rescue
-          head :not_found
+        parsed_scopes = directory_service.scopes(params[:category])
+        if parsed_scopes.any?
+          render json: {
+            data: parsed_scopes
+          }
+        else
+          head :no_content
         end
       end
 
