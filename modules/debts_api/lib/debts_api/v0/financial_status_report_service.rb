@@ -183,7 +183,7 @@ module DebtsApi
         'debt_type' => debt_type,
         'flags' => enabled_flags,
         'streamlined' => form_builder.streamlined_data,
-        'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
+        'zipcode' => form.dig('personalData', 'address', 'zipOrPostalCode') || '???'
       }
     end
 
