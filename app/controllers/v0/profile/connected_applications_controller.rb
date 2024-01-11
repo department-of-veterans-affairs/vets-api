@@ -7,7 +7,7 @@ module V0
       service_tag 'profile'
 
       def index
-        render json: apps_from_grants, each_serializer: OktaAppSerializer
+        render json: { data: apps_from_grants }, each_serializer: OktaAppSerializer
       end
 
       def destroy
@@ -49,7 +49,7 @@ module V0
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
         response = Faraday.get(url_with_params, {}, headers)
-
+        presponse = JSON.parse(response.body)
         if response.status == 200
           parsed_response = JSON.parse(response.body)
           lhapps = parsed_response['apps']
@@ -57,10 +57,8 @@ module V0
             app = build_apps_from_data(lh_app)
             (data ||= []) << app
           end
-          { 'data' => data }
         end
-      rescue
-        { data: [] }
+        data
       end
 
       def build_apps_from_data(lh_app)
