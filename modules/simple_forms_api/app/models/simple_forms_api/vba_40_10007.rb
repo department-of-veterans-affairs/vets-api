@@ -21,36 +21,6 @@ module SimpleFormsApi
         # 'businessLine' => 'CMP'
       }
     end
-
-    def handle_attachments(file_path)
-      attachments = get_attachments
-      if attachments.count.positive?
-        combined_pdf = CombinePDF.new
-        combined_pdf << CombinePDF.load(file_path)
-        attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment)
-        end
-
-        combined_pdf.save file_path
-      end
-    end
-
-    private
-
-    def get_attachments
-      attachments = []
-
-      supporting_documents = @data['veteran_supporting_documents']
-      if supporting_documents
-        confirmation_codes = []
-        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-
-        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
-      end
-
-      attachments
-    end
-
     def service(num, field, date)
       service_records = data.dig("application", "veteran", "service_records")
       if service_records
@@ -71,6 +41,35 @@ module SimpleFormsApi
       else
         return ''
       end
-    end         
+    end  
+
+    def handle_attachments(file_path)
+      attachments = get_attachments
+      if attachments.count.positive?
+        combined_pdf = CombinePDF.new
+        combined_pdf << CombinePDF.load(file_path)
+        attachments.each do |attachment|
+          combined_pdf << CombinePDF.load(attachment)
+        end
+
+        combined_pdf.save file_path
+      end
+    end
+
+    private
+
+    def get_attachments
+      attachments = []
+      supporting_documents = @data['preneed_attachments']
+   
+      if supporting_documents
+        confirmation_codes = []
+        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
+
+        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+      end
+
+      attachments
+    end       
   end
 end

@@ -38,15 +38,18 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if params[:form_id] == '40-0247'
-          attachment = PersistentAttachments::MilitaryRecords.new(form_id: '40-0247')
+        allowed_form_ids = ['40-0247', '40-10007']
+      
+        if allowed_form_ids.include?(params[:form_id])
+          attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
-
+      
           attachment.save
           render json: attachment
         end
       end
+      
 
       def authenticate
         super
@@ -81,7 +84,9 @@ module SimpleFormsApi
         file_path = filler.generate
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
+        if ['vba_40_0247', 'vba_40_10007'].include?(form_id)
+          form.handle_attachments(file_path)
+        end        
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 

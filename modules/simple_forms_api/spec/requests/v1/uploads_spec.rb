@@ -153,22 +153,25 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     def self.test_submit_supporting_documents
-      it 'renders the attachment as json' do
-        allow(ClamScan::Client).to receive(:scan)
-          .and_return(instance_double(ClamScan::Response, safe?: true))
-        file = fixture_file_upload('doctors-note.gif')
-        data = { form_id: '40-0247', file: }
-
-        expect do
-          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-        end.to change(PersistentAttachment, :count).by(1)
-
-        expect(response).to have_http_status(:ok)
-        resp = JSON.parse(response.body)
-        expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      ['40-0247', '40-10007'].each do |form_id|
+        it "renders the attachment as json for form_id #{form_id}" do
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double(ClamScan::Response, safe?: true))
+          file = fixture_file_upload('doctors-note.gif')
+          data = { form_id: form_id, file: file }
+    
+          expect do
+            post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+          end.to change(PersistentAttachment, :count).by(1)
+    
+          expect(response).to have_http_status(:ok)
+          resp = JSON.parse(response.body)
+          expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+          expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+        end
       end
     end
+    
 
     test_submit_supporting_documents
 
