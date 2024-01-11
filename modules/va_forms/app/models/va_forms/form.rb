@@ -18,6 +18,7 @@ module VAForms
     validates :title, presence: true
     validates :form_name, presence: true
     validates :row_id, uniqueness: true
+    validates :url, presence: true
     validates :valid_pdf, inclusion: { in: [true, false] }
 
     before_save :set_revision
