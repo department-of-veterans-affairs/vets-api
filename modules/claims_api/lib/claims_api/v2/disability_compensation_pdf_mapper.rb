@@ -284,7 +284,7 @@ module ClaimsApi
       end
 
       def deep_compact(hash)
-        hash.each { |_, value| deep_compact(value) if value.is_a? Hash }
+        hash.each_value { |value| deep_compact(value) if value.is_a? Hash }
         hash.select! { |_, value| exists?(value) }
         hash
       end
