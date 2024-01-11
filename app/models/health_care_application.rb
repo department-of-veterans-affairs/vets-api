@@ -89,9 +89,7 @@ class HealthCareApplication < ApplicationRecord
 
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error_short_form") if short_form?
 
-      Raven.extra_context(
-        user_loa: user&.loa
-      )
+      Sentry.set_extras(user_loa: user&.loa)
 
       PersonalInformationLog.create(
         data: parsed_form,
