@@ -665,7 +665,7 @@ GEM
       sawyer (~> 0.9)
     oj (3.16.3)
       bigdecimal (>= 3.0)
-    okcomputer (1.18.4)
+    okcomputer (1.18.5)
     olive_branch (4.0.1)
       multi_json
       rails (>= 4.0)
