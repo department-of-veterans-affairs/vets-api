@@ -175,28 +175,28 @@ module PdfFill
         },
         # 3e
         'serviceBranch' => {
-          'ARMY' => {
+          'army' => {
             key: 'form1[0].#subform[48].Army[0]'
           },
-          'NAVY' => {
+          'navy' => {
             key: 'form1[0].#subform[48].Navy[0]'
           },
-          'AIR_FORCE' => {
+          'airForce' => {
             key: 'form1[0].#subform[48].Air_Force[0]'
           },
-          'COAST_GUARD' => {
+          'coastGuard' => {
             key: 'form1[0].#subform[48].Coast_Guard[0]'
           },
-          'MARINE_CORPS' => {
+          'marineCorps' => {
             key: 'form1[0].#subform[48].Marine_Corps[0]'
           },
-          'SPACE_FORCE' => {
+          'spaceForce' => {
             key: 'form1[0].#subform[48].Space_Force[0]'
           },
-          'USPHS' => {
+          'usphs' => {
             key: 'form1[0].#subform[48].USPHS[0]'
           },
-          'NOAA' => {
+          'noaa' => {
             key: 'form1[0].#subform[48].NOAA[0]'
           }
         },
@@ -412,17 +412,15 @@ module PdfFill
             key: 'form1[0].#subform[49].Place_Of_Marriage_City_And_State_Or_Country[0]'
           },
           # 6f
-          'view:currentMarriage' => {
-            'marriageType' => {
-              key: 'form1[0].#subform[49].RadioButtonList[11]'
-            },
-            'otherExplanation' => {
-              limit: 22,
-              question_num: 6,
-              question_suffix: 'F',
-              question_text: 'SPECIFY TYPE OF MARRIAGE',
-              key: 'form1[0].#subform[49].Other_Specify[0]'
-            }
+          'marriageType' => {
+            key: 'form1[0].#subform[49].RadioButtonList[11]'
+          },
+          'otherExplanation' => {
+            limit: 22,
+            question_num: 6,
+            question_suffix: 'F',
+            question_text: 'SPECIFY TYPE OF MARRIAGE',
+            key: 'form1[0].#subform[49].Other_Specify[0]'
           }
         },
         # 6c
@@ -461,7 +459,13 @@ module PdfFill
         'reasonForCurrentSeparation' => {
           key: 'form1[0].#subform[49].RadioButtonList[13]'
         },
-        # form1[0].#subform[49].Other_Specify[1]
+        'otherExplanation' => {
+          limit: 39,
+          question_num: 6,
+          question_suffix: 'I',
+          question_text: '',
+          key: 'form1[0].#subform[49].Other_Specify[1]'
+        },
         # 6j
         'spouseAddress' => {
           'street' => {
@@ -655,21 +659,45 @@ module PdfFill
 
       # SECTION VI: MARITAL STATUS
       def expand_marital_status
-        marital_status = @form_data['maritalStatus']
-        @form_data['maritalStatus'] = case marital_status
-                                      when 'Married' then 0
-                                      when 'Separated' then 1
-                                      else 2
-                                      end
-        @form_data['currentMarriage'] = @form_data['marriages'].find { |marriage| marriage.key?('view:currentMarriage') }
-        @form_data['currentMarriage']['dateOfMarriage'] = split_date(@form_data.dig('currentMarriage', 'dateOfMarriage'))
-        marriage_type = @form_data['currentMarriage']['view:currentMarriage']['marriageType']
-        @form_data['currentMarriage']['view:currentMarriage']['marriageType'] = marriage_type == 'Ceremonial' ? 0 : 1
+        @form_data['maritalStatus'] = marital_status_to_radio(@form_data['maritalStatus'])
+        @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
         @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
         @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
         @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
-        @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data.dig('spouseAddress', 'postalCode'))
+        @form_data['spouseAddress'] ||= {}
+        @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
+        @form_data['reasonForCurrentSeparation'] = reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
+      end
+
+      def marital_status_to_radio(marital_status)
+        case marital_status
+        when 'Married' then 0
+        when 'Separated' then 1
+        else 2
+        end
+      end
+
+      def get_current_marriage(marriages)
+        current_marriage = marriages&.find { |marriage| !marriage.key?('dateOfSeparation') } || {}
+        return current_marriage if current_marriage.empty?
+
+        marriage_type = current_marriage['marriageType']
+        current_marriage['marriageType'] =
+          marriage_type == 'In a civil or religious ceremony with an officiant who signed my marriage license' ? 0 : 1
+        current_marriage['dateOfMarriage'] =
+          split_date(current_marriage['dateOfMarriage'])
+        current_marriage
+      end
+
+      def reason_for_current_separation_to_radio(reason_for_separation)
+        case reason_for_separation
+        when 'MEDICAL_CARE' then 0
+        when 'RELATIONSHIP' then 1
+        when 'LOCATION' then 2
+        when 'OTHER' then 3
+        else 'Off'
+        end
       end
 
       # SECTION XI: DIRECT DEPOSIT INFORMATION
@@ -693,7 +721,7 @@ module PdfFill
       end
 
       def split_currency_amount(amount)
-        return {} if amount.negative? || amount >= 10_000_000
+        return {} if amount.nil? || amount.negative? || amount >= 10_000_000
 
         number_map = {
           1 => 'one',

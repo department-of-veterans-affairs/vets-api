@@ -1,24 +1,22 @@
 {
-  "serviceBranch": {
-    "army": true,
-    "navy": true
-  },
-  "activeServiceDateRange": {
-    "from": "2003-03-02",
-    "to": "2007-03-20"
-  },
-  "serviceNumber": "123456",
-  "noRapidProcessing": false,
   "veteranFullName": {
     "first": "John",
     "middle": "Edmund",
     "last": "Doe",
     "suffix": "Sr."
   },
-  "veteranSocialSecurityNumber": "123123123",
+  "veteranSocialSecurityNumber": "987654321",
   "vaClaimsHistory": true,
   "vaFileNumber": "12345678",
   "veteranDateOfBirth": "1960-01-01",
+  "serviceBranch": {
+    "army": true
+  },
+  "activeServiceDateRange": {
+    "from": "2003-03-02",
+    "to": "2007-03-20"
+  },
+  "serviceNumber": "123456",
   "serveUnderOtherNames": true,
   "previousNames": [
     {
@@ -70,6 +68,30 @@
       "jobTitle": "Representative"
     }
   ],
+  "maritalStatus": "Separated",
+  "marriages": [
+    {
+      "spouseFullName": {
+        "first": "Jessica",
+        "last": "Doe"
+      },
+      "dateOfMarriage": "1989-03-02",
+      "locationOfMarriage": "Dallas",
+      "reasonForSeparation": "Divorce",
+      "dateOfSeparation": "1990-03-02",
+      "locationOfSeparation": "San Antonio, TX"
+    },
+    {
+      "spouseFullName": {
+        "first": "Meg",
+        "last": "Doe"
+      },
+      "dateOfMarriage": "1994-03-02",
+      "locationOfMarriage": "North Adams, MA",
+      "marriageType": "Other",
+      "otherExplanation": "Personal"
+    }
+  ],
   "spouseDateOfBirth": "1960-01-01",
   "spouseSocialSecurityNumber": "342342444",
   "spouseIsVeteran": true,
@@ -82,8 +104,10 @@
     "state": "MA",
     "postalCode": "01050"
   },
-  "reasonForNotLivingWithSpouse": "Personal choice",
-  "monthlySpousePayment": 2444,
+  "reasonForCurrentSeparation": "OTHER",
+  "otherExplanation": "Personal reason",
+  "currentSpouseMonthlySupport": 2444,
+  "currentSpouseMaritalHistory": "Yes",
   "spouseMarriages": [
     {
       "dateOfMarriage": "1980-03-02",
@@ -94,39 +118,10 @@
         "last": "Generic",
         "suffix": "Jr."
       },
-      "reasonForSeparation": "Death",
+      "reasonForSeparation": "OTHER",
+      "otherExplanation": "Other reason",
       "dateOfSeparation": "1990-03-02",
       "locationOfSeparation": "Tacoma, WA"
-    }
-  ],
-  "maritalStatus": "Married",
-  "currentSpouseFullName": {
-    "first": "Jessica",
-    "last": "Doe"
-  },
-  "dateOfCurrentMarriage": "1989-03-02",
-  "currentSpouseMaritalHistory": "Yes",
-  "marriages": [
-    {
-      "spouseFullName": {
-        "first": "Jessica",
-        "last": "Doe"
-      },
-      "dateOfMarriage": "1989-03-02",
-      "locationOfMarriage": "Dallas",
-      "marriageType": "In a civil or religious ceremony with an officiant who signed my marriage license",
-      "reasonForSeparation": "Divorce",
-      "dateOfSeparation": "1990-03-02",
-      "locationOfSeparation": "San Antonio, TX"
-    },
-    {
-      "spouseFullName": {
-        "first": "Meg",
-        "last": "Doe"
-      },
-      "dateOfMarriage": "1994-03-02",
-      "locationOfMarriage": "North Adams, MA",
-      "marriageType": "In a civil or religious ceremony with an officiant who signed my marriage license"
     }
   ],
   "dependents": [
@@ -147,6 +142,8 @@
       "childPlaceOfBirth": "Tallahassee, FL",
       "childSocialSecurityNumber": "324234444",
       "childRelationship": "biological",
+      "attendingCollege": true,
+      "disabled": true,
       "previouslyMarried": true,
       "married": true,
       "fullName": {
@@ -158,8 +155,9 @@
     {
       "childInHousehold": true,
       "childPlaceOfBirth": "Troy, MT",
-      "childSocialSecurityNumber": "123123111",
+      "childSocialSecurityNumber": "324237778",
       "childRelationship": "adopted",
+      "disabled": false,
       "previouslyMarried": false,
       "fullName": {
         "first": "Emily",
@@ -170,7 +168,6 @@
   ],
   "totalNetWorth": false,
   "netWorthEstimation": 18000,
-  "assetTransfer": true,
   "hasCareExpenses": true,
   "careExpenses": [
     {
@@ -202,10 +199,30 @@
     }
   ],
   "hasMedicalExpenses": true,
+  "medicalExpenses": [
+    {
+      "recipients": "VETERAN",
+      "provider": "Funeral Home",
+      "purpose": "Burial expenses",
+      "paymentDate": "2020-03-15",
+      "paymentFrequency": "ONE_TIME",
+      "paymentAmount": 10000
+    },
+    {
+      "recipients": "CHILD",
+      "childName": "Joe Doe",
+      "provider": "Health Provider",
+      "purpose": "Medical expenses",
+      "paymentDate": "2023-07-01",
+      "paymentFrequency": "ONE_TIME",
+      "paymentAmount": 10000
+    }
+  ],
   "transferredAssets": true,
   "homeOwnership": true,
   "homeAcreageMoreThanTwo": true,
   "homeAcreageValue": 75000,
+  "landMarketable": true,
   "receivesIncome": true,
   "incomeSources": [
     {
@@ -235,5 +252,6 @@
   "mobilePhone": "313-867-5309",
   "internationalPhone": "001-212-456-7890",
   "isOver65": false,
-  "privacyAgreementAccepted": true
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Edmund Doe"
 }

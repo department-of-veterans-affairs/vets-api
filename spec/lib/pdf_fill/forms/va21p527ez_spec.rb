@@ -40,6 +40,7 @@ describe PdfFill::Forms::Va21p527ez do
     it 'returns correct values' do
       expect(described_class.new({}).split_currency_amount(10_000_000)).to eq({})
       expect(described_class.new({}).split_currency_amount(-1)).to eq({})
+      expect(described_class.new({}).split_currency_amount(nil)).to eq({})
       expect(described_class.new({}).split_currency_amount(100)).to eq({
                                                                          'part_one' => '100',
                                                                          'part_cents' => '00'
