@@ -32,9 +32,16 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
       end
 
       it 'returns a failed health check when s3 is unavailable' do
+        messenger_instance = instance_double(VBADocuments::Slack::Messenger)
+        expected_notify = { class: 'VBADocuments::MetadataController',
+                            warning: ':vertical_traffic_light: ' \
+                                     'Benefits Intake API healthcheck failed: unable to connect to AWS S3 bucket.' }
+        expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
+        expect(messenger_instance).to receive(:notify!).once
+
         s3_client = instance_double(Aws::S3::Client)
 
-        allow(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
+        expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
 
         s3_resource = instance_double(Aws::S3::Resource)
         allow(s3_resource).to receive(:client).and_return(s3_client)
