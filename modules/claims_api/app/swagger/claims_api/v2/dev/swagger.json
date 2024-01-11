@@ -25,6 +25,10 @@
     {
       "name": "Disability Compensation Claims",
       "description": "Allows authenticated and authorized users to automatically establish a Disability Compensation Claim (21-526EZ) in VBMS\n"
+    },
+    {
+      "name": "Power of Attorney",
+      "description": "Allows authenticated and authorized users to retrieve the active power of attorney for a Veteran\n"
     }
   ],
   "components": {
@@ -8423,7 +8427,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:85:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:84:in `representative'"
                       }
                     }
                   ]
