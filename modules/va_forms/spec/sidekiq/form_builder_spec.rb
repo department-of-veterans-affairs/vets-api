@@ -94,14 +94,21 @@ RSpec.describe VAForms::FormBuilder, type: :job do
       end
     end
 
-    context 'when the PDF has been marked as deleted (even though the URL is valid)' do
+    context 'when the PDF has been marked as deleted' do
       let(:form_data) { deleted_form_data }
 
-      it 'includes a deleted_at date but still sets other values as usual and does not notify' do
+      it 'updates the deleted_at date' do
         expect(result.deleted_at.to_date.to_s).to eq('2020-07-16')
-        expect(result.valid_pdf).to be(true)
-        expect(result.sha256).to eq(valid_sha256)
-        expect(slack_messenger).not_to have_received(:notify!)
+      end
+
+      it 'sets valid_pdf to true and the sha256 to nil' do
+        expect(result.valid_pdf).to be(false)
+        expect(result.sha256).to be_nil
+      end
+
+      it 'does not raise a form fetch error' do
+        expect { form_builder.perform(form_data) }
+          .not_to raise_error(described_class::FormFetchError, form_fetch_error_message)
       end
     end
 
@@ -210,7 +217,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
           end
 
           form.reload
-          expect(form.valid_pdf).to be_falsey
+          expect(form.valid_pdf).to be(false)
           expect(form.sha256).to be_nil
           expect(form.url).to eq(url)
         end

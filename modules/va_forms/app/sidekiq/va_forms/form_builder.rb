@@ -76,8 +76,12 @@ module VAForms
       attrs[:url] = url if form.new_record?
       form.update!(attrs) # The job can fail later, so save current progress
 
-      attrs = check_form_validity(form, attrs, url)
-      form.update!(attrs)
+      if form.deleted_at.present?
+        form.update!(valid_pdf: false, sha256: nil)
+      else
+        attrs = check_form_validity(form, attrs, url)
+        form.update!(attrs)
+      end
     end
 
     # Given a +form+, +attrs+, and +url+, makes a request for the form; if response is successful, assigns attributes
