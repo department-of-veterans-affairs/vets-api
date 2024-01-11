@@ -8,24 +8,29 @@ module Common
     end
 
     def validate
-      # add feature flag check
-      # return unless Rails.env.development?
-      return unless @response.success?
-
-      # validate file as well
-      file = File.read(@schema)
-      json_schema = JSON.parse(file)
-
-      # for yaml: Openapi3Parser.load_file(schema_file)
-      errors = JSON::Validator.fully_validate(json_schema, @response.response_body.to_json)
+      errors = JSON::Validator.fully_validate(parsed_schema, parsed_response)
 
       if errors.any?
         details = error_details(errors)
         log_schema_errors(details)
       end
-    # blanket rescue to ensure that this doesn't stop code execution 
-    rescue => e
-      Rails.logger.error('Schema validation internal error', details: error_details(e))
+    end
+
+    private
+
+    def parsed_response
+      JSON.parse(@response)
+    rescue JSON::ParserError => e
+      Rails.logger.error('Schema validator received invalid JSON response ', response: @response, details: e)
+    end
+
+    def parsed_schema
+      file_contents = File.read(@schema)
+      JSON.parse(file_contents)
+    rescue Errno::ENOENT => e
+      Rails.logger.error('Schema validation file not found', file: @schema, details: e)
+    rescue JSON::ParserError => e
+      Rails.logger.error('Schema validator received invalid JSON schema file ', file_contents:, details: e)
     end
 
     def error_details(details)

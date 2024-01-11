@@ -29,8 +29,13 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
-          # UpstreamSchemaValidationJob.perform_sync(response, 'foo')
-          Common::SchemaChecker.new(response, 'modules/vaos/app/schemas/appointments.json').validate
+
+          if response.success? # && feature enabled && Rails.env.development?
+            UpstreamSchemaValidationJob.perform_async(
+              response.response_body.to_json,
+              'modules/vaos/app/schemas/appointments.json'
+            )
+          end
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
