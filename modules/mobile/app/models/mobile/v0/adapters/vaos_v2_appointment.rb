@@ -186,9 +186,13 @@ module Mobile
         end
 
         def cancel_id
-          return nil unless appointment[:cancellable]
+          return nil unless cancellable?
 
           appointment[:id]
+        end
+
+        def cancellable?
+          appointment[:cancellable] && appointment[:kind] != 'telehealth'
         end
 
         def type_of_care(service_type)
@@ -206,8 +210,9 @@ module Mobile
                                 vista_status: appointment.dig(:extension, :vista_status),
                                 facility_id:,
                                 clinic: appointment[:clinic])
+              return CANCELLATION_REASON[:prov]
             end
-            return CANCELLATION_REASON[:prov]
+            return nil
           end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)

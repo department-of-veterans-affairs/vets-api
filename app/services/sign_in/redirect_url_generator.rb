@@ -20,7 +20,12 @@ module SignIn
     private
 
     def full_redirect_uri
-      terms_code ? terms_of_use_redirect_url : original_redirect_uri_with_params
+      if terms_code
+        Rails.logger.info('Redirecting to /terms-of-use', type: :sis)
+        return terms_of_use_redirect_url
+      end
+
+      original_redirect_uri_with_params
     end
 
     def original_redirect_uri_with_params

@@ -276,7 +276,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
         build(:va_profile_address, :override, country_name: nil)
       end
 
-      it 'will override the address error', run_at: '2020-02-14T00:19:15.000Z' do
+      it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
         VCR.use_cassette(
           'va_profile/contact_information/put_address_override',
           VCR::MATCH_EVERYTHING

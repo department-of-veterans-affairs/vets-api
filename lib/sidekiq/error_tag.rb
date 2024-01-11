@@ -6,7 +6,6 @@ class Sidekiq::ErrorTag
     Sentry.set_user(remote_ip: (job['remote_ip'] || 'N/A'),
                     user_agent: (job['user_agent'] || 'N/A'),
                     id: (job['user_uuid'] || 'N/A'))
-
     yield
   end
 end
