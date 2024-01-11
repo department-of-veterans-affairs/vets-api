@@ -7,9 +7,11 @@ require 'simple_forms_api_submission/metadata_validator'
 module Lighthouse
   class PensionBenefitIntakeJob
     include Sidekiq::Job
+    include SentryLogging
 
     class PensionBenefitIntakeError < StandardError; end
 
+    STATSD_KEY_PREFIX = 'worker.lighthouse.pension_benefit_intake_job'
     FOREIGN_POSTALCODE = '00000'
     PENSION_BUSINESSLINE = 'PMC'
     PENSION_SOURCE = 'app/sidekiq/lighthouse/pension_benefit_intake_job.rb'
@@ -17,13 +19,11 @@ module Lighthouse
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
 
-    # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
-    # :nocov:
     sidekiq_retries_exhausted do |msg|
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob exhausted!',
                          { saved_claim_id: @saved_claim_id, error: msg })
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
-    # :nocov:
 
     # Process claim pdfs and upload to Benefits Intake API
     # https://developer.va.gov/explore/api/benefits-intake/docs
