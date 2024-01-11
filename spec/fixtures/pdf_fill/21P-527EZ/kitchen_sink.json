@@ -67,7 +67,7 @@
       "childInHousehold": false,
       "childPlaceOfBirth": "Tallahassee, FL",
       "childRelationship": "biological",
-      "childSocialSecurityNumber": "324234444",
+      "childSocialSecurityNumber": "123456789",
       "disabled": true,
       "fullName": {
         "first": "Bobby",
@@ -117,7 +117,7 @@
       "typeOfIncome": "Social Security"
     }
   ],
-  "internationalPhone": "001-212-456-7890",
+  "internationalPhone": "001-555-555-7890",
   "isOver65": false,
   "landMarketable": true,
   "liveWithSpouse": false,
@@ -153,12 +153,12 @@
   "medicaidStatus": true,
   "medicalCondition": false,
   "medicalExpenses": true,
-  "mobilePhone": "313-867-5309",
+  "mobilePhone": "555-555-5309",
   "netWorthEstimation": 18000,
   "noRapidProcessing": true,
   "nursingHome": true,
   "otherExplanation": "Personal reason",
-  "phone": "212-867-5309",
+  "phone": "212-555-5555",
   "placeOfSeparation": "Northampton, MA",
   "powDateRange": {
     "from": "1971-02-26",
@@ -207,7 +207,7 @@
       }
     }
   ],
-  "spouseSocialSecurityNumber": "342342444",
+  "spouseSocialSecurityNumber": "123121234",
   "spouseVaFileNumber": "23423444",
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Doe",
@@ -237,7 +237,7 @@
     "middle": "Edmund",
     "suffix": "Sr."
   },
-  "veteranSocialSecurityNumber": "123123123",
+  "veteranSocialSecurityNumber": "987654321",
   "view:aidAttendance": true,
   "view:hasDependents": true,
   "view:powStatus": true,
