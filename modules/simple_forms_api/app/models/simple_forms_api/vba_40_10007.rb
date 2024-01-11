@@ -21,6 +21,10 @@ module SimpleFormsApi
         # 'businessLine' => 'CMP'
       }
     end
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 6622d0b74 (Reverted to old form)
     def service(num, field, date)
       service_records = data.dig("application", "veteran", "service_records")
       if service_records
@@ -34,10 +38,14 @@ module SimpleFormsApi
       end
     end
 
-    def currently_buried(num, field)
-      name = data.dig("application", "applicant", "currently_buried_persons")
-      if name
-          return name[num]["name"][field] 
+    def service_branch(num, field, date)
+      service_records = data.dig("application", "veteran", "service_records")
+      if service_records
+        if date
+          return service_records[num][field][date]
+        else
+          return service_records[num][field] 
+        end
       else
         return ''
       end
