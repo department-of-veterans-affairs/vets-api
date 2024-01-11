@@ -27,15 +27,7 @@ module RepAddresses
     private
 
     def fetch_file_content
-      # RepAddresses::XlsxFileFetcher.new.fetch
-
-      # BEGIN TEMPORARY CODE FOR LOCAL DEVELOPMENT
-      file_path = '/Users/holdenhinkle/Downloads/2024-01-5_Accreditations_Sanitized.xlsx'
-      # file_path = '/Users/holdenhinkle/Downloads/2023-11-08_Accreditations_Sanitized.xlsx'
-
-      # Read the file content into a string
-      File.read(file_path)
-      # END TEMPORARY CODE FOR LOCAL DEVELOPMENT
+      RepAddresses::XlsxFileFetcher.new.fetch
     end
 
     def queue_address_updates(data)
