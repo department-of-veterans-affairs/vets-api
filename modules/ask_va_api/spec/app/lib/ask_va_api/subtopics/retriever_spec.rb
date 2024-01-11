@@ -3,43 +3,58 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::SubTopics::Retriever do
-  subject(:retriever) { described_class.new(topic_id: topic.id) }
-
-  let(:topic) { AskVAApi::Topics::Entity.new({ id: 2, subtopic: 'All other Questions' }) }
-  let(:service) { instance_double(Dynamics::Service) }
-  let(:entity) { instance_double(AskVAApi::SubTopics::Entity) }
-  let(:error_message) { 'Some error occurred' }
-
-  before do
-    allow(Dynamics::Service).to receive(:new).and_return(service)
-    allow(AskVAApi::SubTopics::Entity).to receive(:new).and_return(entity)
-    allow(service).to receive(:call)
+  subject(:retriever) do
+    described_class.new(topic_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
   end
 
+  let(:parsed_data) { { Topics: [{ id: 1, name: 'Topic 1', parentId: nil }] } }
+  let(:entity_class) { AskVAApi::SubTopics::Entity }
+  let(:static_data_service) { instance_double(Crm::StaticData) }
+  let(:user_mock_data) { true }
+
   describe '#call' do
-    context 'when Dynamics raise an error' do
-      let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-      let(:endpoint) { AskVAApi::SubTopics::ENDPOINT }
-      let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
-
-      before do
-        allow(service).to receive(:call)
-          .with(endpoint:, payload: { topic_id: topic.id })
-          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
-      end
-
-      it 'raises an Error' do
-        expect do
-          retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
+    context 'when using mock data' do
+      it 'reads from a file and returns an array of Entity instances' do
+        expect(retriever.call).to all(be_a(AskVAApi::SubTopics::Entity))
       end
     end
 
-    it 'returns an Entity object with correct data' do
-      allow(service).to receive(:call)
-        .with(endpoint: 'get_subtopics_mock_data', payload: { topic_id: topic.id })
-        .and_return([double])
-      expect(retriever.call).to eq([entity])
+    context 'when not using mock data' do
+      let(:user_mock_data) { false }
+
+      before do
+        allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+        allow(static_data_service).to receive(:call).and_return(parsed_data)
+      end
+
+      it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
+        expect(retriever.call).to all(be_a(AskVAApi::SubTopics::Entity))
+      end
+
+      context 'when an error occurs during data retrieval' do
+        before do
+          allow(static_data_service).to receive(:call).and_raise(StandardError)
+          allow(ErrorHandler).to receive(:handle_service_error)
+        end
+
+        it 'rescues the error and calls the ErrorHandler' do
+          expect { retriever.call }.not_to raise_error
+          expect(ErrorHandler).to have_received(:handle_service_error).with(instance_of(StandardError))
+        end
+      end
+
+      context 'when JSON parsing fails' do
+        before do
+          allow(static_data_service).to receive(:call).and_return('invalid json')
+          allow(ErrorHandler).to receive(:handle_service_error).and_raise(ErrorHandler::ServiceError,
+                                                                          "unexpected token at 'invalid json'")
+        end
+
+        it 'rescues the JSON::ParserError and calls the ErrorHandler' do
+          expect { retriever.call }.to raise_error(ErrorHandler::ServiceError,
+                                                   "unexpected token at 'invalid json'")
+        end
+      end
     end
   end
 end

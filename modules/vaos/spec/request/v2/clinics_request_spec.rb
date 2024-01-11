@@ -22,9 +22,7 @@ RSpec.describe 'clinics', type: :request do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v2/locations/983/clinics?clinical_service=audiology', headers: inflection_header
-            expect(Rails.logger).to have_received(:info).with('Clinic names returned',
-                                                              '{"Clinic":{"stationId":"983",'\
-                                                              '"serviceName":"CHY C&P AUDIO"}}').at_least(:once)
+            expect(Rails.logger).to have_received(:info).with('VAOS Clinic info: ', anything).at_least(:once)
             expect(response).to have_http_status(:ok)
             expect(response.body).to match_camelized_schema('vaos/v2/clinics', { strict: false })
             x = JSON.parse(response.body)

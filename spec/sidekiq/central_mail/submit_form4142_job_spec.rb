@@ -28,6 +28,16 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                                form_json:,
                                submitted_claim_id: evss_claim_id)
     end
+    let(:metadata_hash) do
+      form4142 = submission.form[Form526Submission::FORM_4142]
+      form4142['veteranFullName'].update('first' => "Bey'oncé", 'last' => 'Knowle$-Carter')
+      form4142['veteranAddress'].update('postalCode' => '123456789')
+      subject.perform_async(submission.id)
+      jid = subject.jobs.last['jid']
+      processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
+      request_body = processor.request_body
+      JSON.parse(request_body['metadata'])
+    end
 
     context 'with a successful submission job' do
       it 'queues a job for submit' do
@@ -43,6 +53,20 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           described_class.drain
           expect(jid).not_to be_empty
         end
+      end
+
+      it 'corrects for invalid characters in generated metadata' do
+        veteran_first_name = metadata_hash['veteranFirstName']
+        veteran_last_name = metadata_hash['veteranLastName']
+        allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+        expect(veteran_first_name).to match(allowed_chars_regex)
+        expect(veteran_last_name).to match(allowed_chars_regex)
+      end
+
+      it 'reformats zip code in generated metadata' do
+        zip_code = metadata_hash['zipCode']
+        expected_zip_format = /\A[0-9]{5}(?:-[0-9]{4})?\z/
+        expect(zip_code).to match(expected_zip_format)
       end
     end
 
@@ -87,6 +111,22 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           subject.perform_async(submission.id)
           expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
         end
+      end
+    end
+  end
+
+  context 'catastrophic failure state' do
+    describe 'when all retries are exhausted' do
+      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
+
+      it 'updates a StatsD counter and updates the status on an exhaustion event' do
+        subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
+          expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
+          expect(Rails).to receive(:logger).and_call_original
+        end
+        form526_job_status.reload
+        expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
       end
     end
   end

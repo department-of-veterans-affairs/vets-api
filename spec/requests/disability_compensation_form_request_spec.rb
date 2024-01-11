@@ -17,6 +17,7 @@ RSpec.describe 'Disability compensation form' do
 
   before do
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.disable('disability_compensation_prevent_submission_job')
     sign_in_as(user)
   end
 
@@ -48,7 +49,7 @@ RSpec.describe 'Disability compensation form' do
       context 'error handling tests' do
         cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
 
-        Lighthouse::ServiceException::ERROR_MAP.each do |status, _error_class|
+        Lighthouse::ServiceException::ERROR_MAP.each_key do |status|
           cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
 
           it "returns #{status} response" do

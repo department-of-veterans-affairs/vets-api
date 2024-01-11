@@ -2,43 +2,50 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::Categories::Retriever do
-  subject(:retriever) { described_class.new }
+module AskVAApi
+  module Categories
+    RSpec.describe Retriever do
+      let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
+      let(:static_data_service) { instance_double(Crm::StaticData) }
+      let(:entity_class) { AskVAApi::Categories::Entity }
 
-  let(:service) { instance_double(Dynamics::Service) }
-  let(:entity) { instance_double(AskVAApi::Categories::Entity) }
-  let(:error_message) { 'Some error occurred' }
+      describe '#call' do
+        let(:retriever) { described_class.new(user_mock_data:, entity_class:) }
 
-  before do
-    allow(Dynamics::Service).to receive(:new).and_return(service)
-    allow(AskVAApi::Categories::Entity).to receive(:new).and_return(entity)
-    allow(service).to receive(:call)
-  end
+        before do
+          allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+          allow(static_data_service).to receive(:call).and_return(user_mock_data ? 'mock data' : parsed_data)
+          allow(File).to receive(:read).and_return(parsed_data.to_json) if user_mock_data
+          allow(ErrorHandler).to receive(:handle_service_error)
+        end
 
-  describe '#call' do
-    context 'when Dynamics raise an error' do
-      let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
-      let(:endpoint) { AskVAApi::Categories::ENDPOINT }
-      let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
+        context 'when using mock data' do
+          let(:user_mock_data) { true }
 
-      before do
-        allow(service).to receive(:call)
-          .with(endpoint:)
-          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
+          it 'reads from a file and returns an array of Entity instances' do
+            expect(retriever.call).to all(be_a(entity_class))
+          end
+        end
+
+        context 'when not using mock data' do
+          let(:user_mock_data) { false }
+
+          it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
+            expect(retriever.call).to all(be_a(entity_class))
+          end
+        end
+
+        context 'when an error occurs during data retrieval' do
+          let(:user_mock_data) { false }
+
+          before { allow(static_data_service).to receive(:call).and_raise(StandardError) }
+
+          it 'rescues the error and calls the ErrorHandler' do
+            expect { retriever.call }.not_to raise_error
+            expect(ErrorHandler).to have_received(:handle_service_error).with(instance_of(StandardError))
+          end
+        end
       end
-
-      it 'raises an Error' do
-        expect do
-          retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
-      end
-    end
-
-    it 'returns an Entity object with correct data' do
-      allow(service).to receive(:call)
-        .with(endpoint: 'get_categories_mock_data')
-        .and_return([double])
-      expect(retriever.call).to eq([entity])
     end
   end
 end

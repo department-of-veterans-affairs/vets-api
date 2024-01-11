@@ -53,6 +53,9 @@ development: &defaults
   mhv_mr_fhir_session_lock:
     namespace: mhv-mr-fhir-session-lock
     each_ttl: 10
+  mhv_session_lock:
+    namespace: mhv-session-lock
+    each_ttl: 10
   mdot:
     namespace: mdot
     each_ttl: 1800
@@ -193,6 +196,9 @@ development: &defaults
   va_profile_veteran_status:
     namespace: va_profile_veteran_status
     each_ttl: 86400
+  sidekiq_attr_package:
+    namespace: sidekiq_attr_package
+    each_ttl: 604800
 test:
   <<: *defaults
   redis:

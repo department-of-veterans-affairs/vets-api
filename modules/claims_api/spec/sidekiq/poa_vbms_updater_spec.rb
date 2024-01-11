@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is present and allowed' do
-    let(:allow_poa_c_add) { 'y' }
+    let(:allow_poa_c_add) { 'Y' }
     let(:consent_address_change) { true }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -28,7 +28,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is present and not allowed' do
-    let(:allow_poa_c_add) { 'n' }
+    let(:allow_poa_c_add) { 'N' }
     let(:consent_address_change) { false }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -39,13 +39,28 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is not present' do
-    let(:allow_poa_c_add) { 'n' }
+    let(:allow_poa_c_add) { 'N' }
     let(:consent_address_change) { nil }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
       poa = create_poa
       create_mock_lighthouse_service
       subject.new.perform(poa.id)
+    end
+  end
+
+  context 'when BGS fails the error is handled' do
+    let(:allow_poa_c_add) { 'Y' }
+    let(:consent_address_change) { true }
+
+    it 'marks the form as errored' do
+      poa = create_poa
+      create_mock_lighthouse_service_bgs_failure # API-31645 real life example
+      subject.new.perform(poa.id)
+
+      poa.reload
+      expect(poa.status).to eq('errored')
+      expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
     end
   end
 
@@ -72,5 +87,26 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     service_double = instance_double('BGS::Services')
     expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)
+  end
+
+  def create_mock_lighthouse_service_bgs_failure
+    allow_any_instance_of(BGS::Services).to receive(:corporate_update) do |_instance|
+      corporate_update_stub = instance_double('BGS::CorporateUpdate')
+      allow(corporate_update_stub).to receive(:update_poa_access)
+        .with(
+          participant_id: user.participant_id,
+          poa_code: '074',
+          allow_poa_access: 'y',
+          allow_poa_c_add:
+        ).and_return({ return_code: 'GUIE50000' })
+      corporate_update_stub
+    end
+
+    allow(BGS::Services).to receive(:new) do
+      services_double = instance_double('BGS::Services')
+      allow(services_double).to receive(:corporate_update)
+        .and_raise(BGS::ShareError.new('updatePoaAccess: No POA found on system of record'))
+      services_double
+    end
   end
 end

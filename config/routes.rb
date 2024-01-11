@@ -48,6 +48,8 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
+    resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
+    resource :virtual_agent_token_nlu, only: [:create], controller: :virtual_agent_token_nlu
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
@@ -70,6 +72,8 @@ Rails.application.routes.draw do
         post ':id', to: 'letters#download'
       end
     end
+
+    resources :letters_discrepancy, only: [:index]
 
     resources :letters_generator, only: [:index] do
       collection do
@@ -457,7 +461,9 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
+  mount Vye::Engine, at: '/vye'
   # End Modules
 
   require 'sidekiq/web'

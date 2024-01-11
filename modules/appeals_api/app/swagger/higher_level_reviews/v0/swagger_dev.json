@@ -45,128 +45,7 @@
           }
         ],
         "parameters": [
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
-            "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-First-Name",
-            "required": true,
-            "description": "Veteran's first name",
-            "example": "Cara",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Middle-Initial",
-            "required": false,
-            "description": "Veteran's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Last-Name",
-            "required": true,
-            "description": "Veteran's last name",
-            "example": "Bartlett",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Birth-Date",
-            "required": true,
-            "description": "Veteran's birth date",
-            "example": "1975-02-14",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Birth-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Insurance-Policy-Number",
-            "required": false,
-            "description": "Veteran's insurance policy number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-First-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Middle-Initial",
-            "required": false,
-            "description": "Non-Veteran claimant's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Last-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-SSN",
-            "required": false,
-            "description": "Non-Veteran claimant's SSN",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Birth-Date",
-            "required": false,
-            "description": "Non-Veteran claimant's Birth Date",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
-            }
-          }
+
         ],
         "responses": {
           "201": {
@@ -2180,6 +2059,19 @@
                             "ROC",
                             "ROK",
                             "Singapore",
+                            "SystemV/AST4",
+                            "SystemV/AST4ADT",
+                            "SystemV/CST6",
+                            "SystemV/CST6CDT",
+                            "SystemV/EST5",
+                            "SystemV/EST5EDT",
+                            "SystemV/HST10",
+                            "SystemV/MST7",
+                            "SystemV/MST7MDT",
+                            "SystemV/PST8",
+                            "SystemV/PST8PDT",
+                            "SystemV/YST9",
+                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2296,128 +2188,7 @@
           }
         ],
         "parameters": [
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
-            "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-First-Name",
-            "required": true,
-            "description": "Veteran's first name",
-            "example": "Cara",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Middle-Initial",
-            "required": false,
-            "description": "Veteran's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Last-Name",
-            "required": true,
-            "description": "Veteran's last name",
-            "example": "Bartlett",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Birth-Date",
-            "required": true,
-            "description": "Veteran's birth date",
-            "example": "1975-02-14",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Birth-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Insurance-Policy-Number",
-            "required": false,
-            "description": "Veteran's insurance policy number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-First-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Middle-Initial",
-            "required": false,
-            "description": "Non-Veteran claimant's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Last-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-SSN",
-            "required": false,
-            "description": "Non-Veteran claimant's SSN",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Birth-Date",
-            "required": false,
-            "description": "Non-Veteran claimant's Birth Date",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
-            }
-          }
+
         ],
         "responses": {
           "200": {
@@ -3056,6 +2827,13 @@
           }
         }
       },
+      "fileNumber": {
+        "description": "Veteran's VA file number (c-file / css)",
+        "type": "string",
+        "minLength": 7,
+        "maxLength": 9,
+        "example": "987654321"
+      },
       "hlrCreate": {
         "type": "object",
         "description": "JSON Schema for VA Form 20-0996",
@@ -3466,6 +3244,14 @@
           "data"
         ]
       },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17,
+        "example": "1012832025V743496"
+      },
       "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
@@ -3502,6 +3288,13 @@
           "areaCode",
           "phoneNumber"
         ]
+      },
+      "ssn": {
+        "type": "string",
+        "description": "Social Security Number",
+        "pattern": "^[0-9]{9}",
+        "minLength": 9,
+        "maxLength": 9
       },
       "timezone": {
         "type": "string",
@@ -4084,6 +3877,19 @@
           "ROC",
           "ROK",
           "Singapore",
+          "SystemV/AST4",
+          "SystemV/AST4ADT",
+          "SystemV/CST6",
+          "SystemV/CST6CDT",
+          "SystemV/EST5",
+          "SystemV/EST5EDT",
+          "SystemV/HST10",
+          "SystemV/MST7",
+          "SystemV/MST7MDT",
+          "SystemV/PST8",
+          "SystemV/PST8PDT",
+          "SystemV/YST9",
+          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",
@@ -4108,119 +3914,6 @@
       "uuid": {
         "type": "string",
         "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
-      },
-      "X-VA-Birth-Date": {
-        "description": "Veteran's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "type": "string"
-          }
-        ]
-      },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": "string",
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": "^[0-9]{10}V[0-9]{6}$"
-      },
-      "X-VA-Insurance-Policy-Number": {
-        "allOf": [
-          {
-            "description": "Veteran's insurance policy number",
-            "maxLength": 18
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Birth-Date": {
-        "description": "Non-veteran claimant's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-NonVeteranClaimant-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-SSN": {
-        "type": "string",
-        "description": "Non-Veteran claimants's SSN",
-        "pattern": "^[0-9]{9}$"
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

@@ -12,17 +12,19 @@ module AskVAApi
         @service = service || default_service
       end
 
-      def fetch_by_inquiry_number(inquiry_number:)
-        validate_input(inquiry_number, 'Invalid Inquiry Number')
-        reply = Correspondences::Retriever.new(inquiry_number:, service:).call
-        data = fetch_data(payload: { inquiry_number: })
-        Entity.new(data, reply)
+      def fetch_by_id(id:)
+        validate_input(id, 'Invalid ID')
+        reply = Correspondences::Retriever.new(inquiry_id: id, service:).call
+        data = fetch_data(payload: { id: })
+        return {} if data.blank?
+
+        Entity.new(data.first, reply)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
 
       def fetch_by_icn
-        validate_input(icn, 'Invalid SEC_ID')
+        validate_input(icn, 'Invalid ICN')
         fetch_data(payload: { icn: }).map { |inq| Entity.new(inq) }
       rescue => e
         ErrorHandler.handle_service_error(e)
@@ -31,7 +33,7 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(icn:)
+        Crm::Service.new(icn:)
       end
 
       def fetch_data(payload: {})

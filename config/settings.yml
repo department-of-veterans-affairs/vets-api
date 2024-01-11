@@ -129,8 +129,8 @@ mcp:
     mock_vista: false
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   notifications:
-    job_interval: 90
-    batch_size: 100
+    job_interval: 10
+    batch_size: 10
 
 fsr:
   prefill: true
@@ -260,11 +260,6 @@ vet360:
     api_key: "<AV_KEY>"
   health_benefit:
     mock: true
-  disability:
-    cache_enabled: false
-    enabled: true
-    timeout: 30
-    mock: false
 
 # Settings for IHub
 ihub:
@@ -666,7 +661,7 @@ ask_va_api:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
-    
+
 #Settings for Claims Api Module
 claims_api:
   pdf_generator_526:
@@ -705,6 +700,10 @@ connected_apps_api:
     url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
     api_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
+
+authorization_server_scopes_api:
+  auth_server:
+    url: https://sandbox-api.va.gov/internal/auth/v2/server
 
 redis:
   host: localhost
@@ -1275,6 +1274,8 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_secret_msft: fake_secret
+  webchat_secret_nlu: fake_secret
   webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
@@ -1689,3 +1690,25 @@ brd:
 
 xlsx_file_fetcher:
   github_access_token: ~
+
+vye:
+  ivr_key: ~
+  # The scrypt hash below contains keyword arguments that are passed wholesale to OpenSSL::KDF::scrypt:
+  #
+  # | Key  | Description                                          |
+  # | ---- | ---------------------------------------------------- |
+  # | salt | Salt                                                 |
+  # | N    | CPU/memory cost parameter. This must be a power of 2 |
+  # | r    | Block size parameter                                 |
+  # | p    | Parallelization parameter                            |
+  #
+  # See OpenSSL documentation for more information:
+  #   https://ruby-doc.org/core-3.1.2/OpenSSL/KDF.html#method-c-scrypt
+  # See OWASP Cheat Sheet Series for more information about the best configuration for production:
+  #   https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt
+  scrypt:
+    salt: ~
+    N: 16384
+    r: 8
+    p: 1
+    length: 16
