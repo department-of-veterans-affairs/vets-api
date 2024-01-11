@@ -10,7 +10,6 @@ module RepAddresses
       @file_content = file_content
     end
 
-    # Main method to process the file
     def process
       data = {}
 
@@ -41,9 +40,8 @@ module RepAddresses
       data = []
       column_map = build_column_index_map(xlsx.sheet(sheet_name).row(1))
 
-      xlsx.sheet(sheet_name).each_row_streaming(header: true, pad_cells: true) do |row, index|
-        # next if index.zero? || row.length < column_map.length
-        # SOMETHING FUNKY IS GOING ON HERE
+      xlsx.sheet(sheet_name).each_with_index do |row, index|
+        next if index.zero? || row.length < column_map.length
 
         data << create_json_data(row, sheet_name, column_map)
       end
@@ -72,7 +70,7 @@ module RepAddresses
       zip_code5, zip_code4 = format_zip_code(row, column_map, is_vso)
 
       {
-        id: row[column_map['Number']].value,
+        id: row[column_map['Number']],
         type: 'representative',
         email_address: format_email_address(row, sheet_name, column_map),
         request_address: {
@@ -92,36 +90,36 @@ module RepAddresses
     end
 
     def format_address_line1(row, column_map, is_vso)
-      cell = is_vso ? row[column_map['Organization.AddressLine1']] : row[column_map['WorkAddress1']]
-      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
+      value = is_vso ? row[column_map['Organization.AddressLine1']] : row[column_map['WorkAddress1']]
+      value.nil? ? nil : return_value_or_nil(value.to_s)
     end
 
     def format_address_line2(row, column_map, is_vso)
-      cell = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
-      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
+      value = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
+      value.nil? ? nil : return_value_or_nil(value.to_s)
     end
 
     def format_address_line3(row, column_map, is_vso)
-      cell = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
-      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
+      value = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
+      value.nil? ? nil : return_value_or_nil(value.to_s)
     end
 
     def format_city(row, column_map, is_vso)
-      cell = is_vso ? row[column_map['Organization.City']] : row[column_map['WorkCity']]
-      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
+      value = is_vso ? row[column_map['Organization.City']] : row[column_map['WorkCity']]
+      value.nil? ? nil : return_value_or_nil(value.to_s)
     end
 
     def format_state_province_code(row, column_map, is_vso)
-      cell = is_vso ? row[column_map['Organization.State']] : row[column_map['WorkState']]
-      cell.nil? ? nil : return_value_or_nil(cell.value.to_s)
+      value = is_vso ? row[column_map['Organization.State']] : row[column_map['WorkState']]
+      value.nil? ? nil : return_value_or_nil(value.to_s)
     end
 
     def format_zip_code(row, column_map, is_vso)
-      cell = is_vso ? row[column_map['Organization.ZipCode']] : row[column_map['WorkZip']]
+      value = is_vso ? row[column_map['Organization.ZipCode']] : row[column_map['WorkZip']]
 
-      return [nil, nil] if cell.nil?
+      return [nil, nil] if value.nil?
 
-      zip_code = cell.value.to_s
+      zip_code = value.to_s
       is_zip_plus4 = zip_code.include?('-')
       zip5 = is_zip_plus4 ? format_zip5(zip_code.split('-').first) : format_zip5(zip_code)
       zip4 = is_zip_plus4 ? format_zip4(zip_code.split('-').last) : nil
@@ -138,22 +136,22 @@ module RepAddresses
 
     def format_email_address(row, sheet_name, column_map)
       column_name = email_address_column_name(sheet_name)
-      email_address_cell = row[column_map[column_name]]
-      email?(email_address_cell) ? rstrip_cell_value(email_address_cell.value) : nil
+      value = row[column_map[column_name]]
+      email?(value) ? rstrip_value(value) : nil
     end
 
     def email_address_column_name(sheet_name)
       sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
     end
 
-    def email?(email_address_cell)
-      return false if email_address_cell.nil?
+    def email?(email_address)
+      return false if email_address.nil?
 
       email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-      email_regex.match?(rstrip_cell_value(email_address_cell.value))
+      email_regex.match?(rstrip_value(email_address))
     end
 
-    def rstrip_cell_value(value)
+    def rstrip_value(value)
       value.to_s.rstrip
     end
 
