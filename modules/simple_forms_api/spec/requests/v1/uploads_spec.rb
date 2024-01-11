@@ -198,6 +198,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     test_submit_form_with_attachments 'vba_40_0247_with_supporting_document.json'
+    test_submit_form_with_attachments 'vba_40_10007_with_supporting_document.json'
 
     def self.test_failed_request_scrubs_error_message_unhandled_form
       it 'makes the request for an unhandled form and expects a failure' do
