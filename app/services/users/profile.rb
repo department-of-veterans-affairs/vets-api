@@ -89,8 +89,8 @@ module Users
           appeals: AppealsPolicy.new(user).access?,
           ch33_bank_accounts: Ch33DdPolicy.new(user).access?,
           coe: CoePolicy.new(user).access?,
-          communication_preferences: (Vet360Policy.new(user).access? &&
-                                      CommunicationPreferencesPolicy.new(user).access?),
+          communication_preferences: Vet360Policy.new(user).access? &&
+                                      CommunicationPreferencesPolicy.new(user).access?,
           connected_apps: true,
           medical_copays: MedicalCopaysPolicy.new(user).access?,
           military_history: Vet360Policy.new(user).military_access?,
