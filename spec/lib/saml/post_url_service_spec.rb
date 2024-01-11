@@ -613,8 +613,26 @@ RSpec.describe SAML::PostURLService do
             let(:expected_log_message) { 'Redirecting to /terms-of-use' }
             let(:expected_log_payload) { { type: :ssoe } }
 
+            shared_examples 'client list' do |env, list|
+              before { allow(Settings).to receive(:vsp_environment).and_return(env) }
+
+              it 'returns the appropriate list of clients depending on the environment' do
+                expect(subject.what_clients_are_enabled)
+                  .to eq(list)
+              end
+            end
+
+            context 'when the environment is not production' do
+              include_examples 'client list', ['production', SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS]
+            end
+
+            context 'when the environment is production' do
+              include_examples 'client list',
+                               ['some-environment', SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS_STAGING]
+            end
+
             context 'when tracker application is within TERMS_OF_USE_ENABLED_CLIENTS' do
-              let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
+              let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS_STAGING.first }
 
               context 'and authentication is occuring on a review instance' do
                 let(:review_instance_slug) { 'some-review-instance-slug' }
