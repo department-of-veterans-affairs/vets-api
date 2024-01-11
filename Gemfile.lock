@@ -67,7 +67,7 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
     covid_research (0.1.0)
-      rails (~> 7.0.8)
+      rails
       sidekiq
     covid_vaccine (0.1.0)
       sidekiq
@@ -80,12 +80,12 @@ PATH
     mobile (0.1.0)
       dry-validation
     mocked_authentication (0.1.0)
-      rails (~> 7.0.8)
+      rails
     my_health (0.1.0)
-      rails (~> 7.0.8)
+      rails
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
-      rails (~> 7.0.8)
+      rails
     travel_pay (0.1.0)
     va_forms (0.0.1)
       faraday
