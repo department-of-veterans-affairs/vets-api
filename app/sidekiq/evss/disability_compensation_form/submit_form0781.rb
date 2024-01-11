@@ -158,15 +158,15 @@ module EVSS
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "VA.gov Submission" at the top of each page
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
+        submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
         stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
-                                                                   timestamp: @submission&.created_at)
+                                                                   timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
-          x: 510,
-          y: 775,
-          text_only: true,
-          timestamp: @submission&.created_at
+          x: 450,
+          y: 675,
+          text_only: true
         )
       end
 
