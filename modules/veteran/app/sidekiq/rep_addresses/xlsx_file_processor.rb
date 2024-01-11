@@ -15,10 +15,7 @@ module RepAddresses
 
       open_spreadsheet do |xlsx|
         SHEETS_TO_PROCESS.each do |sheet_name|
-          if xlsx.sheet(sheet_name)
-            data[sheet_name] = []
-            data[sheet_name] << process_sheet(xlsx, sheet_name)
-          end
+          data[sheet_name] = process_sheet(xlsx, sheet_name) if xlsx.sheet(sheet_name)
         end
       end
 
