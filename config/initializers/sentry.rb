@@ -5,7 +5,7 @@
 require 'sentry/event_scrubber'
 
 # This custom Transport class is need to log the error
-# https://github.com/getsentry/sentry-ruby/issues/1583
+# https://github.com/getsentry/sentry-ruby/issues/1583r
 transport = Class.new(Sentry::HTTPTransport) do
   def send_data(data)
     super
@@ -29,7 +29,7 @@ Rails.application.reloader.to_prepare do
     # Sentry removed processors
     # https://docs.sentry.io/platforms/ruby/migration/#removed-processors
     config.before_send = lambda do |event, hint|
-      return Sentry::EventScrubber.new(event, hint).cleaned_event
+      Sentry::EventScrubber.new(event, hint).cleaned_event
     end
   end
 end
