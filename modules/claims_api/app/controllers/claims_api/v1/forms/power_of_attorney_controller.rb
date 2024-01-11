@@ -98,7 +98,6 @@ module ClaimsApi
         def active # rubocop:disable Metrics/MethodLength
           validate_user_is_accredited! if header_request? && !token.client_credentials_token?
 
-
           unless current_poa_code
             claims_v1_logging('poa_active', message: "POA not found, poa: #{@power_of_attorney&.id}")
           end

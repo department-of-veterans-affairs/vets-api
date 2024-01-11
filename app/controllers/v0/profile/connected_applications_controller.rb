@@ -26,7 +26,7 @@ module V0
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
         begin
-          response = Faraday.delete(url_with_params, nil ,headers)
+          response = Faraday.delete(url_with_params, nil, headers)
 
           if response.status == 204
             head :no_content
@@ -48,7 +48,7 @@ module V0
         url_with_params = "#{grant_url}?#{URI.encode_www_form(payload)}"
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
-        response = Faraday.get(url_with_params, {} ,headers)
+        response = Faraday.get(url_with_params, {}, headers)
 
         if response.status == 200
           parsed_response = JSON.parse(response.body)

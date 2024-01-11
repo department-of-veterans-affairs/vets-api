@@ -35,7 +35,7 @@ module ClaimsApi
         apiKey: Settings.claims_api.token_validation.api_key
       }
 
-      response = Faraday.post(token_validation_url, payload, headers)
+      Faraday.post(token_validation_url, payload, headers)
     rescue Faraday::Error => e
       error = JSON.parse(e.response)
       if !error['errors'].nil? && error['errors'].size.positive?
