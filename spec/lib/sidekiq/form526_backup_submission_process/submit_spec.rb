@@ -84,13 +84,29 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 expect(jid).to eq(jid_from_jobs)
                 described_class.drain
                 expect(jid).not_to be_empty
+
+                # After 526 succeeds ancillary form go through their backup submission process
+
+                # Form 4142 Backup Submission Process
+                expect(submission.form['form4142']).not_to be(nil)
+                form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
+                  form_data: submission.form['form4142'], submission_id: submission.id)
+                request_body = form4142_processor.request_body
+                metadata_hash = JSON.parse(request_body['metadata'])
+                form4142_received_date = metadata_hash['receiveDt'].to_date
+                expect(submission.created_at.to_date).to eq(form4142_received_date)
+
+                # Form 0781 Backup Submission Process
+                expect(submission.form['form0781']).not_to be(nil)
+                # not really a way to test the dates here
+
                 job_status = Form526JobStatus.last
                 expect(job_status.form526_submission_id).to eq(submission.id)
                 expect(job_status.job_class).to eq('BackupSubmission')
                 expect(job_status.job_id).to eq(jid)
                 expect(job_status.status).to eq('success')
                 submission = Form526Submission.last
-                expect(submission.form['form4142']).not_to be(nil)
+
                 expect(submission.backup_submitted_claim_id).not_to be(nil)
               end
             end
