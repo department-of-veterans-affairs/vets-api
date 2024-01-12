@@ -778,7 +778,7 @@ GEM
       nokogiri (~> 1.14)
     rails-session_cookie (0.3.0)
       rails (>= 4.0)
-    rails_semantic_logger (4.14.0)
+    rails_semantic_logger (4.12.0)
       rack
       railties (>= 5.1)
       semantic_logger (~> 4.13)
@@ -1204,7 +1204,7 @@ DEPENDENCIES
   rack-vcr
   rails (= 7.1.2)
   rails-session_cookie
-  rails_semantic_logger
+  rails_semantic_logger (= 4.12.0)
   rainbow
   redis
   redis-namespace
