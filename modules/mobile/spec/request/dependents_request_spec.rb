@@ -83,10 +83,10 @@ RSpec.describe 'dependents', type: :request do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
         expect(response).to have_http_status(:accepted)
-        submitPdfJobId = VBMS::SubmitDependentsPdfEncryptedJob.jobs.first['jid']
-        submitFormJobId = BGS::SubmitForm686cEncryptedJob.jobs.first['jid']
-        expect(response.parsed_body).to eq({ 'data' => { 'submitPdfJobId' => submitPdfJobId,
-                                                         'submitFormJobId' => submitFormJobId } })
+        submit_pdf_job_id = VBMS::SubmitDependentsPdfEncryptedJob.jobs.first['jid']
+        submit_form_job_id = BGS::SubmitForm686cEncryptedJob.jobs.first['jid']
+        expect(response.parsed_body).to eq({ 'data' => { 'submitPdfJobId' => submit_pdf_job_id,
+                                                         'submitFormJobId' => submit_form_job_id } })
       end
     end
 
