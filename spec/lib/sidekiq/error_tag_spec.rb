@@ -21,10 +21,10 @@ describe Sidekiq::ErrorTag do
     ApplicationController.new.send(:set_tags_and_extra_context)
   end
 
-  it 'tags raven before each sidekiq job' do
+  it 'tags sentry before each sidekiq job' do
     TestJob.perform_async
-    expect(Raven).to receive(:tags_context).with(job: 'TestJob', request_id: '123', source: 'myapp')
-    expect(Raven).to receive(:user_context).with(id: 'N/A', remote_ip: '99.99.99.99', user_agent: 'banana')
+    expect(Sentry).to receive(:set_tags).with(job: 'TestJob', request_id: '123', source: 'myapp')
+    expect(Sentry).to receive(:set_user).with(id: 'N/A', remote_ip: '99.99.99.99', user_agent: 'banana')
     TestJob.drain
   end
 

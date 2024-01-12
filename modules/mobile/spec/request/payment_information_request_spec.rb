@@ -191,7 +191,7 @@ RSpec.describe 'payment information', type: :request do
       it 'logs a message to Sentry' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
-          expect(Raven).to receive(:capture_message).once
+          expect(Sentry).to receive(:capture_message).once
 
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)

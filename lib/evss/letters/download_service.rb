@@ -39,10 +39,7 @@ module EVSS
           when 404
             raise Common::Exceptions::RecordNotFound, type
           else
-            Raven.extra_context(
-              url: config.base_path,
-              body: response.body
-            )
+            Sentry.set_extras(url: config.base_path, body: response.body)
             raise_backend_exception('EVSS502', 'Letters')
           end
         end
