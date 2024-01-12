@@ -164,8 +164,8 @@ module EVSS
                                                                    timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
-          x: 450,
-          y: 675,
+          x: 510,
+          y: 775,
           text_only: true
         )
       end
