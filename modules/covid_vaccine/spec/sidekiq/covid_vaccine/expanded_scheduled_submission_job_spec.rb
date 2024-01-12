@@ -47,7 +47,7 @@ RSpec.describe CovidVaccine::ExpandedScheduledSubmissionJob, type: :worker do
       it 'raises an exception when an error occurs' do
         Sidekiq::Testing.inline! do
           with_settings(Settings.sentry, dsn: 'T') do
-            expect(Raven).to receive(:capture_exception)
+            expect(Sentry).to receive(:capture_exception)
             expect { subject.perform }.to raise_error(ActiveRecord::ActiveRecordError)
             expect(CovidVaccine::ExpandedSubmissionJob.jobs.size).to eq(0)
             expect(submission.reload.state).to match('enrollment_pending')
