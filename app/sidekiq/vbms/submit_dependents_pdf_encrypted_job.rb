@@ -10,14 +10,14 @@ module VBMS
     attr_reader :claim
 
     sidekiq_retries_exhausted do |msg, error|
-      Rails.logger.error('VBMS::SubmitDependentsPdfJob failed, retries exhausted!',
+      Rails.logger.error('VBMS::SubmitDependentsPdfEncryptedJob failed, retries exhausted!',
                          { saved_claim_id: msg['args'][0], error: })
     end
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, encrypted_vet_info, submittable_686_form, submittable_674_form)
       va_file_number_with_payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.info('VBMS::SubmitDependentsPdfJob running!', { saved_claim_id: })
+      Rails.logger.info('VBMS::SubmitDependentsPdfEncryptedJob running!', { saved_claim_id: })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
 
@@ -26,9 +26,9 @@ module VBMS
       upload_attachments
 
       generate_pdf(submittable_686_form, submittable_674_form)
-      Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
+      Rails.logger.info('VBMS::SubmitDependentsPdfEncryptedJob succeeded!', { saved_claim_id: })
     rescue => e
-      Rails.logger.warn('VBMS::SubmitDependentsPdfJob failed, retrying...', { saved_claim_id:, error: e.message })
+      Rails.logger.warn('VBMS::SubmitDependentsPdfEncryptedJob failed, retrying...', { saved_claim_id:, error: e.message })
       send_error_to_sentry(e, saved_claim_id)
       @saved_claim_id = saved_claim_id
       raise

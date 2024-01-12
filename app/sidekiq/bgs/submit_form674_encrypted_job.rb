@@ -16,17 +16,21 @@ module BGS
     sidekiq_retries_exhausted do |msg, error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
+      Rails.logger.error('BGS::SubmitForm674EncryptedJob failed, retries exhausted...',
                          { user_uuid:, saved_claim_id:, icn:, error: })
-      user ||= BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, vet_info)
-      CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      if Flipper.enabled?(:dependents_central_submission)
+        user ||= BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, vet_info)
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      else
+        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse # Temporary for flipper
+      end
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
+      Rails.logger.info('BGS::SubmitForm674EncryptedJob running!', { user_uuid:, saved_claim_id:, icn: })
 
       @user = BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, @vet_info)
       @user_uuid = user_uuid
@@ -41,9 +45,9 @@ module BGS
 
       send_confirmation_email
       in_progress_form&.destroy
-      Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
+      Rails.logger.info('BGS::SubmitForm674EncryptedJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
+      Rails.logger.warn('BGS::SubmitForm674EncryptedJob received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
