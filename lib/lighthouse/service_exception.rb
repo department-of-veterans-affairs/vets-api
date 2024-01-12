@@ -94,15 +94,13 @@ module Lighthouse
         base_key_string
       )
 
-      extra_context = Raven.extra_context(
+      extra_context = Sentry.set_extras(
         message: error.message,
         url:,
         client_id: lighthouse_client_id
       )
 
-      tags_context = Raven.tags_context(
-        external_service: service_name
-      )
+      tags_context = Sentry.set_tags(external_service: service_name)
 
       log_exception_to_sentry(error, extra_context, tags_context)
     end

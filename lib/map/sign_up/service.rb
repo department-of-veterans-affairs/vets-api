@@ -74,8 +74,10 @@ module MAP
       end
 
       def successful_update_provisioning_response(response, icn)
+        parsed_response = parse_response(response.body, icn, 'update provisioning')
         Rails.logger.info("#{config.logging_prefix} update provisioning success, icn: #{icn}")
-        parse_response(response.body, icn, 'update provisioning')
+
+        parsed_response
       end
 
       def parse_and_raise_error(e, icn, action)
@@ -102,6 +104,7 @@ module MAP
           bypass_eligible: parsed_response_body['bypassEligible']
         }
       rescue => e
+        Rails.logger.error("#{config.logging_prefix} #{action} response parsing error", { response_body:, icn: })
         raise e, "#{config.logging_prefix} #{action} failed, response unknown, icn: #{icn}"
       end
     end
