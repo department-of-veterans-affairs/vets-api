@@ -53,11 +53,11 @@ module IHub
           IHub::Appointments::Response.from(response)
         end
       rescue => e
-        Raven.extra_context(
+        Sentry.set_extras(
           message: e.message,
           url: config.base_path
         )
-        Raven.tags_context(ihub: 'appointments')
+        Sentry.set_tags(ihub: 'appointments')
 
         raise e
       end
@@ -101,10 +101,10 @@ module IHub
       end
 
       def log_error(response)
-        Raven.extra_context(
+        Sentry.set_extras(
           response_body: response.body.merge('status_code' => response.status)
         )
-        Raven.tags_context(ihub: 'appointments_error_occurred')
+        Sentry.set_tags(ihub: 'appointments_error_occurred')
       end
     end
   end

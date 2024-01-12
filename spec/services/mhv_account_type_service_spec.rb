@@ -33,7 +33,7 @@ RSpec.describe MHVAccountTypeService do
 
     it '#mhv_account_type returns known account type' do
       VCR.use_cassette('mhv_account_type_service/premium') do
-        expect(Raven).not_to receive(:capture_message)
+        expect(Sentry).not_to receive(:capture_message)
         expect(subject.mhv_account_type).to eq('Whatever')
       end
     end
@@ -43,7 +43,7 @@ RSpec.describe MHVAccountTypeService do
     it '#mhv_account_type returns Premium' do
       VCR.use_cassette('mhv_account_type_service/premium') do
         eligible_data_classes = subject.eligible_data_classes
-        # expect(Raven).not_to receive(:capture_message)
+        # expect(Sentry).not_to receive(:capture_message)
         expect(eligible_data_classes.count).to eq(32)
         expect(subject.mhv_account_type).to eq('Premium')
         described_class.new(user)
@@ -71,7 +71,7 @@ RSpec.describe MHVAccountTypeService do
     it '#mhv_account_type returns Advanced' do
       VCR.use_cassette('mhv_account_type_service/advanced') do
         eligible_data_classes = subject.eligible_data_classes
-        expect(Raven).not_to receive(:capture_message)
+        expect(Sentry).not_to receive(:capture_message)
         expect(eligible_data_classes.count).to eq(18)
         expect(subject.mhv_account_type).to eq('Advanced')
       end
@@ -82,7 +82,7 @@ RSpec.describe MHVAccountTypeService do
     it '#mhv_account_type returns Basic' do
       VCR.use_cassette('mhv_account_type_service/basic') do
         eligible_data_classes = subject.eligible_data_classes
-        expect(Raven).not_to receive(:capture_message)
+        expect(Sentry).not_to receive(:capture_message)
         expect(eligible_data_classes.count).to eq(16)
         expect(subject.mhv_account_type).to eq('Basic')
       end
