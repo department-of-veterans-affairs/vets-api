@@ -70,7 +70,7 @@
                                 "claimantType": "veteran",
                                 "veteran": {
                                   "ssn": "123456789",
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "firstName": "Jäñe",
                                   "middleInitial": "ø",
                                   "lastName": "Doé",
@@ -129,7 +129,7 @@
                                 "claimantTypeOtherValue": "Veteran Attorney",
                                 "veteran": {
                                   "ssn": "123456789",
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "firstName": "Jäñe",
                                   "middleInitial": "ø",
                                   "lastName": "Doé",
@@ -445,7 +445,7 @@
                         "claimantType": "veteran",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -493,7 +493,7 @@
                         "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -2582,7 +2582,7 @@
                         "claimantType": "veteran",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -2630,7 +2630,7 @@
                         "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
