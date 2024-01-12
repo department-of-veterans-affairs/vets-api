@@ -1358,7 +1358,7 @@ module PdfFill
           custodian_hash = {
             'custodian' => dependent['personWhoLivesWithChild'],
             'custodianAddress' => dependent['childAddress']
-                           .merge({ 'postalCode' => split_postal_code(d['childAddress']) })
+                           .merge({ 'postalCode' => split_postal_code(dependent['childAddress']) })
           }
           custodian_addresses[custodian_key] = custodian_hash if custodian_addresses[custodian_key].nil?
         end
@@ -1398,7 +1398,7 @@ module PdfFill
                           'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
                           'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
                           'childStatusOverflow' => child_status_overflow(dependent).join(', '),
-                          'monthlyPayment' => split_currency_amount(d['monthlyPayment']),
+                          'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
                           'monthlyPaymentOverflow' => ActiveSupport::NumberHelper.number_to_currency(
                             dependent['monthlyPayment']
                           )
