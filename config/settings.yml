@@ -704,6 +704,10 @@ connected_apps_api:
     api_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
 
+authorization_server_scopes_api:
+  auth_server:
+    url: https://sandbox-api.va.gov/internal/auth/v2/server
+
 redis:
   host: localhost
   port: 6379
