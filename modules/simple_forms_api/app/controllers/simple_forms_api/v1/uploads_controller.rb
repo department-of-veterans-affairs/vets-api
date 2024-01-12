@@ -31,6 +31,7 @@ module SimpleFormsApi
         if form_is210966 && icn
           handle_210966_authenticated
         else
+      
           submit_form_to_central_mail
         end
       rescue => e
@@ -38,15 +39,26 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
+        attachment = nil
+      
         if params[:form_id] == '40-0247'
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: '40-0247')
+        elsif params[:form_id] == '40-10007'
+          attachment = PersistentAttachments::PensionBurial.new(form_id: '40-10007')
+        end
+      
+        if attachment
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
-
+      
           attachment.save
           render json: attachment
+        else
+          # Handle cases where form_id doesn't match any conditions
+          render json: { error: 'Invalid form_id' }, status: :unprocessable_entity
         end
       end
+      
 
       def authenticate
         super
@@ -81,8 +93,10 @@ module SimpleFormsApi
         file_path = filler.generate
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
-        form.handle_attachments(file_path) if form_id == 'vba_40_10007'
+        if form_id == 'vba_40_0247' || form_id == 'vba_40_10007'
+          form.handle_attachments(file_path)
+        end
+        
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
