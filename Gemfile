@@ -35,7 +35,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.1.2'
+gem 'rails', '= 7.1.0'
 
 gem 'aasm'
 gem 'active_model_serializers'
