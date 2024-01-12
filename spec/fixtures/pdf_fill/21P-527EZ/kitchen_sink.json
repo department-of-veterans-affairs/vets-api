@@ -34,7 +34,6 @@
   "socialSecurityDisability": false,
   "medicalCondition": false,
   "nursingHome": true,
-  "medicaidCoverage": false,
   "medicaidStatus": true,
   "specialMonthlyPension": false,
   "vaTreatmentHistory": true,
@@ -163,8 +162,6 @@
       "childPlaceOfBirth": "Tallahassee, FL",
       "childSocialSecurityNumber": "333224444",
       "childRelationship": "biological",
-      "attendingCollege": true,
-      "disabled": true,
       "previouslyMarried": true,
       "married": true,
       "fullName": {
@@ -179,7 +176,6 @@
       "childPlaceOfBirth": "Troy, MT",
       "childSocialSecurityNumber": "333224444",
       "childRelationship": "adopted",
-      "disabled": false,
       "previouslyMarried": false,
       "fullName": {
         "first": "Emily",
@@ -206,7 +202,6 @@
       "childPlaceOfBirth": "Troy, MT",
       "childSocialSecurityNumber": "333224444",
       "childRelationship": "biological",
-      "disabled": false,
       "previouslyMarried": false,
       "fullName": {
         "first": "Jack",
@@ -326,27 +321,27 @@
       "typeOfIncome": "SOCIAL_SECURITY",
       "receiver": "Jane Doe",
       "payer": "John Doe",
-      "amount": 278
+      "amount": 278.05
     },
     {
       "typeOfIncome": "INTEREST_DIVIDEND",
       "receiver": "Jane Doe",
       "payer": "John Doe",
-      "amount": 78
+      "amount": 78.5
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "part-time Uber",
       "receiver": "Jane Doe",
       "payer": "John Doe",
-      "amount": 278
+      "amount": 278.99
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "full time job",
       "receiver": "Jane Doe",
       "payer": "John Doe",
-      "amount": 3278
+      "amount": 3278.75
     }
   ],
   "bankAccount": {
