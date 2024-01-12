@@ -9,7 +9,7 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
   def check_values(hash)
     invalid_values = ['', 'NULL', 'null']
 
-    hash.each do |_key, value|
+    hash.each_value do |value|
       if value.is_a?(String)
         expect(invalid_values).not_to include(value)
       elsif value.is_a?(Hash)
@@ -32,7 +32,7 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
         expect(result).to be_a(Hash)
         expect(result.keys).to include('Attorneys', 'Representatives')
 
-        result.each do |_key, value_array|
+        result.each_value do |value_array|
           expect(value_array).to all(be_a(String))
 
           value_array.each do |json_string|
