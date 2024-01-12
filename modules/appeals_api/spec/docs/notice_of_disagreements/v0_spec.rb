@@ -145,7 +145,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                 required: true,
                 examples:)
 
-      examples.each do |_, v|
+      examples.each_value do |v|
         response '200', 'The JSON schema for the given `schema_type` parameter' do
           let(:schema_type) { v[:value] }
           it_behaves_like 'rswag example',
