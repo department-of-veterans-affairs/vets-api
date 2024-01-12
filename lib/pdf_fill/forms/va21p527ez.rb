@@ -516,6 +516,107 @@ module PdfFill
             key: 'form1[0].#subform[49].Monthly_Amount[2]'
           }
         },
+        # 7
+        'marriages' => {
+          limit: 2,
+          first_key: 'spouseFullName',
+          question_num: 7,
+          'spouseFullName' => {
+            question_text: 'WHO WERE YOU MARRIED TO?',
+            question_suffix: 'A',
+            'first' => {
+              key: 'Marriages.Veterans_Prior_Spouse_FirstName[%iterator%]'
+            },
+            'middle' => {
+              key: 'Marriages.Veterans_Prior_Spouse_MiddleInitial1[%iterator%]'
+            },
+            'last' => {
+              key: 'Marriages.Veterans_Prior_Spouse_LastName[%iterator%]'
+            }
+          },
+          'reasonForSeparation' => {
+            key: 'Marriages.Previous_Marriage_End_Reason[%iterator%]'
+          },
+          'otherExplanation' => {
+            key: 'Marriages.Other_Specify[%iterator%]'
+          },
+          'dateOfMarriage' => {
+            'month' => {
+              key: 'Marriages.Date_Of_Prior_Marriage_Start_Month[%iterator%]'
+            },
+            'day' => {
+              key: 'Marriages.Date_Of_Prior_Marriage_Start_Day[%iterator%]'
+            },
+            'year' => {
+              key: 'Marriages.Date_Of_Prior_Marriage_Start_Year[%iterator%]'
+            }
+          },
+          'dateOfSeparation' => {
+            'month' => {
+              key: 'Marriages.Date_Of_Prior_Marriage_End_Month[%iterator%]'
+            },
+            'day' => {
+              key: 'Marriages.Date_Of_Prior_Marriage_End_Day[%iterator%]'
+            },
+            'year' => {
+              key: 'Marriages.Date_Of_Prior_Marriage_End_Year[%iterator%]'
+            }
+          },
+          'locationOfMarriage' => {
+            key: 'Marriages.Place_Of_Marriage_City_And_State_Or_Country[%iterator%]'
+          },
+          'locationOfSeparation' => {
+            key: 'Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[%iterator%]'
+          }
+        },
+        'spouseMarriages' => {
+          limit: 2,
+          'spouseFullName' => {
+            'first' => {
+              key: 'Spouse_Marriages.Spouses_Prior_Spouse_FirstName[%iterator%]'
+            },
+            'middle' => {
+              key: 'Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[%iterator%]'
+            },
+            'last' => {
+              key: 'Spouse_Marriages.Spouses_Prior_Spouse_LastName[%iterator%]'
+            }
+          },
+          'reasonForSeparation' => {
+            key: 'Spouse_Marriages.Previous_Marriage_End_Reason[%iterator%]'
+          },
+          'otherExplanation' => {
+            key: 'Spouse_Marriages.Other_Specify[%iterator%]'
+          },
+          'dateOfMarriage' => {
+            'month' => {
+              key: 'Spouse_Marriages.Date_Of_Prior_Marriage_Start_Month[%iterator%]'
+            },
+            'day' => {
+              key: 'Spouse_Marriages.Date_Of_Prior_Marriage_Start_Day[%iterator%]'
+            },
+            'year' => {
+              key: 'Spouse_Marriages.Date_Of_Prior_Marriage_Start_Year[%iterator%]'
+            }
+          },
+          'dateOfSeparation' => {
+            'month' => {
+              key: 'Spouse_Marriages.Date_Of_Prior_Marriage_End_Month[%iterator%]'
+            },
+            'day' => {
+              key: 'Spouse_Marriages.Date_Of_Prior_Marriage_End_Day[%iterator%]'
+            },
+            'year' => {
+              key: 'Spouse_Marriages.Date_Of_Prior_Marriage_End_Year[%iterator%]'
+            }
+          },
+          'locationOfMarriage' => {
+            key: 'Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[%iterator%]'
+          },
+          'locationOfSeparation' => {
+            key: 'Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[%iterator%]'
+          }
+        },
         'bankAccount' => {
           # 11a
           'bankName' => {
@@ -577,6 +678,7 @@ module PdfFill
         expand_pension_information
         expand_employment_history
         expand_marital_status
+        expand_prior_marital_history
         expand_direct_deposit_information
         expand_claim_certification_and_signature
 
@@ -682,7 +784,15 @@ module PdfFill
       end
 
       def get_current_marriage(marriages)
-        current_marriage = marriages&.find { |marriage| !marriage.key?('dateOfSeparation') } || {}
+        current_marriage_index = marriages&.index { |marriage| !marriage.key?('dateOfSeparation') }
+
+        if current_marriage_index
+          current_marriage = marriages[current_marriage_index].clone
+          marriages.delete_at(current_marriage_index)
+        else
+          current_marriage = {}
+        end
+
         return current_marriage if current_marriage.empty?
 
         marriage_type = current_marriage['marriageType']
@@ -700,6 +810,25 @@ module PdfFill
         when 'LOCATION' then 2
         when 'OTHER' then 3
         else 'Off'
+        end
+      end
+
+      # SECTION VII: PRIOR MARITAL HISTORY
+      def expand_prior_marital_history
+        reason_for_separation_lookup = {
+          'death' => 0,
+          'divorce' => 1,
+          '' => 2
+        }
+        %w[marriages spouseMarriages].each do |key|
+          @form_data[key] = @form_data[key]&.map do |marriage|
+            reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+            marriage.merge({
+                             'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                             'reasonForSeparation' => reason_for_separation_lookup[reason_for_separation],
+                             'dateOfSeparation' => split_date(marriage['dateOfSeparation'])
+                           })
+          end
         end
       end
 
