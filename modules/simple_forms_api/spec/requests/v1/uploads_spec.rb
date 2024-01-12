@@ -43,6 +43,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_40_0247.json'
     test_submit_request 'vba_21_0966.json'
     test_submit_request 'vba_20_10206.json'
+    test_submit_request 'vba_40_10007.json'
 
     def self.test_saves_form_submission_attempt(test_payload)
       it 'saves a FormSubmissionAttempt' do
@@ -73,6 +74,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_saves_form_submission_attempt 'vba_40_0247.json'
     test_saves_form_submission_attempt 'vba_21_0966.json'
     test_saves_form_submission_attempt 'vba_20_10206.json'
+    test_saves_form_submission_attempt 'vba_40_10007.json'
 
     describe 'request with intent to file unauthenticated' do
       let(:expiration_date) { Time.zone.now }
@@ -150,22 +152,39 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     def self.test_submit_supporting_documents
-      it 'renders the attachment as json' do
+      it 'renders the attachment as json for form 40-0247' do
         allow(ClamScan::Client).to receive(:scan)
           .and_return(instance_double(ClamScan::Response, safe?: true))
         file = fixture_file_upload('doctors-note.gif')
-        data = { form_id: '40-0247', file: }
-
+        data = { form_id: '40-0247', file: file }
+    
         expect do
           post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
         end.to change(PersistentAttachment, :count).by(1)
-
+    
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    
+      it 'renders the attachment as json for form 40-10007' do
+        allow(ClamScan::Client).to receive(:scan)
+          .and_return(instance_double(ClamScan::Response, safe?: true))
+        file = fixture_file_upload('doctors-note.gif')
+        data = { form_id: '40-10007', file: file }
+    
+        expect do
+          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+        end.to change(PersistentAttachment, :count).by(1)
+    
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
       end
     end
+    
 
     test_submit_supporting_documents
 
@@ -192,6 +211,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     test_submit_form_with_attachments 'vba_40_0247_with_supporting_document.json'
+    test_submit_form_with_attachments 'vba_40_10007_with_supporting_document.json'
 
     def self.test_failed_request_scrubs_error_message_unhandled_form
       it 'makes the request for an unhandled form and expects a failure' do

@@ -30,7 +30,6 @@ module SimpleFormsApi
         attachments.each do |attachment|
           combined_pdf << CombinePDF.load(attachment)
         end
-
         combined_pdf.save file_path
       end
     end
