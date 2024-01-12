@@ -66,11 +66,12 @@ module ClaimsApi
         #
         # @return [JSON] Claim record
         def upload
+          check_file_number_exists!
+          check_request_ssn_matches_mpi(request&.headers&.to_h)
           validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
           find_poa_by_id
-          check_file_number_exists!
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
@@ -232,8 +233,22 @@ module ClaimsApi
           # rubocop:enable Rails/DynamicFindBy
         end
 
+        def check_request_ssn_matches_mpi(req_headers)
+          req_ssn = req_headers['HTTP_X_VA_SSN']
+          ssn = auth_headers['va_eauth_pnid']
+          unless ssn == req_ssn && !ssn.nil?
+            error_message = "The Veteran's Social Security Number did not match " \
+                            'the one found in Master Person Index (MPI). ' \
+                            'Please submit an issue at ask.va.gov ' \
+                            'or call 1-800-MyVA411 (800-698-2411) for assistance.'
+            claims_v1_logging('poa_check_request_ssn_matches_mpi',
+                              message: 'Request SSN did not match the one found in MPI.')
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
+          end
+        end
+
         def check_file_number_exists!
-          ssn = target_veteran.ssn
+          ssn = target_veteran&.ssn
 
           begin
             response = find_by_ssn(ssn)

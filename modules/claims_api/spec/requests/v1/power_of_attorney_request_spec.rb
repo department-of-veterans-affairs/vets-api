@@ -287,6 +287,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
         mock_acg(scopes) do |auth_header|
           allow_any_instance_of(pws)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:check_request_ssn_matches_mpi).and_return(nil)
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("#{path}/#{power_of_attorney.id}",
@@ -301,6 +303,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
         mock_acg(scopes) do |auth_header|
           allow_any_instance_of(pws)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:check_request_ssn_matches_mpi).and_return(nil)
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("#{path}/#{power_of_attorney.id}",
@@ -397,6 +401,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
           mock_acg(scopes) do |auth_header|
             allow_any_instance_of(pws)
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             put("#{path}/#{power_of_attorney.id}", headers: headers.merge(auth_header))
             expect(response.status).to eq(400)
             expect(response.parsed_body['errors'][0]['title']).to eq('Missing parameter')
