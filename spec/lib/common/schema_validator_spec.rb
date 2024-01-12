@@ -53,11 +53,14 @@ are allowed in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
     it 'logs an error with details' do
       modified_record = response_body['data'].first.except('id')
       response_body['data'][0] = modified_record
-      expect(Rails.logger).to receive(:error).with("Schema discrepancy found",
-      {:details=>
-        ["The property '#/data/0' did not contain a required property of 'id' in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
-       :response=> response_body.to_json,
-       :schema_file=>"modules/vaos/app/schemas/appointments.json"})
+      expect(Rails.logger).to receive(:error).with(
+        'Schema discrepancy found',
+        { details:
+          ["The property '#/data/0' did not contain a required property of 'id' in schema \
+ce30c58b-2863-5d25-ace5-b775337a4e2c"],
+          response: response_body.to_json,
+          schema_file: 'modules/vaos/app/schemas/appointments.json' }
+      )
 
       Common::SchemaValidator.new(response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
@@ -69,11 +72,14 @@ are allowed in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
         code: 'pat',
         display: 'The appointment was cancelled by the patient'
       }]
-      expect(Rails.logger).to receive(:error).with("Schema discrepancy found",
-       {:details=>
-         ["The property '#/data/0/cancelation_reason/coding/0' did not contain a required property of 'system' in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
-        :response=> response_body.to_json,
-        :schema_file=>"modules/vaos/app/schemas/appointments.json"})
+      expect(Rails.logger).to receive(:error).with(
+        'Schema discrepancy found',
+        { details:
+          ["The property '#/data/0/cancelation_reason/coding/0' did not contain a required property of 'system' \
+in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
+          response: response_body.to_json,
+          schema_file: 'modules/vaos/app/schemas/appointments.json' }
+      )
       Common::SchemaValidator.new(response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
@@ -81,12 +87,15 @@ are allowed in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
   context 'when nested property contains additional properties' do
     it 'logs an error with details' do
       response_body['data'][0]['cancelation_reason']['coding'][0]['foo'] = 'bar'
-      expect(Rails.logger).to receive(:error).with("Schema discrepancy found",
-       {:details=>
-         ["The property '#/data/0/cancelation_reason/coding/0' contains additional properties [\"foo\"] outside of the schema when none are allowed in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
-        :response=>
-         response_body.to_json,
-        :schema_file=>"modules/vaos/app/schemas/appointments.json"})
+      expect(Rails.logger).to receive(:error).with(
+        'Schema discrepancy found',
+        { details:
+          ["The property '#/data/0/cancelation_reason/coding/0' contains additional properties [\"foo\"] outside of \
+the schema when none are allowed in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
+          response:
+          response_body.to_json,
+          schema_file: 'modules/vaos/app/schemas/appointments.json' }
+      )
       Common::SchemaValidator.new(response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
@@ -94,15 +103,30 @@ are allowed in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
   context 'when property is of wrong type' do
     it 'logs an error with details' do
       response_body['data'][0]['id'] = 1
-      expect(Rails.logger).to receive(:error).with("Schema discrepancy found",
-       {:details=>
-         ["The property '#/data/0/id' of type integer did not match the following type: string in schema ce30c58b-2863-5d25-ace5-b775337a4e2c"],
-        :response=>response_body.to_json,
-        :schema_file=>"modules/vaos/app/schemas/appointments.json"})
+      expect(Rails.logger).to receive(:error).with(
+        'Schema discrepancy found',
+        { details:
+          ["The property '#/data/0/id' of type integer did not match the following type: string in schema \
+ce30c58b-2863-5d25-ace5-b775337a4e2c"],
+          response: response_body.to_json,
+          schema_file: 'modules/vaos/app/schemas/appointments.json' }
+      )
       Common::SchemaValidator.new(response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
     end
   end
 
   context 'when property violates not null constraint' do
+    it 'logs an error with details' do
+      response_body['data'][0]['service_type'] = nil
+      expect(Rails.logger).to receive(:error).with(
+        'Schema discrepancy found',
+        { details:
+         ["The property '#/data/0/service_type' of type null did not match the following type: string in schema \
+ce30c58b-2863-5d25-ace5-b775337a4e2c"],
+          response: response_body.to_json,
+          schema_file: 'modules/vaos/app/schemas/appointments.json' }
+      )
+      Common::SchemaValidator.new(response_body.to_json, 'modules/vaos/app/schemas/appointments.json').validate
+    end
   end
 end
