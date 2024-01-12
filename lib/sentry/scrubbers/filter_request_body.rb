@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
+# only change from previous file was Processor was renamed to Scrubbers
+
 module Sentry
-  module Processor
-    class FilterRequestBody < Raven::Processor
+  module Scrubbers
+    class FilterRequestBody
       FILTERED_CONTROLLERS = %w[ppiu].freeze
+
+      def new
+        self
+      end
 
       def process(data)
         sanitize(data.deep_stringify_keys)
