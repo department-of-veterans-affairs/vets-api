@@ -27,6 +27,7 @@ module Avs
     attribute :problems
     attribute :clinical_reminders
     attribute :allergies_reactions
+    attribute :clinic_medications
     attribute :va_medications
     attribute :nonva_medications
     attribute :lab_results

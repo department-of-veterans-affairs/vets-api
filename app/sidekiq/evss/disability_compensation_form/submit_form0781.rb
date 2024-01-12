@@ -124,7 +124,7 @@ module EVSS
       def perform(submission_id)
         @submission_id = submission_id
 
-        Raven.tags_context(source: '526EZ-all-claims')
+        Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do

@@ -28,6 +28,16 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                                form_json:,
                                submitted_claim_id: evss_claim_id)
     end
+    let(:metadata_hash) do
+      form4142 = submission.form[Form526Submission::FORM_4142]
+      form4142['veteranFullName'].update('first' => "Bey'oncé", 'last' => 'Knowle$-Carter')
+      form4142['veteranAddress'].update('postalCode' => '123456789')
+      subject.perform_async(submission.id)
+      jid = subject.jobs.last['jid']
+      processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
+      request_body = processor.request_body
+      JSON.parse(request_body['metadata'])
+    end
 
     context 'with a successful submission job' do
       it 'queues a job for submit' do
@@ -45,31 +55,24 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         end
       end
 
-      context 'metadata is formatted properly' do
-        let(:metadata_hash) do
-          subject.perform_async(submission.id)
-          jid = subject.jobs.last['jid']
-          processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
-          request_body = processor.request_body
-          JSON.parse(request_body['metadata'])
-        end
+      it 'uses proper submission creation date for the received date' do
+        received_date = metadata_hash['receiveDt'].to_date
+        # TODO: update this expectation to use time once we know what timezone to use
+        expect(submission.created_at.to_date).to eq(received_date)
+      end
 
-        it 'corrects for invalid characters in generated metadata' do
-          submission.form[Form526Submission::FORM_4142]['veteranFullName']
-                    .update('first' => 'Beyoncé', 'last' => 'Knowle$')
-          veteran_first_name = metadata_hash['veteranFirstName']
-          veteran_last_name = metadata_hash['veteranLastName']
-          transliterated_chars_regex = /[^\x00-\x7F]/
+      it 'corrects for invalid characters in generated metadata' do
+        veteran_first_name = metadata_hash['veteranFirstName']
+        veteran_last_name = metadata_hash['veteranLastName']
+        allowed_chars_regex = %r{^[a-zA-Z\/\-\s]}
+        expect(veteran_first_name).to match(allowed_chars_regex)
+        expect(veteran_last_name).to match(allowed_chars_regex)
+      end
 
-          expect(veteran_first_name).not_to match(transliterated_chars_regex)
-          expect(veteran_last_name).not_to match(transliterated_chars_regex)
-        end
-
-        it 'uses proper submission creation date for the received date' do
-          received_date = metadata_hash['receiveDt'].to_date
-          # TODO: update this expectation to use time once we know what timezone to use
-          expect(submission.created_at.to_date).to eq(received_date)
-        end
+      it 'reformats zip code in generated metadata' do
+        zip_code = metadata_hash['zipCode']
+        expected_zip_format = /\A[0-9]{5}(?:-[0-9]{4})?\z/
+        expect(zip_code).to match(expected_zip_format)
       end
     end
 

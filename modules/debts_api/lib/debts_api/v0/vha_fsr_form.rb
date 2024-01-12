@@ -44,7 +44,7 @@ module DebtsApi
         'debt_type' => VHA_TYPE_KEY,
         'flags' => enabled_flags,
         'streamlined' => @streamlined_data,
-        'zipcode' => (@form_data.dig('personalData', 'address', 'zipOrPostalCode') || '???')
+        'zipcode' => @form_data.dig('personalData', 'address', 'zipOrPostalCode') || '???'
       }
     end
 
@@ -79,12 +79,7 @@ module DebtsApi
 
     def streamline_adjustments(form)
       if @streamlined_data
-        if @is_streamlined
-          reasons = form.dig('personalIdentification', 'fsrReason')
-          reasons_array = reasons.nil? ? [] : reasons.split(',').map(&:strip)
-          reasons = reasons_array.push('Automatically Approved').uniq.join(', ')
-          form['personalIdentification']['fsrReason'] = reasons
-        end
+        form['personalIdentification']['fsrReason'] = 'Automatically Approved, Waiver' if @is_streamlined
         form['streamlined'] = @is_streamlined
       end
     end

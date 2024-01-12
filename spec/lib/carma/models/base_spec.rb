@@ -67,7 +67,7 @@ RSpec.describe CARMA::Models::Base, type: :model do
       )
     end
 
-    it 'will recursively parse nested models inheriting the same Base class' do
+    it 'recursivelies parse nested models inheriting the same Base class' do
       class PersonTwo < CARMA::Models::Base
         attr_accessor :name, :is_veteran, :age, :state, :favorites
 
@@ -130,7 +130,7 @@ RSpec.describe CARMA::Models::Base, type: :model do
   end
 
   describe '::after_to_request_payload' do
-    it 'will call the provided method after running #to_request_payload, and return its result' do
+    it 'calls the provided method after running #to_request_payload, and return its result' do
       class PersonThree < CARMA::Models::Base
         attr_accessor :name, :is_veteran, :age, :state, :favorites
 

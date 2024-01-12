@@ -25,6 +25,7 @@ path 'modules' do
   gem 'my_health'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
+  gem 'travel_pay'
   gem 'va_forms'
   gem 'va_notify'
   gem 'vaos'
@@ -37,7 +38,7 @@ end
 gem 'rails', github: 'rails/rails', branch: '6-1-stable'
 
 gem 'aasm'
-gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
+gem 'active_model_serializers'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
 gem 'addressable'
@@ -135,7 +136,7 @@ gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'
 gem 'savon'
-gem 'sentry-raven'
+gem 'sentry-ruby'
 gem 'shrine'
 gem 'sidekiq_alive'
 gem 'slack-notify'
@@ -144,6 +145,9 @@ gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
+# Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
+# POSIX systems should have this already, so we're not going to bring it in on other platforms
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
@@ -154,10 +158,6 @@ gem 'with_advisory_lock'
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
-
-  # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
-  # POSIX systems should have this already, so we're not going to bring it in on other platforms
-  gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
 end
