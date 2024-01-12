@@ -72,14 +72,6 @@ module SAML
       end
     end
 
-    def what_clients_are_enabled
-      if Settings.vsp_environment == 'production'
-        TERMS_OF_USE_ENABLED_CLIENTS
-      else
-        TERMS_OF_USE_ENABLED_CLIENTS_STAGING
-      end
-    end
-
     # logout URL for SSOe
     def ssoe_slo_url
       Settings.saml_ssoe.logout_url
@@ -119,6 +111,14 @@ module SAML
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
       login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
+    end
+
+    def enabled_tou_clients
+      if Settings.vsp_environment == 'production'
+        TERMS_OF_USE_ENABLED_CLIENTS
+      else
+        TERMS_OF_USE_ENABLED_CLIENTS_STAGING
+      end
     end
   end
 end
