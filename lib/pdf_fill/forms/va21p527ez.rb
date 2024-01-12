@@ -1484,7 +1484,7 @@ module PdfFill
       end
 
       def split_currency_amount(amount)
-        return {} if amount.nil? || amount.negative?
+        return {} if amount.nil? || amount.negative? || amount >= 10_000_000
 
         number_map = {
           1 => 'one',
