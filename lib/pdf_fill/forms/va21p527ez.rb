@@ -1344,49 +1344,65 @@ module PdfFill
 
       # SECTION VIII: DEPENDENT CHILDREN
       def expand_dependent_children
-        @form_data['dependentChildrenInHousehold'] = @form_data['dependents']&.select do |d|
-                                                       d['childInHousehold']
-                                                     end&.length.to_s
-        @form_data['dependents'] = @form_data['dependents']&.map do |d|
-          child_status_overflow = [d['childRelationship']]
-          child_status_overflow << 'seriously disabled' if d['disabled']
-          child_status_overflow << '18-23 years old (in school)' if d['attendingCollege']
-          child_status_overflow << 'previously married' if d['previouslyMarried']
-          child_status_overflow << 'does not live with you but contributes' unless d['childInHousehold']
-
-          d.merge({
-                    'childDateOfBirth' => split_date(d['childDateOfBirth']),
-                    'childDateOfBirthOverflow' => d['childDateOfBirth'],
-                    'childSocialSecurityNumber' => split_ssn(d['childSocialSecurityNumber']),
-                    'childSocialSecurityNumberOverflow' => d['childSocialSecurityNumber'],
-                    'childRelationship' => {
-                      'biological' => to_checkbox_on_off(d['childRelationship'] == 'biological'),
-                      'adopted' => to_checkbox_on_off(d['childRelationship'] == 'adopted'),
-                      'stepchild' => to_checkbox_on_off(d['childRelationship'] == 'stepchild')
-                    },
-                    'disabled' => to_checkbox_on_off(d['disabled']),
-                    'attendingCollege' => to_checkbox_on_off(d['attendingCollege']),
-                    'previouslyMarried' => to_checkbox_on_off(d['previouslyMarried']),
-                    'childNotInHousehold' => to_checkbox_on_off(!d['childInHousehold']),
-                    'childStatusOverflow' => child_status_overflow.join(', '),
-                    'monthlyPayment' => split_currency_amount(d['monthlyPayment']),
-                    'monthlyPaymentOverflow' => ActiveSupport::NumberHelper.number_to_currency(d['monthlyPayment'])
-                  })
+        @form_data['dependentChildrenInHousehold'] = select_children_in_household(@form_data['dependents'])
+        @form_data['dependents'] = @form_data['dependents']&.map do |dependent|
+          dependent_to_hash(dependent)
         end
         # 8Q Do all children not living with you reside at the same address?
         custodian_addresses = {}
-        dependents_not_in_household = @form_data['dependents']&.reject { |d| d['childInHousehold'] } || []
-        dependents_not_in_household.each do |d|
-          custodian_key = d['personWhoLivesWithChild'].values.join('_')
+        dependents_not_in_household = @form_data['dependents']&.reject do |dependent|
+          dependent['childInHousehold']
+        end || []
+        dependents_not_in_household.each do |dependent|
+          custodian_key = dependent['personWhoLivesWithChild'].values.join('_')
           custodian_hash = {
-            'custodian' => d['personWhoLivesWithChild'],
-            'custodianAddress' => d['childAddress'].merge({ 'postalCode' => split_postal_code(d['childAddress']) })
+            'custodian' => dependent['personWhoLivesWithChild'],
+            'custodianAddress' => dependent['childAddress']
+                           .merge({ 'postalCode' => split_postal_code(d['childAddress']) })
           }
           custodian_addresses[custodian_key] = custodian_hash if custodian_addresses[custodian_key].nil?
         end
         @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
         @form_data['custodian'] = custodian_addresses.values.first&.dig('custodian') || {}
         @form_data['custodianAddress'] = custodian_addresses.values.first&.dig('custodianAddress') || {}
+      end
+
+      def select_children_in_household(dependents)
+        dependents&.select do |dependent|
+          dependent['childInHousehold']
+        end&.length.to_s
+      end
+
+      def child_status_overflow(dependent)
+        child_status_overflow = [dependent['childRelationship']]
+        child_status_overflow << 'seriously disabled' if dependent['disabled']
+        child_status_overflow << '18-23 years old (in school)' if dependent['attendingCollege']
+        child_status_overflow << 'previously married' if dependent['previouslyMarried']
+        child_status_overflow << 'does not live with you but contributes' unless dependent['childInHousehold']
+        child_status_overflow
+      end
+
+      def dependent_to_hash(dependent)
+        dependent.merge({
+                          'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
+                          'childDateOfBirthOverflow' => dependent['childDateOfBirth'],
+                          'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
+                          'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
+                          'childRelationship' => {
+                            'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
+                            'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
+                            'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
+                          },
+                          'disabled' => to_checkbox_on_off(dependent['disabled']),
+                          'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
+                          'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
+                          'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                          'childStatusOverflow' => child_status_overflow(dependent).join(', '),
+                          'monthlyPayment' => split_currency_amount(d['monthlyPayment']),
+                          'monthlyPaymentOverflow' => ActiveSupport::NumberHelper.number_to_currency(
+                            dependent['monthlyPayment']
+                          )
+                        })
       end
 
       # SECTION IX: INCOME AND ASSETS
@@ -1408,15 +1424,19 @@ module PdfFill
           @form_data['moreThanFourIncomeSources'] =
             to_radio_yes_no(@form_data['incomeSources'].length > 4)
         end
-        @form_data['incomeSources'] = @form_data['incomeSources']&.map do |is|
-          is.merge({
-                     'receiver' => 0, # TODO: Update this once the front-end is updated post MVP
-                     'receiverOverflow' => 'VETERAN', # TODO: Update this once the front-end is updated post MVP
-                     'typeOfIncome' => INCOME_TYPES[is['typeOfIncome']],
-                     'typeOfIncomeOverflow' => is['typeOfIncome'],
-                     'amount' => split_currency_amount(is['amount']),
-                     'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(is['amount'])
-                   })
+        @form_data['incomeSources'] = merge_income_sources(@form_data['incomeSources'])
+      end
+
+      def merge_income_sources(income_sources)
+        income_sources&.map do |income_source|
+          income_source.merge({
+                                'receiver' => 0, # TODO: Update this once the front-end is updated post MVP
+                                'receiverOverflow' => 'VETERAN', # TODO: Update this once the front-end is updated post MVP
+                                'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
+                                'typeOfIncomeOverflow' => income_source['typeOfIncome'],
+                                'amount' => split_currency_amount(income_source['amount']),
+                                'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
+                              })
         end
       end
 
@@ -1424,38 +1444,50 @@ module PdfFill
       def expand_care_medical_expenses
         @form_data['hasAnyExpenses'] =
           to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
-        @form_data['careExpenses'] = @form_data['careExpenses']&.map do |ce|
-          ce.merge({
-                     'recipients' => RECIPIENTS[ce['recipients']],
-                     'recipientsOverflow' => ce['recipients']&.humanize,
-                     'careType' => CARE_TYPES[ce['careType']],
-                     'careTypeOverflow' => ce['careType']&.humanize,
-                     'ratePerHour' => split_currency_amount(ce['ratePerHour']),
-                     'ratePerHourOverflow' => ActiveSupport::NumberHelper.number_to_currency(ce['ratePerHour']),
-                     'hoursPerWeek' => ce['hoursPerWeek'].to_s,
-                     'careDateRange' => {
-                       'from' => split_date(ce.dig('careDateRange', 'from')),
-                       'to' => split_date(ce.dig('careDateRange', 'to'))
-                     },
-                     'careDateRangeOverflow' => build_date_range_string(ce['careDateRange']),
-                     'noCareEndDate' => to_radio_yes_no(ce['noCareEndDate']),
-                     'paymentFrequency' => PAYMENT_FREQUENCY[ce['paymentFrequency']],
-                     'paymentFrequencyOverflow' => ce['paymentFrequency'],
-                     'paymentAmount' => split_currency_amount(ce['paymentAmount']),
-                     'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(ce['paymentAmount'])
-                   })
+        @form_data['careExpenses'] = merge_care_expenses(@form_data['careExpenses'])
+        @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
+      end
+
+      def merge_care_expenses(care_expenses)
+        care_expenses&.map do |care_expense|
+          care_expense.merge(care_expense_to_hash(care_expense))
         end
-        @form_data['medicalExpenses'] = @form_data['medicalExpenses']&.map do |me|
-          me.merge({
-                     'recipients' => RECIPIENTS[me['recipients']],
-                     'recipientsOverflow' => me['recipients']&.humanize,
-                     'paymentDate' => split_date(me['paymentDate']),
-                     'paymentDateOverflow' => me['paymentDate'],
-                     'paymentFrequency' => PAYMENT_FREQUENCY[me['paymentFrequency']],
-                     'paymentFrequencyOverflow' => me['paymentFrequency'],
-                     'paymentAmount' => split_currency_amount(me['paymentAmount']),
-                     'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(me['paymentAmount'])
-                   })
+      end
+
+      def care_expense_to_hash(care_expense)
+        {
+          'recipients' => RECIPIENTS[care_expense['recipients']],
+          'recipientsOverflow' => care_expense['recipients']&.humanize,
+          'careType' => CARE_TYPES[care_expense['careType']],
+          'careTypeOverflow' => care_expense['careType']&.humanize,
+          'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
+          'ratePerHourOverflow' => ActiveSupport::NumberHelper.number_to_currency(care_expense['ratePerHour']),
+          'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
+          'careDateRange' => {
+            'from' => split_date(care_expense.dig('careDateRange', 'from')),
+            'to' => split_date(care_expense.dig('careDateRange', 'to'))
+          },
+          'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
+          'noCareEndDate' => to_radio_yes_no(care_expense['noCareEndDate']),
+          'paymentFrequency' => PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
+          'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
+          'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
+          'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(care_expense['paymentAmount'])
+        }
+      end
+
+      def merge_medical_expenses(medical_expenses)
+        medical_expenses&.map do |medical_expense|
+          medical_expense.merge({
+                                  'recipients' => RECIPIENTS[medical_expense['recipients']],
+                                  'recipientsOverflow' => medical_expense['recipients']&.humanize,
+                                  'paymentDate' => split_date(medical_expense['paymentDate']),
+                                  'paymentDateOverflow' => medical_expense['paymentDate'],
+                                  'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
+                                  'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
+                                  'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
+                                  'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(medical_expense['paymentAmount'])
+                                })
         end
       end
 
