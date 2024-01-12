@@ -41,8 +41,17 @@ RSpec.describe V0::DependentsApplicationsController do
 
   describe 'POST create' do
     context 'with valid params' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+      end
+
       it 'validates successfully' do
-        post(:create, params: test_form)
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post(:create, params: test_form)
+        end
+
         expect(response.code).to eq('200')
       end
     end
