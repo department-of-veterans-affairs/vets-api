@@ -1555,8 +1555,8 @@ module PdfFill
         merge_death_helpers
         merge_child_marriage_helpers
         merge_child_stopped_attending_school_helpers
-
-        expand_signature(@form_data['veteran_information']['full_name'])
+        created_at = _options[:created_at] if _options[:created_at].present?
+        expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
 
         expand_remarks

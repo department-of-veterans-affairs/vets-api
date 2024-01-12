@@ -123,7 +123,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def to_pdf(form_id: FORM)
     self.form_id = form_id
 
-    PdfFill::Filler.fill_form(self)
+    PdfFill::Filler.fill_form(self, nil, {created_at: self.created_at})
   end
 
   private
