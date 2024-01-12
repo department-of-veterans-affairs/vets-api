@@ -1490,7 +1490,9 @@ module PdfFill
                                   'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
                                   'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
                                   'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
-                                  'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(medical_expense['paymentAmount'])
+                                  'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
+                                    medical_expense['paymentAmount']
+                                  )
                                 })
         end
       end
