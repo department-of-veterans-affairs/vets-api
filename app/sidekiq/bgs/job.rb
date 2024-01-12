@@ -24,7 +24,7 @@ module BGS
 
     # BGS doesn't accept name and address_line fields with non-ASCII characters (e.g. ü, ñ), and doesn't accept names
     # with apostrophes. This method recursively iterates through a given hash and strips unprocessable characters
-    # from name and address_line fields. The method is called in `SubmitForm686cEncryptedJob` and `SubmitForm674EncryptedJob` with an
+    # from name and address_line fields. The method is called in `SubmitForm686cJob` and `SubmitForm674Job` with an
     # enormous form payload potentially containing many names and addresses.
     # See `spec/factories/686c/form_686c_674.rb` for an example of such a payload.
     def normalize_names_and_addresses!(hash)
