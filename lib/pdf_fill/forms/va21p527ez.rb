@@ -551,14 +551,17 @@ module PdfFill
           question_num: 7,
           'spouseFullName' => {
             question_text: 'WHO WERE YOU MARRIED TO?',
-            question_suffix: 'A',
             'first' => {
+              limit: 12,
+              question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
+              limit: 18,
+              question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
           },
@@ -566,6 +569,8 @@ module PdfFill
             key: "Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
           },
           'otherExplanation' => {
+            limit: 43,
+            question_text: 'HOW DID YOUR PREVIOUS MARRIAGE END?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
           },
           'dateOfMarriage' => {
@@ -591,9 +596,13 @@ module PdfFill
             }
           },
           'locationOfMarriage' => {
+            limit: 63,
+            question_text: 'PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
+            limit: 54,
+            question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
