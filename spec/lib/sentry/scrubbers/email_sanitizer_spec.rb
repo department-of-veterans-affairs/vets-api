@@ -1,29 +1,28 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sentry/processor/email_sanitizer'
+require 'sentry/scrubbers/email_sanitizer'
 
-RSpec.describe Sentry::Processor::EmailSanitizer do
+RSpec.describe Sentry::Scrubbers::EmailSanitizer do
   let(:bad_string) { 'Email is: joe.schmoe@gmail.com, bad!' }
   let(:good_string) { 'Email is: [FILTERED EMAIL], bad!' }
 
   before do
-    @client = double('client')
-    @processor = Sentry::Processor::EmailSanitizer.new(@client)
+    @scrubber = Sentry::Scrubbers::EmailSanitizer.new
   end
 
   it 'filters out emails from hashes' do
     data = {}
     data['sensitive'] = bad_string
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results['sensitive']).to eq(good_string)
   end
 
   it 'filters emails from exception messages' do
     data = Exception.new(bad_string)
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results.message).to eq(good_string)
     expect(results).to be_a(Exception)
   end
@@ -32,7 +31,7 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
     data = { 'nested' => {} }
     data['nested']['sensitive'] = bad_string
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results['nested']['sensitive']).to eq(good_string)
   end
 
@@ -40,14 +39,14 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
     data = ['good string', 'good string',
             ['good string', bad_string]]
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results[2][1]).to eq(good_string)
   end
 
   it 'does not blow up on symbols' do
     data = { key: :value }
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results[:key]).to eq(:value)
   end
 
@@ -56,7 +55,7 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
     data = {}
     data['nonsensitive'] = nonsensitive_str
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results['nonsensitive']).to eq(nonsensitive_str)
   end
 
@@ -75,7 +74,7 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
       }
     }
 
-    results = @processor.process(data)
+    results = @scrubber.process(data)
     expect(results).to eq(filtered_data)
   end
 end

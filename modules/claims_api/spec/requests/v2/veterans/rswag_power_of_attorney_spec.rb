@@ -9,7 +9,7 @@ require 'bgs_service/local_bgs'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
-         openapi_spec: Rswag::TextHelpers.new.claims_api_docs, production: false do
+         openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
   path '/veterans/{veteranId}/power-of-attorney' do
@@ -140,7 +140,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney:appoint-individual' do
+  path '/veterans/{veteranId}/power-of-attorney:appoint-individual', production: false do
     put 'Appoint an individual Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
       operationId 'appointIndividualPowerOfAttorney'
@@ -279,7 +279,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney:appoint-organization' do
+  path '/veterans/{veteranId}/power-of-attorney:appoint-organization', production: false do
     put 'Appoint an organization Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
       operationId 'appointOrganizationPowerOfAttorney'
@@ -421,7 +421,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a/validate' do
+  path '/veterans/{veteranId}/2122a/validate', production: false do
     post 'Validates a 2122a form submission.' do
       tags 'Power of Attorney'
       operationId 'post2122aValidate'
@@ -467,7 +467,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a' do
+  path '/veterans/{veteranId}/2122a', production: false do
     post 'Appoint an individual as Power of Attorney.' do
       tags 'Power of Attorney'
       operationId 'post2122a'
@@ -513,7 +513,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122/validate' do
+  path '/veterans/{veteranId}/2122/validate', production: false do
     post 'Validates a 2122 form submission.' do
       tags 'Power of Attorney'
       operationId 'post2122Validate'
@@ -559,7 +559,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122' do
+  path '/veterans/{veteranId}/2122', production: false do
     post 'Appoint an organization as Power of Attorney' do
       tags 'Power of Attorney'
       operationId 'post2122'
@@ -605,7 +605,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney/{id}' do
+  path '/veterans/{veteranId}/power-of-attorney/{id}', production: false do
     get 'Checks status of Power of Attorney appointment form submission' do
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyStatus'

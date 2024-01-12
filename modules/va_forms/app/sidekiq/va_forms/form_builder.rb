@@ -7,26 +7,31 @@ module VAForms
   class FormBuilder
     include Sidekiq::Job
 
-    FORM_FETCH_ERROR_MESSAGE = 'The form could not be fetched from the url provided.'
+    class FormFetchError < StandardError; end
+
     STATSD_KEY_PREFIX = 'api.va_forms.form_builder'
 
     sidekiq_options retry: 7
 
-    sidekiq_retries_exhausted do |msg, error|
-      args = msg['args'] || {}
-      form_name = args['fieldVaFormNumber']
-      row_id = args['fieldVaFormRowId']
+    sidekiq_retries_exhausted do |msg, _ex|
+      job_id = msg['jid']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+
+      form_data = msg['args'].first
+      form_name = form_data['fieldVaFormNumber']
+      row_id = form_data['fieldVaFormRowId']
 
       # Ensure that the form is marked "valid_pdf: false" if successive form fetches have failed
-      if error.message == FORM_FETCH_ERROR_MESSAGE
+      if error_class.to_s == FormFetchError.to_s
         form = VAForms::Form.find_by(row_id:)
-        url = VAForms::Form.normalized_form_url(args.dig('fieldVaFormUrl', 'uri'))
+        url = VAForms::Form.normalized_form_url(form_data.dig('fieldVaFormUrl', 'uri'))
         form_previously_valid = form.valid_pdf
         form.update!(valid_pdf: false, sha256: nil, url:)
         if form_previously_valid
           VAForms::Slack::Messenger.new(
             {
-              class: self.class.name,
+              class: 'VAForms::FormBuilder',
               message: "URL for form_name: #{form_name}, row_id: #{row_id} no longer returns a valid PDF or web page.",
               form_url: url
             }
@@ -34,10 +39,27 @@ module VAForms
         end
       end
 
-      # Log error and increment StatsD metric
-      message = "#{self.class.name} failed to import form_name: #{form_name}, row_id: #{row_id} into forms database."
-      Rails.logger.error(message, error.message)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: { form_name:, row_id: })
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags: { form_name:, row_id: })
+
+      Rails.logger.warn(
+        'VAForms::FormBuilder retries exhausted',
+        { job_id:, error_class:, error_message:, form_name:, row_id:, form_data: }
+      )
+    rescue => e
+      Rails.logger.error(
+        'Failure in VAForms::FormBuilder#sidekiq_retries_exhausted',
+        {
+          messaged_content: e.message,
+          job_id:,
+          form_name:,
+          row_id:,
+          pre_exhaustion_failure: {
+            error_class:,
+            error_message:
+          }
+        }
+      )
+      raise e
     end
 
     def perform(form_data)
@@ -54,8 +76,12 @@ module VAForms
       attrs[:url] = url if form.new_record?
       form.update!(attrs) # The job can fail later, so save current progress
 
-      attrs = check_form_validity(form, attrs, url)
-      form.update!(attrs)
+      if form.deleted_at.present?
+        form.update!(valid_pdf: false, sha256: nil)
+      else
+        attrs = check_form_validity(form, attrs, url)
+        form.update!(attrs)
+      end
     end
 
     # Given a +form+, +attrs+, and +url+, makes a request for the form; if response is successful, assigns attributes
@@ -71,7 +97,7 @@ module VAForms
 
         attrs
       else
-        raise FORM_FETCH_ERROR_MESSAGE
+        raise FormFetchError, 'The form could not be fetched from the url provided.'
       end
     end
 

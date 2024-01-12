@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+# only change from previous file was Processor was renamed to Scrubbers
+
 module Sentry
-  module Processor
-    class EmailSanitizer < Raven::Processor
+  module Scrubbers
+    class EmailSanitizer
       # source: https://stackoverflow.com/a/27194235
       EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
 
