@@ -45,12 +45,35 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
       end
     end
 
-    context 'with an invalid file' do
+    context 'when an error occurs opening the spreadsheet' do
       let(:invalid_file_content) { 'invalid content' }
-      let(:invalid_xlsx_processor) { described_class.new(invalid_file_content) }
+      let(:xlsx_processor) { described_class.new(invalid_file_content) }
+      let(:error_message) { 'Mocked Roo error' }
 
-      it 'handles errors gracefully' do
-        expect { invalid_xlsx_processor.process }.not_to raise_error
+      before do
+        allow(Roo::Spreadsheet).to receive(:open).and_raise(Roo::Error.new(error_message))
+        allow(xlsx_processor).to receive(:log_error)
+      end
+
+      it 'logs the error when opening the spreadsheet fails' do
+        expect { xlsx_processor.process }.not_to raise_error
+        expected_log_message = "Error opening spreadsheet: #{error_message}"
+        expect(xlsx_processor).to have_received(:log_error).with(expected_log_message)
+      end
+    end
+
+    context 'when an error occurs during processing' do
+      let(:error_message) { 'test error' }
+
+      before do
+        allow(Roo::Spreadsheet).to receive(:open).and_raise(StandardError.new(error_message))
+        allow(xlsx_processor).to receive(:log_message_to_sentry)
+      end
+
+      it 'rescues the error and logs it to Sentry' do
+        expect { xlsx_processor.process }.not_to raise_error
+        expected_log_message = "XlsxFileProcessor error: Error processing XLSX file: #{error_message}"
+        expect(xlsx_processor).to have_received(:log_message_to_sentry).with(expected_log_message, :error)
       end
     end
   end
