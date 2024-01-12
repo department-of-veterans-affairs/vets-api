@@ -1,33 +1,47 @@
 {
   "type": "object",
-  "additionalProperties": false,
-  "required": ["code"],
+  "required": ["data"],
   "properties": {
-    "code": {
-      "type": "string",
-      "description": "Power of Attorney Code currently assigned to Veteran"
-    },
-    "name": {
-      "description": "Name of individual representative or organization",
-      "type": ["string", "null"],
-      "nullable": true,
-      "example": "Jane Smith"
-    },
-    "type": {
-      "description": "Type of representative, organization or individual",
-      "type": ["string", "null"],
-      "nullable": true,
-      "example": "individual"
-    },
-    "phone": {
+    "data": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["id", "type", "attributes"],
       "properties": {
-        "number": {
-          "description": "Phone number of representative. Can be organization or individual phone number.",
-          "type": ["string", "null"],
+        "id": {
+          "type": "string",
+          "nullable": true
+        },
+        "type": {
+          "type": "string",
           "nullable": true,
-          "example": "555-555-5555"
+          "description": "Type of representative, organization or individual",
+          "example": "individual"
+        },
+        "attributes": {
+          "required": ["code", "name", "phone"],
+          "code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Power of Attorney Code currently assigned to Veteran"
+          },
+          "name": {
+            "description": "Name of individual representative or organization",
+            "type": "string",
+            "nullable": true,
+            "example": "Jane Smith"
+          },
+          "phone": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "number": {
+                "description": "Phone number of representative. Can be organization or individual phone number.",
+                "type": "string",
+                "nullable": true,
+                "example": "555-555-5555"
+              }
+            }
+          }
         }
       }
     }

@@ -14,11 +14,12 @@ module ClaimsApi
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
-          head(:no_content) && return if poa_code.blank?
-
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
-            representative(poa_code).merge({ code: poa_code })
-          )
+          data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
+          if poa_code.blank?
+            render json: { data: }
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
+          end
         end
 
         def appoint_organization
