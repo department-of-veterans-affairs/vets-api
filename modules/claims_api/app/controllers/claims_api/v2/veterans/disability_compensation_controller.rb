@@ -29,11 +29,9 @@ module ClaimsApi
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
             flashes:,
-            cid: token.payload['cid'], veteran_icn: target_veteran.mpi.icn,
+            cid: token&.payload&.[]('cid'), veteran_icn: target_veteran&.mpi&.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           )
-
-          save_auto_claim!(auto_claim)
 
           if auto_claim.errors.present?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
