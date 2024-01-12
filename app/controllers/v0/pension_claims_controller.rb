@@ -12,6 +12,40 @@ module V0
       SavedClaim::Pension
     end
 
+    def show
+      claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
+
+      submission = claim.form_submissions&.order(id: :asc)&.last
+      attempt = submission&.form_submission_attempts&.order(created_at: :asc)&.last
+
+      if attempt
+        # this is to temporarily satisfy frontend check
+        # {
+        #     "data": {
+        #         "id": "12",
+        #         "type": "central_mail_submissions",
+        #         "attributes": {
+        #             "state": "success"
+        #             .........
+        #         }
+        #     }
+        # }
+        state = attempt.aasm_state == 'failure' ? 'failure' : 'success'
+        response = {
+          data: {
+            id: attempt.id,
+            type: 'form_submission_attempts',
+            attributes: {
+              state:,
+              **attempt.attributes
+            }
+          }
+        }
+      end
+
+      render(json: response)
+    end
+
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
     def create
@@ -41,40 +75,6 @@ module V0
       render(json: claim)
     end
 
-    def show
-      claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
-
-      submission = claim.form_submissions&.order(id: :asc)&.last
-      attempt = submission&.form_submission_attempts&.order(created_at: :asc)&.last
-
-      if attempt
-        # this is to temporarily satisfy frontend check
-        # {
-        #     "data": {
-        #         "id": "12",
-        #         "type": "central_mail_submissions",
-        #         "attributes": {
-        #             "state": "success"
-        #             .........
-        #         }
-        #     }
-        # }
-        state = attempt.aasm_state != 'failure' ? 'success' : 'failure'
-        response = {
-          data: {
-            id: attempt.id,
-            type: "form_submission_attempts",
-            attributes: {
-              state: state,
-              **attempt.attributes
-            }
-          }
-        }
-      end
-
-      render(json: response)
-    end
-
-  # PensionClaimsController
+    # PensionClaimsController
   end
 end
