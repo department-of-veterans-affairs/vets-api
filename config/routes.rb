@@ -73,6 +73,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :letters_discrepancy, only: [:index]
+
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
@@ -339,6 +341,10 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
+
+    get '/account_controls/credential_index', to: 'account_controls#credential_index'
+    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
+    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index

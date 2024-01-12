@@ -28,4 +28,11 @@ describe PdfFill::Forms::Va21p527ez do
       expect(described_class.new({}).to_radio_yes_no(false)).to eq(1)
     end
   end
+
+  describe '#to_checkbox_on_off' do
+    it 'returns correct values' do
+      expect(described_class.new({}).to_checkbox_on_off(true)).to eq(1)
+      expect(described_class.new({}).to_checkbox_on_off(false)).to eq('Off')
+    end
+  end
 end

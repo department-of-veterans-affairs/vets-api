@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sentry/processor/log_as_warning'
+require 'sentry/scrubbers/log_as_warning'
 
-RSpec.describe Sentry::Processor::LogAsWarning do
-  let(:client) { double('client') }
-  let(:processor) { Sentry::Processor::LogAsWarning.new(client) }
-  let(:result) { processor.process(data) }
+RSpec.describe Sentry::Scrubbers::LogAsWarning do
+  let(:scrubber) { Sentry::Scrubbers::LogAsWarning.new }
+  let(:result) { scrubber.process(data) }
 
   let(:data) do
     {
@@ -15,7 +14,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
       time_spent: nil,
       level: 40,
       platform: 'ruby',
-      sdk: { 'name' => 'sentry-raven', 'version' => '2.3.0' },
+      sdk: { 'name' => 'sentry-ruby', 'version' => '5.15.2' },
       logger: '',
       server_name: 'cool server',
       release: 'c57d00f70',
@@ -44,7 +43,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
 
   def self.assert_sets_level_to_warning
     it 'sets the :level to 30 (warning)' do
-      expect(processor.process(data)['level']).to eq(30)
+      expect(scrubber.process(data)['level']).to eq(30)
     end
   end
 
@@ -74,7 +73,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
     let(:exception) { NoMethodError.to_s }
 
     it 'does not change the :level' do
-      expect(processor.process(data)['level']).to eq(40)
+      expect(scrubber.process(data)['level']).to eq(40)
     end
   end
 end

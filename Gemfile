@@ -136,7 +136,7 @@ gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'
 gem 'savon'
-gem 'sentry-raven'
+gem 'sentry-ruby'
 gem 'shrine'
 gem 'sidekiq_alive'
 gem 'slack-notify'
@@ -145,6 +145,9 @@ gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
+# Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
+# POSIX systems should have this already, so we're not going to bring it in on other platforms
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
@@ -155,10 +158,6 @@ gem 'with_advisory_lock'
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
-
-  # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
-  # POSIX systems should have this already, so we're not going to bring it in on other platforms
-  gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
 end
