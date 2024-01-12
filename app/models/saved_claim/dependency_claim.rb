@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
-
+require 'central_mail/datestamp_pdf'
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
@@ -38,9 +38,22 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    upload_to_vbms(path: to_pdf(form_id:), doc_type:)
+    upload_to_vbms(path: self.process_pdf(to_pdf(form_id:), self.created_at), doc_type:)
     uploaded_forms << form_id
     save
+  end
+
+  def process_pdf(pdf_path, timestamp = nil)
+    CentralMail::DatestampPdf.new(pdf_path).run(
+      text: 'Application Submitted:',
+      x: 400,
+      y: 675,
+      text_only: false,
+      timestamp: timestamp,
+      page_number: 6,
+      template: "lib/pdf_fill/forms/pdfs/686C-674.pdf",
+      multistamp: true
+    )
   end
 
   def add_veteran_info(va_file_number_with_payload)
