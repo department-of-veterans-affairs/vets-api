@@ -691,10 +691,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Higher-Level Review with uuid invalid not found",
                       "code": "404",
-                      "detail": "HigherLevelReview with uuid invalid not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -800,10 +800,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Higher-Level Review with uuid 44444444-5555-6666-7777-888888888888 not found",
                       "code": "404",
-                      "detail": "HigherLevelReview with uuid 44444444-5555-6666-7777-888888888888 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
