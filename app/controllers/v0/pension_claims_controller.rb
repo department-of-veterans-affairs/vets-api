@@ -19,8 +19,7 @@ module V0
 
       claim = claim_class.new(form: filtered_params[:form])
       user_uuid = current_user&.uuid
-      Rails.logger.info("Begin #{claim.class::FORM} Submission",
-                        { guid: claim.guid, user_uuid: })
+      Rails.logger.info("Begin #{claim.class::FORM} Submission", { guid: claim.guid, user_uuid: })
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.itf_datetime = in_progress_form.created_at if in_progress_form

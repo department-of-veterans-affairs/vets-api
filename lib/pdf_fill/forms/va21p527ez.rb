@@ -1430,12 +1430,16 @@ module PdfFill
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
           income_source.merge({
-                                'receiver' => 0, # TODO: Update this once the front-end is updated post MVP
-                                'receiverOverflow' => 'VETERAN', # TODO: Update this once the front-end is updated post MVP
+                                # TODO: Update this once the front-end is updated post MVP
+                                'receiver' => 0,
+                                # TODO: Update this once the front-end is updated post MVP
+                                'receiverOverflow' => 'VETERAN',
                                 'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
                                 'typeOfIncomeOverflow' => income_source['typeOfIncome'],
                                 'amount' => split_currency_amount(income_source['amount']),
-                                'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
+                                'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
+                                  income_source['amount']
+                                )
                               })
         end
       end
