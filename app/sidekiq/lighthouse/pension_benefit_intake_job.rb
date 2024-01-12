@@ -64,8 +64,6 @@ module Lighthouse
     end
     # rubocop:enable Metrics/MethodLength
 
-    private
-
     # Create a temp stamped PDF, validate the PDF satisfies Benefits Intake specification
     #
     # Raises PensionBenefitIntakeError if PDF is invalid
