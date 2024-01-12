@@ -394,16 +394,187 @@ module PdfFill
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
           }
         },
+        # 8a
+        'dependentChildrenInHousehold' => {
+          key: 'form1[0].#subform[50].Number_Of_Dependent_Children_Who_Live_With_You[0]',
+          limit: 2,
+          question_num: 8,
+          question_suffix: 'A',
+          question_text: 'Number of Dependent Children Who Live With You',
+        },
+        # 8b-p Dependent Children
+        'dependents' => {
+          limit: 3,
+          first_key: 'fullName',
+          'fullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 8,
+              question_text: 'CHILD\'S FIRST NAME',
+              key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
+            },
+            'middle' => {
+              question_num: 8,
+              question_text: 'CHILD\'S MIDDLE NAME',
+              key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
+            },
+            'last' => {
+              limit: 18,
+              question_num: 8,
+              question_text: 'CUSTODIAN\'S LAST NAME',
+              key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
+            }
+          },
+          'childDateOfBirth' => {
+            'month' => {
+              key: "Dependent_Children.Childs_DOB_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Dependent_Children.Childs_DOB_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Dependent_Children.Childs_DOB_Year[#{ITERATOR}]"
+            }
+          },
+          'childDateOfBirthOverflow' => {
+            question_num: 8,
+            question_text: 'CHILD\'S DATE OF BIRTH',
+          },
+          'childSocialSecurityNumber' => {
+            'first' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_FirstThreeNumbers[#{ITERATOR}]"
+            },
+            'second' => {
+              key: "Dependent_Children.#subform[50].Childs_SocialSecurityNumber_SecondTwoNumbers[#{ITERATOR}]"
+            },
+            'third' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_LastFourNumbers[#{ITERATOR}]"
+            }
+          },
+          'childSocialSecurityNumberOverflow' => {
+            question_num: 8,
+            question_text: 'CHILD\'S SOCIAL SECURITY NUMBER',
+          },
+          'childPlaceOfBirth' => {
+            limit: 60,
+            question_num: 8,
+            question_text: 'CHILD\'S PLACE OF BIRTH',
+            key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
+          },
+          'childRelationship' => {
+            'biological' => {
+              key: "Dependent_Children.Biological[#{ITERATOR}]"
+            },
+            'adopted' => {
+              key: "Dependent_Children.Adopted[#{ITERATOR}]"
+            },
+            'stepchild' => {
+              key: "Dependent_Children.Stepchild[#{ITERATOR}]"
+            }
+          },
+          'disabled' => {
+            key: "Dependent_Children.Seriously_Disabled[#{ITERATOR}]"
+          },
+          'attendingCollege' => {
+            key: "Dependent_Children.Eighteen_To_Twenty_Three_Years_Old_In_School[#{ITERATOR}]"
+          },
+          'previouslyMarried' => {
+            key: "Dependent_Children.Previously_Married[#{ITERATOR}]"
+          },
+          'childNotInHousehold' => {
+            key: "Dependent_Children.Does_Not_Live_With_You_But_Contributes[#{ITERATOR}]"
+          },
+          'childStatusOverflow' => {
+            question_num: 8,
+            question_text: 'CHILD\'S STATUS',
+          },
+          'monthlyPayment' => {
+            'part_two' => {
+              key: "Dependent_Children.Amount_Of_Contribution_First_Two[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Dependent_Children.Amount_Of_Contribution_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Dependent_Children.Amount_Of_Contribution_Cents[#{ITERATOR}]"
+            }
+          },
+          'monthlyPaymentOverflow' => {
+            question_num: 8,
+            question_text: 'Amount of Contribution For Child',
+          }
+        },
+        # 8q
+        'dependentsNotWithYouAtSameAddress' => {
+          key: 'form1[0].#subform[51].RadioButtonList[20]'
+        },
+        # 8r
+        'custodian' => {
+          'first' => {
+            limit: 12,
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S FIRST NAME',
+            key: 'form1[0].#subform[51].Custodians_FirstName[0]'
+          },
+          'middle' => {
+            key: 'form1[0].#subform[51].Custodians_MiddleInitial1[0]'
+          },
+          'last' => {
+            limit: 18,
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S LAST NAME',
+            key: 'form1[0].#subform[51].Custodians_LastName[0]'
+          }
+        },
+        'custodianAddress' => {
+          'street' => {
+            limit: 30,
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
+            key: 'form1[0].#subform[51].NumberStreet[3]'
+          },
+          'street2' => {
+            limit: 5,
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
+            key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
+          },
+          'city' => {
+            limit: 18,
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS CITY',
+            key: 'form1[0].#subform[51].City[2]'
+          },
+          'state' => {
+            key: 'form1[0].#subform[51].State_Or_Province[1]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[51].Country[2]'
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+            }
+          }
+        },
         # 9a
         'totalNetWorth' => {
           key: 'form1[0].#subform[51].RadioButtonList[21]'
         },
         'netWorthEstimation' => {
-          'lastThree' => {
-            key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[0]'
-          },
-          'firstTwo' => {
+          'part_two' => {
             key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[1]'
+          },
+          'part_one' => {
+            key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[0]'
           }
         },
         # 9b
@@ -420,15 +591,15 @@ module PdfFill
         },
         # 9e
         'homeAcreageValue' => {
-          'part_one' => {
-            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[0]'
-          },
           'part_three' => {
             key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[1]'
           },
           'part_two' => {
             key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[2]'
-          }
+          },
+          'part_one' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[0]'
+          },
         },
         # 9f
         'landMarketable' => {
@@ -438,7 +609,7 @@ module PdfFill
         'moreThanFourIncomeSources' => {
           key: 'form1[0].#subform[51].RadioButtonList[26]'
         },
-        # 9h-k
+        # 9h-k Income Sources
         'incomeSources' => {
           limit: 4,
           first_key: 'childName',
@@ -504,7 +675,7 @@ module PdfFill
         'hasAnyExpenses' => {
           key: 'Has_Any_Expenses_Yes_No'
         },
-        # 10b-d
+        # 10b-d Care Expenses
         'careExpenses' => {
           limit: 3,
           first_key: 'childName',
@@ -621,7 +792,7 @@ module PdfFill
             question_text: 'CARE EXPENSE PAYMENT AMOUNT',
           }
         },
-        # 10e-j
+        # 10e-j Medical Expenses
         'medicalExpenses' => {
           limit: 3,
           first_key: 'childName',
@@ -710,6 +881,7 @@ module PdfFill
         expand_veteran_service_information
         expand_pension_information
         expand_employment_history
+        expand_children
         expand_income
         expand_expenses
 
@@ -792,6 +964,51 @@ module PdfFill
         @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
 
+      # SECTION VIII: DEPENDENT CHILDREN
+      def expand_children
+        @form_data['dependentChildrenInHousehold'] = @form_data.dig('dependents')&.select { |d| d.dig('childInHousehold') }&.length.to_s
+        @form_data['dependents'] = @form_data['dependents']&.map do |d|
+          child_status_overflow = [d.dig('childRelationship')]
+          child_status_overflow << 'seriously disabled' if d.dig('disabled')
+          child_status_overflow << '18-23 years old (in school)' if d.dig('attendingCollege')
+          child_status_overflow << 'previously married' if d.dig('previouslyMarried')
+          child_status_overflow << 'does not live with you but contributes' unless d.dig('childInHousehold')
+
+          d.merge({
+                    'childDateOfBirth' => split_date(d.dig('childDateOfBirth')),
+                    'childDateOfBirthOverflow' => d.dig('childDateOfBirth'),
+                    'childSocialSecurityNumber' => split_ssn(d.dig('childSocialSecurityNumber')),
+                    'childSocialSecurityNumberOverflow' => d.dig('childSocialSecurityNumber'),
+                    'childRelationship' => {
+                      'biological' => to_checkbox_on_off(d.dig('childRelationship') == 'biological'),
+                      'adopted' => to_checkbox_on_off(d.dig('childRelationship') == 'adopted'),
+                      'stepchild' => to_checkbox_on_off(d.dig('childRelationship') == 'stepchild')
+                    },
+                    'disabled' => to_checkbox_on_off(d.dig('disabled')),
+                    'attendingCollege' => to_checkbox_on_off(d.dig('attendingCollege')),
+                    'previouslyMarried' => to_checkbox_on_off(d.dig('previouslyMarried')),
+                    'childNotInHousehold' => to_checkbox_on_off(!d.dig('childInHousehold')),
+                    'childStatusOverflow' => child_status_overflow.join(', '),
+                    'monthlyPayment' => split_currency_amount(d.dig('monthlyPayment')),
+                    'monthlyPaymentOverflow' => ActiveSupport::NumberHelper.number_to_currency(d.dig('monthlyPayment'))
+                  })
+        end
+        # 8Q Do all children not living with you reside at the same address?
+        custodian_addresses = {}
+        dependents_not_in_household = @form_data.dig('dependents')&.select { |d| !d.dig('childInHousehold') } || []
+        dependents_not_in_household.each do |d|
+          custodian_key = d.dig('personWhoLivesWithChild').values.join('_')
+          custodian_hash = {
+            'custodian' => d.dig('personWhoLivesWithChild'),
+            'custodianAddress' => d.dig('childAddress').merge({ 'postalCode' => split_postal_code(d.dig('childAddress')) })
+          }
+          custodian_addresses[custodian_key] = custodian_hash if custodian_addresses.dig(custodian_key).nil?
+        end
+        @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
+        @form_data['custodian'] = custodian_addresses.values.first&.dig('custodian') || {}
+        @form_data['custodianAddress'] = custodian_addresses.values.first&.dig('custodianAddress') || {}
+      end
+
       # SECTION IX: INCOME AND ASSETS
       def expand_income
         @form_data['totalNetWorth'] = to_radio_yes_no(@form_data['totalNetWorth'])
@@ -801,7 +1018,7 @@ module PdfFill
         @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
         @form_data['homeAcreageValue'] = split_currency_amount(@form_data['homeAcreageValue']) if @form_data['homeAcreageValue'].present?
         @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
-        @form_data['moreThanFourIncomeSources'] = to_radio_yes_no(@form_data['incomeSources'].length > 4)
+        @form_data['moreThanFourIncomeSources'] = to_radio_yes_no(@form_data['incomeSources'].length > 4) if @form_data['incomeSources'].present?
         @form_data['incomeSources'] = @form_data['incomeSources']&.map do |is|
           is.merge({
                      'receiver' => 0, # TODO: Update this once the front-end is updated post MVP
@@ -870,6 +1087,10 @@ module PdfFill
         arr.pop
         arr.each_with_index { |x, i| split_hash["part_#{number_map[arr.length - i]}"] = x }
         split_hash
+      end
+
+      def to_checkbox_on_off(obj)
+        obj ? 1 : 'Off'
       end
 
       def to_radio_yes_no(obj)
