@@ -548,7 +548,9 @@ module PdfFill
         },
         # 12a
         'noRapidProcessing' => {
+          # rubocop:disable Layout/LineLength
           key: 'form1[0].#subform[54].CheckBox_I_Do_Not_Want_My_Claim_Considered_For_Rapid_Processing_Under_The_F_D_C_Program_Because_I_Plan_To_Submit_Further_Evidence_In_Support_Of_My_Claim[0]'
+          # rubocop:enable Layout/LineLength
         },
         # 12b
         'statementOfTruthSignature' => {
@@ -667,7 +669,8 @@ module PdfFill
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
-        @form_data['reasonForCurrentSeparation'] = reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
+        @form_data['reasonForCurrentSeparation'] =
+          reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
       end
 
       def marital_status_to_radio(marital_status)
