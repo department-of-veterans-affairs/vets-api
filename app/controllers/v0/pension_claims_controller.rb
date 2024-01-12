@@ -41,18 +41,19 @@ module V0
       render(json: claim)
     end
 
-    # def show
-    #   claim = SavedClaim.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
-    #   submission = claim.form_submissions.order(id: :asc).last
-    #   attempt = submission.form_submission_attempts.order(created_at: :asc).last
+    def show
+      claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
+      submission = claim.form_submissions.order(id: :asc).last
+      attempt = submission&.form_submission_attempts.order(created_at: :asc).last
 
-    #   if attempt&.status != 'failure'
-    #     # this is to temporarily satisfy frontend check
-    #     attempt.status = 'success'
-    #   end
+      state = 'pending'
+      if attempt
+        # this is to temporarily satisfy frontend check
+        state = attempt.aasm_state != 'failure' ? 'success' : 'failure'
+      end
 
-    #   render(json: attempt) # nil or attempt with status
-    # end
+      render(json: { state: })
+    end
 
   # PensionClaimsController
   end
