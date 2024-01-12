@@ -27,7 +27,10 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
+        metadata = in_progress_form.metadata
+        metadata['submission']['error_message'] = claim.errors.errors.to_s
+        in_progress_form.update(metadata:)
+        raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
       use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
