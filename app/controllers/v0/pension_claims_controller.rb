@@ -40,5 +40,20 @@ module V0
       clear_saved_form(claim.form_id)
       render(json: claim)
     end
+
+    # def show
+    #   claim = SavedClaim.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
+    #   submission = claim.form_submissions.order(id: :asc).last
+    #   attempt = submission.form_submission_attempts.order(created_at: :asc).last
+
+    #   if attempt&.status != 'failure'
+    #     # this is to temporarily satisfy frontend check
+    #     attempt.status = 'success'
+    #   end
+
+    #   render(json: attempt) # nil or attempt with status
+    # end
+
+  # PensionClaimsController
   end
 end
