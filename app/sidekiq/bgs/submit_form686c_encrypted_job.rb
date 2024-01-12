@@ -16,10 +16,10 @@ module BGS
     sidekiq_retries_exhausted do |msg, error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error('BGS::SubmitForm686cEncryptedJob failed, retries exhausted!',
+      Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
                          { user_uuid:, saved_claim_id:, icn:, error: })
       if Flipper.enabled?(:dependents_central_submission)
-        user ||= BGS::SubmitForm686cEncryptedJob.generate_user_struct(vet_info)
+        user ||= BGS::SubmitForm686cJob.generate_user_struct(vet_info)
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
                                                             KmsEncrypted::Box.new.encrypt(vet_info.to_json),
                                                             KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
@@ -30,9 +30,9 @@ module BGS
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.info('BGS::SubmitForm686cEncryptedJob running!', { user_uuid:, saved_claim_id:, icn: })
+      Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
 
-      @user = BGS::SubmitForm686cEncryptedJob.generate_user_struct(@vet_info)
+      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 
@@ -48,9 +48,9 @@ module BGS
 
       send_confirmation_email
       in_progress_form&.destroy
-      Rails.logger.info('BGS::SubmitForm686cEncryptedJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
+      Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.warn('BGS::SubmitForm686cEncryptedJob received error, retrying...',
+      Rails.logger.warn('BGS::SubmitForm686cJob received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
