@@ -22,6 +22,27 @@ describe PdfFill::Forms::Va21p527ez do
     end
   end
 
+  describe '#build_date_range_string' do
+    it 'builds date range string' do
+      date_range = {
+        'from' => '2020-08-01',
+        'to' => '2020-09-01'
+      }
+      no_end_date = {
+        'from' => '2020-08-01'
+      }
+      expect(described_class.new({}).build_date_range_string(date_range)).to eq('2020-08-01 - 2020-09-01')
+      expect(described_class.new({}).build_date_range_string(no_end_date)).to eq('2020-08-01 - No End Date')
+    end
+  end
+
+  describe '#to_checkbox_on_off' do
+    it 'returns correct values' do
+      expect(described_class.new({}).to_checkbox_on_off(true)).to eq(1)
+      expect(described_class.new({}).to_checkbox_on_off(false)).to eq('Off')
+    end
+  end
+
   describe '#to_radio_yes_no' do
     it 'returns correct values' do
       expect(described_class.new({}).to_radio_yes_no(true)).to eq(0)
