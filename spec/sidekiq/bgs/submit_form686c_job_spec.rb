@@ -81,8 +81,8 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
         expect(client_stub).to receive(:submit).once
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
-                                                                               dependency_claim.id, encrypted_vet_info,
-                                                                               an_instance_of(String))
+                                                                      dependency_claim.id, encrypted_vet_info,
+                                                                      an_instance_of(String))
 
         expect { job }.not_to raise_error
       end
