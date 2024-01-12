@@ -23,13 +23,9 @@
     {
       "first": "John",
       "last": "Doe"
-    },
-    {
-      "first": "Jane",
-      "last": "Doe"
     }
   ],
-  "placeOfSeparation": "Northampton, MA",
+  "placeOfSeparation": "West Brookfield, MA",
   "powStatus": true,
   "powDateRange": {
     "from": "1971-02-26",
@@ -62,11 +58,6 @@
       "jobType": "Customer service",
       "jobHoursWeek": 20,
       "jobTitle": "Manager"
-    },
-    {
-      "jobType": "Customer service",
-      "jobHoursWeek": 20,
-      "jobTitle": "Representative"
     }
   ],
   "maritalStatus": "Separated",
@@ -74,6 +65,7 @@
     {
       "spouseFullName": {
         "first": "Jessica",
+        "middle": "Middle",
         "last": "Doe"
       },
       "dateOfMarriage": "1989-03-02",
@@ -84,7 +76,20 @@
     },
     {
       "spouseFullName": {
+        "first": "Jennie",
+        "middle": "Middle",
+        "last": "Dane"
+      },
+      "dateOfMarriage": "1983-03-02",
+      "locationOfMarriage": "Dallas",
+      "reasonForSeparation": "Divorce",
+      "dateOfSeparation": "1984-03-02",
+      "locationOfSeparation": "San Antonio, TX"
+    },
+    {
+      "spouseFullName": {
         "first": "Meg",
+        "middle": "Middle",
         "last": "Doe"
       },
       "dateOfMarriage": "1994-03-02",
@@ -123,6 +128,20 @@
       "otherExplanation": "Other reason",
       "dateOfSeparation": "1990-03-02",
       "locationOfSeparation": "Tacoma, WA"
+    },
+    {
+      "dateOfMarriage": "1995-03-02",
+      "locationOfMarriage": "Seattle, WA",
+      "spouseFullName": {
+        "first": "John",
+        "middle": "F",
+        "last": "Person",
+        "suffix": "Jr."
+      },
+      "reasonForSeparation": "OTHER",
+      "otherExplanation": "Other reason",
+      "dateOfSeparation": "2005-03-02",
+      "locationOfSeparation": "Tacoma, WA"
     }
   ],
   "dependents": [
@@ -137,6 +156,7 @@
       },
       "personWhoLivesWithChild": {
         "first": "Joe",
+        "middle": "Middle",
         "last": "Smith"
       },
       "monthlyPayment": 3444,
@@ -149,6 +169,7 @@
       "married": true,
       "fullName": {
         "first": "Bobby",
+        "middle": "Middle",
         "last": "Doe"
       },
       "childDateOfBirth": "1997-03-02"
@@ -162,9 +183,37 @@
       "previouslyMarried": false,
       "fullName": {
         "first": "Emily",
+        "middle": "Middle",
         "last": "Doe"
       },
       "childDateOfBirth": "1993-03-02"
+    },
+    {
+      "childInHousehold": false,
+      "childAddress": {
+        "street": "123 8th st",
+        "city": "Hadley",
+        "country": "USA",
+        "state": "ME",
+        "postalCode": "01050"
+      },
+      "personWhoLivesWithChild": {
+        "first": "Joe",
+        "middle": "Middle",
+        "last": "Smith"
+      },
+      "monthlyPayment": 2300,
+      "childPlaceOfBirth": "Troy, MT",
+      "childSocialSecurityNumber": "333224444",
+      "childRelationship": "biological",
+      "disabled": false,
+      "previouslyMarried": false,
+      "fullName": {
+        "first": "Jack",
+        "middle": "Middle",
+        "last": "Doe"
+      },
+      "childDateOfBirth": "1992-04-01"
     }
   ],
   "totalNetWorth": false,
@@ -183,6 +232,19 @@
       },
       "paymentFrequency": "ONCE_MONTH",
       "paymentAmount": 2500
+    },
+    {
+      "recipients": "SPOUSE",
+      "provider": "MA Care Provider",
+      "careType": "IN_HOME_CARE_PROVIDER",
+      "ratePerHour": 150,
+      "hoursPerWeek": 15,
+      "careDateRange": {
+        "from": "2021-08-01",
+        "to": "2022-05-25"
+      },
+      "paymentFrequency": "ONCE_MONTH",
+      "paymentAmount": 1500
     },
     {
       "recipients": "CHILD",
@@ -217,6 +279,40 @@
       "paymentDate": "2023-07-01",
       "paymentFrequency": "ONE_TIME",
       "paymentAmount": 10000
+    },
+    {
+      "recipients": "SPOUSE",
+      "provider": "Health Provider",
+      "purpose": "Medical expenses",
+      "paymentDate": "2023-07-01",
+      "paymentFrequency": "ONCE_MONTH",
+      "paymentAmount": 500
+    },
+    {
+      "recipients": "CHILD",
+      "childName": "Joe Doe",
+      "provider": "Health Provider",
+      "purpose": "Medical expenses",
+      "paymentDate": "2023-07-01",
+      "paymentFrequency": "ONCE_YEAR",
+      "paymentAmount": 5000
+    },
+    {
+      "recipients": "SPOUSE",
+      "provider": "Health Provider",
+      "purpose": "Medical expenses",
+      "paymentDate": "2023-07-01",
+      "paymentFrequency": "ONCE_MONTH",
+      "paymentAmount": 200
+    },
+    {
+      "recipients": "CHILD",
+      "childName": "Joe Doe",
+      "provider": "Health Provider",
+      "purpose": "Medical fee",
+      "paymentDate": "2023-07-01",
+      "paymentFrequency": "ONE_TIME",
+      "paymentAmount": 100
     }
   ],
   "transferredAssets": true,
@@ -231,6 +327,26 @@
       "receiver": "Jane Doe",
       "payer": "John Doe",
       "amount": 278
+    },
+    {
+      "typeOfIncome": "INTEREST_DIVIDEND",
+      "receiver": "Jane Doe",
+      "payer": "John Doe",
+      "amount": 78
+    },
+    {
+      "typeOfIncome": "OTHER",
+      "otherTypeExplanation": "part-time Uber",
+      "receiver": "Jane Doe",
+      "payer": "John Doe",
+      "amount": 278
+    },
+    {
+      "typeOfIncome": "OTHER",
+      "otherTypeExplanation": "full time job",
+      "receiver": "Jane Doe",
+      "payer": "John Doe",
+      "amount": 3278
     }
   ],
   "bankAccount": {
@@ -241,7 +357,7 @@
   },
   "veteranAddress": {
     "street": "123 8th st",
-    "street2": "Apt A-3",
+    "street2": "A-3",
     "city": "Hadley",
     "country": "USA",
     "state": "ME",
@@ -253,7 +369,7 @@
   "mobilePhone": "555-123-4567",
   "internationalPhone": "001-555-123-4567",
   "isOver65": false,
-  "noRapidProcessing": false,
+  "noRapidProcessing": true,
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe"
 }

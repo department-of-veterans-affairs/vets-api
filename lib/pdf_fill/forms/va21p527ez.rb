@@ -729,7 +729,7 @@ module PdfFill
               key: "Dependent_Children.Childs_SocialSecurityNumber_FirstThreeNumbers[#{ITERATOR}]"
             },
             'second' => {
-              key: "Dependent_Children.#subform[50].Childs_SocialSecurityNumber_SecondTwoNumbers[#{ITERATOR}]"
+              key: "Dependent_Children.Childs_SocialSecurityNumber_SecondTwoNumbers[#{ITERATOR}]"
             },
             'third' => {
               key: "Dependent_Children.Childs_SocialSecurityNumber_LastFourNumbers[#{ITERATOR}]"
