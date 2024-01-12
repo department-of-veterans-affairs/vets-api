@@ -80,6 +80,19 @@ RSpec.describe 'Threads Integration', type: :request do
           expect(response.body).to be_a(String)
           expect(response).to match_camelized_response_schema('message_threads')
         end
+
+        it 'returns an empty array when there are no messages in the folder' do
+          VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_no_messages') do
+            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
+          end
+
+          expect(response).to be_successful
+
+          json_response = JSON.parse(response.body)
+          expect(json_response).to eq({ "data" => [] })
+          expect(response).to match_response_schema('message_threads_no_messages')
+        end
       end
     end
 
