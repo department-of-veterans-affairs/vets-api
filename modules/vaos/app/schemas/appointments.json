@@ -76,6 +76,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": ["system"],
                   "properties": {
                     "system": { "type": "string" },
