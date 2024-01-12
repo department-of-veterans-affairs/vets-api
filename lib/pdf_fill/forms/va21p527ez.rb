@@ -553,14 +553,18 @@ module PdfFill
             question_text: 'WHO WERE YOU MARRIED TO?',
             'first' => {
               limit: 12,
+              question_num: 7,
               question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
+              question_num: 7,
+              question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
+              question_num: 7,
               question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -570,6 +574,7 @@ module PdfFill
           },
           'otherExplanation' => {
             limit: 43,
+            question_num: 7,
             question_text: 'HOW DID YOUR PREVIOUS MARRIAGE END?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -597,11 +602,13 @@ module PdfFill
           },
           'locationOfMarriage' => {
             limit: 63,
+            question_num: 7,
             question_text: 'PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
+            question_num: 7,
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -610,12 +617,20 @@ module PdfFill
           limit: 2,
           'spouseFullName' => {
             'first' => {
+              limit: 12,
+              question_num: 7,
+              question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
+              question_num: 7,
+              question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
+              limit: 18,
+              question_num: 7,
+              question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
             }
           },
@@ -623,6 +638,9 @@ module PdfFill
             key: "Spouse_Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
           },
           'otherExplanation' => {
+            limit: 43,
+            question_num: 7,
+            question_text: 'OW DID THE PREVIOUS MARRIAGE END?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
           },
           'dateOfMarriage' => {
@@ -648,9 +666,15 @@ module PdfFill
             }
           },
           'locationOfMarriage' => {
+            limit: 63,
+            question_num: 7,
+            question_text: 'PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
+            limit: 54,
+            question_num: 7,
+            question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
