@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+# only change from previous file was Processor was renamed to Scrubbers
+
 require 'common/exceptions'
 require 'evss/error_middleware'
 require 'evss/disability_compensation_form/gateway_timeout'
 
 module Sentry
-  module Processor
-    class LogAsWarning < Raven::Processor
+  module Scrubbers
+    class LogAsWarning
       SENTRY_LOG_LEVEL_WARNING = 30
       RELEVANT_EXCEPTIONS = [
         Common::Exceptions::GatewayTimeout,
