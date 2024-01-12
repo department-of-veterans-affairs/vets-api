@@ -90,7 +90,7 @@ RSpec.describe 'Threads Integration', type: :request do
           expect(response).to be_successful
 
           json_response = JSON.parse(response.body)
-          expect(json_response).to eq({ "data" => [] })
+          expect(json_response).to eq({ 'data' => [] })
           expect(response).to match_response_schema('message_threads_no_messages')
         end
       end
