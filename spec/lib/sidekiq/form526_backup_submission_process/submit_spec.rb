@@ -90,7 +90,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 # Form 4142 Backup Submission Process
                 expect(submission.form['form4142']).not_to be(nil)
                 form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
-                  form_data: submission.form['form4142'], submission_id: submission.id)
+                  form_data: submission.form['form4142'], submission_id: submission.id
+                )
                 request_body = form4142_processor.request_body
                 metadata_hash = JSON.parse(request_body['metadata'])
                 form4142_received_date = metadata_hash['receiveDt'].to_date

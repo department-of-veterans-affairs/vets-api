@@ -22,7 +22,6 @@ module DecisionReviewV1
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
-
       end
 
       def generate_stamp_pdf
@@ -36,7 +35,7 @@ module DecisionReviewV1
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true,
+          text_only: true
         )
       end
 

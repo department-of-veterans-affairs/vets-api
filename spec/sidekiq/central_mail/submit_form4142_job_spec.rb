@@ -56,7 +56,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
         it 'corrects for invalid characters in generated metadata' do
           submission.form[Form526Submission::FORM_4142]['veteranFullName']
-            .update('first' => 'Beyoncé', 'last' => 'Knowle$')
+                    .update('first' => 'Beyoncé', 'last' => 'Knowle$')
           veteran_first_name = metadata_hash['veteranFirstName']
           veteran_last_name = metadata_hash['veteranLastName']
           transliterated_chars_regex = /[^\x00-\x7F]/
