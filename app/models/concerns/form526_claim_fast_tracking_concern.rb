@@ -137,9 +137,15 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  def is_routed_to_contention_classification?
+    return false unless increase_or_new?
+    return false unless disabilities.count == 1
+    return true
+  end
+
   def update_classification!
-    return unless increase_or_new?
-    return unless disabilities.count == 1
+    if !is_routed_to_contention_classification?
+      return
 
     claim_type = get_claim_type
     return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
@@ -164,6 +170,12 @@ module Form526ClaimFastTrackingConcern
   def classify_single_contention(params)
     vro_client = VirtualRegionalOffice::Client.new
     response = vro_client.classify_single_contention(params)
+    response.body
+  end
+
+  def link_claims(params)
+    vro_client = VirtualRegionalOffice::Client.new
+    response = vro_client.link_claims(params)
     response.body
   end
 
@@ -198,6 +210,8 @@ module Form526ClaimFastTrackingConcern
   def send_post_evss_notifications!
     conditionally_notify_mas
     conditionally_merge_ep
+    if is_routed_to_contention_classification?
+      link_claims
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 

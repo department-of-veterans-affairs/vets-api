@@ -11,6 +11,10 @@ module VirtualRegionalOffice
       perform(:post, Settings.virtual_regional_office.ctn_classification_path, params.to_json.to_s, headers_hash)
     end
 
+    def link_claims(params)
+      perform(:post, '/claim-linker', params.to_json.to_s, headers_hash)
+    end
+
     def get_max_rating_for_diagnostic_codes(diagnostic_codes_array)
       params = { diagnostic_codes: diagnostic_codes_array }
       perform(:post, Settings.virtual_regional_office.max_cfi_path, params.to_json.to_s, headers_hash)
