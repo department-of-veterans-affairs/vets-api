@@ -43,16 +43,36 @@ module V0
 
     def show
       claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
-      submission = claim.form_submissions.order(id: :asc).last
-      attempt = submission&.form_submission_attempts.order(created_at: :asc).last
 
-      state = 'pending'
+      submission = claim.form_submissions&.order(id: :asc)&.last
+      attempt = submission&.form_submission_attempts&.order(created_at: :asc)&.last
+
       if attempt
         # this is to temporarily satisfy frontend check
+        # {
+        #     "data": {
+        #         "id": "12",
+        #         "type": "central_mail_submissions",
+        #         "attributes": {
+        #             "state": "success"
+        #             .........
+        #         }
+        #     }
+        # }
         state = attempt.aasm_state != 'failure' ? 'success' : 'failure'
+        response = {
+          data: {
+            id: attempt.id,
+            type: "form_submission_attempts",
+            attributes: {
+              state: state,
+              **attempt.attributes
+            }
+          }
+        }
       end
 
-      render(json: { state: })
+      render(json: response)
     end
 
   # PensionClaimsController
