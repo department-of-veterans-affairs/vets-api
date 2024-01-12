@@ -19,39 +19,26 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
   end
 
   describe '#process' do
+    let(:result) { xlsx_processor.process }
+
     context 'with valid data' do
-      it 'processes the file and returns the correct data structure' do
-        result = xlsx_processor.process
-        expect(result).to be_a(Hash)
-        expect(result.keys).to include('Attorneys', 'Representatives')
+      let(:expected_keys) { %w[id type email_address request_address] }
+      let(:request_address_keys) do
+        %w[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
+           country_code_iso3]
       end
 
-      it 'processes the file and returns the correct data structure with expected keys in each JSON object' do
-        result = xlsx_processor.process
-        expected_keys = %w[id type email_address request_address]
+      it 'processes the file and validates the data structure and content' do
+        expect(result).to be_a(Hash)
+        expect(result.keys).to include('Attorneys', 'Representatives')
 
         result.each do |_key, value_array|
           expect(value_array).to all(be_a(String))
 
           value_array.each do |json_string|
             json_object = JSON.parse(json_string)
-            # Checks the first level of keys in the JSON object
             expect(json_object.keys).to match_array(expected_keys)
-
-            request_address_keys = %w[address_pou address_line1 address_line2 address_line3 city state_province
-                                      zip_code5 zip_code4 country_code_iso3]
-            # Checks the 'request_address' keys in the JSON object
             expect(json_object['request_address'].keys).to match_array(request_address_keys)
-          end
-        end
-      end
-
-      it 'ensures no fields contain "NULL", "null", or an empty string' do # rubocop:disable RSpec/NoExpectationExample
-        result = xlsx_processor.process
-
-        result.each do |_, value_array|
-          value_array.each do |json_string|
-            json_object = JSON.parse(json_string)
             check_values(json_object)
           end
         end
@@ -60,11 +47,10 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
 
     context 'with an invalid file' do
       let(:invalid_file_content) { 'invalid content' }
-      let(:xlsx_processor) { described_class.new(invalid_file_content) }
+      let(:invalid_xlsx_processor) { described_class.new(invalid_file_content) }
 
-      it 'logs an error' do
-        expect { xlsx_processor.process }.not_to raise_error
-        # Check if an error was logged, or if the result is as expected in case of an error
+      it 'handles errors gracefully' do
+        expect { invalid_xlsx_processor.process }.not_to raise_error
       end
     end
   end
