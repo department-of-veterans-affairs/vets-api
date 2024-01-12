@@ -27,7 +27,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        if form_is210966 && icn
+        if form_is210966 && icn && first_party?
           handle_210966_authenticated
         else
           submit_form_to_central_mail
@@ -144,6 +144,10 @@ module SimpleFormsApi
 
       def icn
         @current_user&.icn
+      end
+
+      def first_party?
+        ['VETERAN', 'SURVIVING_DEPENDENT'].include?(params[:preparer_identification])
       end
 
       def get_form_id
