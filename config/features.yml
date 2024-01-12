@@ -855,6 +855,14 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
+  representatives_portal_frontend:
+    actor_type: user
+    description: Enables the frontend of the representatives portal
+    enable_in_development: true
+  representatives_portal_api:
+    actor_type: user
+    description: Enables the representatives endpoint
+    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
