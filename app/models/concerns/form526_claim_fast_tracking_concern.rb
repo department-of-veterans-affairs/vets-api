@@ -140,15 +140,15 @@ module Form526ClaimFastTrackingConcern
   def is_routed_to_contention_classification?
     return false unless increase_or_new?
     return false unless disabilities.count == 1
+    claim_type = get_claim_type
+    return false unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
     return true
   end
 
   def update_classification!
     if !is_routed_to_contention_classification?
       return
-
-    claim_type = get_claim_type
-    return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
+    end
 
     diagnostic_code = diagnostic_codes.first
     params = {
@@ -210,8 +210,7 @@ module Form526ClaimFastTrackingConcern
   def send_post_evss_notifications!
     conditionally_notify_mas
     conditionally_merge_ep
-    if is_routed_to_contention_classification?
-      link_claims
+    link_claims if is_routed_to_contention_classification?
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 
