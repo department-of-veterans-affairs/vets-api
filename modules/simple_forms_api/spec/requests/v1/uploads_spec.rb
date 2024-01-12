@@ -151,12 +151,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       end
     end
 
-    def self.test_submit_supporting_documents(test_payload)
+    def self.test_submit_supporting_documents(form_number)
       it 'renders the attachment as json for form #{test_payload}' do
         allow(ClamScan::Client).to receive(:scan)
           .and_return(instance_double(ClamScan::Response, safe?: true))
         file = fixture_file_upload('doctors-note.gif')
-        data = { form_id: test_payload, file: file }
+        data = { form_id: form_number, file: file }
     
         expect do
           post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
@@ -166,9 +166,9 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
     
-        if test_payload == '40-0247'
+        if form_number == '40-0247'
           expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
-        elsif test_payload == '40-10007'
+        elsif form_number == '40-10007'
           expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
         end
       end
@@ -190,7 +190,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
-            expect(response).to have_http_status(:ok)
+             expect(response).to have_http_status(:ok)
           ensure
             metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
             Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
@@ -199,7 +199,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       end
     end
 
-    # test_submit_form_with_attachments 'vba_40_0247_with_supporting_document.json'
+    test_submit_form_with_attachments 'vba_40_0247_with_supporting_document.json'
     test_submit_form_with_attachments 'vba_40_10007_with_supporting_document.json'
 
     def self.test_failed_request_scrubs_error_message_unhandled_form

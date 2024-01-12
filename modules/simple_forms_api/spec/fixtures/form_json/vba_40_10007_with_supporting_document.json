@@ -2,11 +2,9 @@
   "form_number": "40-10007",
   "preneed_attachments": [
     {
-      "name": "va40-10007 (1).pdf",
-      "confirmation_code": "61ee8bd4-31a3-4fbb-9163-f5b69fe3b815",
-      "size": 395933,
-      "is_encrypted": false,
-      "attachment_id": "2"
+      "name": "123.jpeg",
+      "size": 80364,
+      "confirmation_code": "a-random-uuid"
     }
   ],
   "application": {
