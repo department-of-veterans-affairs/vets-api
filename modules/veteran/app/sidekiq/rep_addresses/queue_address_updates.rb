@@ -2,7 +2,6 @@
 
 require 'sidekiq'
 require 'sentry_logging'
-require 'roo'
 
 module RepAddresses
   # A Sidekiq job class for processing address and email updates from an Excel file.
@@ -37,8 +36,12 @@ module RepAddresses
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
 
-        data[sheet].each_slice(BATCH_SIZE) do |json_data|
-          RepAddresses::UpdateAddresses.perform_async(json_data)
+        batch.jobs do
+          data[sheet].each_slice(BATCH_SIZE) do |rows|
+            rows.each do |row|
+              RepAddresses::UpdateAddresses.perform_async(row)
+            end
+          end
         end
       end
     end
