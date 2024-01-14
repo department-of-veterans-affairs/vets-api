@@ -149,10 +149,6 @@ module RepAddresses
       email_regex.match?(email_address)
     end
 
-    def format_vso_poa(vso_poa)
-      vso_poa.to_s.rjust(3, '0')
-    end
-
     def return_value_or_nil(value)
       value.blank? || value.empty? || value.downcase == 'null' ? nil : value
     rescue => e
