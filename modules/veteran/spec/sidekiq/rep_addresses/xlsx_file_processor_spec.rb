@@ -7,11 +7,12 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
   let(:xlsx_processor) { described_class.new(mock_file_content) }
 
   def check_values(hash)
-    invalid_values = ['', 'NULL', 'null']
+    invalid_values = ['', 'null']
 
-    hash.each_value do |value|
+    hash.each do |key, value|
       if value.is_a?(String)
-        expect(invalid_values).not_to include(value)
+        expect(invalid_values).not_to include(value.downcase)
+        expect(value).to match(/\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i) if key == 'email_address'
       elsif value.is_a?(Hash)
         check_values(value)
       end
