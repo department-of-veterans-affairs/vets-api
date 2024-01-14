@@ -134,22 +134,19 @@ module RepAddresses
     def format_email_address(row, sheet_name, column_map)
       column_name = email_address_column_name(sheet_name)
       value = row[column_map[column_name]]
-      email?(value) ? rstrip_value(value) : nil
+      return nil if value.nil?
+
+      email_address = value.to_s.rstrip
+      email_address?(email_address) ? email_address : nil
     end
 
     def email_address_column_name(sheet_name)
       sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
     end
 
-    def email?(email_address)
-      return false if email_address.nil?
-
+    def email_address?(email_address)
       email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-      email_regex.match?(rstrip_value(email_address))
-    end
-
-    def rstrip_value(value)
-      value.to_s.rstrip
+      email_regex.match?(email_address)
     end
 
     def format_vso_poa(vso_poa)
