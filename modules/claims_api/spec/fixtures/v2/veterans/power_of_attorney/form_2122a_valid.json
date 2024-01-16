@@ -1,0 +1,13 @@
+{
+  "data": {
+    "attributes": {
+      "serviceOrganization": {
+        "poaCode": "083"
+      },
+      "signatures": {
+        "veteran": "hello",
+        "representative": "world"
+      }
+    }
+  }
+}

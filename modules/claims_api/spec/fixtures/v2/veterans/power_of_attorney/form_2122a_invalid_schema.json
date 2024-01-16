@@ -1,0 +1,13 @@
+{
+  "data": {
+    "attributes": {
+      "serviceOrganization": {
+        "organizationName": "123"
+      },
+      "signatures": {
+        "veteran": "hello",
+        "representative": "world"
+      }
+    }
+  }
+}
