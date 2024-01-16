@@ -6,6 +6,12 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
   let(:mock_file_content) { File.read('modules/veteran/spec/fixtures/xlsx_files/rep-mock-data.xlsx') }
   let(:xlsx_processor) { described_class.new(mock_file_content) }
 
+  describe 'modules and initialization' do
+    it 'includes SentryLogging' do
+      expect(described_class.included_modules).to include(SentryLogging)
+    end
+  end
+
   def check_values(hash)
     invalid_values = ['', 'null']
 
