@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/benefits_claims/veteran_sponsor_resolver'
+require 'lighthouse/benefits_claims/sponsor_resolver'
 
 RSpec.describe BenefitsClaims::SponsorResolver do
   describe '#get_icn' do
