@@ -2,8 +2,8 @@
 
 require 'claims_api/common/exceptions/lighthouse/token_validation_error'
 require 'claims_api/common/exceptions/lighthouse/json_validation_error'
+require 'claims_api/common/exceptions/lighthouse/json_disability_compensation_validation_error'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
-require 'claims_api/common/exceptions/lighthouse/invalid_field_value'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 
 module ClaimsApi
@@ -23,15 +23,20 @@ module ClaimsApi
                         ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound,
                         ::Common::Exceptions::Forbidden,
                         ::Common::Exceptions::ValidationErrorsBadRequest,
-                        ::Common::Exceptions::UnprocessableEntity,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::InvalidFieldValue,
-                        ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
+                        ::Common::Exceptions::UnprocessableEntity do |err|
                           render_error(err)
                         end
             rescue_from JsonSchema::JsonApiMissingAttribute do |err|
-              render_json_error(
+              render_json_errors(
                 ::ClaimsApi::Common::Exceptions::Lighthouse::JsonValidationError.new(err.to_json_api)
               )
+            end
+
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
+              render_error(err)
+            end
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
+              render_validation_errors(errs)
             end
           end
         end
@@ -48,8 +53,18 @@ module ClaimsApi
           }, status: error.status_code
         end
 
-        def render_json_error(error)
-          render json: { errors: error.errors_array }, status: error.status_code
+        def render_json_errors(error)
+          if @disability_compensation_validation_errors
+            @disability_compensation_validation_errors.concat(error.errors_array)
+          else
+            @disability_compensation_validation_errors = error.errors_array
+          end
+
+          render json: { errors: @disability_compensation_validation_errors }, status: error.status_code
+        end
+
+        def render_validation_errors(errors)
+          render json: { errors: errors.errors_array }, status: errors.status_code
         end
 
         def format_source(error)
