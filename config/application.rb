@@ -29,7 +29,8 @@ require_relative '../lib/olive_branch_patch'
 module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.1
+    # https://guides.rubyonrails.org/configuring.html#default-values-for-target-version-7-0
+    config.load_defaults 7.0
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -38,6 +39,23 @@ module VetsAPI
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # RAILS 7 CONFIG START
+    config.action_controller.raise_on_open_redirects = false
+
+    # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and
+    # from Rails 7.1 will use the default Ruby implementation.
+    config.active_support.remove_deprecated_time_with_zone_name = false
+
+    # DEPRECATION WARNING: Providing a namespace ID that is not one of the constants defined
+    # on Digest::UUID generates an incorrect UUID value according to RFC 4122. To enable the
+    # correct behavior, set the Rails.application.config.active_support.use_rfc4122_namespaced_uuids
+    # configuration option to true.
+
+    # The namespaces uses in this api aren't one of the constants defined on Digest::UUID
+    # so need to set this to false in order to get the same digest as before
+    config.active_support.use_rfc4122_namespaced_uuids = false
+    # RAILS 7 CONFIG END
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
