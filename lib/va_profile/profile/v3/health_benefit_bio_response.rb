@@ -18,9 +18,9 @@ module VAProfile::Profile::V3
     class << self
       def from(response)
         associated_persons = response.body['profile']['healthBenefit']['associatedPersons']
-                              &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
+                                     &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
         messages = response.body['messages']
-                    &.map { |m| VAProfile::Models::Message.build_from(m) }
+                           &.map { |m| VAProfile::Models::Message.build_from(m) }
         new(response.status, { associated_persons:, messages: })
       end
     end

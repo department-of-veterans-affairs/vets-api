@@ -28,7 +28,7 @@ module VAProfile
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
-          response = config.post(path, { bios: [ {bioPath: 'healthBenefit'} ]})
+          response = config.post(path, { bios: [{ bioPath: 'healthBenefit' }] })
           VAProfile::Profile::V3::HealthBenefitBioResponse.from(response)
         end
 
