@@ -34,7 +34,7 @@ module StructuredData
       end
     rescue => e
       log_message_to_sentry("Error processing data job form id #{@claim.form_id}", :error)
-      log_exception_to_sentry(e, { form_id: @claim.form_id })
+      Rails.logger.error("#{e.class.name}: #{e.message}", { form_id: @claim.form_id })
       raise
     end
 
