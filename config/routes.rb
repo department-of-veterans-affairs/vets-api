@@ -342,6 +342,10 @@ Rails.application.routes.draw do
       resource :preferred_names, only: :update
     end
 
+    get '/account_controls/credential_index', to: 'account_controls#credential_index'
+    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
+    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
+
     resources :search, only: :index
     resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
