@@ -1,11 +1,11 @@
 ---
 http_interactions:
-  - request:
-      method: post
-      uri: https://www.fake-url.com
-      body:
-        encoding: UTF-8
-        string: '{"query":"{\n  nodeQuery(limit: 1000, offset: 0, filter: {conditions:
+- request:
+    method: post
+    uri: https://fake-url.com/graphql
+    body:
+      encoding: UTF-8
+      string: '{"query":"{\n  nodeQuery(limit: 1000, offset: 0, filter: {conditions:
         [{ field: \"field_va_form_number\", value: \"26-8599\", operator: LIKE }]})
         {\n    entities {\n      ... on NodePage {\n        fieldRelatedLinks {\n          entity
         {\n            parentFieldName\n          }\n        }\n      }\n      ...vaForm\n    }\n  }\n}\nfragment
@@ -21,38 +21,38 @@ http_interactions:
         {\n        entityId\n    \t\tfieldLink {\n          url {\n            path\n          }\n          title\n          options\n        }\n        fieldLinkSummary\n      }\n    }\n  }\n  fieldVaFormRelatedForms
         {\n    entity {\n      ... on NodeVaForm {\n        fieldVaFormNumber\n      }\n    }\n  }\n  fieldVaFormAdministration
         {\n        entity {\n          entityLabel\n        }\n  }\n  changed\n  status\n}\n"}'
-      headers:
-        User-Agent:
-          - Faraday v0.17.6
-        Content-Type:
-          - application/x-www-form-urlencoded
-        Authorization:
-          - Basic fake_token
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-        Accept:
-          - "*/*"
-    response:
-      status:
-        code: 500
-        message: 'Internal Server Error'
-      headers:
-        Date:
-          - Mon, 29 Mar 2021 19:45:00 GMT
-        Content-Type:
-          - application/json
-        Content-Length:
-          - '187'
-        Connection:
-          - keep-alive
-        Server:
-          - Server
-        X-Content-Type-Options:
-          - nosniff
-        X-Frame-Options:
-          - SAMEORIGIN
-      body:
-        encoding: UTF-8
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Authorization:
+      - Basic fake_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 500
+      message: 'Internal Server Error'
+    headers:
+      Date:
+      - Mon, 29 Mar 2021 19:45:00 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '187'
+      Connection:
+      - keep-alive
+      Server:
+      - Server
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
       string: |-
         {
           "errors": [{
@@ -61,5 +61,5 @@ http_interactions:
             "detail": "Internal Server Error"
           }]
         }
-    recorded_at: Mon, 29 Mar 2021 19:45:00 GMT
+  recorded_at: Mon, 29 Mar 2021 19:45:00 GMT
 recorded_with: VCR 6.0.0
