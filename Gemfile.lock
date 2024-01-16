@@ -957,7 +957,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.5.12)
+    statsd-instrument (3.6.1)
     strong_migrations (1.6.4)
       activerecord (>= 5.2)
     super_diff (0.10.0)
@@ -1015,6 +1015,8 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.8.1)
     websocket-driver (0.7.6)
+      websocket-extensions (>= 0.1.0)
+    websocket-driver (0.7.6-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (4.0.0)
