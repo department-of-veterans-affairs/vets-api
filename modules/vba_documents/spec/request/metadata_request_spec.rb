@@ -27,7 +27,7 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(parsed_response['description']).to eq('VBA Documents API health check')
-        expect(parsed_response['status']).to eq('UP')
+        expect(parsed_response['status']).to eq('pass')
         expect(parsed_response['time']).not_to be_nil
       end
 
@@ -51,9 +51,9 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
         get '/services/vba_documents/v1/healthcheck'
 
         parsed_response = JSON.parse(response.body)
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:service_unavailable)
         expect(parsed_response['description']).to eq('VBA Documents API health check')
-        expect(parsed_response['status']).to eq('DOWN')
+        expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
       end
     end

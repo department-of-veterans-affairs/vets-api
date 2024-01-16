@@ -65,8 +65,10 @@ module VBADocuments
     end
 
     def healthcheck
+      http_status_code = 200
       s3_heathy = s3_is_healthy?
       unless s3_heathy
+        http_status_code = 503
         slack_details = {
           class: self.class.name,
           warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake API healthcheck failed: unable to connect to AWS S3 bucket."
@@ -75,9 +77,9 @@ module VBADocuments
       end
       render json: {
         description: 'VBA Documents API health check',
-        status: s3_heathy ? 'UP' : 'DOWN',
+        status: s3_heathy ? 'pass' : 'fail',
         time: Time.zone.now.to_formatted_s(:iso8601)
-      }
+      }, status: http_status_code
     end
 
     # treat s3 as a Benefits Intake internal resource as opposed to an upstream service per VA
