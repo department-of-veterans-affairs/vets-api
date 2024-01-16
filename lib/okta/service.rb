@@ -78,7 +78,7 @@ module Okta
     private
 
     %i[get post put delete].each do |http_verb|
-      define_method("#{http_verb}_url_with_token".to_sym) do |url|
+      define_method(:"#{http_verb}_url_with_token") do |url|
         Okta::Response.new call_with_token(http_verb, url)
       end
     end
