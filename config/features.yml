@@ -746,7 +746,7 @@ features:
   post_911_gibill_statuses_new_error_handling:
     actor_type: user
     description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
-    enabled_in_development: true
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
