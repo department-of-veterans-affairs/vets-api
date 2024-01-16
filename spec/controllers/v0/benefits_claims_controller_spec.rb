@@ -10,6 +10,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
     token = 'fake_access_token'
 
+    allow(Rails.logger).to receive(:info)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
 
@@ -111,6 +112,23 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         get(:show, params: { id: '60038334' })
 
         expect(response).to have_http_status(:gateway_timeout)
+      end
+    end
+
+    context 'when there are contentions' do
+      it 'logs the claim type details' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '60038334' })
+        end
+
+        expect(Rails.logger)
+            .to have_received(:info)
+            .with('Claim Type Details',
+                  { message_type: 'lh.cst.claim_types',
+                    claim_type: 'Compensation',
+                    claimTypeCode: '020NEW',
+                    num_contentions: 1,
+                    ep_code: '020' })
       end
     end
   end
