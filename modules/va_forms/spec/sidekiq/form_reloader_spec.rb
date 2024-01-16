@@ -65,7 +65,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
         end
       end
 
-      it 'notifies Slack that retries were exhausted' do
+      it 'notifies Slack' do
         described_class.within_sidekiq_retries_exhausted_block(msg, error) do
           expect(VAForms::Slack::Messenger).to receive(:new).with(
             {
