@@ -66,12 +66,12 @@ module ClaimsApi
         #
         # @return [JSON] Claim record
         def upload
-          check_file_number_exists!
-          check_request_ssn_matches_mpi(request&.headers&.to_h)
           validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
           find_poa_by_id
+          check_file_number_exists!
+          check_request_ssn_matches_mpi(request&.headers&.to_h)
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
