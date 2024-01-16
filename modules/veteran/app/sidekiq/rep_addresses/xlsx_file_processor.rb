@@ -63,20 +63,19 @@ module RepAddresses
     # @param column_map [Hash] The column index map for the sheet.
     # @return [String] The JSON representation of the row data.
     def create_json_data(row, sheet_name, column_map)
-      is_vso = sheet_name == 'VSOs'
-      zip_code5, zip_code4 = format_zip_code(row, column_map, is_vso)
+      zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
 
       {
         id: row[column_map['Number']],
         type: 'representative',
-        email_address: format_email_address(row, sheet_name, column_map),
+        email_address: get_value(row, column_map, email_address_column_name(sheet_name)),
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
-          address_line1: format_address_line1(row, column_map, is_vso),
-          address_line2: format_address_line2(row, column_map, is_vso),
-          address_line3: format_address_line3(row, column_map, is_vso),
-          city: format_city(row, column_map, is_vso),
-          state_province: { code: format_state_province_code(row, column_map, is_vso) },
+          address_line1: get_value(row, column_map, 'WorkAddress1'),
+          address_line2: get_value(row, column_map, 'WorkAddress2'),
+          address_line3: get_value(row, column_map, 'WorkAddress3'),
+          city: get_value(row, column_map, 'WorkCity'),
+          state_province: { code: get_value(row, column_map, 'WorkState') },
           zip_code5:,
           zip_code4:,
           country_code_iso3: 'US'
@@ -86,40 +85,27 @@ module RepAddresses
       log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
     end
 
-    def format_address_line1(row, column_map, is_vso)
-      value = is_vso ? row[column_map['Organization.AddressLine1']] : row[column_map['WorkAddress1']]
-      value.nil? ? nil : return_value_or_nil(value.to_s)
+    def get_value(row, column_map, column_name)
+      value = row[column_map[column_name]]
+      return [nil, nil] if value.nil? && column_name == 'WorkZip'
+      return nil if value.nil?
+
+      sanitized_value = value.to_s.strip
+
+      case column_name
+      when 'WorkZip'
+        get_zip_code(sanitized_value)
+      when 'EmailAddress', 'WorkEmailAddress'
+        get_email_address(sanitized_value)
+      else
+        return_value_or_nil(sanitized_value)
+      end
     end
 
-    def format_address_line2(row, column_map, is_vso)
-      value = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
-      value.nil? ? nil : return_value_or_nil(value.to_s)
-    end
-
-    def format_address_line3(row, column_map, is_vso)
-      value = is_vso ? row[column_map['Organization.AddressLine2']] : row[column_map['WorkAddress2']]
-      value.nil? ? nil : return_value_or_nil(value.to_s)
-    end
-
-    def format_city(row, column_map, is_vso)
-      value = is_vso ? row[column_map['Organization.City']] : row[column_map['WorkCity']]
-      value.nil? ? nil : return_value_or_nil(value.to_s)
-    end
-
-    def format_state_province_code(row, column_map, is_vso)
-      value = is_vso ? row[column_map['Organization.State']] : row[column_map['WorkState']]
-      value.nil? ? nil : return_value_or_nil(value.to_s)
-    end
-
-    def format_zip_code(row, column_map, is_vso)
-      value = is_vso ? row[column_map['Organization.ZipCode']] : row[column_map['WorkZip']]
-
-      return [nil, nil] if value.nil?
-
-      zip_code = value.to_s
-      is_zip_plus4 = zip_code.include?('-')
-      zip5 = is_zip_plus4 ? format_zip5(zip_code.split('-').first) : format_zip5(zip_code)
-      zip4 = is_zip_plus4 ? format_zip4(zip_code.split('-').last) : nil
+    def get_zip_code(value)
+      is_zip_plus4 = value.include?('-')
+      zip5 = is_zip_plus4 ? format_zip5(value.split('-').first) : format_zip5(value)
+      zip4 = is_zip_plus4 ? format_zip4(value.split('-').last) : nil
       [zip5, zip4]
     end
 
@@ -131,17 +117,12 @@ module RepAddresses
       zip4.length < 4 ? zip4.rjust(4, '0') : zip4
     end
 
-    def format_email_address(row, sheet_name, column_map)
-      column_name = email_address_column_name(sheet_name)
-      value = row[column_map[column_name]]
-      return nil if value.nil?
-
-      email_address = value.to_s.rstrip
-      email_address?(email_address) ? email_address : nil
-    end
-
     def email_address_column_name(sheet_name)
       sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
+    end
+
+    def get_email_address(value)
+      email_address?(value) ? value : nil
     end
 
     def email_address?(email_address)
