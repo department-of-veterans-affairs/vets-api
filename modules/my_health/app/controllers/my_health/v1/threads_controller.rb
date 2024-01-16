@@ -4,25 +4,7 @@ module MyHealth
   module V1
     class ThreadsController < SMController
       def index
-        begin
-          resource = client.get_folder_threads(
-            params[:folder_id].to_s,
-            params[:page_size],
-            params[:page_number],
-            params[:sort_field],
-            params[:sort_order]
-          )
-        rescue => e
-          error = e.errors.first
-          # If there are no messages in the folder, MHV API returns a 400 error
-          # We want to return an empty array in this case
-          if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
-            resource = Common::Collection.new(MessageThread, data: [])
-          else
-            raise e
-          end
-        end
-
+        resource = fetch_folder_threads
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
         render json: resource.data,
@@ -35,6 +17,31 @@ module MyHealth
         folder_id = params.require(:folder_id)
         client.post_move_thread(params[:id], folder_id)
         head :no_content
+      end
+
+      private
+
+      def fetch_folder_threads
+        client.get_folder_threads(
+          params[:folder_id].to_s,
+          params[:page_size],
+          params[:page_number],
+          params[:sort_field],
+          params[:sort_order]
+        )
+      rescue => e
+        handle_error(e)
+      end
+
+      def handle_error(e)
+        error = e.errors.first
+        if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
+          Common::Collection.new(
+            MessageThread, data: []
+          )
+        else
+          raise e
+        end
       end
     end
   end
