@@ -22,7 +22,7 @@ module V0
       ::Rails.logger.info('Claim Type Details',
                           { message_type: 'lh.cst.claim_types',
                             claim_type: claim_info['claimType'],
-                            claimTypeCode: claim_info['claimTypeCode'],
+                            claim_type_code: claim_info['claimTypeCode'],
                             num_contentions: claim_info['contentions'].count,
                             ep_code: claim_info['endProductCode'] })
 
