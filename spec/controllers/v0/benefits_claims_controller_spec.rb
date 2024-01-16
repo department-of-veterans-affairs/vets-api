@@ -82,13 +82,13 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         expect(Rails.logger)
-            .to have_received(:info)
-            .with('Claim Type Details',
-                  { message_type: 'lh.cst.claim_types',
-                    claim_type: 'Compensation',
-                    claimTypeCode: '020NEW',
-                    num_contentions: 1,
-                    ep_code: '020' })
+          .to have_received(:info)
+          .with('Claim Type Details',
+                { message_type: 'lh.cst.claim_types',
+                  claim_type: 'Compensation',
+                  claimTypeCode: '020NEW',
+                  num_contentions: 1,
+                  ep_code: '020' })
       end
     end
 
