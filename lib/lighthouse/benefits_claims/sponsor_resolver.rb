@@ -4,7 +4,6 @@ module BenefitsClaims
   class SponsorResolver
     def self.dependent?(user)
       user.person_types&.include?('DEP')
-      true
     end
 
     # Returns the Veteran sponsor's ICN if user is a dependent, or nil

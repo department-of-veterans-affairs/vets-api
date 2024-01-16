@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_claims/sponsor_resolver'
 
 RSpec.describe BenefitsClaims::SponsorResolver do
-  describe '#get_icn' do
+  describe '#sponsor_icn' do
     context 'for a dependent' do
       let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
 
