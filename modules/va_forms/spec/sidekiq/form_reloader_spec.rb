@@ -10,7 +10,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
   let(:form_count) { form_data.size }
 
   it 'schedules a child `FormBuilder` job for each form retrieved' do
-    VCR.use_cassette('va_forms/va_forms') do
+    VCR.use_cassette('va_forms/va_forms', :record => :new_episodes) do
       form_data.each { |form| VAForms::FormBuilder.perform_async(form) }
       expect(VAForms::FormBuilder.jobs.size).to eq(form_count)
     end
