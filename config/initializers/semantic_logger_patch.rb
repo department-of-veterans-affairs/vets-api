@@ -1,5 +1,7 @@
-if ActiveSupport::VERSION::STRING == "7.1.2"
-  require "active_support/log_subscriber"
+# frozen_string_literal: true
+
+if ActiveSupport::VERSION::STRING == '7.1.2'
+  require 'active_support/log_subscriber'
 
   module ActiveSupport
     class LogSubscriber
