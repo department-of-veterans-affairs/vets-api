@@ -18,10 +18,7 @@ module VAForms
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
       message = 'VAForms::FormReloader retries exhausted'
-      Rails.logger.error(
-        message,
-        { job_id:, error_class:, error_message: }
-      )
+      Rails.logger.error(message, { job_id:, error_class:, error_message: })
       VAForms::Slack::Messenger.new(
         {
           class: 'VAForms::FormReloader',
@@ -46,7 +43,7 @@ module VAForms
       VAForms::Slack::Messenger.new(
         {
           class: 'VAForms::FormReloader',
-          exception: e,
+          exception: e.class,
           exception_message: e.message,
           detail: message
         }
