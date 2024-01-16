@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims/600397109/5103&sponsor_icn=9900123456V123456
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims/600397109/5103?sponsorIcn=9900123456V123456
     body:
       encoding: UTF-8
       string: "{}"

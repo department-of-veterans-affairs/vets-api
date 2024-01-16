@@ -42,7 +42,7 @@ module BenefitsClaims
       is_dependent = SponsorResolver.dependent?(user)
       params = {}
       params[:sponsorIcn] = SponsorResolver.sponsor_icn(user) if is_dependent
-      config.post_with_params("#{@icn}/claims/#{id}/5103", params, options).body
+      config.post_with_params("#{@icn}/claims/#{id}/5103", {}, params, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
