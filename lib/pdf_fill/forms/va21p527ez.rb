@@ -1078,7 +1078,7 @@ module PdfFill
         },
         # 10e-j Medical Expenses
         'medicalExpenses' => {
-          limit: 3,
+          limit: 6,
           first_key: 'childName',
           # (1) Recipient
           'recipients' => {
@@ -1361,7 +1361,7 @@ module PdfFill
         reason_for_separation_lookup = {
           'death' => 0,
           'divorce' => 1,
-          '' => 2
+          'other' => 2
         }
         %w[marriages spouseMarriages].each do |key|
           @form_data[key] = @form_data[key]&.map do |marriage|
@@ -1505,7 +1505,7 @@ module PdfFill
             'to' => split_date(care_expense.dig('careDateRange', 'to'))
           },
           'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
-          'noCareEndDate' => to_radio_yes_no(care_expense['noCareEndDate']),
+          'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
           'paymentFrequency' => PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
           'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
           'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
