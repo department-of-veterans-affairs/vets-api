@@ -34,6 +34,7 @@ module CentralMail
             pdf.start_new_page
           end
           (pdf.draw_text text, at: [x, y], size:)
+          (pdf.draw_text timestamp.strftime("%Y-%m-%d %I:%M %p %Z"), at: [x, y-12], size:)
           (reader.page_count - page_number).times do 
             pdf.start_new_page
           end
