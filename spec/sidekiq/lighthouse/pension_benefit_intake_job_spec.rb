@@ -27,6 +27,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       doc = { file: pdf_path, file_name: 'pdf' }
 
       expect(claim).to receive(:to_pdf)
+      expect(job).to receive(:form_submission_polling)
       expect(job).to receive(:process_pdf).with(pdf_path)
       expect(job).to receive(:generate_form_metadata_lh).once
       expect(service).to receive(:upload_form).with(
@@ -94,12 +95,14 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
     it 'returns expected hash' do
       expect(job.generate_form_metadata_lh).to include(
-        veteran_first_name: be_a(String),
-        veteran_last_name: be_a(String),
-        file_number: be_a(String),
-        zip: be_a(String),
-        doc_type: be_a(String),
-        claim_date: be_a(ActiveSupport::TimeWithZone)
+        'veteranFirstName' => be_a(String),
+        'veteranLastName' => be_a(String),
+        'fileNumber' => be_a(String),
+        'zipCode' => be_a(String),
+        'docType' => be_a(String),
+        'businessLine' => eq(described_class::PENSION_BUSINESSLINE),
+        'source' => eq(described_class::PENSION_SOURCE),
+        'claimDate' => be_a(ActiveSupport::TimeWithZone)
       )
     end
     # generate_form_metadata_lh
@@ -113,7 +116,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
-      expect(job).to receive(:form_submission_polling)
       job.check_success(response)
     end
 
@@ -160,6 +162,15 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       job.form_submission_polling
     end
     # form_submission_polling
+  end
+
+  describe 'sidekiq_retries_exhausted block' do
+    it 'logs a distrinct error when retries are exhausted' do
+      Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+      end
+    end
   end
 
   # Rspec.describe

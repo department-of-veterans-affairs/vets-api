@@ -36,16 +36,6 @@ module SignIn
       nil
     end
 
-    def authenticate_service_account
-      @service_account_access_token = authenticate_service_account_access_token
-      validate_requested_scope
-      @service_account_access_token.present?
-    rescue Errors::AccessTokenExpiredError => e
-      render json: { errors: e }, status: :forbidden
-    rescue Errors::StandardError => e
-      handle_authenticate_error(e)
-    end
-
     private
 
     def bearer_token
@@ -62,11 +52,6 @@ module SignIn
     def authenticate_access_token(with_validation: true)
       access_token_jwt = bearer_token || cookie_access_token
       AccessTokenJwtDecoder.new(access_token_jwt:).perform(with_validation:)
-    end
-
-    def authenticate_service_account_access_token
-      service_account_access_token_jwt = bearer_token
-      ServiceAccountAccessTokenJwtDecoder.new(service_account_access_token_jwt:).perform
     end
 
     def load_user_object
@@ -90,13 +75,6 @@ module SignIn
       Rails.logger.warn('[SignIn][Authentication] fingerprint mismatch', log_context)
       @current_user.fingerprint = request.remote_ip
       @current_user.save
-    end
-
-    def validate_requested_scope
-      authorized_scopes = @service_account_access_token.scopes
-      return if authorized_scopes.any? { |scope| request.url.include?(scope) }
-
-      raise Errors::InvalidServiceAccountScope.new message: 'Required scope for requested resource not found'
     end
   end
 end

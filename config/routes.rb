@@ -73,6 +73,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :letters_discrepancy, only: [:index]
+
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
@@ -340,6 +342,10 @@ Rails.application.routes.draw do
       resource :preferred_names, only: :update
     end
 
+    get '/account_controls/credential_index', to: 'account_controls#credential_index'
+    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
+    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
+
     resources :search, only: :index
     resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
@@ -459,6 +465,7 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   # End Modules

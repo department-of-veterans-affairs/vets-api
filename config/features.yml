@@ -304,12 +304,6 @@ features:
   decision_review_monthly_stats_report_enabled:
     actor_type: user
     description: Enables the monthly decision review stats report email
-  decision_review_higher_level_review_pdf_v3:
-    actor_type: user
-    description: Defaults to v3 of the Higher-Level Review PDF form instead of v2
-  decision_review_supplemental_claim_pdf_v3:
-    actor_type: user
-    description: Defaults to v3 of the Supplemental Claim PDF form instead of v2
   decision_review_sc_pact_act_boolean:
     actor_type: user
     description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
@@ -347,6 +341,10 @@ features:
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
+    enable_in_development: true
+  contention_classification_claim_linker:
+    actor_type: user
+    description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
@@ -658,6 +656,10 @@ features:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
     enable_in_development: true
+  mhv_medical_records_display_notes:
+    actor_type: user
+    description: Show/hide content related to Notes in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_sidenav:
     actor_type: user
     description: Show/hide the Medical Records side navigation
@@ -741,6 +743,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  post_911_gibill_statuses_new_error_handling:
+    actor_type: user
+    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
+    enabled_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1284,3 +1290,6 @@ features:
   virtual_agent_enable_nlu_pva_testing:
     actor_type: user
     description: If enabled, allows for connecting to NLU PVA
+  vye_load_scrypt_config:
+    actor_type: user
+    description: If enabled, allowed for scrypt configs to be loaded.

@@ -81,6 +81,10 @@ FactoryBot.define do
     api_version { 'V0' }
     auth_headers { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_headers.json' }
     form_data { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182.json' }
+    after(:build) do |nod, attrs|
+      nod.form_data['data']['attributes']['veteran']['icn'] = attrs.veteran_icn if attrs.veteran_icn.present?
+      nod
+    end
   end
 
   factory :extra_notice_of_disagreement_v0,
@@ -88,6 +92,10 @@ FactoryBot.define do
     api_version { 'V0' }
     auth_headers { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_headers.json' }
     form_data { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_extra.json' }
+    after(:build) do |nod, attrs|
+      nod.form_data['data']['attributes']['veteran']['icn'] = attrs.veteran_icn if attrs.veteran_icn.present?
+      nod
+    end
   end
 
   factory :minimal_notice_of_disagreement_v0,
@@ -95,5 +103,9 @@ FactoryBot.define do
     api_version { 'V0' }
     auth_headers { {} }
     form_data { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_minimum.json' }
+    after(:build) do |nod, attrs|
+      nod.form_data['data']['attributes']['veteran']['icn'] = attrs.veteran_icn if attrs.veteran_icn.present?
+      nod
+    end
   end
 end

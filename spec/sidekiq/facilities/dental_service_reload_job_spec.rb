@@ -50,7 +50,7 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
       allow_any_instance_of(
         Facilities::DentalServiceReloadJob
       ).to receive(:fetch_dental_service_data).and_raise(Facilities::DentalServiceError)
-      expect(Raven).to receive(:capture_exception).with(Facilities::DentalServiceError, level: 'error')
+      expect(Sentry).to receive(:capture_exception).with(Facilities::DentalServiceError, level: 'error')
       Facilities::DentalServiceReloadJob.new.perform
     end
   end
