@@ -34,8 +34,8 @@ module SAML
       @query_params = {}
       @tracker = initialize_tracker(params)
 
-      Raven.extra_context(params:)
-      Raven.user_context(session:, user:)
+      Sentry.set_extras(params:)
+      Sentry.set_user(session:, user:)
     end
 
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
@@ -65,6 +65,7 @@ module SAML
     def terms_of_use_redirect_url
       application = @tracker&.payload_attr(:application) || 'vaweb'
       if TERMS_OF_USE_ENABLED_CLIENTS.include?(application)
+        Rails.logger.info('Redirecting to /terms-of-use', type: :ssoe)
         add_query(terms_of_use_url, { redirect_url: login_redirect_url })
       else
         login_redirect_url

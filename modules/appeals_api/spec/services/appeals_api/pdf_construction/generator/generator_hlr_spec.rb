@@ -13,7 +13,7 @@ describe AppealsApi::PdfConstruction::Generator do
     # opts[:pdf_version] - version of PDF to render
     shared_examples 'shared HLR v2 and v3 generator examples' do |opts|
       let(:created_at) { '2021-02-03T14:15:16Z' }
-      let(:hlr) { create("higher_level_review_#{opts[:api_version]}".to_sym, created_at:) }
+      let(:hlr) { create(:"higher_level_review_#{opts[:api_version]}", created_at:) }
       let(:generated_pdf) { described_class.new(hlr, pdf_version: opts[:pdf_version]).generate }
       let(:fixture_name) { 'expected_200996.pdf' }
 
@@ -32,7 +32,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         context 'with minimum content' do
           let(:fixture_name) { 'expected_200996_minimum.pdf' }
-          let(:hlr) { create("minimal_higher_level_review_#{opts[:api_version]}".to_sym, created_at:) }
+          let(:hlr) { create(:"minimal_higher_level_review_#{opts[:api_version]}", created_at:) }
 
           it 'generates the expected pdf' do
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -44,7 +44,7 @@ describe AppealsApi::PdfConstruction::Generator do
         # fails in the k8s branch, we need to skip it so that deployments can continue.
         context 'with extra content', skip: opts[:pdf_version] == 'v3' do
           let(:fixture_name) { 'expected_200996_extra.pdf' }
-          let(:hlr) { create("extra_higher_level_review_#{opts[:api_version]}".to_sym, created_at:) }
+          let(:hlr) { create(:"extra_higher_level_review_#{opts[:api_version]}", created_at:) }
 
           it 'generates the expected pdf' do
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -60,7 +60,7 @@ describe AppealsApi::PdfConstruction::Generator do
               ).to receive(field_name).and_return(field_value)
             end
 
-            create("extra_higher_level_review_#{opts[:api_version]}".to_sym, created_at:) do |appeal|
+            create(:"extra_higher_level_review_#{opts[:api_version]}", created_at:) do |appeal|
               appeal.form_data = override_max_lengths(
                 appeal,
                 read_schema('200996.json', opts[:api_name], opts[:api_version])
