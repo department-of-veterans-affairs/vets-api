@@ -25,7 +25,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
       end
     end
 
-    context 'when the Drupal server returns an error' do
+    context 'when the forms server returns an error' do
       it 'raises an error and does not schedule any child FormBuilder jobs' do
         VCR.use_cassette('va_forms/forms_500_error') do
           expect { described_class.new.perform }.to raise_error(NoMethodError)
