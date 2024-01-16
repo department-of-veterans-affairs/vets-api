@@ -11,7 +11,8 @@ RSpec.describe UserVerification, type: :model do
            mhv_uuid:,
            backing_idme_uuid:,
            verified_at:,
-           user_account_id: user_account&.id)
+           user_account_id: user_account&.id,
+           locked:)
   end
 
   let(:idme_uuid) { nil }
@@ -21,6 +22,7 @@ RSpec.describe UserVerification, type: :model do
   let(:user_account) { nil }
   let(:backing_idme_uuid) { nil }
   let(:verified_at) { nil }
+  let(:locked) { false }
 
   describe 'validations' do
     shared_examples 'failed credential identifier validation' do
@@ -243,6 +245,86 @@ RSpec.describe UserVerification, type: :model do
               expect(subject).to eq(mhv_uuid)
             end
           end
+        end
+      end
+    end
+  end
+
+  describe '.lock!' do
+    subject { user_verification.lock! }
+
+    let(:user_account) { create(:user_account) }
+    let(:logingov_uuid) { SecureRandom.uuid }
+
+    it 'updates locked to true' do
+      expect { subject }.to change(user_verification, :locked).from(false).to(true)
+    end
+  end
+
+  describe '.unlock!' do
+    subject { user_verification.unlock! }
+
+    let(:user_account) { create(:user_account) }
+    let(:logingov_uuid) { SecureRandom.uuid }
+    let(:locked) { true }
+
+    it 'updates locked to false' do
+      expect { subject }.to change(user_verification, :locked).from(true).to(false)
+    end
+  end
+
+  describe '.find_by_type!' do
+    subject { UserVerification.find_by_type!(type, identifier) }
+
+    let(:user_account) { create(:user_account) }
+
+    context 'when a user verification is not found' do
+      let(:identifier) { 'some-identifier' }
+      let(:type) { 'logingov' }
+
+      it 'raises a record not found error' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context 'when a user verification is found' do
+      let(:identifier) { user_verification.credential_identifier }
+
+      context 'when a Login.gov user verification is found' do
+        let(:logingov_uuid) { 'some-logingov-uuid' }
+        let(:type) { 'logingov' }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+
+      context 'when an ID.me user verification is found' do
+        let(:idme_uuid) { 'some-idme-uuid' }
+        let(:type) { 'idme' }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+
+      context 'when a DSLogon user verification is found' do
+        let(:dslogon_uuid) { 'some-dslogon-uuid' }
+        let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+        let(:type) { 'dslogon' }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+
+      context 'when an MHV user verification is found' do
+        let(:mhv_uuid) { 'some-mhv-uuid' }
+        let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+        let(:type) { 'mhv' }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
         end
       end
     end

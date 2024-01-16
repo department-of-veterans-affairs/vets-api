@@ -9,6 +9,8 @@ module VBADocuments
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)
 
+    TRAFFIC_LIGHT_EMOJI = ':vertical_traffic_light:'
+
     def index
       render json: {
         meta: {
@@ -63,11 +65,30 @@ module VBADocuments
     end
 
     def healthcheck
+      s3_heathy = s3_is_healthy?
+      unless s3_heathy
+        slack_details = {
+          class: self.class.name,
+          warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake API healthcheck failed: unable to connect to AWS S3 bucket."
+        }
+        VBADocuments::Slack::Messenger.new(slack_details).notify!
+      end
       render json: {
         description: 'VBA Documents API health check',
-        status: 'UP',
+        status: s3_heathy ? 'UP' : 'DOWN',
         time: Time.zone.now.to_formatted_s(:iso8601)
       }
+    end
+
+    # treat s3 as a Benefits Intake internal resource as opposed to an upstream service per VA
+    def s3_is_healthy?
+      s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
+                                 access_key_id: Settings.vba_documents.s3.aws_access_key_id,
+                                 secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
+      s3.client.head_bucket({ bucket: Settings.vba_documents.s3.bucket })
+      true
+    rescue
+      false
     end
 
     def upstream_healthcheck
