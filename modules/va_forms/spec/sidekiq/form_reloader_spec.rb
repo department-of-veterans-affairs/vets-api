@@ -18,7 +18,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
-    it 'schedules a child (FormBuilder) job for each form retrieved' do
+    it 'schedules a child FormBuilder job for each form retrieved' do
       VCR.use_cassette('va_forms/gql_forms') do
         described_class.new.perform
         expect(VAForms::FormBuilder.jobs.size).to eq(form_count)
@@ -26,7 +26,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
     end
 
     context 'when the Drupal server returns an error' do
-      it 'raises an error and does not schedule any child (FormBuilder) jobs' do
+      it 'raises an error and does not schedule any child FormBuilder jobs' do
         VCR.use_cassette('va_forms/gql_forms_internal_server_error') do
           expect { described_class.new.perform }.to raise_error(NoMethodError)
           expect(VAForms::FormBuilder.jobs.size).to eq(0)
