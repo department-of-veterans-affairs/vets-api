@@ -342,6 +342,10 @@ features:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
     enable_in_development: true
+  contention_classification_claim_linker:
+    actor_type: user
+    description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
+    enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
     description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
@@ -739,6 +743,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  post_911_gibill_statuses_new_error_handling:
+    actor_type: user
+    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -850,6 +858,14 @@ features:
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
+    enable_in_development: true
+  representatives_portal_frontend:
+    actor_type: user
+    description: Enables the frontend of the representatives portal
+    enable_in_development: true
+  representatives_portal_api:
+    actor_type: user
+    description: Enables the representatives endpoint
     enable_in_development: true
   search_representative:
     actor_type: user

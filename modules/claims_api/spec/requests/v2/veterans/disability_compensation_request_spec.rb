@@ -3791,4 +3791,44 @@ RSpec.describe 'Disability Claims', type: :request do
       end
     end
   end
+
+  describe 'POST #submit_form_526 not using md5 lookup' do
+    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:data) do
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+                             'form_526_json_api.json').read
+      temp = JSON.parse(temp)
+      attributes = temp['data']['attributes']
+      attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
+      attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      temp.to_json
+    end
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:veteran_id) { '1013062086V794840' }
+    let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
+
+    it 'creates a new claim if duplicate submit occurs (does not use md5 lookup)' do
+      mock_ccg(scopes) do |auth_header|
+        VCR.use_cassette('claims_api/disability_comp') do
+          json = JSON.parse(data)
+          post submit_path, params: json.to_json, headers: auth_header
+          expect(response).to have_http_status(:accepted)
+          first_submit_parsed = JSON.parse(response.body)
+          @original_id = first_submit_parsed['data']['id']
+        end
+      end
+      mock_ccg(scopes) do |auth_header|
+        VCR.use_cassette('claims_api/disability_comp') do
+          json = JSON.parse(data)
+          post submit_path, params: json.to_json, headers: auth_header
+          expect(response).to have_http_status(:accepted)
+          duplicate_submit_parsed = JSON.parse(response.body)
+          duplicate_id = duplicate_submit_parsed['data']['id']
+          expect(@original_id).not_to eq(duplicate_id)
+        end
+      end
+    end
+  end
 end
