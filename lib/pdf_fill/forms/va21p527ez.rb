@@ -1283,7 +1283,9 @@ module PdfFill
         @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
         @form_data['medicaidStatus'] = to_radio_yes_no(@form_data['medicaidStatus'])
         @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
-        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
+        @form_data['medicalCondition'] = to_radio_yes_no(
+          @form_data['medicalCondition'] || @form_data['medicaidCoverage']
+        )
         @form_data['socialSecurityDisability'] = to_radio_yes_no(
           @form_data['socialSecurityDisability'] || @form_data['isOver65']
         )
