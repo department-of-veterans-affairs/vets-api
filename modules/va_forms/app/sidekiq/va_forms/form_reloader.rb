@@ -46,8 +46,8 @@ module VAForms
       VAForms::Slack::Messenger.new(
         {
           class: 'VAForms::FormReloader',
-          exception: error_class,
-          exception_message: error_message,
+          exception: e,
+          exception_message: e.message,
           detail: message
         }
       ).notify!
