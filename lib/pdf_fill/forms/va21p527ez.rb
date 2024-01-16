@@ -547,7 +547,7 @@ module PdfFill
         # 7
         'marriages' => {
           limit: 2,
-          first_key: 'spouseFullName',
+          first_key: 'otherExplanation',
           question_num: 7,
           'spouseFullName' => {
             question_text: 'WHO WERE YOU MARRIED TO?',
@@ -615,6 +615,7 @@ module PdfFill
         },
         'spouseMarriages' => {
           limit: 2,
+          first_key: 'otherExplanation',
           'spouseFullName' => {
             'first' => {
               limit: 12,
