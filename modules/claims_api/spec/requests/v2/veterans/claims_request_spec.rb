@@ -168,13 +168,12 @@ RSpec.describe 'Claims', type: :request do
         end
 
         it 'are listed' do
-          lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
-                                                            evss_id: '600098193')
-          lighthouse_claim_two = build(:auto_established_claim, status: 'CAN', veteran_icn: veteran_id,
-                                                                evss_id: '600098194')
-          lh_claims = []
-          lh_claims << lighthouse_claim
-          lh_claims << lighthouse_claim_two
+          lighthouse_claim = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                             evss_id: '600098193')
+          lighthouse_claim_two = create(:auto_established_claim, status: 'CAN', veteran_icn: veteran_id,
+                                                                 evss_id: '600098194')
+
+          lh_claims = ClaimsApi::AutoEstablishedClaim.where(id: [lighthouse_claim.id, lighthouse_claim_two.id])
 
           mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
@@ -240,13 +239,12 @@ RSpec.describe 'Claims', type: :request do
 
           context 'when there are multiple matching claims' do
             it 'does not list duplicates for any matching claims between BGS and LH' do
-              lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
-                                                                evss_id: '600098191')
-              lighthouse_claim_two = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
-                                                                    evss_id: '600098193')
-              lh_claims = []
-              lh_claims << lighthouse_claim
-              lh_claims << lighthouse_claim_two
+              lighthouse_claim = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                 evss_id: '600098191')
+              lighthouse_claim_two = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                     evss_id: '600098193')
+
+              lh_claims = ClaimsApi::AutoEstablishedClaim.where(id: [lighthouse_claim.id, lighthouse_claim_two.id])
 
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
@@ -258,8 +256,15 @@ RSpec.describe 'Claims', type: :request do
                   get all_claims_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
+
                   expect(response.status).to eq(200)
                   expect(json_response['data'].count).to eq(3)
+                  expect(json_response['data'][0]['id'])
+                    .to eq(bgs_claims[:benefit_claims_dto][:benefit_claim][0][:benefit_claim_id])
+                  expect(json_response['data'][0]['id']).to eq(lighthouse_claim.evss_id.to_s)
+                  expect(json_response['data'][2]['id'])
+                    .to eq(bgs_claims[:benefit_claims_dto][:benefit_claim][2][:benefit_claim_id])
+                  expect(json_response['data'][2]['id']).to eq(lighthouse_claim_two.evss_id.to_s)
                 end
               end
             end
@@ -267,16 +272,15 @@ RSpec.describe 'Claims', type: :request do
 
           context 'when there are unique LH and BGS claims' do
             it 'lists unique claims and does not list duplicates for any matching claims between BGS and LH' do
-              lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
-                                                                evss_id: '600098191')
-              lighthouse_claim_two = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
-                                                                    evss_id: '600098193')
-              lighthouse_claim_three = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
-                                                                      evss_id: '600098195')
-              lh_claims = []
-              lh_claims << lighthouse_claim
-              lh_claims << lighthouse_claim_two
-              lh_claims << lighthouse_claim_three
+              lighthouse_claim = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                 evss_id: '600098191')
+              lighthouse_claim_two = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                     evss_id: '600098193')
+              lighthouse_claim_three = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                                       evss_id: '600098195')
+              lh_claims = ClaimsApi::AutoEstablishedClaim.where(
+                id: [lighthouse_claim.id, lighthouse_claim_two.id, lighthouse_claim_three.id]
+              )
 
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
@@ -317,17 +321,19 @@ RSpec.describe 'Claims', type: :request do
                 }
               }
             end
-            let(:lighthouse_claims) do
-              [
-                OpenStruct.new(
-                  id: '0958d973-36fb-43ef-8801-2718bd33c825',
-                  evss_id: '111111111',
-                  status: 'Preparation for notification'
-                )
-              ]
-            end
 
             it "provides values for 'lighthouseId' and 'claimId' " do
+              lighthouse_claim = create(
+                :auto_established_claim,
+                id: '0958d973-36fb-43ef-8801-2718bd33c825',
+                status: 'Preparation for notification',
+                evss_id: '111111111'
+              )
+
+              lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(
+                id: [lighthouse_claim.id]
+              )
+
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                   expect_any_instance_of(bcs)
