@@ -2,14 +2,13 @@
 
 require 'rails_helper'
 require 'support/saml/response_builder'
-require 'sentry/processor/pii_sanitizer'
+require 'sentry/scrubbers/pii_sanitizer'
 
-RSpec.describe Sentry::Processor::PIISanitizer do
+RSpec.describe Sentry::Scrubbers::PIISanitizer do
   include SAML::ResponseBuilder
 
-  let(:client) { double('client') }
-  let(:processor) { Sentry::Processor::PIISanitizer.new(client) }
-  let(:result) { processor.process(data) }
+  let(:scrubber) { Sentry::Scrubbers::PIISanitizer.new }
+  let(:result) { scrubber.process(data) }
 
   describe '#process' do
     let(:data) do

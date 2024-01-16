@@ -171,6 +171,8 @@ Rails.application.routes.draw do
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
       get 'claim/:id', to: 'virtual_agent_claim#show'
+      get 'claims', to: 'virtual_agent_claim_status#index'
+      get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
     resources :virtual_agent_claim, only: %i[index]
@@ -341,6 +343,10 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
+
+    get '/account_controls/credential_index', to: 'account_controls#credential_index'
+    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
+    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index

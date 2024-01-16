@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+# only change from previous file was Processor was renamed to Scrubbers
+
 module Sentry
-  module Processor
-    class PIISanitizer < Raven::Processor
+  module Scrubbers
+    class PIISanitizer
       SANITIZED_FIELDS =
         %w[
           accountNumber
