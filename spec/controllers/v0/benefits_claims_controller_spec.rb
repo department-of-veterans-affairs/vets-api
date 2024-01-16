@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+  let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
 
   before do
     sign_in_as(user)
@@ -124,6 +125,18 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       expect(response).to have_http_status(:ok)
     end
 
+    context 'as a user that is a dependent' do
+      before { sign_in_as(dependent_user) }
+
+      it 'returns a status of 200' do
+        VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response_dependent') do
+          post(:submit5103, params: { id: '600397109' })
+        end
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it 'returns a status of 404' do
       VCR.use_cassette('lighthouse/benefits_claims/submit5103/404_response') do
         post(:submit5103, params: { id: '600397108' })
@@ -134,7 +147,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
     context 'when LH takes too long to respond' do
       it 'returns a status of 504' do
-        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post).and_raise(Faraday::TimeoutError)
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post_with_params).and_raise(Faraday::TimeoutError)
         post(:submit5103, params: { id: '60038334' })
 
         expect(response).to have_http_status(:gateway_timeout)
