@@ -1,15 +1,12 @@
 # frozen_string_literal: true
+require 'rails_semantic_logger'
+require 'active_support/log_subscriber'
 
-if ActiveSupport::VERSION::STRING == '7.1.2'
-  require 'active_support/log_subscriber'
-
-  module ActiveSupport
-    class LogSubscriber
-      # @override Rails 7.1
-      def silenced?(event)
-        native_log_level = @event_levels.fetch(event, ::Logger::Severity::FATAL)
-        logger.nil? || SemanticLogger::Levels.index(logger.level) > SemanticLogger::Levels.index(native_log_level)
-      end
+module ActiveSupport
+  class LogSubscriber
+    # @override SemanticLogger @override Rails 7.1
+    def silenced?(event)
+      logger.nil? || @event_levels[event]&.call(logger)
     end
   end
 end
