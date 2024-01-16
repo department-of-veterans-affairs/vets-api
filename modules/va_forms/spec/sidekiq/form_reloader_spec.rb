@@ -18,7 +18,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
       allow(StatsD).to receive(:increment)
     end
 
-    it 'schedules a child `FormBuilder` job for each form retrieved' do
+    it 'schedules a child (FormBuilder) job for each form retrieved' do
       VCR.use_cassette('va_forms/gql_forms') do
         described_class.new.perform
         expect(VAForms::FormBuilder.jobs.size).to eq(form_count)
