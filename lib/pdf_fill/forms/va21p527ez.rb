@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Va21p527ez < FormBase
@@ -365,6 +366,58 @@ module PdfFill
             question_text: 'WHAT KIND OF WORK DID YOU DO',
             key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
           }
+        },
+        'bankAccount' => {
+          # 11a
+          'bankName' => {
+            limit: 30,
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'NAME OF FINANCIAL INSTITUTION',
+            key: 'form1[0].#subform[54].Name_Of_Financial_Institution[0]'
+          },
+          # 11b
+          'accountType' => {
+            key: 'form1[0].#subform[54].RadioButtonList[55]'
+          },
+          # 11c
+          'routingNumber' => {
+            limit: 9,
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'ROUTING NUMBER',
+            key: 'form1[0].#subform[54].Routing_Number[0]'
+          },
+          # 11d
+          'accountNumber' => {
+            limit: 15,
+            question_num: 11,
+            question_suffix: 'D',
+            question_text: 'ACCOUNT NUMBER',
+            key: 'form1[0].#subform[54].Account_Number[0]'
+          }
+        },
+        # 12a
+        'noRapidProcessing' => {
+          # rubocop:disable Layout/LineLength
+          key: 'form1[0].#subform[54].CheckBox_I_Do_Not_Want_My_Claim_Considered_For_Rapid_Processing_Under_The_F_D_C_Program_Because_I_Plan_To_Submit_Further_Evidence_In_Support_Of_My_Claim[0]'
+          # rubocop:enable Layout/LineLength
+        },
+        # 12b
+        'statementOfTruthSignature' => {
+          key: 'form1[0].#subform[54].SignatureField1[0]'
+        },
+        # 12c
+        'signatureDate' => {
+          'month' => {
+            key: 'form1[0].#subform[54].Date_Signed_Month[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[54].Date_Signed_Day[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[54].Date_Signed_Year[0]'
+          }
         }
       }.freeze
 
@@ -374,6 +427,8 @@ module PdfFill
         expand_veteran_service_information
         expand_pension_information
         expand_employment_history
+        expand_direct_deposit_information
+        expand_claim_certification_and_signature
 
         @form_data
       end
@@ -454,9 +509,34 @@ module PdfFill
         @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
       end
 
+      # SECTION XI: DIRECT DEPOSIT INFORMATION
+      def expand_direct_deposit_information
+        account_type = @form_data.dig('bankAccount', 'accountType')
+
+        @form_data['bankAccount'] = @form_data['bankAccount'].to_h.merge(
+          'accountType' => case account_type
+                           when 'checking' then 0
+                           when 'savings' then 1
+                           else 2 if @form_data['bankAccount'].nil?
+                           end
+        )
+      end
+
+      # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
+      def expand_claim_certification_and_signature
+        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
+        # form was signed today
+        @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
+      end
+
       def to_radio_yes_no(obj)
         obj ? 0 : 1
+      end
+
+      def to_checkbox_on_off(obj)
+        obj ? 1 : 'Off'
       end
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
