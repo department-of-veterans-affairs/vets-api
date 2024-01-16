@@ -678,6 +678,12 @@ module PdfFill
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
+        'additionalMarriages' => {
+          key: 'form1[0].#subform[50].RadioButtonList[15]'
+        },
+        'additionalSpouseMarriages' => {
+          key: 'form1[0].#subform[50].RadioButtonList[17]'
+        },
         # 8a
         'dependentChildrenInHousehold' => {
           key: 'form1[0].#subform[50].Number_Of_Dependent_Children_Who_Live_With_You[0]',
@@ -1278,7 +1284,9 @@ module PdfFill
         @form_data['medicaidStatus'] = to_radio_yes_no(@form_data['medicaidStatus'])
         @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
         @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
-        @form_data['socialSecurityDisability'] = to_radio_yes_no(@form_data['socialSecurityDisability'])
+        @form_data['socialSecurityDisability'] = to_radio_yes_no(
+          @form_data['socialSecurityDisability'] || @form_data['isOver65']
+        )
 
         # If "YES," skip question 4B
         @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'].zero?
@@ -1373,6 +1381,8 @@ module PdfFill
                            })
           end
         end
+        @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages']&.length.to_i > 3)
+        @form_data['additionalSpouseMarriages'] = to_radio_yes_no(@form_data['spouseMarriages']&.length.to_i > 2)
       end
 
       # SECTION VIII: DEPENDENT CHILDREN
