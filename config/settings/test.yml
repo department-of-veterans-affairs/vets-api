@@ -126,7 +126,7 @@ flipper:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: ~
+  drupal_url: https://www.fake-url.com
 
 vanotify:
   client_url: http://fakeapi.com
