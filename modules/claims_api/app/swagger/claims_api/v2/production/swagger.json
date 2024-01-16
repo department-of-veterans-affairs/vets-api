@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "84b319bd-a125-447b-9ab9-9456f826ddcb",
+                    "id": "f2ed2409-a523-4e46-bfd6-b68997899115",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1471,7 +1471,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-01-05"
+                          "anticipatedSeparationDate": "2024-01-18"
                         },
                         "confinements": [
                           {
@@ -1560,7 +1560,8 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "mailingAddress"
+                                "mailingAddress",
+                                "currentVaEmployee"
                               ],
                               "properties": {
                                 "serviceNumber": {
@@ -1681,7 +1682,7 @@
                                   "type": "boolean",
                                   "description": "Set to true if Veteran is a VA employee.",
                                   "default": false,
-                                  "nullable": true
+                                  "nullable": false
                                 }
                               }
                             },
@@ -2819,7 +2820,8 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "mailingAddress"
+                              "mailingAddress",
+                              "currentVaEmployee"
                             ],
                             "properties": {
                               "serviceNumber": {
@@ -2940,7 +2942,7 @@
                                 "type": "boolean",
                                 "description": "Set to true if Veteran is a VA employee.",
                                 "default": false,
-                                "nullable": true
+                                "nullable": false
                               }
                             }
                           },
@@ -4357,7 +4359,8 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "mailingAddress"
+                              "mailingAddress",
+                              "currentVaEmployee"
                             ],
                             "properties": {
                               "serviceNumber": {
@@ -4478,7 +4481,7 @@
                                 "type": "boolean",
                                 "description": "Set to true if Veteran is a VA employee.",
                                 "default": false,
-                                "nullable": true
+                                "nullable": false
                               }
                             }
                           },
@@ -5676,7 +5679,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "255b458f-1413-477b-9026-24bac87570e0",
+                    "id": "34507ec3-35cf-4fac-bdec-34f9ec79c61e",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6368,8 +6371,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-03",
-                      "expirationDate": "2025-01-03",
+                      "creationDate": "2024-01-16",
+                      "expirationDate": "2025-01-16",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -7097,7 +7100,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:84:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:85:in `representative'"
                       }
                     }
                   ]
