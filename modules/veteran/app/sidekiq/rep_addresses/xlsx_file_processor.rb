@@ -155,8 +155,6 @@ module RepAddresses
       log_error("Unexpected value: #{e.message}")
     end
 
-    # Logs an error to Sentry.
-    # @param message [String] The error message to be logged.
     def log_error(message)
       log_message_to_sentry("XlsxFileProcessor error: #{message}", :error)
     end

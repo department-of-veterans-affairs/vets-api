@@ -4,15 +4,12 @@ require 'sidekiq'
 require 'sentry_logging'
 
 module RepAddresses
-  # A Sidekiq job class for processing address and email updates from an Excel file.
-  # This job fetches the file content, processes each sheet, and enqueues updates.
   class QueueAddressUpdates
     include Sidekiq::Job
     include SentryLogging
 
     BATCH_SIZE = 5000
 
-    # Performs the job of fetching and processing the file content.
     def perform
       file_content = fetch_file_content
       return unless file_content
@@ -46,8 +43,6 @@ module RepAddresses
       end
     end
 
-    # Logs an error to Sentry.
-    # @param message [String] The error message to be logged.
     def log_error(message)
       log_message_to_sentry("QueueAddressUpdates error: #{message}", :error)
     end
