@@ -126,7 +126,7 @@ flipper:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  drupal_url: ~
 
 vanotify:
   client_url: http://fakeapi.com
