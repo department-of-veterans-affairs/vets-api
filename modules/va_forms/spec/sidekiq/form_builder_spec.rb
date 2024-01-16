@@ -155,6 +155,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
       let(:msg) do
         {
           'jid' => 123,
+          'class' => described_class.to_s,
           'error_class' => 'RuntimeError',
           'error_message' => 'an error occurred!',
           'args' => [{

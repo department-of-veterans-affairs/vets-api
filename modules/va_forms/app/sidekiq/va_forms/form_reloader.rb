@@ -12,23 +12,24 @@ module VAForms
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
+      job_class = msg['class']
       error_class = msg['error_class']
       error_message = msg['error_message']
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
-      message = 'VAForms::FormReloader retries exhausted'
+      message = "#{job_class} retries exhausted"
       Rails.logger.error(message, { job_id:, error_class:, error_message: })
       VAForms::Slack::Messenger.new(
         {
-          class: 'VAForms::FormReloader',
+          class: job_class.to_s,
           exception: error_class,
           exception_message: error_message,
           detail: message
         }
       ).notify!
     rescue => e
-      message = 'Failure in VAForms::FormReloader#sidekiq_retries_exhausted'
+      message = "Failure in #{job_class}#sidekiq_retries_exhausted"
       Rails.logger.error(
         message,
         {
@@ -42,7 +43,7 @@ module VAForms
       )
       VAForms::Slack::Messenger.new(
         {
-          class: 'VAForms::FormReloader',
+          class: job_class.to_s,
           exception: e.class.to_s,
           exception_message: e.message,
           detail: message
