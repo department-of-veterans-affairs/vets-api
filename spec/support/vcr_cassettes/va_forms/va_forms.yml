@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://www.fake-url.com/graphql
+    uri: https://fake-url.com/graphql
     body:
       encoding: UTF-8
       string: '{"query":"{\n  nodeQuery(limit: 1000, offset: 0, filter: {conditions:

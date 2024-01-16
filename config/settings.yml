@@ -1350,7 +1350,7 @@ vanotify:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: https://www.fake-url.com
+  drupal_url: https://fake-url.com
   # A notification for when a forms url has changed
   slack:
     enabled: false
