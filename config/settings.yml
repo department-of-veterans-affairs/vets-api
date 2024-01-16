@@ -1353,7 +1353,7 @@ vanotify:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  drupal_url: https://fake-url.com
   # A notification for when a forms url has changed
   slack:
     enabled: false
