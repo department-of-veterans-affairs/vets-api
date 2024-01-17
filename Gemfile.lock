@@ -366,7 +366,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
-einhorn (1.0.0)
+    einhorn (1.0.0)
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
@@ -1197,7 +1197,7 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
-sidekiq-ent!
+  sidekiq-ent!
   sidekiq-pro!
   sidekiq_alive
   simple_forms_api!
