@@ -4,6 +4,12 @@ require 'sidekiq'
 require 'sidekiq/job_logger'
 
 class Sidekiq::SemanticLogging < Sidekiq::JobLogger
+  # v needed?
+  def initialize
+    logger = Rails.logger
+    super(logger)
+  end
+
   def call(_worker, item, queue)
     logger_tags = {
       class: item['class'],
