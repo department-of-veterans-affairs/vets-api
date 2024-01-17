@@ -955,33 +955,8 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  # For military_information_vaprofile flipper off test
-  let(:initialize_military_information) do
-    {
-      'service_episodes_by_date' => [],
-      'last_service_branch' => 'Air Force',
-      'hca_last_service_branch' => 'air force',
-      'last_entry_date' => '2007-04-01',
-      'last_discharge_date' => '2007-04-02',
-      'discharge_type' => 'honorable',
-      'post_nov111998_combat' => true,
-      'sw_asia_combat' => true,
-      'tours_of_duty' => [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }],
-      'currently_active_duty' => true,
-      'currently_active_duty_hash' => { yes: true },
-      'vic_verified' => true,
-      'service_branches' => ['F'],
-      'service_periods' => [{ service_branch: 'Air Force Reserve',
-                              date_range: { from: '2007-04-01', to: '2016-06-01' } }],
-      'guard_reserve_service_history' => [{ from: '2007-04-01', to: '2016-06-01' },
-                                          { from: '2002-02-14', to: '2007-01-01' }],
-      'latest_guard_reserve_service_period' => { from: '2007-04-01', to: '2016-06-01' }
-    }
-  end
-
   describe '#initialize_military_information', skip_va_profile: true do
-    context 'when military_information_vaprofile=true' do
-
+    context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                          allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
