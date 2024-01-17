@@ -86,6 +86,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
                   .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                  .to receive(:check_request_ssn_matches_mpi).and_return(nil)
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)

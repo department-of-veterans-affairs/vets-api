@@ -803,6 +803,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
               .to receive(:validate_poa_code!).and_return(true)
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:validate_poa_code_for_current_user!).and_return(true)
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do

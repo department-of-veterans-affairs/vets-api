@@ -139,6 +139,7 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
+          check_request_ssn_matches_mpi(request&.headers&.to_h)
 
           render json: validation_success
         end
