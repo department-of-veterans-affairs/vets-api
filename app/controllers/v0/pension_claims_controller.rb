@@ -67,8 +67,8 @@ module V0
       use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
       use_lighthouse ? claim.upload_to_lighthouse : claim.process_attachments!
 
-      StatsD.increment("#{stats_key}.success")
-      Rails.logger.info("Submit #{claim.class::FORM} Success",
+      StatsD.increment("#{stats_key}.sidekiq_submission")
+      Rails.logger.info("Began #{claim.class::FORM} sidekiq job",
                         { confirmation_number: claim.confirmation_number, user_uuid: })
 
       clear_saved_form(claim.form_id)

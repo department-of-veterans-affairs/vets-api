@@ -58,6 +58,7 @@ module Lighthouse
       Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob failed!',
                         { error: e.message })
       @form_submission_attempt&.fail!
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
       raise
     ensure
       cleanup_file_paths
@@ -125,6 +126,7 @@ module Lighthouse
     def check_success(response)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: @claim.id })
+        StatsD.increment("#{STATSD_KEY_PREFIX}.success")
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise PensionBenefitIntakeError, response.to_s
