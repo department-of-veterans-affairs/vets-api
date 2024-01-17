@@ -149,7 +149,7 @@ gem 'typhoeus'
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'vets_json_schema', '20.33.7', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema'
 gem 'virtus'
 gem 'warden-github'
 gem 'will_paginate'
