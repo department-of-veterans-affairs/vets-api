@@ -364,11 +364,7 @@ class User < Common::RedisStore
   end
 
   def veteran_status
-    @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
-                          VAProfileRedis::VeteranStatus.for_user(self)
-                        else
-                          EMISRedis::VeteranStatus.for_user(self)
-                        end
+    @veteran_status ||= VAProfileRedis::VeteranStatus.for_user(self)
   end
 
   %w[profile grants].each do |okta_model_name|
