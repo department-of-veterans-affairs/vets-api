@@ -32,6 +32,7 @@ describe VAProfile::Profile::V3::Service do
         response = subject.get_health_benefit_bio
 
         expect(response.status).to eq(200)
+        expect(response.associated_persons).not_to be_nil
       end
     end
   end
