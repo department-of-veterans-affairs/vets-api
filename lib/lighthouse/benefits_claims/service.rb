@@ -39,9 +39,18 @@ module BenefitsClaims
     end
 
     def submit5103(user, id, options = {})
-      is_dependent = SponsorResolver.dependent?(user)
       params = {}
-      params[:sponsorIcn] = SponsorResolver.sponsor_icn(user) if is_dependent
+      is_dependent = SponsorResolver.dependent?(user)
+
+      # Log if the user doesn't have a file number; We are treating
+      # the BIRLS ID as a substitute for the file number
+      ::Rails.logger.info('[5103 Submission] No file number') if user.birls_id.nil?
+
+      if is_dependent
+        ::Rails.logger.info('[5103 Submission] Applying sponsorIcn param')
+        params[:sponsorIcn] = SponsorResolver.sponsor_icn(user)
+      end
+
       config.post_with_params("#{@icn}/claims/#{id}/5103", {}, params, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'

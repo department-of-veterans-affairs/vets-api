@@ -11,6 +11,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
     token = 'fake_access_token'
 
+    allow(Rails.logger).to receive(:info)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
 
@@ -134,6 +135,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         expect(response).to have_http_status(:ok)
+        expect(Rails.logger).to have_received(:info).with('[5103 Submission] Applying sponsorIcn param')
       end
     end
 
