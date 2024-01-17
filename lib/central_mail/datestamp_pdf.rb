@@ -30,12 +30,12 @@ module CentralMail
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         if page_number.present? && template.present?
           reader = PDF::Reader.new(template)
-          page_number.times do 
+          page_number.times do
             pdf.start_new_page
           end
           (pdf.draw_text text, at: [x, y], size:)
-          (pdf.draw_text timestamp.strftime("%Y-%m-%d %I:%M %p %Z"), at: [x, y-12], size:)
-          (reader.page_count - page_number).times do 
+          (pdf.draw_text timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
+          (reader.page_count - page_number).times do
             pdf.start_new_page
           end
         else

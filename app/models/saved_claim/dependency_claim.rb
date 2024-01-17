@@ -38,7 +38,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    upload_to_vbms(path: self.process_pdf(to_pdf(form_id:), self.created_at), doc_type:)
+    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at), doc_type:)
     uploaded_forms << form_id
     save
   end
@@ -48,10 +48,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       text: 'Application Submitted on va.gov',
       x: 400,
       y: 675,
-      text_only: true, #passing as text only because we override how the date is stamped in this instance
-      timestamp: timestamp,
+      text_only: true, # passing as text only because we override how the date is stamped in this instance
+      timestamp:,
       page_number: 6,
-      template: "lib/pdf_fill/forms/pdfs/686C-674.pdf",
+      template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
       multistamp: true
     )
   end
@@ -123,7 +123,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def to_pdf(form_id: FORM)
     self.form_id = form_id
 
-    PdfFill::Filler.fill_form(self, nil, {created_at: self.created_at})
+    PdfFill::Filler.fill_form(self, nil, { created_at: })
   end
 
   private
