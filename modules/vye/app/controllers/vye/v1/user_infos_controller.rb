@@ -4,6 +4,7 @@ module Vye
   module V1
     class UserInfosController < Vye::V1::ApplicationController
       include Pundit::Authorization
+      service_tag 'vye'
 
       def show
         authorize user_info, policy_class: Vye::UserInfoPolicy
