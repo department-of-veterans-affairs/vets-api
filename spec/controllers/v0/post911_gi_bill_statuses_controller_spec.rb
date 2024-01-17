@@ -136,14 +136,16 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
 
       it 'raises an InternalServerError including an exception with a detailed message' do
-        response = instance_double("EVSS::GiBillStatus::GiBillStatusResponse")
-        allow(response).to receive(:error_type).and_return("unknown")
+        response = instance_double(EVSS::GiBillStatus::GiBillStatusResponse)
+        allow(response).to receive(:error_type).and_return('unknown')
         allow(response).to receive(:status).and_return(500)
-        allow(response).to receive(:body).and_return("Unknown error")
-    
-        expect do
+        allow(response).to receive(:body).and_return('Unknown error')
+
+        expectation = expect do
           controller.send(:render_error_json, response)
-        end.to raise_error(Common::Exceptions::InternalServerError) do |error|
+        end
+
+        expectation.to raise_error(Common::Exceptions::InternalServerError) do |error|
           expected_msg = 'An unknown error occurred. Response error type: unknown, status: 500, body: Unknown error'
           expect(error.exception.message).to eq(expected_msg)
         end
