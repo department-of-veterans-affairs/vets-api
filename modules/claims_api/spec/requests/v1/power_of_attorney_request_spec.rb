@@ -449,6 +449,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       it 'returns a response when valid' do
         mock_acg(scopes) do |auth_header|
+          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+            .to receive(:check_request_ssn_matches_mpi).and_return(nil)
           post "#{path}/validate", params: data, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(parsed['data']['attributes']['status']).to eq('valid')
