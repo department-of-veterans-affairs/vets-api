@@ -68,7 +68,7 @@ class ClaimsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/claims/v1',
+        # basePath is not valid OAS v3
         servers: [
           {
             url: 'https://sandbox-api.va.gov/services/claims/{version}',
@@ -123,6 +123,12 @@ class ClaimsApi::RswagConfig
             description: <<~VERBIAGE
               Allows authenticated and authorized users to automatically establish a Disability Compensation Claim (21-526EZ) in VBMS
             VERBIAGE
+          },
+          {
+            name: 'Power of Attorney',
+            description: <<~VERBIAGE
+              Allows authenticated and authorized users to retrieve the active power of attorney for a Veteran
+            VERBIAGE
           }
         ],
         components: {
@@ -163,7 +169,7 @@ class ClaimsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/claims/v2',
+        # basePath is not valid OAS v3
         servers: [
           {
             url: 'https://sandbox-api.va.gov/services/claims/{version}',

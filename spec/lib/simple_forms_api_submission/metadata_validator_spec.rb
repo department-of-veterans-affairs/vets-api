@@ -83,7 +83,7 @@ describe SimpleFormsApiSubmission::MetadataValidator do
           'businessLine' => 'CMP'
         }
         expected_metadata = {
-          'veteranFirstName' => 'John - John',
+          'veteranFirstName' => 'John - Jo/hn',
           'veteranLastName' => 'Doe',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
@@ -136,7 +136,7 @@ describe SimpleFormsApiSubmission::MetadataValidator do
       it 'returns metadata with disallowed characters of veteran last name stripped or corrected' do
         metadata = {
           'veteranFirstName' => 'John',
-          'veteranLastName' => '2Jöhn~! - Jo/hn?\\',
+          'veteranLastName' => '2Jöh’n~! - J\'o/hn?\\',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
           'source' => 'VA Platform Digital Forms',
@@ -145,7 +145,7 @@ describe SimpleFormsApiSubmission::MetadataValidator do
         }
         expected_metadata = {
           'veteranFirstName' => 'John',
-          'veteranLastName' => 'John - John',
+          'veteranLastName' => 'John - Jo/hn',
           'fileNumber' => '444444444',
           'zipCode' => '12345',
           'source' => 'VA Platform Digital Forms',
@@ -202,6 +202,60 @@ describe SimpleFormsApiSubmission::MetadataValidator do
       }
 
       validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+
+      expect(validated_metadata).to eq expected_metadata
+    end
+  end
+
+  describe 'zip code is 9 digits long' do
+    it 'is transformed to a 5+4 format US zip code' do
+      metadata = {
+        'veteranFirstName' => 'John',
+        'veteranLastName' => 'Doe',
+        'fileNumber' => '444444444',
+        'zipCode' => '123456789',
+        'source' => 'VA Platform Digital Forms',
+        'docType' => '21-0845',
+        'businessLine' => 'CMP'
+      }
+      expected_metadata = {
+        'veteranFirstName' => 'John',
+        'veteranLastName' => 'Doe',
+        'fileNumber' => '444444444',
+        'zipCode' => '12345-6789',
+        'source' => 'VA Platform Digital Forms',
+        'docType' => '21-0845',
+        'businessLine' => 'CMP'
+      }
+
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+
+      expect(validated_metadata).to eq expected_metadata
+    end
+  end
+
+  describe 'zip code is not US based' do
+    it 'is set to 00000' do
+      metadata = {
+        'veteranFirstName' => 'John',
+        'veteranLastName' => 'Doe',
+        'fileNumber' => '444444444',
+        'zipCode' => '12345',
+        'source' => 'VA Platform Digital Forms',
+        'docType' => '21-0845',
+        'businessLine' => 'CMP'
+      }
+      expected_metadata = {
+        'veteranFirstName' => 'John',
+        'veteranLastName' => 'Doe',
+        'fileNumber' => '444444444',
+        'zipCode' => '00000',
+        'source' => 'VA Platform Digital Forms',
+        'docType' => '21-0845',
+        'businessLine' => 'CMP'
+      }
+
+      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: false)
 
       expect(validated_metadata).to eq expected_metadata
     end

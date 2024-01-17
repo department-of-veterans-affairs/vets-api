@@ -33,13 +33,81 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           context 'when valid' do
             context 'when current poa code does not exist' do
-              it 'returns a 204' do
+              it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
 
                   get get_poa_path, headers: auth_header
 
-                  expect(response.status).to eq(204)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+
+            context 'when the current poa is not associated with an organization' do
+              context 'when multiple representatives share the poa code' do
+                context 'when there is one unique representative_id' do
+                  before do
+                    create(:representative, representative_id: '12345', first_name: 'Bob', last_name: 'Law',
+                                            poa_codes: ['ABC'], phone: '123-456-7890')
+                    create(:representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
+                                            poa_codes: ['ABC'], phone: '321-654-0987')
+                  end
+
+                  it 'returns the most recently created representative' do
+                    mock_ccg(scopes) do |auth_header|
+                      allow(BGS::PowerOfAttorneyVerifier)
+                        .to receive(:new)
+                        .and_return(OpenStruct.new(current_poa_code: 'ABC'))
+
+                      expected_response = {
+                        'data' => {
+                          'id' => nil,
+                          'type' => 'individual',
+                          'attributes' => {
+                            'code' => 'ABC',
+                            'name' => 'Robert Lawlaw',
+                            'phone' => {
+                              'number' => '321-654-0987'
+                            }
+                          }
+                        }
+                      }
+
+                      get get_poa_path, headers: auth_header
+
+                      response_body = JSON.parse(response.body)
+
+                      expect(response).to have_http_status(:ok)
+                      expect(response_body).to eq(expected_response)
+                    end
+                  end
+                end
+
+                context 'when there are multiple unique representative_ids' do
+                  before do
+                    create(:representative, representative_id: '67890', poa_codes: ['EDF'])
+                    create(:representative, representative_id: '54321', poa_codes: ['EDF'])
+                  end
+
+                  it 'returns a meaningful 422' do
+                    mock_ccg(scopes) do |auth_header|
+                      allow(BGS::PowerOfAttorneyVerifier)
+                        .to receive(:new)
+                        .and_return(OpenStruct.new(current_poa_code: 'EDF'))
+
+                      detail = 'Could not retrieve Power of Attorney due to multiple representatives with code: EDF'
+
+                      get get_poa_path, headers: auth_header
+
+                      response_body = JSON.parse(response.body)['errors'][0]
+
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      expect(response_body['title']).to eq('Unprocessable entity')
+                      expect(response_body['status']).to eq('422')
+                      expect(response_body['detail']).to eq(detail)
+                    end
+                  end
                 end
               end
             end

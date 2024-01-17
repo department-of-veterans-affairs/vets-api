@@ -144,7 +144,7 @@ module FacilitiesApi
         def specialty_codes(params)
           specialties = Array.wrap(params[:specialties])
           specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
-            hsh["specialtycode#{index + 1}".to_sym] = code
+            hsh[:"specialtycode#{index + 1}"] = code
           end
         end
       end

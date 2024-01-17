@@ -1,336 +1,245 @@
 {
-  "privacyAgreementAccepted": true,
-  "veteranFullName": {
-    "first": "john",
-    "middle": "middle",
-    "last": "smith",
-    "suffix": "Sr."
-  },
-  "noBankAccount": true,
-  "vamcTreatmentCenters": [
-    {
-      "location": "location1"
-    },
-    {
-      "location": "location2"
-    }
-  ],
-  "powDateRange": {
-    "from": "2012-04-10",
-    "to": "2013-05-10"
+  "activeServiceDateRange": {
+    "from": "2003-03-02",
+    "to": "2007-03-20"
   },
   "bankAccount": {
-    "accountNumber": "88888888888",
-    "accountType": "checking",
-    "bankName": "foo bank",
-    "routingNumber": "123456789"
+    "accountNumber": "001122334455",
+    "accountType": "savings",
+    "bankName": "Best Bank",
+    "routingNumber": "123123123"
   },
-  "noRapidProcessing": true,
-  "spouseIsVeteran": true,
-  "liveWithSpouse": true,
-  "maritalStatus": "Married",
-  "reasonForNotLivingWithSpouse": "illness",
-  "spouseDateOfBirth": "2012-06-26",
-  "spouseSocialSecurityNumber": "111223334",
-  "monthlySpousePayment": 1,
-  "spouseOtherExpenses": [
+  "careExpenses": [
     {
-      "amount": 2,
-      "purpose": "purpose2",
-      "paidTo": "paidTo2",
-      "date": "2012-04-02"
+      "careDateRange": {
+        "from": "2020-08-01",
+        "to": "2023-05-25"
+      },
+      "careType": "Care facility",
+      "hoursPerWeek": 20,
+      "paymentAmount": 2500,
+      "paymentFrequency": "Once a month",
+      "provider": "NYC Care Provider",
+      "ratePerHour": 100,
+      "recipients": "Veteran"
+    },
+    {
+      "careDateRange": {
+        "from": "2020-08-01"
+      },
+      "careType": "Care facility",
+      "childName": "Joe Doe",
+      "hoursPerWeek": 10,
+      "noCareEndDate": true,
+      "paymentAmount": 22500,
+      "paymentFrequency": "Once a year",
+      "provider": "LA Care Provider",
+      "ratePerHour": 200,
+      "recipients": "Veteran’s child"
     }
   ],
-  "otherExpenses": [
+  "currentEmployers": [
     {
-      "amount": 1,
-      "purpose": "purpose1",
-      "paidTo": "paidTo1",
-      "date": "2012-04-01"
+      "jobHoursWeek": 20,
+      "jobTitle": "Manager",
+      "jobType": "Customer service"
+    },
+    {
+      "jobHoursWeek": 20,
+      "jobTitle": "Representative",
+      "jobType": "Customer service"
     }
   ],
+  "currentEmployment": true,
+  "currentSpouseMaritalHistory": "Yes",
+  "currentSpouseMonthlySupport": 2444,
   "dependents": [
     {
-      "childDateOfBirth": "2012-06-01",
-      "childSocialSecurityNumber": "111223331",
-      "childPlaceOfBirth": "place1",
       "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "stepchild",
-      "previouslyMarried": true,
       "childAddress": {
-        "city": "city1",
+        "city": "Hadley",
         "country": "USA",
-        "postalCode": "21231",
-        "state": "MD",
-        "street": "str1"
+        "postalCode": "01050",
+        "state": "ME",
+        "street": "123 8th st"
       },
-      "fullName": {
-        "first": "outside1",
-        "last": "Olson"
-      },
-      "personWhoLivesWithChild": {
-        "first": "person1",
-        "last": "Olson"
-      },
-      "otherExpenses": [
-        {
-          "amount": 4,
-          "purpose": "purpose4",
-          "paidTo": "paidTo4",
-          "date": "2012-04-04"
-        }
-      ],
-      "monthlyPayment": 1
-    },
-    {
-      "childDateOfBirth": "2012-06-02",
-      "childSocialSecurityNumber": "111223332",
-      "childPlaceOfBirth": "place2",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
+      "childDateOfBirth": "1997-03-02",
+      "childInHousehold": false,
+      "childPlaceOfBirth": "Tallahassee, FL",
       "childRelationship": "biological",
-      "previouslyMarried": true,
-      "childAddress": {
-        "city": "city1",
-        "country": "USA",
-        "postalCode": "21231",
-        "state": "MD",
-        "street": "str2"
-      },
-      "fullName": {
-        "first": "outside2",
-        "last": "Olson"
-      },
-      "personWhoLivesWithChild": {
-        "first": "person2",
-        "last": "Olson"
-      },
-      "monthlyPayment": 2
-    },
-    {
-      "childAddress": {
-        "city": "city1",
-        "country": "USA",
-        "postalCode": "21231",
-        "state": "MD",
-        "street": "str3"
-      },
-      "fullName": {
-        "first": "outside3",
-        "last": "Olson"
-      },
-      "childDateOfBirth": "2012-06-03",
-      "childSocialSecurityNumber": "111223333",
-      "childPlaceOfBirth": "place3",
-      "attendingCollege": true,
-      "married": true,
+      "childSocialSecurityNumber": "123456789",
       "disabled": true,
-      "childRelationship": "adopted",
-      "previouslyMarried": true,
+      "fullName": {
+        "first": "Bobby",
+        "last": "Doe"
+      },
+      "married": true,
+      "monthlyPayment": 3444,
       "personWhoLivesWithChild": {
-        "first": "person3",
-        "last": "Olson"
+        "first": "Joe",
+        "last": "Smith"
       },
-      "otherExpenses": [
-        {
-          "amount": 3,
-          "purpose": "purpose3",
-          "paidTo": "paidTo3",
-          "date": "2012-04-03"
-        }
-      ],
-      "monthlyPayment": 3
-    }
-  ],
-  "spouseMarriages": [
-    {
-      "spouseFullName": {
-        "first": "spouse1",
-        "last": "Olson"
-      },
-      "otherExplanation": "spouse other",
-      "dateOfMarriage": "1985-03-01",
-      "locationOfMarriage": "marriagelocation1",
-      "locationOfSeparation": "location1",
-      "marriageType": "type1",
-      "dateOfSeparation": "1985-04-01",
-      "reasonForSeparation": "divorce1"
+      "previouslyMarried": true
     },
     {
-      "spouseFullName": {
-        "first": "spouse2",
-        "last": "Olson"
+      "childDateOfBirth": "1993-03-02",
+      "childInHousehold": true,
+      "childPlaceOfBirth": "Troy, MT",
+      "childRelationship": "adopted",
+      "disabled": false,
+      "fullName": {
+        "first": "Emily",
+        "last": "Doe"
       },
-      "dateOfMarriage": "1985-03-02",
-      "dateOfSeparation": "1985-04-02",
-      "locationOfMarriage": "marriagelocation2",
-      "locationOfSeparation": "location2",
-      "marriageType": "type2",
-      "reasonForSeparation": "divorce2"
+      "previouslyMarried": false,
+      "view:noSsN": true
     }
   ],
+  "email": "test@example.com",
+  "federalMedicalCenters": [
+    {
+      "medicalCenter": "Memphis Health Care"
+    },
+    {
+      "medicalCenter": "Nashville Health Care"
+    }
+  ],
+  "federalTreatmentHistory": true,
+  "hasCareExpenses": true,
+  "homeAcreageMoreThanTwo": true,
+  "homeAcreageValue": 75000,
+  "homeOwnership": true,
+  "incomeSources": [
+    {
+      "amount": 278,
+      "payer": "John Doe",
+      "receiver": "Jane Doe",
+      "typeOfIncome": "Social Security"
+    }
+  ],
+  "internationalPhone": "001-555-555-7890",
+  "isOver65": false,
+  "landMarketable": true,
+  "liveWithSpouse": false,
+  "maritalStatus": "Separated",
   "marriages": [
     {
+      "dateOfMarriage": "1989-03-02",
+      "locationOfMarriage": "Dallas",
       "spouseFullName": {
-        "first": "Mark1",
-        "last": "Olson"
+        "first": "Jessica",
+        "last": "Doe"
       },
-      "otherExplanation": "other",
-      "dateOfMarriage": "1985-03-01",
-      "dateOfSeparation": "1985-04-01",
-      "locationOfMarriage": "marriagelocation1",
-      "locationOfSeparation": "location1",
-      "marriageType": "type1",
-      "reasonForSeparation": "divorce1"
-    },
-    {
-      "spouseFullName": {
-        "first": "Mark2",
-        "last": "Olson"
-      },
-      "dateOfMarriage": "1985-03-02",
-      "dateOfSeparation": "1985-04-02",
-      "locationOfMarriage": "marriagelocation2",
-      "locationOfSeparation": "location2",
-      "marriageType": "type2",
-      "reasonForSeparation": "divorce2"
-    }
-  ],
-  "spouseMonthlyIncome": {
-    "socialSecurity": 2,
-    "civilService": 0,
-    "railroad": 4,
-    "blackLung": 0,
-    "ssi": 0,
-    "serviceRetirement": 6,
-    "additionalSources": [{
-      "name": "name1",
-      "amount": 8
-    }]
-  },
-  "netWorth": {
-    "bank": 1,
-    "interestBank": 2.2,
-    "stocks": 0,
-    "realProperty": 0,
-    "ira": 3
-  },
-  "expectedIncome": {
-    "salary": 0,
-    "additionalSources": [
-      {
-        "name": "name1",
-        "amount": 4
+      "view:pastMarriage": {
+        "dateOfSeparation": "1990-03-02",
+        "locationOfSeparation": "San Antonio, TX",
+        "reasonForSeparation": "Divorce"
       }
-    ],
-    "interest": 3
-  },
-  "veteranDateOfBirth": "1985-03-07",
-  "veteranSocialSecurityNumber": "111223333",
-  "spouseAddress": {
-    "city": "city1",
-    "country": "USA",
-    "postalCode": "21231",
-    "state": "MD",
-    "street": "str1"
-  },
-  "jobs": [
-    {
-      "dateRange": {
-        "from": "2012-04-01",
-        "to": "2013-05-01"
-      },
-      "employer": "1",
-      "address": {
-        "city": "1",
-        "country": "USA",
-        "postalCode": "21231",
-        "state": "MD",
-        "street": "str1"
-      },
-      "annualEarnings": 10,
-      "jobTitle": "worker1",
-      "daysMissed": "1"
     },
     {
-      "dateRange": {
-        "from": "2012-04-02",
-        "to": "2013-05-02"
+      "dateOfMarriage": "1994-03-02",
+      "locationOfMarriage": "North Adams, MA",
+      "spouseFullName": {
+        "first": "Meg",
+        "last": "Doe"
       },
-      "employer": "2",
-      "address": {
-        "city": "2",
-        "country": "USA",
-        "postalCode": "21231",
-        "state": "MD",
-        "street": "str2"
-      },
-      "annualEarnings": 20,
-      "jobTitle": "worker2",
-      "daysMissed": "2"
+      "view:currentMarriage": {
+        "marriageType": "Other",
+        "otherExplanation": "Personal"
+      }
     }
   ],
-  "nationalGuard": {
-    "date": "2013-04-11",
-    "name": "foo",
-    "address": {
-      "city": "Baltimore",
-      "country": "USA",
-      "postalCode": "21231",
-      "state": "MD",
-      "street": "111 Uni Drive"
-    },
-    "phone": "2123456789"
+  "medicaidCoverage": false,
+  "medicaidStatus": true,
+  "medicalCondition": false,
+  "medicalExpenses": true,
+  "mobilePhone": "555-555-5309",
+  "netWorthEstimation": 18000,
+  "noRapidProcessing": true,
+  "nursingHome": true,
+  "otherExplanation": "Personal reason",
+  "phone": "212-555-5555",
+  "placeOfSeparation": "Northampton, MA",
+  "powDateRange": {
+    "from": "1971-02-26",
+    "to": "1973-03-02"
   },
-  "nationalGuardActivation": true,
   "previousNames": [
     {
-      "first": "name1",
-      "last": "last1"
+      "first": "John",
+      "last": "Doe"
     },
     {
-      "first": "name2",
-      "last": "last2"
+      "first": "Jane",
+      "last": "Doe"
     }
   ],
-  "combatSince911": true,
-  "severancePay": {
-    "amount": 1,
-    "type": "Longevity"
+  "reasonForCurrentSeparation": "Other",
+  "receivesIncome": true,
+  "serviceBranch": {
+    "ARMY": true
   },
-  "placeOfSeparation": "city, state",
-  "veteranAddress": {
-    "city": "Baltimore",
+  "serviceNumber": "123456",
+  "socialSecurityDisability": false,
+  "specialMonthlyPension": false,
+  "spouseAddress": {
+    "city": "Pittsfield",
     "country": "USA",
-    "postalCode": "21231",
-    "street": "street",
-    "street2": "street2",
-    "state": "MD"
+    "postalCode": "01050",
+    "state": "MA",
+    "street": "123 7th st",
+    "street2": "Apt 3"
   },
-  "servicePeriods": [
+  "spouseDateOfBirth": "1960-01-01",
+  "spouseIsVeteran": true,
+  "spouseMarriages": [
     {
-      "activeServiceDateRange": {
-        "from": "2012-06-26",
-        "to": "2013-04-10"
-      },
-      "serviceBranch": "army"
+      "dateOfMarriage": "1980-03-02",
+      "dateOfSeparation": "1990-03-02",
+      "locationOfMarriage": "Seattle, WA",
+      "locationOfSeparation": "Tacoma, WA",
+      "reasonForSeparation": "Death",
+      "spouseFullName": {
+        "first": "Joe",
+        "last": "Generic",
+        "middle": "F",
+        "suffix": "Jr."
+      }
     }
   ],
-  "email": "foo@foo.com",
-  "altEmail": "alt@foo.com",
-  "nightPhone": "0123456789",
-  "dayPhone": "1123456789",
-  "mobilePhone": "2123456789",
-  "spouseVaFileNumber": "22345678",
+  "spouseSocialSecurityNumber": "123121234",
+  "spouseVaFileNumber": "23423444",
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Doe",
+  "totalNetWorth": false,
+  "transferredAssets": true,
+  "vaClaimsHistory": true,
   "vaFileNumber": "12345678",
-  "disabilities": [
+  "vaMedicalCenters": [
     {
-      "name": "disability 1",
-      "disabilityStartDate": "2016-12-01"
+      "medicalCenter": "Dallas Fort Worth VA Medical Center"
     }
   ],
-  "gender": "M"
+  "vaTreatmentHistory": true,
+  "veteranAddress": {
+    "city": "Hadley",
+    "country": "USA",
+    "isMilitary": false,
+    "postalCode": "01050",
+    "state": "ME",
+    "street": "123 8th st",
+    "street2": "Apt A-3"
+  },
+  "veteranDateOfBirth": "1960-01-01",
+  "veteranFullName": {
+    "first": "John",
+    "last": "Doe",
+    "middle": "Edmund",
+    "suffix": "Sr."
+  },
+  "veteranSocialSecurityNumber": "987654321",
+  "view:aidAttendance": true,
+  "view:hasDependents": true,
+  "view:powStatus": true,
+  "view:serveUnderOtherNames": true
 }
