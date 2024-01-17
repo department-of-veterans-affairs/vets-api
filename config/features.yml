@@ -1294,6 +1294,8 @@ features:
   virtual_agent_enable_nlu_pva_testing:
     actor_type: user
     description: If enabled, allows for connecting to NLU PVA
-  vye_load_scrypt_config:
+  vye_request_allowed:
     actor_type: user
-    description: If enabled, allowed for scrypt configs to be loaded.
+    description: >-
+      Master toggle for the VYE (Verify Your Enrollment) project.
+      If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
