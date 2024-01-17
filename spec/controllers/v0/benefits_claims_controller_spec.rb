@@ -88,7 +88,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   claim_type: 'Compensation',
                   claim_type_code: '020NEW',
                   num_contentions: 1,
-                  ep_code: '020' })
+                  ep_code: '020',
+                  claim_id: '600383363' })
       end
     end
 
