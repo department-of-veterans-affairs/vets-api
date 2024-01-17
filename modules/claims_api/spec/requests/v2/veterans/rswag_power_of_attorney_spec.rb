@@ -430,7 +430,9 @@ describe 'PowerOfAttorney',
         { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
+      consumes 'application/json'
       produces 'application/json'
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
 
       parameter name: 'veteranId',
                 in: :path,
@@ -441,6 +443,7 @@ describe 'PowerOfAttorney',
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
+      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       pdf_description = <<~VERBIAGE
         Validates a request appointing an individual as Power of Attorney (21-22a).
       VERBIAGE
@@ -449,9 +452,42 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Valid request response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+          let(:poa_code) { '083' }
+
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
+                                            'power_of_attorney', '2122a', 'validate.json').read)
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'power_of_attorney', '2122a', 'valid.json').read
+            temp = JSON.parse(temp)
+            attributes = temp['data']['attributes']
+            temp['data']['attributes'] = attributes
+            temp.to_json
+            temp
+          end
+
+          before do |example|
+            Veteran::Service::Representative.new(representative_id: '12345',
+                                                 poa_codes: [poa_code],
+                                                 first_name: 'Firstname',
+                                                 last_name: 'Lastname',
+                                                 phone: '555-555-5555').save!
+
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end

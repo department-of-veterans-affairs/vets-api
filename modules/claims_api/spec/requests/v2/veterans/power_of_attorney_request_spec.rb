@@ -380,7 +380,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 context 'when the request data does not pass schema validation' do
                   let(:request_body) do
                     Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                    'power_of_attorney', 'form_2122a_invalid_schema.json').read
+                                    'power_of_attorney', '2122a', 'invalid_schema.json').read
                   end
 
                   it 'returns a meaningful 422' do
@@ -403,7 +403,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                   context 'when no representatives have the provided POA code' do
                     let(:request_body) do
                       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                      'power_of_attorney', 'form_2122a_invalid_poa.json').read
+                                      'power_of_attorney', '2122a', 'invalid_poa.json').read
                     end
 
                     it 'returns a meaningful 404' do
@@ -425,7 +425,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                   context 'when at least one representative has the provided POA code' do
                     let(:request_body) do
                       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                      'power_of_attorney', 'form_2122a_valid.json').read
+                                      'power_of_attorney', '2122a', 'valid.json').read
                     end
 
                     it 'returns a meaningful 200' do
