@@ -8,7 +8,8 @@
     "claimProcessType",
     "disabilities",
     "serviceInformation",
-    "veteranIdentification"
+    "veteranIdentification",
+    "currentVaEmployee"
   ],
   "properties": {
     "claimProcessType": {
