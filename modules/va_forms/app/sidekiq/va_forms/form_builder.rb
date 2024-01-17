@@ -15,6 +15,7 @@ module VAForms
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
+      job_class = msg['class']
       error_class = msg['error_class']
       error_message = msg['error_message']
 
@@ -31,7 +32,7 @@ module VAForms
         if form_previously_valid
           VAForms::Slack::Messenger.new(
             {
-              class: 'VAForms::FormBuilder',
+              class: job_class.to_s,
               message: "URL for form_name: #{form_name}, row_id: #{row_id} no longer returns a valid PDF or web page.",
               form_url: url
             }
@@ -42,12 +43,12 @@ module VAForms
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags: { form_name:, row_id: })
 
       Rails.logger.warn(
-        'VAForms::FormBuilder retries exhausted',
+        "#{job_class} retries exhausted",
         { job_id:, error_class:, error_message:, form_name:, row_id:, form_data: }
       )
     rescue => e
       Rails.logger.error(
-        'Failure in VAForms::FormBuilder#sidekiq_retries_exhausted',
+        "Failure in #{job_class}#sidekiq_retries_exhausted",
         {
           messaged_content: e.message,
           job_id:,

@@ -16,13 +16,13 @@ module DecisionReviewV1
 
       def initialize(form_data:, submission_id: nil)
         @form = form_data
+        @submission = Form526Submission.find_by(id: submission_id)
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
         @request_body = {
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
-        @submission = Form526Submission.find_by(id: submission_id)
       end
 
       def generate_stamp_pdf
@@ -30,13 +30,12 @@ module DecisionReviewV1
           @form, @uuid, FORM_ID
         )
         stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                              timestamp: @submission&.created_at)
+                                                              timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true,
-          timestamp: @submission&.created_at
+          text_only: true
         )
       end
 
@@ -74,13 +73,16 @@ module DecisionReviewV1
         ).to_json
       end
 
+      def submission_date
+        if @submission.nil?
+          Time.now.in_time_zone('Central Time (US & Canada)')
+        else
+          @submission.created_at.in_time_zone('Central Time (US & Canada)')
+        end
+      end
+
       def received_date
-        date = if @submission.nil?
-                 Time.now.in_time_zone('Central Time (US & Canada)')
-               else
-                 @submission.created_at.in_time_zone('Central Time (US & Canada)')
-               end
-        date.strftime('%Y-%m-%d %H:%M:%S')
+        submission_date.strftime('%Y-%m-%d %H:%M:%S')
       end
     end
   end
