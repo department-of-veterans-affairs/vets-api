@@ -29,7 +29,6 @@ module DecisionReviewV1
         pdf = PdfFill::Filler.fill_ancillary_form(
           @form, @uuid, FORM_ID
         )
-        submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
         stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
                                                               timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
@@ -74,13 +73,16 @@ module DecisionReviewV1
         ).to_json
       end
 
+      def submission_date
+        if @submission.nil?
+          Time.now.in_time_zone('Central Time (US & Canada)')
+        else 
+          @submission.created_at.in_time_zone('Central Time (US & Canada)')
+        end
+      end
+
       def received_date
-        date = if @submission.nil?
-                 Time.now.in_time_zone('Central Time (US & Canada)')
-               else
-                 @submission.created_at.in_time_zone('Central Time (US & Canada)')
-               end
-        date.strftime('%Y-%m-%d %H:%M:%S')
+        submission_date.strftime('%Y-%m-%d %H:%M:%S')
       end
     end
   end

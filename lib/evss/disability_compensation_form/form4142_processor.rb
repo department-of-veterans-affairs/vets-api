@@ -46,7 +46,6 @@ module EVSS
       # @return [Pathname] the stamped PDF path
       #
       def generate_stamp_pdf
-        submission_date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
         pdf = PdfFill::Filler.fill_ancillary_form(
           form4142, @submission.submitted_claim_id, FORM_ID
         )
@@ -92,9 +91,12 @@ module EVSS
         ).to_json
       end
 
+      def submission_date
+        @submission.created_at.in_time_zone('Central Time (US & Canada)')
+      end
+
       def received_date
-        date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
-        date.strftime('%Y-%m-%d %H:%M:%S')
+        submission_date.strftime('%Y-%m-%d %H:%M:%S')
       end
 
       def form4142
