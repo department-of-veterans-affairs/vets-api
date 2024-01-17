@@ -26,9 +26,11 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        metadata = in_progress_form.metadata
-        metadata['submission']['error_message'] = claim.errors.errors.to_s
-        in_progress_form.update(metadata:)
+        metadata = in_progress_form&.metadata
+        if metadata.present?
+          metadata['submission']['error_message'] = claim.errors.errors.to_s
+          in_progress_form.update(metadata:)
+        end
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
