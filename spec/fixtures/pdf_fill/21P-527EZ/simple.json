@@ -1,19 +1,19 @@
 {
   "veteranFullName": {
-      "first": "John",
-      "middle": "",
-      "last": "Doe",
-      "suffix": "Sr."
+    "first": "John",
+    "middle": "",
+    "last": "Doe",
+    "suffix": "Sr."
   },
   "veteranSocialSecurityNumber": "333224444",
   "vaClaimsHistory": false,
   "veteranDateOfBirth": "1960-01-01",
   "serviceBranch": {
-      "army": true
+    "army": true
   },
   "activeServiceDateRange": {
-      "from": "2003-03-02",
-      "to": "2007-03-20"
+    "from": "2003-03-02",
+    "to": "2007-03-20"
   },
   "serviceNumber": "123456",
   "serveUnderOtherNames": false,
@@ -35,12 +35,12 @@
   "homeOwnership": false,
   "receivesIncome": false,
   "veteranAddress": {
-      "street": "123 8th st",
-      "city": "Hadley",
-      "country": "USA",
-      "state": "ME",
-      "postalCode": "01050",
-      "isMilitary": false
+    "street": "123 8th st",
+    "city": "Hadley",
+    "country": "USA",
+    "state": "ME",
+    "postalCode": "01050",
+    "isMilitary": false
   },
   "email": "test@example.com",
   "mobilePhone": "5551234567",
