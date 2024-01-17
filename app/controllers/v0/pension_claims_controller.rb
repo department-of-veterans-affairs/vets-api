@@ -26,11 +26,7 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        metadata = in_progress_form&.metadata
-        if metadata.present?
-          metadata['submission']['error_message'] = claim.errors.errors.to_s
-          in_progress_form.update(metadata:)
-        end
+        log_validation_error_to_metadata(in_progress_form)
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
@@ -43,6 +39,16 @@ module V0
 
       clear_saved_form(claim.form_id)
       render(json: claim)
+    end
+
+    private
+
+    def log_validation_error_to_metadata(in_progress_form)
+      return if in_progress_form.blank?
+
+      metadata = in_progress_form.metadata
+      metadata['submission']['error_message'] = claim.errors.errors.to_s
+      in_progress_form.update(metadata:)
     end
   end
 end
