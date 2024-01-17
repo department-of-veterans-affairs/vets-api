@@ -99,7 +99,7 @@ RSpec.describe 'Messages Integration', type: :request do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
           post "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft", params:
         end
-
+        require 'pry'; binding.pry;
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
