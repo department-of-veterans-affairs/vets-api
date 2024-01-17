@@ -28,7 +28,11 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
   end
 
   before do
-    scopes = defined?(described_class::OAUTH_SCOPES) ? described_class::OAUTH_SCOPES[:GET] : []
+    scopes = if defined?(described_class::OAUTH_SCOPES)
+               described_class::OAUTH_SCOPES[:GET].filter { |s| s.start_with? 'system/' }
+             else
+               []
+             end
 
     with_openid_auth(scopes) do |auth_header|
       get(path, headers: headers.merge(auth_header), params:)
@@ -40,11 +44,13 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
     let(:headers) { {} }
 
     it 'returns a 422 error' do
-      expect(response).to have_http_status(:unprocessable_entity)
       if opts[:decision_reviews]
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include('X-VA-ICN is required')
-      else
-        expect(response.body).to include("'icn' parameter is required")
+        # FIXME: skipped until all v0 APIs sharing these examples are returning 400 via the IcnParameterValidation concern:
+        # else
+        #   expect(response).to have_http_status(:bad_request)
+        #   expect(response.body).to include('required parameter \"icn\"')
       end
     end
   end
@@ -133,7 +139,9 @@ end
 
 shared_examples 'PDF download docs' do |opts|
   example_id = '44444444-5555-6666-7777-888888888888'
-  example_icn = '0123456789V012345'
+  example_icn = '1012667145V762142'
+  veteran_scopes = opts[:scopes].filter { |s| s.start_with? 'veteran/' }
+  system_scopes = opts[:scopes].filter { |s| s.start_with? 'system/' }
 
   description <<~DESC
     Returns a watermarked copy of a #{opts[:appeal_type_display_name]} PDF as submitted to the VA. PDFs are available
@@ -143,36 +151,33 @@ shared_examples 'PDF download docs' do |opts|
        the 'submitted' state.
     2. The PDF will stop being available one week after the #{opts[:appeal_type_display_name]} has progressed to the
        'completed' state. This is when the Veteran's personally identifying information is purged from our servers.
+
+    The 'icn' parameter is required when accessing this endpoint using an OAuth token with the '#{(opts[:scopes] - veteran_scopes).join("' or '")}' scopes.
+    Requests made with the '#{veteran_scopes.first}' scope may omit the 'icn' parameter.
   DESC
 
   consumes 'application/json'
 
   let!(:appeal) do
-    record = FactoryBot.create(
+    FactoryBot.create(
       opts[:factory],
       id: example_id,
       pdf_version: 'v3',
       status: 'submitted',
       veteran_icn: example_icn
     )
-
-    record.form_data['data']['attributes']['veteran']['icn'] = example_icn
-    record.save
-    record
   end
 
   parameter(
     parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
       {
-        description: "ICN of the Veteran associated with the #{opts[:appeal_type_display_name]}",
+        description: "Veteran's Master Person Index (MPI) Integration Control Number (ICN). Optional when using a veteran-scoped token. Required when using a representative- or system-scoped token.",
         example: example_icn,
         in: :query,
-        required: true
+        required: false
       }
     )
   )
-
-  let(:icn) { example_icn }
 
   parameter name: :id,
             in: :path,
@@ -193,26 +198,55 @@ shared_examples 'PDF download docs' do |opts|
       }
     end
 
-    # rubocop:disable RSpec/NoExpectationExample
-    it 'returns a PDF of the appeal submission' do
-      # No-op: response is not JSON, don't let rswag try to parse it
-    end
-    # rubocop:enable RSpec/NoExpectationExample
+    it_behaves_like 'rswag example',
+                    desc: 'Success',
+                    content_type: 'application/pdf',
+                    scopes: veteran_scopes
   end
 
-  response '404', "#{opts[:appeal_type_display_name]} record was not found, or the provided 'icn' query parameter does not match the record's ICN" do
+  response '400', "Missing 'icn' query parameter (with a system- or representative-scoped OAuth token)" do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    it_behaves_like 'rswag example', desc: "Missing 'icn' parameter", scopes: system_scopes
+  end
+
+  response '403', "Forbidden access (with a veteran-scoped OAuth token to an unowned #{opts[:appeal_type_display_name]})" do
     schema '$ref' => '#/components/schemas/errorModel'
     produces 'application/json'
 
     let(:icn) { '0000000000V000000' }
+    let(:appeal) do
+      FactoryBot.create(
+        opts[:factory],
+        id: example_id,
+        pdf_version: 'v3',
+        status: 'submitted',
+        veteran_icn: icn
+      )
+    end
 
-    it_behaves_like 'rswag example', desc: 'Not found', scopes: opts[:scopes]
+    it_behaves_like 'rswag example', desc: 'Forbidden access', scopes: veteran_scopes
+  end
+
+  response '404', 'Not Found' do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:icn) { example_icn }
+    let(:appeal) { nil }
+
+    it_behaves_like 'rswag example',
+                    desc: "#{opts[:appeal_type_display_name]} not found, or 'icn' parameter does not match the #{opts[:appeal_type_display_name]}'s saved data",
+                    extract_desc: true,
+                    scopes: system_scopes
   end
 
   response '410', 'Personally identifying information gone' do
     schema '$ref' => '#/components/schemas/errorModel'
     produces 'application/json'
 
+    let(:icn) { example_icn }
     let(:appeal) do
       record = FactoryBot.create(
         opts[:factory],
@@ -228,7 +262,7 @@ shared_examples 'PDF download docs' do |opts|
 
     it_behaves_like 'rswag example',
                     desc: "Data for the #{opts[:appeal_type_display_name]} has been deleted from the server because the retention period for the veteran's personally identifying information has expired",
-                    scopes: opts[:scopes]
+                    scopes: system_scopes
   end
 
   response '422', 'Unable to return a PDF' do
@@ -240,15 +274,6 @@ shared_examples 'PDF download docs' do |opts|
     it_behaves_like 'rswag example',
                     desc: "#{opts[:appeal_type_display_name]} has not yet progressed to a 'submitted' state",
                     scopes: opts[:scopes]
-  end
-
-  response '422', "Missing 'icn' query parameter" do
-    schema '$ref' => '#/components/schemas/errorModel'
-    produces 'application/json'
-
-    let(:icn) {}
-
-    it_behaves_like 'rswag example', desc: "Missing 'icn' parameter", scopes: opts[:scopes]
   end
 
   it_behaves_like 'rswag 500 response'

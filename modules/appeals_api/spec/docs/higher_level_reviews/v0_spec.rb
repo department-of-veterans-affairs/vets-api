@@ -18,9 +18,55 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
   path '/forms/200996' do
+    get 'List current Higher-Level Reviews' do
+      description "Lists known Higher-Level Reviews for the given Veteran. The 'icn' parameter is optional when the" \
+                  ' request uses veteran-scoped token, but it is required when using a representative- or system-scoped' \
+                  ' OAuth token.'
+      tags 'Higher-Level Reviews'
+      operationId 'listHlr'
+      security DocHelpers.oauth_security_config(AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET])
+      produces 'application/json'
+
+      parameter(
+        parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
+          {
+            name: :icn,
+            in: :query,
+            description: "Veteran's Master Person Index (MPI) Integration Control Number (ICN). Optional when using a veteran-scoped token. Required when using a representative- or system-scoped token.",
+            required: false
+          }
+        )
+      )
+
+      before { create(:higher_level_review_v0) }
+
+      response '200', 'Retrieve Higher-Level Reviews for a Veteran' do
+        it_behaves_like 'rswag example',
+                        desc: "with a veteran-scoped token (no 'icn' parameter necessary)",
+                        scopes: %w[veteran/HigherLevelReviews.read],
+                        response_wrapper: :normalize_appeal_response
+      end
+
+      response '400', 'Missing ICN parameter with a system- or representative-scoped OAuth token' do
+        it_behaves_like 'rswag example',
+                        desc: 'Missing ICN parameter',
+                        scopes: %w[system/HigherLevelReviews.read]
+      end
+
+      response '403', "Forbidden access to other Veteran's records with a veteran-scoped OAuth token" do
+        let(:icn) { '1111111111V111111' }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Forbidden',
+                        scopes: %w[veteran/HigherLevelReviews.read]
+      end
+
+      it_behaves_like 'rswag 500 response'
+    end
+
     post 'Creates a new Higher-Level Review' do
       scopes = AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
-      description 'Submits an appeal of type Higher Level Review. ' \
+      description 'Submits an appeal of type Higher-Level Review. ' \
                   'This endpoint is the same as submitting [VA Form 20-0996](https://www.va.gov/decision-reviews/higher-level-review/request-higher-level-review-form-20-0996)' \
                   ' via mail or fax directly to the Board of Veterans’ Appeals.'
 
@@ -78,12 +124,12 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
   end
 
   path '/forms/200996/{id}' do
-    get 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)' do
-      scopes = AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET]
-      description 'Returns all of the data associated with a specific Higher-Level Review.'
+    get 'Show a specific Higher-Level Review' do
+      default_scopes = %w[veteran/HigherLevelReviews.read]
+      description 'Returns basic data associated with a specific Higher-Level Review.'
       tags 'Higher-Level Reviews'
       operationId 'showHlr'
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET])
       produces 'application/json'
 
       parameter name: :id,
@@ -92,22 +138,34 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
                 schema: { type: :string, format: :uuid },
                 example: '44e08764-6008-46e8-a95e-eb21951a5b68'
 
-      response '200', 'Info about a single Higher-Level Review' do
+      response '200', 'Success' do
         schema '$ref' => '#/components/schemas/hlrShow'
 
         let(:id) { FactoryBot.create(:minimal_higher_level_review_v0).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,
-                                         scopes:
+                                         scopes: default_scopes
       end
 
       response '404', 'Higher-Level Review not found' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        let(:id) { 'invalid' }
+        let(:id) { '11111111-1111-1111-1111-111111111111' }
 
-        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
+        it_behaves_like 'rswag example',
+                        desc: 'returns a 404 response',
+                        scopes: default_scopes
+      end
+
+      response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Higher-Level Review' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:id) { FactoryBot.create(:minimal_higher_level_review_v0, veteran_icn: '1234567890V123456').id }
+
+        it_behaves_like 'rswag example',
+                        desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Higher-Level Review',
+                        scopes: default_scopes
       end
 
       it_behaves_like 'rswag 500 response'

@@ -16,13 +16,12 @@ module AppealsApi::HigherLevelReviews::V0
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_json_schema, only: %i[create validate]
-    before_action :validate_icn_parameter, only: %i[download index]
+    before_action :validate_icn_parameter!, only: %i[download index]
 
     FORM_NUMBER = '200996'
     API_VERSION = 'V0'
     MODEL_ERROR_STATUS = 422
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'higher_level_reviews' }.freeze
-    ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
 
     OAUTH_SCOPES = {
       GET: %w[veteran/HigherLevelReviews.read representative/HigherLevelReviews.read system/HigherLevelReviews.read],
@@ -35,12 +34,13 @@ module AppealsApi::HigherLevelReviews::V0
     end
 
     def index
-      veteran_hlrs = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).where(veteran_icn:).order(created_at: :desc)
+      veteran_hlrs = AppealsApi::HigherLevelReview.where(veteran_icn:).order(created_at: :desc)
       render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
     end
 
     def show
-      hlr = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).find(params[:id])
+      hlr = AppealsApi::HigherLevelReview.find(params[:id])
+      validate_token_icn_access!(hlr.veteran_icn)
       hlr = with_status_simulation(hlr) if status_requested_and_allowed?
 
       render_higher_level_review(hlr)
@@ -80,7 +80,7 @@ module AppealsApi::HigherLevelReviews::V0
       render_appeal_pdf_download(
         AppealsApi::HigherLevelReview.find(params[:id]),
         "#{FORM_NUMBER}-higher-level-review-#{params[:id]}.pdf",
-        params[:icn]
+        veteran_icn
       )
     rescue ActiveRecord::RecordNotFound
       render_higher_level_review_not_found(params[:id])
@@ -120,18 +120,6 @@ module AppealsApi::HigherLevelReviews::V0
 
     def render_model_errors(hlr)
       render json: model_errors_to_json_api(hlr), status: MODEL_ERROR_STATUS
-    end
-
-    def validate_icn_parameter
-      detail = nil
-
-      if params[:icn].blank?
-        detail = "'icn' parameter is required"
-      elsif !ICN_REGEX.match?(params[:icn])
-        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
-      end
-
-      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
     def token_validation_api_key

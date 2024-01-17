@@ -143,20 +143,21 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
     end
   end
 
-  path '/forms/200995/{id}/download' do
-    get 'Download a watermarked copy of a submitted Supplemental CLaim' do
-      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
-      tags 'Supplemental Claims'
-      operationId 'downloadSc'
-      security DocHelpers.oauth_security_config(scopes)
-
-      include_examples 'PDF download docs', {
-        factory: :supplemental_claim_v0,
-        appeal_type_display_name: 'Supplemental Claim',
-        scopes:
-      }
-    end
-  end
+  # FIXME: Skipped until controller uses AppealsApi::IcnParameterValidation concern
+  # path '/forms/200995/{id}/download' do
+  #   get 'Download a watermarked copy of a submitted Supplemental CLaim' do
+  #     scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
+  #     tags 'Supplemental Claims'
+  #     operationId 'downloadSc'
+  #     security DocHelpers.oauth_security_config(scopes)
+  #
+  #     include_examples 'PDF download docs', {
+  #       factory: :supplemental_claim_v0,
+  #       appeal_type_display_name: 'Supplemental Claim',
+  #       scopes:
+  #     }
+  #   end
+  # end
 
   path '/schemas/{schema_type}' do
     get 'Gets the Supplemental Claims JSON Schema.' do

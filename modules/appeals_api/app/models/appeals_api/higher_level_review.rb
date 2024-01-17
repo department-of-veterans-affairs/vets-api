@@ -17,7 +17,7 @@ module AppealsApi
     attr_readonly :auth_headers
     attr_readonly :form_data
 
-    before_create :assign_metadata
+    before_create :assign_metadata, :assign_veteran_icn
 
     scope :pii_expunge_policy, lambda {
       timeframe = 7.days.ago
@@ -358,6 +358,11 @@ module AppealsApi
 
     def clear_memoized_values
       @contestable_issues = @veteran = @claimant = @address_combined = nil
+    end
+
+    def assign_veteran_icn
+      # Ensure veteran_icn is set based on form_data - this will be retained after the PII is deleted
+      self.veteran_icn = form_data.dig('data', 'attributes', 'veteran', 'icn').presence if veteran_icn.blank?
     end
   end
 end
