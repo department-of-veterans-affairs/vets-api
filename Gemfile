@@ -35,7 +35,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', github: 'rails/rails', branch: '6-1-stable'
+gem 'rails', '~> 7.0.8'
 
 gem 'aasm'
 gem 'active_model_serializers'

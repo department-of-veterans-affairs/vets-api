@@ -27,6 +27,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       doc = { file: pdf_path, file_name: 'pdf' }
 
       expect(claim).to receive(:to_pdf)
+      expect(job).to receive(:form_submission_polling)
       expect(job).to receive(:process_pdf).with(pdf_path)
       expect(job).to receive(:generate_form_metadata_lh).once
       expect(service).to receive(:upload_form).with(
@@ -115,7 +116,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
-      expect(job).to receive(:form_submission_polling)
       job.check_success(response)
     end
 
