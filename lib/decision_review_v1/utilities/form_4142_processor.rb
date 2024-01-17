@@ -76,7 +76,7 @@ module DecisionReviewV1
       def submission_date
         if @submission.nil?
           Time.now.in_time_zone('Central Time (US & Canada)')
-        else 
+        else
           @submission.created_at.in_time_zone('Central Time (US & Canada)')
         end
       end
