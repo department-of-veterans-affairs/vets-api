@@ -36,6 +36,13 @@ RSpec.describe CentralMail::DatestampPdf do
         end
       end
 
+      it 'takes a timestamp, page number, and template' do
+        out_path = instance.run(text: 'Received via vets.gov', x: 10, y: 10, timestamp: Time.now, text_only: true, page_number: 0, template: './lib/pdf_fill/forms/pdfs/686C-674.pdf', multistamp: true)
+        pdf_reader = PDF::Reader.new(out_path)
+        expect(pdf_reader.pages[0].text).to eq('Received via vets.gov')
+        File.delete(out_path)
+      end
+
       context 'with no additional text' do
         let(:opt) do
           {}
