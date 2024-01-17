@@ -18,7 +18,7 @@ module BGS
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
                          { user_uuid:, saved_claim_id:, icn:, error: })
-      user ||= BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, vet_info)
+      user ||= BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, vet_info)
       CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
                                                           KmsEncrypted::Box.new.encrypt(vet_info.to_json),
                                                           KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
@@ -28,7 +28,7 @@ module BGS
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
 
-      @user = BGS::SubmitForm674EncryptedJob.generate_user_struct(encrypted_user_struct_hash, @vet_info)
+      @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info)
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 

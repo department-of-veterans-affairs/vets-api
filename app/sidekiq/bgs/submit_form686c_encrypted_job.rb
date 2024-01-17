@@ -18,7 +18,7 @@ module BGS
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
                          { user_uuid:, saved_claim_id:, icn:, error: })
-      user ||= BGS::SubmitForm686cEncryptedJob.generate_user_struct(vet_info)
+      user ||= BGS::SubmitForm686cJob.generate_user_struct(vet_info)
       CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
                                                           KmsEncrypted::Box.new.encrypt(vet_info.to_json),
                                                           KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
@@ -28,7 +28,7 @@ module BGS
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
 
-      @user = BGS::SubmitForm686cEncryptedJob.generate_user_struct(@vet_info)
+      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 
@@ -40,7 +40,7 @@ module BGS
       BGS::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
-      BGS::SubmitForm674EncryptedJob.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
 
       send_confirmation_email
       in_progress_form&.destroy

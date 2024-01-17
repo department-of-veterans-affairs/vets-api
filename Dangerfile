@@ -157,7 +157,7 @@ module VSPDanger
 
     def run
       required_group = '@department-of-veterans-affairs/backend-review-group'
-      exception_groups = %w[@department-of-veterans-affairs/vsp-identity
+      exception_groups = %w[@department-of-veterans-affairs/octo-identity
                             @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot
                             @department-of-veterans-affairs/lighthouse-banana-peels]
 
