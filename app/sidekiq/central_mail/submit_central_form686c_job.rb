@@ -137,11 +137,21 @@ module CentralMail
 
     def process_pdf(pdf_path, timestamp = nil)
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
-      CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
-        x: 429,
+        x: 400,
         y: 770,
         text_only: true
+      )
+      CentralMail::DatestampPdf.new(stamped_path2).run(
+        text: 'Application Submitted on va.gov',
+        x: 400,
+        y: 675,
+        text_only: true, #passing as text only because we override how the date is stamped in this instance
+        timestamp: timestamp,
+        page_number: 6,
+        template: "lib/pdf_fill/forms/pdfs/686C-674.pdf",
+        multistamp: true
       )
     end
 
