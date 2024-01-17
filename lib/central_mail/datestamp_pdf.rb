@@ -20,6 +20,7 @@ module CentralMail
     end
 
     # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/MethodLength
     def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil, template = nil)
       timestamp ||= Time.zone.now
       unless text_only
@@ -47,8 +48,9 @@ module CentralMail
       raise
     end
     # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/MethodLength
 
-    def stamp(file_path, stamp_path, multistamp = false)
+    def stamp(file_path, stamp_path, multistamp: false)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       if multistamp
         PdfFill::Filler::PDF_FORMS.multistamp(file_path, stamp_path, out_path)
