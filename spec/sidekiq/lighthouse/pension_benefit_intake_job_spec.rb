@@ -27,6 +27,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       doc = { file: pdf_path, file_name: 'pdf' }
 
       expect(claim).to receive(:to_pdf)
+      expect(job).to receive(:form_submission_polling)
       expect(job).to receive(:process_pdf).with(pdf_path)
       expect(job).to receive(:generate_form_metadata_lh).once
       expect(service).to receive(:upload_form).with(
@@ -115,7 +116,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
-      expect(job).to receive(:form_submission_polling)
       job.check_success(response)
     end
 
@@ -162,6 +162,15 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       job.form_submission_polling
     end
     # form_submission_polling
+  end
+
+  describe 'sidekiq_retries_exhausted block' do
+    it 'logs a distrinct error when retries are exhausted' do
+      Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+      end
+    end
   end
 
   # Rspec.describe
