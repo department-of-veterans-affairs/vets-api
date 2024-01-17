@@ -46,10 +46,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8d6ce88b1ad3cc7e9b99d27d26083b367c3866fb
-  branch: master
+  revision: a9b60b42d102ced877d87e406a9d028b853ef923
   specs:
-    vets_json_schema (20.33.6)
+    vets_json_schema (20.33.7)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -388,7 +387,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
+einhorn (1.0.0)
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
@@ -1205,7 +1204,7 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
-  sidekiq-ent!
+sidekiq-ent!
   sidekiq-pro!
   sidekiq_alive
   simple_forms_api!
@@ -1229,7 +1228,7 @@ DEPENDENCIES
   vcr
   veteran!
   veteran_confirmation!
-  vets_json_schema!
+  vets_json_schema (= 20.33.7)!
   virtus
   vye!
   warden-github
