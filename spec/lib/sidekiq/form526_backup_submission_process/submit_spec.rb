@@ -85,7 +85,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 described_class.drain
                 expect(jid).not_to be_empty
 
-                # After 526 succeeds ancillary form go through their backup submission process
+                # The Backup Submission process gathers form 526 and any ancillary forms to send to Central Mail at the same time
 
                 # Form 4142 Backup Submission Process
                 expect(submission.form['form4142']).not_to be(nil)
@@ -94,8 +94,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 )
                 request_body = form4142_processor.request_body
                 metadata_hash = JSON.parse(request_body['metadata'])
-                form4142_received_date = metadata_hash['receiveDt'].to_date
-                expect(submission.created_at.to_date).to eq(form4142_received_date)
+                form4142_received_date = metadata_hash['receiveDt'].in_time_zone('Central Time (US & Canada)')
+                expect(submission.created_at.in_time_zone('Central Time (US & Canada)')).to be_within(1.second).of(form4142_received_date)
 
                 # Form 0781 Backup Submission Process
                 expect(submission.form['form0781']).not_to be(nil)
