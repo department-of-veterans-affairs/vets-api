@@ -96,6 +96,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
             stub_poa_verification
             allow_any_instance_of(pws)
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
             mock_acg(scopes) do
               submit_request(example.metadata)

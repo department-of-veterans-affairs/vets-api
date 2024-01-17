@@ -28,6 +28,7 @@ module ClaimsApi
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           check_file_number_exists!
+          check_request_ssn_matches_mpi(request&.headers&.to_h)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
