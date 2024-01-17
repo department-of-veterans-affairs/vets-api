@@ -8,8 +8,7 @@
     "claimProcessType",
     "disabilities",
     "serviceInformation",
-    "veteranIdentification",
-    "currentVaEmployee"
+    "veteranIdentification"
   ],
   "properties": {
     "claimProcessType": {
@@ -20,7 +19,10 @@
     "veteranIdentification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mailingAddress", "currentVaEmployee"],
+      "required": [
+        "mailingAddress",
+        "currentVaEmployee"
+        ],
       "properties": {
         "serviceNumber": {
           "type": ["null", "string"],
@@ -139,7 +141,6 @@
         "currentVaEmployee": {
           "type": ["boolean"],
           "description": "Set to true if Veteran is a VA employee.",
-          "default": false,
           "nullable": false
         }
       }
