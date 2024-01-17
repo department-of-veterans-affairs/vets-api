@@ -981,9 +981,6 @@ RSpec.describe FormProfile, type: :model do
 
   describe '#initialize_military_information', skip_va_profile: true do
     context 'when military_information_vaprofile=true' do
-      before do
-        Flipper.enable(:military_information_vaprofile)
-      end
 
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',

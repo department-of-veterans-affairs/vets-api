@@ -356,11 +356,7 @@ class User < Common::RedisStore
   end
 
   def military_information
-    @military_information ||= if Flipper.enabled?(:military_information_vaprofile)
-                                FormProfile.new(form_id: nil, user: self).initialize_military_information
-                              else
-                                EMISRedis::MilitaryInformation.for_user(self)
-                              end
+    @military_information ||= FormProfile.new(form_id: nil, user: self).initialize_military_information
   end
 
   def veteran_status

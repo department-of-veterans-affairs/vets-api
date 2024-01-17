@@ -1196,21 +1196,7 @@ RSpec.describe User, type: :model do
     end
 
     describe '#military_information', :skip_va_profile do
-      context 'Feature military_information_vaprofile=false' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:military_information_vaprofile).and_return(false)
-        end
-
-        it 'returns an instance of the EMISRedis class' do
-          expect(user.military_information).to be_an_instance_of(EMISRedis::MilitaryInformation)
-        end
-      end
-
-      context 'Feature military_information_vaprofile=true' do
-        before do
-          Flipper.enable(:military_information_vaprofile)
-        end
-
+      context 'Feature military_information_vaprofile' do
         it 'returns an instance of the FormMilitaryInformation class' do
           expect(user.military_information).to be_an_instance_of(FormMilitaryInformation)
           expect(user.military_information).not_to be_nil
