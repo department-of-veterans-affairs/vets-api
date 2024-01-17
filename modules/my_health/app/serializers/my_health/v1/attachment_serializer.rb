@@ -8,7 +8,7 @@ module MyHealth
       attribute :message_id
       attribute :attachment_size
 
-      link(:download) { MyHealth::UrlHelper.new.v1_message_attachment_url(object.message_id, object.id) }
+      link(:download) { MyHealth::Engine.routes.url_helpers.v1_message_attachment_url(object.message_id, object.id) }
     end
   end
 end

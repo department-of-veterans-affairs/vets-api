@@ -28,7 +28,7 @@ module MyHealth
               name: object.send("attachment#{i}_name"),
               attachment_size: object.send("attachment#{i}_size"),
               download:
-                MyHealth::UrlHelper.new.v1_message_attachment_url(
+                MyHealth::Engine.routes.url_helpers.v1_message_attachment_url(
                   object.message_id, object.send("attachment#{i}_id")
                 )
             }
@@ -37,7 +37,7 @@ module MyHealth
         end
       end
 
-      link(:self) { MyHealth::UrlHelper.new.v1_message_url(object.message_id) }
+      link(:self) { MyHealth::Engine.routes.url_helpers.v1_message_url(object.message_id) }
     end
   end
 end

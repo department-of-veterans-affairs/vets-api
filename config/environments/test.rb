@@ -33,6 +33,7 @@ Rails.application.configure do
   config.action_controller.perform_caching = false
   config.cache_store = :null_store
 
+  # RYAN => DEPRECATION WARNING: Setting action_dispatch.show_exceptions to false is deprecated. Set to :none instead.
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = false
 

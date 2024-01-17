@@ -7,8 +7,8 @@ module MyHealth
         object.tracking_number
       end
 
-      link(:self) { MyHealth::UrlHelper.new.v1_prescription_trackings_url(object.prescription_id) }
-      link(:prescription) { MyHealth::UrlHelper.new.v1_prescription_url(object.prescription_id) }
+      link(:self) { MyHealth::Engine.routes.url_helpers.v1_prescription_trackings_url(object.prescription_id) }
+      link(:prescription) { MyHealth::Engine.routes.url_helpers.v1_prescription_url(object.prescription_id) }
       link(:tracking_url) do
         case object.delivery_service.upcase
         when 'UPS'

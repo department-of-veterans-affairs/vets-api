@@ -13,7 +13,7 @@ module MyHealth
       attribute :unread_count
       attribute :system_folder
 
-      link(:self) { MyHealth::UrlHelper.new.v1_folder_url(object.id) }
+      link(:self) { MyHealth::Engine.routes.url_helpers.v1_folder_url(object.id) }
     end
   end
 end

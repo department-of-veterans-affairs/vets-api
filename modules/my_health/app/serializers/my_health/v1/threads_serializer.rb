@@ -26,7 +26,7 @@ module MyHealth
       attribute :unsent_drafts
       attribute :unread_messages
 
-      link(:self) { MyHealth::UrlHelper.new.v1_thread_url(object.thread_id) }
+      link(:self) { MyHealth::Engine.routes.url_helpers.v1_thread_url(object.thread_id) }
     end
   end
 end

@@ -19,7 +19,7 @@ module MyHealth
       attribute :triage_group_name
       attribute :proxy_sender_name
 
-      link(:self) { MyHealth::UrlHelper.new.v1_message_url(object.id) }
+      link(:self) { MyHealth::Engine.routes.url_helpers.v1_message_url(object.id) }
     end
   end
 end

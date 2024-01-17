@@ -35,7 +35,7 @@ module AppsApi
               key :example, 'Web'
             end
             property :logo_url do
-              key :description, I18n.t('apps_api.field_descriptions.logo_url')
+              key :description, I18n.t('apps_api.field_descriptions.logo_url') # RYAN
               key :type, :string
               key :example, 'https://www.example.com/static/images/example.png'
             end
