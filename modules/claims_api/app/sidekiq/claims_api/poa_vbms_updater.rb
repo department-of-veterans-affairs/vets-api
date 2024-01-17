@@ -22,11 +22,12 @@ module ClaimsApi
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
       )
 
+      # allow_poa_c_add reports 'No Data' if sent lowercase
       response = service.corporate_update.update_poa_access(
         participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
         allow_poa_access: 'y',
-        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'y' : 'n'
+        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'Y' : 'N'
       )
 
       if response[:return_code] == 'GUIE50000'

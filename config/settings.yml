@@ -701,6 +701,10 @@ connected_apps_api:
     api_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
 
+authorization_server_scopes_api:
+  auth_server:
+    url: https://sandbox-api.va.gov/internal/auth/v2/server
+
 redis:
   host: localhost
   port: 6379
@@ -1346,7 +1350,7 @@ vanotify:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  drupal_url: https://fake-url.com
   # A notification for when a forms url has changed
   slack:
     enabled: false

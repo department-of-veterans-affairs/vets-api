@@ -75,6 +75,23 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
       end
+
+      it 'logs the claim type details' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Claim Type Details',
+                { message_type: 'lh.cst.claim_types',
+                  claim_type: 'Compensation',
+                  claim_type_code: '020NEW',
+                  num_contentions: 1,
+                  ep_code: '020',
+                  claim_id: '600383363' })
+      end
     end
 
     context 'when not authorized' do

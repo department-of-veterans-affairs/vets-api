@@ -5,7 +5,7 @@ module LGY
     module_function
 
     def tag_sentry
-      Raven.tags_context(feature: 'lgy')
+      Sentry.set_tags(feature: 'lgy')
     end
   end
 end
