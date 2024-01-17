@@ -142,6 +142,7 @@ module VetsAPI
     Rails.autoloaders.main.ignore(Rails.root.join('app', 'sidekiq', 'education_form', 'templates', '1990-disclosure'))
 
     # RYAN log the autoloader
-    Rails.autoloaders.logger = Logger.new("#{Rails.root}/log/autoloading.log")
+    # run this locally, this breaks on the CI
+    # Rails.autoloaders.logger = Logger.new("#{Rails.root}/log/autoloading.log")
   end
 end
