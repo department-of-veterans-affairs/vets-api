@@ -550,21 +550,23 @@ module PdfFill
           first_key: 'otherExplanation',
           question_num: 7,
           'spouseFullName' => {
-            question_text: 'WHO WERE YOU MARRIED TO?',
             'first' => {
               limit: 12,
               question_num: 7,
+              question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 7,
+              question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
               question_num: 7,
+              question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -575,6 +577,7 @@ module PdfFill
           'otherExplanation' => {
             limit: 43,
             question_num: 7,
+            question_suffix: '[Veteran]',
             question_text: 'HOW DID YOUR PREVIOUS MARRIAGE END?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
           },
@@ -603,12 +606,14 @@ module PdfFill
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7,
+            question_suffix: '[Veteran]',
             question_text: 'PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
             question_num: 7,
+            question_suffix: '[Veteran]',
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -620,17 +625,20 @@ module PdfFill
             'first' => {
               limit: 12,
               question_num: 7,
+              question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               question_num: 7,
+              question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
               question_num: 7,
+              question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
             }
@@ -641,7 +649,8 @@ module PdfFill
           'otherExplanation' => {
             limit: 43,
             question_num: 7,
-            question_text: 'OW DID THE PREVIOUS MARRIAGE END?',
+            question_suffix: '[Spouse]',
+            question_text: 'HOW DID THE PREVIOUS MARRIAGE END?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
           },
           'dateOfMarriage' => {
@@ -669,12 +678,14 @@ module PdfFill
           'locationOfMarriage' => {
             limit: 63,
             question_num: 7,
+            question_suffix: '[Spouse]',
             question_text: 'PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
             question_num: 7,
+            question_suffix: '[Spouse]',
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
@@ -1321,7 +1332,7 @@ module PdfFill
         @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
         @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
         @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
-        @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
+        @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran']) if @form_data['maritalStatus'] == 0
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
@@ -1384,8 +1395,12 @@ module PdfFill
                            })
           end
         end
-        @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages']&.length.to_i > 3)
-        @form_data['additionalSpouseMarriages'] = to_radio_yes_no(@form_data['spouseMarriages']&.length.to_i > 2)
+        if @form_data['marriages']&.any?
+          @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages'].length.to_i > 3)
+        end
+        if @form_data['spouseMarriages']&.any?
+          @form_data['additionalSpouseMarriages'] = to_radio_yes_no(@form_data['spouseMarriages'].length.to_i > 2)
+        end
       end
 
       # SECTION VIII: DEPENDENT CHILDREN
@@ -1408,15 +1423,18 @@ module PdfFill
           }
           custodian_addresses[custodian_key] = custodian_hash if custodian_addresses[custodian_key].nil?
         end
-        @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
+        if custodian_addresses.any?
+          @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
+        end
         @form_data['custodian'] = custodian_addresses.values.first&.dig('custodian') || {}
         @form_data['custodianAddress'] = custodian_addresses.values.first&.dig('custodianAddress') || {}
       end
 
       def select_children_in_household(dependents)
-        dependents&.select do |dependent|
+        return '0' unless dependents&.any?
+        dependents.select do |dependent|
           dependent['childInHousehold']
-        end&.length.to_s
+        end.length.to_s
       end
 
       def child_status_overflow(dependent)
@@ -1460,12 +1478,14 @@ module PdfFill
         end
         @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
         @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
-        @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
+        if @form_data['homeOwnership'] == 0
+          @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
+          @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
+        end
         if @form_data['homeAcreageValue'].present?
           @form_data['homeAcreageValue'] =
             split_currency_amount(@form_data['homeAcreageValue'])
         end
-        @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
         if @form_data['incomeSources'].present?
           @form_data['moreThanFourIncomeSources'] =
             to_radio_yes_no(@form_data['incomeSources'].length > 4)

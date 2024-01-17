@@ -58,7 +58,7 @@
   "socialSecurityDisability": 1,
   "medicalCondition": 1,
   "nursingHome": 1,
-  "medicaidStatus": "Off",
+  "medicaidStatus": 0,
   "specialMonthlyPension": 1,
   "vaTreatmentHistory": 0,
   "vaMedicalCenters": [
@@ -121,6 +121,17 @@
         "year": "1984"
       },
       "locationOfSeparation": "San Antonio, TX"
+    },
+    {
+      "spouseFullName": {
+        "first": "Meg",
+        "middle": "Middle",
+        "last": "Doe"
+      },
+      "dateOfMarriage": "1994-03-02",
+      "locationOfMarriage": "North Adams, MA",
+      "marriageType": "Some other way",
+      "otherExplanation": "Other reason"
     }
   ],
   "spouseDateOfBirth": {

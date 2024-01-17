@@ -323,7 +323,7 @@
       "typeOfIncome": "INTEREST_DIVIDEND",
       "receiver": "Jane Doe",
       "payer": "John Doe",
-      "amount": 78.5
+      "amount": 78.50
     },
     {
       "typeOfIncome": "OTHER",

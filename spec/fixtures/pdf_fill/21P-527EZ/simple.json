@@ -1,19 +1,19 @@
 {
   "veteranFullName": {
-    "first": "John",
-    "middle": "",
-    "last": "Doe",
-    "suffix": "Sr."
+      "first": "John",
+      "middle": "",
+      "last": "Doe",
+      "suffix": "Sr."
   },
   "veteranSocialSecurityNumber": "333224444",
   "vaClaimsHistory": false,
   "veteranDateOfBirth": "1960-01-01",
   "serviceBranch": {
-    "army": true
+      "army": true
   },
   "activeServiceDateRange": {
-    "from": "2003-03-02",
-    "to": "2007-03-20"
+      "from": "2003-03-02",
+      "to": "2007-03-20"
   },
   "serviceNumber": "123456",
   "serveUnderOtherNames": false,
@@ -27,37 +27,25 @@
   "vaTreatmentHistory": false,
   "federalTreatmentHistory": false,
   "currentEmployment": false,
-  "maritalStatus": "Not Married",
-  "totalNetWorth": false,
-  "netWorthEstimation": 0,
+  "maritalStatus": "Never Married",
+  "totalNetWorth": true,
   "hasCareExpenses": false,
   "hasMedicalExpenses": false,
-  "transferredAssets": true,
-  "homeOwnership": true,
-  "homeAcreageMoreThanTwo": true,
-  "homeAcreageValue": 75000,
-  "landMarketable": false,
+  "transferredAssets": false,
+  "homeOwnership": false,
   "receivesIncome": false,
-  "bankAccount": {
-    "accountType": "checking",
-    "bankName": "Best Bank",
-    "accountNumber": "001122334455",
-    "routingNumber": "123123123"
-  },
   "veteranAddress": {
-    "street": "123 8th st",
-    "street2": "A-3",
-    "city": "Hadley",
-    "country": "USA",
-    "state": "ME",
-    "postalCode": "01050",
-    "isMilitary": false
+      "street": "123 8th st",
+      "city": "Hadley",
+      "country": "USA",
+      "state": "ME",
+      "postalCode": "01050",
+      "isMilitary": false
   },
   "email": "test@example.com",
-  "phone": "555-123-4567",
-  "mobilePhone": "555-123-4567",
+  "mobilePhone": "5551234567",
   "isOver65": false,
   "noRapidProcessing": true,
   "statementOfTruthCertified": true,
-  "statementOfTruthSignature": "John Edmund Doe"
+  "statementOfTruthSignature": "John Doe"
 }
