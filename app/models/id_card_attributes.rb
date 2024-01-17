@@ -47,19 +47,19 @@ class IdCardAttributes
   end
 
   def branches_of_service
-    branches =  military_info.service_episodes_by_date.map do |ep|
-                  SERVICE_KEYS[ep.branch_of_service_code]
-                end
+    branches = military_info.service_episodes_by_date.map do |ep|
+      SERVICE_KEYS[ep.branch_of_service_code]
+    end
     branches.compact.join(',')
   end
 
   def discharge_types
-    discharges = 
+    discharges =
       ## If the discharge code is one of the known, unwanted three-character
       ##  codes from VA Profile, replace it with nil.
       invalid_codes = %w[DVN DVU CVI VNA]
-      all_codes = military_info.service_episodes_by_date.map(&:character_of_discharge_code)
-      all_codes.map { |code| invalid_codes.include?(code) ? nil : code }
+    all_codes = military_info.service_episodes_by_date.map(&:character_of_discharge_code)
+    all_codes.map { |code| invalid_codes.include?(code) ? nil : code }
     # Remove nil values and convert array of codes to a string
     discharges.compact.join(',')
   end
