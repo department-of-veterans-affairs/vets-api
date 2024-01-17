@@ -1332,7 +1332,10 @@ module PdfFill
         @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
         @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
         @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
-        @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran']) if @form_data['maritalStatus'] == 0
+        if (@form_data['maritalStatus']).zero?
+          @form_data['spouseIsVeteran'] =
+            to_radio_yes_no(@form_data['spouseIsVeteran'])
+        end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
         @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
@@ -1388,11 +1391,9 @@ module PdfFill
         %w[marriages spouseMarriages].each do |key|
           @form_data[key] = @form_data[key]&.map do |marriage|
             reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
-            marriage.merge({
-                             'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+            marriage.merge({ 'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
                              'reasonForSeparation' => reason_for_separation_lookup[reason_for_separation],
-                             'dateOfSeparation' => split_date(marriage['dateOfSeparation'])
-                           })
+                             'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
           end
         end
         if @form_data['marriages']&.any?
@@ -1406,9 +1407,7 @@ module PdfFill
       # SECTION VIII: DEPENDENT CHILDREN
       def expand_dependent_children
         @form_data['dependentChildrenInHousehold'] = select_children_in_household(@form_data['dependents'])
-        @form_data['dependents'] = @form_data['dependents']&.map do |dependent|
-          dependent_to_hash(dependent)
-        end
+        @form_data['dependents'] = @form_data['dependents']&.map { |dependent| dependent_to_hash(dependent) }
         # 8Q Do all children not living with you reside at the same address?
         custodian_addresses = {}
         dependents_not_in_household = @form_data['dependents']&.reject do |dependent|
@@ -1432,6 +1431,7 @@ module PdfFill
 
       def select_children_in_household(dependents)
         return '0' unless dependents&.any?
+
         dependents.select do |dependent|
           dependent['childInHousehold']
         end.length.to_s
@@ -1478,7 +1478,7 @@ module PdfFill
         end
         @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
         @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
-        if @form_data['homeOwnership'] == 0
+        if (@form_data['homeOwnership']).zero?
           @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
           @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
         end
@@ -1486,10 +1486,8 @@ module PdfFill
           @form_data['homeAcreageValue'] =
             split_currency_amount(@form_data['homeAcreageValue'])
         end
-        if @form_data['incomeSources'].present?
-          @form_data['moreThanFourIncomeSources'] =
-            to_radio_yes_no(@form_data['incomeSources'].length > 4)
-        end
+        @form_data['moreThanFourIncomeSources'] =
+          to_radio_yes_no(@form_data['incomeSources'].present? && @form_data['incomeSources'].length > 4)
         @form_data['incomeSources'] = merge_income_sources(@form_data['incomeSources'])
       end
 
