@@ -441,7 +441,7 @@ GEM
       date_time_precision (>= 0.8)
       mime-types (>= 3.0)
       nokogiri (>= 1.11.4)
-    fitbit_api (0.15.1)
+    fitbit_api (0.17.1)
       oauth2 (~> 1.0)
     flipper (1.0.0)
       brow (~> 0.4.1)
