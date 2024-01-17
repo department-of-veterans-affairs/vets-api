@@ -11,7 +11,7 @@ module Swagger::Schemas
       property :data, type: :array do
         items do
           property :id, type: :string, example: 'dbbf9a58-41e5-40c0-bdb5-fc1407aa1f05'
-          property :type, type: :string, example: 'next_of_kin'
+          property :type, type: :string
           property :attributes do
             key :$ref, :Contact
           end

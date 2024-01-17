@@ -27,7 +27,7 @@ describe VAProfile::Profile::V3::Service do
     let(:idme_uuid) { 'e444837a-e88b-4f59-87da-10d3c74c787b' }
     let(:user) { build(:user, :loa3, idme_uuid:) }
 
-    it 'returns a valid schema' do
+    it 'returns the associated_persons for a user' do
       VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
         response = subject.get_health_benefit_bio
 
