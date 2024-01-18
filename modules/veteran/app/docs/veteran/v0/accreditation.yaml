@@ -281,19 +281,19 @@ components:
       properties:
         self:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=3'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=3'
         first:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=1'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=1'
         prev:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=2'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=2'
         next:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=4'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=4'
         last:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=5'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=5'
     CommonMeta:
       type: object
       properties:
