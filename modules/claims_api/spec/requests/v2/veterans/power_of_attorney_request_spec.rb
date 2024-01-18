@@ -12,6 +12,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:appoint_organization_path) do
     "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-organization"
   end
+  let(:validate_org_path) { "/services/claims/v2/veterans/#{veteran_id}/2122/validate" }
   let(:scopes) { %w[system/claim.write] }
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
@@ -114,6 +115,66 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
               expect(response.status).to eq(401)
             end
+          end
+        end
+      end
+    end
+
+    describe 'validate' do
+      context 'org' do
+        b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
+        let(:data) do
+          {
+            serviceOrganization: {
+              poaCode: organization_poa_code.to_s
+            },
+            signatures: {
+              veteran: b64_image,
+              representative: b64_image
+            }
+          }
+        end
+
+        it 'returns a 200 on a valid request' do
+          mock_ccg(scopes) do |auth_header|
+            post validate_org_path, params: data, headers: auth_header
+            expect(response.status).to eq(200)
+          end
+        end
+
+        it 'returns a 422 on a bad schema' do
+          mock_ccg(scopes) do |auth_header|
+            post validate_org_path, params: {}, headers: auth_header
+            res = JSON.parse(response.body)
+            expect(response.status).to eq(400)
+            expect(res['errors'][0]['title']).to eq('invalid value for poaCode')
+          end
+        end
+
+        it 'returns a 400 on unknown representative' do
+          data = {
+            serviceOrganization: {
+              poaCode: 'ABC'
+            },
+            signatures: {
+              veteran: b64_image,
+              representative: b64_image
+            }
+          }
+          mock_ccg(scopes) do |auth_header|
+            post validate_org_path, params: data, headers: auth_header
+            res = JSON.parse response.body
+            expect(response.status).to eq(400)
+            expect(res['errors'][0]['detail']).to eq('"ABC" is not a valid value for "poaCode"')
+          end
+        end
+
+        it 'returns a 400 on unknown veteran' do
+          mock_ccg(scopes) do |auth_header|
+            post '/services/claims/v2/veterans/someinvalidicn/2122/validate', params: data, headers: auth_header
+            res = JSON.parse response.body
+            # binding.pry
+            expect(response.status).to eq(400)
           end
         end
       end

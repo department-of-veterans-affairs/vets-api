@@ -22,6 +22,8 @@ module ClaimsApi
         end
 
         def validate_2122_org
+          # p params
+          # binding.pry
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           unless poa_code_in_organization?(poa_code)

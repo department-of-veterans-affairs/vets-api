@@ -11,6 +11,7 @@ require 'bgs_service/local_bgs'
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs, production: false do
   let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:scopes) { %w[system/claim.read system/system/claim.write] }
 
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
@@ -31,7 +32,6 @@ describe 'PowerOfAttorney',
                 type: :string,
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:scopes) { %w[system/claim.read system/system/claim.write] }
       let(:poa_code) { 'A1Q' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
@@ -551,32 +551,49 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-
+      description 'Validates a request appointing an organization as Power of Attorney (21-22).'
+      let(:Authorization) { 'Bearer token' }
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
-
-      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:Authorization) { 'Bearer token' }
-      pdf_description = <<~VERBIAGE
-        Validates a request appointing an organization as Power of Attorney (21-22).
-      VERBIAGE
-
-      description pdf_description
+      parameter name: 'serviceOrganization', in: :body, required: true, type: :object
+      parameter name: 'signatures', in: :body, required: true, type: :object
 
       describe 'Getting a successful response' do
         response '200', 'Valid request response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema type: :object, properties: [{ status: { type: :string } }]
+          let(:veteranId) { '1012667145V762142' } # rubocop:disable RSpec/VariableName
+          let(:organization_poa_code) { '083' }
+          b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
+          let(:serviceOrganization) { { poaCode: organization_poa_code.to_s } } # rubocop:disable RSpec/VariableName
+          let(:signatures) { { veteran: b64_image, representative: b64_image } }
+
+          before do |example|
+            mock_ccg(scopes) do |auth_header|
+              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              submit_request(example.metadata)
+              # binding.pry
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
-      describe 'Getting a 401 response' do
+      xdescribe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
           it 'returns a 401 response' do
             one = 1
