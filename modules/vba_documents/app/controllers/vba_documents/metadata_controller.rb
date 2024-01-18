@@ -68,12 +68,16 @@ module VBADocuments
       http_status_code = 200
       s3_heathy = s3_is_healthy?
       unless s3_heathy
-        http_status_code = 503
-        slack_details = {
-          class: self.class.name,
-          warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake API healthcheck failed: unable to connect to AWS S3 bucket."
-        }
-        VBADocuments::Slack::Messenger.new(slack_details).notify!
+        begin
+          http_status_code = 503
+          slack_details = {
+            class: self.class.name,
+            warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket."
+          }
+          VBADocuments::Slack::Messenger.new(slack_details).notify!
+        rescue => e
+          Rails.logger.error("Benefits Intake S3 failed Healthcheck slack notification failed: #{e.message}", e)
+        end
       end
       render json: {
         description: 'VBA Documents API health check',
