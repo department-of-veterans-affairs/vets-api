@@ -139,7 +139,7 @@
           }
         },
         "currentVaEmployee": {
-          "type": ["boolean"],
+          "type": "boolean",
           "description": "Set to true if Veteran is a VA employee.",
           "nullable": false
         }
