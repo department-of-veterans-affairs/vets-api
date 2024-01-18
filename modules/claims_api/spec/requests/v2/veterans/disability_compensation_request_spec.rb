@@ -529,23 +529,23 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when currentVaEmployee is absent' do
           let(:veteran_identification) do
             {
-              serviceNumber: "123456789",
+              serviceNumber: '123456789',
               veteranNumber: {
-                telephone: "5555555555",
-                internationalTelephone: "+44 20 1234 5678"
+                telephone: '5555555555',
+                internationalTelephone: '+44 20 1234 5678'
               },
               mailingAddress: {
-                addressLine1: "1234 Couch Street",
-                addressLine2: "Unit 4",
-                addressLine3: "Room 1",
-                city: "Portland",
-                state: "OR",
-                country: "USA",
-                zipFirstFive: "41726",
-                zipLastFour: "1234"
+                addressLine1: '1234 Couch Street',
+                addressLine2: 'Unit 4',
+                addressLine3: 'Room 1',
+                city: 'Portland',
+                state: 'OR',
+                country: 'USA',
+                zipFirstFive: '41726',
+                zipLastFour: '1234'
               },
               emailAddress: {
-                email: "valid@somedomain.com",
+                email: 'valid@somedomain.com',
                 agreeToEmailRelatedToClaim: true
               }
             }
