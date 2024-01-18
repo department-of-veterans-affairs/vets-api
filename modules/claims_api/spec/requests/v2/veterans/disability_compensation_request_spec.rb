@@ -558,7 +558,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 veteran_identification
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              byebug
               expect(response).to have_http_status(:unprocessable_entity)
             end
           end
