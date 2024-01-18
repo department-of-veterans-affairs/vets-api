@@ -799,10 +799,6 @@ features:
     description: Use a hub style page as the root page for the profile application
     enable_in_development: true
     actor_type: user
-  profile_use_notification_settings_checkboxes:
-    actor_type: user
-    description: Use checkboxes for Notification Settings in Profile - Default Send and Email Channel
-    enable_in_development: true
   profile_use_vafsc:
     description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
