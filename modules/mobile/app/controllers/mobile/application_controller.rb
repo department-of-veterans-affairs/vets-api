@@ -45,7 +45,7 @@ module Mobile
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'mobile' }
-      Raven.tags_context(source: 'mobile')
+      Sentry.set_tags(source: 'mobile')
     end
   end
 end

@@ -7,7 +7,7 @@ module EVSS
     sidekiq_options queue: 'low'
 
     def perform
-      Raven.tags_context(source: 'claims-status')
+      Sentry.set_tags(source: 'claims-status')
       claims = EVSSClaim.where('updated_at < ?', 1.day.ago)
       logger.info("Deleting #{claims.count} old EVSS claims")
       claims.delete_all

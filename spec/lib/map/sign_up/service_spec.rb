@@ -254,5 +254,23 @@ describe MAP::SignUp::Service do
         expect(subject).to eq(expected_response_hash)
       end
     end
+
+    context 'when there is a parsing error' do
+      let(:expected_log_message) { "#{log_prefix} update provisioning response parsing error" }
+      let(:response_body) do
+        { agreementSigned: true, optOut: false, cernerProvisioned: false, bypassEligible: false }.to_json
+      end
+      let(:expected_log_payload) { { response_body:, icn: } }
+
+      before do
+        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
+      end
+
+      it 'logs the expected error message',
+         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
+        expect(Rails.logger).to receive(:error).with(expected_log_message, { response_body:, icn: })
+        expect { subject }.to raise_error(JSON::ParserError)
+      end
+    end
   end
 end

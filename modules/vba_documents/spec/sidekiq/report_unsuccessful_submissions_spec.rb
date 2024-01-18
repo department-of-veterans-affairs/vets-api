@@ -61,21 +61,18 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
     let(:stuck_submission) do
       create(:upload_submission, :status_uploaded,
              created_at: 3.hours.ago,
-             guid: SecureRandom.uuid,
              consumer_name: 'test consumer')
     end
 
     let(:uploaded_submission_sc_evidence) do
       create(:upload_submission, :status_uploaded,
              created_at: 3.hours.ago,
-             guid: SecureRandom.uuid,
              consumer_name: 'appeals_api_sc_evidence_submission')
     end
 
     let(:uploaded_submission_nod_evidence) do
       create(:upload_submission, :status_uploaded,
              created_at: 3.hours.ago,
-             guid: SecureRandom.uuid,
              consumer_name: 'appeals_api_nod_evidence_submission')
     end
 

@@ -26,12 +26,15 @@ module Mobile
 
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
+        user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
+        user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
+
         render json: response,
                serializer: Mobile::V0::MessageSerializer,
                include: {
                  attachments: { serializer: Mobile::V0::AttachmentSerializer }
                },
-               meta: response.metadata
+               meta: response.metadata.merge(user_in_triage_team?: user_in_triage_team)
       end
 
       def create

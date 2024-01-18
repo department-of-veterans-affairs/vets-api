@@ -2,34 +2,18 @@
 
 module AskVAApi
   module SubTopics
-    ENDPOINT = 'get_subtopics_mock_data'
+    class Retriever < Crm::BaseRetriever
+      attr_reader :topic_id
 
-    class Retriever
-      attr_reader :service, :topic_id
-
-      def initialize(topic_id:, service: nil)
-        @service = service || default_service
+      def initialize(topic_id:, user_mock_data:, entity_class:)
+        super(user_mock_data:, entity_class:)
         @topic_id = topic_id
-      end
-
-      def call
-        subtopics_array = fetch_data(payload: { topic_id: })
-
-        subtopics_array.map do |sub|
-          Entity.new(sub)
-        end
-      rescue => e
-        ErrorHandler.handle_service_error(e)
       end
 
       private
 
-      def default_service
-        Crm::Service.new(icn: nil)
-      end
-
-      def fetch_data(payload:)
-        service.call(endpoint: ENDPOINT, payload:)
+      def filter_data(data)
+        data[:Topics].select { |t| t[:parentId] == topic_id }
       end
     end
   end

@@ -57,8 +57,8 @@ module VEText
 
     def app_sid(app_name)
       settings = Settings.vetext_push
-      if settings.key?("#{app_name}_sid".to_sym)
-        settings["#{app_name}_sid".to_sym]
+      if settings.key?(:"#{app_name}_sid")
+        settings[:"#{app_name}_sid"]
       else
         raise Common::Exceptions::RecordNotFound, app_name
       end

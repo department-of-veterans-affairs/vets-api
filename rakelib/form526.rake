@@ -574,8 +574,8 @@ namespace :form526 do
     end
 
     def get_disability_array(form_data_hash)
-      new_conditions = form_data_hash['newDisabilities']&.collect { |d| d['condition'] } || []
-      rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
+      new_conditions = form_data_hash['newDisabilities']&.pluck('condition') || []
+      rated_disabilities = form_data_hash['ratedDisabilities']&.pluck('name') || []
       new_conditions + rated_disabilities
     end
 

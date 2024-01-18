@@ -50,7 +50,7 @@ module VSPDanger
     EXCLUSIONS = %w[
       *.csv *.json *.tsv *.txt Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
       modules/mobile/spec/support/vcr_cassettes/ db/seeds modules/vaos/app/docs modules/meb_api/app/docs
-      modules/appeals_api/app/swagger/
+      modules/appeals_api/app/swagger/ *.bru
     ].freeze
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
@@ -157,7 +157,7 @@ module VSPDanger
 
     def run
       required_group = '@department-of-veterans-affairs/backend-review-group'
-      exception_groups = %w[@department-of-veterans-affairs/vsp-identity
+      exception_groups = %w[@department-of-veterans-affairs/octo-identity
                             @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot
                             @department-of-veterans-affairs/lighthouse-banana-peels]
 

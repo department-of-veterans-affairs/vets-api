@@ -67,7 +67,7 @@
                               "type": "noticeOfDisagreement",
                               "attributes": {
                                 "veteran": {
-                                  "icn": "1234567890V123456",
+                                  "icn": "1012667145V762142",
                                   "fileNumber": "987654321",
                                   "firstName": "Jäñe",
                                   "lastName": "Doe",
@@ -115,7 +115,7 @@
                               "type": "noticeOfDisagreement",
                               "attributes": {
                                 "veteran": {
-                                  "icn": "1234567890V123456",
+                                  "icn": "1012667145V762142",
                                   "fileNumber": "987654321",
                                   "firstName": "Jäñe",
                                   "middleInitial": "Z",
@@ -305,7 +305,7 @@
                       "type": "noticeOfDisagreement",
                       "attributes": {
                         "veteran": {
-                          "icn": "1234567890V123456",
+                          "icn": "1012667145V762142",
                           "fileNumber": "987654321",
                           "firstName": "Jäñe",
                           "lastName": "Doe",
@@ -342,7 +342,7 @@
                       "type": "noticeOfDisagreement",
                       "attributes": {
                         "veteran": {
-                          "icn": "1234567890V123456",
+                          "icn": "1012667145V762142",
                           "fileNumber": "987654321",
                           "firstName": "Jäñe",
                           "middleInitial": "Z",
@@ -537,10 +537,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Notice of Disagreement with uuid 00000000-0000-0000-0000-000000000000 not found",
                       "code": "404",
-                      "detail": "NoticeOfDisagreement with uuid 00000000-0000-0000-0000-000000000000 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -646,10 +646,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Notice of Disagreement with uuid 44444444-5555-6666-7777-888888888888 not found",
                       "code": "404",
-                      "detail": "NoticeOfDisagreement with uuid 44444444-5555-6666-7777-888888888888 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -1883,6 +1883,19 @@
                             "ROC",
                             "ROK",
                             "Singapore",
+                            "SystemV/AST4",
+                            "SystemV/AST4ADT",
+                            "SystemV/CST6",
+                            "SystemV/CST6CDT",
+                            "SystemV/EST5",
+                            "SystemV/EST5EDT",
+                            "SystemV/HST10",
+                            "SystemV/MST7",
+                            "SystemV/MST7MDT",
+                            "SystemV/PST8",
+                            "SystemV/PST8PDT",
+                            "SystemV/YST9",
+                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2148,7 +2161,7 @@
                       "type": "noticeOfDisagreement",
                       "attributes": {
                         "veteran": {
-                          "icn": "1234567890V123456",
+                          "icn": "1012667145V762142",
                           "fileNumber": "987654321",
                           "firstName": "Jäñe",
                           "lastName": "Doe",
@@ -2185,7 +2198,7 @@
                       "type": "noticeOfDisagreement",
                       "attributes": {
                         "veteran": {
-                          "icn": "1234567890V123456",
+                          "icn": "1012667145V762142",
                           "fileNumber": "987654321",
                           "firstName": "Jäñe",
                           "middleInitial": "Z",
@@ -4302,6 +4315,19 @@
           "ROC",
           "ROK",
           "Singapore",
+          "SystemV/AST4",
+          "SystemV/AST4ADT",
+          "SystemV/CST6",
+          "SystemV/CST6CDT",
+          "SystemV/EST5",
+          "SystemV/EST5EDT",
+          "SystemV/HST10",
+          "SystemV/MST7",
+          "SystemV/MST7MDT",
+          "SystemV/PST8",
+          "SystemV/PST8PDT",
+          "SystemV/YST9",
+          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",

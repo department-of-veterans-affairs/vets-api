@@ -737,7 +737,7 @@ RSpec.describe SAML::User do
       context 'with one id string' do
         let(:sec_id) { '1234567890' }
 
-        it 'will not log a warning to sentry' do
+        it 'does not log a warning to sentry' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(
             'User attributes contains multiple sec_id values',
             'warn',
@@ -750,7 +750,7 @@ RSpec.describe SAML::User do
       context 'with two ids string' do
         let(:sec_id) { '1234567890,0987654321' }
 
-        it 'will log a warning to sentry' do
+        it 'logs a warning to sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
             'User attributes contains multiple sec_id values',
             'warn',

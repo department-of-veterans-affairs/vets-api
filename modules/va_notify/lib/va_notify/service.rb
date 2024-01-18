@@ -71,11 +71,11 @@ module VaNotify
     end
 
     def save_error_details(error)
-      Raven.tags_context(
+      Sentry.set_tags(
         external_service: self.class.to_s.underscore
       )
 
-      Raven.extra_context(
+      Sentry.set_extras(
         url: config.base_path,
         message: error.message,
         body: error.body

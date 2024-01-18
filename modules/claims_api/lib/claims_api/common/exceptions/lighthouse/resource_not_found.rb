@@ -22,8 +22,6 @@ module ClaimsApi
             ]
           end
 
-          # When the error is rendered this value is read and needs
-          # to be an integer, if it is a string it will be percieved as a 200
           def status_code
             404
           end

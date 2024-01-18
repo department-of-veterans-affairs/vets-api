@@ -535,7 +535,7 @@ module VAOS
         end
 
         {
-          failures: (response.body[:failures] || []) # VAMF drops null valued keys; ensure we always return empty array
+          failures: response.body[:failures] || [] # VAMF drops null valued keys; ensure we always return empty array
         }
       end
 

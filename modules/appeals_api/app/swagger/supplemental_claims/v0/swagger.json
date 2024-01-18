@@ -70,7 +70,7 @@
                                 "claimantType": "veteran",
                                 "veteran": {
                                   "ssn": "123456789",
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "firstName": "Jäñe",
                                   "middleInitial": "ø",
                                   "lastName": "Doé",
@@ -129,7 +129,7 @@
                                 "claimantTypeOtherValue": "Veteran Attorney",
                                 "veteran": {
                                   "ssn": "123456789",
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "firstName": "Jäñe",
                                   "middleInitial": "ø",
                                   "lastName": "Doé",
@@ -445,7 +445,7 @@
                         "claimantType": "veteran",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -493,7 +493,7 @@
                         "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -787,10 +787,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Supplemental Claim with uuid 00000000-0000-0000-0000-000000000000 not found",
                       "code": "404",
-                      "detail": "SupplementalClaim with uuid 00000000-0000-0000-0000-000000000000 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -896,10 +896,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Supplemental Claim with uuid 44444444-5555-6666-7777-888888888888 not found",
                       "code": "404",
-                      "detail": "SupplementalClaim with uuid 44444444-5555-6666-7777-888888888888 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -2343,6 +2343,19 @@
                             "ROC",
                             "ROK",
                             "Singapore",
+                            "SystemV/AST4",
+                            "SystemV/AST4ADT",
+                            "SystemV/CST6",
+                            "SystemV/CST6CDT",
+                            "SystemV/EST5",
+                            "SystemV/EST5EDT",
+                            "SystemV/HST10",
+                            "SystemV/MST7",
+                            "SystemV/MST7MDT",
+                            "SystemV/PST8",
+                            "SystemV/PST8PDT",
+                            "SystemV/YST9",
+                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2569,7 +2582,7 @@
                         "claimantType": "veteran",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -2617,7 +2630,7 @@
                         "claimantTypeOtherValue": "Veteran Attorney",
                         "veteran": {
                           "ssn": "123456789",
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
                           "lastName": "Doé",
@@ -5002,6 +5015,19 @@
           "ROC",
           "ROK",
           "Singapore",
+          "SystemV/AST4",
+          "SystemV/AST4ADT",
+          "SystemV/CST6",
+          "SystemV/CST6CDT",
+          "SystemV/EST5",
+          "SystemV/EST5EDT",
+          "SystemV/HST10",
+          "SystemV/MST7",
+          "SystemV/MST7MDT",
+          "SystemV/PST8",
+          "SystemV/PST8PDT",
+          "SystemV/YST9",
+          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",

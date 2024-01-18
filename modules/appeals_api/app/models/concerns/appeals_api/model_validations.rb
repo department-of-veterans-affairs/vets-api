@@ -152,7 +152,7 @@ module AppealsApi
     def should_validate_auth_headers?
       if api_version.blank?
         # api_version is set in controllers and has no default, so provide fallback logic:
-        return (auth_headers['X-VA-SSN'].present? || auth_headers['X-VA-File-Number'].present?)
+        return auth_headers['X-VA-SSN'].present? || auth_headers['X-VA-File-Number'].present?
       end
 
       api_version != 'V0'

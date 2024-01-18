@@ -19,10 +19,11 @@ module VAForms
     validates :form_name, presence: true
     validates :row_id, uniqueness: true
     validates :url, presence: true
-    validates :sha256, presence: true
     validates :valid_pdf, inclusion: { in: [true, false] }
 
     before_save :set_revision
+
+    FORM_BASE_URL = 'https://www.va.gov'
 
     def self.return_all
       Form.all.sort_by(&:updated_at)
@@ -41,6 +42,17 @@ module VAForms
         query = query.where('form_name ilike ANY ( array[?] ) OR title ilike ANY ( array[?] )', terms, terms)
       end
       query
+    end
+
+    def self.normalized_form_url(url)
+      url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expanded_va_url(url)
+      Addressable::URI.parse(url).normalize.to_s
+    end
+
+    def self.expanded_va_url(url)
+      raise ArgumentError, 'url must start with ./va or ./medical' unless url.starts_with?('./va', './medical')
+
+      "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
 
     private

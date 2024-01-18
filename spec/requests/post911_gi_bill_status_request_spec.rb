@@ -78,7 +78,7 @@ RSpec.describe 'Post 911 GI Bill Status' do
     end
 
     it 'ignores OutsideWorkingHours exception' do
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_message)
       get v0_post911_gi_bill_status_url, params: nil
     end
   end

@@ -7,7 +7,6 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
-require 'sidekiq/set_current_retry'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 
 Rails.application.reloader.to_prepare do
@@ -24,7 +23,6 @@ Rails.application.reloader.to_prepare do
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
-      chain.add Sidekiq::SetCurrentRetry
       chain.add Sidekiq::ErrorTag
 
       if Settings.dogstatsd.enabled == true
@@ -44,6 +42,10 @@ Rails.application.reloader.to_prepare do
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
+    end
+
+    config.death_handlers << lambda do |job, ex|
+      Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
     end
   end
 

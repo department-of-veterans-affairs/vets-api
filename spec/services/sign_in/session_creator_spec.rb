@@ -78,7 +78,7 @@ RSpec.describe SignIn::SessionCreator do
 
       context 'expected session' do
         let(:expected_handle) { SecureRandom.uuid }
-        let(:expected_created_time) { Time.zone.now }
+        let(:expected_created_time) { Time.zone.now.round(3) }
         let(:expected_token_uuid) { SecureRandom.uuid }
         let(:expected_parent_token_uuid) { SecureRandom.uuid }
         let(:expected_user_uuid) { user_uuid }

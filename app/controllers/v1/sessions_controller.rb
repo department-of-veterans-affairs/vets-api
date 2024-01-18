@@ -109,7 +109,7 @@ module V1
     def set_sentry_context_for_callback
       temp_session_object = Session.find(session[:token])
       temp_current_user = User.find(temp_session_object.uuid) if temp_session_object&.uuid
-      Raven.extra_context(
+      Sentry.set_extras(
         current_user_uuid: temp_current_user.try(:uuid),
         current_user_icn: temp_current_user.try(:mhv_icn)
       )

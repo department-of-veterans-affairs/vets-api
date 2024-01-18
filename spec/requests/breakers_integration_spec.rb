@@ -9,14 +9,14 @@ RSpec.describe 'breakers', type: :request do
 
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
   let(:history_rxs) { File.read('spec/fixtures/json/get_history_rxs.json') }
+  let(:user) { build(:user, :mhv) }
   let(:session) do
     Rx::ClientSession.new(
-      user_id: '123',
+      user_id: user.mhv_correlation_id,
       expires_at: 3.weeks.from_now,
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:user) { build(:user, :mhv) }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)

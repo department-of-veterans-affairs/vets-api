@@ -44,7 +44,7 @@ describe InheritedProofing::MHV::Service do
         )
       end
 
-      it 'will fail if user is not found' do
+      it 'fails if user is not found' do
         expect(described_class.get_correlation_data(icn)).to eq(correlation_id_error_response)
       end
     end
@@ -54,7 +54,7 @@ describe InheritedProofing::MHV::Service do
         allow_any_instance_of(config_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
       end
 
-      it 'will return empty hash if mhv service is down' do
+      it 'returns empty hash if mhv service is down' do
         expect(described_class.get_correlation_data(icn)).to eq({})
       end
     end
@@ -83,7 +83,7 @@ describe InheritedProofing::MHV::Service do
         )
       end
 
-      it 'will return hash if user has identity proof' do
+      it 'returns hash if user has identity proof' do
         expect(described_class.get_verification_data(correlation_id)).to eq(identity_data_response)
       end
     end
@@ -102,7 +102,7 @@ describe InheritedProofing::MHV::Service do
         )
       end
 
-      it 'will return empty hash if user does not have identity proof' do
+      it 'returns empty hash if user does not have identity proof' do
         expect(described_class.get_verification_data(correlation_id)).to eq(identity_data_failed_response)
       end
     end
@@ -112,7 +112,7 @@ describe InheritedProofing::MHV::Service do
         allow_any_instance_of(config_class).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
       end
 
-      it 'will return empty hash if mhv service is down' do
+      it 'returns empty hash if mhv service is down' do
         expect(described_class.get_verification_data(correlation_id)).to eq({})
       end
     end

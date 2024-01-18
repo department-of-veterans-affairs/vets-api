@@ -1,0 +1,28 @@
+meta {
+  name: Show SC
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{base_uri}}/services/appeals/supplemental-claims/v0/forms/200995/{{sc_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/SupplementalClaims.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

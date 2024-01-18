@@ -2,33 +2,11 @@
 
 module AskVAApi
   module Categories
-    ENDPOINT = 'get_categories_mock_data'
-
-    class Retriever
-      attr_reader :service
-
-      def initialize(service: nil)
-        @service = service || default_service
-      end
-
-      def call
-        categories_array = fetch_data
-
-        categories_array.map do |cat|
-          Entity.new(cat)
-        end
-      rescue => e
-        ErrorHandler.handle_service_error(e)
-      end
-
+    class Retriever < Crm::BaseRetriever
       private
 
-      def default_service
-        Crm::Service.new(icn: nil)
-      end
-
-      def fetch_data
-        service.call(endpoint: ENDPOINT)
+      def filter_data(data)
+        data[:Topics].select { |t| t[:parentId].nil? }
       end
     end
   end

@@ -14,7 +14,7 @@ module V0
       )
 
       unless gi_bill_feedback.save
-        Raven.tags_context(validation: 'gibft')
+        Sentry.set_tags(validation: 'gibft')
 
         raise Common::Exceptions::ValidationErrors, gi_bill_feedback
       end

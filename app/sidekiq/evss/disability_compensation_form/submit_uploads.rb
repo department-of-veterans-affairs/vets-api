@@ -59,7 +59,7 @@ module EVSS
       # @param upload_data [String] upload GUID in AWS S3
       #
       def perform(submission_id, upload_data)
-        Raven.tags_context(source: '526EZ-all-claims')
+        Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
         upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
         guid = upload_data&.dig('confirmationCode')

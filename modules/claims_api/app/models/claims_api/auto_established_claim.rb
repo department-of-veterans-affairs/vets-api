@@ -43,7 +43,7 @@ module ClaimsApi
 
     VALIDATION_METHOD = 'v2'
 
-    validates :md5, uniqueness: true, on: :create
+    validates :md5, uniqueness: true, on: :create, unless: :skip_validation
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
       define_method attribute do

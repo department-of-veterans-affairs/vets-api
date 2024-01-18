@@ -1,0 +1,19 @@
+meta {
+  name: HLR Schema
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/higher_level_reviews/schema
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

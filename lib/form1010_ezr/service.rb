@@ -39,11 +39,6 @@ module Form1010Ezr
       submission = soap.build_request(:save_submit_form, message: content)
       response = with_monitoring do
         perform(:post, '', submission.body)
-      rescue => e
-        increment_failure('submit_form', e)
-        raise e
-      ensure
-        increment_total('submit_form')
       end
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first

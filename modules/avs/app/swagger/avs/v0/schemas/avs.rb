@@ -92,6 +92,11 @@ module Avs
             end
           end
         end
+        property :clinicMedications, type: :array do
+          items do
+            key :$ref, :medication
+          end
+        end
         property :vaMedications, type: :array do
           items do
             key :$ref, :medication

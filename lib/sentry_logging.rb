@@ -9,8 +9,8 @@ module SentryLogging
     rails_logger(level, formatted_message)
 
     if Settings.sentry.dsn.present?
-      set_raven_metadata(extra_context, tags_context)
-      Raven.capture_message(message, level:)
+      set_sentry_metadata(extra_context, tags_context)
+      Sentry.capture_message(message, level:)
     end
   end
 
@@ -18,8 +18,8 @@ module SentryLogging
     level = normalize_level(level, exception)
 
     if Settings.sentry.dsn.present?
-      set_raven_metadata(extra_context, tags_context)
-      Raven.capture_exception(exception.cause.presence || exception, level:)
+      set_sentry_metadata(extra_context, tags_context)
+      Sentry.capture_exception(exception.cause.presence || exception, level:)
     end
 
     if exception.is_a? Common::Exceptions::BackendServiceException
@@ -31,8 +31,8 @@ module SentryLogging
   end
 
   def normalize_level(level, exception)
-    # https://docs.sentry.io/clients/ruby/usage/
-    # valid raven levels: debug, info, warning, error, fatal
+    # https://docs.sentry.io/platforms/ruby/usage/set-level/
+    # valid sentry levels: log, debug, info, warning, error, fatal
     level = case exception
             when Pundit::NotAuthorizedError
               'info'
@@ -64,8 +64,8 @@ module SentryLogging
 
   private
 
-  def set_raven_metadata(extra_context, tags_context)
-    Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
-    Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
+  def set_sentry_metadata(extra_context, tags_context)
+    Sentry.set_extras(extra_context) if non_nil_hash?(extra_context)
+    Sentry.set_tags(tags_context) if non_nil_hash?(tags_context)
   end
 end

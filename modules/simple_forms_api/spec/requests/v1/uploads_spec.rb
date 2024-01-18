@@ -105,18 +105,50 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
       end
 
-      it 'makes the request with an intent to file' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
-              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+      describe 'veteran or surviving dependent' do
+        %w[VETERAN SURVIVING_DEPENDENT].each do |identification|
+          it 'makes the request with an intent to file' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
+                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+                    fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                                   'vba_21_0966-min.json')
+                    data = JSON.parse(fixture_path.read)
+                    data['preparer_identification'] = identification
+
+                    post '/simple_forms_api/v1/simple_forms', params: data
+
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      describe 'third party' do
+        let(:expiration_date) { Time.zone.now }
+
+        before do
+          allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
+        end
+
+        %w[THIRD_PARTY_VETERAN THIRD_PARTY_SURVIVING_DEPENDENT].each do |identification|
+          it 'returns an expiration date' do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
                 fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                               'vba_21_0966-min.json')
+                                               'vba_21_0966.json')
                 data = JSON.parse(fixture_path.read)
+                data['preparer_identification'] = identification
 
                 post '/simple_forms_api/v1/simple_forms', params: data
 
-                expect(response).to have_http_status(:ok)
+                parsed_response_body = JSON.parse(response.body)
+                parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
+                expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
               end
             end
           end
@@ -203,10 +235,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
         expect(response).to have_http_status(:error)
         expect(response.body).to include('something has gone wrong with your form')
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
       end
     end
 
@@ -223,12 +257,14 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected ken at')
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'street'))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'street2'))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'street3'))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'street'))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'street2'))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'street3'))
       end
     end
 
@@ -245,12 +281,14 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected token t')
-        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
-        expect(response.body).not_to include(data['claimant_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['claimant_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['claimant_ssn']&.[](5..8))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
+        expect(exception).not_to include(data['claimant_ssn']&.[](0..2))
+        expect(exception).not_to include(data['claimant_ssn']&.[](3..4))
+        expect(exception).not_to include(data['claimant_ssn']&.[](5..8))
       end
     end
 
@@ -266,10 +304,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
         expect(response).to have_http_status(:error)
         expect(response.body).to include('unexpected token at')
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
       end
     end
 
@@ -286,13 +326,15 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected token t')
-        expect(response.body).not_to include(data['preparer_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['preparer_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['preparer_ssn']&.[](5..8))
-        expect(response.body).not_to include(data.dig('preparer_address', 'postal_code')&.[](0..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data['preparer_ssn']&.[](0..2))
+        expect(exception).not_to include(data['preparer_ssn']&.[](3..4))
+        expect(exception).not_to include(data['preparer_ssn']&.[](5..8))
+        expect(exception).not_to include(data.dig('preparer_address', 'postal_code')&.[](0..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
       end
     end
 
@@ -309,10 +351,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected token t')
-        expect(response.body).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
       end
     end
 

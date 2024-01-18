@@ -1,0 +1,19 @@
+meta {
+  name: Show SC
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/supplemental_claims/{{dr_sc_id}}
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

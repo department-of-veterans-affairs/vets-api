@@ -151,6 +151,9 @@ describe MedicalRecords::Client do
   it 'gets a list of care summaries & notes', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_clinical_notes' do
       note_list = client.list_clinical_notes
+      expect(
+        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+      ).to have_been_made.once
       expect(note_list).to be_a(FHIR::Bundle)
       # Verify that the list is sorted reverse chronologically (with nil values to the end).
       note_list.entry.each_cons(2) do |prev, curr|
@@ -443,9 +446,9 @@ describe MedicalRecords::Client do
   def extract_date(resource)
     case resource
     when FHIR::DiagnosticReport
-      resource.effectiveDateTime&.to_i || 0
+      resource.effectiveDateTime.to_i
     when FHIR::DocumentReference
-      resource.date&.to_i || 0
+      resource.date.to_i
     else
       0
     end

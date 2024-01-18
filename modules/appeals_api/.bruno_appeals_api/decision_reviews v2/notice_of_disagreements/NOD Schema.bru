@@ -1,0 +1,19 @@
+meta {
+  name: NOD Schema
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/notice_of_disagreements/schema
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{api_key}}
+}
+
+assert {
+  res.status: eq 200
+}

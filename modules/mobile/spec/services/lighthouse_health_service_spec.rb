@@ -20,49 +20,66 @@ describe Mobile::V0::LighthouseHealth::Service do
   end
   let(:expected_item) do
     {
-      full_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
+      full_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Immunization/I2-DVLM364Y226KFCCINORJP7MP5A000000',
       resource: {
         resource_type: 'Immunization',
-        id: 'I2-A7XD2XUPAZQ5H4Y5D6HJ352GEQ000000',
+        id: 'I2-DVLM364Y226KFCCINORJP7MP5A000000',
+        meta: {
+          last_updated: '2022-11-25T00:00:00Z'
+        },
         status: 'completed',
         vaccine_code: {
           coding: [
-            { system: 'http://hl7.org/fhir/sid/cvx', code: '140',
-              display: 'INFLUENZA, SEASONAL, INJECTABLE, PRESERVATIVE FREE' },
-            { system: 'http://hl7.org/fhir/sid/cvx', code: '88', display: 'VACCINE GROUP: FLU' }
+            {
+              system: 'http://hl7.org/fhir/sid/cvx',
+              code: '88',
+              display: 'VACCINE GROUP: FLU'
+            }
           ],
           text: 'Influenza, seasonal, injectable, preservative free'
         },
         patient: {
-          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845672V157064',
-          display: 'Mr. Florentino8 Raynor401'
+          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1012845331V153043',
+          display: 'JUDY MORRISON'
         },
-        occurrence_date_time: '2009-03-19T12:24:55Z',
+        encounter: {
+          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Encounter/I2-2L3EXKQSE5DZT5CMC6M7LOXZLU000000'
+        },
+        occurrence_date_time: '2014-01-26T09:59:25Z',
         primary_source: true,
-        dose_quantity:
+        location: {
+          reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Location/I2-2TKGVAXW355BKTBNRE4BP7N7XE000000',
+          display: 'TEST VA FACILITY'
+        },
+        dose_quantity: {
+          value: 4.7,
+          unit: 'mL',
+          system: 'http://unitsofmeasure.org',
+          code: 'mL'
+        },
+        performer: [
           {
-            value: 0.5,
-            unit: 'mL',
-            system: 'http://unitsofmeasure.org',
-            code: 'mL'
-          },
+            actor: {
+              reference: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-MET4XF4STMH3G6677HABC6YTDY000000',
+              display: 'Dr. Lucas404 Polanco94'
+            }
+          }
+        ],
         note: [
           {
-            text: 'Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine '\
-                  'administered.'
+            text: 'Sample Immunization Note.'
           }
         ],
         reaction: [
           {
             detail: {
-              display: 'Vomiting'
+              display: 'Other'
             }
           }
         ],
         protocol_applied: [
           {
-            dose_number_string: 'Booster',
-            series_doses_positive_int: 1
+            dose_number_string: 'Series 1'
           }
         ]
       },
@@ -92,7 +109,7 @@ describe Mobile::V0::LighthouseHealth::Service do
       end
 
       it 'returns multiple immunizations' do
-        expect(response[:total]).to eq(16)
+        expect(response[:total]).to eq(12)
       end
 
       it 'returns items as a FHIR Immunization' do
@@ -115,7 +132,7 @@ describe Mobile::V0::LighthouseHealth::Service do
       end
 
       it 'returns multiple immunizations' do
-        expect(response[:total]).to eq(15)
+        expect(response[:total]).to eq(12)
       end
 
       it 'returns items as a FHIR Immunization' do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info) }
+  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -27,6 +27,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       }
     }
   end
+  let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
   let(:user_struct) do
     nested_info = vet_info['veteran_information']
     OpenStruct.new(
@@ -50,64 +51,60 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       .and_return(user_struct)
   end
 
-  it 'calls #submit for 686c submission' do
-    expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-    expect(client_stub).to receive(:submit).once
-
-    job
-  end
-
-  it 'sends confirmation email' do
-    expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-    expect(client_stub).to receive(:submit).once
-
-    expect(VANotify::EmailJob).to receive(:perform_async).with(
-      user.va_profile_email,
-      'fake_template_id',
-      {
-        'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-        'first_name' => 'WESLEY'
-      }
-    )
-
-    job
-  end
-
-  context 'Claim is submittable_674' do
-    it 'enqueues SubmitForm674Job' do
-      allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+  context 'successfully' do
+    it 'calls #submit for 686c submission' do
       expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
-      expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
-                                                                    dependency_claim.id, vet_info, user_struct.to_h)
 
-      job
+      expect { job }.not_to raise_error
     end
-  end
 
-  context 'Claim is not submittable_674' do
-    it 'does not enqueue SubmitForm674Job' do
+    it 'sends confirmation email' do
       expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).once
-      expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
 
-      job
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        user.va_profile_email,
+        'fake_template_id',
+        {
+          'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+          'first_name' => 'WESLEY'
+        }
+      )
+
+      expect { job }.not_to raise_error
+    end
+
+    context 'Claim is submittable_674' do
+      it 'enqueues SubmitForm674Job' do
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+        expect(client_stub).to receive(:submit).once
+        expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
+                                                                      dependency_claim.id, encrypted_vet_info,
+                                                                      an_instance_of(String))
+
+        expect { job }.not_to raise_error
+      end
+    end
+
+    context 'Claim is not submittable_674' do
+      it 'does not enqueue SubmitForm674Job' do
+        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+        expect(client_stub).to receive(:submit).once
+        expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
+
+        expect { job }.not_to raise_error
+      end
     end
   end
 
   context 'when submission raises error' do
-    before do
-      Flipper.enable(:dependents_central_submission)
-    end
-
     it 'raises error' do
       expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm686cJob::Invalid686cClaim)
 
-      expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id,
-                        vet_info)
-      end.to raise_error(BGS::SubmitForm686cJob::Invalid686cClaim)
+      expect { job }.to raise_error(BGS::SubmitForm686cJob::Invalid686cClaim)
     end
   end
 end

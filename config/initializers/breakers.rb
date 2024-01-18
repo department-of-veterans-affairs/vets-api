@@ -31,7 +31,6 @@ require 'sm/configuration'
 require 'search/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
-require 'okta/configuration'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/communication/configuration'
 require 'iam_ssoe_oauth/configuration'
@@ -75,7 +74,6 @@ Rails.application.reloader.to_prepare do
     Search::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
-    Okta::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,

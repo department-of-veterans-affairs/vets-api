@@ -51,7 +51,7 @@ RSpec.describe InProgressForm, type: :model do
       end
 
       it 'sets skip_exipry_update to true for pension form if expiration date already exists' do
-        form = create(:in_progress_form, form_id: '21P-527EZ-ARE')
+        form = create(:in_progress_form, form_id: '21P-527EZ')
         form.save
         expect(form.skip_exipry_update).to be true
       end

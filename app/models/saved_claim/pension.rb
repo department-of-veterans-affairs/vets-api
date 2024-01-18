@@ -2,7 +2,7 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::Pension < SavedClaim
+class SavedClaim::Pension < CentralMailClaim
   FORM = '21P-527EZ'
 
   def regional_office
@@ -36,5 +36,9 @@ class SavedClaim::Pension < SavedClaim
   # @see Lighthouse::PensionBenefitIntakeJob
   def upload_to_lighthouse
     Lighthouse::PensionBenefitIntakeJob.perform_async(id)
+  end
+
+  def form_matches_schema
+    true # TODO: remove this when schema updates are in place
   end
 end

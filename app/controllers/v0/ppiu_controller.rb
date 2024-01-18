@@ -45,7 +45,7 @@ module V0
 
     def validate_pay_info
       unless pay_info.valid?
-        Raven.tags_context(validation: 'direct_deposit')
+        Sentry.set_tags(validation: 'direct_deposit')
         raise Common::Exceptions::ValidationErrors, pay_info
       end
     end

@@ -101,11 +101,11 @@ module Search
     end
 
     def save_error_details(error_message)
-      Raven.extra_context(
+      Sentry.set_extras(
         message: error_message,
         url: config.base_path
       )
-      Raven.tags_context(search: 'general_search_query_error')
+      Sentry.set_tags(search: 'general_search_query_error')
     end
 
     def handle_429!(error)

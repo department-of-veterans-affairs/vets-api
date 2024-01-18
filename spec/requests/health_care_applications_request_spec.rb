@@ -102,8 +102,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       it 'logs user loa' do
-        allow(Raven).to receive(:extra_context)
-        expect(Raven).to receive(:extra_context).with(user_loa: nil)
+        allow(Sentry).to receive(:set_extras)
+        expect(Sentry).to receive(:set_extras).with(user_loa: nil)
 
         get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
       end
@@ -395,7 +395,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           end
 
           it 'renders error message' do
-            expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
+            expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
 
             subject
 

@@ -27,7 +27,7 @@ module EVSS
     def on_complete(env)
       status = env[:status]
       resp = env.body
-      Raven.extra_context(body: resp)
+      Sentry.set_extras(body: resp)
       case status
       when 200
         if env.response_headers['content-type'].downcase.include?('xml')

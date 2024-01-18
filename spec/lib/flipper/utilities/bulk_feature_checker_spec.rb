@@ -11,8 +11,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     let(:empty_result) do
       {
         enabled: [],
-        disabled: [],
-        missing: []
+        disabled: []
       }
     end
 
@@ -30,28 +29,12 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
       end
     end
 
-    context 'when all provided features are missing' do
-      let(:features) { %w[missing_feature1 missing_feature2] }
-      let(:expected_result) do
-        {
-          enabled: [],
-          disabled: [],
-          missing: features
-        }
-      end
-
-      it 'returns all features in the missing key' do
-        expect(subject).to match_array(expected_result)
-      end
-    end
-
     context 'when all provided features are enabled' do
       let(:features) { %w[enabled_feature1 enabled_feature2] }
       let(:expected_result) do
         {
           enabled: features,
-          disabled: [],
-          missing: []
+          disabled: []
         }
       end
 
@@ -71,8 +54,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
       let(:expected_result) do
         {
           enabled: [],
-          disabled: features,
-          missing: []
+          disabled: features
         }
       end
 
@@ -90,13 +72,11 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     context 'when features in various states are provided' do
       let(:enabled_features) { %w[enabled_feature3 enabled_feature4] }
       let(:disabled_features) { %w[disabled_feature3 disabled_feature4] }
-      let(:missing_features) { %w[missing_feature3 missing_feature4] }
-      let(:features) { enabled_features + disabled_features + missing_features }
+      let(:features) { enabled_features + disabled_features }
       let(:expected_result) do
         {
           enabled: enabled_features,
-          disabled: disabled_features,
-          missing: missing_features
+          disabled: disabled_features
         }
       end
 
@@ -118,13 +98,11 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     context 'when provided feature keys are symbols' do
       let(:enabled_features) { %i[enabled_feature5 enabled_feature6] }
       let(:disabled_features) { %i[disabled_feature5 disabled_feature6] }
-      let(:missing_features) { %i[missing_feature5 missing_feature6] }
-      let(:features) { enabled_features + disabled_features + missing_features }
+      let(:features) { enabled_features + disabled_features }
       let(:expected_result) do
         {
           enabled: enabled_features.map(&:to_s),
-          disabled: disabled_features.map(&:to_s),
-          missing: missing_features.map(&:to_s)
+          disabled: disabled_features.map(&:to_s)
         }
       end
 

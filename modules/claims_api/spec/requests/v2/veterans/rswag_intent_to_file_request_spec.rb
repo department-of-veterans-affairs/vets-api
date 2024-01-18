@@ -6,7 +6,7 @@ require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
-describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   path '/veterans/{veteranId}/intent-to-file/{type}' do
     get "Returns last active Intent to File form submission for given 'type'." do
       tags 'Intent to File'

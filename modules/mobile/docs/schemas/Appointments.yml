@@ -11,8 +11,7 @@ properties:
     type: object
     required:
       - errors
-      - minutesCheckinEarlyWindow
-      - minutesCheckinLateWindow
+      - checkinWindow
       - upcomingAppointmentsCount
       - upcomingDaysLimit
     properties:
