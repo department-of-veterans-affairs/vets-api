@@ -1,9 +1,8 @@
 openapi: '3.0.0'
 info:
-  version: '0.0.0'
-  title: Accredited Representatives
-  description: |
-    ## The API for Accredited Representation Management within the Veteran module
+  version: 1.0.0
+  title: Accredited Representatives API
+  description: This API provides access to accredited representatives based on various criteria such as location and type.
   contact:
     name: va.gov
 tags:
@@ -17,77 +16,140 @@ servers:
   - url: https://api.va.gov/services/veteran
     description: VA.gov API production environment
 paths:
-  /v0/accredited_representatives:
+  /v0/other_accredited_representatives:
     get:
+      summary: Get a list of accredited attorneys
+      description: Retrieve accredited attorneys based on location, name, and type. Supports sorting and pagination.
+      operationId: getOtherAccreditedRepresentatives
       tags:
-        - Get list of Accredited Representatives
-      summary: Returns the Accredited Representatives within a maximum range of a specified location with an
-        optional fuzzy match on name
-      operationId: get_accredited_representatives
+        - Other Accredited Representatives
       parameters:
-        - name: lat
-          in: query
+        - in: query
+          name: lat
           required: true
-          description: latitude of search location
           schema:
             type: number
-            minimum: -90
-            maximum: 90
-        - name: long
-          in: query
+            format: float
+          description: Latitude for the search location.
+        - in: query
+          name: long
           required: true
-          description: longitude of search location
           schema:
             type: number
-            minimum: -180
-            maximum: 180
-        - name: name
-          in: query
-          required: false
-          description: the name of the organization or representative to fuzzy search for
+            format: float
+          description: Longitude for the search location.
+        - in: query
+          name: type
+          required: true
           schema:
             type: string
-        - name: page
-          in: query
-          required: false
-          description: the results page number
+          description: Type of accredited representative (e.g., attorney).
+        - in: query
+          name: name
           schema:
-            type: number
+            type: string
+          description: Name to search for.
+        - in: query
+          name: page
+          schema:
+            type: integer
             default: 1
-        - name: per_page
-          in: query
-          required: false
-          description: the number of results per page
+          description: Page number for pagination.
+        - in: query
+          name: per_page
           schema:
-            type: number
+            type: integer
             default: 10
-        - name: sort
-          in: query
-          required: false
-          description: the result sorting order
+          description: Number of results per page.
+        - in: query
+          name: sort
           schema:
             type: string
-            default: 'distance_asc'
-            enum: ['distance_asc', 'first_name_asc', 'first_name_desc', 'last_name_asc',
-                   'last_name_desc', 'name_asc', 'name_desc']
-        - name: type
-          in: query
-          required: true
-          description: type of Accredited Representative to search for
-          schema:
-            type: string
-            enum: ['attorney', 'claim_agents', 'organization']
+            enum: [distance_asc, first_name_asc, first_name_desc, last_name_asc, last_name_desc]
+            default: distance_asc
+          description: Sorting order of the results.
       responses:
         '200':
-          description: Accredited Representative search is successful
+          description: A list of accredited representatives
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  oneOf:
-                    - $ref: '#/components/schemas/SuccessfulOrganizationSearch'
-                    - $ref: '#/components/schemas/SuccessfulRepresentativeSearch'
+                  $ref: '#/components/schemas/BaseRepresentative'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /v0/vso_accredited_representatives:
+    get:
+      summary: Get a list of veteran service officers
+      description: Retrieve accredited veteran service officers based on location, name, and type. Supports sorting and pagination.
+      operationId: getVSOAccreditedRepresentatives
+      tags:
+        - VSO Accredited Representatives
+      parameters:
+        - in: query
+          name: lat
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Latitude for the search location.
+        - in: query
+          name: long
+          required: true
+          schema:
+            type: number
+            format: float
+          description: Longitude for the search location.
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+          description: Type of accredited representative (e.g., veteran_service_officer).
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Name to search for.
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination.
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Number of results per page.
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [distance_asc, first_name_asc, first_name_desc, last_name_asc, last_name_desc]
+            default: distance_asc
+          description: Sorting order of the results.
+      responses:
+        '200':
+          description: A list of accredited representatives
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VSORepresentative'
         '400':
           description: Bad request
           content:
@@ -102,209 +164,141 @@ paths:
                 $ref: '#/components/schemas/InternalServerError'
 components:
   schemas:
-    SuccessfulRepresentativeSearch:
+    SuccessfulOtherRepresentativeSearch:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Representative'
+            $ref: '#/components/schemas/OtherRepresentative'
         links:
-          $ref: '#/components/schemas/RepresentativeLinks'
+          $ref: '#/components/schemas/OtherRepresentativeLinks'
         meta:
-          type: object
-          properties:
-            pagination:
-              $ref: '#/components/schemas/Pagination'
-    SuccessfulOrganizationSearch:
+          $ref: '#/components/schemas/CommonMeta'
+    SuccessfulVSORepresentativeSearch:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Organization'
+            $ref: '#/components/schemas/VSORepresentative'
         links:
-          $ref: '#/components/schemas/OrganizationLinks'
+          $ref: '#/components/schemas/VSORepresentativeLinks'
         meta:
-          type: object
-          properties:
-            pagination:
-              $ref: '#/components/schemas/Pagination'
-    Representative:
+          $ref: '#/components/schemas/CommonMeta'
+    OtherRepresentative:
       type: object
       properties:
-        id:
+        full_name:
+          type: string
+          example: 'Bob Law'
+        address_line1:
+          type: string
+          example: '123 East Main Street'
+        address_line2:
+          type: string
+          example: 'Suite 123'
+        address_line3:
+          type: string
+          example: 'Address Line 3'
+        address_type:
+          type: string
+          example: 'DOMESTIC'
+        city:
+          type: string
+          example: 'New York'
+        country_name:
+          type: string
+          example: 'United States of America'
+        country_code_iso3:
+          type: string
+          example: 'USA'
+        province:
+          type: string
+          example: 'A Province'
+        international_postal_code:
           type: string
           example: '12345'
-        type:
+        state_code:
           type: string
-          example: 'veteran_service_representatives'
-        attributes:
-          type: object
+          example: 'NY'
+        zip_code:
+          type: string
+          example: '12345'
+        zip_suffix:
+          type: string
+          example: '6789'
+        poa_codes:
+          type: array
+          items:
+            type: string
+          example: ['A13', '12P']
+        phone:
+          type: string
+          example: '222-222-2222'
+        email:
+          type: string
+          example: 'name@example.com'
+        lat:
+          type: number
+          example: 40.6892
+        long:
+          type: number
+          example: -74.0445
+        distance:
+          type: number
+          description: distance in miles
+          example: 2.59607
+    VSORepresentative:
+      allOf:
+        - $ref: '#/components/schemas/BaseRepresentative'
+        - type: object
           properties:
-            full_name:
-              type: string
-              example: 'Bob Law'
-            address_line1:
-              type: string
-              example: '123 East Main Street'
-            address_line2:
-              type: string
-              example: 'Suite 123'
-            address_line3:
-              type: string
-              example: 'Address Line 3'
-            address_type:
-              type: string
-              example: 'DOMESTIC'
-            city:
-              type: string
-              example: 'New York'
-            country_name:
-              type: string
-              example: 'United States of America'
-            country_code_iso3:
-              type: string
-              example: 'USA'
-            province:
-              type: string
-              example: 'A Province'
-            international_postal_code:
-              type: string
-              example: '12345'
-            state_code:
-              type: string
-              example: 'NY'
-            zip_code:
-              type: string
-              example: '12345'
-            zip_suffix:
-              type: string
-              example: '6789'
-            poa_codes:
+            organization_names:
               type: array
               items:
                 type: string
-              example: ['A13', '12P']
-            phone:
-              type: string
-              example: '222-222-2222'
-            email:
-              type: string
-              example: 'name@example.com'
-            lat:
-              type: number
-              example: 40.6892
-            long:
-              type: number
-              example: -74.0445
-            distance:
-              type: number
-              description: distance in miles
-              example: 2.59607
-    Organization:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 'A12'
-        type:
-          type: string
-          example: 'veteran_service_organizations'
-        attributes:
-          type: object
-          properties:
-            name:
-              type: string
-              example: 'Virginia Department of Veterans Services'
-            address_line1:
-              type: string
-              example: '123 East Main Street'
-            address_line2:
-              type: string
-              example: 'Suite 123'
-            address_line3:
-              type: string
-              example: 'Address Line 3'
-            address_type:
-              type: string
-              example: 'DOMESTIC'
-            city:
-              type: string
-              example: 'New York'
-            country_name:
-              type: string
-              example: 'United States of America'
-            country_code_iso3:
-              type: string
-              example: 'USA'
-            province:
-              type: string
-              example: 'A Province'
-            international_postal_code:
-              type: string
-              example: '12345'
-            state_code:
-              type: string
-              example: 'NY'
-            zip_code:
-              type: string
-              example: '12345'
-            zip_suffix:
-              type: string
-              example: '6789'
-            poa_code:
-              type: string
-              example: 'A12'
-            phone:
-              type: string
-              example: '222-222-2222'
-            lat:
-              type: number
-              example: 40.6892
-            long:
-              type: number
-              example: -74.0445
-            distance:
-              type: number
-              description: distance in miles
-              example: 2.59607
-    RepresentativeLinks:
+    OtherRepresentativeLinks:
       type: object
       properties:
         self:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=3'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=3'
         first:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=1'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=1'
         prev:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=2'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=2'
         next:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=4'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=4'
         last:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=5'
-    OrganizationLinks:
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=5'
+    VSORepresentativeLinks:
       type: object
       properties:
         self:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=organization&page=3'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=3'
         first:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=organization&page=1'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=1'
         prev:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=organization&page=2'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=2'
         next:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=organization&page=4'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=4'
         last:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/accredited_representatives?lat=40.7128&long=-74.0060&type=organization&page=5'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=5'
+    CommonMeta:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
     Pagination:
       type: object
       properties:
