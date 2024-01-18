@@ -53,7 +53,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    renamed_pdf = File.rename(processed_pdf, "tmp/pdfs/#{form_id}_#{self.id}.pdf") #rename for vbms upload
+    renamed_path = "tmp/pdfs/#{form_id}_#{self.id}.pdf"
+    renamed_pdf = File.rename(processed_pdf, renamed_path) #rename for vbms upload
+    renamed_path #return the renamed path
   end
 
   def add_veteran_info(va_file_number_with_payload)
