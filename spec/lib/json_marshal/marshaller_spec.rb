@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'json_marshal/marshaller'
 
-describe HealthQuest::JsonMarshaller do
+describe JsonMarshal::Marshaller do
   subject { described_class }
 
   describe '#dump' do
