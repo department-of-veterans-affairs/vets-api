@@ -1343,6 +1343,45 @@ paths:
       security:
         - Bearer: []
       summary: /v0/dependents
+    post:
+      description: Submit a supplemental claim for compensation (21-686C & 21-674).
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/CreateDependents.yml
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/CreateDependentsResponse.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/dependents
   /v0/dependents/request-decisions:
     get:
       description: Returns the list of dependents verifications and diaries
