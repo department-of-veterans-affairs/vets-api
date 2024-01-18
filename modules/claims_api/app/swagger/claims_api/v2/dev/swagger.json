@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1be7e182-a0dc-4dc9-818a-7401a89fec32",
+                    "id": "d199fb36-cd86-480a-9dfc-d6e0f36f9fff",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1e5f5ce7-20b8-46f8-abef-a06d7c0e953c",
+                    "id": "dac27ff5-ec03-4d99-8498-577f4188a47b",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7464,7 +7464,7 @@
     },
     "/veterans/{veteranId}/intent-to-file/{type}": {
       "get": {
-        "summary": "Returns last active Intent to File form submission for given 'type'.",
+        "summary": "Returns Veteran's last active Intent to File submission for given benefit type.",
         "tags": [
           "Intent to File"
         ],
@@ -7486,7 +7486,7 @@
             ]
           }
         ],
-        "description": "Returns Veteran's last active Intent to File submission for given benefit type.",
+        "description": "Returns Veteran's last active Intent to File submission for given benefit type of compensation, pension, or survivor.",
         "parameters": [
           {
             "name": "veteranId",
@@ -7502,6 +7502,7 @@
             "name": "type",
             "in": "path",
             "required": true,
+            "example": "compensation",
             "description": "Type of Intent to File to return. Available values - compensation, pension, survivor.",
             "schema": {
               "type": "string"
@@ -7560,7 +7561,7 @@
                             "creationDate": {
                               "type": "string",
                               "format": "date",
-                              "description": "Date the Intent to File was received at the VA"
+                              "description": "Date the Intent to File was received at VA"
                             },
                             "expirationDate": {
                               "type": "string",
@@ -7574,7 +7575,7 @@
                             },
                             "type": {
                               "type": "string",
-                              "description": "The type of Intent to File filed.",
+                              "description": "The type of Intent to File filed",
                               "example": "compensation"
                             }
                           }
@@ -7786,7 +7787,7 @@
                             "creationDate": {
                               "type": "string",
                               "format": "date",
-                              "description": "Date the Intent to File was received at the VA"
+                              "description": "Date the Intent to File was received at VA"
                             },
                             "expirationDate": {
                               "type": "string",
@@ -7800,7 +7801,7 @@
                             },
                             "type": {
                               "type": "string",
-                              "description": "The type of Intent to File filed.",
+                              "description": "The type of Intent to File filed",
                               "example": "compensation"
                             }
                           }
