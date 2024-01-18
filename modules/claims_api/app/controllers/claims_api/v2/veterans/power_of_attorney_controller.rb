@@ -77,7 +77,7 @@ module ClaimsApi
           target_veteran
           validate_json_schema('2122a'.upcase)
 
-          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          poa_code = form_attributes.dig('representative', 'poaCode')
           validate_individual_poa_code!(poa_code)
 
           render json: validation_success

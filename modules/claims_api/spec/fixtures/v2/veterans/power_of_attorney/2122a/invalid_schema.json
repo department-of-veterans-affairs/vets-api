@@ -1,12 +1,16 @@
 {
   "data": {
     "attributes": {
-      "serviceOrganization": {
-        "organizationName": "123"
-      },
-      "signatures": {
-        "veteran": "hello",
-        "representative": "world"
+      "representative": {
+        "firstName": "my",
+        "lastName": "name",
+        "type": "ATTORNEY",
+        "address": {
+          "numberAndStreet":  "123",
+          "city": "city",
+          "country":  "US",
+          "zipFirstFive": "12345"
+        }
       }
     }
   }

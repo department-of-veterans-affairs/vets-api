@@ -8469,7 +8469,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:85:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:97:in `representative'"
                       }
                     }
                   ]
@@ -8681,10 +8681,10 @@
                   "errors": [
                     {
                       "title": "Unprocessable entity",
-                      "detail": "The property /serviceOrganization did not contain the required key poaCode",
+                      "detail": "The property /representative did not contain the required key poaCode",
                       "status": "422",
                       "source": {
-                        "pointer": "data/attributes/serviceOrganization"
+                        "pointer": "data/attributes/representative"
                       }
                     }
                   ]
@@ -8813,12 +8813,17 @@
                     "example": {
                       "data": {
                         "attributes": {
-                          "serviceOrganization": {
-                            "poaCode": "083"
-                          },
-                          "signatures": {
-                            "veteran": "hello",
-                            "representative": "world"
+                          "representative": {
+                            "poaCode": "083",
+                            "firstName": "my",
+                            "lastName": "name",
+                            "type": "ATTORNEY",
+                            "address": {
+                              "numberAndStreet": "123",
+                              "city": "city",
+                              "country": "US",
+                              "zipFirstFive": "12345"
+                            }
                           }
                         }
                       }
@@ -8830,8 +8835,7 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "serviceOrganization",
-                          "signatures"
+                          "representative"
                         ],
                         "properties": {
                           "veteran": {
@@ -8839,10 +8843,33 @@
                             "additionalProperties": false,
                             "required": [
                               "address",
-                              "phone",
-                              "email"
+                              "phone"
                             ],
                             "properties": {
+                              "vaFileNumber": {
+                                "description": "The Veteran's VA file number",
+                                "type": "string",
+                                "maxLength": 9
+                              },
+                              "serviceNumber": {
+                                "description": "The Veteran's Service Number",
+                                "type": "string",
+                                "maxLength": 9
+                              },
+                              "serviceBranch": {
+                                "description": "Service Branch for the veteran.",
+                                "type": "string",
+                                "enum": [
+                                  "AIR FORCE",
+                                  "ARMY",
+                                  "COAST GUARD",
+                                  "MARINE CORPS",
+                                  "NAVY",
+                                  "SPACE FORCE",
+                                  "OTHER"
+                                ],
+                                "example": "ARMY"
+                              },
                               "address": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -8860,22 +8887,26 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "type": "integer",
+                                    "maxLength": 5
                                   },
                                   "city": {
                                     "description": "City for the address.",
                                     "type": "string",
-                                    "example": "Portland"
+                                    "example": "Portland",
+                                    "maxLength": 18
                                   },
                                   "state": {
                                     "description": "State for the address.",
                                     "type": "string",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "maxLength": 2
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US",
+                                    "maxLength": 2
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -8928,20 +8959,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
-                              },
-                              "serviceBranch": {
-                                "description": "Service Branch for the veteran.",
-                                "type": "string",
-                                "enum": [
-                                  "AIR FORCE",
-                                  "ARMY",
-                                  "COAST GUARD",
-                                  "MARINE CORPS",
-                                  "NAVY",
-                                  "SPACE FORCE",
-                                  "OTHER"
-                                ],
-                                "example": "ARMY"
                               }
                             }
                           },
@@ -8953,24 +8970,26 @@
                               "lastName",
                               "address",
                               "phone",
-                              "email",
                               "relationship"
                             ],
                             "properties": {
                               "firstName": {
                                 "description": "First name of Claimant.",
                                 "type": "string",
-                                "example": "John"
+                                "example": "John",
+                                "maxLength": 12
                               },
                               "middleInitial": {
                                 "description": "Middle initial of Claimant.",
                                 "type": "string",
-                                "example": "M"
+                                "example": "M",
+                                "maxLength": 1
                               },
                               "lastName": {
                                 "description": "Last name of Claimant.",
                                 "type": "string",
-                                "example": "Dow"
+                                "example": "Dow",
+                                "maxLength": 18
                               },
                               "address": {
                                 "type": "object",
@@ -8989,22 +9008,26 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "type": "integer",
+                                    "maxLength": 5
                                   },
                                   "city": {
                                     "description": "City for the address.",
                                     "type": "string",
-                                    "example": "Portland"
+                                    "example": "Portland",
+                                    "maxLength": 18
                                   },
                                   "state": {
                                     "description": "State for the address.",
                                     "type": "string",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "maxLength": 2
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US",
+                                    "maxLength": 2
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -9017,9 +9040,6 @@
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
-                                  },
-                                  "additionalProperties": {
-                                    "type": "boolean"
                                   }
                                 }
                               },
@@ -9068,23 +9088,22 @@
                               }
                             }
                           },
-                          "serviceOrganization": {
-                            "description": "Details of the Service Organization representing the veteran.",
+                          "representative": {
+                            "description": "Details of the individual representative representing the veteran.",
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode"
+                              "poaCode",
+                              "firstName",
+                              "lastName",
+                              "type",
+                              "address"
                             ],
                             "properties": {
                               "poaCode": {
-                                "description": "The POA code of the organization.",
+                                "description": "The POA code of the representative.",
                                 "type": "string",
                                 "example": "A1Q"
-                              },
-                              "organizationName": {
-                                "description": "Name of the service organization.",
-                                "type": "string",
-                                "example": "I help vets LLC."
                               },
                               "firstName": {
                                 "description": "First Name of the representative.",
@@ -9096,10 +9115,16 @@
                                 "type": "string",
                                 "example": "Doe"
                               },
-                              "jobTitle": {
-                                "description": "Job title of the representative.",
+                              "type": {
+                                "description": "Type of individual representative",
                                 "type": "string",
-                                "example": "Veteran Service representative"
+                                "enum": [
+                                  "ATTORNEY",
+                                  "AGENT",
+                                  "INDIVIDUAL PROVIDING REPRESENTATION UNDER SECTION 14.630",
+                                  "SERVICE ORGANIZATION REPRESENTATIVE"
+                                ],
+                                "example": "ATTORNEY"
                               },
                               "address": {
                                 "type": "object",
@@ -9118,22 +9143,26 @@
                                     "maxLength": 30
                                   },
                                   "aptUnitNumber": {
-                                    "type": "integer"
+                                    "type": "integer",
+                                    "maxLength": 5
                                   },
                                   "city": {
                                     "description": "City for the address.",
                                     "type": "string",
-                                    "example": "Portland"
+                                    "example": "Portland",
+                                    "maxLength": 18
                                   },
                                   "state": {
                                     "description": "State for the address.",
                                     "type": "string",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "maxLength": 2
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US",
+                                    "maxLength": 2
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -9146,24 +9175,26 @@
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
-                                  },
-                                  "additionalProperties": {
-                                    "type": "boolean"
                                   }
                                 }
                               },
-                              "email": {
-                                "description": "Email address of the service organization or representative.",
+                              "organizationName": {
+                                "description": "Name of the service organization.",
                                 "type": "string",
-                                "pattern": ".@.",
-                                "maxLength": 61,
-                                "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
+                                "example": "I help vets LLC."
                               }
+                            },
+                            "if": {
+                              "properties": {
+                                "type": {
+                                  "const": "SERVICE ORGANIZATION REPRESENTATIVE"
+                                }
+                              }
+                            },
+                            "then": {
+                              "required": [
+                                "organizationName"
+                              ]
                             }
                           },
                           "recordConsent": {
@@ -9188,24 +9219,11 @@
                             "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                             "type": "boolean"
                           },
-                          "signatures": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "veteran",
-                              "representative"
-                            ],
-                            "properties": {
-                              "veteran": {
-                                "description": "Base64 encoded png image of the veterans signature.",
-                                "title": "Signature of the Veteran",
-                                "type": "string"
-                              },
-                              "representative": {
-                                "description": "Base64 encoded png image of the representative signature.",
-                                "title": "Signature of the Veteran Representative",
-                                "type": "string"
-                              }
+                          "conditionsOfAppointment": {
+                            "description": "If the individual named in Item 15A is an accredited agent or attorney, the scope of representation provided before VA may be limited by the agent or attorney as indicated below in Item 23",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
                             }
                           }
                         }

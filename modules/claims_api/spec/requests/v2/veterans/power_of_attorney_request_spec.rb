@@ -385,7 +385,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                   it 'returns a meaningful 422' do
                     mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                      detail = 'The property /serviceOrganization did not contain the required key poaCode'
+                      detail = 'The property /representative did not contain the required key poaCode'
 
                       post validate_2122a_path, params: request_body, headers: auth_header
 

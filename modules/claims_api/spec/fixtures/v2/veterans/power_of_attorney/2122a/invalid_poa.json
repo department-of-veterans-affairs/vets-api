@@ -1,12 +1,17 @@
 {
   "data": {
     "attributes": {
-      "serviceOrganization": {
-        "poaCode": "aaa"
-      },
-      "signatures": {
-        "veteran": "hello",
-        "representative": "world"
+      "representative": {
+        "poaCode": "aaa",
+        "firstName": "my",
+        "lastName": "name",
+        "type": "ATTORNEY",
+        "address": {
+          "numberAndStreet":  "123",
+          "city": "city",
+          "country":  "US",
+          "zipFirstFive": "12345"
+        }
       }
     }
   }
