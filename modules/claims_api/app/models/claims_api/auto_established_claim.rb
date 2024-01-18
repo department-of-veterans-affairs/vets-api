@@ -10,11 +10,11 @@ require 'claims_api/claim_logger'
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
     include FileData
-    serialize :auth_headers, JsonMarshal::Marshaller
-    serialize :bgs_flash_responses, JsonMarshal::Marshaller
-    serialize :bgs_special_issue_responses, JsonMarshal::Marshaller
-    serialize :form_data, JsonMarshal::Marshaller
-    serialize :evss_response, JsonMarshal::Marshaller
+    serialize :auth_headers, coder: JsonMarshal::Marshaller
+    serialize :bgs_flash_responses, coder: JsonMarshal::Marshaller
+    serialize :bgs_special_issue_responses, coder: JsonMarshal::Marshaller
+    serialize :form_data, coder: JsonMarshal::Marshaller
+    serialize :evss_response, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
                   key: :kms_key, **lockbox_options
