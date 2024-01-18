@@ -446,7 +446,7 @@
                               "claimDate": {
                                 "format": "date",
                                 "type": "string",
-                                "description": "Date the claim was first filed. In YYYY-MM-DD format.",
+                                "description": "Date the claim was first filled. In YYYY-MM-DD format.",
                                 "example": "2018-06-04"
                               },
                               "claimPhaseDates": {
@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1be7e182-a0dc-4dc9-818a-7401a89fec32",
+                    "id": "abb76397-4ce8-4602-b300-ecba40d18790",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1e5f5ce7-20b8-46f8-abef-a06d7c0e953c",
+                    "id": "d21f98cc-3823-4305-a791-7cf68350df76",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
