@@ -23,10 +23,7 @@ module Common
           private
 
           def log_error_details(env)
-            Raven.extra_context(
-              url: env.url.to_s,
-              body: env.body
-            )
+            Sentry.set_extras(url: env.url.to_s, body: env.body)
           end
 
           def parse_doc(body)

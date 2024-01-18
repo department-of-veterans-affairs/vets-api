@@ -3,9 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::SubTopics::Retriever do
-  subject(:retriever) { described_class.new(topic_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:) }
+  subject(:retriever) do
+    described_class.new(topic_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
+  end
 
   let(:parsed_data) { { Topics: [{ id: 1, name: 'Topic 1', parentId: nil }] } }
+  let(:entity_class) { AskVAApi::SubTopics::Entity }
   let(:static_data_service) { instance_double(Crm::StaticData) }
   let(:user_mock_data) { true }
 

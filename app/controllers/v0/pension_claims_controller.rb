@@ -12,6 +12,40 @@ module V0
       SavedClaim::Pension
     end
 
+    def show
+      claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
+
+      submission = claim.form_submissions&.order(id: :asc)&.last
+      attempt = submission&.form_submission_attempts&.order(created_at: :asc)&.last
+
+      if attempt
+        # this is to temporarily satisfy frontend check
+        # {
+        #     "data": {
+        #         "id": "12",
+        #         "type": "central_mail_submissions",
+        #         "attributes": {
+        #             "state": "success"
+        #             .........
+        #         }
+        #     }
+        # }
+        state = attempt.aasm_state == 'failure' ? 'failure' : 'success'
+        response = {
+          data: {
+            id: attempt.id,
+            type: 'form_submission_attempts',
+            attributes: {
+              state:,
+              **attempt.attributes
+            }
+          }
+        }
+      end
+
+      render(json: response)
+    end
+
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
     def create
@@ -19,15 +53,15 @@ module V0
 
       claim = claim_class.new(form: filtered_params[:form])
       user_uuid = current_user&.uuid
-      Rails.logger.info("Begin #{claim.class::FORM} Submission",
-                        { guid: claim.guid, user_uuid: })
+      Rails.logger.info("Begin #{claim.class::FORM} Submission", { guid: claim.guid, user_uuid: })
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.itf_datetime = in_progress_form.created_at if in_progress_form
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
+        log_validation_error_to_metadata(in_progress_form)
+        raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
       use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
@@ -39,6 +73,16 @@ module V0
 
       clear_saved_form(claim.form_id)
       render(json: claim)
+    end
+
+    private
+
+    def log_validation_error_to_metadata(in_progress_form)
+      return if in_progress_form.blank?
+
+      metadata = in_progress_form.metadata
+      metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
+      in_progress_form.update(metadata:)
     end
   end
 end
