@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1be7e182-a0dc-4dc9-818a-7401a89fec32",
+                    "id": "9adfcaf7-d30d-4d47-81f8-b5f8451cf51f",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1e5f5ce7-20b8-46f8-abef-a06d7c0e953c",
+                    "id": "316033bc-ac52-4ba7-b888-734726d509e2",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7304,7 +7304,7 @@
           {
             "name": "id",
             "in": "path",
-            "example": "1234",
+            "example": "600400703",
             "description": "The ID of the claim being requested",
             "required": true,
             "schema": {
