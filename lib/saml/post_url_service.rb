@@ -117,7 +117,7 @@ module SAML
       if Settings.vsp_environment == 'production'
         TERMS_OF_USE_ENABLED_CLIENTS
       else
-        TERMS_OF_USE_ENABLED_CLIENTS_STAGING
+        TERMS_OF_USE_ENABLED_CLIENTS_LOWERS
       end
     end
   end
