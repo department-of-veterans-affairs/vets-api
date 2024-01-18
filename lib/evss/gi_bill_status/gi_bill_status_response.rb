@@ -113,7 +113,8 @@ module EVSS
         'unknown'
       end
 
-      def to_s
+      # Overriding inspect to avoid displaying PII
+      def inspect
         "#<#{self.class}:0x#{object_id.to_s(16)}>"
       end
 
