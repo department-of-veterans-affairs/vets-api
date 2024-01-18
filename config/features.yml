@@ -246,6 +246,9 @@ features:
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
+  claims_load_testing:
+    actor_type: user
+    description: Enables the ability to skip jobs for load testing
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
@@ -329,10 +332,6 @@ features:
   dependents_management:
     actor_type: user
     description: Manage dependent removal from view dependent page
-    enable_in_development: true
-  dependents_encrypt_jobs:
-    actor_type: user
-    description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.
     enable_in_development: true
   dependents_central_submission_lighthouse:
     actor_type: user
@@ -743,6 +742,10 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
+  post_911_gibill_statuses_new_error_handling:
+    actor_type: user
+    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
+    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -854,6 +857,14 @@ features:
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
+    enable_in_development: true
+  representatives_portal_frontend:
+    actor_type: user
+    description: Enables the frontend of the representatives portal
+    enable_in_development: true
+  representatives_portal_api:
+    actor_type: user
+    description: Enables the representatives endpoint
     enable_in_development: true
   search_representative:
     actor_type: user
@@ -1286,6 +1297,8 @@ features:
   virtual_agent_enable_nlu_pva_testing:
     actor_type: user
     description: If enabled, allows for connecting to NLU PVA
-  vye_load_scrypt_config:
+  vye_request_allowed:
     actor_type: user
-    description: If enabled, allowed for scrypt configs to be loaded.
+    description: >-
+      Master toggle for the VYE (Verify Your Enrollment) project.
+      If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.

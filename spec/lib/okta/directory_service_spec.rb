@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'okta/directory_service'
-require 'okta/service'
 require 'vcr'
 
 RSpec.describe Okta::DirectoryService do
