@@ -15,7 +15,9 @@ module ClaimsApi
           permit_scopes %w[claim.read] if request.get?
         end
         before_action { permit_scopes %w[claim.write] if request.post? || request.put? }
-
+        before_action except: %i[status active] do
+          request&.headers&.to_h.present?
+        end
         FORM_NUMBER = '2122'
 
         # POST to change power of attorney for a Veteran.
@@ -237,8 +239,8 @@ module ClaimsApi
 
         def check_request_ssn_matches_mpi(req_headers)
           req_ssn = req_headers['HTTP_X_VA_SSN']
-          ssn = auth_headers['va_eauth_pnid']
-          unless ssn == req_ssn && !ssn.nil?
+          ssn = target_veteran.mpi.profile.ssn
+          unless ssn == req_ssn && ssn.present?
             error_message = "The Veteran's Social Security Number did not match " \
                             'the one found in Master Person Index (MPI). ' \
                             'Please submit an issue at ask.va.gov ' \
