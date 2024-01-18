@@ -130,17 +130,17 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_veteran_contact_information
     return {} unless user.authorize :evss, :access?
 
-    Rails.logger.info("disability_compensation_remove_pciu=#{:disability_compensation_remove_pciu}")
-    if Flipper.enabled?(:disability_compensation_remove_pciu)
-      contact_info = initialize_vets360_contact_info
-    else
-      # fill in blank values with PCIU data
-      contact_info = initialize_vets360_contact_info.merge(
-        mailing_address: get_common_address,
-        email_address: extract_pciu_data(:pciu_email),
-        primary_phone: pciu_us_phone
-      ) { |_, old_val, new_val| old_val.presence || new_val }
-    end
+    Rails.logger.info('disability_compensation_remove_pciu=disability_compensation_remove_pciu')
+    contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu)
+                     initialize_vets360_contact_info
+                   else
+                     # fill in blank values with PCIU data
+                     initialize_vets360_contact_info.merge(
+                       mailing_address: get_common_address,
+                       email_address: extract_pciu_data(:pciu_email),
+                       primary_phone: pciu_us_phone
+                     ) { |_, old_val, new_val| old_val.presence || new_val }
+                   end
     Rails.logger.info("mailing_address=#{contact_info[:mailing_address].present?}")
     Rails.logger.info("email_address=#{contact_info[:email_address].present?}")
     Rails.logger.info("primary_phone=#{contact_info[:primary_phone].present?}")
