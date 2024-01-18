@@ -47,6 +47,7 @@ GIT
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: a9b60b42d102ced877d87e406a9d028b853ef923
+  branch: master
   specs:
     vets_json_schema (20.33.7)
       multi_json (~> 1.0)
@@ -1221,7 +1222,7 @@ DEPENDENCIES
   vcr
   veteran!
   veteran_confirmation!
-  vets_json_schema (= 20.33.7)!
+  vets_json_schema!
   virtus
   vye!
   warden-github
