@@ -50,13 +50,12 @@ module EVSS
           form4142, @submission.submitted_claim_id, FORM_ID
         )
         stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                              timestamp: @submission.created_at)
+                                                              timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true,
-          timestamp: @submission.created_at
+          text_only: true
         )
       end
 
@@ -92,9 +91,12 @@ module EVSS
         ).to_json
       end
 
+      def submission_date
+        @submission.created_at.in_time_zone('Central Time (US & Canada)')
+      end
+
       def received_date
-        date = @submission.created_at.in_time_zone('Central Time (US & Canada)')
-        date.strftime('%Y-%m-%d %H:%M:%S')
+        submission_date.strftime('%Y-%m-%d %H:%M:%S')
       end
 
       def form4142
