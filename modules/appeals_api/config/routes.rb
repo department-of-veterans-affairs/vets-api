@@ -151,7 +151,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#hlr'
 
       namespace :forms do
-        resources '200996', only: %i[create show], controller: controller_path do
+        resources '200996', only: %i[create index show], controller: controller_path do
           collection do
             post 'validate'
             get '/:id/download', action: 'download'
