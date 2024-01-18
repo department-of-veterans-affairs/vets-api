@@ -70,5 +70,5 @@ jobs:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           message: "GH Workflow failed: Sync k8s branch with master"
-          blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":sad-panda-meme: GitHub Action Runner Workflow failed! :sad-panda-meme: \n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\"}}, {\"type\": \"divider\"}]"
+          blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":sad-panda-meme: GitHub Action Runner Workflow failed! :sad-panda-meme: \n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}> See <https://vfs.atlassian.net/wiki/spaces/PTST/pages/2183037084/Backend+Support+Responsibilities#How-to-Fix-k8s-Branch|How to Fix k8s Branch>.\"}}, {\"type\": \"divider\"}]"
           channel_id: "C039HRTHXDH"
