@@ -52,8 +52,8 @@ module AppealsApi
       nil
     end
 
-    serialize :auth_headers, coder: JsonMarshal::Marshaller
-    serialize :form_data, coder: JsonMarshal::Marshaller
+    serialize :auth_headers, JsonMarshal::Marshaller
+    serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
