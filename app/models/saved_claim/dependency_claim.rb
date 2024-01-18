@@ -36,15 +36,14 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
-    return if uploaded_forms.include? form_id
-
+    return if uploaded_forms.include? form_id    
     upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-    CentralMail::DatestampPdf.new(pdf_path).run(
+    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on va.gov',
       x: 400,
       y: 675,
@@ -54,6 +53,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
+    renamed_pdf = File.rename(processed_pdf, "tmp/pdfs/#{form_id}_#{self.id}.pdf") #rename for vbms upload
   end
 
   def add_veteran_info(va_file_number_with_payload)
