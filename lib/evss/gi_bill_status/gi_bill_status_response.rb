@@ -113,6 +113,10 @@ module EVSS
         'unknown'
       end
 
+      def to_s
+        "#<#{self.class}:0x#{object_id.to_s(16)}>"
+      end
+
       def body
         @response.body
       end
