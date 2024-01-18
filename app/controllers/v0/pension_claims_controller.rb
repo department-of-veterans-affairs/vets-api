@@ -81,7 +81,7 @@ module V0
       return if in_progress_form.blank?
 
       metadata = in_progress_form.metadata
-      metadata['submission']['error_message'] = claim.errors.errors.to_s
+      metadata['submission']['error_message'] = claim&.errors&.errors&.to_s
       in_progress_form.update(metadata:)
     end
   end
