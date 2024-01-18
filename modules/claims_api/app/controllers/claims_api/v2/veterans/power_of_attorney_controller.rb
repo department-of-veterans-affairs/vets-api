@@ -24,11 +24,13 @@ module ClaimsApi
           end
         end
 
-        def appoint_organization
+        def submit_2122
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           unless poa_code_in_organization?(poa_code)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an organization.')
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'POA Code must belong to an organization.'
+            )
           end
 
           submit_power_of_attorney(poa_code)
@@ -43,6 +45,8 @@ module ClaimsApi
 
           submit_power_of_attorney(poa_code)
         end
+
+        private
 
         def submit_power_of_attorney(poa_code)
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
@@ -69,7 +73,8 @@ module ClaimsApi
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
-            representative(poa_code).merge({ code: poa_code })
+            representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
+            root: :data
           )
         end
 

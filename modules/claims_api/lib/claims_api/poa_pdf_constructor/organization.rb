@@ -29,10 +29,7 @@ module ClaimsApi
       end
 
       def page2_signatures(signatures)
-        [
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 263),
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 216)
-        ]
+        []
       end
 
       # rubocop:disable Layout/LineLength

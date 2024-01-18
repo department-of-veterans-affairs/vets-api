@@ -7,7 +7,6 @@ module ClaimsApi
         class PoaSubmissionValidator < ActiveModel::Validator
           def validate(record)
             validate_poa_code(record)
-            validate_signatures(record)
           end
 
           private

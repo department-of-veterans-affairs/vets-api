@@ -282,8 +282,8 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney:appoint-organization', production: false do
-    put 'Appoint an organization Power of Attorney for a Veteran.' do
+  path '/veterans/{veteranId}/2122', production: false do
+    post 'Appoint an organization Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
       operationId 'appointOrganizationPowerOfAttorney'
       security [
@@ -309,20 +309,15 @@ describe 'PowerOfAttorney',
       let(:individual_poa_code) { 'A1H' }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
-      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           serviceOrganization: {
             poaCode: organization_poa_code.to_s
-          },
-          signatures: {
-            veteran: b64_image,
-            representative: b64_image
           }
         }
       end
 
-      xdescribe 'Getting a successful response', document: false do
+      describe 'Getting a successful response', document: false do
         response '200', 'Successful response with the submitted Power of Attorney' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
@@ -364,7 +359,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      xdescribe 'Getting a 401 response', document: false do
+      describe 'Getting a 401 response', document: false do
         response '401', 'Unauthorized' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'power_of_attorney', 'default.json')))
@@ -389,7 +384,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      xdescribe 'Getting a 422 response', document: false do
+      describe 'Getting a 422 response', document: false do
         response '422', 'Unprocessable Entity' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'power_of_attorney', 'default.json')))

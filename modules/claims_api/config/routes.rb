@@ -49,8 +49,6 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/2122a/validate', to: 'power_of_attorney#validate2122a'
       post '/:veteranId/2122a', to: 'power_of_attorney#submit_2122a'
       get '/:veteranId/power-of-attorney/:id', to: 'power_of_attorney#status'
-      put '/:veteranId/power-of-attorney:appoint-organization', to: 'power_of_attorney#appoint_organization',
-                                                                constraints: { 'appoint-organization': /:appoint-organization/ } # rubocop:disable Layout/LineLength
       put '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',
                                                               constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
       ## 0966 Forms
