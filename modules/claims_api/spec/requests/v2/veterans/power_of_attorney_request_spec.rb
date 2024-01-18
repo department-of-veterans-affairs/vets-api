@@ -171,39 +171,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
         end
       end
 
-      xcontext 'when no signatures are provided' do
-        it 'returns a 400 error code' do
-          mock_ccg(scopes) do |auth_header|
-            data[:signatures] = nil
-
-            put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
-          end
-        end
-      end
-
-      xcontext 'when a veteran signature isn\'t provided' do
-        it 'returns a 400 error code' do
-          mock_ccg(scopes) do |auth_header|
-            data[:signatures][:veteran] = nil
-
-            put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
-          end
-        end
-      end
-
-      xcontext 'when a representative signature isn\'t provided' do
-        it 'returns a 400 error code' do
-          mock_ccg(scopes) do |auth_header|
-            data[:signatures][:representative] = nil
-
-            put appoint_individual_path, params: data, headers: auth_header
-            expect(response.status).to eq(400)
-          end
-        end
-      end
-
       context 'when the POA code is for an organization instead of an individual' do
         it 'returns a 422 error code' do
           mock_ccg(scopes) do |auth_header|
@@ -255,7 +222,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       end
     end
 
-    describe 'submit_2122' do
+    describe 'submit2122' do
       let(:data) do
         {
           serviceOrganization: {

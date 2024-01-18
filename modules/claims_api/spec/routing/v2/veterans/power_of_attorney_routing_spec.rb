@@ -28,13 +28,13 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
     )
   end
 
-  it "routes #{base_path}/veterans/:veteranId/2122 to PowerOfAttorneyController#submit_2122" do
-    submit_2122_path = "#{base_path}/veterans/123/2122"
+  it "routes #{base_path}/veterans/:veteranId/2122 to PowerOfAttorneyController#submit2122" do
+    submit2122_path = "#{base_path}/veterans/123/2122"
 
-    expect(post(submit_2122_path)).to route_to(
+    expect(post(submit2122_path)).to route_to(
       format: 'json',
       controller: expected_controller,
-      action: 'submit_2122',
+      action: 'submit2122',
       veteranId: '123'
     )
   end
@@ -50,13 +50,13 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
     )
   end
 
-  it "routes #{base_path}/veterans/:veteranId/2122a to PowerOfAttorneyController#submit_2122a" do
-    submit_2122a_path = "#{base_path}/veterans/123/2122a"
+  it "routes #{base_path}/veterans/:veteranId/2122a to PowerOfAttorneyController#submit2122a" do
+    submit2122a_path = "#{base_path}/veterans/123/2122a"
 
-    expect(post(submit_2122a_path)).to route_to(
+    expect(post(submit2122a_path)).to route_to(
       format: 'json',
       controller: expected_controller,
-      action: 'submit_2122a',
+      action: 'submit2122a',
       veteranId: '123'
     )
   end
