@@ -511,6 +511,58 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when currentVaEmployee is null' do
+          let(:current_va_employee) { nil }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+                current_va_employee
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when currentVaEmployee is absent' do
+          let(:veteran_identification) do
+            {
+              serviceNumber: '123456789',
+              veteranNumber: {
+                telephone: '5555555555',
+                internationalTelephone: '+44 20 1234 5678'
+              },
+              mailingAddress: {
+                addressLine1: '1234 Couch Street',
+                addressLine2: 'Unit 4',
+                addressLine3: 'Room 1',
+                city: 'Portland',
+                state: 'OR',
+                country: 'USA',
+                zipFirstFive: '41726',
+                zipLastFour: '1234'
+              },
+              emailAddress: {
+                email: 'valid@somedomain.com',
+                agreeToEmailRelatedToClaim: true
+              }
+            }
+          end
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification'] =
+                veteran_identification
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when serviceNumber exceeds max length' do
           let(:service_number) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
 
