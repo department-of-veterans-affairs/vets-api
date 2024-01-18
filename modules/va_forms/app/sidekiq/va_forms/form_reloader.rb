@@ -6,17 +6,58 @@ module VAForms
   class FormReloader
     include Sidekiq::Job
 
-    sidekiq_options retries: 7
+    sidekiq_options retry: 7
+
+    STATSD_KEY_PREFIX = 'api.va_forms.form_reloader'
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job_id = msg['jid']
+      job_class = msg['class']
+      error_class = msg['error_class']
+      error_message = msg['error_message']
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+      message = "#{job_class} retries exhausted"
+      Rails.logger.error(message, { job_id:, error_class:, error_message: })
+      VAForms::Slack::Messenger.new(
+        {
+          class: job_class.to_s,
+          exception: error_class,
+          exception_message: error_message,
+          detail: message
+        }
+      ).notify!
+    rescue => e
+      message = "Failure in #{job_class}#sidekiq_retries_exhausted"
+      Rails.logger.error(
+        message,
+        {
+          messaged_content: e.message,
+          job_id:,
+          pre_exhaustion_failure: {
+            error_class:,
+            error_message:
+          }
+        }
+      )
+      VAForms::Slack::Messenger.new(
+        {
+          class: job_class.to_s,
+          exception: e.class.to_s,
+          exception_message: e.message,
+          detail: message
+        }
+      ).notify!
+
+      raise e
+    end
 
     def perform
-      Rails.logger.info("#{self.class.name} is being called.")
-
       all_forms_data.each { |form| VAForms::FormBuilder.perform_async(form) }
 
       # append new tags for pg_search
       VAForms::UpdateFormTagsService.run
-    rescue => e
-      Rails.logger.error("#{self.class.name} failed to run!", e)
     end
 
     def all_forms_data

@@ -16,8 +16,6 @@ module Vye
         end
 
         define_method :extract_scrypt_config do |settings = Settings|
-          return unless Flipper.enabled?(:vye_load_scrypt_config)
-
           store =
             settings
             &.vye

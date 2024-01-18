@@ -42,7 +42,7 @@ module ClaimsApi
           track_pact_counter auto_claim
 
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim)
+          process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
@@ -68,7 +68,7 @@ module ClaimsApi
             )
           end
 
-          documents_service(params, claim).process_documents
+          documents_service(params, claim).process_documents unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             claim, root: :data
@@ -106,8 +106,15 @@ module ClaimsApi
         end
 
         def shared_validation
+          # Custom validations for 526 submission, we must check this first
+          @disability_compensation_validation_errors = validate_form_526_submission_values!(target_veteran)
+          # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
-          validate_form_526_submission_values!(target_veteran)
+          # if we get here there were only validations file errors
+          if @disability_compensation_validation_errors
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+                  @disability_compensation_validation_errors
+          end
         end
 
         def documents_service(params, claim)
