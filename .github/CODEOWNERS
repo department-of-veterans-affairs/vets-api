@@ -893,7 +893,6 @@ lib/iam_ssoe_oauth @department-of-veterans-affairs/octo-identity
 lib/ihub @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/inherited_proofing @department-of-veterans-affairs/octo-identity
 lib/json_marshal @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/json_marshal/marshaller.rb @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/json_schema @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/lgy @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/lgy/configuration.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1340,6 +1339,7 @@ spec/lib/iam_ssoe_oauth @department-of-veterans-affairs/octo-identity
 spec/lib/identity @department-of-veterans-affairs/octo-identity
 spec/lib/ihub @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/inherited_proofing @department-of-veterans-affairs/octo-identity
+spec/lib/json_marshal @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/json_schema @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lgy @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse @department-of-veterans-affairs/backend-review-group
