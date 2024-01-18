@@ -10,7 +10,7 @@ module TestUserDashboard
     validates :email, uniqueness: true
     validate :valid_id_types
 
-    serialize :services
+    serialize :services, coder: YAML
 
     def available?
       checkout_time.nil?
