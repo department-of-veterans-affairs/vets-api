@@ -18,11 +18,26 @@ module Veteran
       attribute :zip_suffix
       attribute :poa_codes, array: true
       attribute :phone
+      attribute :phone_extension
       attribute :email
       attribute :lat
       attribute :long
       attribute :user_types
       attribute :distance
+
+      def phone
+        phone_number = object.phone
+        return nil if phone_number.blank?
+
+        phone_number.length > 10 ? phone_number[0..9] : phone_number
+      end
+
+      def phone_extension
+        phone_number = object.phone
+        return nil if phone_number.blank? || phone_number.length <= 10
+
+        phone_number[10..]
+      end
 
       def distance
         object.distance / Veteran::Service::Constants::METERS_PER_MILE
