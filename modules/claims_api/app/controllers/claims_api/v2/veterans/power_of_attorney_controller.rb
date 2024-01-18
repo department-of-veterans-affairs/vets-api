@@ -21,6 +21,16 @@ module ClaimsApi
           )
         end
 
+        def validate_2122_org
+          validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
+          poa_code = parse_and_validate_poa_code
+          unless poa_code_in_organization?(poa_code)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must be for an organization.')
+          end
+
+          render json: { status: 'OK' }
+        end
+
         def appoint_organization
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
