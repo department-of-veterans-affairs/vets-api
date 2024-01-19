@@ -164,7 +164,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         it 'raises CentralMailResponseError and updates submission to failed' do
           mailer_double = double('Mail::Message')
           allow(mailer_double).to receive(:deliver_now)
-          expect(claim).to receive(:submittable_686?).and_return(true)
+          expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
           expect(claim).to receive(:submittable_674?).and_return(false)
           expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
                                                           mailer_double
@@ -184,10 +184,11 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
             'first_name' => 'MARK'
           }
         )
-        expect(claim).to receive(:submittable_686?).and_return(true)
+        expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
         subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
         expect(central_mail_submission.reload.state).to eq('success')
+        # expect(FormSubmission).to receive(:create)
       end
     end
   end
