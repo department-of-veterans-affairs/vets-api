@@ -1080,10 +1080,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the new appointment List feature
-  va_online_scheduling_acheron_service:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the Acheron service changes
   va_online_scheduling_breadcrumb_url_update:
     actor_type: user
     enable_in_development: true
