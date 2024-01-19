@@ -1,13 +1,18 @@
 {
-    "view:enhancedFinancialStatusReport": false,
+  "data": {
+    "view:enhancedFinancialStatusReport": true,
     "otherExpenses": [
       {
-        "name": "Pool service",
-        "amount": "200"
+        "name": "Clothing",
+        "amount": "10"
       },
       {
-        "name": "Lawn service",
-        "amount": "100.54"
+        "name": "Food",
+        "amount": "1000.54"
+      },
+      {
+        "name": "Veteran added",
+        "amount": "100"
       }
     ],
     "view:components": {
@@ -19,25 +24,30 @@
       "view:vaBenefitsOnFile": {}
     },
     "expenses": {
-      "rentOrMortgage": "1200.53",
-      "food": "4000.38"
+      "expenseRecords": [
+        {
+          "name": "Rent",
+          "amount": "1200.53"
+        },
+        {
+          "name": "Mortgage payment",
+          "amount": "800.00"
+        },
+        {
+          "name": "Property tax",
+          "amount": "85.25"
+        }
+      ]
     },
     "assets": {
+      "realEstateValue": "800000.81",
       "otherAssets": [
-        {
-          "name": "Bitcoin",
-          "amount": "50000.57"
-        },
         {
           "name": "Gambling earning",
           "amount": "16000.34"
         }
       ],
-      "cashInBank": "3000.45",
-      "cashOnHand": "10000.67",
       "recVehicleAmount": "15000.23",
-      "usSavingsBonds": "25000.65",
-      "stocksAndOtherBonds": "50000.84",
       "automobiles": [
         {
           "make": "Dodge",
@@ -55,77 +65,69 @@
       "monetaryAssets": [
         {
           "name": "Cash",
-          "amount": "100"
+          "amount": "10000.67"
         },
         {
           "name": "Checking accounts",
-          "amount": "100"
+          "amount": "1000.40"
         },
         {
           "name": "Savings accounts",
-          "amount": "100"
+          "amount": "2000.05"
         },
         {
           "name": "U.S. Savings Bonds",
-          "amount": "100"
+          "amount": "25000.65"
         },
         {
           "name": "Retirement accounts (401k, IRAs, 403b, TSP)",
-          "amount": "100"
+          "amount": "10000.04"
         },
         {
           "name": "Other stocks and bonds (not in your retirement accounts)",
-          "amount": "100"
+          "amount": "20000.10"
         },
         {
           "name": "Pension",
-          "amount": "100"
+          "amount": "15000.25"
         },
         {
           "name": "Cryptocurrency",
-          "amount": "100"
+          "amount": "5000.45"
         }
       ]
     },
-    "realEstateRecords": [
-      {
-        "realEstateType": "Vacation property",
-        "realEstateAmount": "350000.47"
-      },
-      {
-        "realEstateType": "Single-family home",
-        "realEstateAmount": "450000.34"
-      }
-    ],
     "additionalIncome": {
       "spouse": {
         "spAddlIncome": [
           {
-            "name": "Child care income",
+            "name": "Child support",
             "amount": "800.54"
           },
           {
-            "name": "Alimony payment",
+            "name": "Alimony",
             "amount": "1000.23"
+          },
+          {
+            "name": "Social Security",
+            "amount": "1400.45"
           }
         ]
       },
       "addlIncRecords": [
         {
           "name": "Social Security",
-          "amount": "150.67"
+          "amount": "1200.65"
+        },
+        {
+          "name": "Employment bonus",
+          "amount": "1500.67"
         },
         {
           "name": "Alimony",
-          "amount": "210.43"
+          "amount": "1000.43"
         }
       ]
-    },
-    "socialSecurity": {
-      "spouse": {
-        "socialSecAmt": "1400.45"
-      },
-      "socialSecAmt": "1200.65"
     },
     "benefits": {
       "spouseBenefits": {
@@ -150,14 +152,12 @@
       "hasRecreationalVehicle": true,
       "hasVehicle": true,
       "hasRealEstate": true,
-      "hasDependents": true,
+      "hasDependents": "2",
       "spouseHasAdditionalIncome": true,
-      "spouseHasSocialSecurity": true,
       "spouseHasBenefits": true,
       "spouseIsEmployed": true,
       "isMarried": true,
       "hasAdditionalIncome": true,
-      "hasSocialSecurity": true,
       "vetIsEmployed": true
     },
     "installmentContracts": [
@@ -182,16 +182,16 @@
     ],
     "utilityRecords": [
       {
-        "utilityType": "Electricity",
-        "monthlyUtilityAmount": "350.45"
+        "name": "Electricity",
+        "amount": "350.45"
       },
       {
-        "utilityType": "Water",
-        "monthlyUtilityAmount": "75.43"
+        "name": "Water",
+        "amount": "75.43"
       },
       {
-        "utilityType": "Cable",
-        "monthlyUtilityAmount": "275.47"
+        "name": "Cable",
+        "amount": "275.47"
       }
     ],
     "personalData": {
@@ -205,13 +205,32 @@
       ],
       "employmentHistory": {
         "spouse": {
-          "employmentRecords": [
+          "spEmploymentRecords": [
             {
               "type": "Full time",
               "from": "2018-6-XX",
               "to": "",
               "isCurrent": true,
-              "employerName": "Spouse Current"
+              "employerName": "Spouse Current",
+              "grossMonthlyIncome": "5000.54",
+              "deductions": [
+                {
+                  "name": "Federal tax",
+                  "amount": "350.56"
+                },
+                {
+                  "name": "State tax",
+                  "amount": "230.45"
+                },
+                {
+                  "name": "Pension",
+                  "amount": "100"
+                },
+                {
+                  "name": "Health insurance",
+                  "amount": "254.45"
+                }
+              ]
             },
             {
               "type": "Full time",
@@ -230,21 +249,54 @@
               "to": "",
               "isCurrent": true,
               "employerName": "Veteran Current One",
-              "grossMonthlyIncome": "5000.45"
+              "grossMonthlyIncome": "5000.54",
+              "deductions": [
+                {
+                  "name": "Federal tax",
+                  "amount": "350.56"
+                },
+                {
+                  "name": "State tax",
+                  "amount": "230.45"
+                },
+                {
+                  "name": "Pension",
+                  "amount": "100"
+                },
+                {
+                  "name": "Health insurance",
+                  "amount": "254.45"
+                }
+              ]
             },
             {
               "type": "Part time",
               "from": "2019-7-XX",
               "to": "",
               "isCurrent": true,
-              "employerName": "Veteran Current Two"
+              "employerName": "Veteran Current Two",
+              "grossMonthlyIncome": "2000.56",
+              "deductions": [
+                {
+                  "name": "Federal tax",
+                  "amount": "200.02"
+                },
+                {
+                  "name": "Allotment",
+                  "amount": "134.56"
+                },
+                {
+                  "name": "FICA (Social Security and Medicare)",
+                  "amount": "122.4"
+                }
+              ]
             },
             {
               "type": "Full time",
-              "from": "2016-3-XX",
-              "to": "2017-3-XX",
-              "employerName": "Veteran Previous",
-              "isCurrent": false
+              "from": "2021-01-XX",
+              "to": "2021-12-XX",
+              "isCurrent": false,
+              "employerName": "I quit"
             }
           ]
         }
@@ -263,6 +315,59 @@
       },
       "telephoneNumber": "4445551212",
       "emailAddress": "test2@test1.net",
+      "veteranContactInformation": {
+          "email": "test@user.com",
+          "address": {
+              "addressLine1": "1200 Park Ave",
+              "addressLine2": "c/o Pixar",
+              "addressLine3": null,
+              "addressPou": "CORRESPONDENCE",
+              "addressType": "DOMESTIC",
+              "city": "Emeryville",
+              "countryName": "United States",
+              "countryCodeIso2": "US",
+              "countryCodeIso3": "USA",
+              "countryCodeFips": null,
+              "countyCode": null,
+              "countyName": null,
+              "createdAt": "2020-05-30T03:57:20.000+00:00",
+              "effectiveEndDate": null,
+              "effectiveStartDate": "2020-07-10T20:10:45.000+00:00",
+              "id": 173917,
+              "internationalPostalCode": null,
+              "province": null,
+              "sourceDate": "2020-07-10T20:10:45.000+00:00",
+              "sourceSystemUser": null,
+              "stateCode": "CA",
+              "transactionId": "7139aa82-fd06-45ea-a217-9654869924bd",
+              "updatedAt": "2020-07-10T20:10:46.000+00:00",
+              "validationKey": null,
+              "vet360Id": "1273780",
+              "zipCode": "94608",
+              "zipCodeSuffix": null
+          },
+          "mobilePhone": {
+              "areaCode": "510",
+              "countryCode": "1",
+              "createdAt": "2020-06-12T16:56:37.000+00:00",
+              "extension": "",
+              "effectiveEndDate": null,
+              "effectiveStartDate": "2020-07-14T19:07:45.000+00:00",
+              "id": 146766,
+              "isInternational": false,
+              "isTextable": null,
+              "isTextPermitted": null,
+              "isTty": null,
+              "isVoicemailable": null,
+              "phoneNumber": "9224444",
+              "phoneType": "HOME",
+              "sourceDate": "2020-07-14T19:07:45.000+00:00",
+              "sourceSystemUser": null,
+              "transactionId": "92c49d39-22b2-4bd6-92b4-0b7e7c63c6a9",
+              "updatedAt": "2020-07-14T19:07:46.000+00:00",
+              "vet360Id": "1273780"
+          }
+      },
       "veteranFullName": {
         "first": "Greg",
         "last": "Anderson",
@@ -1180,56 +1285,6 @@
       "deductionCode": "",
       "originalAr": 0
     },
-    "currEmployment": [
-      {
-        "veteranGrossSalary": "5000.54",
-        "deductions": [
-          {
-            "name": "Federal tax",
-            "amount": "350.56"
-          },
-          {
-            "name": "State tax",
-            "amount": "230.45"
-          },
-          {
-            "name": "Pension",
-            "amount": "100"
-          },
-          {
-            "name": "Health insurance",
-            "amount": "254.45"
-          }
-        ],
-        "type": "Full time",
-        "from": "2017-1-XX",
-        "to": "",
-        "isCurrent": true,
-        "employerName": "Veteran Current One"
-      },
-      {
-        "veteranGrossSalary": "2000.56",
-        "deductions": [
-          {
-            "name": "Federal tax",
-            "amount": "200.02"
-          },
-          {
-            "name": "Allotment",
-            "amount": "134.56"
-          },
-          {
-            "name": "FICA (Social Security and Medicare)",
-            "amount": "122.4"
-          }
-        ],
-        "type": "Part time",
-        "from": "2019-7-XX",
-        "to": "",
-        "isCurrent": true,
-        "employerName": "Veteran Current Two"
-      }
-    ],
     "spCurrEmployment": [
       {
         "spouseGrossSalary": "4000.45",
@@ -1265,3 +1320,4 @@
     ]
   }
   
+}

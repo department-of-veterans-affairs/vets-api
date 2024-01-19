@@ -14,7 +14,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
   def populate_monthly_income
    income_calculator = DebtsApi::V0::CalculateIncomeCalculations.new
    calculations_controller = described_class.new
-   @monthly_income = calculations_controller.calculate_monthly_income(income_calculator, valid_form_data)
+   @monthly_income = calculations_controller.calculate_monthly_income(income_calculator, valid_form_data["data"])
   end
 
   describe '#calculate_income' do
@@ -89,6 +89,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
       net_take_home_pay = vets_income[:netTakeHomePay]
       expect(net_take_home_pay).not_to be(nil)
       expect(net_take_home_pay).to be > 0
+      expect(net_take_home_pay).to eq(5608.66)
     end
 
     it 'has vets other income' do
@@ -109,6 +110,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
       net_take_home_pay = sp_income[:netTakeHomePay]
       expect(net_take_home_pay).not_to be(nil)
       expect(net_take_home_pay).to be > 0
+      expect(net_take_home_pay).to eq(4065.08)
     end
 
     it 'has spouse other income' do
@@ -133,7 +135,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
     it 'checks if vets gross salary is calcualted correctly' do
       vets_income = @monthly_income[:vetIncome]
       gross_salary = vets_income[:grossSalary]
-      expect(gross_salary).to eq(5000.54)
+      expect(gross_salary).to eq(7001.1)
     end
 
     it 'checks if spouse gross salary is populated' do
@@ -142,10 +144,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
       expect(gross_salary).to be > 0
     end
 
-    it 'checks if vets gross salary is calcualted correctly' do
+    it 'checks if spouse gross salary is calcualted correctly' do
       sp_income = @monthly_income[:spIncome]
       gross_salary = sp_income[:grossSalary]
-      expect(gross_salary).to eq(4000.45)
+      expect(gross_salary).to eq(5000.54)
     end
   end
 end
