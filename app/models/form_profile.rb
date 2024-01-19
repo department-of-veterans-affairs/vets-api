@@ -204,25 +204,6 @@ class FormProfile
     end
   end
 
-  def initialize_military_information_vaprofile
-    military_information_data = {}
-    military_information = HCA::MilitaryInformation.new(user)
-
-    HCA::MilitaryInformation::PREFILL_METHODS.each do |attr|
-      military_information_data[attr] = military_information.public_send(attr)
-    end
-
-    military_information_data
-  rescue => e
-    if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
-
-      {}
-    else
-      raise e
-    end
-  end
-
   def initialize_military_information
     return {} unless user.authorize :va_profile, :access?
 
