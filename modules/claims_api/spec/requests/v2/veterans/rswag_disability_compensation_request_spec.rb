@@ -63,12 +63,12 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       parameter in: :body, examples: {
         'Minimum Required Attributes' => {
-          value: Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'valid_526_minimum.json').read
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                 'disability_compensation', 'valid_526_minimum.json').read)
         },
         'Maximum Attributes' => {
-          value: Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'form_526_json_api.json').read
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                 'disability_compensation', 'form_526_json_api.json').read)
 
         }
       }
