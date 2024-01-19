@@ -86,7 +86,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     context 'with a successful update' do
       it 'sends confirmation emails to the vanotify job' do
         expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-          user.all_emails, :ch33
+          user.all_emails, 'ch33'
         )
 
         send_successful_update
