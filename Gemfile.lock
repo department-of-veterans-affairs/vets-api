@@ -32,10 +32,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
-  revision: 98b1f9f8aa368189a59af74d91cb0aa4c55006af
+  revision: 1834cf61310001c82e2e96d665518407c3bce947
   branch: master
   specs:
-    connect_vbms (1.3.0)
+    connect_vbms (1.4.0)
       httpclient (~> 2.8.0)
       httpi (~> 2.4)
       mail
@@ -602,7 +602,7 @@ GEM
     mini_magick (4.12.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
-    minitest (5.21.1)
+    minitest (5.21.2)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
     multi_json (1.15.0)
