@@ -17,7 +17,7 @@ module Mobile
 
         if errors.size.positive?
           Rails.logger.warn('mobile claims pre-cache fetch errors', user_uuid: uuid,
-                                                                       errors:)
+                                                                    errors:)
         else
           Mobile::V0::ClaimOverview.set_cached(user, data)
         end
