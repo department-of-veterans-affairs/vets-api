@@ -149,5 +149,84 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
       gross_salary = sp_income[:grossSalary]
       expect(gross_salary).to eq(5000.54)
     end
+
+    it 'has vets deductions' do
+      vets_income = @monthly_income[:vetIncome]
+      deductions = vets_income[:deductions]
+      expect(deductions).not_to be(nil)
+    end
+
+    it 'has spouse deductions' do
+      sp_income = @monthly_income[:spIncome]
+      deductions = sp_income[:deductions]
+      expect(deductions).not_to be(nil)
+    end
+
+    it 'checks if vets deduction taxes are calculated correctly' do
+      vets_income = @monthly_income[:vetIncome]
+      deductions = vets_income[:deductions]
+      taxes = deductions[:taxes]
+      expect(taxes).to eq(781.03)
+    end
+
+    it 'checks if spouse deduction taxes are calculated correctly' do
+      sp_income = @monthly_income[:spIncome]
+      deductions = sp_income[:deductions]
+      taxes = deductions[:taxes]
+      expect(taxes).to eq(581.01)
+    end
+
+    it 'checks if vets deduction social security is calculated correctly' do
+      vets_income = @monthly_income[:vetIncome]
+      deductions = vets_income[:deductions]
+      social_security = deductions[:socialSecurity]
+      expect(social_security).to eq(122.4)
+    end
+
+    it 'checks if spouse deduction social security is calculated correctly' do
+      sp_income = @monthly_income[:spIncome]
+      deductions = sp_income[:deductions]
+      social_security = deductions[:socialSecurity]
+      expect(social_security).to eq(0)
+    end
+
+    it 'checks if vets other deductions are calculated correctly' do
+      vets_income = @monthly_income[:vetIncome]
+      deductions = vets_income[:deductions]
+      other_deductions = deductions[:otherDeductions]
+      expect(other_deductions[:amount]).to eq(389.01)
+    end
+
+    it 'checks if spouse other deductions are calculated correctly' do
+      sp_income = @monthly_income[:spIncome]
+      deductions = sp_income[:deductions]
+      other_deductions = deductions[:otherDeductions]
+      expect(other_deductions[:amount]).to eq(254.45)
+    end
+
+    it 'checks if vets total deductions is calculated correctly' do
+      vets_income = @monthly_income[:vetIncome]
+      total_deductions = vets_income[:totalDeductions]
+      expect(total_deductions).to eq(1392.44)
+    end
+
+    it 'checks if spouse total deductions is calculated correctly' do
+      sp_income = @monthly_income[:spIncome]
+      total_deductions = sp_income[:totalDeductions]
+      expect(total_deductions).to eq(935.46)
+    end
+
+    it 'checks if vets other income is calculated correctly' do
+      vets_income = @monthly_income[:vetIncome]
+      other_income = vets_income[:otherIncome]
+      byebug
+      expect(other_income[:amount]).to eq(7012.85)
+    end
+
+    it 'checks if spouse other income is calculated correctly' do
+      sp_income = @monthly_income[:spIncome]
+      other_income = sp_income[:otherIncome]
+      expect(other_income[:amount]).to eq(4701.77)
+    end
   end
 end

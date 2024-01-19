@@ -19,8 +19,8 @@ module DebtsApi
       if form_data["additionalIncome"]["spouse"]["spAddlIncome"].blank?
         form_data["additionalIncome"]["spouse"]["spAddlIncome"] = []
       end
-      if form_data["additionalIncome"]["spouse"]["addlIncRecords"].blank?
-        form_data["additionalIncome"]["spouse"]["addlIncRecords"] = []
+      if form_data["additionalIncome"]["addlIncRecords"].blank?
+        form_data["additionalIncome"]["addlIncRecords"] = []
       end
       if form_data["personalData"]["employmentHistory"]["veteran"]["employmentRecords"].blank?
         form_data["personalData"]["employmentHistory"]["veteran"]["employmentRecords"] = []
@@ -30,7 +30,7 @@ module DebtsApi
       end
 
       sp_addl_income = form_data["additionalIncome"]["spouse"]["spAddlIncome"]
-      addl_inc_records = form_data["additionalIncome"]["spouse"]["addlIncRecords"]
+      addl_inc_records = form_data["additionalIncome"]["addlIncRecords"]
       vet_employment_records = form_data["personalData"]["employmentHistory"]["veteran"]["employmentRecords"]
       sp_employment_records = form_data["personalData"]["employmentHistory"]["spouse"]["spEmploymentRecords"]
       social_security = form_data["socialSecurity"]
@@ -189,7 +189,7 @@ module DebtsApi
           netTakeHomePay: net_income,
           otherIncome: {
           name: name_str(soc_sec_amt, comp, edu, addl_inc_records),
-          amount: other_income
+          amount: other_income.round(2)
           },
           totalMonthlyNetIncome: net_income + other_income
       }
