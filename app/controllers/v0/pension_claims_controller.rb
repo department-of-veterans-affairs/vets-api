@@ -60,7 +60,7 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        log_validation_error_to_metadata(in_progress_form)
+        log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
@@ -77,7 +77,7 @@ module V0
 
     private
 
-    def log_validation_error_to_metadata(in_progress_form)
+    def log_validation_error_to_metadata(in_progress_form, claim)
       return if in_progress_form.blank?
 
       metadata = in_progress_form.metadata
