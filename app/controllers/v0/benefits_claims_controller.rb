@@ -26,6 +26,7 @@ module V0
                             num_contentions: claim_info['contentions'].count,
                             ep_code: claim_info['endProductCode'],
                             claim_id: params[:id] })
+      tap_claims([claim['data']])
 
       render json: claim
     end
