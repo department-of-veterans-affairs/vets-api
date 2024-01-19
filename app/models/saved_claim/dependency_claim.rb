@@ -36,8 +36,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
-    return if uploaded_forms.include? form_id    
-    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
+    return if uploaded_forms.include? form_id
+
+    form_id == '686C-674' ? upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:) : upload_to_vbms(path: to_pdf(form_id:), doc_type:) # rubocop:disable Layout/LineLength
     uploaded_forms << form_id
     save
   end
@@ -53,9 +54,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    renamed_path = "tmp/pdfs/#{form_id}_#{self.id}_final.pdf"
-    renamed_pdf = File.rename(processed_pdf, renamed_path) #rename for vbms upload
-    renamed_path #return the renamed path
+    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    File.rename(processed_pdf, renamed_path) # rename for vbms upload
+    renamed_path # return the renamed path
   end
 
   def add_veteran_info(va_file_number_with_payload)

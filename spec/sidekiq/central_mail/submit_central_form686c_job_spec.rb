@@ -77,7 +77,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           text_only: true,
           timestamp:,
           page_number: 6,
-          template: "lib/pdf_fill/forms/pdfs/686C-674.pdf",
+          template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
           multistamp: true
         ).and_return(path)
         expect(Digest::SHA256).to receive(:file).with(path).and_return(
@@ -169,7 +169,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           text_only: true,
           timestamp:,
           page_number: 6,
-          template: "lib/pdf_fill/forms/pdfs/686C-674.pdf",
+          template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
           multistamp: true
         ).and_return(path)
 
@@ -229,7 +229,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
   end
 
   describe '#process_pdf' do
-    timestamp = Time.now
+    timestamp = Time.zone.now
     subject { job.process_pdf('path1', timestamp, '686C-674') }
 
     it 'processes a record and add stamps' do
@@ -254,7 +254,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         text_only: true,
         timestamp:,
         page_number: 6,
-        template: "lib/pdf_fill/forms/pdfs/686C-674.pdf",
+        template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
         multistamp: true
       ).and_return('path4')
 
