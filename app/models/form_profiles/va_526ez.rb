@@ -131,22 +131,21 @@ class FormProfiles::VA526ez < FormProfile
     return {} unless user.authorize :evss, :access?
 
     contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu)
-                     Rails.logger.info('disability_compensation_remove_pciu=TRUE')
                      initialize_vets360_contact_info
                    else
                      # fill in blank values with PCIU data
-                     Rails.logger.info('disability_compensation_remove_pciu=FALSE')
                      initialize_vets360_contact_info.merge(
                        mailing_address: get_common_address,
                        email_address: extract_pciu_data(:pciu_email),
                        primary_phone: pciu_us_phone
                      ) { |_, old_val, new_val| old_val.presence || new_val }
                    end
-    # Logging was added above and below here to contrast/compare completeness of contact information returned
+    # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("mailing_address=#{contact_info[:mailing_address].present?}")
-    Rails.logger.info("email_address=#{contact_info[:email_address].present?}")
-    Rails.logger.info("primary_phone=#{contact_info[:primary_phone].present?}")
+    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu)}," \
+                      "mailing_address=#{contact_info[:mailing_address].present?}," \
+                      "email_address=#{contact_info[:email_address].present?}," \
+                      "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 
