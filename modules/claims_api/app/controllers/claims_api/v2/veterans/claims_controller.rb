@@ -327,7 +327,6 @@ module ClaimsApi
                          data[:phase_type]
                        elsif data[:bnft_claim_lc_status].present?
                          data[:bnft_claim_lc_status]
-                       # data[:bnft_claim_lc_status].max_by { |d| d[:phase_chngd_dt] }[:phase_type]
                        else
                          data[:claim_status]
                        end
