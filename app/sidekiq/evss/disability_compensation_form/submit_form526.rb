@@ -77,6 +77,7 @@ module EVSS
       #
       # rubocop:disable Metrics/MethodLength
       def perform(submission_id)
+        send_notifications = true
         @submission_id = submission_id
 
         Sentry.set_tags(source: '526EZ-all-claims')
@@ -124,9 +125,12 @@ module EVSS
 
             response_handler(response)
           rescue => e
+            send_notifications = false
             handle_errors(submission, e)
-          ensure
-            send_post_evss_notifications(submission)
+          end
+
+          begin
+            send_post_evss_notifications(submission) if send_notifications
           end
         end
       end
