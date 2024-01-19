@@ -97,12 +97,13 @@ module ClaimsApi
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:)
+          @unmatched_lighthouse_claims = lighthouse_claims
           extracted_bgs_claims = [bgs_claims&.dig(:benefit_claims_dto, :benefit_claim)].flatten.compact
           mapped_claims = extracted_bgs_claims.map do |bgs_claim|
             map_and_remove_duplicates(bgs_claim, lighthouse_claims)
           end
 
-          handle_remaining_lh_claims(mapped_claims, lighthouse_claims)
+          handle_remaining_lh_claims(mapped_claims, @unmatched_lighthouse_claims)
 
           mapped_claims
         end
@@ -110,10 +111,10 @@ module ClaimsApi
         def map_and_remove_duplicates(bgs_claim, lighthouse_claims)
           matching_claim = find_bgs_claim_in_lighthouse_collection(lighthouse_collection: lighthouse_claims,
                                                                    bgs_claim:)
-          if matching_claim
-            # Remove duplicates from the return
-            lighthouse_claims.reject! { |claim| claim == matching_claim }
-          end
+
+          # Remove duplicates from the return
+          @unmatched_lighthouse_claims = @unmatched_lighthouse_claims.where.not(id: matching_claim.id) if matching_claim
+
           # We either want the ID or nil for the lighthouse_id
           build_claim_structure(data: bgs_claim, lighthouse_id: matching_claim&.id,
                                 upstream_id: bgs_claim[:benefit_claim_id])

@@ -67,7 +67,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
     it 'returns :all attachments in an object with key "records"' do
       %w[10-10CG POA].each_with_index do |document_type, index|
         subject.add('10-10CG', "tmp/pdfs/#{document_type}_12345.pdf")
-        expect(subject.all[index]).to receive(:to_request_payload).and_return("attachment_data_#{index}".to_sym)
+        expect(subject.all[index]).to receive(:to_request_payload).and_return(:"attachment_data_#{index}")
       end
 
       expect(subject.to_request_payload).to eq(
@@ -90,7 +90,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
         subject.add(document_type, file_path)
 
         expect(subject.all[index]).to receive(:to_request_payload).and_return(
-          "attachment_payload_#{index}".to_sym
+          :"attachment_payload_#{index}"
         )
       end
 
@@ -139,7 +139,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
           subject.add(document_type, file_path)
 
           expect(subject.all[index]).to receive(:to_request_payload).and_return(
-            "attachment_payload_#{index}".to_sym
+            :"attachment_payload_#{index}"
           )
         end
 
