@@ -832,6 +832,11 @@ reports:
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
 
+oidc:
+  isolated_audience:
+    default: ~
+    claims: ~
+
 sentry:
   dsn: ~
 
