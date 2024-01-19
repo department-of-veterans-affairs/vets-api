@@ -195,13 +195,9 @@ module VAForms
     end
 
     def notify_slack(message, **)
-      return unless Settings.va_forms.slack.enabled
-
-      begin
-        VAForms::Slack::Messenger.new({ class: self.class.name, message:, ** }).notify!
-      rescue => e
-        Rails.logger.error("#{self.class.name} failed to notify Slack, message: #{message}", e)
-      end
+      VAForms::Slack::Messenger.new({ class: self.class.name, message:, ** }).notify!
+    rescue => e
+      Rails.logger.error("#{self.class.name} failed to notify Slack, message: #{message}", e)
     end
   end
 end
