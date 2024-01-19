@@ -20,7 +20,7 @@ describe TestUserDashboard::UpdateUser do
     context 'when a user logs in' do
       before do
         tud_account.update(last_name: 'Changed', ssn: '123456789', services: [])
-        @timestamp = Time.current
+        @timestamp = Time.current.round(3)
         TestUserDashboard::UpdateUser.new(user).call(@timestamp)
       end
 

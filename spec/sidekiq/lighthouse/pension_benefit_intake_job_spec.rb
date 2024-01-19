@@ -11,6 +11,7 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     let(:service) { double('service') }
     let(:response) { double('response') }
     let(:pdf_path) { 'random/path/to/pdf' }
+    let(:location) { 'test_location' }
 
     before do
       allow(job).to receive(:process_pdf).and_return(pdf_path)
@@ -20,17 +21,19 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
 
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
-      allow(service).to receive(:upload_form).and_return(response)
+      allow(service).to receive(:location).and_return(location)
+      allow(service).to receive(:upload_doc).and_return(response)
     end
 
     it 'submits the saved claim successfully' do
       doc = { file: pdf_path, file_name: 'pdf' }
 
       expect(claim).to receive(:to_pdf)
+      expect(job).to receive(:form_submission_polling)
       expect(job).to receive(:process_pdf).with(pdf_path)
       expect(job).to receive(:generate_form_metadata_lh).once
-      expect(service).to receive(:upload_form).with(
-        main_document: doc, attachments: [], form_metadata: anything
+      expect(service).to receive(:upload_doc).with(
+        upload_url: 'test_location', file: doc, metadata: anything, attachments: []
       )
       expect(job).to receive(:check_success).with(response)
 
@@ -115,7 +118,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
       allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
-      expect(job).to receive(:form_submission_polling)
       job.check_success(response)
     end
 

@@ -2,7 +2,6 @@
    "data":{
       "type":"form/526",
       "attributes":{
-         "claimantCertification":true,
          "claimProcessType":"STANDARD_CLAIM_PROCESS",
          "veteranIdentification":{
             "mailingAddress":{
@@ -30,7 +29,8 @@
                   "activeDutyEndDate":"2018-11-30"
                }
             ]
-         }
+         },
+         "claimantCertification":true,
       }
    }
 }

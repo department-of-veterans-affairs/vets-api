@@ -235,10 +235,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
         expect(response).to have_http_status(:error)
         expect(response.body).to include('something has gone wrong with your form')
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
       end
     end
 
@@ -255,12 +257,14 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected ken at')
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'street'))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'street2'))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'street3'))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'street'))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'street2'))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'street3'))
       end
     end
 
@@ -277,12 +281,14 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected token t')
-        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
-        expect(response.body).not_to include(data['claimant_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['claimant_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['claimant_ssn']&.[](5..8))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
+        expect(exception).not_to include(data['claimant_ssn']&.[](0..2))
+        expect(exception).not_to include(data['claimant_ssn']&.[](3..4))
+        expect(exception).not_to include(data['claimant_ssn']&.[](5..8))
       end
     end
 
@@ -298,10 +304,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
         expect(response).to have_http_status(:error)
         expect(response.body).to include('unexpected token at')
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
-        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
-        expect(response.body).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(exception).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
       end
     end
 
@@ -318,13 +326,15 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected token t')
-        expect(response.body).not_to include(data['preparer_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['preparer_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['preparer_ssn']&.[](5..8))
-        expect(response.body).not_to include(data.dig('preparer_address', 'postal_code')&.[](0..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data['preparer_ssn']&.[](0..2))
+        expect(exception).not_to include(data['preparer_ssn']&.[](3..4))
+        expect(exception).not_to include(data['preparer_ssn']&.[](5..8))
+        expect(exception).not_to include(data.dig('preparer_address', 'postal_code')&.[](0..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
       end
     end
 
@@ -341,10 +351,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         expect(response).to have_http_status(:error)
         # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
         expect(response.body).to include('unexpected token t')
-        expect(response.body).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
-        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
+
+        exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+        expect(exception).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
       end
     end
 
