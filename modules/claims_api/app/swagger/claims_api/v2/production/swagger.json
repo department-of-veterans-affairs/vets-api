@@ -307,7 +307,7 @@
                   "birthdate": {
                     "type": "string",
                     "example": "1967-06-19",
-                    "description": "Date of birth of Veteran being represented, in iso8601 format"
+                    "description": "Date of birth of Veteran being represented, in ISO8601 format"
                   }
                 },
                 "example": {
@@ -446,7 +446,7 @@
                               "claimDate": {
                                 "format": "date",
                                 "type": "string",
-                                "description": "Date the claim was first filled. In YYYY-MM-DD format.",
+                                "description": "Date the claim was first filed. In YYYY-MM-DD format.",
                                 "example": "2018-06-04"
                               },
                               "claimPhaseDates": {
@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "67c46514-0437-4af2-bc00-84f6368509f5",
+                    "id": "c08ca11d-1310-4c38-ad93-14d363daf9c0",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1471,7 +1471,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-01-20"
+                          "anticipatedSeparationDate": "2024-01-21"
                         },
                         "confinements": [
                           {
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ffd39dad-9601-49b3-9a5b-72419b1c0165",
+                    "id": "5942fed0-f4b8-4ea2-ad59-e6bbdd6b1f7c",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6368,8 +6368,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-18",
-                      "expirationDate": "2025-01-18",
+                      "creationDate": "2024-01-19",
+                      "expirationDate": "2025-01-19",
                       "type": "compensation",
                       "status": "active"
                     }

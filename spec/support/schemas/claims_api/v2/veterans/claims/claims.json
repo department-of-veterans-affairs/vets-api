@@ -37,7 +37,7 @@
               "claimDate": {
                 "format": "date",
                 "type": "string",
-                "description": "Date the claim was first filled. In YYYY-MM-DD format.",
+                "description": "Date the claim was first filed. In YYYY-MM-DD format.",
                 "example": "2018-06-04"
               },
               "claimPhaseDates": {
