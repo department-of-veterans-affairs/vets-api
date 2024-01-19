@@ -6,7 +6,7 @@ Veteran::Engine.routes.draw do
     get 'representatives/find_rep', to: 'representatives#find_rep'
     resources :vso_accredited_representatives, only: %i[index]
     resources :other_accredited_representatives, only: %i[index]
-    resources :flag_accredited_representative, only: %i[create]
+    post 'flag_accredited_representatives', to: 'flag_accredited_representatives#create'
     get 'apidocs', to: 'apidocs#index'
   end
 end
