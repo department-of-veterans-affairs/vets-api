@@ -173,6 +173,7 @@ module DebtsApi
       tot_deductions = taxes_values + retirement_values + social_sec + other
       other_income = addl_inc.to_f.round(2) + benefits_amount.to_f.round(2) + soc_sec_amt.to_f.round(2)
       net_income = gross_salary - tot_deductions
+      total_monthly_net_income = net_income + other_income
 
       {
           grossSalary: gross_salary,
@@ -191,7 +192,7 @@ module DebtsApi
           name: name_str(soc_sec_amt, comp, edu, addl_inc_records),
           amount: other_income.round(2)
           },
-          totalMonthlyNetIncome: net_income + other_income
+          totalMonthlyNetIncome: total_monthly_net_income.round(2)
       }
     end
   end

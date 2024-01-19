@@ -219,7 +219,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
     it 'checks if vets other income is calculated correctly' do
       vets_income = @monthly_income[:vetIncome]
       other_income = vets_income[:otherIncome]
-      byebug
       expect(other_income[:amount]).to eq(7012.85)
     end
 
@@ -227,6 +226,23 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
       sp_income = @monthly_income[:spIncome]
       other_income = sp_income[:otherIncome]
       expect(other_income[:amount]).to eq(4701.77)
+    end
+
+    it 'checks if vets total monthly net income is calculated correctly' do
+      vets_income = @monthly_income[:vetIncome]
+      total_monthly_net_income = vets_income[:totalMonthlyNetIncome]
+      expect(total_monthly_net_income).to eq(12621.51)
+    end
+
+    it 'checks if spouse total monthly net income is calculated correctly' do
+      sp_income = @monthly_income[:spIncome]
+      total_monthly_net_income = sp_income[:totalMonthlyNetIncome]
+      expect(total_monthly_net_income).to eq(8766.85)
+    end
+
+    it 'checks if total (spounse + vet) monthly net income is calculated correctly' do
+      total_monthly_net_income = @monthly_income[:totalMonthlyNetIncome]
+      expect(total_monthly_net_income).to eq(21388.36)
     end
   end
 end
