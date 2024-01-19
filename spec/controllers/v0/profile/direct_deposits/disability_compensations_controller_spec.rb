@@ -131,10 +131,10 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
   describe '#update successful' do
     let(:params) do
-      { 
-        account_number: '1234567890', 
-        account_type: 'CHECKING', 
-        routing_number: '031000503' 
+      {
+        account_number: '1234567890',
+        account_type: 'CHECKING',
+        routing_number: '031000503'
       }
     end
 
@@ -187,9 +187,8 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
           expect(response).to have_http_status(:ok)
         end
       end
-    end    
+    end
   end
-
 
   describe '#update unsuccessful' do
     context 'when missing account type' do
