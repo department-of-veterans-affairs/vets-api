@@ -242,9 +242,8 @@ module ClaimsApi
           req_ssn = @req_headers['HTTP_X_VA_SSN']
           ssn = target_veteran.mpi.profile.ssn
           unless ssn == req_ssn && ssn.present?
-            error_message = "The Veteran's Social Security Number did not match " \
-                            'the one found in Master Person Index (MPI). ' \
-                            'Please submit an issue at ask.va.gov ' \
+            error_message = 'The SSN provided does not match Master Person Index (MPI). ' \
+                            'Please correct the SSN or submit an issue at ask.va.gov ' \
                             'or call 1-800-MyVA411 (800-698-2411) for assistance.'
             claims_v1_logging('poa_check_request_ssn_matches_mpi',
                               message: 'Request SSN did not match the one found in MPI.')
