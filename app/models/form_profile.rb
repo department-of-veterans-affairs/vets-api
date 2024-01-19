@@ -4,7 +4,6 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
-require 'hca/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
