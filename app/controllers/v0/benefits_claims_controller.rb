@@ -17,11 +17,22 @@ module V0
     def show
       claim = service.get_claim(params[:id])
 
+      # We want to log some details about claim type patterns to track in DataDog
+      claim_info = claim['data']['attributes']
+      ::Rails.logger.info('Claim Type Details',
+                          { message_type: 'lh.cst.claim_types',
+                            claim_type: claim_info['claimType'],
+                            claim_type_code: claim_info['claimTypeCode'],
+                            num_contentions: claim_info['contentions'].count,
+                            ep_code: claim_info['endProductCode'],
+                            claim_id: params[:id] })
+      tap_claims([claim['data']])
+
       render json: claim
     end
 
     def submit5103
-      res = service.submit5103(params[:id])
+      res = service.submit5103(@current_user, params[:id])
 
       render json: res
     end
