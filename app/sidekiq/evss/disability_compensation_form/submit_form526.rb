@@ -104,7 +104,7 @@ module EVSS
               # submit 526 through Lighthouse API
               # 1. get user's ICN
               user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                              Account.find_by(idme_uuid: submission.user_uuid)
+                             Account.find_by(idme_uuid: submission.user_uuid)
               icn = user_account.icn
               # 2. transform submission data to Lighthouse format
               transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
@@ -112,13 +112,13 @@ module EVSS
               # 3. send transformed submission data to Lighthouse endpoint
               service = BenefitsClaims::Service.new(icn)
               raw_response = service.submit526(body)
-              # 4. convert raw response from Lighthouse to a FormSubmitResponse for further processing (claim_id, status)
+              # 4. convert response from Lighthouse to a FormSubmitResponse for further processing (claim_id, status)
               raw_response_struct = OpenStruct.new({
-                                                      body: { claim_id: raw_response.body },
-                                                      status: raw_response.status
-                                                    })
+                                                     body: { claim_id: raw_response.body },
+                                                     status: raw_response.status
+                                                   })
               response = EVSS::DisabilityCompensationForm::FormSubmitResponse
-                          .new(raw_response_struct.status, raw_response_struct)
+                         .new(raw_response_struct.status, raw_response_struct)
             else
               response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
             end
@@ -129,9 +129,7 @@ module EVSS
             handle_errors(submission, e)
           end
 
-          begin
-            send_post_evss_notifications(submission) if send_notifications
-          end
+          send_post_evss_notifications(submission) if send_notifications
         end
       end
       # rubocop:enable Metrics/MethodLength
