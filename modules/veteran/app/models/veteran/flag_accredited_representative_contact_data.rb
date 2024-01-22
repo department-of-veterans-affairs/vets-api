@@ -7,7 +7,7 @@ module Veteran
     enum flag_type: { email: 'email', phone: 'phone', address: 'address', other: 'other' }
     validates :flag_type, inclusion: { in: flag_types.keys }
 
-    validates :representative_id, uniqueness: { scope: %i[flag_type flagged_value],
-                                                message: 'Combination of representative_id, flag_type, and flagged_value must be unique' } # rubocop:disable Layout/LineLength,Rails/I18nLocaleTexts
+    validates :ip_address, uniqueness: { scope: %i[representative_id flag_type],
+                                         message: 'Combination of representative_id, flag_type, and flagged_value must be unique' } # rubocop:disable Layout/LineLength,Rails/I18nLocaleTexts
   end
 end
