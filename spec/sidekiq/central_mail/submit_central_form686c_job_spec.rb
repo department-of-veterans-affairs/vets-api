@@ -125,7 +125,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
 
     context 'with lighthouse flipper enabled' do
       let(:lighthouse_mock) { double(:lighthouse_service) }
-      
+
       before do
         Flipper.enable(:dependents_central_submission_lighthouse)
         expect(BenefitsIntakeService::Service).to receive(:new)
@@ -158,7 +158,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
 
         expect(FormSubmission).to receive(:create).with(
           form_type: '686C-674',
-          benefits_intake_uuid: "uuid",
+          benefits_intake_uuid: 'uuid',
           saved_claim: claim,
           user_account: nil
         ).and_return(FormSubmission.new)
