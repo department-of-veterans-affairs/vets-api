@@ -130,7 +130,7 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_veteran_contact_information
     return {} unless user.authorize :evss, :access?
 
-    contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu)
+    contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu, user)
                      initialize_vets360_contact_info
                    else
                      # fill in blank values with PCIU data
@@ -142,7 +142,8 @@ class FormProfiles::VA526ez < FormProfile
                    end
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu)}," \
+    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
+                                                                              user)}," \
                       "mailing_address=#{contact_info[:mailing_address].present?}," \
                       "email_address=#{contact_info[:email_address].present?}," \
                       "primary_phone=#{contact_info[:primary_phone].present?}")
