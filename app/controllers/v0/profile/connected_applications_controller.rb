@@ -59,8 +59,8 @@ module V0
           end
         end
         data
-      rescue Faraday::Error => e
-        return data
+      rescue Faraday::Error
+        data
       end
 
       def build_apps_from_data(lh_app)
