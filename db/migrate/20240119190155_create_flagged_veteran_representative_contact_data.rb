@@ -4,7 +4,7 @@ class CreateFlaggedVeteranRepresentativeContactData < ActiveRecord::Migration[7.
       t.string "ip_address", null: false
       t.string "representative_id", null: false
       t.string "flag_type", null: false
-      t.string "other_type_text"
+      t.text "other_type_text"
       t.timestamps
     end
 
