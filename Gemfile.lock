@@ -1,4 +1,14 @@
 GIT
+  remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
+  revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
+  tag: v4.0.0
+  specs:
+    govdelivery-tms (4.0.0)
+      activesupport (>= 5.2.4.3, < 8.0.0)
+      faraday
+      mime-types
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
   revision: 5f40ee08bd62bfdf8259201e5803050f2d326576
   branch: master
@@ -501,11 +511,6 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    govdelivery-tms (2.8.4)
-      activesupport
-      faraday
-      faraday_middleware
-      mime-types
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -570,6 +575,8 @@ GEM
     libdatadog (5.0.0.1.0)
     libdatadog (5.0.0.1.0-x86_64-linux)
     libddwaf (1.14.0.0.0)
+      ffi (~> 1.0)
+    libddwaf (1.14.0.0.0-arm64-darwin)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
       ffi (~> 1.0)
@@ -1038,8 +1045,8 @@ GEM
     zeitwerk (2.6.12)
 
 PLATFORMS
+  arm64-darwin-22
   java
-  ruby
   x64-mingw32
   x86-mingw32
   x86-mswin32
@@ -1110,7 +1117,7 @@ DEPENDENCIES
   google-apis-generator
   google-protobuf
   googleauth
-  govdelivery-tms (= 2.8.4)
+  govdelivery-tms!
   guard-rspec
   guard-rubocop
   gyoku
@@ -1240,4 +1247,4 @@ RUBY VERSION
    ruby 3.2.2p53
 
 BUNDLED WITH
-   2.4.10
+   2.4.9
