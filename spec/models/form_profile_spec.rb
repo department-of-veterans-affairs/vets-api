@@ -1235,6 +1235,39 @@ RSpec.describe FormProfile, type: :model do
         FormProfiles::VA1010ezr.new(user:, form_id: 'f')
       end
 
+      context 'when the ee service is down' do
+        let(:v10_10_ezr_expected) do
+          {
+            'veteranFullName' => {
+              'first' => user.first_name&.capitalize,
+              'middle' => user.middle_name&.capitalize,
+              'last' => user.last_name&.capitalize,
+              'suffix' => user.suffix
+            },
+            'veteranSocialSecurityNumber' => user.ssn,
+            'gender' => user.gender,
+            'veteranDateOfBirth' => user.birth_date,
+            'homePhone' => us_phone,
+            'veteranAddress' => {
+              'street' => street_check[:street],
+              'street2' => street_check[:street2],
+              'city' => user.address[:city],
+              'state' => user.address[:state],
+              'country' => user.address[:country],
+              'postal_code' => user.address[:postal_code][0..4]
+            },
+            'email' => user.pciu_email
+          }
+        end
+
+        it 'prefills the rest of the data and logs exception to sentry' do
+          expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
+            instance_of(VCR::Errors::UnhandledHTTPRequestError)
+          )
+          expect_prefilled('10-10EZR')
+        end
+      end
+
       context 'with a user with dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
         let(:v10_10_ezr_expected) do
           {
