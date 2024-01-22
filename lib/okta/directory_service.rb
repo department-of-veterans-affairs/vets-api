@@ -26,9 +26,11 @@ module Okta
         rescue JSON::ParserError
           { 'error' => 'Failed to parse JSON response' }
         end
-      else
+      elsif response.status == 204
         # category is found but no scopes are returned (204)
         []
+      else
+        raise Faraday::Error.new("status: #{response.status}")
       end
     end
   end

@@ -54,6 +54,7 @@ module AppsApi
         directory_service = Okta::DirectoryService.new
         begin
           parsed_scopes = directory_service.scopes(params[:category])
+          # binding.pry
           if parsed_scopes.any?
             render json: {
               data: parsed_scopes
@@ -61,7 +62,7 @@ module AppsApi
           else
             head :no_content
           end
-        rescue
+        rescue Faraday::Error
           head :not_found
         end
       end
