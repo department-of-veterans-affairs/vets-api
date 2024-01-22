@@ -8,7 +8,7 @@ module EVSS
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest".freeze
     DEFAULT_TIMEOUT = 55 # in seconds
 
-    def initialize(headers, use_mock = false)
+    def initialize(headers)
       super
       @use_mock = Settings.evss.mock_claims || false
     end
