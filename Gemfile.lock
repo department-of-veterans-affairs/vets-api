@@ -530,7 +530,7 @@ GEM
     hashdiff (1.1.0)
     hashery (2.1.2)
     hashie (5.0.0)
-    holidays (8.6.0)
+    holidays (8.7.1)
     http-accept (1.7.0)
     http-cookie (1.0.5)
       domain_name (~> 0.5)
