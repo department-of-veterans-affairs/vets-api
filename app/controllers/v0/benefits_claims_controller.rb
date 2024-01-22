@@ -52,12 +52,12 @@ module V0
     end
 
     def check_for_birls_id
-      ::Rails.logger.info('No birls id') if current_user.birls_id.nil?
+      ::Rails.logger.info('[BenefitsClaims#index No birls id') if current_user.birls_id.nil?
     end
 
     def check_for_file_number
       bgs_file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user).file_number
-      ::Rails.logger.info('No file number') if bgs_file_number.blank?
+      ::Rails.logger.info('BenefitsClaims#index No file number') if bgs_file_number.blank?
     end
 
     def tap_claims(claims)
