@@ -30,7 +30,7 @@ module Okta
         # category is found but no scopes are returned (204)
         []
       else
-        raise Faraday::Error.new("status: #{response.status}")
+        raise Faraday::Error, "status: #{response.status}"
       end
     end
   end
