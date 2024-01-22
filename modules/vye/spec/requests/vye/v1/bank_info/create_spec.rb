@@ -1,27 +1,28 @@
 # frozen_string_literal: true
 
-require_relative '../../../rails_helper'
+require_relative '../../../../rails_helper'
 
-RSpec.describe Vye::V1::UserInfosController, type: :request do
+RSpec.describe Vye::V1::DirectDepositChangesController, type: :request do
   let!(:current_user) { create(:user, :loa3) }
+  let(:params) { FactoryBot.attributes_for(:vye_direct_deposit_change) }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
   end
 
-  describe 'GET /vye/v1 with flag turned off' do
+  describe 'POST /vye/v1/bank_info with flag turned off' do
     before do
       Flipper.disable :vye_request_allowed
     end
 
     it 'does not accept the request' do
-      get '/vye/v1'
+      post('/vye/v1/bank_info', params:)
       expect(response).to have_http_status(:bad_request)
     end
   end
 
-  describe 'GET /vye/v1 with flag turned on' do
+  describe 'POST /vye/v1/bank_info with flag turned on' do
     before do
       Flipper.enable :vye_request_allowed
       allow_any_instance_of(described_class).to receive(:load_user_info).and_return(true)
@@ -33,7 +34,7 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
       end
 
       it 'does not accept the request' do
-        get '/vye/v1'
+        post('/vye/v1/bank_info', params:)
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -57,16 +58,12 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
         allow_any_instance_of(Vye::GenDigest::Common)
           .to receive(:scrypt_config)
           .and_return(s.scrypt_config)
-
-        allow(user_info).to receive(:awards).and_return([])
-        allow(user_info).to receive(:pending_documents).and_return([])
-        allow(user_info).to receive(:verifications).and_return([])
         allow_any_instance_of(described_class).to receive(:user_info).and_return(user_info)
       end
 
-      it 'returns the user_info' do
-        get '/vye/v1'
-        expect(response).to have_http_status(:ok)
+      it 'creates a new bank info' do
+        post('/vye/v1/bank_info', params:)
+        expect(response).to have_http_status(:no_content)
       end
     end
   end
