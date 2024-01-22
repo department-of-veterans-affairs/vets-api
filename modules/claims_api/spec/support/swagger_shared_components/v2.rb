@@ -91,6 +91,35 @@ module SwaggerSharedComponents
         )
       )
 
+      power_of_attorney_2122a_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '2122a.json'
+          )
+        )
+      )
+
+      power_of_attorney_2122a_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'spec',
+            'fixtures',
+            'v2',
+            'veterans',
+            'power_of_attorney',
+            '2122a',
+            'valid.json'
+          )
+        )
+      )
+
       {
         veteran_identifier: {
           in: :body,
@@ -172,23 +201,13 @@ module SwaggerSharedComponents
             properties: {
               data: {
                 type: :object,
-                required: ['attributes'],
-                example:
-                  JSON.parse(
-                    File.read(
-                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                      'power_of_attorney', '2122a', 'valid.json')
-                    )
-                  ),
+                required: ['attributes', power_of_attorney_2122a_json_schema['required']],
                 properties: {
-                  attributes: JSON.parse(
-                    File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '2122a.json')
-                    )
-                  )
+                  attributes: power_of_attorney_2122a_json_schema
                 }
               }
-            }
+            },
+            example: power_of_attorney_2122a_body_example
           }
         }
       }

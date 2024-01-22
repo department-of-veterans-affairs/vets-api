@@ -8568,7 +8568,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "type": "appointIndividualPowerOfAttorneyValidation",
+                    "type": "form/21-22a/validation",
                     "attributes": {
                       "status": "valid"
                     }
@@ -8808,26 +8808,9 @@
                   "data": {
                     "type": "object",
                     "required": [
-                      "attributes"
+                      "attributes",
+                      null
                     ],
-                    "example": {
-                      "data": {
-                        "attributes": {
-                          "representative": {
-                            "poaCode": "083",
-                            "firstName": "my",
-                            "lastName": "name",
-                            "type": "ATTORNEY",
-                            "address": {
-                              "numberAndStreet": "123",
-                              "city": "city",
-                              "country": "US",
-                              "zipFirstFive": "12345"
-                            }
-                          }
-                        }
-                      }
-                    },
                     "properties": {
                       "attributes": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -9226,6 +9209,24 @@
                               "type": "string"
                             }
                           }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "representative": {
+                        "poaCode": "083",
+                        "firstName": "my",
+                        "lastName": "name",
+                        "type": "ATTORNEY",
+                        "address": {
+                          "numberAndStreet": "123",
+                          "city": "city",
+                          "country": "US",
+                          "zipFirstFive": "12345"
                         }
                       }
                     }

@@ -435,7 +435,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                         response_body = JSON.parse(response.body)['data']
 
                         expect(response).to have_http_status(:ok)
-                        expect(response_body['type']).to eq('appointIndividualPowerOfAttorneyValidation')
+                        expect(response_body['type']).to eq('form/21-22a/validation')
                         expect(response_body['attributes']['status']).to eq('valid')
                       end
                     end

@@ -73,7 +73,7 @@ module ClaimsApi
           )
         end
 
-        def validate_2122a
+        def validate2122a
           target_veteran
           validate_json_schema('2122a'.upcase)
 
@@ -129,7 +129,7 @@ module ClaimsApi
         def validation_success
           {
             data: {
-              type: 'appointIndividualPowerOfAttorneyValidation',
+              type: 'form/21-22a/validation',
               attributes: {
                 status: 'valid'
               }
