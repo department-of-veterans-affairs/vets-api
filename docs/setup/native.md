@@ -39,6 +39,11 @@ Steps 2-4 must be repeated if the repo's Ruby version is updated later.
 
    More information about installing _with_ Sidekiq Enterprise as well as our credentials are on the internal system [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md)
 
+1. Setup local databases and schema migrations:
+   ```bash
+   cd vets-api; rails db:setup; rails db:migrate
+   ```
+
 1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed, preferably in a sibling directory to `vets-api`.
 
 1. Go to the file `config/settings/development.yml` and make sure the `cache-dir` points to the local installation of `vets-api-mockdata` from the previous step.
@@ -224,13 +229,13 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    cp /etc/postgresql/##/main/pg_hba.conf .
    cp /etc/postgresql/##/main/postgresql.conf .
    ```
-   
+
 
    Remove any unwanted versions (replace hashes with the db vsn eg 11)
    ```bash
    dpkg -l | grep postgres
    sudo apt --purge remove postgresql-## postgresql-client-##
-   
+
       repeat the above command for each unwanted version
 
    sudo apt autoremove
@@ -245,7 +250,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    Upgrade the database (replace hashes with the new db vsn eg 14)
    ```bash
    sudo apt install postgresql-## postgresql-server-dev-##
-   
+
 
    Very important! the upgrade will fail later if you don't install postgis in the updated postgresql
 
@@ -263,7 +268,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
      you should see the current version and the version you just installed
    ```
    Stop the postgresql service
-   ```bash   
+   ```bash
    sudo systemctl stop postgresql.service
 
      Check the status of the postgresql, it should be stopped
@@ -305,11 +310,11 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
      You should see the version you upgraded to
 
    exit
-   
+
      Remove the old cluster
 
      replace hashes with the CURRENT version eg 11
    sudo pg_dropcluster ## main
-     
+
    Done!!!
   ```
