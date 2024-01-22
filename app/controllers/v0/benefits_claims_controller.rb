@@ -26,12 +26,13 @@ module V0
                             num_contentions: claim_info['contentions'].count,
                             ep_code: claim_info['endProductCode'],
                             claim_id: params[:id] })
+      tap_claims([claim['data']])
 
       render json: claim
     end
 
     def submit5103
-      res = service.submit5103(params[:id])
+      res = service.submit5103(@current_user, params[:id])
 
       render json: res
     end

@@ -40,7 +40,7 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
+        "description": "This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
@@ -54,7 +54,7 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
+        "description": "This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "831155ea-57a1-4421-b840-ed5a0e567fce",
+                    "id": "9f9ce7d9-eff8-4a08-afdb-a43d421b6bcb",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1471,7 +1471,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-01-21"
+                          "anticipatedSeparationDate": "2024-01-24"
                         },
                         "confinements": [
                           {
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "66cb4b02-2db4-4df5-b84d-294633a95b1d",
+                    "id": "aac06100-b512-475f-a5e9-e872a98d4def",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7744,8 +7744,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-19",
-                      "expirationDate": "2025-01-19",
+                      "creationDate": "2024-01-22",
+                      "expirationDate": "2025-01-22",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8336,9 +8336,7 @@
                     "attributes": {
                       "code": "A1Q",
                       "name": "Firstname Lastname",
-                      "phone": {
-                        "number": "555-555-5555"
-                      }
+                      "phoneNumber": "555-555-5555"
                     }
                   }
                 },
@@ -8368,32 +8366,30 @@
                           "example": "individual"
                         },
                         "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "code",
                             "name",
-                            "phone"
+                            "phoneNumber"
                           ],
-                          "code": {
-                            "type": "string",
-                            "nullable": true,
-                            "description": "Power of Attorney Code currently assigned to Veteran"
-                          },
-                          "name": {
-                            "description": "Name of individual representative or organization",
-                            "type": "string",
-                            "nullable": true,
-                            "example": "Jane Smith"
-                          },
-                          "phone": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                              "number": {
-                                "description": "Phone number of representative. Can be organization or individual phone number.",
-                                "type": "string",
-                                "nullable": true,
-                                "example": "555-555-5555"
-                              }
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Power of Attorney Code currently assigned to Veteran"
+                            },
+                            "name": {
+                              "description": "Name of individual representative or organization",
+                              "type": "string",
+                              "nullable": true,
+                              "example": "Jane Smith"
+                            },
+                            "phoneNumber": {
+                              "description": "Phone number of representative. Can be organization or individual phone number.",
+                              "type": "string",
+                              "nullable": true,
+                              "example": "555-555-5555"
                             }
                           }
                         }

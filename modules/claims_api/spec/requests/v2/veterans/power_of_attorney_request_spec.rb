@@ -67,9 +67,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                           'attributes' => {
                             'code' => 'ABC',
                             'name' => 'Robert Lawlaw',
-                            'phone' => {
-                              'number' => '321-654-0987'
-                            }
+                            'phoneNumber' => '321-654-0987'
                           }
                         }
                       }
