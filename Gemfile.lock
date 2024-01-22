@@ -33,12 +33,12 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: dc1b6938a385f6ef2cf55b030ae94f06e08ccc9a
+  revision: a7fcba00a33624705f15d0a023c3d214f8e5957a
   specs:
-    bgs_ext (0.21.3)
+    bgs_ext (0.22.0)
       httpclient
       nokogiri (>= 1.13.6)
-      savon (= 2.12)
+      savon (~> 2.14.0)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
@@ -913,11 +913,12 @@ GEM
     sanitize (6.1.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    savon (2.12.0)
+    savon (2.14.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
-      httpi (~> 2.3)
+      httpi (>= 2.4.5)
+      mail (~> 2.5)
       nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
