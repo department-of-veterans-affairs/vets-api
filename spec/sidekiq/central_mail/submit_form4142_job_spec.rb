@@ -55,6 +55,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         end
       end
 
+      it 'uses proper submission creation date for the received date' do
+        received_date = metadata_hash['receiveDt'].to_date
+        # TODO: update this expectation to use time once we know what timezone to use
+        expect(submission.created_at.to_date).to eq(received_date)
+      end
+
       it 'corrects for invalid characters in generated metadata' do
         veteran_first_name = metadata_hash['veteranFirstName']
         veteran_last_name = metadata_hash['veteranLastName']
