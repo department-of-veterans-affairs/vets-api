@@ -3,6 +3,23 @@
 module Veteran
   module V0
     class FlagAccreditedRepresentativesController < ApplicationController
+      before_action :flag_params
+
+      def create
+        flag = FlaggedVeteranRepresentativeContactData.new(flag_params)
+
+        if flag.save
+          render json: flag, status: :created
+        else
+          render json: { errors: flag.errors }, status: :unprocessable_entity
+        end
+      end
+
+      private
+
+      def flag_params
+        params.require(:flag).permit(:ip_address, :representative_id, :flag_type, :flagged_value)
+      end
     end
   end
 end
