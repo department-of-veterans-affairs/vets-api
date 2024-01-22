@@ -24,6 +24,17 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
       end
+
+      it 'adds a set of EVSSClaim records to the DB' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+
+        expect(response).to have_http_status(:ok)
+        # NOTE: There are 8 items in the VCR cassette, but some of them will
+        # get filtered out by the service based on their 'status' values
+        expect(EVSSClaim.all.count).to equal(5)
+      end
     end
 
     context 'when not authorized' do
@@ -74,6 +85,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'adds a EVSSClaim record to the DB' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(EVSSClaim.all.count).to equal(1)
       end
 
       it 'logs the claim type details' do
