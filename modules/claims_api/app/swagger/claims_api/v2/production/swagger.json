@@ -307,7 +307,7 @@
                   "birthdate": {
                     "type": "string",
                     "example": "1967-06-19",
-                    "description": "Date of birth of Veteran being represented, in iso8601 format"
+                    "description": "Date of birth of Veteran being represented, in ISO8601 format"
                   }
                 },
                 "example": {
@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1c24ba1a-935c-47d7-b3c9-989dea3c7b11",
+                    "id": "7a3936ac-ea2d-4088-8992-1c5ab4f58069",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1471,7 +1471,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-01-21"
+                          "anticipatedSeparationDate": "2024-01-24"
                         },
                         "confinements": [
                           {
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4eb408b0-932a-42c6-97a2-b05be0bf86fa",
+                    "id": "9ebab40f-1d06-4646-a4cf-9146dacd92c2",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6368,8 +6368,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-19",
-                      "expirationDate": "2025-01-19",
+                      "creationDate": "2024-01-22",
+                      "expirationDate": "2025-01-22",
                       "type": "compensation",
                       "status": "active"
                     }
