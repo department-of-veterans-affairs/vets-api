@@ -307,7 +307,7 @@
                   "birthdate": {
                     "type": "string",
                     "example": "1967-06-19",
-                    "description": "Date of birth of Veteran being represented, in iso8601 format"
+                    "description": "Date of birth of Veteran being represented, in ISO8601 format"
                   }
                 },
                 "example": {
@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8cc844dc-61e5-4a31-94f1-591add9485a4",
+                    "id": "d2900161-cb83-4ec3-813b-7bd82e6dd1fb",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c8eac97e-d350-4efc-b07a-ad0eb1f2647e",
+                    "id": "c52b1b70-5224-4d45-95e0-d61dacbca10e",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
