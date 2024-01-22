@@ -23,6 +23,12 @@ module VRE
       user = User.find user_uuid
       claim.add_claimant_info(user)
       claim.send_to_vre(user)
+
+    rescue => e
+      Rails.logger.send(
+        :error,
+        "CentralMail::Submit1900Job failed with error: #{e.message}"
+      )
     end
   end
 end
