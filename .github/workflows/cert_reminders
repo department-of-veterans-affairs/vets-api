@@ -1,0 +1,34 @@
+#Workflow for manual trigger
+name: cert_reminders
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cert_reminders:
+    name: cert_reminder
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get api_key from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@v1.1.1
+        with:
+          ssm_parameter: /dsva-vagov/vets-api/staging/mockdata_sync_api_key
+          env_variable_name: MOCKDATA_API_KEY
+
+      - name: Obtain GitHub Token
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+            
+      - name: Curl expirations from readme
+        run: |
+            CSV=$(curl -s "https://raw.githubusercontent.com/department-of-veterans-affairs/va.gov-team-sensitive/master/teams/vsp/teams/Identity/Documentation/Security/Rotate_certs.md?token=GHSAT0AAAAAACMLBICVW25LEMA6E7CMAT6WZNOYVDA" | sed -n -e '/## Cert Expiration Tracking/,/## How to request access to change certs/p' | grep -vE '^## |^$' | awk '/^\|/' | sed 's/ *$//')
+            echo "$CSV"
