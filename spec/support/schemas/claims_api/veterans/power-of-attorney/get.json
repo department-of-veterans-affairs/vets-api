@@ -18,7 +18,7 @@
           "example": "individual"
         },
         "attributes": {
-          "required": ["code", "name", "phone"],
+          "required": ["code", "name", "phoneNumber"],
           "code": {
             "type": "string",
             "nullable": true,
@@ -30,17 +30,11 @@
             "nullable": true,
             "example": "Jane Smith"
           },
-          "phone": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "number": {
-                "description": "Phone number of representative. Can be organization or individual phone number.",
-                "type": "string",
-                "nullable": true,
-                "example": "555-555-5555"
-              }
-            }
+          "phoneNumber": {
+            "description": "Phone number of representative. Can be organization or individual phone number.",
+            "type": "string",
+            "nullable": true,
+            "example": "555-555-5555"
           }
         }
       }
