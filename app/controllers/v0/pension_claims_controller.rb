@@ -64,8 +64,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
-      use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
-      use_lighthouse ? claim.upload_to_lighthouse : claim.process_attachments!
+      claim.upload_to_lighthouse
 
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info("Submit #{claim.class::FORM} Success",
