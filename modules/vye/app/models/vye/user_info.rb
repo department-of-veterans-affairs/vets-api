@@ -14,11 +14,14 @@ module Vye
 
     include GenDigest
 
-    has_many :address_changes
-    has_many :awards
-    has_many :direct_deposit_changes
-    has_many :pending_documents, foreign_key: :ssn_digest, primary_key: :ssn_digest, inverse_of: :user_info
-    has_many :verifications
+    has_many :address_changes, dependent: :destroy
+    has_many :awards, dependent: :destroy
+    has_many :direct_deposit_changes, dependent: :destroy
+    has_many :pending_documents, dependent: :destroy,
+                                 primary_key: :ssn_digest,
+                                 foreign_key: :ssn_digest,
+                                 inverse_of: :user_info
+    has_many :verifications, dependent: :destroy
 
     ENCRYPTED_ATTRIBUTES = %i[
       address_line2 address_line3 address_line4 address_line5 address_line6 dob file_number full_name ssn stub_nm zip

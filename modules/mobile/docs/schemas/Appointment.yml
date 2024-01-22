@@ -34,7 +34,6 @@ properties:
       - reason
       - isCovidVaccine
       - locationId
-      - eCheckinAllowed
     properties:
       appointmentType:
         type: string
@@ -185,6 +184,3 @@ properties:
       locationId:
         type: string
         example: '983'
-      eCheckinAllowed:
-        type: boolean
-        example: true

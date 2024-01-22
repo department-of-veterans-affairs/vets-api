@@ -5,9 +5,8 @@ require 'rx/client'
 
 RSpec.describe SignIn::ApplicationController, type: :controller do
   controller do
-    skip_before_action :authenticate, only: %w[index_optional_auth service_account_auth]
+    skip_before_action :authenticate, only: %w[index_optional_auth]
     before_action :load_user, only: %(index_optional_auth)
-    before_action :authenticate_service_account, only: %(service_account_auth)
     attr_reader :payload
 
     def index
@@ -38,7 +37,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       get 'client_connection_failed' => 'sign_in/application#client_connection_failed'
       get 'index' => 'sign_in/application#index'
       get 'index_optional_auth' => 'sign_in/application#index_optional_auth'
-      get 'service_account_auth' => 'sign_in/application#service_account_auth'
     end
   end
 
@@ -450,96 +448,6 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     it 'renders service unavailable error' do
       subject
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(expected_error)
-    end
-  end
-
-  describe '#authenticate_service_account' do
-    subject { get :service_account_auth }
-
-    shared_context 'error response' do
-      let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:sentry_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: nil }.compact
-      end
-      let(:sentry_log_level) { :error }
-
-      it 'renders Malformed Params error' do
-        expect(JSON.parse(subject.body)).to eq(expected_error_json)
-      end
-
-      it 'returns unauthorized status' do
-        expect(subject).to have_http_status(:unauthorized)
-      end
-
-      it 'logs error to sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
-                                                                                      sentry_log_level,
-                                                                                      sentry_context)
-        subject
-      end
-    end
-
-    context 'when authorization header does not exist' do
-      let(:access_token) { nil }
-      let(:expected_error) { 'Service Account access token JWT is malformed' }
-
-      it_behaves_like 'error response'
-    end
-
-    context 'when authorization header exists' do
-      let(:authorization) { "Bearer #{access_token}" }
-      let(:access_token) { 'some-access-token' }
-
-      before do
-        request.headers['Authorization'] = authorization
-      end
-
-      context 'and access_token is some arbitrary value' do
-        let(:access_token) { 'some-arbitrary-access-token' }
-        let(:expected_error) { 'Service Account access token JWT is malformed' }
-        let(:expected_error_json) { { 'errors' => expected_error } }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and access_token is an expired JWT' do
-        let(:access_token_object) { create(:access_token, expiration_time:) }
-        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
-        let(:expected_error) { 'Service Account access token has expired' }
-        let(:expected_error_json) { { 'errors' => expected_error } }
-
-        it 'renders Access Token Expired error' do
-          expect(JSON.parse(subject.body)).to eq(expected_error_json)
-        end
-
-        it 'returns forbidden status' do
-          expect(subject).to have_http_status(:forbidden)
-        end
-      end
-
-      context 'and access_token is an active JWT' do
-        let(:service_account_access_token) { create(:service_account_access_token, scopes: [scope]) }
-        let(:access_token) do
-          SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
-        end
-
-        context 'and scope does not match request url' do
-          let(:scope) { 'some-scope' }
-          let(:expected_error) { 'Required scope for requested resource not found' }
-          let(:expected_error_json) { { 'errors' => expected_error } }
-
-          it_behaves_like 'error response'
-        end
-
-        context 'and scope matches request url' do
-          let(:scope) { 'http://www.example.com/service_account_auth' }
-
-          it 'returns ok status' do
-            expect(subject).to have_http_status(:ok)
-          end
-        end
-      end
     end
   end
 end
