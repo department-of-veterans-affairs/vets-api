@@ -82,6 +82,12 @@ module EVSS
 
         Sentry.set_tags(source: '526EZ-all-claims')
 
+        # This instantiates the service as defined by the inheriting object
+        # TODO: this meaningless variable assignment is required for the specs to pass, which
+        # indicates a problematic coupling of implementation and test logic.  This should eventually
+        # be addressed to make this service and test more robust and readable.
+        service = service(submission.auth_headers)
+
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           begin
             super(submission_id)
@@ -92,11 +98,6 @@ module EVSS
           end
 
           begin
-            # This instantiates the service as defined by the inheriting object
-            # TODO: this meaningless variable assignment is required for the specs to pass, which
-            # indicates a problematic coupling of implementation and test logic.  This should eventually
-            # be addressed to make this service and test more robust and readable.
-            service = service(submission.auth_headers)
             submission.mark_birls_id_as_tried!
 
             # send submission data to either EVSS or lighthouse
