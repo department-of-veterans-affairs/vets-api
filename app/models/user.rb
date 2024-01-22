@@ -355,10 +355,6 @@ class User < Common::RedisStore
     super
   end
 
-  def military_information
-    @military_information ||= FormProfile.new(form_id: nil, user: self).initialize_military_information
-  end
-
   def veteran_status
     @veteran_status ||= VAProfileRedis::VeteranStatus.for_user(self)
   end
