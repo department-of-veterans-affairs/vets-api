@@ -40,7 +40,7 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
+        "description": "This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
@@ -54,7 +54,7 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)",
+        "description": "This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
@@ -307,7 +307,7 @@
                   "birthdate": {
                     "type": "string",
                     "example": "1967-06-19",
-                    "description": "Date of birth of Veteran being represented, in iso8601 format"
+                    "description": "Date of birth of Veteran being represented, in ISO8601 format"
                   }
                 },
                 "example": {
@@ -1290,7 +1290,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9adfcaf7-d30d-4d47-81f8-b5f8451cf51f",
+                    "id": "fe520a16-8c57-4a8e-b3b5-a6acc483a2a5",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -1471,7 +1471,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-01-20"
+                          "anticipatedSeparationDate": "2024-01-24"
                         },
                         "confinements": [
                           {
@@ -5676,7 +5676,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "316033bc-ac52-4ba7-b888-734726d509e2",
+                    "id": "848b89f0-3166-4d54-bd7a-cac8dad13827",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7464,7 +7464,7 @@
     },
     "/veterans/{veteranId}/intent-to-file/{type}": {
       "get": {
-        "summary": "Returns last active Intent to File form submission for given 'type'.",
+        "summary": "Returns Veteran's last active Intent to File submission for given benefit type.",
         "tags": [
           "Intent to File"
         ],
@@ -7486,7 +7486,7 @@
             ]
           }
         ],
-        "description": "Returns Veteran's last active Intent to File submission for given benefit type.",
+        "description": "Returns Veteran's last active Intent to File submission for given benefit type of compensation, pension, or survivor.",
         "parameters": [
           {
             "name": "veteranId",
@@ -7502,6 +7502,7 @@
             "name": "type",
             "in": "path",
             "required": true,
+            "example": "compensation",
             "description": "Type of Intent to File to return. Available values - compensation, pension, survivor.",
             "schema": {
               "type": "string"
@@ -7560,7 +7561,7 @@
                             "creationDate": {
                               "type": "string",
                               "format": "date",
-                              "description": "Date the Intent to File was received at the VA"
+                              "description": "Date the Intent to File was received at VA"
                             },
                             "expirationDate": {
                               "type": "string",
@@ -7574,7 +7575,7 @@
                             },
                             "type": {
                               "type": "string",
-                              "description": "The type of Intent to File filed.",
+                              "description": "The type of Intent to File filed",
                               "example": "compensation"
                             }
                           }
@@ -7744,8 +7745,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-18",
-                      "expirationDate": "2025-01-18",
+                      "creationDate": "2024-01-22",
+                      "expirationDate": "2025-01-22",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -7786,7 +7787,7 @@
                             "creationDate": {
                               "type": "string",
                               "format": "date",
-                              "description": "Date the Intent to File was received at the VA"
+                              "description": "Date the Intent to File was received at VA"
                             },
                             "expirationDate": {
                               "type": "string",
@@ -7800,7 +7801,7 @@
                             },
                             "type": {
                               "type": "string",
-                              "description": "The type of Intent to File filed.",
+                              "description": "The type of Intent to File filed",
                               "example": "compensation"
                             }
                           }
@@ -8336,9 +8337,7 @@
                     "attributes": {
                       "code": "A1Q",
                       "name": "Firstname Lastname",
-                      "phone": {
-                        "number": "555-555-5555"
-                      }
+                      "phoneNumber": "555-555-5555"
                     }
                   }
                 },
@@ -8368,32 +8367,30 @@
                           "example": "individual"
                         },
                         "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "code",
                             "name",
-                            "phone"
+                            "phoneNumber"
                           ],
-                          "code": {
-                            "type": "string",
-                            "nullable": true,
-                            "description": "Power of Attorney Code currently assigned to Veteran"
-                          },
-                          "name": {
-                            "description": "Name of individual representative or organization",
-                            "type": "string",
-                            "nullable": true,
-                            "example": "Jane Smith"
-                          },
-                          "phone": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                              "number": {
-                                "description": "Phone number of representative. Can be organization or individual phone number.",
-                                "type": "string",
-                                "nullable": true,
-                                "example": "555-555-5555"
-                              }
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Power of Attorney Code currently assigned to Veteran"
+                            },
+                            "name": {
+                              "description": "Name of individual representative or organization",
+                              "type": "string",
+                              "nullable": true,
+                              "example": "Jane Smith"
+                            },
+                            "phoneNumber": {
+                              "description": "Phone number of representative. Can be organization or individual phone number.",
+                              "type": "string",
+                              "nullable": true,
+                              "example": "555-555-5555"
                             }
                           }
                         }
