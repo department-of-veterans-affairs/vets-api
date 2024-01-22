@@ -1694,7 +1694,6 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-              Flipper.disable(:disability_compensation_remove_pciu)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
