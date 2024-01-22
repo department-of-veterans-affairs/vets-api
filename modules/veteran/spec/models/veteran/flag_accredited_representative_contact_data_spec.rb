@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
   describe 'validations' do
     subject do
-      described_class.new(ip_address: '192.168.1.1', representative_id: 1, flag_type: 'email')
+      described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'email')
     end
 
     context 'flag_type' do
@@ -20,15 +20,15 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
     end
 
     context 'uniqueness' do
-      before { described_class.create!(ip_address: '192.168.1.1', representative_id: 1, flag_type: 'email') }
+      before { described_class.create!(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'email') }
 
       it 'is not valid with a duplicate combination of ip_address, representative_id, and flag_type' do
-        duplicate = described_class.new(ip_address: '192.168.1.1', representative_id: 1, flag_type: 'email')
+        duplicate = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'email')
         expect(duplicate).not_to be_valid
       end
 
       it 'is valid with a unique combination of ip_address, representative_id, and flag_type' do
-        unique = described_class.new(ip_address: '192.168.1.2', representative_id: 1, flag_type: 'email')
+        unique = described_class.new(ip_address: '192.168.1.2', representative_id: '1', flag_type: 'email')
         expect(unique).to be_valid
       end
     end
