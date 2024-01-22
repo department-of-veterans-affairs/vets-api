@@ -49,15 +49,18 @@ module V0
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
         response = Faraday.get(url_with_params, {}, headers)
+
         if response.status == 200
           parsed_response = JSON.parse(response.body)
           lhapps = parsed_response['apps']
           lhapps.each do |lh_app|
             app = build_apps_from_data(lh_app)
-            (data ||= []) << app
+            data << app
           end
         end
         data
+      rescue Faraday::Error => e
+        return data
       end
 
       def build_apps_from_data(lh_app)
