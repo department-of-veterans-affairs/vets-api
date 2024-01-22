@@ -78,7 +78,7 @@ gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
-gem 'govdelivery-tms', git: 'https://github.com/adhocteam/govdelivery-tms-ruby.git', tag: 'v4.0.0'
+gem 'govdelivery-tms', git: 'https://github.com/adhocteam/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
 gem 'httpclient' # for lib/evss/base_service.rb
