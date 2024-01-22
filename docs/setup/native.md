@@ -39,7 +39,7 @@ Steps 2-4 must be repeated if the repo's Ruby version is updated later.
 
    More information about installing _with_ Sidekiq Enterprise as well as our credentials are on the internal system [here](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Platform/Vets-API/Sidekiq%20Enterprise%20Setup.md)
 
-1. Setup local databases and schema migrations:
+1. Setup local databases and run schema migrations:
    ```bash
    cd vets-api; rails db:setup; rails db:migrate
    ```
