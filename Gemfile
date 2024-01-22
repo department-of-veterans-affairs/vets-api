@@ -56,7 +56,6 @@ gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
-gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
 gem 'dogstatsd-ruby', '5.6.1'
@@ -154,6 +153,13 @@ gem 'virtus'
 gem 'warden-github'
 gem 'will_paginate'
 gem 'with_advisory_lock'
+
+group :development, :production do
+  # This needs to be required as early as possible in the initialization
+  # process because it starts collecting data on 'require'.
+  # Only require this in development and production to avoid slowing down tests.
+  gem 'coverband'
+end
 
 group :development do
   gem 'guard-rubocop'
