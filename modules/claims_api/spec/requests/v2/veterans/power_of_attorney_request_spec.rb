@@ -33,13 +33,13 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           context 'when valid' do
             context 'when current poa code does not exist' do
-              it 'returns a 204' do
+              it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
 
                   get get_poa_path, headers: auth_header
 
-                  expect(response.status).to eq(204)
+                  expect(response.status).to eq(200)
                 end
               end
             end
@@ -61,12 +61,15 @@ RSpec.describe 'Power Of Attorney', type: :request do
                         .and_return(OpenStruct.new(current_poa_code: 'ABC'))
 
                       expected_response = {
-                        'code' => 'ABC',
-                        'name' => 'Robert Lawlaw',
-                        'phone' => {
-                          'number' => '321-654-0987'
-                        },
-                        'type' => 'individual'
+                        'data' => {
+                          'id' => nil,
+                          'type' => 'individual',
+                          'attributes' => {
+                            'code' => 'ABC',
+                            'name' => 'Robert Lawlaw',
+                            'phoneNumber' => '321-654-0987'
+                          }
+                        }
                       }
 
                       get get_poa_path, headers: auth_header
