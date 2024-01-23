@@ -461,5 +461,17 @@ FactoryBot.define do
         create(:idme_user_verification, idme_uuid: user.idme_uuid, locked: true)
       end
     end
+
+    trait :non_resident do
+      address do
+        {
+          street: '123 Bolshevik lane',
+          city: 'Moscow',
+          state: '',
+          country: 'Russia',
+          postal_code: '123'
+        }
+      end
+    end
   end
 end

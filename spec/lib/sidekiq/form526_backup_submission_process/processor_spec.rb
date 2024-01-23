@@ -8,14 +8,25 @@ require 'sidekiq/form526_backup_submission_process/submit'
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
   subject { described_class }
 
-  before do
-    allow(Settings.form526_backup).to receive(:enabled).and_return(false)
-  end
 
   let!(:submission) { create :form526_submission, :with_everything }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:user, :non_resident) }
 
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  # let(:auth_headers) do
+  #   EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  # end
+
+  context 'veteran with a foreign address' do
+    describe 'submission and document metadata' do
+      before do
+        # allow(Settings.form526_backup).to receive(:enabled).and_return(false)
+        # allow(subject).to receive(:upload_pdf_submission_to_s3) { true }
+      end
+
+      it 'sets the submission metadata zipcode with a default value' do
+        instance = subject.new(submission.id, get_upload_location_on_instantiation: false)
+        expect(instance.zip).to eq('00000')
+      end
+    end
   end
 end
