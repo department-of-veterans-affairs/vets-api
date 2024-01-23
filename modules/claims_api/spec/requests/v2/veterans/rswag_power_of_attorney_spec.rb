@@ -144,7 +144,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/power-of-attorney:appoint-individual', production: false do
-    put 'Appoint an individual Power of Attorney for a Veteran.' do
+    post 'Appoint an individual Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
       operationId 'appointIndividualPowerOfAttorney'
       security [

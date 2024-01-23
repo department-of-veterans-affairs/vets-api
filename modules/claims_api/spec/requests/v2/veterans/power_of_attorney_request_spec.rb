@@ -9,9 +9,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
   let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-individual" }
-  let(:appoint_organization_path) do
-    "/services/claims/v2/veterans/#{veteran_id}/2122"
-  end
+  let(:appoint_organization_path) { "/services/claims/v2/veterans/#{veteran_id}/2122" }
   let(:validate_2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }
   let(:scopes) { %w[system/claim.write] }
   let(:individual_poa_code) { 'A1H' }
@@ -150,7 +148,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
-              put appoint_individual_path, params: data, headers: auth_header
+              post appoint_individual_path, params: data.to_json, headers: auth_header
               expect(response.status).to eq(200)
             end
           end
@@ -158,7 +156,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            put appoint_individual_path, params: data
+            post appoint_individual_path, params: data.to_json
             expect(response.status).to eq(401)
           end
         end
@@ -169,7 +167,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
           mock_ccg(scopes) do |auth_header|
             data[:data][:attributes][:serviceOrganization] = nil
 
-            put appoint_individual_path, params: data, headers: auth_header
+            post appoint_individual_path, params: data.to_json, headers: auth_header
             expect(response.status).to eq(400)
           end
         end
@@ -180,7 +178,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
           mock_ccg(scopes) do |auth_header|
             data[:data][:attributes][:serviceOrganization][:poaCode] = organization_poa_code.to_s
 
-            put appoint_individual_path, params: data, headers: auth_header
+            post appoint_individual_path, params: data.to_json, headers: auth_header
             expect(response.status).to eq(422)
           end
         end
@@ -192,7 +190,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                                                first_name: 'Thomas', last_name: 'Jefferson').save!
 
           mock_ccg(scopes) do |auth_header|
-            put appoint_individual_path, params: data, headers: auth_header
+            post appoint_individual_path, params: data.to_json, headers: auth_header
             expect(response.status).to eq(500)
           end
         end
@@ -208,7 +206,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
 
-                put appoint_individual_path, params: data, headers: auth_header
+                post appoint_individual_path, params: data.to_json, headers: auth_header
 
                 expect(response.status).to eq(200)
               end
@@ -217,7 +215,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
           context 'when not valid' do
             it 'returns a 401' do
-              put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+              post appoint_individual_path, params: data.to_json, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
               expect(response.status).to eq(401)
             end
@@ -248,7 +246,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
-              post appoint_organization_path, params: data, headers: auth_header
+              post appoint_organization_path, params: data.to_json, headers: auth_header
               expect(response.status).to eq(200)
             end
           end
@@ -256,7 +254,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            post appoint_organization_path, params: data
+            post appoint_organization_path, params: data.to_json
             expect(response.status).to eq(401)
           end
         end
@@ -266,7 +264,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             mock_ccg(scopes) do |auth_header|
               data[:data][:attributes][:serviceOrganization][:poaCode] = individual_poa_code.to_s
 
-              post appoint_organization_path, params: data, headers: auth_header
+              post appoint_organization_path, params: data.to_json, headers: auth_header
               expect(response.status).to eq(422)
             end
           end
@@ -283,7 +281,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
 
-                post appoint_organization_path, params: data, headers: auth_header
+                post appoint_organization_path, params: data.to_json, headers: auth_header
 
                 expect(response.status).to eq(200)
               end

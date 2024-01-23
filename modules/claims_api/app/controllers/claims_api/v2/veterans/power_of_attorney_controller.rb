@@ -25,7 +25,6 @@ module ClaimsApi
         end
 
         def submit2122
-          validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           unless poa_code_in_organization?(poa_code)
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
@@ -36,8 +35,17 @@ module ClaimsApi
           submit_power_of_attorney(poa_code)
         end
 
+        def validate2122a
+          target_veteran
+          validate_json_schema('2122a'.upcase)
+
+          poa_code = form_attributes.dig('representative', 'poaCode')
+          validate_individual_poa_code!(poa_code)
+
+          render json: validation_success
+        end
+
         def appoint_individual
-          validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           if poa_code_in_organization?(poa_code)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
@@ -55,7 +63,7 @@ module ClaimsApi
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
               auth_headers:,
-              form_data: params.dig('data', 'attributes'),
+              form_data: form_attributes,
               current_poa: current_poa_code,
               header_md5:
             }
@@ -71,18 +79,6 @@ module ClaimsApi
             root: :data
           )
         end
-
-        def validate2122a
-          target_veteran
-          validate_json_schema('2122a'.upcase)
-
-          poa_code = form_attributes.dig('representative', 'poaCode')
-          validate_individual_poa_code!(poa_code)
-
-          render json: validation_success
-        end
-
-        private
 
         def representative(poa_code)
           organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
@@ -152,7 +148,7 @@ module ClaimsApi
         end
 
         def parse_and_validate_poa_code
-          poa_code = params.dig('data', 'attributes', 'serviceOrganization', 'poaCode')
+          poa_code = @json_body.dig('data', 'attributes', 'serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
