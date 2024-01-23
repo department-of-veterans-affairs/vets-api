@@ -12,7 +12,8 @@ module ClaimsApi
           private
 
           def validate_poa_code(record)
-            value = record.data[:serviceOrganization] && record.data[:serviceOrganization][:poaCode]
+            service_org = record.data[:data][:attributes][:serviceOrganization]
+            value = service_org && service_org[:poaCode]
             record.errors.add :poaCode, 'blank' if value.blank?
           end
 

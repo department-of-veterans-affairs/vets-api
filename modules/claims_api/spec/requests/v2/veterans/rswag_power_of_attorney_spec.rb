@@ -311,8 +311,12 @@ describe 'PowerOfAttorney',
       let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
       let(:data) do
         {
-          serviceOrganization: {
-            poaCode: organization_poa_code.to_s
+          data: {
+            attributes: {
+              serviceOrganization: {
+                poaCode: organization_poa_code.to_s
+              }
+            }
           }
         }
       end
@@ -394,7 +398,7 @@ describe 'PowerOfAttorney',
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName
-              data[:serviceOrganization][:poaCode] = individual_poa_code.to_s
+              data[:data][:attributes][:serviceOrganization][:poaCode] = individual_poa_code.to_s
               Veteran::Service::Representative.new(representative_id: '00000', poa_codes: [individual_poa_code],
                                                    first_name: 'George', last_name: 'Washington').save!
               Veteran::Service::Organization.create(poa: organization_poa_code,

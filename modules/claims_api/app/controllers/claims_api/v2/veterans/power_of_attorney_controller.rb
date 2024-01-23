@@ -55,7 +55,7 @@ module ClaimsApi
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
               auth_headers:,
-              form_data: params,
+              form_data: params.dig('data', 'attributes'),
               current_poa: current_poa_code,
               header_md5:
             }
@@ -136,10 +136,6 @@ module ClaimsApi
           }
         end
 
-        def enable_vbms_access?
-          params[:recordConsent] && params[:consentLimits].blank?
-        end
-
         def current_poa_code
           current_poa.try(:code)
         end
@@ -156,7 +152,7 @@ module ClaimsApi
         end
 
         def parse_and_validate_poa_code
-          poa_code = params.dig('serviceOrganization', 'poaCode')
+          poa_code = params.dig('data', 'attributes', 'serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 

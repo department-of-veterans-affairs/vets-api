@@ -127,12 +127,16 @@ RSpec.describe 'Power Of Attorney', type: :request do
       b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
-          serviceOrganization: {
-            poaCode: individual_poa_code.to_s
-          },
-          signatures: {
-            veteran: b64_image,
-            representative: b64_image
+          data: {
+            attributes: {
+              serviceOrganization: {
+                poaCode: individual_poa_code.to_s
+              },
+              signatures: {
+                veteran: b64_image,
+                representative: b64_image
+              }
+            }
           }
         }
       end
@@ -163,7 +167,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       context 'when a POA code isn\'t provided' do
         it 'returns a 400 error code' do
           mock_ccg(scopes) do |auth_header|
-            data[:serviceOrganization] = nil
+            data[:data][:attributes][:serviceOrganization] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
             expect(response.status).to eq(400)
@@ -174,7 +178,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       context 'when the POA code is for an organization instead of an individual' do
         it 'returns a 422 error code' do
           mock_ccg(scopes) do |auth_header|
-            data[:serviceOrganization][:poaCode] = organization_poa_code.to_s
+            data[:data][:attributes][:serviceOrganization][:poaCode] = organization_poa_code.to_s
 
             put appoint_individual_path, params: data, headers: auth_header
             expect(response.status).to eq(422)
@@ -225,8 +229,12 @@ RSpec.describe 'Power Of Attorney', type: :request do
     describe 'submit2122' do
       let(:data) do
         {
-          serviceOrganization: {
-            poaCode: organization_poa_code.to_s
+          data: {
+            attributes: {
+              serviceOrganization: {
+                poaCode: organization_poa_code.to_s
+              }
+            }
           }
         }
       end
@@ -256,7 +264,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when the POA code is for an individual instead of an organization' do
           it 'returns a 422 error code' do
             mock_ccg(scopes) do |auth_header|
-              data[:serviceOrganization][:poaCode] = individual_poa_code.to_s
+              data[:data][:attributes][:serviceOrganization][:poaCode] = individual_poa_code.to_s
 
               post appoint_organization_path, params: data, headers: auth_header
               expect(response.status).to eq(422)
