@@ -57,20 +57,16 @@ module ClaimsApi
         private
 
         def submit_power_of_attorney(poa_code)
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
-                                                                                          source_name:)
-          unless power_of_attorney&.status&.in?(%w[submitted pending])
-            attributes = {
-              status: ClaimsApi::PowerOfAttorney::PENDING,
-              auth_headers:,
-              form_data: form_attributes,
-              current_poa: current_poa_code,
-              header_md5:
-            }
-            attributes.merge!({ source_data: }) unless token.client_credentials_token?
+          attributes = {
+            status: ClaimsApi::PowerOfAttorney::PENDING,
+            auth_headers:,
+            form_data: form_attributes,
+            current_poa: current_poa_code,
+            header_md5:
+          }
+          attributes.merge!({ source_data: }) unless token.client_credentials_token?
 
-            power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
-          end
+          power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
 
@@ -132,6 +128,10 @@ module ClaimsApi
           }
         end
 
+        def enable_vbms_access?
+          params[:recordConsent] && params[:consentLimits].blank?
+        end
+
         def current_poa_code
           current_poa.try(:code)
         end
@@ -148,7 +148,7 @@ module ClaimsApi
         end
 
         def parse_and_validate_poa_code
-          poa_code = @json_body.dig('data', 'attributes', 'serviceOrganization', 'poaCode')
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
