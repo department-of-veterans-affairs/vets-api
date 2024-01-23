@@ -50,8 +50,8 @@ module MebApi
         end
 
         def update_dd_params(params, dd_params)
-          check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number).include?('*')
-
+          account_number = params.dig(:form, :direct_deposit, :direct_deposit_account_number)
+          check_masking = account_number && account_number.include?('*')
           if check_masking
             params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]
             params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]
