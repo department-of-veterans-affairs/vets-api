@@ -100,29 +100,29 @@ module EVSS
           begin
             submission.mark_birls_id_as_tried!
 
-            # send submission data to either EVSS or lighthouse
-            if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
-              # submit 526 through Lighthouse API
-              # 1. get user's ICN
-              user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                             Account.find_by(idme_uuid: submission.user_uuid)
-              icn = user_account.icn
-              # 2. transform submission data to Lighthouse format
-              transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-              body = transform_service.transform(submission.form['form526'])
-              # 3. send transformed submission data to Lighthouse endpoint
-              service = BenefitsClaims::Service.new(icn)
-              raw_response = service.submit526(body)
-              # 4. convert response from Lighthouse to a FormSubmitResponse for further processing (claim_id, status)
-              raw_response_struct = OpenStruct.new({
-                                                     body: { claim_id: raw_response.body },
-                                                     status: raw_response.status
-                                                   })
-              response = EVSS::DisabilityCompensationForm::FormSubmitResponse
-                         .new(raw_response_struct.status, raw_response_struct)
-            else
-              response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-            end
+            # send submission data to either EVSS or Lighthouse (LH)
+            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
+                         # submit 526 through LH API
+                         # 1. get user's ICN
+                         user_account = UserAccount.find_by(id: submission.user_account_id) ||
+                                        Account.find_by(idme_uuid: submission.user_uuid)
+                         icn = user_account.icn
+                         # 2. transform submission data to LH format
+                         transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+                         body = transform_service.transform(submission.form['form526'])
+                         # 3. send transformed submission data to LH endpoint
+                         service = BenefitsClaims::Service.new(icn)
+                         raw_response = service.submit526(body)
+                         # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
+                         raw_response_struct = OpenStruct.new({
+                                                                body: { claim_id: raw_response.body },
+                                                                status: raw_response.status
+                                                              })
+                         EVSS::DisabilityCompensationForm::FormSubmitResponse
+                           .new(raw_response_struct.status, raw_response_struct)
+                       else
+                         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+                       end
 
             response_handler(response)
           rescue => e
