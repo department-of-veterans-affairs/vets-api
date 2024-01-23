@@ -150,7 +150,7 @@ module CentralMail
           y: form_id == '686C-674' ? 675 : 775,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
-          page_number: from_id == '686C-674' ? 6 : 0,
+          page_number: form_id == '686C-674' ? 6 : 0,
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
