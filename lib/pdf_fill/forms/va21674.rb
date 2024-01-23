@@ -222,9 +222,11 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields(_options = {})
-        expand_signature(@form_data['veteran_information']['full_name'])
-
+      def merge_fields(options = {})
+        created_at = options[:created_at] if options[:created_at].present?
+        expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
+        @form_data['signature_date'] = split_date(@form_data['signatureDate'])
+        
         merge_veteran_helpers
         merge_student_helpers
         merge_address_helpers

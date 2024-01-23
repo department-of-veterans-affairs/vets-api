@@ -67,7 +67,7 @@ module CentralMail
 
     def get_files_from_claim
       # process the main pdf record and the attachments as we would for a vbms submission
-      form_674_path = process_pdf(claim.to_pdf(form_id: '21-674')) if claim.submittable_674?
+      form_674_path = process_pdf(claim.to_pdf(form_id: '21-674'), claim.created_at, '21-674') if claim.submittable_674?
       form_686c_path = process_pdf(claim.to_pdf(form_id: '686C-674'), claim.created_at, '686C-674') if claim.submittable_686? # rubocop:disable Layout/LineLength
       @form_path = form_686c_path || form_674_path
       @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
@@ -146,11 +146,11 @@ module CentralMail
       if form_id.present?
         CentralMail::DatestampPdf.new(stamped_path2).run(
           text: 'Application Submitted on va.gov',
-          x: 400,
-          y: 675,
+          x: form_id == '686C-674' ? 400 : 300,
+          y: form_id == '686C-674' ? 675 : 775,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
-          page_number: 6,
+          page_number: from_id == '686C-674' ? 6 : 0,
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )

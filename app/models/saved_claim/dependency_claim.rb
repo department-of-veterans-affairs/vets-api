@@ -38,7 +38,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    form_id == '686C-674' ? upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:) : upload_to_vbms(path: to_pdf(form_id:), doc_type:) # rubocop:disable Layout/LineLength
+    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)# rubocop:disable Layout/LineLength
     uploaded_forms << form_id
     save
   end
@@ -46,11 +46,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
     processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on va.gov',
-      x: 400,
-      y: 675,
+      x: form_id == '686C-674' ? 400 : 300,
+      y: form_id == '686C-674' ? 675 : 775,
       text_only: true, # passing as text only because we override how the date is stamped in this instance
       timestamp:,
-      page_number: 6,
+      page_number: form_id == '686C-674' ? 6 : 0,
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
