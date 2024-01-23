@@ -54,22 +54,13 @@ module BGS
       # absence of a BGS-established claim to identify cases where Form 686c-674
       # submission failed.
 
-      if Flipper.enabled?(:dependents_encrypt_jobs)
-        encrypted_vet_info = KmsEncrypted::Box.new.encrypt(form_hash_686c.to_json)
-        VBMS::SubmitDependentsPdfEncryptedJob.perform_async(
-          claim.id,
-          encrypted_vet_info,
-          claim.submittable_686?,
-          claim.submittable_674?
-        )
-      else
-        VBMS::SubmitDependentsPdfJob.perform_async(
-          claim.id,
-          form_hash_686c,
-          claim.submittable_686?,
-          claim.submittable_674?
-        )
-      end
+      encrypted_vet_info = KmsEncrypted::Box.new.encrypt(form_hash_686c.to_json)
+      submit_pdf_job_id = VBMS::SubmitDependentsPdfJob.perform_async(
+        claim.id,
+        encrypted_vet_info,
+        claim.submittable_686?,
+        claim.submittable_674?
+      )
 
       if claim.submittable_686? || claim.submittable_674?
         # Previously, we would wait until `BGS::Service#create_person`'s call to
@@ -81,32 +72,26 @@ module BGS
         # why I am deliberately raising these errors here.
         validate_file_number_format!(file_number:)
         validate_file_number_matches_ssn!(file_number:)
-        if claim.submittable_686?
-          if Flipper.enabled?(:dependents_encrypt_jobs)
-            BGS::SubmitForm686cEncryptedJob.perform_async(
-              uuid, @icn, claim.id, encrypted_vet_info
-            )
-          else
-            BGS::SubmitForm686cJob.perform_async(
-              uuid, @icn, claim.id, form_hash_686c
-            )
-          end
-        else
-          if Flipper.enabled?(:dependents_encrypt_jobs) # rubocop:disable Style/IfInsideElse
-            BGS::SubmitForm674EncryptedJob.perform_async(
-              uuid, @icn, claim.id, encrypted_vet_info
-            )
-          else
-            BGS::SubmitForm674Job.perform_async(
-              uuid, @icn, claim.id, form_hash_686c
-            )
-          end
-        end
+        submit_form_job_id = if claim.submittable_686?
+                               BGS::SubmitForm686cJob.perform_async(
+                                 uuid, @icn, claim.id, encrypted_vet_info
+                               )
+                             else
+                               BGS::SubmitForm674Job.perform_async(
+                                 uuid, @icn, claim.id, encrypted_vet_info
+                               )
+                             end
         Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
+
+      {
+        submit_pdf_job_id:,
+        submit_form_job_id:
+      }
     rescue => e
       Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      raise e
     end
     # rubocop:enable Metrics/MethodLength
 

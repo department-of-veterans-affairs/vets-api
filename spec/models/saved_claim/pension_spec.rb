@@ -8,8 +8,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
 
   let(:instance) { FactoryBot.build(:pension_claim) }
 
-  # TODO: re-enable this spec after schema changes are complete
-  # it_behaves_like 'saved_claim_with_confirmation_number'
+  it_behaves_like 'saved_claim_with_confirmation_number'
 
   context 'saved claims w/ attachments' do
     stub_virus_scan
@@ -21,12 +20,10 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
       FactoryBot.create(
         :pension_claim,
         form: {
-          privacyAgreementAccepted: true,
           veteranFullName: {
             first: 'Test',
             last: 'User'
           },
-          gender: 'F',
           email: 'foo@foo.com',
           veteranDateOfBirth: '1989-12-13',
           veteranSocialSecurityNumber: '111223333',

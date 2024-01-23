@@ -4,7 +4,7 @@ require 'claim_letters/claim_letter_downloader'
 
 module V0
   class ClaimLettersController < ApplicationController
-    Raven.tags_context(feature: 'claim-letters')
+    Sentry.set_tags(feature: 'claim-letters')
     service_tag 'claim-status'
 
     def index

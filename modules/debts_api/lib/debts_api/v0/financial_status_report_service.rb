@@ -176,7 +176,7 @@ module DebtsApi
         enabled_flags = []
       end
       debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
-      debt_type = debts&.pluck('debtType')&.first
+      debt_type = debts&.pick('debtType')
       {
         'combined' => form_builder.is_combined,
         'debt_amounts' => debt_amounts,
