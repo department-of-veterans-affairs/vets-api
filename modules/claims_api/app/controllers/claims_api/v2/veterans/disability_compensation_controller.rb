@@ -42,7 +42,7 @@ module ClaimsApi
           track_pact_counter auto_claim
 
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim)
+          process_claim(auto_claim) unless Flipper.enabled? :claims_load_testing
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             auto_claim, root: :data
