@@ -14,7 +14,7 @@ module MebApi
         STATSD_KEY_PREFIX = 'api.dgi.submission'
 
         def submit_claim(params, response_data)
-          unmasked_params = update_dd_params(params, response_data)
+          update_dd_params(params, response_data)
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
@@ -51,7 +51,7 @@ module MebApi
 
         def update_dd_params(params, dd_params)
           account_number = params.dig(:form, :direct_deposit, :direct_deposit_account_number)
-          check_masking = account_number && account_number.include?('*')
+          check_masking = account_number&.include?('*')
           if check_masking
             params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]
             params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]
