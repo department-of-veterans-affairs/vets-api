@@ -13,7 +13,7 @@ module ClaimsApi
 
       def sleep_interval
         randy = Random.new.rand(60..120)
-        interval = randy/1000
+        randy / 1000
       end
     end
   end
