@@ -17,7 +17,7 @@ module DebtsApi
           @old_rent_mortgage_attr = @form.dig('expenses', 'rentOrMortgage')
           @old_food_attr = @form.dig('expenses', 'food')
           @credit_card_bills = @form.dig('expenses', 'creditCardBills') || []
-          @other_expenses = @form['otherExpenses'].deep_dup
+          @other_expenses = @form['otherExpenses'].deep_dup || []
           @installment_contracts = @form['installmentContracts']
           @utility_records = @form['utilityRecords']
 
