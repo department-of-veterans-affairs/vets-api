@@ -7,7 +7,6 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class ExpenceCalculator
-
         def self.build(form)
           enhanced = form['view:enhancedFinancialStatusReport'] || false
           enhanced ? EnhancedExpenceCalculator.new(form) : OldExpenceCalculator.new(form)

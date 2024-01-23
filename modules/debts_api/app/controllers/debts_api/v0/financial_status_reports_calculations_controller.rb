@@ -6,7 +6,6 @@ require 'debts_api/v0/fsr_form_transform/expense_calculator'
 module DebtsApi
   module V0
     class FinancialStatusReportsCalculationsController < ApplicationController
-      
       def calculate_monthly_income(calculator, form_data)
         calculator.get_monthly_income(form_data)
       end
@@ -24,43 +23,42 @@ module DebtsApi
       # rubocop:disable Metrics/MethodLength
       def expense_form
         params.permit(
-          :"view:enhancedFinancialStatusReport",
+          :'view:enhancedFinancialStatusReport',
           expenses: [
             :food,
             :rentOrMortgage,
-            expenseRecords: [
-              :name,
-              :amount
-            ],
-            creditCardBills: [
-              :purpose,
-              :creditorName,
-              :originalAmount,
-              :unpaidBalance,
-              :amountDueMonthly,
-              :dateStarted,
-              :amountPastDue
-            ]
+            { expenseRecords: %i[
+                name
+                amount
+              ],
+              creditCardBills: %i[
+                purpose
+                creditorName
+                originalAmount
+                unpaidBalance
+                amountDueMonthly
+                dateStarted
+                amountPastDue
+              ] }
           ],
-          otherExpenses: [
-            :name,
-            :amount
+          otherExpenses: %i[
+            name
+            amount
           ],
-          installmentContracts: [
-            :creditorName,
-            :dateStarted,
-            :purpose,
-            :originalAmount,
-            :unpaid_balance,
-            :amountDueMonthly,
-            :amountPastDue
+          installmentContracts: %i[
+            creditorName
+            dateStarted
+            purpose
+            originalAmount
+            unpaid_balance
+            amountDueMonthly
+            amountPastDue
           ],
-          utilityRecords: [
-            :utilityType,
-            :amount,
-            :monthlyUtilityAmount
+          utilityRecords: %i[
+            utilityType
+            amount
+            monthlyUtilityAmount
           ]
-
         ).to_hash
       end
       # rubocop:enable Metrics/MethodLength

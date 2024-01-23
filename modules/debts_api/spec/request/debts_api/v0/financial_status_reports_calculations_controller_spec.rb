@@ -7,7 +7,6 @@ require 'rails_helper'
 # require 'support/financial_status_report_helpers'
 
 RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', type: :request do
-
   let(:user) { build(:user, :loa3) }
   let(:enhanced_expenses) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/enhanced_fsr_expenses')
@@ -17,35 +16,37 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
   end
 
   before do
-    sign_in_as(user)    
+    sign_in_as(user)
   end
 
   describe '#all_expenses' do
-    context 'with enhanced form params' do 
+    context 'with enhanced form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_all_expenses', params: enhanced_expenses.to_h, as: :json)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
-    context 'with old form params' do 
+
+    context 'with old form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_all_expenses', params: old_expenses.to_h, as: :json)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
   end
 
   describe '#monthly_expenses' do
-    context 'with enhanced form params' do 
+    context 'with enhanced form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_monthly_expenses', params: enhanced_expenses.to_h, as: :json)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
-    context 'with old form params' do 
+
+    context 'with old form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_monthly_expenses', params: old_expenses.to_h, as: :json)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
   end
