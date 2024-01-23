@@ -7,14 +7,14 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://va.gov/schema/esr/voa/v1"
-        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:retrieveFormSubmissionStatusRequest><ns1:formSubmissionId>377609264</ns1:formSubmissionId></ns1:retrieveFormSubmissionStatusRequest></soap:Body></soap:Envelope>
+        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:retrieveFormSubmissionStatusRequest><ns1:formSubmissionId>377609264</ns1:formSubmissionId></ns1:retrieveFormSubmissionStatusRequest></soap:Body></soap:Envelope>
     headers:
       User-Agent:
       - Faraday v0.9.2
       Date:
       - Mon, 12 Dec 2016 14:06:07 GMT
       Content-Length:
-      - '472'
+      - '517'
       Content-Type:
       - text/xml;charset=UTF-8
       Accept-Encoding:
