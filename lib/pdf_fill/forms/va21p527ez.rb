@@ -1393,6 +1393,7 @@ module PdfFill
             reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
             marriage.merge({ 'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
                              'reasonForSeparation' => reason_for_separation_lookup[reason_for_separation],
+                             'otherExplanation' => marriage['separationOtherExplanation'] || '',
                              'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
           end
         end
