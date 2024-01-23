@@ -7,13 +7,14 @@ module ClaimsApi
         class PoaSubmissionValidator < ActiveModel::Validator
           def validate(record)
             validate_poa_code(record)
-            validate_signatures(record)
+            # validate_signatures(record)
           end
 
           private
 
           def validate_poa_code(record)
-            value = record.data[:serviceOrganization] && record.data[:serviceOrganization][:poaCode]
+            value = record.data['data']['attributes']['representative'] &&
+                    record.data['data']['attributes']['representative']['poaCode']
             record.errors.add :poaCode, 'blank' if value.blank?
           end
 

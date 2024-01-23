@@ -69,6 +69,17 @@ module ClaimsApi
 
         private
 
+        def validate_2122a
+          target_veteran
+          validate_json_schema('2122a'.upcase)
+
+          poa_code = form_attributes.dig('representative', 'poaCode')
+          validate_individual_poa_code!(poa_code)
+          file_number_check(icn: params[:veteranId])
+
+          render json: validation_success
+        end
+
         def representative(poa_code)
           organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
           return format_organization(organization) if organization.present?
@@ -99,6 +110,25 @@ module ClaimsApi
             name: "#{representative.first_name} #{representative.last_name}",
             phone_number: representative.phone,
             type: 'individual'
+          }
+        end
+
+        def validate_individual_poa_code!(poa_code)
+          return if ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).any?
+
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+            detail: "Could not find an Accredited Representative with code: #{poa_code}"
+          )
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'form/21-22a/validation',
+              attributes: {
+                status: 'valid'
+              }
+            }
           }
         end
 
