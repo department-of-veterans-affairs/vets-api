@@ -11,8 +11,7 @@ module CentralMail
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.send(
-        :error,
+      Rails.logger.error(
         "Failed all retries on CentralMail::SubmitCareerCounselingJob, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
