@@ -98,7 +98,7 @@ RSpec.describe Login::UserVerifier do
           let(:verified_at) { Time.zone.now - 1.day }
 
           it 'does not make new user log to rails logger' do
-            expect(Rails.logger).not_to receive(:info).with(expected_log)
+            expect(Rails.logger).not_to receive(:info).with(expected_log, { icn: })
             subject
           end
 
@@ -247,7 +247,7 @@ RSpec.describe Login::UserVerifier do
           let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
 
           it 'makes a new user log to rails logger' do
-            expect(Rails.logger).to receive(:info).with(expected_log)
+            expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
             subject
           end
 
@@ -311,7 +311,7 @@ RSpec.describe Login::UserVerifier do
           end
 
           it 'does not make new user log to rails logger' do
-            expect(Rails.logger).not_to receive(:info).with(expected_log)
+            expect(Rails.logger).not_to receive(:info).with(expected_log, { icn: })
             subject
           end
 
@@ -339,7 +339,7 @@ RSpec.describe Login::UserVerifier do
 
         context 'and user_verification for user credential does not already exist' do
           it 'makes a new user log to rails logger' do
-            expect(Rails.logger).to receive(:info).with(expected_log)
+            expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
             subject
           end
 
