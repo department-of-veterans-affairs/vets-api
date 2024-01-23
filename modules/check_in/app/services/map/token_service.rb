@@ -4,10 +4,10 @@ require 'map/security_token/service'
 
 module Map
   ##
-  # A class to provide functionality related to MAP appointments service.
+  # A class to provide functionality to get token from MAP Secure Token Service
   #
-  class Service
-    attr_reader :patient_identifier, :query_params, :redis_client
+  class TokenService
+    attr_reader :patient_icn, :redis_client
 
     ##
     # Builds a Service instance
@@ -21,8 +21,7 @@ module Map
     end
 
     def initialize(opts = {})
-      @patient_identifier = opts[:patient_identifier]
-      @query_params = opts[:query_params]
+      @patient_icn = opts[:patient_icn]
       @redis_client = RedisClient.build
     end
 
@@ -35,15 +34,15 @@ module Map
     end
 
     def fetch_or_generate_token
-      token = redis_client.token(patient_identifier:)
+      token = redis_client.token(patient_icn:)
 
       return token if token.present?
 
       current_time = Time.zone.now
-      token_response = MAP::SecurityToken::Service.new.token(application: :check_in, icn: patient_identifier)
+      token_response = MAP::SecurityToken::Service.new.token(application: :check_in, icn: patient_icn)
 
       redis_client.save_token(
-        patient_identifier:,
+        patient_icn:,
         token: token_response[:access_token],
         expires_in: token_response[:expiration] - current_time
       )

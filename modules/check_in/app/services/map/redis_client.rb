@@ -6,16 +6,16 @@ module Map
       new
     end
 
-    def token(patient_identifier:)
+    def token(patient_icn:)
       Rails.cache.read(
-        patient_identifier,
+        patient_icn,
         namespace: 'check-in-map-token-cache'
       )
     end
 
-    def save_token(patient_identifier:, token:, expires_in:)
+    def save_token(patient_icn:, token:, expires_in:)
       Rails.cache.write(
-        patient_identifier,
+        patient_icn,
         token,
         namespace: 'check-in-map-token-cache',
         expires_in:
