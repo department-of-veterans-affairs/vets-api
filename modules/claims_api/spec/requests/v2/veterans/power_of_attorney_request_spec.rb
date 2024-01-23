@@ -8,9 +8,9 @@ require 'bgs_service/local_bgs'
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
-  let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-individual" }
+  let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:submit_2122a" }
   let(:appoint_organization_path) do
-    "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-organization"
+    "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:submit_2122"
   end
   let(:validate_2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }
   let(:scopes) { %w[system/claim.write] }

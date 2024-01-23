@@ -35,6 +35,8 @@ module ClaimsApi
         end
 
         def submit_2122a
+          shared_2122a_validation
+
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           if poa_code_in_organization?(poa_code)
@@ -69,27 +71,20 @@ module ClaimsApi
           )
         end
 
-        def validate2122a
-          target_veteran
-          validate_json_schema('2122a'.upcase)
-
-          poa_code = form_attributes.dig('representative', 'poaCode')
-          validate_individual_poa_code!(poa_code)
+        def validate_2122a
+          shared_2122a_validation
 
           render json: validation_success
         end
 
         private
 
-        def validate_2122a
+        def shared_2122a_validation
           target_veteran
           validate_json_schema('2122a'.upcase)
 
           poa_code = form_attributes.dig('representative', 'poaCode')
           validate_individual_poa_code!(poa_code)
-          file_number_check(icn: params[:veteranId])
-
-          render json: validation_success
         end
 
         def representative(poa_code)
@@ -164,7 +159,7 @@ module ClaimsApi
         end
 
         def parse_and_validate_poa_code
-          poa_code = params.dig('representative', 'poaCode')
+          poa_code = params&.dig('data', 'attributes', 'representative', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 

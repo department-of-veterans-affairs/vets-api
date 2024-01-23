@@ -9,6 +9,7 @@ module ClaimsApi
     module Veterans
       class Base < ClaimsApi::V2::ApplicationController
         include ClaimsApi::JsonFormatValidation
+        include ClaimsApi::CcgTokenValidation
 
         before_action :validate_json_format, if: -> { request.post? }
 
