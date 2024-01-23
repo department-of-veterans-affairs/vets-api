@@ -22,7 +22,7 @@ module ClaimsApi
           end
         end
 
-        def appoint_organization
+        def submit_2122 # rubocop:disable Naming/VariableNumber
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           unless poa_code_in_organization?(poa_code)
@@ -32,7 +32,7 @@ module ClaimsApi
           submit_power_of_attorney(poa_code)
         end
 
-        def appoint_individual
+        def submit_2122a
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           if poa_code_in_organization?(poa_code)
@@ -58,10 +58,6 @@ module ClaimsApi
             # use .create! so we don't need to check if it's persisted just to call save (compare w/ v1)
             power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
           end
-
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
-
-          ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id) if enable_vbms_access?
 
           # This builds the POA form *AND* uploads it to VBMS
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
@@ -126,7 +122,7 @@ module ClaimsApi
         end
 
         def parse_and_validate_poa_code
-          poa_code = params.dig('serviceOrganization', 'poaCode')
+          poa_code = params.dig('representative', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
