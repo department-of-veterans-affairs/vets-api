@@ -16,8 +16,7 @@ module ClaimsApi
         end
         before_action { permit_scopes %w[claim.write] if request.post? || request.put? }
         before_action except: %i[status active] do
-          request&.headers&.to_h.present?
-          @req_headers = request&.headers&.to_h
+          check_request_ssn_matches_mpi(request&.headers&.to_h) if header_request?
         end
         FORM_NUMBER = '2122'
 
@@ -31,7 +30,6 @@ module ClaimsApi
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           check_file_number_exists!
-          check_request_ssn_matches_mpi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
@@ -75,7 +73,6 @@ module ClaimsApi
           validate_documents_page_size
           find_poa_by_id
           check_file_number_exists!
-          check_request_ssn_matches_mpi
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
@@ -142,7 +139,6 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          check_request_ssn_matches_mpi
 
           render json: validation_success
         end
@@ -238,8 +234,8 @@ module ClaimsApi
           # rubocop:enable Rails/DynamicFindBy
         end
 
-        def check_request_ssn_matches_mpi
-          req_ssn = @req_headers['HTTP_X_VA_SSN']
+        def check_request_ssn_matches_mpi(req_headers)
+          req_ssn = req_headers['HTTP_X_VA_SSN']
           ssn = target_veteran.mpi.profile.ssn
           unless ssn == req_ssn && ssn.present?
             error_message = 'The SSN provided does not match Master Person Index (MPI). ' \
