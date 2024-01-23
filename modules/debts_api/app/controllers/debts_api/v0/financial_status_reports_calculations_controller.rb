@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'debts_api/v0/calculations/calculate_expenses'
-require 'debts_api/v0/calculations/calculate_income'
+require 'debts_api/v0/fsr_form_transform/income_calculator'
 
 module DebtsApi
   module V0

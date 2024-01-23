@@ -12,7 +12,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportsCalculationsController, type:
   end
 
   def populate_monthly_income
-   income_calculator = DebtsApi::V0::CalculateIncomeCalculations.new
+   income_calculator = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new
    calculations_controller = described_class.new
    @monthly_income = calculations_controller.calculate_monthly_income(income_calculator, valid_form_data["data"])
   end
