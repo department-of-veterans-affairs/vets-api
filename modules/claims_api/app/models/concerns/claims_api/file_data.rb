@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
-require 'claims_api/disability_compensation/mock_aws_service'
+require 'claims_api/v2/mock_aws_service'
 
 module ClaimsApi
   module FileData
