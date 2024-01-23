@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-# delete
-
 require 'rails_helper'
-# require_relative '../../../modules/debts_api/spec/support/stub_financial_status_report'
-# require 'support/financial_status_report_helpers'
 
 RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', type: :request do
   let(:user) { build(:user, :loa3) }
