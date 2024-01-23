@@ -3,13 +3,15 @@
 require 'bgs/power_of_attorney_verifier'
 require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
+require 'claims_api/v2/json_format_validation'
 
 module ClaimsApi
   module V2
     module Veterans
-      class PowerOfAttorneyController < ClaimsApi::V2::ApplicationController
+      class PowerOfAttorneyController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::PoaVerification
         include ClaimsApi::V2::Error::LighthouseErrorHandler
+        include ClaimsApi::V2::JsonFormatValidation
         FORM_NUMBER = '2122'
 
         def show
@@ -65,6 +67,16 @@ module ClaimsApi
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ code: poa_code })
           )
+        end
+
+        def validate2122a
+          target_veteran
+          validate_json_schema('2122a'.upcase)
+
+          poa_code = form_attributes.dig('representative', 'poaCode')
+          validate_individual_poa_code!(poa_code)
+
+          render json: validation_success
         end
 
         private
