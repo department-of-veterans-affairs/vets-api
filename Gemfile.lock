@@ -238,8 +238,8 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
-    bigdecimal (3.1.5)
-    bigdecimal (3.1.5-java)
+    bigdecimal (3.1.6)
+    bigdecimal (3.1.6-java)
     bindex (0.8.1)
     blueprinter (1.0.1)
     bootsnap (1.17.1)
@@ -282,7 +282,7 @@ GEM
       matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.2.3)
-    config (5.0.0)
+    config (5.1.0)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
     connection_pool (2.4.1)
