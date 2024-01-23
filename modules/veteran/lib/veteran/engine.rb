@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# require_relative '../../app/types/veteran/flag_type'
-
 module Veteran
   class Engine < ::Rails::Engine
     isolate_namespace Veteran
