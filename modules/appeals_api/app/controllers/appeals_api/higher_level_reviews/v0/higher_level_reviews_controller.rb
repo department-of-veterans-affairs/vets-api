@@ -33,6 +33,7 @@ module AppealsApi::HigherLevelReviews::V0
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
     end
 
+    # NOTE: index route is disabled until questions around claimant vs. veteran privacy are resolved
     def index
       render_higher_level_review(AppealsApi::HigherLevelReview.where(veteran_icn:).order(created_at: :desc))
     end

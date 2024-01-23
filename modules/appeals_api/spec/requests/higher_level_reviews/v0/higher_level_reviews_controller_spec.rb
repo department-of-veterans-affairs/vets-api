@@ -59,43 +59,6 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
     end
   end
 
-  describe '#index' do
-    let(:path) { base_path 'forms/200996' }
-    let(:other_icn) { '1111111111V111111' }
-    let(:params) { {} }
-
-    describe 'auth behavior' do
-      it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
-        def make_request(auth_header)
-          get(path, params: { icn: other_icn }, headers: auth_header)
-        end
-      end
-    end
-
-    describe 'responses' do
-      let(:scopes) { %w[veteran/HigherLevelReviews.read] }
-
-      before do
-        create(:higher_level_review_v0)
-        create(:higher_level_review_v0, veteran_icn: other_icn)
-
-        with_openid_auth(scopes) { |auth_header| get(path, params:, headers: auth_header) }
-      end
-
-      describe 'with system or representative scope' do
-        let(:scopes) { %w[system/HigherLevelReviews.read] }
-        let(:params) { { icn: other_icn } }
-
-        it 'lists basic information without PII for appeals belonging to the ICN given in the parameter' do
-          expect(response).to have_http_status(:ok)
-          listed_appeals = parsed_response['data']
-          expect(listed_appeals.count).to eq(1)
-          expect(listed_appeals.first['attributes'].keys).to eq(%w[status createDate updateDate])
-        end
-      end
-    end
-  end
-
   describe '#create' do
     let(:path) { base_path 'forms/200996' }
     let(:data) { default_data }

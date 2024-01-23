@@ -18,38 +18,6 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
   path '/forms/200996' do
-    get 'List Higher-Level Reviews' do
-      description 'Lists known Higher-Level Reviews for the given Veteran.'
-      tags 'Higher-Level Reviews'
-      operationId 'listHlr'
-      security DocHelpers.oauth_security_config(AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET])
-      produces 'application/json'
-
-      parameter(
-        parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
-          {
-            name: :icn,
-            in: :query,
-            description: "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
-            required: true
-          }
-        )
-      )
-
-      before { create(:higher_level_review_v0) }
-
-      response '200', 'Retrieve Higher-Level Reviews for a Veteran' do
-        let(:icn) { '1012667145V762142' }
-
-        it_behaves_like 'rswag example',
-                        desc: "with a veteran-scoped token (no 'icn' parameter necessary)",
-                        scopes: %w[system/HigherLevelReviews.read],
-                        response_wrapper: :normalize_appeal_response
-      end
-
-      it_behaves_like 'rswag 500 response'
-    end
-
     post 'Creates a new Higher-Level Review' do
       scopes = AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
       description 'Submits an appeal of type Higher Level Review. ' \
