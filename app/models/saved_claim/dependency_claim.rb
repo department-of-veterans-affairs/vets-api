@@ -38,7 +38,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)# rubocop:disable Layout/LineLength
+    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
   end
