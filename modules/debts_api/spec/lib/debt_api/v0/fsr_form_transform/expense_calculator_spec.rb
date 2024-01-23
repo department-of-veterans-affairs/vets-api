@@ -99,8 +99,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenceCalculator, type: :service
         calculated_expenses = calculator.get_all_expenses
         expect(calculated_expenses[:expensesInstallmentContractsAndOtherDebts]).to eq(12_000.64)
       end
-      # it '' do
-      # end
     end
   end
 end
