@@ -60,12 +60,11 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        log_validation_error_to_metadata(in_progress_form)
+        log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
-      use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
-      use_lighthouse ? claim.upload_to_lighthouse : claim.process_attachments!
+      claim.upload_to_lighthouse
 
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info("Submit #{claim.class::FORM} Success",
@@ -77,7 +76,7 @@ module V0
 
     private
 
-    def log_validation_error_to_metadata(in_progress_form)
+    def log_validation_error_to_metadata(in_progress_form, claim)
       return if in_progress_form.blank?
 
       metadata = in_progress_form.metadata
