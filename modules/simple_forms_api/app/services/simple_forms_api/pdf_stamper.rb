@@ -4,7 +4,7 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972].freeze
+    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972 10-7959A].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
     def self.stamp_pdf(stamped_template_path, form)
@@ -18,6 +18,30 @@ module SimpleFormsApi
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
       stamp(desired_stamps, stamped_template_path, text_only: false)
+    end
+
+    def self.stamp107959a(stamped_template_path, form)
+      stp = stamped_template_path # Shortened to not exceed below line length
+      stamp107959a_resubmission(stp, [341, 461], 'X') if form.data.dig('veteran', 'is_new_address')
+      stamp107959a_resubmission(stp, [235, 377], 'X') if form.data.dig('ohi_info', 'is_treatment_work_injury')
+      stamp107959a_resubmission(stp, [267, 377], 'X') unless form.data.dig('ohi_info', 'is_treatment_work_injury')
+      stamp107959a_resubmission(stp, [525, 377], 'X') if form.data.dig('ohi_info', 'is_treatement_non_work_injury')
+      stamp107959a_resubmission(stp, [556, 377], 'X') unless form.data.dig('ohi_info', 'is_treatement_non_work_injury')
+      stamp107959a_resubmission(stp, [38, 341.5], 'X') if form.data.dig('ohi_info', 'is_patient_covered')
+      stamp107959a_resubmission(stp, [313, 341.5], 'X') unless form.data.dig('ohi_info', 'is_patient_covered')
+      stamp107959a_resubmission(stp, [53, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'employer'
+      stamp107959a_resubmission(stp, [186.5, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'private'
+      stamp107959a_resubmission(stp, [283, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'medicare'
+      stamp107959a_resubmission(stp, [394, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'other'
+    end
+
+    def self.stamp107959a_resubmission(stamped_template_path, coordinates, text, font_size = 12)
+      page_configuration = [
+        { type: :text, position: coordinates },
+        { type: :new_page }
+      ]
+
+      multistamp(stamped_template_path, text, page_configuration, font_size)
     end
 
     def self.stamp264555(stamped_template_path, form)

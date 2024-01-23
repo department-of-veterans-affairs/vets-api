@@ -33,6 +33,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       end
     end
 
+    test_submit_request 'vha_10_7959a.json'
     test_submit_request 'vha_10_10d.json'
     test_submit_request 'vba_26_4555.json'
     test_submit_request 'vba_21_4142.json'
@@ -73,6 +74,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_saves_form_submission_attempt 'vba_40_0247.json'
     test_saves_form_submission_attempt 'vba_21_0966.json'
     test_saves_form_submission_attempt 'vba_20_10206.json'
+    test_saves_form_submission_attempt 'vha_10_7959a.json'
 
     describe 'request with intent to file unauthenticated' do
       let(:expiration_date) { Time.zone.now }

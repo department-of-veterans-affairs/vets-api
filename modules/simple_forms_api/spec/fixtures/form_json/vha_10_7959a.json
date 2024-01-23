@@ -1,0 +1,66 @@
+{
+    "form_number": "10-7959A",
+    "veteran": {
+      "date_of_birth": "1987-02-02",
+      "address": {
+        "country": "USA",
+        "street": "1 First Ln",
+        "city": "Place",
+        "state": "AL",
+        "postal_code": "12345"
+      },
+      "full_name": {
+        "first": "Veteran",
+        "middle": "B",
+        "last": "Surname"
+      },
+      "ssn_or_tin": "222554444",
+      "va_claim_number": "123456789",
+      "phone_number": "9876543213",
+      "is_new_address": true
+    },
+    "sponsor": {
+      "full_name": {
+        "first": "Sponsor",
+        "middle": "P",
+        "last": "Sponsor_Surname"
+      }
+    },
+    "ohi_info": {
+      "is_treatment_work_injury": false,
+      "is_treatement_non_work_injury": true,
+      "is_patient_covered": true,
+      "coverage_type": "other",
+      "coverage_type_other": "",
+      "insurances": [
+        {
+          "name": "OHI LLC",
+          "policy_number": "7777",
+          "phone_number": "215-345-2424"
+        },
+        {
+          "name": "OHI ORG",
+          "policy_number": "9999",
+          "phone_number": "668-123-4567"
+        }
+      ]
+    },
+    "claimant": {
+      "date_of_birth": "1986-03-03",
+      "full_name": {
+        "first": "Claimant",
+        "middle": "L",
+        "last": "Claimant_Surname"
+      },
+      "address": {
+        "country": "USA",
+        "street": "2 Second Ln",
+        "city": "Place Two",
+        "state": "PA",
+        "postal_code": "54321"
+      },
+      "phone_number": "2153555555",
+      "relationship_to_patient": "Mother",
+      "signature": "Claimant Signature"
+    }
+  }
