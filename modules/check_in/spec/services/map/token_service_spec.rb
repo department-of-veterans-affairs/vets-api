@@ -2,13 +2,13 @@
 
 require 'rails_helper'
 
-describe Map::Service do
+describe Map::TokenService do
   subject { described_class }
 
-  let(:patient_identifier) { '123' }
+  let(:patient_icn) { '123' }
   let(:opts) do
     {
-      patient_identifier:
+      patient_icn:
     }
   end
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
