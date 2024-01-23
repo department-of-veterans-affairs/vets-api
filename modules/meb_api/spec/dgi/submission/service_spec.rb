@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'dgi/submission/service'
 RSpec.describe MebApi::DGI::Submission::Service do
@@ -13,13 +14,6 @@ RSpec.describe MebApi::DGI::Submission::Service do
     end
   end
   let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:service) { MebApi::DGI::Submission::Service.new(user) }
-  let(:faraday_response) { double('faraday_connection') }
-  
-  before do
-    allow(faraday_response).to receive(:env)
-  end
-
   let(:claimant_params) do
     {
       form_id: 1,
@@ -82,6 +76,13 @@ RSpec.describe MebApi::DGI::Submission::Service do
     duplicated_params[:education_benefit][:direct_deposit][:routing_number] = '***5678'
     duplicated_params
   end
+  let(:service) { MebApi::DGI::Submission::Service.new(user) }
+  let(:faraday_response) { double('faraday_connection') }
+
+  before do
+    allow(faraday_response).to receive(:env)
+  end
+
   describe '#submit_claim' do
     context 'when successful' do
       it 'returns a status of 200' do
@@ -94,6 +95,7 @@ RSpec.describe MebApi::DGI::Submission::Service do
         end
       end
     end
+
     context 'with leading asterisks in account number' do
       it 'replaces asterisked account and routing numbers with real values' do
         VCR.use_cassette('dgi/submit_claim') do
