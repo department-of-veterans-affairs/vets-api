@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+# require_relative '../../app/types/veteran/flag_type'
+
 module Veteran
   class Engine < ::Rails::Engine
     isolate_namespace Veteran
+
+    config.autoload_paths += Dir[config.root.join('app', 'types', '**', '*.rb')]
 
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
