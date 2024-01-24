@@ -23,7 +23,7 @@ module SimpleFormsApi
         '40-0247' => 'vba_40_0247',
         '20-10206' => 'vba_20_10206',
         '10-7959A' => 'vha_10_7959a'
-    }.freeze
+      }.freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
