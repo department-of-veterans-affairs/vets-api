@@ -112,6 +112,13 @@ module ClaimsApi
                               api_version: 'V2',
                               level:)
       end
+
+      def validate_request_format
+        if params[:data].nil? || params[:data][:attributes].nil?
+          message = 'Request body is not in the correct format.'
+          raise ::Common::Exceptions::BadRequest.new(detail: message)
+        end
+      end
     end
   end
 end

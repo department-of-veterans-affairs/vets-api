@@ -10,7 +10,7 @@ module ClaimsApi
       class Base < ClaimsApi::V2::ApplicationController
         include ClaimsApi::JsonFormatValidation
 
-        before_action :validate_json_format, if: -> { request.post? }
+        before_action :validate_request_format, if: -> { request.post? }
 
         private
 
@@ -20,7 +20,7 @@ module ClaimsApi
         end
 
         def form_attributes
-          @json_body.dig('data', 'attributes') || {}
+          params.dig('data', 'attributes').as_json || {}
         end
       end
     end

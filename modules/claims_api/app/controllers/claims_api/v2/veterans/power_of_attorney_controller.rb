@@ -85,8 +85,9 @@ module ClaimsApi
 
         def shared_form_validation(form_number)
           target_veteran
-          validate_json_schema(form_number.upcase)
-          rep_or_org = form_number == '2122' ? 'serviceOrganization' : 'representative' 
+          form = form_number == '2122' ? '2122' : '2122a'
+          validate_json_schema(form.upcase)
+          rep_or_org = form_number == '2122' ? 'serviceOrganization' : 'representative'
           poa_code = form_attributes.dig(rep_or_org, 'poaCode')
           validate_individual_poa_code!(poa_code)
         end
@@ -164,6 +165,7 @@ module ClaimsApi
 
         def parse_and_validate_poa_code
           poa_code = form_attributes.dig('representative', 'poaCode')
+          debugger
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
