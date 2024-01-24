@@ -33,12 +33,12 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: dc1b6938a385f6ef2cf55b030ae94f06e08ccc9a
+  revision: a7fcba00a33624705f15d0a023c3d214f8e5957a
   specs:
-    bgs_ext (0.21.3)
+    bgs_ext (0.22.0)
       httpclient
       nokogiri (>= 1.13.6)
-      savon (= 2.12)
+      savon (~> 2.14.0)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
@@ -238,10 +238,10 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
-    bigdecimal (3.1.5)
-    bigdecimal (3.1.5-java)
+    bigdecimal (3.1.6)
+    bigdecimal (3.1.6-java)
     bindex (0.8.1)
-    blueprinter (0.30.0)
+    blueprinter (1.0.1)
     bootsnap (1.17.1)
       msgpack (~> 1.2)
     brakeman (6.1.1)
@@ -282,7 +282,7 @@ GEM
       matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.2.3)
-    config (5.0.0)
+    config (5.1.0)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
     connection_pool (2.4.1)
@@ -807,8 +807,8 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    restforce (7.0.0)
-      faraday (>= 1.1.0, < 2.8.0)
+    restforce (7.1.0)
+      faraday (>= 1.1.0, < 2.9.0)
       faraday-follow_redirects (<= 0.3.0, < 1.0.0)
       faraday-multipart (>= 1.0.0, < 2.0.0)
       faraday-net_http (< 4.0.0)
@@ -913,11 +913,12 @@ GEM
     sanitize (6.1.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    savon (2.12.0)
+    savon (2.14.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
-      httpi (~> 2.3)
+      httpi (>= 2.4.5)
+      mail (~> 2.5)
       nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
@@ -929,7 +930,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.15.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.15.2)
+    sentry-ruby (5.16.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
     shoulda-matchers (5.3.0)

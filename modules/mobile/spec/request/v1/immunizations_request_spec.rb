@@ -8,10 +8,13 @@ RSpec.describe 'immunizations', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '9000682') }
+  let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
 
   before do
-    allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:token).and_return('abc123')
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
+    allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:rsa_key).and_return(
+      OpenSSL::PKey::RSA.new(rsa_key.to_s)
+    )
   end
 
   after { Timecop.return }

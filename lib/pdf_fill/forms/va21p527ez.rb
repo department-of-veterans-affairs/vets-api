@@ -1294,11 +1294,11 @@ module PdfFill
       # SECTION IV: PENSION INFORMATION
       def expand_pension_information
         @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
-        @form_data['medicaidStatus'] = to_radio_yes_no(@form_data['medicaidStatus'])
-        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
-        @form_data['medicalCondition'] = to_radio_yes_no(
-          @form_data['medicalCondition'] || @form_data['medicaidCoverage']
+        @form_data['medicaidStatus'] = to_radio_yes_no(
+          @form_data['medicaidStatus'] || @form_data['medicaidCoverage']
         )
+        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
+        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
         @form_data['socialSecurityDisability'] = to_radio_yes_no(
           @form_data['socialSecurityDisability'] || @form_data['isOver65']
         )
@@ -1494,16 +1494,18 @@ module PdfFill
 
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
-          income_source.merge({
-                                'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
-                                'dependentName' => income_source['dependentName'],
-                                'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
-                                'typeOfIncomeOverflow' => income_source['typeOfIncome'],
-                                'amount' => split_currency_amount(income_source['amount']),
-                                'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
-                                  income_source['amount']
-                                )
-                              })
+          income_source_hash = {
+            'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
+            'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
+            'typeOfIncomeOverflow' => income_source['typeOfIncome'],
+            'amount' => split_currency_amount(income_source['amount']),
+            'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
+          }
+          if income_source['dependentName'].present?
+            income_source_hash['dependentName'] =
+              income_source['dependentName']
+          end
+          income_source.merge(income_source_hash)
         end
       end
 
