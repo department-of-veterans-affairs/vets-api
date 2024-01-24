@@ -30,17 +30,11 @@ module V0
               state:,
               benefits_intake_uuid: form_submission.benefits_intake_uuid,
               form_type: form_submission.form_type,
-              attempt: {
-                id: submission_attempt.id,
-                aasm_state: submission_attempt.aasm_state,
-                response: submission_attempt.response,
-                error_message: submission_attempt.error_message,
-              },
+              attempt_id: submission_attempt.id,
+              aasm_state: submission_attempt.aasm_state,
             },
           }
         }
-
-        puts response
       end
 
       render(json: response)
