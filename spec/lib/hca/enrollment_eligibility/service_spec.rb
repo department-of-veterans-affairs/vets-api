@@ -66,6 +66,25 @@ describe HCA::EnrollmentEligibility::Service do
     end
   end
 
+  describe '#parse_es_date' do
+    context 'with an invalid date' do
+      it 'returns nil and logs the date' do
+        service = described_class.new
+        expect(service).to receive(:log_exception_to_sentry).with(instance_of(Date::Error))
+
+        expect(
+          service.send(:parse_es_date, 'f')
+        ).to eq(
+          nil
+        )
+
+        expect(
+          PersonalInformationLog.where(error_class: "Form1010Ezr DateError").last.data
+        ).to eq('f')
+      end
+    end
+  end
+
   describe '#lookup_user' do
     context 'with a user that has an ineligibility_reason' do
       it 'gets the ineligibility_reason', run_at: 'Wed, 13 Feb 2019 09:20:47 GMT' do
