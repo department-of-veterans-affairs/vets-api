@@ -79,7 +79,7 @@ describe HCA::EnrollmentEligibility::Service do
         )
 
         expect(
-          PersonalInformationLog.where(error_class: "Form1010Ezr DateError").last.data
+          PersonalInformationLog.where(error_class: 'Form1010Ezr DateError').last.data
         ).to eq('f')
       end
     end
