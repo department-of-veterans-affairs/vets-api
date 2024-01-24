@@ -12,6 +12,7 @@ module V0
       SavedClaim::Pension
     end
 
+    # rubocop:disable Metrics/MethodLength
     def show
       claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
 
@@ -31,14 +32,15 @@ module V0
               benefits_intake_uuid: form_submission.benefits_intake_uuid,
               form_type: form_submission.form_type,
               attempt_id: submission_attempt.id,
-              aasm_state: submission_attempt.aasm_state,
-            },
+              aasm_state: submission_attempt.aasm_state
+            }
           }
         }
       end
 
       render(json: response)
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
