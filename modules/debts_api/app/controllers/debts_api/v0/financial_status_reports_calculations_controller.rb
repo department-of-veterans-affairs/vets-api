@@ -6,6 +6,8 @@ require 'debts_api/v0/fsr_form_transform/expense_calculator'
 module DebtsApi
   module V0
     class FinancialStatusReportsCalculationsController < ApplicationController
+      service_tag 'financial-report'
+
       def monthly_income
         render json: income_calculator.get_monthly_income
       end
