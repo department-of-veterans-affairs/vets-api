@@ -4,40 +4,51 @@
 module DocHelpers
   NORMALIZED_DATE = '2020-01-02T03:04:05.067Z'
 
-  def normalize_created_at_updated_at(data)
-    if data.dig(:data, :attributes, :updatedAt).present?
-      data[:data][:attributes][:updatedAt] = NORMALIZED_DATE
-    elsif data.dig(:data, :attributes, :updateDate).present?
-      data[:data][:attributes][:updateDate] = NORMALIZED_DATE
+  def normalize_timestamp_attrs(attrs)
+    if attrs[:updatedAt].present?
+      attrs[:updatedAt] = NORMALIZED_DATE
+    elsif attrs[:updateDate].present?
+      attrs[:updateDate] = NORMALIZED_DATE
     end
 
-    if data.dig(:data, :attributes, :createdAt).present?
-      data[:data][:attributes][:createdAt] = NORMALIZED_DATE
-    elsif data.dig(:data, :attributes, :createDate).present?
-      data[:data][:attributes][:createDate] = NORMALIZED_DATE
+    if attrs[:createdAt].present?
+      attrs[:createdAt] = NORMALIZED_DATE
+    elsif attrs[:createDate].present?
+      attrs[:createDate] = NORMALIZED_DATE
     end
 
-    data
+    attrs
+  end
+
+  def normalize_appeal_data(appeal_data)
+    appeal_data[:id] = '00000000-1111-2222-3333-444444444444'
+    appeal_data[:attributes] = normalize_timestamp_attrs(appeal_data[:attributes])
+    appeal_data
   end
 
   # Makes UUIDs and timestamps constant, to reduce cognitive overhead when working with rswag output files
   def normalize_appeal_response(response)
-    data = JSON.parse(response.body, symbolize_names: true)
-    return data unless data[:data]
+    body = JSON.parse(response.body, symbolize_names: true)
+    return body unless body[:data]
 
-    data[:data][:id] = '00000000-1111-2222-3333-444444444444'
+    body[:data] = if body[:data].is_a?(Array)
+                    body[:data].map { |appeal_data| normalize_appeal_data(appeal_data) }
+                  else
+                    normalize_appeal_data(body[:data])
+                  end
 
-    normalize_created_at_updated_at(data)
+    body
   end
 
   def normalize_evidence_submission_response(response)
-    data = JSON.parse(response.body, symbolize_names: true)
-    return data unless data.dig(:data, :attributes, :appealId)
+    body = JSON.parse(response.body, symbolize_names: true)
+    return body unless body.dig(:data, :attributes, :appealId)
 
-    data[:data][:id] = '55555555-6666-7777-8888-999999999999'
-    data[:data][:attributes][:appealId] = '00000000-1111-2222-3333-444444444444'
+    body[:data][:id] = '55555555-6666-7777-8888-999999999999'
+    body[:data][:attributes] = normalize_timestamp_attrs(body[:data][:attributes])
+    body[:data][:attributes][:appealId] = '00000000-1111-2222-3333-444444444444'
 
-    normalize_created_at_updated_at(data)
+    body
   end
 
   def raw_body(response)

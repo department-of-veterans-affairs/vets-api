@@ -128,7 +128,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://va.gov/schema/esr/voa/v1"
-        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
+        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
         xmlns:va="http://va.gov/schema/esr/voa/v1"><va:formIdentifier><va:type>101</va:type><va:value>1010EZR</va:value><va:version>2986360436</va:version></va:formIdentifier><va:summary><eeSummary:associations
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:association><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>MEX</eeSummary:country><eeSummary:line1>7321
         SW 7th St</eeSummary:line1><eeSummary:provinceCode>CHIH.</eeSummary:provinceCode><eeSummary:postalCode>21534</eeSummary:postalCode></eeSummary:address><eeSummary:contactType>10</eeSummary:contactType><eeSummary:relationship>SPOUSE</eeSummary:relationship><eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName><eeSummary:middleName>MIDDLESPOUSE</eeSummary:middleName><eeSummary:familyName>LASTSPOUSE</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:association></eeSummary:associations><eeSummary:demographics
@@ -156,7 +156,7 @@ http_interactions:
       Date:
       - Tue, 21 Nov 2023 22:29:52 GMT
       Content-Length:
-      - '8855'
+      - '8810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
