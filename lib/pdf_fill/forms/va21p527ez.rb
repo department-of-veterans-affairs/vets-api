@@ -1557,7 +1557,7 @@ module PdfFill
             'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
             'typeOfIncomeOverflow' => income_source['typeOfIncome'],
             'amount' => split_currency_amount(income_source['amount']),
-            'amountOverflow' => number_to_currency(income_source['amount'])
+            'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
           }
           if income_source['dependentName'].present?
             income_source_hash['dependentName'] =
