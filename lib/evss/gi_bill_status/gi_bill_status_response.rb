@@ -96,7 +96,7 @@ module EVSS
           instance_variables_to_inspect = instance_variables - [:@response]
           instance_variables_to_inspect.map do |var|
             "#{var}=#{instance_variable_get(var).inspect}"
-          end.join(", ")
+          end.join(', ')
         else
           super()
         end
