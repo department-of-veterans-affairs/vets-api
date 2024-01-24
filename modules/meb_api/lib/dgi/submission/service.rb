@@ -13,13 +13,16 @@ module MebApi
         configuration MebApi::DGI::Submission::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-        def submit_claim(params, response_data)
-          update_dd_params(params, response_data)
+        def submit_claim(params, response_data = nil)
+          if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ) && !Rails.env.development?
+          update_dd_params(params, response_data) if response_data.present?
+        end
+
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
             response = perform(:post, end_point, format_params(params), headers, options)
-
+            
             MebApi::DGI::Submission::SubmissionResponse.new(response.status, response)
           end
         end

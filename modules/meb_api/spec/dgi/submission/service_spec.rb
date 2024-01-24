@@ -52,9 +52,9 @@ RSpec.describe MebApi::DGI::Submission::Service do
         disagree_with_service_period: false
       },
       direct_deposit: {
-        account_number: '123123123123',
-        account_type: 'savings',
-        routing_number: '123123123'
+        account_number: '123456789',
+        account_type: 'Checking',
+        routing_number: '987654321'
       }
     }
   end

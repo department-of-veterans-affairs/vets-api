@@ -57,19 +57,18 @@ module MebApi
       end
 
       def submit_claim
-        if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user)
+        response_data = nil
+        if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
           begin
-            payment_service.get_ch33_dd_eft_info
-            rescute => e
-            Rails.logger.error('BGS service error: ', e)
+            response_data = payment_service.get_ch33_dd_eft_info
+          rescute => e
+            Rails.logger.error("BGS service error: #{e}")
             head :internal_server_error
             return
           end
-        else
-          payment_service.get_ch33_dd_eft_info
         end
 
-        response = submission_service.submit_claim(params[:education_benefit].except(:form_id))
+        response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
