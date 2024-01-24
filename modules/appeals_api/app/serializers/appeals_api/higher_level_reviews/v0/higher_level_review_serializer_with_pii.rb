@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppealsApi::HigherLevelReviews::V0
-  class HigherLevelReviewSerializer
+  class HigherLevelReviewSerializerWithPii
     include JSONAPI::Serializer
     set_key_transform :camel_lower
     set_type :higherLevelReview
@@ -11,5 +11,7 @@ module AppealsApi::HigherLevelReviews::V0
     # These names are required by Lighthouse standards
     attribute :createDate, &:created_at
     attribute :updateDate, &:updated_at
+    # Only return form_data for created records
+    attribute :form_data, if: proc { |record| record.saved_change_to_id? }
   end
 end
