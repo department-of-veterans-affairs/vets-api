@@ -20,6 +20,7 @@ module V0
 
     def show
       claim = service.get_claim(params[:id])
+      claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
       # We want to log some details about claim type patterns to track in DataDog
       claim_info = claim['data']['attributes']
