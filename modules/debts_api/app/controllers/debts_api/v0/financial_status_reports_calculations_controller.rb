@@ -6,8 +6,8 @@ require 'debts_api/v0/fsr_form_transform/expense_calculator'
 module DebtsApi
   module V0
     class FinancialStatusReportsCalculationsController < ApplicationController
-      def calculate_monthly_income(calculator, form_data)
-        calculator.get_monthly_income(form_data)
+      def monthly_income
+        render json: income_calculator.get_monthly_income
       end
 
       def monthly_expenses
@@ -21,6 +21,104 @@ module DebtsApi
       private
 
       # rubocop:disable Metrics/MethodLength
+      def income_form
+        params.require(:data).permit(
+          :'view:enhancedFinancialStatusReport',
+          additionalIncome: [
+            {
+              addlIncRecords: %i[
+                name
+                amount
+              ]
+            },
+            {
+              spouse: %i[
+                spAddlIncome
+              ]
+            }
+          ],
+          benefits: {
+            spouseBenefits: %i[
+              compensationAndPension
+              education
+            ]
+          },
+          currEmployment: [
+            :veteranGrossSalary,
+            {
+              deductions: %i[
+                name
+                amount
+              ]
+            },
+            :name,
+            :amount,
+            :type,
+            :from,
+            :to,
+            :isCurrent,
+            :employerName
+          ],
+          income: %i[
+            veteranOrSpouse
+            compensationAndPension
+            education
+          ],
+          personalData: {
+            employmentHistory: {
+              veteran: {
+                employmentRecords: [
+                  :type,
+                  :from,
+                  :to,
+                  :isCurrent,
+                  :employerName,
+                  :grossMonthlyIncome,
+                  {
+                    deductions: %i[name amount]
+                  }
+                ]
+              },
+              spouse: {
+                spEmploymentRecords: [
+                  :type,
+                  :from,
+                  :to,
+                  :isCurrent,
+                  :employerName,
+                  :grossMonthlyIncome,
+                  {
+                    deductions: %i[name amount]
+                  }
+                ]
+              }
+            }
+          },
+          spCurrEmployment: [
+            :spouseGrossSalary,
+            {
+              deductions: %i[
+                name
+                amount
+              ]
+            },
+            :name,
+            :amount,
+            :type,
+            :from,
+            :to,
+            :isCurrent,
+            :employerName
+          ],
+          socialSecurity: [
+            :socialSecAmt,
+            { spouse: [
+              :socialSecAmt
+            ] }
+          ]
+        ).to_hash
+      end
+
       def expense_form
         params.permit(
           :'view:enhancedFinancialStatusReport',
@@ -62,6 +160,10 @@ module DebtsApi
         ).to_hash
       end
       # rubocop:enable Metrics/MethodLength
+
+      def income_calculator
+        DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(income_form)
+      end
 
       def expense_calculator
         DebtsApi::V0::FsrFormTransform::ExpenceCalculator.build(expense_form)

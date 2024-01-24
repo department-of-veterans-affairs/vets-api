@@ -129,6 +129,12 @@
         }
       ]
     },
+    "socialSecurity": {
+      "spouse": {
+        "socialSecAmt": "0"
+      },
+      "socialSecAmt": "0"
+    },
     "benefits": {
       "spouseBenefits": {
         "compensationAndPension": "1000.09",
@@ -1285,6 +1291,56 @@
       "deductionCode": "",
       "originalAr": 0
     },
+    "currEmployment": [
+      {
+        "veteranGrossSalary": "0",
+        "deductions": [
+          {
+            "name": "Federal tax",
+            "amount": "0"
+          },
+          {
+            "name": "State tax",
+            "amount": "0"
+          },
+          {
+            "name": "Pension",
+            "amount": "0"
+          },
+          {
+            "name": "Health insurance",
+            "amount": "0"
+          }
+        ],
+        "type": "Full time",
+        "from": "2017-1-XX",
+        "to": "",
+        "isCurrent": true,
+        "employerName": "Veteran Current One"
+      },
+      {
+        "veteranGrossSalary": "0",
+        "deductions": [
+          {
+            "name": "Federal tax",
+            "amount": "0"
+          },
+          {
+            "name": "Allotment",
+            "amount": "0"
+          },
+          {
+            "name": "FICA (Social Security and Medicare)",
+            "amount": "0"
+          }
+        ],
+        "type": "Part time",
+        "from": "2019-7-XX",
+        "to": "",
+        "isCurrent": true,
+        "employerName": "Veteran Current Two"
+      }
+    ],
     "spCurrEmployment": [
       {
         "spouseGrossSalary": "4000.45",
