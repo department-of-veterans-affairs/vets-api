@@ -107,7 +107,7 @@ module DebtsApi
           benefit_types.push('Disability Compensation') if compensation
           benefit_types.push('Education') if education
 
-          vet_addl_names = addl_inc&.map { |item| item['name'] } || []
+          vet_addl_names = addl_inc&.pluck('name') || []
           other_inc_names = [*benefit_types, *vet_addl_names]
 
           other_inc_names&.join(', ') || ''
@@ -203,3 +203,5 @@ module DebtsApi
     end
   end
 end
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/ParameterLists

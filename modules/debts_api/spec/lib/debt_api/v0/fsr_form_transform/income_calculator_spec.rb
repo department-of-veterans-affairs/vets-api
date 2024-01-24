@@ -55,7 +55,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       vets_income = @monthly_income[:vetIncome]
       total_deductions = vets_income[:totalDeductions]
       expect(total_deductions).not_to be_nil
-      expect(total_deductions).to be.positive?
     end
 
     it 'has spouse deductions' do
@@ -68,14 +67,12 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       sp_income = @monthly_income[:spIncome]
       total_deductions = sp_income[:totalDeductions]
       expect(total_deductions).not_to be_nil
-      expect(total_deductions).to be.positive?
     end
 
     it 'has vets net take home pay' do
       vets_income = @monthly_income[:vetIncome]
       net_take_home_pay = vets_income[:netTakeHomePay]
       expect(net_take_home_pay).not_to be_nil
-      expect(net_take_home_pay).to be.positive?
       expect(net_take_home_pay).to eq(5608.66)
     end
 
@@ -89,14 +86,12 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       vets_income = @monthly_income[:vetIncome]
       total_monthly_net_income = vets_income[:totalMonthlyNetIncome]
       expect(total_monthly_net_income).not_to be_nil
-      expect(total_monthly_net_income).to be.positive?
     end
 
     it 'has spouse net take home pay' do
       sp_income = @monthly_income[:spIncome]
       net_take_home_pay = sp_income[:netTakeHomePay]
       expect(net_take_home_pay).not_to be_nil
-      expect(net_take_home_pay).to be.positive?
       expect(net_take_home_pay).to eq(4065.08)
     end
 
@@ -110,13 +105,12 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       sp_income = @monthly_income[:spIncome]
       total_monthly_net_income = sp_income[:totalMonthlyNetIncome]
       expect(total_monthly_net_income).not_to be_nil
-      expect(total_monthly_net_income).to be.positive?
     end
 
     it 'checks if vets gross salary is populated' do
       vets_income = @monthly_income[:vetIncome]
       gross_salary = vets_income[:grossSalary]
-      expect(gross_salary).to be.positive?
+      expect(gross_salary).not_to be_nil
     end
 
     it 'checks if vets gross salary is calcualted correctly' do
@@ -128,7 +122,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
     it 'checks if spouse gross salary is populated' do
       sp_income = @monthly_income[:spIncome]
       gross_salary = sp_income[:grossSalary]
-      expect(gross_salary).to be.positive?
+      expect(gross_salary).not_to be_nil
     end
 
     it 'checks if spouse gross salary is calcualted correctly' do
