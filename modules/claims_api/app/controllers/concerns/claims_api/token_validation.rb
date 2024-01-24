@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rest-client'
 require 'mpi/responses/find_profile_response'
 require 'mpi/service'
 
