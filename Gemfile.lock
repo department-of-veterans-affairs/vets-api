@@ -702,7 +702,7 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.5.4)
-    pg_query (4.2.3)
+    pg_query (5.1.0)
       google-protobuf (>= 3.22.3)
     pg_search (2.3.6)
       activerecord (>= 5.2)
