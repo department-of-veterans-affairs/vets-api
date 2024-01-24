@@ -91,7 +91,8 @@ module Sidekiq
           exception_raised = true
           raise
         ensure
-          job_success unless exception_raised
+          job_status = Form526JobStatus.find_by(job_id: jid)
+          job_success unless exception_raised || job_status&.error_class
         end
       end
 
