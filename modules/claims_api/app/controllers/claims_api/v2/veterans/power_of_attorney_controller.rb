@@ -31,7 +31,7 @@ module ClaimsApi
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an organization.')
           end
 
-          submit_power_of_attorney(poa_code)
+          submit_power_of_attorney(poa_code, 'submit_2122')
         end
 
         def submit_2122a
@@ -43,7 +43,7 @@ module ClaimsApi
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
           end
 
-          submit_power_of_attorney(poa_code)
+          submit_power_of_attorney(poa_code, 'submit_2122a')
         end
 
         def validate_2122a
@@ -54,7 +54,7 @@ module ClaimsApi
 
         private
 
-        def submit_power_of_attorney(poa_code)
+        def submit_power_of_attorney(poa_code, action)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers:,
@@ -72,6 +72,8 @@ module ClaimsApi
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
             root: :data
+          ), status: :accepted, location: url_for(
+            controller: 'power_of_attorney', action:, id: power_of_attorney.id
           )
         end
 
@@ -155,7 +157,7 @@ module ClaimsApi
         end
 
         def parse_and_validate_poa_code
-          poa_code = params&.dig('data', 'attributes', 'representative', 'poaCode')
+          poa_code = form_attributes.dig('representative', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
