@@ -22,7 +22,7 @@
     "birthdate": {
       "type": "string",
       "example": "1967-06-19",
-      "description": "Date of birth of Veteran being represented, in iso8601 format"
+      "description": "Date of birth of Veteran being represented, in ISO8601 format"
     }
   }
 }

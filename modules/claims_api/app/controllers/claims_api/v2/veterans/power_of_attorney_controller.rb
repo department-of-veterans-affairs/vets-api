@@ -2,21 +2,26 @@
 
 require 'bgs/power_of_attorney_verifier'
 require 'claims_api/v2/params_validation/power_of_attorney'
+require 'claims_api/v2/error/lighthouse_error_handler'
+require 'claims_api/v2/json_format_validation'
 
 module ClaimsApi
   module V2
     module Veterans
-      class PowerOfAttorneyController < ClaimsApi::V2::ApplicationController
+      class PowerOfAttorneyController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::PoaVerification
+        include ClaimsApi::V2::Error::LighthouseErrorHandler
+        include ClaimsApi::V2::JsonFormatValidation
         FORM_NUMBER = '2122'
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
-          head(:no_content) && return if poa_code.blank?
-
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
-            representative(poa_code).merge({ code: poa_code })
-          )
+          data = poa_code.blank? ? {} : representative(poa_code).merge({ code: poa_code })
+          if poa_code.blank?
+            render json: { data: }
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
+          end
         end
 
         def appoint_organization
@@ -68,27 +73,67 @@ module ClaimsApi
           )
         end
 
+        def validate2122a
+          target_veteran
+          validate_json_schema('2122a'.upcase)
+
+          poa_code = form_attributes.dig('representative', 'poaCode')
+          validate_individual_poa_code!(poa_code)
+
+          render json: validation_success
+        end
+
         private
 
         def representative(poa_code)
           organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
-          if organization.present?
-            return {
-              name: organization.name,
-              phone_number: organization.phone,
-              type: 'organization'
-            }
-          end
+          return format_organization(organization) if organization.present?
 
-          individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code)
-          raise 'Ambiguous representative results' if individuals.count > 1
+          individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)',
+                                                                 poa_code).order(created_at: :desc)
           return {} if individuals.blank?
 
-          individual = individuals.first
+          if individuals.pluck(:representative_id).uniq.count > 1
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: "Could not retrieve Power of Attorney due to multiple representatives with code: #{poa_code}"
+            )
+          end
+
+          format_representative(individuals.first)
+        end
+
+        def format_organization(organization)
           {
-            name: "#{individual.first_name} #{individual.last_name}",
-            phone_number: individual.phone,
+            name: organization.name,
+            phone_number: organization.phone,
+            type: 'organization'
+          }
+        end
+
+        def format_representative(representative)
+          {
+            name: "#{representative.first_name} #{representative.last_name}",
+            phone_number: representative.phone,
             type: 'individual'
+          }
+        end
+
+        def validate_individual_poa_code!(poa_code)
+          return if ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).any?
+
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+            detail: "Could not find an Accredited Representative with code: #{poa_code}"
+          )
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'form/21-22a/validation',
+              attributes: {
+                status: 'valid'
+              }
+            }
           }
         end
 

@@ -69,7 +69,7 @@
                                 "informalConference": false,
                                 "benefitType": "lifeInsurance",
                                 "veteran": {
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "ssn": "123456789",
                                   "firstName": "Jane",
                                   "lastName": "Doe",
@@ -113,7 +113,7 @@
                               "attributes": {
                                 "benefitType": "education",
                                 "veteran": {
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "ssn": "123456789",
                                   "firstName": "Jäñe",
                                   "middleInitial": "ø",
@@ -384,7 +384,7 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jane",
                           "lastName": "Doe",
@@ -417,7 +417,7 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
@@ -691,10 +691,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Higher-Level Review with uuid invalid not found",
                       "code": "404",
-                      "detail": "HigherLevelReview with uuid invalid not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -800,10 +800,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Higher-Level Review with uuid 44444444-5555-6666-7777-888888888888 not found",
                       "code": "404",
-                      "detail": "HigherLevelReview with uuid 44444444-5555-6666-7777-888888888888 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -2059,6 +2059,19 @@
                             "ROC",
                             "ROK",
                             "Singapore",
+                            "SystemV/AST4",
+                            "SystemV/AST4ADT",
+                            "SystemV/CST6",
+                            "SystemV/CST6CDT",
+                            "SystemV/EST5",
+                            "SystemV/EST5EDT",
+                            "SystemV/HST10",
+                            "SystemV/MST7",
+                            "SystemV/MST7MDT",
+                            "SystemV/PST8",
+                            "SystemV/PST8PDT",
+                            "SystemV/YST9",
+                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2326,7 +2339,7 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jane",
                           "lastName": "Doe",
@@ -2359,7 +2372,7 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
@@ -3864,6 +3877,19 @@
           "ROC",
           "ROK",
           "Singapore",
+          "SystemV/AST4",
+          "SystemV/AST4ADT",
+          "SystemV/CST6",
+          "SystemV/CST6CDT",
+          "SystemV/EST5",
+          "SystemV/EST5EDT",
+          "SystemV/HST10",
+          "SystemV/MST7",
+          "SystemV/MST7MDT",
+          "SystemV/PST8",
+          "SystemV/PST8PDT",
+          "SystemV/YST9",
+          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",

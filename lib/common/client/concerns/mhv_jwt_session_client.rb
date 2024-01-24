@@ -77,9 +77,9 @@ module Common
         end
 
         def get_session_tagged
-          Raven.tags_context(error: 'mhv_session')
+          Sentry.set_tags(error: 'mhv_session')
           env = perform(:post, '/mhvapi/security/v1/login', auth_body, auth_headers)
-          Raven.context.tags.delete(:error)
+          Sentry.get_current_scope.tags.delete(:error)
           env
         end
 

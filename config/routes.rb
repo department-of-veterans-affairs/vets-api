@@ -73,6 +73,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :letters_discrepancy, only: [:index]
+
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
@@ -169,6 +171,8 @@ Rails.application.routes.draw do
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
       get 'claim/:id', to: 'virtual_agent_claim#show'
+      get 'claims', to: 'virtual_agent_claim_status#index'
+      get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
     resources :virtual_agent_claim, only: %i[index]
@@ -340,6 +344,10 @@ Rails.application.routes.draw do
       resource :preferred_names, only: :update
     end
 
+    get '/account_controls/credential_index', to: 'account_controls#credential_index'
+    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
+    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
+
     resources :search, only: :index
     resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
@@ -459,6 +467,7 @@ Rails.application.routes.draw do
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
+  mount TravelPay::Engine, at: '/travel_pay'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   # End Modules
@@ -482,8 +491,7 @@ Rails.application.routes.draw do
   get '/flipper/features/logout', to: 'flipper#logout'
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
 
-  if Rails.env.production?
-    require 'coverband'
+  unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
 

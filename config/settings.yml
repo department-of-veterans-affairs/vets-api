@@ -701,6 +701,10 @@ connected_apps_api:
     api_key: ~
     revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
 
+authorization_server_scopes_api:
+  auth_server:
+    url: https://sandbox-api.va.gov/internal/auth/v2/server
+
 redis:
   host: localhost
   port: 6379
@@ -829,29 +833,9 @@ reports:
       - adam.freemer@accenturefederal.com
 
 oidc:
-  auth_server_metadata_url: ~
-  issuer: ~
-  issuer_prefix: ~
-  audience: ~
   isolated_audience:
     default: ~
-    veteran_verification: ~
     claims: ~
-  charon:
-    endpoint: ~
-    audience: ~
-  base_api_url: https://example.com
-  base_api_token: ~
-  base_api_profile_key_icn: false
-  smart_launch_url: ~
-  issued_url: ~
-  issuers:
-    - prefix: "https://example.com/"
-      metadata: "/.well-known/openid-configuration"
-      proxy: "https://example.com/"
-  opaque_clients:
-    - route: ~
-      client_id: ~
 
 sentry:
   dsn: ~
@@ -1346,7 +1330,7 @@ vanotify:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  drupal_url: https://fake-url.com
   # A notification for when a forms url has changed
   slack:
     enabled: false
@@ -1686,3 +1670,25 @@ brd:
 
 xlsx_file_fetcher:
   github_access_token: ~
+
+vye:
+  ivr_key: ~
+  # The scrypt hash below contains keyword arguments that are passed wholesale to OpenSSL::KDF::scrypt:
+  #
+  # | Key  | Description                                          |
+  # | ---- | ---------------------------------------------------- |
+  # | salt | Salt                                                 |
+  # | N    | CPU/memory cost parameter. This must be a power of 2 |
+  # | r    | Block size parameter                                 |
+  # | p    | Parallelization parameter                            |
+  #
+  # See OpenSSL documentation for more information:
+  #   https://ruby-doc.org/core-3.1.2/OpenSSL/KDF.html#method-c-scrypt
+  # See OWASP Cheat Sheet Series for more information about the best configuration for production:
+  #   https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt
+  scrypt:
+    salt: ~
+    N: 16384
+    r: 8
+    p: 1
+    length: 16
