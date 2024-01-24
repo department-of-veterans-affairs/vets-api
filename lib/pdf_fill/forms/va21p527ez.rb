@@ -11,6 +11,7 @@ module PdfFill
     class Va21p527ez < FormBase
       include FormHelper
       include FormHelper::PhoneNumberFormatting
+      include ActiveSupport::NumberHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
@@ -745,9 +746,13 @@ module PdfFill
             'last' => {
               limit: 18,
               question_num: 8,
-              question_text: 'CUSTODIAN\'S LAST NAME',
+              question_text: 'CHILD\'S LAST NAME',
               key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
             }
+          },
+          'fullNameOverflow' => {
+            question_num: 8,
+            question_text: 'CHILD\'S NAME'
           },
           'childDateOfBirth' => {
             'month' => {
@@ -833,7 +838,9 @@ module PdfFill
           key: 'form1[0].#subform[51].RadioButtonList[20]'
         },
         # 8r
-        'custodian' => {
+        'custodians' => {
+          limit: 1,
+          first_key: 'first',
           'first' => {
             limit: 12,
             question_num: 8,
@@ -850,9 +857,12 @@ module PdfFill
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
-          }
-        },
-        'custodianAddress' => {
+          },
+          'fullNameOverflow' => {
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S NAME'
+          },
           'street' => {
             limit: 30,
             question_num: 8,
@@ -875,18 +885,34 @@ module PdfFill
             key: 'form1[0].#subform[51].City[2]'
           },
           'state' => {
+            question_num: 8,
+            question_suffix: 'R',
             key: 'form1[0].#subform[51].State_Or_Province[1]'
           },
           'country' => {
+            question_num: 8,
+            question_suffix: 'R',
             key: 'form1[0].#subform[51].Country[2]'
           },
           'postalCode' => {
+            question_num: 8,
+            question_suffix: 'R',
             'firstFive' => {
               key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
             },
             'lastFour' => {
               key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
             }
+          },
+          'addressOverflow' => {
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS'
+          },
+          'dependentsWithCustodianOverflow' => {
+            question_num: 8,
+            question_suffix: 'R',
+            question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
           }
         },
         # 9a
@@ -1402,10 +1428,8 @@ module PdfFill
       def expand_prior_marital_history
         %w[marriages spouseMarriages].each do |key|
           @form_data[key] = @form_data[key]&.map do |marriage|
-            spouse_full_name = marriage.spouse_full_name
             reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
-            marriage.merge({ 'spouseFullNameOverflow' =>
-                               "#{spouse_full_name.first} #{spouse_full_name.middle} #{spouse_full_name.last}",
+            marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
                              'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
                              'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
                              'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
@@ -1425,27 +1449,47 @@ module PdfFill
         @form_data['dependents'] = @form_data['dependents']&.map { |dependent| dependent_to_hash(dependent) }
         # 8Q Do all children not living with you reside at the same address?
         custodian_addresses = {}
-        dependents_not_in_household = @form_data['dependents']&.reject do |dependent|
-          dependent['childInHousehold']
-        end || []
+        dependents_not_in_household = @form_data['dependents']&.reject { |dep| dep['childInHousehold'] } || []
         dependents_not_in_household.each do |dependent|
           custodian_key = dependent['personWhoLivesWithChild'].values.join('_')
-          custodian_hash = {
-            'custodian' => dependent['personWhoLivesWithChild'],
-            'custodianAddress' => dependent['childAddress']
-                           .merge({ 'postalCode' => split_postal_code(dependent['childAddress']) })
-          }
-          custodian_addresses[custodian_key] = custodian_hash if custodian_addresses[custodian_key].nil?
+          if custodian_addresses[custodian_key].nil?
+            custodian_addresses[custodian_key] = build_custodian_hash_from_dependent(dependent)
+          else
+            custodian_addresses[custodian_key]['dependentsWithCustodianOverflow'] +=
+              ", #{dependent['fullName'].values.join(' ')}"
+          end
         end
         if custodian_addresses.any?
           @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
         end
-        @form_data['custodian'] = custodian_addresses.values.first&.dig('custodian') || {}
-        @form_data['custodianAddress'] = custodian_addresses.values.first&.dig('custodianAddress') || {}
+        @form_data['custodians'] = custodian_addresses.values
+      end
+
+      def build_custodian_hash_from_dependent(dependent)
+        dependent['personWhoLivesWithChild']
+          .merge(dependent['childAddress'])
+          .merge({
+                   'fullNameOverflow' => dependent['personWhoLivesWithChild'].values.join(' '),
+                   'addressOverflow' => build_address_string(dependent['childAddress']),
+                   'postalCode' => split_postal_code(dependent['childAddress']),
+                   'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
+                 })
+      end
+
+      def build_address_string(address)
+        return '' if address.blank?
+
+        country = address['country'].present? ? "#{address['country']}, " : ''
+        address_arr = [
+          (address['street']).to_s, address['street2'].presence,
+          "#{address['city']}, #{address['state']}, #{country}#{address['postalCode']}"
+        ].compact
+
+        address_arr.join("\n")
       end
 
       def select_children_in_household(dependents)
-        return '0' unless dependents&.any?
+        return unless dependents&.any?
 
         dependents.select do |dependent|
           dependent['childInHousehold']
@@ -1462,26 +1506,26 @@ module PdfFill
       end
 
       def dependent_to_hash(dependent)
-        dependent.merge({
-                          'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
-                          'childDateOfBirthOverflow' => dependent['childDateOfBirth'],
-                          'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
-                          'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
-                          'childRelationship' => {
-                            'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
-                            'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
-                            'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
-                          },
-                          'disabled' => to_checkbox_on_off(dependent['disabled']),
-                          'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
-                          'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
-                          'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
-                          'childStatusOverflow' => child_status_overflow(dependent).join(', '),
-                          'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
-                          'monthlyPaymentOverflow' => ActiveSupport::NumberHelper.number_to_currency(
-                            dependent['monthlyPayment']
-                          )
-                        })
+        dependent
+          .merge({
+                   'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
+                   'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
+                   'childDateOfBirthOverflow' => dependent['childDateOfBirth'],
+                   'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
+                   'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
+                   'childRelationship' => {
+                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
+                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
+                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
+                   },
+                   'disabled' => to_checkbox_on_off(dependent['disabled']),
+                   'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
+                   'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
+                   'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                   'childStatusOverflow' => child_status_overflow(dependent).join(', '),
+                   'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
+                   'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
+                 })
       end
 
       # SECTION IX: INCOME AND ASSETS
@@ -1513,7 +1557,7 @@ module PdfFill
             'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
             'typeOfIncomeOverflow' => income_source['typeOfIncome'],
             'amount' => split_currency_amount(income_source['amount']),
-            'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
+            'amountOverflow' => number_to_currency(income_source['amount'])
           }
           if income_source['dependentName'].present?
             income_source_hash['dependentName'] =
@@ -1544,7 +1588,7 @@ module PdfFill
           'careType' => CARE_TYPES[care_expense['careType']],
           'careTypeOverflow' => care_expense['careType']&.humanize,
           'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
-          'ratePerHourOverflow' => ActiveSupport::NumberHelper.number_to_currency(care_expense['ratePerHour']),
+          'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
           'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
           'careDateRange' => {
             'from' => split_date(care_expense.dig('careDateRange', 'from')),
@@ -1555,7 +1599,7 @@ module PdfFill
           'paymentFrequency' => PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
           'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
           'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
-          'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(care_expense['paymentAmount'])
+          'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
         }
       end
 
@@ -1569,7 +1613,7 @@ module PdfFill
                                   'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
                                   'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
                                   'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
-                                  'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
+                                  'paymentAmountOverflow' => number_to_currency(
                                     medical_expense['paymentAmount']
                                   )
                                 })
@@ -1609,7 +1653,7 @@ module PdfFill
           3 => 'three'
         }
 
-        arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
+        arr = number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
         split_hash = { 'part_cents' => arr.last }
         arr.pop
         arr.each_with_index { |x, i| split_hash["part_#{number_map[arr.length - i]}"] = x }
