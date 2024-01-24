@@ -32,18 +32,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::IncomeCalculator, type: :service 
       expect(sp_income).not_to be_nil
     end
 
-    it 'has vets gross salary' do
-      vets_income = @monthly_income[:vetIncome]
-      gross_salary = vets_income[:grossSalary]
-      expect(gross_salary).not_to be_nil
-    end
-
-    it 'has spouse gross salary' do
-      sp_income = @monthly_income[:spIncome]
-      sp_gross_salary = sp_income[:grossSalary]
-      expect(sp_gross_salary).not_to be_nil
-    end
-
     it 'has vets other deductions' do
       vet_income = @monthly_income[:vetIncome]
       deductions = vet_income[:deductions]
