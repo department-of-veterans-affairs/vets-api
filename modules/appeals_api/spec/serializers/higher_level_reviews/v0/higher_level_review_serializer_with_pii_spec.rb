@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewSerializer do
+describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewSerializerWithPii do
   let(:higher_level_review) { create(:higher_level_review_v0) }
   let(:rendered_hash) { described_class.new(higher_level_review).serializable_hash }
 
@@ -16,7 +16,8 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewSerializer do
           attributes: {
             status: higher_level_review.status,
             createDate: higher_level_review.created_at,
-            updateDate: higher_level_review.updated_at
+            updateDate: higher_level_review.updated_at,
+            formData: higher_level_review.form_data
           }
         }
       }
@@ -38,6 +39,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewSerializer do
             attributes: {
               createDate: higher_level_review.created_at,
               updateDate: higher_level_review.updated_at,
+              formData: higher_level_review.form_data,
               status:,
               code:,
               detail:
