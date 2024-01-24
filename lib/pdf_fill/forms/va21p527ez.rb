@@ -45,6 +45,12 @@ module PdfFill
         'ONE_TIME' => 2
       }.freeze
 
+      REASONS_FOR_SEPARATION = {
+        'death' => 0,
+        'divorce' => 1,
+        'other' => 2
+      }.freeze
+
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -554,35 +560,40 @@ module PdfFill
         'marriages' => {
           limit: 2,
           first_key: 'otherExplanation',
-          question_num: 7,
+          question_num: 7.1,
           'spouseFullName' => {
             'first' => {
               limit: 12,
-              question_num: 7,
+              question_num: 7.1,
               question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 7,
+              question_num: 7.1,
               question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 7,
+              question_num: 7.1,
               question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
+          },
+          'spouseFullNameOverflow' => {
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: 'WHO WERE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
             key: "Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
           },
           'otherExplanation' => {
             limit: 43,
-            question_num: 7,
+            question_num: 7.1,
             question_suffix: '[Veteran]',
             question_text: 'HOW DID YOUR PREVIOUS MARRIAGE END?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
@@ -611,14 +622,14 @@ module PdfFill
           },
           'locationOfMarriage' => {
             limit: 63,
-            question_num: 7,
+            question_num: 7.1,
             question_suffix: '[Veteran]',
             question_text: 'PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
-            question_num: 7,
+            question_num: 7.1,
             question_suffix: '[Veteran]',
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
@@ -630,31 +641,36 @@ module PdfFill
           'spouseFullName' => {
             'first' => {
               limit: 12,
-              question_num: 7,
+              question_num: 7.2,
               question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 7,
+              question_num: 7.2,
               question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 7,
+              question_num: 7.2,
               question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
             }
+          },
+          'spouseFullNameOverflow' => {
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: 'WHO WERE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
             key: "Spouse_Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
           },
           'otherExplanation' => {
             limit: 43,
-            question_num: 7,
+            question_num: 7.2,
             question_suffix: '[Spouse]',
             question_text: 'HOW DID THE PREVIOUS MARRIAGE END?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
@@ -683,14 +699,14 @@ module PdfFill
           },
           'locationOfMarriage' => {
             limit: 63,
-            question_num: 7,
+            question_num: 7.2,
             question_suffix: '[Spouse]',
             question_text: 'PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
-            question_num: 7,
+            question_num: 7.2,
             question_suffix: '[Spouse]',
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
@@ -1384,16 +1400,14 @@ module PdfFill
 
       # SECTION VII: PRIOR MARITAL HISTORY
       def expand_prior_marital_history
-        reason_for_separation_lookup = {
-          'death' => 0,
-          'divorce' => 1,
-          'other' => 2
-        }
         %w[marriages spouseMarriages].each do |key|
           @form_data[key] = @form_data[key]&.map do |marriage|
+            spouse_full_name = marriage.spouse_full_name
             reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
-            marriage.merge({ 'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
-                             'reasonForSeparation' => reason_for_separation_lookup[reason_for_separation],
+            marriage.merge({ 'spouseFullNameOverflow' =>
+                               "#{spouse_full_name.first} #{spouse_full_name.middle} #{spouse_full_name.last}",
+                             'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                             'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
                              'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
           end
         end
