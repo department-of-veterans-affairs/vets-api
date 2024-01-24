@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe EVSS::Response do
+describe EVSS::GiBillStatus::GiBillStatusResponse do
   describe '#inspect' do
     context 'when the feature flag is on' do 
       before do
