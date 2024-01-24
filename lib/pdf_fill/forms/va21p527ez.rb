@@ -987,31 +987,31 @@ module PdfFill
             key: "Care_Expenses.Recipient[#{ITERATOR}]"
           },
           'recipientsOverflow' => {
-            question_num: 10,
-            question_suffix: '(1)',
+            question_num: 10.1,
+            question_suffix: '[Care](1)',
             question_text: 'CARE EXPENSE RECIPIENT'
           },
           'childName' => {
             key: "Care_Expenses.Child_Specify[#{ITERATOR}]",
             limit: 45,
-            question_num: 10,
-            question_suffix: '(1)',
+            question_num: 10.1,
+            question_suffix: '[Care](1)',
             question_text: 'CARE EXPENSE CHILD NAME'
           },
           # (2) Provider
           'provider' => {
             key: "Care_Expenses.Name_Of_Provider[#{ITERATOR}]",
             limit: 70,
-            question_num: 10,
-            question_suffix: '(2)',
+            question_num: 10.1,
+            question_suffix: '[Care](2)',
             question_text: 'CARE EXPENSE PROVIDER NAME'
           },
           'careType' => {
             key: "Care_Expenses.Care_Type[#{ITERATOR}]"
           },
           'careTypeOverflow' => {
-            question_num: 10,
-            question_suffix: '(2)',
+            question_num: 10.1,
+            question_suffix: '[Care](2)',
             question_text: 'CARE TYPE'
           },
           # (3) Rate Per Hour
@@ -1024,14 +1024,14 @@ module PdfFill
             }
           },
           'ratePerHourOverflow' => {
-            question_num: 10,
-            question_suffix: '(3)',
+            question_num: 10.1,
+            question_suffix: '[Care](3)',
             question_text: 'CARE EXPENSE RATE PER HOUR'
           },
           'hoursPerWeek' => {
             limit: 3,
-            question_num: 10,
-            question_suffix: '(3)',
+            question_num: 10.1,
+            question_suffix: '[Care](3)',
             question_text: 'HOURS PER WEEK CARE RECEIVED',
             key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
           },
@@ -1061,8 +1061,8 @@ module PdfFill
             }
           },
           'careDateRangeOverflow' => {
-            question_num: 10,
-            question_suffix: '(4)',
+            question_num: 10.1,
+            question_suffix: '[Care](4)',
             question_text: 'DATE RANGE CARE RECEIVED'
           },
           'noCareEndDate' => {
@@ -1073,8 +1073,8 @@ module PdfFill
             key: "Care_Expenses.Payment_Frequency[#{ITERATOR}]"
           },
           'paymentFrequencyOverflow' => {
-            question_num: 10,
-            question_suffix: '(5)',
+            question_num: 10.1,
+            question_suffix: '[Care](5)',
             question_text: 'CARE EXPENSE PAYMENT FREQUENCY'
           },
           # (6) Rate Per Frequency
@@ -1090,8 +1090,8 @@ module PdfFill
             }
           },
           'paymentAmountOverflow' => {
-            question_num: 10,
-            question_suffix: '(6)',
+            question_num: 10.1,
+            question_suffix: '[Care](6)',
             question_text: 'CARE EXPENSE PAYMENT AMOUNT'
           }
         },
@@ -1104,31 +1104,31 @@ module PdfFill
             key: "Med_Expenses.Recipient[#{ITERATOR}]"
           },
           'recipientsOverflow' => {
-            question_num: 9,
-            question_suffix: '(1)',
+            question_num: 10.2,
+            question_suffix: '[Medical](1)',
             question_text: 'MEDICAL EXPENSE RECIPIENT'
           },
           'childName' => {
             key: "Med_Expenses.Child_Specify[#{ITERATOR}]",
             limit: 45,
-            question_num: 10,
-            question_suffix: '(1)',
+            question_num: 10.2,
+            question_suffix: '[Medical](1)',
             question_text: 'MEDICAL EXPENSE CHILD NAME'
           },
           # (2) Provider
           'provider' => {
             key: "Med_Expenses.Paid_To[#{ITERATOR}]",
             limit: 108,
-            question_num: 10,
-            question_suffix: '(2)',
+            question_num: 10.2,
+            question_suffix: '[Medical](2)',
             question_text: 'MEDICAL EXPENSE PROVIDER NAME'
           },
           # (3) Purpose
           'purpose' => {
             key: "Med_Expenses.Purpose[#{ITERATOR}]",
             limit: 108,
-            question_num: 10,
-            question_suffix: '(3)',
+            question_num: 10.2,
+            question_suffix: '[Medical](3)',
             question_text: 'MEDICAL EXPENSE PURPOSE'
           },
           # (4) Payment Date
@@ -1144,8 +1144,8 @@ module PdfFill
             }
           },
           'paymentDateOverflow' => {
-            question_num: 10,
-            question_suffix: '(4)',
+            question_num: 10.2,
+            question_suffix: '[Medical](4)',
             question_text: 'MEDICAL EXPENSE PAYMENT DATE'
           },
           # (5) Payment Frequency
@@ -1153,8 +1153,8 @@ module PdfFill
             key: "Med_Expenses.Payment_Frequency[#{ITERATOR}]"
           },
           'paymentFrequencyOverflow' => {
-            question_num: 10,
-            question_suffix: '(5)',
+            question_num: 10.2,
+            question_suffix: '[Medical](5)',
             question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY'
           },
           # (6) Rate Per Frequency
@@ -1171,8 +1171,8 @@ module PdfFill
             }
           },
           'paymentAmountOverflow' => {
-            question_num: 10,
-            question_suffix: '(6)',
+            question_num: 10.2,
+            question_suffix: '[Medical](6)',
             question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT'
           }
         },
