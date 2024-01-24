@@ -35,6 +35,16 @@ module ClaimsApi
           submit_power_of_attorney(poa_code)
         end
 
+        def validate2122
+          target_veteran
+          validate_json_schema
+
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_individual_poa_code!(poa_code)
+
+          render json: validation_success('21-22')
+        end
+
         def validate2122a
           target_veteran
           validate_json_schema('2122a'.upcase)
@@ -42,7 +52,7 @@ module ClaimsApi
           poa_code = form_attributes.dig('representative', 'poaCode')
           validate_individual_poa_code!(poa_code)
 
-          render json: validation_success
+          render json: validation_success('21-22a')
         end
 
         def appoint_individual
@@ -117,10 +127,10 @@ module ClaimsApi
           )
         end
 
-        def validation_success
+        def validation_success(form_number)
           {
             data: {
-              type: 'form/21-22a/validation',
+              type: "form/#{form_number}/validation",
               attributes: {
                 status: 'valid'
               }
