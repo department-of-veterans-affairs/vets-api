@@ -24,7 +24,7 @@ module ClaimsApi
           end
         end
 
-        def submit_2122 # rubocop:disable Naming/VariableNumber
+        def submit2122
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           unless poa_code_in_organization?(poa_code)
@@ -34,8 +34,8 @@ module ClaimsApi
           submit_power_of_attorney(poa_code, 'submit_2122')
         end
 
-        def submit_2122a
-          shared_2122a_validation('representative')
+        def submit2122a
+          shared_form_validation('2122a')
 
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
@@ -43,11 +43,17 @@ module ClaimsApi
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
           end
 
-          submit_power_of_attorney(poa_code, 'submit_2122a')
+          submit_power_of_attorney(poa_code, 'submit2122a')
         end
 
-        def validate_2122a
-          shared_2122a_validation('representative')
+        def validate2122a
+          shared_form_validation('2122a')
+
+          render json: validation_success
+        end
+
+        def validate2122
+          shared_form_validation('2122')
 
           render json: validation_success
         end
@@ -77,10 +83,10 @@ module ClaimsApi
           )
         end
 
-        def shared_2122a_validation(rep_or_org)
+        def shared_form_validation(form_number)
           target_veteran
-          validate_json_schema('2122a'.upcase)
-
+          validate_json_schema(form_number.upcase)
+          rep_or_org = form_number == '2122' ? 'serviceOrganization' : 'representative' 
           poa_code = form_attributes.dig(rep_or_org, 'poaCode')
           validate_individual_poa_code!(poa_code)
         end
