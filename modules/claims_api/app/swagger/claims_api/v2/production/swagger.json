@@ -3866,7 +3866,8 @@
                             "state": "OR",
                             "country": "USA",
                             "zipFirstFive": "12345"
-                          }
+                          },
+                          "currentVaEmployee": false
                         },
                         "disabilities": [
                           {
@@ -5716,7 +5717,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f0268ae1-9e5b-4286-9148-d3e5061cdfa5",
+                    "id": "c3a1b3fe-a9ad-40fd-8455-a40155bbd1f4",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6409,8 +6410,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-23",
-                      "expirationDate": "2025-01-23",
+                      "creationDate": "2024-01-25",
+                      "expirationDate": "2025-01-25",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -7134,7 +7135,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:85:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:97:in `representative'"
                       }
                     }
                   ]

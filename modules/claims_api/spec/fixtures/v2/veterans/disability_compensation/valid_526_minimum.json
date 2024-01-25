@@ -10,7 +10,8 @@
             "state":"OR",
             "country":"USA",
             "zipFirstFive":"12345"
-          }
+          },
+          "currentVaEmployee": false
         },
         "disabilities":[
           {
