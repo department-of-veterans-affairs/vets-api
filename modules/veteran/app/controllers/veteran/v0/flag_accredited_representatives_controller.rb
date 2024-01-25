@@ -9,20 +9,23 @@ module Veteran
       before_action :feature_enabled
 
       def create
-        flags = params[:flags].map do |flag_data|
-          FlaggedVeteranRepresentativeContactData.new(
-            flag_data.permit(:flag_type, :flagged_value).merge(
-              ip_address: request.remote_ip,
-              representative_id: params[:representative_id]
+        FlaggedVeteranRepresentativeContactData.transaction do
+          flags = params[:flags].map do |flag_data|
+            FlaggedVeteranRepresentativeContactData.new(
+              flag_data.permit(:flag_type, :flagged_value).merge(
+                ip_address: request.remote_ip,
+                representative_id: params[:representative_id]
+              )
             )
-          )
-        end
+          end
 
-        saved_flags = flags.select(&:save)
-
-        if saved_flags.length == flags.length
-          render json: saved_flags, status: :created
-        else
+          if flags.all?(&:valid?)
+            flags.each(&:save!)
+            render json: flags, status: :created
+          else
+            raise ActiveRecord::Rollback, 'Invalid flags present'
+          end
+        rescue ActiveRecord::Rollback
           render json: { errors: flags.map(&:errors).reject(&:empty?) }, status: :unprocessable_entity
         end
       rescue ArgumentError => e
