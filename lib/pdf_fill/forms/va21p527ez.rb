@@ -47,6 +47,12 @@ module PdfFill
       }.freeze
 
       REASONS_FOR_SEPARATION = {
+        'spouse’s death' => 0,
+        'divorce' => 1,
+        'other' => 2
+      }.freeze
+
+      SPOUSES_REASONS_FOR_SEPARATION = {
         'death' => 0,
         'divorce' => 1,
         'other' => 2
@@ -861,46 +867,53 @@ module PdfFill
             question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
           },
-          'street' => {
-            limit: 30,
-            question_num: 8.2,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
-            key: 'form1[0].#subform[51].NumberStreet[3]'
-          },
-          'street2' => {
-            limit: 5,
-            question_num: 8.2,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
-            key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
-          },
-          'city' => {
-            limit: 18,
-            question_num: 8.2,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS CITY',
-            key: 'form1[0].#subform[51].City[2]'
-          },
-          'state' => {
-            question_num: 8.2,
-            question_suffix: 'R',
-            key: 'form1[0].#subform[51].State_Or_Province[1]'
-          },
-          'country' => {
-            question_num: 8.2,
-            question_suffix: 'R',
-            key: 'form1[0].#subform[51].Country[2]'
-          },
-          'postalCode' => {
-            question_num: 8.2,
-            question_suffix: 'R',
-            'firstFive' => {
-              key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+          'custodianAddress' => {
+            'street' => {
+              limit: 30,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
+              key: 'form1[0].#subform[51].NumberStreet[3]'
             },
-            'lastFour' => {
-              key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+            'street2' => {
+              limit: 5,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
+              key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
+            },
+            'city' => {
+              limit: 18,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS CITY',
+              key: 'form1[0].#subform[51].City[2]'
+            },
+            'state' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              key: 'form1[0].#subform[51].State_Or_Province[1]'
+            },
+            'country' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              key: 'form1[0].#subform[51].Country[2]'
+            },
+            'postalCode' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              'firstFive' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+              },
+              'lastFour' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+              }
             }
+          },
+          'custodianAddressOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS'
           },
           'dependentsWithCustodianOverflow' => {
             question_num: 8.2,
@@ -959,6 +972,12 @@ module PdfFill
           # (1) Recipient
           'receiver' => {
             key: "Income_Recipient[#{ITERATOR}]"
+          },
+          'receiverOverflow' => {
+            key: "Income_Recipient[#{ITERATOR}]",
+            question_num: 9,
+            question_suffix: '(1)',
+            question_text: 'PAYMENT RECIPIENT'
           },
           'dependentName' => {
             key: "Income_Recipient_Child[#{ITERATOR}]",
@@ -1419,14 +1438,19 @@ module PdfFill
 
       # SECTION VII: PRIOR MARITAL HISTORY
       def expand_prior_marital_history
-        %w[marriages spouseMarriages].each do |key|
-          @form_data[key] = @form_data[key]&.map do |marriage|
-            reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
-            marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
-                             'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
-                             'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
-                             'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
-          end
+        @form_data['marriages'] = @form_data['marriages']&.map do |marriage|
+          reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                           'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
+                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
+        end
+        @form_data['spouseMarriages'] = @form_data['spouseMarriages']&.map do |marriage|
+          reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                           'reasonForSeparation' => SPOUSES_REASONS_FOR_SEPARATION[reason_for_separation],
+                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
         end
         if @form_data['marriages']&.any?
           @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages'].length.to_i > 3)
@@ -1460,9 +1484,13 @@ module PdfFill
 
       def build_custodian_hash_from_dependent(dependent)
         dependent['personWhoLivesWithChild']
-          .merge(dependent['childAddress'])
           .merge({
-                   'postalCode' => split_postal_code(dependent['childAddress']),
+                   'custodianAddress' => dependent['childAddress'].merge(
+                     'postalCode' => split_postal_code(dependent['childAddress'])
+                   )
+                 })
+          .merge({
+                   'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
                    'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
                  })
       end
@@ -1545,8 +1573,9 @@ module PdfFill
         income_sources&.map do |income_source|
           income_source_hash = {
             'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
+            'receiverOverflow' => income_source['receiver']&.humanize,
             'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
-            'typeOfIncomeOverflow' => income_source['typeOfIncome'],
+            'typeOfIncomeOverflow' => income_source['typeOfIncome']&.humanize,
             'amount' => split_currency_amount(income_source['amount']),
             'amountOverflow' => number_to_currency(income_source['amount'])
           }
