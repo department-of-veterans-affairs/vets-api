@@ -127,7 +127,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://va.gov/schema/esr/voa/v1"
-        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
+        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
         xmlns:va="http://va.gov/schema/esr/voa/v1"><va:formIdentifier><va:type>101</va:type><va:value>1010EZR</va:value><va:version>2986360436</va:version></va:formIdentifier><va:summary><eeSummary:associations
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:association><eeSummary:contactType>11</eeSummary:contactType><eeSummary:relationship>Stepson</eeSummary:relationship><eeSummary:givenName>FIRSTCHILDA</eeSummary:givenName><eeSummary:middleName>MIDDLECHILDA</eeSummary:middleName><eeSummary:familyName>LASTCHILDA</eeSummary:familyName><eeSummary:suffix>JR.</eeSummary:suffix></eeSummary:association><eeSummary:association><eeSummary:contactType>11</eeSummary:contactType><eeSummary:relationship>Stepdaughter</eeSummary:relationship><eeSummary:givenName>FIRSTCHILDB</eeSummary:givenName><eeSummary:middleName>MIDDLECHILDB</eeSummary:middleName><eeSummary:familyName>LASTCHILDB</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:association><eeSummary:association><eeSummary:address><eeSummary:city>Dulles</eeSummary:city><eeSummary:country>USA</eeSummary:country><eeSummary:line1>123
         NW 8th St</eeSummary:line1><eeSummary:state>VA</eeSummary:state><eeSummary:zipCode>20101</eeSummary:zipCode><eeSummary:zipPlus4>0101</eeSummary:zipPlus4></eeSummary:address><eeSummary:contactType>10</eeSummary:contactType><eeSummary:relationship>SPOUSE</eeSummary:relationship><eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName><eeSummary:middleName>MIDDLESPOUSE</eeSummary:middleName><eeSummary:familyName>LASTSPOUSE</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:association></eeSummary:associations><eeSummary:demographics
@@ -155,7 +155,7 @@ http_interactions:
       Date:
       - Tue, 21 Nov 2023 20:42:44 GMT
       Content-Length:
-      - '12460'
+      - '12415'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
