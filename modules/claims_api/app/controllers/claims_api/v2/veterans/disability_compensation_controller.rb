@@ -96,7 +96,7 @@ module ClaimsApi
           pdf_string = generate_526_pdf(mapped_claim)
           if pdf_string.empty?
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'Failed to generate PDF' # Not sure what this should be exactly
+              detail: 'Failed to generate PDF'
             )
           elsif pdf_string
             file_name = "#{SecureRandom.hex}.pdf"
