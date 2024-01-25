@@ -36,9 +36,25 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     let(:uuid) { create(:supplemental_claim_v0).id }
     let(:path) { base_path "forms/200995/#{uuid}" }
 
-    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
-      def make_request(auth_header)
-        get(path, headers: auth_header)
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
+        def make_request(auth_header)
+          get(path, headers: auth_header)
+        end
+      end
+    end
+
+    describe 'responses' do
+      let(:body) { JSON.parse(response.body) }
+
+      before do
+        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
+          get(path, headers: auth_header)
+        end
+      end
+
+      it 'returns only minimal data with no PII' do
+        expect(body.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
       end
     end
   end
@@ -60,6 +76,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     end
 
     describe 'responses' do
+      let(:created_supplemental_claim) { AppealsApi::SupplementalClaim.find(json_body.dig('data', 'id')) }
       let(:json_body) { JSON.parse(response.body) }
 
       before do
@@ -68,12 +85,16 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
         end
       end
 
-      it 'creates an SC record having api_version: "V0"' do
+      it 'returns 201 status' do
         expect(response).to have_http_status(:created)
+      end
 
-        created_record = AppealsApi::SupplementalClaim.find(json_body['data']['id'])
+      it 'creates an SC record having api_version: "V0"' do
+        expect(created_supplemental_claim.api_version).to eq('V0')
+      end
 
-        expect(created_record.api_version).to eq('V0')
+      it 'includes the form_data with PII in the serialized response' do
+        expect(json_body.dig('data', 'attributes', 'formData')).to be_present
       end
 
       context 'when icn is not provided' do
