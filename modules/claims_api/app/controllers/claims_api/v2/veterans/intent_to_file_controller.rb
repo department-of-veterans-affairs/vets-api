@@ -87,6 +87,13 @@ module ClaimsApi
 
         private
 
+        def validate_request_format
+          if params[:data].nil? || params[:data][:attributes].nil?
+            message = 'Request body is not in the correct format.'
+            raise ::Common::Exceptions::BadRequest.new(detail: message)
+          end
+        end
+
         def build_options_and_validate(type)
           options = build_intent_to_file_options(type)
           check_for_invalid_survivor_submission(options) if type == 'S'

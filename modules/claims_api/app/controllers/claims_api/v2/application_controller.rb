@@ -50,7 +50,7 @@ module ClaimsApi
       # @param validator_class [any] Class implementing ActiveModel::Validations
       #
       def validate_request!(validator_class)
-        validator = validator_class.validator(params)
+        validator = validator_class.validator(form_attributes)
         return if validator.valid?
 
         raise ::Common::Exceptions::ValidationErrorsBadRequest, validator
@@ -111,13 +111,6 @@ module ClaimsApi
                               message:,
                               api_version: 'V2',
                               level:)
-      end
-
-      def validate_request_format
-        if params[:data].nil? || params[:data][:attributes].nil?
-          message = 'Request body is not in the correct format.'
-          raise ::Common::Exceptions::BadRequest.new(detail: message)
-        end
       end
     end
   end

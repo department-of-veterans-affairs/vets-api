@@ -13,7 +13,7 @@ module ClaimsApi
           private
 
           def validate_poa_code(record)
-            value = record.data&.dig('data', 'attributes', 'representative', 'poaCode')
+            value = record.data&.dig('representative', 'poaCode')
             record.errors.add :poaCode, 'blank' if value.blank?
           end
 
