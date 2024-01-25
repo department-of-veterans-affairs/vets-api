@@ -61,7 +61,7 @@ module MebApi
         if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
           begin
             response_data = payment_service.get_ch33_dd_eft_info
-          rescute => e
+            rescute => e
             Rails.logger.error("BGS service error: #{e}")
             head :internal_server_error
             return
