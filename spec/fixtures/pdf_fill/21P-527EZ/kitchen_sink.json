@@ -21,8 +21,10 @@
   "serveUnderOtherNames": true,
   "previousNames": [
     {
-      "first": "John",
-      "last": "Doe"
+      "previousFullName": {
+        "first": "Joseph",
+        "last": "Doe"
+      }
     }
   ],
   "placeOfSeparation": "West Brookfield, MA",
