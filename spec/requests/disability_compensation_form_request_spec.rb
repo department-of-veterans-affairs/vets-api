@@ -216,7 +216,6 @@ RSpec.describe 'Disability compensation form' do
 
   describe 'Post /v0/disability_compensation_form/submit_all_claim' do
     before do
-      Flipper.enable(:military_information_vaprofile)
       VCR.insert_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.insert_cassette('evss/ppiu/payment_information')
       VCR.insert_cassette('evss/intent_to_file/active_compensation')
