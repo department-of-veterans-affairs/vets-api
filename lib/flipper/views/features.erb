@@ -30,6 +30,7 @@
           <th>Feature</th>
           <th>Description</th>
           <th>Enabled Gates</th>
+          <th>Team</th>
         </tr>
       </thead>
       <tbody>
@@ -52,6 +53,9 @@
             </td>
             <td>
               <%= feature.pretty_enabled_gate_names %>
+            </td>
+            <td>
+              <%= yaml_features.dig(feature.key,'team') %>
             </td>
           </tr>
         <% end %>
