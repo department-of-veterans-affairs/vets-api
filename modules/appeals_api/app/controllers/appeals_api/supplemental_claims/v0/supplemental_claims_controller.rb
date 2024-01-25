@@ -30,6 +30,7 @@ module AppealsApi::SupplementalClaims::V0
       POST: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.write]
     }.freeze
 
+    # NOTE: index route is disabled until questions around claimant vs. veteran privacy are resolved
     def index
       veteran_scs = AppealsApi::SupplementalClaim.select(ALLOWED_COLUMNS)
                                                  .where(veteran_icn: params[:icn])

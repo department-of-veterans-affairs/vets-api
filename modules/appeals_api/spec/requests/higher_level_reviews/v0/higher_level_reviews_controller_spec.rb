@@ -53,7 +53,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
         with_openid_auth(described_class::OAUTH_SCOPES[:GET]) { |auth_header| get(path, headers: auth_header) }
       end
 
-      it 'returns only the data from the ALLOWED_COLUMNS' do
+      it 'returns only minimal data with no PII' do
         expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
       end
     end
@@ -76,18 +76,24 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
     end
 
     describe 'responses' do
+      let(:created_hlr) { AppealsApi::HigherLevelReview.find(parsed_response['data']['id']) }
+
       before do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
           post(path, params:, headers: headers.merge(auth_header))
         end
       end
 
-      it 'creates an HLR record having api_version: "V0"' do
+      it 'returns 201 status' do
         expect(response).to have_http_status(:created)
+      end
 
-        hlr = AppealsApi::HigherLevelReview.find(parsed_response['data']['id'])
+      it 'creates an HLR record having api_version: "V0"' do
+        expect(created_hlr.api_version).to eq('V0')
+      end
 
-        expect(hlr.api_version).to eq('V0')
+      it 'includes the form_data with PII in the serialized response' do
+        expect(parsed_response['data']['attributes']['formData']).to be_present
       end
 
       context 'when body does not match schema' do

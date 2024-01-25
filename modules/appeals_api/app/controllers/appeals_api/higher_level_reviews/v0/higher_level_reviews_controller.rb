@@ -22,7 +22,6 @@ module AppealsApi::HigherLevelReviews::V0
     API_VERSION = 'V0'
     MODEL_ERROR_STATUS = 422
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'higher_level_reviews' }.freeze
-    ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
 
     OAUTH_SCOPES = {
       GET: %w[veteran/HigherLevelReviews.read representative/HigherLevelReviews.read system/HigherLevelReviews.read],
@@ -34,13 +33,13 @@ module AppealsApi::HigherLevelReviews::V0
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
     end
 
+    # NOTE: index route is disabled until questions around claimant vs. veteran privacy are resolved
     def index
-      veteran_hlrs = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).where(veteran_icn:).order(created_at: :desc)
-      render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
+      render_higher_level_review(AppealsApi::HigherLevelReview.where(veteran_icn:).order(created_at: :desc))
     end
 
     def show
-      hlr = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).find(params[:id])
+      hlr = AppealsApi::HigherLevelReview.find(params[:id])
       hlr = with_status_simulation(hlr) if status_requested_and_allowed?
 
       render_higher_level_review(hlr)
@@ -73,7 +72,7 @@ module AppealsApi::HigherLevelReviews::V0
       hlr.save
       AppealsApi::PdfSubmitJob.perform_async(hlr.id, 'AppealsApi::HigherLevelReview', 'v3')
 
-      render_higher_level_review(hlr, status: :created)
+      render_higher_level_review(hlr, include_pii: true, status: :created)
     end
 
     def download
@@ -108,8 +107,9 @@ module AppealsApi::HigherLevelReviews::V0
       header_names.index_with { |key| request.headers[key] }.compact
     end
 
-    def render_higher_level_review(hlr, **)
-      render(json: HigherLevelReviewSerializer.new(hlr).serializable_hash, **)
+    def render_higher_level_review(hlr_or_hlrs, include_pii: false, **)
+      serializer = (include_pii ? HigherLevelReviewSerializerWithPii : HigherLevelReviewSerializer).new(hlr_or_hlrs)
+      render(json: serializer.serializable_hash, **)
     end
 
     def render_higher_level_review_not_found(id)
