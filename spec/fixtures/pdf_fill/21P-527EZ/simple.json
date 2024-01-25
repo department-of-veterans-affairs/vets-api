@@ -1,69 +1,58 @@
 {
-  "receivesIncome": false,
-  "homeOwnership": false,
-  "assetTransfer": false,
-  "medicalExpenses": false,
-  "hasCareExpenses": false,
-  "netWorthEstimation": 10000,
-  "totalNetWorth": false,
-  "expectedIncome": {
-    "salary": 1,
-    "interest": 1
+  "veteranFullName": {
+    "first": "John",
+    "middle": "",
+    "last": "Doe",
+    "suffix": "Sr."
   },
-  "monthlyIncome": {
-    "socialSecurity": 1,
-    "civilService": 1,
-    "railroad": 1,
-    "blackLung": 1,
-    "serviceRetirement": 1,
-    "ssi": 1
-  },
-  "netWorth": {
-    "bank": 1,
-    "interestBank": 1,
-    "ira": 1,
-    "stocks": 1,
-    "realProperty": 1
-  },
-  "maritalStatus": "Never Married",
-  "previousEmployers": [
-    {
-      "jobDate": "2020-12-12",
-      "jobType": "Train conductor",
-      "jobHoursWeek": 40,
-      "jobTitle": "Conductor"
-    }
-  ],
-  "currentEmployment": false,
-  "federalTreatmentHistory": false,
-  "vaTreatmentHistory": false,
-  "specialMonthlyPension": false,
-  "nursingHome": false,
-  "socialSecurityDisability": true,
+  "veteranSocialSecurityNumber": "333224444",
+  "vaClaimsHistory": false,
+  "veteranDateOfBirth": "1960-01-01",
   "serviceBranch": {
-    "NAVY": true,
-    "COAST_GUARD": false
+    "army": true
   },
   "activeServiceDateRange": {
-    "from": "2015-02-02",
-    "to": "2017-03-19"
+    "from": "2003-03-02",
+    "to": "2007-03-20"
   },
-  "serviceNumber": "01245",
-  "email": "veteran@example.com",
-  "mobilePhone": "555-555-5555",
+  "serviceNumber": "123456",
+  "serveUnderOtherNames": false,
+  "placeOfSeparation": "Westbrook, MA",
+  "powStatus": false,
+  "socialSecurityDisability": true,
+  "medicalCondition": false,
+  "nursingHome": false,
+  "specialMonthlyPension": false,
+  "vaTreatmentHistory": false,
+  "federalTreatmentHistory": false,
+  "currentEmployment": false,
+  "previousEmployers": [
+    {
+      "jobDate": "2020-06-15",
+      "jobType": "Customer service",
+      "jobHoursWeek": 20,
+      "jobTitle": "Manager"
+    }
+  ],
+  "maritalStatus": "Never Married",
+  "totalNetWorth": true,
+  "hasCareExpenses": false,
+  "hasMedicalExpenses": false,
+  "transferredAssets": false,
+  "homeOwnership": false,
+  "receivesIncome": false,
   "veteranAddress": {
+    "street": "123 8th st",
+    "city": "Hadley",
     "country": "USA",
-    "street": "123 Main St",
-    "city": "Brooklyn",
-    "state": "NY",
-    "postalCode": "11225"
+    "state": "ME",
+    "postalCode": "01050",
+    "isMilitary": false
   },
-  "veteranFullName": {
-    "first": "Firstname",
-    "last": "Lastname"
-  },
-  "veteranSocialSecurityNumber": "111223333",
-  "veteranDateOfBirth": "1990-12-12",
+  "email": "test@example.com",
+  "mobilePhone": "5551234567",
   "isOver65": false,
-  "privacyAgreementAccepted": true
+  "noRapidProcessing": true,
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Doe"
 }

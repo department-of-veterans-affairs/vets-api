@@ -833,29 +833,9 @@ reports:
       - adam.freemer@accenturefederal.com
 
 oidc:
-  auth_server_metadata_url: ~
-  issuer: ~
-  issuer_prefix: ~
-  audience: ~
   isolated_audience:
     default: ~
-    veteran_verification: ~
     claims: ~
-  charon:
-    endpoint: ~
-    audience: ~
-  base_api_url: https://example.com
-  base_api_token: ~
-  base_api_profile_key_icn: false
-  smart_launch_url: ~
-  issued_url: ~
-  issuers:
-    - prefix: "https://example.com/"
-      metadata: "/.well-known/openid-configuration"
-      proxy: "https://example.com/"
-  opaque_clients:
-    - route: ~
-      client_id: ~
 
 sentry:
   dsn: ~
@@ -890,7 +870,6 @@ maintenance:
     arcgis: P45YBFA
     coe: PXXXXXX
     dslogon: P9DJJAV
-    emis: P0HNT0I
     es: PH7OPR4
     evss: PZKWB6Y
     global: PLPSIB0
@@ -1350,7 +1329,7 @@ vanotify:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  drupal_url: https://fake-url.com
   # A notification for when a forms url has changed
   slack:
     enabled: false

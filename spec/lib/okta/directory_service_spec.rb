@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'okta/directory_service'
-require 'okta/service'
 require 'vcr'
 
 RSpec.describe Okta::DirectoryService do
@@ -20,7 +19,7 @@ RSpec.describe Okta::DirectoryService do
     end
 
     it 'handles JSON::ParserError' do
-      allow(RestClient::Request).to receive(:execute).and_return(double(code: 200, body: 'invalid_json_response'))
+      allow(Faraday).to receive(:get).and_return(double(status: 200, body: 'invalid_json_response'))
       response = subject.scopes('invalid_category')
       expect(response).to eq({ 'error' => 'Failed to parse JSON response' })
     end
