@@ -20,6 +20,12 @@ module PdfFill
         'CHILD' => 2
       }.freeze
 
+      INCOME_RECIPIENTS = {
+        'VETERAN' => 0,
+        'SPOUSE' => 1,
+        'DEPENDENT' => 2
+      }.freeze
+
       INCOME_TYPES = {
         'SOCIAL_SECURITY' => 0,
         'INTEREST_DIVIDEND' => 1,
@@ -914,17 +920,12 @@ module PdfFill
         # 9h-k Income Sources
         'incomeSources' => {
           limit: 4,
-          first_key: 'childName',
+          first_key: 'dependentName',
           # (1) Recipient
           'receiver' => {
             key: "Income_Recipient[#{ITERATOR}]"
           },
-          'receiverOverflow' => {
-            question_num: 9,
-            question_suffix: '(1)',
-            question_text: 'INCOME RECIPIENT'
-          },
-          'childName' => {
+          'dependentName' => {
             key: "Income_Recipient_Child[#{ITERATOR}]",
             limit: 29,
             question_num: 9,
@@ -1293,11 +1294,11 @@ module PdfFill
       # SECTION IV: PENSION INFORMATION
       def expand_pension_information
         @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
-        @form_data['medicaidStatus'] = to_radio_yes_no(@form_data['medicaidStatus'])
-        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
-        @form_data['medicalCondition'] = to_radio_yes_no(
-          @form_data['medicalCondition'] || @form_data['medicaidCoverage']
+        @form_data['medicaidStatus'] = to_radio_yes_no(
+          @form_data['medicaidStatus'] || @form_data['medicaidCoverage']
         )
+        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
+        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
         @form_data['socialSecurityDisability'] = to_radio_yes_no(
           @form_data['socialSecurityDisability'] || @form_data['isOver65']
         )
@@ -1493,18 +1494,18 @@ module PdfFill
 
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
-          income_source.merge({
-                                # TODO: Update this once the front-end is updated post MVP
-                                'receiver' => 0,
-                                # TODO: Update this once the front-end is updated post MVP
-                                'receiverOverflow' => 'VETERAN',
-                                'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
-                                'typeOfIncomeOverflow' => income_source['typeOfIncome'],
-                                'amount' => split_currency_amount(income_source['amount']),
-                                'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
-                                  income_source['amount']
-                                )
-                              })
+          income_source_hash = {
+            'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
+            'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
+            'typeOfIncomeOverflow' => income_source['typeOfIncome'],
+            'amount' => split_currency_amount(income_source['amount']),
+            'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
+          }
+          if income_source['dependentName'].present?
+            income_source_hash['dependentName'] =
+              income_source['dependentName']
+          end
+          income_source.merge(income_source_hash)
         end
       end
 
