@@ -13,6 +13,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
   let(:min_data) { fixture_as_json 'higher_level_reviews/v0/valid_200996_minimum.json' }
   let(:max_data) { fixture_as_json 'higher_level_reviews/v0/valid_200996_extra.json' }
   let(:parsed_response) { JSON.parse(response.body) }
+  let(:other_icn) { '1111111111V111111' }
 
   describe '#schema' do
     let(:path) { base_path 'schemas/200996' }
@@ -55,6 +56,15 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
 
       it 'returns only minimal data with no PII' do
         expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
+      end
+
+      context "with a veteran token where the token's ICN doesn't match the appeal's recorded ICN" do
+        let(:scopes) { %w[veteran/HigherLevelReviews.read] }
+        let(:id) { create(:higher_level_review_v0, veteran_icn: other_icn).id }
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end
@@ -175,6 +185,24 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
   end
 
   describe '#download' do
+    let(:hlr) { create(:higher_level_review_v0, status: 'submitted', api_version: 'V0', pdf_version: 'v3') }
+    let(:generated_path) { "/services/appeals/higher-level-reviews/v0/forms/200996/#{hlr.id}/download" }
+
     it_behaves_like 'watermarked pdf download endpoint', { factory: :higher_level_review_v0 }
+
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: %w[veteran/HigherLevelReviews.read]) do
+        def make_request(auth_header)
+          get(generated_path, headers: auth_header)
+        end
+      end
+    end
+
+    describe 'icn parameter' do
+      it_behaves_like 'GET endpoint with optional Veteran ICN parameter', {
+        scope_base: 'HigherLevelReviews',
+        skip_ssn_lookup_tests: true
+      }
+    end
   end
 end

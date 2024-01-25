@@ -15,30 +15,36 @@ module AppealsApi
         )
       end
 
-      if veteran_icn_from_token.present? && params[:icn].present? && veteran_icn_from_token != params[:icn]
-        # If both a veteran-scoped auth token and an ICN parameter are received, the ICNs must match
-        raise(Common::Exceptions::Forbidden,
-              detail: "Invalid 'icn' parameter: Veterans may access only their own records")
-      elsif veteran_icn_from_token.blank? && params[:icn].blank?
-        # If the auth token is a system or representative token, an ICN parameter is required
-        raise(Common::Exceptions::ParameterMissing, 'icn')
-      end
+      # If an ICN parameter is received and we have an ICN from the token, the ICNs must match:
+      validate_token_icn_access!(params[:icn], forbidden_error_key: 'appeals_api.errors.forbidden_parameter_icn')
 
-      if veteran_icn_from_token.present? && !ICN_REGEX.match?(veteran_icn_from_token)
-        # rubocop:disable Layout/LineLength
-        Rails.logger.error("The Veteran ICN '#{veteran_icn_from_token}', which was returned by the token validation server, has an invalid format. This should never happen.")
-        # rubocop:enable Layout/LineLength
+      # If the auth token had no veteran ICN, an ICN parameter is required:
+      if token_validation_result&.veteran_icn.blank? && params[:icn].blank?
+        raise(Common::Exceptions::ParameterMissing.new(
+                'icn',
+                { detail: I18n.t('appeals_api.errors.missing_icn_parameter') }
+              ))
+      end
+    end
+
+    # Raises if the request includes a veteran token whose ICN doesn't match the `target_icn` (if provided)
+    def validate_token_icn_access!(target_icn = nil, forbidden_error_key: 'appeals_api.errors.forbidden_token_icn')
+      if (token_icn = token_validation_result&.veteran_icn.presence)
+        unless ICN_REGEX.match?(token_icn)
+          Rails.logger.error(
+            "The Veteran ICN '#{token_icn}', which was returned by the token validation server, has an invalid" \
+            ' format. This should never happen.'
+          )
+        end
+
+        if target_icn.present? && token_icn != target_icn
+          raise(Common::Exceptions::Forbidden, detail: I18n.t(forbidden_error_key))
+        end
       end
     end
 
     def veteran_icn
-      veteran_icn_from_token.presence || params[:icn]
-    end
-
-    private
-
-    def veteran_icn_from_token
-      token_validation_result&.veteran_icn # Will only be present on tokens with veteran/* scopes
+      token_validation_result&.veteran_icn.presence || params[:icn]
     end
   end
 end
