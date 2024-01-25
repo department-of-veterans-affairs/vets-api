@@ -557,7 +557,7 @@ module PdfFill
             key: 'form1[0].#subform[49].Monthly_Amount[2]'
           }
         },
-        # 7
+        # 7a-j Veteran's prior marriages
         'marriages' => {
           limit: 2,
           first_key: 'otherExplanation',
@@ -636,6 +636,7 @@ module PdfFill
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
+        # 7l-u Spouse's prior marriages
         'spouseMarriages' => {
           limit: 2,
           first_key: 'otherExplanation',
@@ -713,9 +714,11 @@ module PdfFill
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
+        # 7k
         'additionalMarriages' => {
           key: 'form1[0].#subform[50].RadioButtonList[15]'
         },
+        # 7v
         'additionalSpouseMarriages' => {
           key: 'form1[0].#subform[50].RadioButtonList[17]'
         },
