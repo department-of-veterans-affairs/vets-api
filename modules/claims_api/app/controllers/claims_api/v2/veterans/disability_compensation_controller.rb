@@ -10,6 +10,8 @@ require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
+# require 'claims_api/v2/disability_compensation_generate_pdf_mapper'
+require 'aws-sdk-s3'
 
 module ClaimsApi
   module V2
@@ -19,10 +21,15 @@ module ClaimsApi
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
 
+        EVSS_DOCUMENT_TYPE = 'L023'
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
-        before_action :shared_validation, :file_number_check, only: %i[submit validate]
+        # Custom validations for 526 submission, we must check this first
+        before_action :custom_validation, :file_number_check, only: %i[submit validate]
+        before_action :validate_json_schema, only: %i[submit validate generate_pdf]
+        # If all we have are custom validation errors we raise them here, after validating JSON above
+        before_action :check_for_custom_validation_errors, only: %i[submit validate]
 
         def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -75,12 +82,50 @@ module ClaimsApi
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
         end
 
+        # Returns filled out 526EZ form as PDF
         def generate_pdf
-          # Returns filled out 526EZ form as PDF
-          render json: { data: { attributes: {} } } # place holder
+          # map the submitted form data
+          mapped_claim = generate_pdf_mapper_service(
+            form_attributes,
+            get_pdf_data_wrapper,
+            auth_headers,
+            veteran_middle_initial,
+            Time.zone.now
+          ).map_claim
+          # generate the PDF string from mapped data
+          pdf_string = generate_526_pdf(mapped_claim)
+          if pdf_string.empty?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'Failed to generate PDF' # Not sure what this should be exactly
+            )
+          elsif pdf_string
+            file_name = "#{SecureRandom.hex}.pdf"
+            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
+            pdf = File.open(path)
+            # Return the PDF
+            send_data pdf, filename: file_name, type: 'application/pdf', disposition: 'inline'
+          end
         end
 
         private
+
+        def generate_pdf_mapper_service(form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at)
+          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(
+            form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at
+          )
+        end
+
+        # Docker container wants data: but not attributes:
+        def generate_526_pdf(mapped_data)
+          pdf = get_pdf_data_wrapper
+          pdf[:data] = mapped_data[:data][:attributes]
+          client = PDFClient.new(pdf)
+          client.generate_pdf
+        end
+
+        def get_pdf_data_wrapper
+          { data: {} }
+        end
 
         def process_claim(auto_claim)
           ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
@@ -105,12 +150,11 @@ module ClaimsApi
           veteran_flashes
         end
 
-        def shared_validation
-          # Custom validations for 526 submission, we must check this first
+        def custom_validation
           @disability_compensation_validation_errors = validate_form_526_submission_values!(target_veteran)
-          # JSON validations for 526 submission, will combine with previously captured errors and raise
-          validate_json_schema
-          # if we get here there were only validations file errors
+        end
+
+        def check_for_custom_validation_errors
           if @disability_compensation_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
                   @disability_compensation_validation_errors
