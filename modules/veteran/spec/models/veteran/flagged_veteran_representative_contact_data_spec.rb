@@ -17,7 +17,7 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
       it 'is not valid with an invalid flag_type' do
         subject[:flag_type] = 'invalid_type'
         expect(subject).not_to be_valid
-        expect(subject.errors[:flag_type]).to include('is not included in the list')
+        expect(subject.errors[:flag_type]).to include('Invalid flag type: must be phone, email, address, or other')
       end
     end
 
