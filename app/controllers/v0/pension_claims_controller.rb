@@ -12,32 +12,27 @@ module V0
       SavedClaim::Pension
     end
 
+    # rubocop:disable Metrics/MethodLength
     def show
       claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
 
-      submission = claim.form_submissions&.order(id: :asc)&.last
-      attempt = submission&.form_submission_attempts&.order(created_at: :asc)&.last
+      form_submission = claim.form_submissions&.order(id: :asc)&.last
+      submission_attempt = form_submission&.form_submission_attempts&.order(created_at: :asc)&.last
 
-      if attempt
-        # this is to temporarily satisfy frontend check
-        # {
-        #     "data": {
-        #         "id": "12",
-        #         "type": "central_mail_submissions",
-        #         "attributes": {
-        #             "state": "success"
-        #             .........
-        #         }
-        #     }
-        # }
-        state = attempt.aasm_state == 'failure' ? 'failure' : 'success'
+      if submission_attempt
+        # this is to satisfy frontend check for successful submission
+        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
         response = {
           data: {
-            id: attempt.id,
-            type: 'form_submission_attempts',
+            id: claim.id,
+            form_id: claim.form_id,
+            guid: claim.guid,
             attributes: {
               state:,
-              **attempt.attributes
+              benefits_intake_uuid: form_submission.benefits_intake_uuid,
+              form_type: form_submission.form_type,
+              attempt_id: submission_attempt.id,
+              aasm_state: submission_attempt.aasm_state
             }
           }
         }
@@ -45,6 +40,7 @@ module V0
 
       render(json: response)
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
