@@ -7,13 +7,13 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
     context 'ip_address' do
       it 'is valid when ip_address is present' do
         flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone',
-                                   flagged_value: '111-222-3333')
+                                   flagged_value: '1234567890')
         expect(flag).to be_valid
       end
 
       it 'is not valid when ip_address is missing' do
         flag = described_class.new(ip_address: nil, representative_id: '1', flag_type: 'phone',
-                                   flagged_value: '111-222-3333')
+                                   flagged_value: '1234567890')
         expect(flag).not_to be_valid
         expect(flag.errors[:ip_address]).to include("can't be blank")
       end
@@ -22,13 +22,13 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
     context 'representative_id' do
       it 'is valid when representative_id is present' do
         flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone',
-                                   flagged_value: '111-222-3333')
+                                   flagged_value: '1234567890')
         expect(flag).to be_valid
       end
 
       it 'is not valid when representative_id is missing' do
         flag = described_class.new(ip_address: '192.168.1.1', representative_id: nil, flag_type: 'phone',
-                                   flagged_value: '111-222-3333')
+                                   flagged_value: '1234567890')
         expect(flag).not_to be_valid
         expect(flag.errors[:representative_id]).to include("can't be blank")
       end
