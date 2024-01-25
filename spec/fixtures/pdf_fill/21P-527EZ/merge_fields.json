@@ -57,8 +57,9 @@
   },
   "socialSecurityDisability": 1,
   "medicalCondition": 1,
-  "nursingHome": 1,
-  "medicaidStatus": "Off",
+  "nursingHome": 0,
+  "medicaidCoverage": false,
+  "medicaidStatus": 0,
   "specialMonthlyPension": 1,
   "vaTreatmentHistory": 0,
   "vaMedicalCenters": [
@@ -580,13 +581,13 @@
   "incomeSources": [
     {
       "typeOfIncome": 0,
-      "receiver": 0,
+      "receiver": 2,
+      "dependentName": "Bobby Doe",
       "payer": "John Doe",
       "amount": {
         "part_cents": "05",
         "part_one": "278"
       },
-      "receiverOverflow": "VETERAN",
       "typeOfIncomeOverflow": "SOCIAL_SECURITY",
       "amountOverflow": "$278.05"
     },
@@ -598,20 +599,18 @@
         "part_cents": "50",
         "part_one": "78"
       },
-      "receiverOverflow": "VETERAN",
       "typeOfIncomeOverflow": "INTEREST_DIVIDEND",
       "amountOverflow": "$78.50"
     },
     {
       "typeOfIncome": 4,
       "otherTypeExplanation": "part-time Uber",
-      "receiver": 0,
+      "receiver": 1,
       "payer": "John Doe",
       "amount": {
         "part_cents": "99",
         "part_one": "278"
       },
-      "receiverOverflow": "VETERAN",
       "typeOfIncomeOverflow": "OTHER",
       "amountOverflow": "$278.99"
     },
@@ -625,7 +624,6 @@
         "part_two": "3",
         "part_one": "278"
       },
-      "receiverOverflow": "VETERAN",
       "typeOfIncomeOverflow": "OTHER",
       "amountOverflow": "$3,278.75"
     }
