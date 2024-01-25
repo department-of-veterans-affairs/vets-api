@@ -832,6 +832,11 @@ reports:
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
 
+oidc:
+  isolated_audience:
+    default: ~
+    claims: ~
+
 sentry:
   dsn: ~
 
@@ -865,7 +870,6 @@ maintenance:
     arcgis: P45YBFA
     coe: PXXXXXX
     dslogon: P9DJJAV
-    emis: P0HNT0I
     es: PH7OPR4
     evss: PZKWB6Y
     global: PLPSIB0
