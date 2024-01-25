@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'disability_compensation/providers/brd/brd_provider'
-require 'disability_compensation/responses/intake_sites_response'
-require 'evss/reference_data/intake_sites_response'
+require 'evss/reference_data/service'
 
 class EvssBRDProvider
   include BRDProvider
