@@ -730,28 +730,28 @@ module PdfFill
         # 8b-p Dependent Children
         'dependents' => {
           limit: 3,
-          first_key: 'fullName',
+          first_key: 'childPlaceOfBirth',
           'fullName' => {
             'first' => {
               limit: 12,
-              question_num: 8,
+              question_num: 8.1,
               question_text: 'CHILD\'S FIRST NAME',
               key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 8,
+              question_num: 8.1,
               question_text: 'CHILD\'S MIDDLE NAME',
               key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 8,
+              question_num: 8.1,
               question_text: 'CHILD\'S LAST NAME',
               key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
             }
           },
           'fullNameOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S NAME'
           },
           'childDateOfBirth' => {
@@ -766,7 +766,7 @@ module PdfFill
             }
           },
           'childDateOfBirthOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
@@ -781,12 +781,12 @@ module PdfFill
             }
           },
           'childSocialSecurityNumberOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -814,7 +814,7 @@ module PdfFill
             key: "Dependent_Children.Does_Not_Live_With_You_But_Contributes[#{ITERATOR}]"
           },
           'childStatusOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S STATUS'
           },
           'monthlyPayment' => {
@@ -829,7 +829,7 @@ module PdfFill
             }
           },
           'monthlyPaymentOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'Amount of Contribution For Child'
           }
         },
@@ -843,7 +843,7 @@ module PdfFill
           first_key: 'first',
           'first' => {
             limit: 12,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S FIRST NAME',
             key: 'form1[0].#subform[51].Custodians_FirstName[0]'
@@ -853,49 +853,44 @@ module PdfFill
           },
           'last' => {
             limit: 18,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
           },
-          'fullNameOverflow' => {
-            question_num: 8,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S NAME'
-          },
           'street' => {
             limit: 30,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
             key: 'form1[0].#subform[51].NumberStreet[3]'
           },
           'street2' => {
             limit: 5,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
             key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
           },
           'city' => {
             limit: 18,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S ADDRESS CITY',
             key: 'form1[0].#subform[51].City[2]'
           },
           'state' => {
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             key: 'form1[0].#subform[51].State_Or_Province[1]'
           },
           'country' => {
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             key: 'form1[0].#subform[51].Country[2]'
           },
           'postalCode' => {
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             'firstFive' => {
               key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
@@ -904,13 +899,8 @@ module PdfFill
               key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
             }
           },
-          'addressOverflow' => {
-            question_num: 8,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS'
-          },
           'dependentsWithCustodianOverflow' => {
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
           }
@@ -1469,8 +1459,6 @@ module PdfFill
         dependent['personWhoLivesWithChild']
           .merge(dependent['childAddress'])
           .merge({
-                   'fullNameOverflow' => dependent['personWhoLivesWithChild'].values.join(' '),
-                   'addressOverflow' => build_address_string(dependent['childAddress']),
                    'postalCode' => split_postal_code(dependent['childAddress']),
                    'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
                  })
@@ -1557,7 +1545,7 @@ module PdfFill
             'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
             'typeOfIncomeOverflow' => income_source['typeOfIncome'],
             'amount' => split_currency_amount(income_source['amount']),
-            'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(income_source['amount'])
+            'amountOverflow' => number_to_currency(income_source['amount'])
           }
           if income_source['dependentName'].present?
             income_source_hash['dependentName'] =
