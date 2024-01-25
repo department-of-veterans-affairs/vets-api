@@ -174,8 +174,8 @@
                 "addressline_two": "",
                 "addressline_three": "",
                 "city": "Fakerville",
-                "state_orprovince": "CO",
-                "zip_orpostal_code": "11111",
+                "state_or_province": "CO",
+                "zip_or_postal_code": "11111",
                 "country_name": "USA"
             },
             "date_started": "06\/2020",
