@@ -90,8 +90,10 @@ describe Mobile::V0::LighthouseHealth::Service do
   end
 
   before do
-    allow(File).to receive(:read).and_return(rsa_key.to_s)
     Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
+    allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:rsa_key).and_return(
+      OpenSSL::PKey::RSA.new(rsa_key.to_s)
+    )
   end
 
   after { Timecop.return }
