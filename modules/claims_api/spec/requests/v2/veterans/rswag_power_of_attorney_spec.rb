@@ -25,11 +25,14 @@ describe 'PowerOfAttorney',
       description 'Retrieves current Power of Attorney for Veteran or empty data if no POA is assigned.'
 
       let(:Authorization) { 'Bearer token' }
+
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
+
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:scopes) { %w[system/claim.read system/system/claim.write] }
       let(:poa_code) { 'A1Q' }
