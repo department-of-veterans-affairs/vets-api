@@ -24,14 +24,14 @@ module ClaimsApi
           end
         end
 
-        def submit2122
+        def appoint_organization
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
           poa_code = parse_and_validate_poa_code
           unless poa_code_in_organization?(poa_code)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an organization.')
           end
 
-          submit_power_of_attorney(poa_code, 'submit_2122')
+          submit_power_of_attorney(poa_code)
         end
 
         def submit2122a
@@ -47,7 +47,11 @@ module ClaimsApi
         end
 
         def validate2122a
-          shared_form_validation('2122a')
+          target_veteran
+          validate_json_schema('2122a'.upcase)
+
+          poa_code = form_attributes.dig('representative', 'poaCode')
+          validate_individual_poa_code!(poa_code)
 
           render json: validation_success
         end
@@ -165,7 +169,6 @@ module ClaimsApi
 
         def parse_and_validate_poa_code
           poa_code = form_attributes.dig('representative', 'poaCode')
-          debugger
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
