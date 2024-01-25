@@ -31,14 +31,19 @@ module V0
     end
 
     def separation_locations
-      response = EVSS::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
-        :all_users,
-        :get_separation_locations
-      ) do
-        EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
-      end
+      api_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:brd],
+        provider: nil,
+        options: {},
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+      )
 
-      render json: response, each_serializer: EVSSSeparationLocationSerializer
+      response = api_provider.get_separation_locations
+
+      render json: response,
+             each_serializer: EVSSSeparationLocationSerializer
+
     end
 
     def suggested_conditions
