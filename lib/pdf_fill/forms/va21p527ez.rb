@@ -1322,6 +1322,9 @@ module PdfFill
 
       # SECTION III: VETERAN'S SERVICE INFORMATION
       def expand_veteran_service_information
+        prev_names = @form_data['previousNames']
+
+        @form_data['previousNames'] = prev_names.pluck('previousFullName') if prev_names.present?
         @form_data['activeServiceDateRange'] = {
           'from' => split_date(@form_data.dig('activeServiceDateRange', 'from')),
           'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
