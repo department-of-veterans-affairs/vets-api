@@ -18,6 +18,7 @@ module ClaimsApi
         include ClaimsApi::V2::DisabilityCompensationValidation
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
+
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
