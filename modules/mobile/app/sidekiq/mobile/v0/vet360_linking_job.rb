@@ -46,7 +46,6 @@ module Mobile
       rescue => e
         Rails.logger.error('Mobile Vet360 account linking request failed for user with uuid',
                            { user_uuid: uuid, message: e.message })
-        raise e
       end
     end
   end
