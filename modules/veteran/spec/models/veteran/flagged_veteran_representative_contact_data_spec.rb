@@ -54,30 +54,30 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
     context 'uniqueness' do
       before do
         described_class.create!(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'email',
-                                flagged_value: 'name@example.com')
+                                flagged_value: 'example@email.com')
       end
 
       it 'is invalid when duplicating ip_address, representative_id, and flag_type of an existing record' do
         duplicate = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'email',
-                                        flagged_value: 'name@example.com')
+                                        flagged_value: 'example@email.com')
         expect(duplicate).not_to be_valid
       end
 
       it 'is valid when changing only the ip_address while keeping representative_id and flag_type same' do
         unique = described_class.new(ip_address: '192.168.1.2', representative_id: '1', flag_type: 'email',
-                                     flagged_value: 'name@example.com')
+                                     flagged_value: 'example@email.com')
         expect(unique).to be_valid
       end
 
       it 'is valid when changing only the representative_id while keeping ip_address and flag_type same' do
         unique = described_class.new(ip_address: '192.168.1.1', representative_id: '2', flag_type: 'email',
-                                     flagged_value: 'name@example.com')
+                                     flagged_value: 'example@email.com')
         expect(unique).to be_valid
       end
 
       it 'is valid when changing only the flag_type while keeping ip_address and representative_id same' do
         unique = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone',
-                                     flagged_value: 'name@example.com')
+                                     flagged_value: 'example@email.com')
         expect(unique).to be_valid
       end
     end
