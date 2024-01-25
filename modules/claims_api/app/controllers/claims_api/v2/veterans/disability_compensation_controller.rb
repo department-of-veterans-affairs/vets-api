@@ -10,8 +10,6 @@ require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
-# require 'claims_api/v2/disability_compensation_generate_pdf_mapper'
-require 'aws-sdk-s3'
 
 module ClaimsApi
   module V2
