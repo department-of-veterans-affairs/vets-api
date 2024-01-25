@@ -304,6 +304,7 @@ module Sidekiq
         # TODO: Figure out if I need to use currentMailingAddress or changeOfAddress zip?
         # TODO: I dont think it matters too much though
         z = submission.form.dig('form526', 'form526', 'veteran', 'currentMailingAddress')
+        puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t z: #{z} \n\n")
         # [wipn8923] TEST THIS
         if z.nil? || z['country'].downcase != 'usa'
           @zip = '00000'
