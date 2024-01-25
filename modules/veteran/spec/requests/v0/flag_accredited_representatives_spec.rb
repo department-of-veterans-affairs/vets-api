@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 
+# To-do: Add tests for submitting multiple flags at once
+
 RSpec.describe 'FlagAccreditedRepresentativesController', type: :request do
   describe 'POST #create' do
     let(:path) { '/services/veteran/v0/flag_accredited_representatives' }
