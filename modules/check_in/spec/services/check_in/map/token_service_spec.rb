@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Map::TokenService do
+describe CheckIn::Map::TokenService do
   subject { described_class }
 
   let(:patient_icn) { '123' }
@@ -27,7 +27,7 @@ describe Map::TokenService do
 
   describe '#initialize' do
     it 'has a redis client' do
-      expect(subject.build(opts).redis_client).to be_a(Map::RedisClient)
+      expect(subject.build(opts).redis_client).to be_a(CheckIn::Map::RedisClient)
     end
   end
 
@@ -37,7 +37,7 @@ describe Map::TokenService do
 
     context 'when it exists in redis' do
       before do
-        allow_any_instance_of(Map::RedisClient).to receive(:token).and_return(access_token)
+        allow_any_instance_of(CheckIn::Map::RedisClient).to receive(:token).and_return(access_token)
       end
 
       it 'returns token from redis' do

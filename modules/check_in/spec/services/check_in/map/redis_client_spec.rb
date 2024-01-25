@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Map::RedisClient do
+describe CheckIn::Map::RedisClient do
   subject { described_class }
 
   let(:redis_client) { subject.build }
@@ -17,7 +17,7 @@ describe Map::RedisClient do
 
   describe '.build' do
     it 'returns an instance of RedisClient' do
-      expect(redis_client).to be_an_instance_of(Map::RedisClient)
+      expect(redis_client).to be_an_instance_of(CheckIn::Map::RedisClient)
     end
   end
 
