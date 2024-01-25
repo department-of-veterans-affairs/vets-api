@@ -5,32 +5,31 @@ http_interactions:
     uri: "<PRENEEDS_HOST>/eoas_SOA/PreNeedApplicationPort"
     body:
       encoding: US-ASCII
-      string: "\r\n----==_mimepart_5f34b35a5e675_690ae7d998184a8\r\nContent-Type: application/xop+xml;\r\n
-        charset=UTF-8;\r\n type=\"text/xml\"\r\nContent-Transfer-Encoding: quoted-printable\r\nContent-ID:
-        <soap-request-body@soap>\r\n\r\n<?xml version=3D\"1.0\" encoding=3D\"UTF-8\"?><env:Envelope
-        xmlns:xsd=3D\"http=\r\n://www.w3.org/2001/XMLSchema\" xmlns:xsi=3D\"http://www.w3.org/2001/XMLSche=\r\nma-instance\"
-        xmlns:tns=3D\"http://service.soa.eoas.cem.va.gov/\" xmlns:env=3D=\r\n\"http://schemas.xmlsoap.org/soap/envelope/\"
-        xmlns:wssutil=3D\"http://docs.=\r\noasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"
-        x=\r\nmlns:wsp=3D\"http://schemas.xmlsoap.org/ws/2004/09/policy\" xmlns:soap=3D\"h=\r\nttp://schemas.xmlsoap.org/wsdl/soap/\"><env:Body><tns:receivePreNeedApplic=\r\nation><preNeedRequest><applicant><applicantEmail>hg@hotmail.com</applican=\r\ntEmail><applicantPhoneNumber>555-555-5555
-        - 234</applicantPhoneNumber><ap=\r\nplicantRelationshipToClaimant>Self</applicantRelationshipToClaimant><comp=\r\nletingReason>I
-        don&#39;t know</completingReason><mailingAddress><address1=\r\n>street 1</address1><address2>street2
-        1</address2><city>NY</city><country=\r\nCode>USA</countryCode><postalZip>10000</postalZip><state>NY</state></mail=\r\ningAddress><name><firstName>first
-        1</firstName><lastName>last 1</lastName=\r\n><maidenName>maiden 1</maidenName><middleName>middle
-        1</middleName><suffi=\r\nx>Jr.</suffix></name></applicant><applicationStatus>somewhere</applicatio=\r\nnStatus><attachments><attachmentType><attachmentTypeId>1</attachmentTypeI=\r\nd></attachmentType><dataHandler><inc:Include
-        href=3D\"cid:10da04424190066f=\r\nc1bb1fd6955008a4\" xmlns:inc=3D\"http://www.w3.org/2004/08/xop/include\"></i=\r\nnc:Include></dataHandler><description>dd214a.pdf</description><sendingNam=\r\ne>vets.gov</sendingName><sendingSource>vets.gov</sendingSource></attachme=\r\nnts><attachments><attachmentType><attachmentTypeId>1</attachmentTypeId></=\r\nattachmentType><dataHandler><inc:Include
-        href=3D\"cid:8734786de1fa56dafaef=\r\n5a9f04beaed8\" xmlns:inc=3D\"http://www.w3.org/2004/08/xop/include\"></inc:I=\r\nnclude></dataHandler><description>dd214a.pdf</description><sendingName>ve=\r\nts.gov</sendingName><sendingSource>vets.gov</sendingSource></attachments>=\r\n<claimant><address><address1>street
-        2</address1><address2>street2 2</addr=\r\ness2><city>NY</city><countryCode>USA</countryCode><postalZip>10000</posta=\r\nlZip><state>NY</state></address><dateOfBirth>2001-01-31</dateOfBirth><des=\r\niredCemetery>400</desiredCemetery><email>a@b.com</email><name><firstName>=\r\nfirst
-        2</firstName><lastName>last 2</lastName><maidenName>maiden 2</maide=\r\nnName><middleName>middle
-        2</middleName><suffix>Jr.</suffix></name><phoneN=\r\number>1234567890</phoneNumber><relationshipToVet>1</relationshipToVet><ss=\r\nn>123-45-6789</ssn></claimant><currentlyBuriedPersons><cemeteryNumber>400=\r\n</cemeteryNumber><name><firstName>first
-        3</firstName><lastName>last 3</la=\r\nstName><maidenName>maiden 3</maidenName><middleName>middle
-        3</middleName>=\r\n<suffix>Jr.</suffix></name></currentlyBuriedPersons><currentlyBuriedPerso=\r\nns><cemeteryNumber>400</cemeteryNumber><name><firstName>first
-        4</firstNam=\r\ne><lastName>last 4</lastName><maidenName>maiden 4</maidenName><middleName=\r\n>middle
-        4</middleName><suffix>Jr.</suffix></name></currentlyBuriedPersons=\r\n><hasAttachments>true</hasAttachments><hasCurrentlyBuried>1</hasCurrently=\r\nBuried><sendingApplication>vets.gov</sendingApplication><sendingCode>abc<=\r\n/sendingCode><sentTime>2020-08-13T03:28:26Z</sentTime><trackingNumber>L46=\r\nJGnr0DL2bqUXS9EVG</trackingNumber><veteran><address><address1>street
-        3</a=\r\nddress1><address2>street2 3</address2><city>NY</city><countryCode>USA</co=\r\nuntryCode><postalZip>10000</postalZip><state>NY</state></address><current=\r\nName><firstName>first
-        5</firstName><lastName>last 5</lastName><maidenName=\r\n>maiden 5</maidenName><middleName>middle
-        5</middleName><suffix>Jr.</suffi=\r\nx></currentName><dateOfBirth>2001-01-31</dateOfBirth><dateOfDeath>2001-01=\r\n-31</dateOfDeath><gender>Male</gender><race><raceCd>I</raceCd></race><rac=\r\ne><raceCd>U</raceCd></race><isDeceased>unsure</isDeceased><maritalStatus>=\r\nMarried</maritalStatus><militaryServiceNumber>123456789</militaryServiceN=\r\number><placeOfBirth>Brooklyn,
-        NY</placeOfBirth><serviceName><firstName>fi=\r\nrst 6</firstName><lastName>last
-        6</lastName><maidenName>maiden 6</maidenN=\r\name><middleName>middle 6</middleName><suffix>Jr.</suffix></serviceName><s=\r\nerviceRecords><branchOfService>AF</branchOfService><dischargeType>1</disc=\r\nhargeType><enteredOnDutyDate>1940-08-07</enteredOnDutyDate><highestRank>G=\r\nEN</highestRank><nationalGuardState>NY</nationalGuardState><releaseFromDu=\r\ntyDate>1945-08-07</releaseFromDutyDate></serviceRecords><ssn>123-45-6789<=\r\n/ssn><vaClaimNumber>23456789</vaClaimNumber><militaryStatus>A</militarySt=\r\natus></veteran></preNeedRequest></tns:receivePreNeedApplication></env:Bod=\r\ny></env:Envelope>=\r\n\r\n----==_mimepart_5f34b35a5e675_690ae7d998184a8\r\nContent-Type:
+      string: "\r\n----==_mimepart_5f34b35a5e675_690ae7d998184a8\r\nContent-Type:
+        application/xop+xml;\r\n charset=UTF-8;\r\n type=\"text/xml\"\r\nContent-Transfer-Encoding:
+        quoted-printable\r\nContent-ID: <soap-request-body@soap>\r\n\r\n<?xml version=3D\"1.0\"
+        encoding=3D\"UTF-8\"?><env:Envelope xmlns:xsd=3D\"http=\r\n://www.w3.org/2001/XMLSchema\"
+        xmlns:xsi=3D\"http://www.w3.org/2001/XMLSche=\r\nma-instance\" xmlns:tns=3D\"http://service.soa.eoas.cem.va.gov/\"
+        xmlns:env=3D=\r\n\"http://schemas.xmlsoap.org/soap/envelope/\"><env:Body><tns:receivePreNeed=\r\nApplication><preNeedRequest><applicant><applicantEmail>hg@hotmail.com</ap=\r\nplicantEmail><applicantPhoneNumber>555-555-5555
+        - 234</applicantPhoneNumb=\r\ner><applicantRelationshipToClaimant>Self</applicantRelationshipToClaimant=\r\n><completingReason>I
+        don&#39;t know</completingReason><mailingAddress><ad=\r\ndress1>street 1</address1><address2>street2
+        1</address2><city>NY</city><c=\r\nountryCode>USA</countryCode><postalZip>10000</postalZip><state>NY</state>=\r\n</mailingAddress><name><firstName>first
+        1</firstName><lastName>last 1</la=\r\nstName><maidenName>maiden 1</maidenName><middleName>middle
+        1</middleName>=\r\n<suffix>Jr.</suffix></name></applicant><applicationStatus>somewhere</appl=\r\nicationStatus><attachments><attachmentType><attachmentTypeId>1</attachmen=\r\ntTypeId></attachmentType><dataHandler><inc:Include
+        href=3D\"cid:10da044241=\r\n90066fc1bb1fd6955008a4\" xmlns:inc=3D\"http://www.w3.org/2004/08/xop/includ=\r\ne\"></inc:Include></dataHandler><description>dd214a.pdf</description><send=\r\ningName>vets.gov</sendingName><sendingSource>vets.gov</sendingSource></at=\r\ntachments><attachments><attachmentType><attachmentTypeId>1</attachmentTyp=\r\neId></attachmentType><dataHandler><inc:Include
+        href=3D\"cid:8734786de1fa56=\r\ndafaef5a9f04beaed8\" xmlns:inc=3D\"http://www.w3.org/2004/08/xop/include\"><=\r\n/inc:Include></dataHandler><description>dd214a.pdf</description><sendingN=\r\name>vets.gov</sendingName><sendingSource>vets.gov</sendingSource></attach=\r\nments><claimant><address><address1>street
+        2</address1><address2>street2 2=\r\n</address2><city>NY</city><countryCode>USA</countryCode><postalZip>10000<=\r\n/postalZip><state>NY</state></address><dateOfBirth>2001-01-31</dateOfBirt=\r\nh><desiredCemetery>400</desiredCemetery><email>a@b.com</email><name><firs=\r\ntName>first
+        2</firstName><lastName>last 2</lastName><maidenName>maiden 2<=\r\n/maidenName><middleName>middle
+        2</middleName><suffix>Jr.</suffix></name><=\r\nphoneNumber>1234567890</phoneNumber><relationshipToVet>1</relationshipToV=\r\net><ssn>123-45-6789</ssn></claimant><currentlyBuriedPersons><cemeteryNumb=\r\ner>400</cemeteryNumber><name><firstName>first
+        3</firstName><lastName>last=\r\n 3</lastName><maidenName>maiden 3</maidenName><middleName>middle
+        3</middl=\r\neName><suffix>Jr.</suffix></name></currentlyBuriedPersons><currentlyBurie=\r\ndPersons><cemeteryNumber>400</cemeteryNumber><name><firstName>first
+        4</fi=\r\nrstName><lastName>last 4</lastName><maidenName>maiden 4</maidenName><midd=\r\nleName>middle
+        4</middleName><suffix>Jr.</suffix></name></currentlyBuriedP=\r\nersons><hasAttachments>true</hasAttachments><hasCurrentlyBuried>1</hasCur=\r\nrentlyBuried><sendingApplication>vets.gov</sendingApplication><sendingCod=\r\ne>abc</sendingCode><sentTime>2020-08-13T03:28:26Z</sentTime><trackingNumb=\r\ner>L46JGnr0DL2bqUXS9EVG</trackingNumber><veteran><address><address1>stree=\r\nt
+        3</address1><address2>street2 3</address2><city>NY</city><countryCode>U=\r\nSA</countryCode><postalZip>10000</postalZip><state>NY</state></address><c=\r\nurrentName><firstName>first
+        5</firstName><lastName>last 5</lastName><maid=\r\nenName>maiden 5</maidenName><middleName>middle
+        5</middleName><suffix>Jr.<=\r\n/suffix></currentName><dateOfBirth>2001-01-31</dateOfBirth><dateOfDeath>2=\r\n001-01-31</dateOfDeath><gender>Male</gender><race><raceCd>I</raceCd></rac=\r\ne><race><raceCd>U</raceCd></race><isDeceased>unsure</isDeceased><maritalS=\r\ntatus>Married</maritalStatus><militaryServiceNumber>123456789</militarySe=\r\nrviceNumber><placeOfBirth>Brooklyn,
+        NY</placeOfBirth><serviceName><firstN=\r\name>first 6</firstName><lastName>last
+        6</lastName><maidenName>maiden 6</m=\r\naidenName><middleName>middle 6</middleName><suffix>Jr.</suffix></serviceN=\r\name><serviceRecords><branchOfService>AF</branchOfService><dischargeType>1=\r\n</dischargeType><enteredOnDutyDate>1940-08-07</enteredOnDutyDate><highest=\r\nRank>GEN</highestRank><nationalGuardState>NY</nationalGuardState><release=\r\nFromDutyDate>1945-08-07</releaseFromDutyDate></serviceRecords><ssn>123-45=\r\n-6789</ssn><vaClaimNumber>23456789</vaClaimNumber><militaryStatus>A</mili=\r\ntaryStatus></veteran></preNeedRequest></tns:receivePreNeedApplication></e=\r\nnv:Body></env:Envelope>=\r\n\r\n----==_mimepart_5f34b35a5e675_690ae7d998184a8\r\nContent-Type:
         application/pdf\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition:
         attachment;\r\n filename=dd214a.pdf\r\nContent-ID: <10da04424190066fc1bb1fd6955008a4>\r\n\r\nJVBERi0xLjMKJf////8KMSAwIG9iago8PCAvQ3JlYXRvciA8ZmVmZjAwNTAw\r\nMDcyMDA2MTAwNzcwMDZlPgovUHJvZHVjZXIgPGZlZmYwMDUwMDA3MjAwNjEw\r\nMDc3MDA2ZT4KPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL0NhdGFsb2cK\r\nL1BhZ2VzIDMgMCBSCj4+CmVuZG9iagozIDAgb2JqCjw8IC9UeXBlIC9QYWdl\r\ncwovQ291bnQgMQovS2lkcyBbNSAwIFJdCj4+CmVuZG9iago0IDAgb2JqCjw8\r\nIC9MZW5ndGggMjI4Cj4+CnN0cmVhbQpxCgpCVAozNi4wIDcxOS41MTIgVGQK\r\nL0YyLjAgMTYgVGYKWzw0MTY0PiAxMCA8NjQ2OTc0Njk2ZjZlNjE2YzIwNDk2\r\nZTY2PiAyMCA8NmY3MjZkNjE3NDY5NmY2ZT5dIFRKCkVUCgoKQlQKMzYuMCA2\r\nOTMuMzQ0IFRkCi9GMi4wIDEyIFRmCls8MzE0MTJlMjA0NjZmNmYyMDRjNjk2\r\nZTY1MjAzMjNhPl0gVEoKRVQKCgpCVAozNi4wIDY3OS4wNjQgVGQKL0YxLjAg\r\nMTIgVGYKWzw2MjYxNzI+XSBUSgpFVAoKUQoKZW5kc3RyZWFtCmVuZG9iago1\r\nIDAgb2JqCjw8IC9UeXBlIC9QYWdlCi9QYXJlbnQgMyAwIFIKL01lZGlhQm94\r\nIFswIDAgNjEyLjAgNzkyLjBdCi9Dcm9wQm94IFswIDAgNjEyLjAgNzkyLjBd\r\nCi9CbGVlZEJveCBbMCAwIDYxMi4wIDc5Mi4wXQovVHJpbUJveCBbMCAwIDYx\r\nMi4wIDc5Mi4wXQovQXJ0Qm94IFswIDAgNjEyLjAgNzkyLjBdCi9Db250ZW50\r\ncyA0IDAgUgovUmVzb3VyY2VzIDw8IC9Qcm9jU2V0IFsvUERGIC9UZXh0IC9J\r\nbWFnZUIgL0ltYWdlQyAvSW1hZ2VJXQovRm9udCA8PCAvRjIuMCA2IDAgUgov\r\nRjEuMCA3IDAgUgo+Pgo+Pgo+PgplbmRvYmoKNiAwIG9iago8PCAvVHlwZSAv\r\nRm9udAovU3VidHlwZSAvVHlwZTEKL0Jhc2VGb250IC9IZWx2ZXRpY2EtQm9s\r\nZAovRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZwo+PgplbmRvYmoKNyAwIG9i\r\nago8PCAvVHlwZSAvRm9udAovU3VidHlwZSAvVHlwZTEKL0Jhc2VGb250IC9I\r\nZWx2ZXRpY2EKL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcKPj4KZW5kb2Jq\r\nCnhyZWYKMCA4CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxNSAwMDAw\r\nMCBuIAowMDAwMDAwMTA5IDAwMDAwIG4gCjAwMDAwMDAxNTggMDAwMDAgbiAK\r\nMDAwMDAwMDIxNSAwMDAwMCBuIAowMDAwMDAwNDk0IDAwMDAwIG4gCjAwMDAw\r\nMDA3OTIgMDAwMDAgbiAKMDAwMDAwMDg5NCAwMDAwMCBuIAp0cmFpbGVyCjw8\r\nIC9TaXplIDgKL1Jvb3QgMiAwIFIKL0luZm8gMSAwIFIKPj4Kc3RhcnR4cmVm\r\nCjk5MQolJUVPRgo=\r\n\r\n----==_mimepart_5f34b35a5e675_690ae7d998184a8\r\nContent-Type:
         application/pdf\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition:
@@ -46,7 +45,7 @@ http_interactions:
       Date:
       - Thu, 13 Aug 2020 03:28:26 GMT
       Content-Length:
-      - '8716'
+      - '8459'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
