@@ -187,6 +187,14 @@ RSpec.configure do |config|
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
   end
 
+  config.before(:each, csrf: false) do
+    ActionController::Base.allow_forgery_protection = false
+  end
+
+  config.after(:each, csrf: false) do
+    ActionController::Base.allow_forgery_protection = true
+  end
+
   config.after do
     Timecop.return
   end
