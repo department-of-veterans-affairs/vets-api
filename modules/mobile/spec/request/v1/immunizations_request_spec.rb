@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+# require 'committee/schema_validator/open_api_3/response_validator'
 require_relative '../../support/helpers/sis_session_helper'
 require_relative '../../support/matchers/json_schema_matcher'
 
 RSpec.describe 'immunizations', type: :request do
   include JsonSchemaMatchers
+  include Committee::Rails::Test::Methods
 
   let!(:user) { sis_user(icn: '9000682') }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
@@ -16,6 +18,21 @@ RSpec.describe 'immunizations', type: :request do
   end
 
   after { Timecop.return }
+
+  def hashify_schema(schema)
+    acc = {}
+    schema.to_h.each_pair do |k, v|
+      if v.is_a?(Openapi3Parser::Node::Object) || v.is_a?(Openapi3Parser::Node::Map)
+        h = hashify_schema(v)
+        acc[k] = h
+      elsif v.is_a?(Openapi3Parser::Node::Array)
+        acc[k] = v.to_a
+      else
+        acc[k] = v
+      end
+    end
+    acc
+  end
 
   describe 'GET /mobile/v1/health/immunizations' do
     context 'when the expected fields have data' do
@@ -29,48 +46,160 @@ RSpec.describe 'immunizations', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it 'matches the expected schema' do
-        # TODO: this should use the matcher helper instead (was throwing an Oj::ParseError)
-        # expect(response.parsed_body).to match_json_schema('modules/mobile/docs/schemas/v1/Immunizations.yml', strict: true)
-        schema_file = 'modules/mobile/docs/schemas/v1/Immunizations.yml'
-        # can also handle permitted classes at gem level: https://stackoverflow.com/questions/71332602/upgrading-to-ruby-3-1-causes-psychdisallowedclass-exception-when-using-yaml-lo
-        # json_schema = YAML.load_file('modules/mobile/docs/schemas/v1/Immunizations.yml', permitted_classes: [Matrix, OpenStruct, Symbol, Time])
-        json_schema = Openapi3Parser.load_file(schema_file)
+      context 'with rspec openapi' do
+        it 'validates the expected schema' do
+          RSpec::OpenAPI.path = 'modules/mobile/docs/openapi.yaml'
+          expect(response).to match_response_schema('modules/mobile/docs/openapi.yaml')
+        end
 
-binding.pry
+        it 'catches errors'
 
-        errors = JSON::Validator.fully_validate(json_schema, response.parsed_body, strict: true)
-        expect(errors).to be_empty
+        it 'works with simplified data'
 
-        expected_response = {
-          'data' => [{
-            'id' => 'I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000',
-            'type' => 'immunization',
-            'attributes' => {
-              'cvxCode' => 207,
-              'date' => '2021-01-14T09:30:21Z',
-              'doseNumber' => nil,
-              'doseSeries' => nil,
-              'groupName' => 'COVID-19',
-              'manufacturer' => nil,
-              'note' => 'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
-              'reaction' => nil,
-              'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
-            },
-            'relationships' => {
-              'location' => {
-                'data' => { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
-                'links' => {
-                  'related' => 'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000'
+        it 'works with refs'
+      end
+
+      context 'with Openapi3Parser' do
+        it 'validates the expected schema' do
+          # TODO: this should use the matcher helper instead (was throwing an Oj::ParseError)
+          # expect(response.parsed_body).to match_json_schema('modules/mobile/docs/schemas/v1/Immunizations.yml', strict: true)
+          # schema_file = 'modules/mobile/docs/schemas/v1/Immunizations.yml'
+          schema_file = 'modules/mobile/docs/openapi.yaml'
+          file = File.open(schema_file)
+          # can also handle permitted classes at gem level: https://stackoverflow.com/questions/71332602/upgrading-to-ruby-3-1-causes-psychdisallowedclass-exception-when-using-yaml-lo
+          # json_schema = YAML.load_file('modules/mobile/docs/schemas/v1/Immunizations.yml', permitted_classes: [Matrix, OpenStruct, Symbol, Time])
+          json_schema = Openapi3Parser.load(file)
+
+          # json_schema = Apivore::SwaggerChecker.instance_for(schema_file)
+          # expect(json_schema).to validate(:get, '/mobile/v1/health/immunizations', 200, sis_headers)
+
+          expect(JSON::Validator.validate(json_schema.to_h, response.parsed_body)).to eq(true)
+
+          expected_response = {
+            'data' => [{
+              'id' => 'I2-2BCP5BAI6N7NQSAPSVIJ6INQ4A000000',
+              'type' => 'immunization',
+              'attributes' => {
+                'cvxCode' => 207,
+                'date' => '2021-01-14T09:30:21Z',
+                'doseNumber' => nil,
+                'doseSeries' => nil,
+                'groupName' => 'COVID-19',
+                'manufacturer' => nil,
+                'note' => 'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
+                'reaction' => nil,
+                'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
+              },
+              'relationships' => {
+                'location' => {
+                  'data' => { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                  'links' => {
+                    'related' => 'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000'
+                  }
                 }
               }
-            }
-          }],
-          'meta' => { 'pagination' =>
-                        { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } }
-        }
+            }],
+            'meta' => { 'pagination' =>
+                          { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } }
+          }
 
-        expect(response.parsed_body).to eq(expected_response)
+          expect(response.parsed_body).to eq(expected_response)
+        end
+
+        it 'fails when the schema does not match' do
+          schema_file = 'modules/mobile/docs/openapi.yaml'
+          file = File.open(schema_file)
+          json_schema = Openapi3Parser.load(file)
+  
+          # this is missing id
+          expected_response = {
+            'data' => [{
+              'type' => 'immunization',
+              'attributes' => {
+                'cvxCode' => 207,
+                'date' => '2021-01-14T09:30:21Z',
+                'doseNumber' => nil,
+                'doseSeries' => nil,
+                'groupName' => 'COVID-19',
+                'manufacturer' => nil,
+                'note' => 'Dose #2 of 2 of COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose vaccine administered.',
+                'reaction' => nil,
+                'shortDescription' => 'COVID-19, mRNA, LNP-S, PF, 100 mcg or 50 mcg dose'
+              },
+              'relationships' => {
+                'location' => {
+                  'data' => { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000', 'type' => 'location' },
+                  'links' => {
+                    'related' => 'www.example.com/mobile/v0/health/locations/I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000'
+                  }
+                }
+              }
+            }],
+            'meta' => { 'pagination' =>
+                          { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } }
+          }
+
+          @success_schema = json_schema.paths["/v0/health/immunizations"].get.responses['200']
+          # schema = hashify_schema(@success_schema)
+          validator = Committee::SchemaValidator::OpenAPI3::ResponseValidator.new(@success_schema)
+
+          # relevant_schema = schema.dig('content', 'application/json', 'schema', 'properties')
+          # errors = JSON::Validator.fully_validate(relevant_schema, expected_response.to_json)
+          # expect(response.body).to match_json_schema(relevant_schema)
+          expect(validator.call(response)).to be_nil
+
+          # expect(errors).to eq([])
+        end
+
+        it 'works with a simpler test setup' do
+          schema_file = 'modules/mobile/docs/openapi.yaml'
+          file = File.open(schema_file)
+          json_schema = Openapi3Parser.load(file)
+          @success_schema = json_schema.paths["/test"].get.responses['200']
+          # schema = hashify_schema(@success_schema)
+
+          expected_response = {
+            'data' => {
+            }
+          }
+
+          schema = Openapi3Parser.load_file('path/to/your/openapi.yaml')
+          errors = JSON::Validator.fully_validate(schema.dig('content', 'application/json', 'schema', 'properties'), expected_response.to_json)
+          expect(errors).to be_empty
+        end
+
+        it 'works with refs'
+      end
+
+      context 'with committee' do
+        it 'validates realish schema' do
+          # schema_path = "#{Rails.root}/modules/mobile/docs/openapi.yaml"
+          # last_response = response
+          # last_request = request
+          RSpec.configure do |config|
+            config.add_setting :committee_options
+            config.committee_options = {
+              schema_path: Rails.root.join('modules', 'mobile', 'docs', 'openapi_no_refs.yaml').to_s,
+              query_hash_key: 'rack.request.query_hash',
+              parse_response_by_content_type: false,
+            }
+          end
+          # @committee_options ||= {
+          #   schema_path: Rails.root.join('module', 'mobile', 'docs', 'openapi.yaml').to_s,
+          #   query_hash_key: 'rack.request.query_hash',
+          #   parse_response_by_content_type: false,
+          # }
+          # use Committee::Middleware::RequestValidation, schema_path: 'modules/mobile/docs/openapi.yaml'
+          assert_schema_conform(200)
+        rescue => e
+          binding.pry
+        end
+
+        it 'catches errors'
+
+        it 'works with simplified data'
+
+        it 'works with refs'
       end
 
       context 'for items that do not have locations' do

@@ -1,0 +1,122 @@
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - type
+        - id
+        - attributes
+        - relationships
+      properties:
+        type:
+          type: string
+          example: "immunization"
+        id:
+          type: string
+          example: "I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000"
+        attributes:
+          type: object
+          required:
+            - cvxCode
+            - date
+            - doseNumber
+            - doseSeries
+            - groupName
+            - manufacturer
+            - note
+            - reaction
+            - shortDescription
+          properties:
+            cvxCode:
+              type: integer
+              nullable: true
+              example: 140
+            date:
+              type: string
+              nullable: true
+              example: 2009-03-19T12:24:55Z
+            doseNumber:
+              type: string
+              nullable: true
+              example: "Booster"
+            doseSeries:
+              type: integer
+              nullable: true
+              example: 1
+            groupName:
+              type: string
+              nullable: true
+              example: "FLU"
+            manufacturer:
+              type: string
+              nullable: true
+              example: nil
+            note:
+              type: string
+              nullable: true
+              example: "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
+            shortDescription:
+              type: string
+              nullable: true
+              example: "Influenza  seasonal  injectable  preservative free"
+            reaction:
+              type: string
+              nullable: true
+              example: "Swelling"
+        relationships:
+          type: object
+          required:
+            - location
+          properties:
+            location:
+              type: object
+              required:
+                - data
+                - links
+              properties:
+                data:
+                  type: "object, null"
+                  required:
+                    - id
+                    - type
+                  properties:
+                    id:
+                      type: string
+                      example: "I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000"
+                    type:
+                      type: string
+                      example: "location"
+                links:
+                  type: object
+                  required:
+                    - related
+                  properties:
+                    related:
+                      type: "string, null"
+                      example: "staging-api.va.gov/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000"
+  meta:
+    type: object
+    required:
+      - pagination
+    properties:
+      pagination:
+        type: object
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15

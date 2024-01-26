@@ -1,0 +1,69 @@
+openapi: "3.0.0"
+info:
+  version: 0.0.0
+  title: VA Mobile API
+  license:
+    name: MIT
+  description: >
+    The Department of Veterans Affairs mobile API. All paths are relative to https://api.va.gov/mobile.
+servers:
+  - url: https://api.va.gov/mobile
+paths:
+  /mobile/v1/health/immunizations:
+    get:
+      description: Returns the list of immunization records for given user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                        - city
+                        - state
+                        - cerner
+                        - clinics
+                      properties:
+                        id:
+                          type: string
+                          example: "358"
+                        name:
+                          type: string
+                          example: "Cheyenne VA Medical Center"
+                        city:
+                          type: string
+                          example: "Cheyenne"
+                        state:
+                          type: string
+                          example: "WY"
+                        cerner:
+                          type: boolean
+                          description: Is facility a cerner facility?
+                        miles:
+                          type: string
+                          nullable: true
+                          example: "3.17"
+                          description: Distance from requested location (current/home) based on haversine distance
+/mobile/v1/test:
+    get:
+      description: Returns the list of immunization records for given user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      type: object
+                      required:
+                        - id
+                      properties:
+                        id:
+                          type: string
+                          example: "358"

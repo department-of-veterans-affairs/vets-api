@@ -25,31 +25,31 @@ properties:
       - shortDescription
     properties:
       cvxCode:
-        type: integer, null
+        type: integer
         example: 140
       date:
-        type: string, null
+        type: string
         example: 2009-03-19T12:24:55Z
       doseNumber:
-        type: string, null
+        type: string
         example: "Booster"
       doseSeries:
-        type: integer, null
+        type: integer
         example: 1
       groupName:
-        type: string, null
+        type: string
         example: "FLU"
       manufacturer:
-        type: string, null
+        type: string
         example: nil
       note:
-        type: string, null
-        example: "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
+        type: string
+        example: "Dose 45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
       shortDescription:
-        type: string, null
+        type: string
         example: "Influenza  seasonal  injectable  preservative free"
       reaction:
-        type: string, null
+        type: string
         example: "Swelling"
   relationships:
     type: object
@@ -63,7 +63,7 @@ properties:
           - links
         properties:
           data:
-            type: [object, null]
+            type: object
             required:
               - id
               - type
@@ -80,5 +80,5 @@ properties:
               - related
             properties:
               related:
-                type: [string, null]
+                type: string
                 example: "staging-api.va.gov/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000"
