@@ -26,27 +26,25 @@ module ClaimsApi
 
         def appoint_organization
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
-          poa_code = parse_and_validate_poa_code
-          unless poa_code_in_organization?(poa_code)
+          validated_poa_code = shared_form_validation('2122')
+          unless poa_code_in_organization?(validated_poa_code)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an organization.')
           end
 
-          submit_power_of_attorney(poa_code)
+          submit_power_of_attorney(validated_poa_code, '2122')
         end
 
         def submit2122a
-          shared_form_validation('2122a')
-
+          validated_poa_code = shared_form_validation('2122a')
           validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
-          poa_code = parse_and_validate_poa_code
-          if poa_code_in_organization?(poa_code)
+          if poa_code_in_organization?(validated_poa_code)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
           end
 
-          submit_power_of_attorney(poa_code, '2122A')
+          submit_power_of_attorney(validated_poa_code, '2122A')
         end
 
-        def submit_power_of_attorney(poa_code, form_number = nil)
+        def submit_power_of_attorney(poa_code, form_number)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers:,
@@ -79,10 +77,10 @@ module ClaimsApi
 
         def shared_form_validation(form_number)
           target_veteran
-          rep_or_org = form_number == '2122' ? 'serviceOrganization' : 'representative'
           validate_json_schema(form_number.upcase)
-          poa_code = form_attributes.dig(rep_or_org, 'poaCode')
+          poa_code = get_poa_code(form_number)
           validate_individual_poa_code!(poa_code)
+          parse_and_validate_poa_code('2122A')
         end
 
         def representative(poa_code)
@@ -156,8 +154,13 @@ module ClaimsApi
                                                                     'Authorization').to_json)
         end
 
-        def parse_and_validate_poa_code
-          poa_code = form_attributes.dig('representative', 'poaCode')
+        def get_poa_code(form_number)
+          rep_or_org = form_number.upcase == '2122A' ? 'representative' : 'serviceOrganization'
+          form_attributes&.dig(rep_or_org, 'poaCode')
+        end
+
+        def parse_and_validate_poa_code(form_number)
+          poa_code = get_poa_code(form_number)
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
