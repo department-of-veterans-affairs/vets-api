@@ -40,7 +40,8 @@ module Lighthouse
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Attempt', {
                           claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid })
+                          benefits_intake_uuid: @lighthouse_service.uuid
+                        })
 
       form_submission_polling
 
@@ -128,7 +129,7 @@ module Lighthouse
     def check_success(response)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!',
-          { claim_id: @claim.id, benefits_intake_uuid: @lighthouse_service.uuid })
+                          { claim_id: @claim.id, benefits_intake_uuid: @lighthouse_service.uuid })
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
