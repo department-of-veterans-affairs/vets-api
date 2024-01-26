@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/vets-api/cli'
+require_relative '../config/boot'
+require 'rails'
+
+VetsApi::Cli.run(ARGV) if Rails.env.development? || Rails.env.test?
