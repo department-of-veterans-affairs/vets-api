@@ -43,10 +43,10 @@ module ClaimsApi
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
           end
 
-          submit_power_of_attorney(poa_code, 'submit2122a')
+          submit_power_of_attorney(poa_code)
         end
 
-        def submit_power_of_attorney(poa_code, action)
+        def submit_power_of_attorney(poa_code)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers:,
@@ -65,7 +65,7 @@ module ClaimsApi
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
             root: :data
           ), status: :accepted, location: url_for(
-            controller: 'power_of_attorney', action:, id: power_of_attorney.id
+            controller: 'power_of_attorney', action: 'show', id: power_of_attorney.id
           )
         end
 

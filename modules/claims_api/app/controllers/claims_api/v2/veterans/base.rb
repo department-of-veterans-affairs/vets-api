@@ -10,7 +10,7 @@ module ClaimsApi
       class Base < ClaimsApi::V2::ApplicationController
         include ClaimsApi::V2::JsonFormatValidation
 
-        before_action :validate_json_format, if: -> { request.post? || request.put? }
+        before_action :validate_json_format, if: -> { request.post? }
 
         private
 

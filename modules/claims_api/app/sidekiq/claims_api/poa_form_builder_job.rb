@@ -18,7 +18,7 @@ module ClaimsApi
     # @param power_of_attorney_id [String] Unique identifier of the submitted POA
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-      poa_code = power_of_attorney.form_data['serviceOrganization']['poaCode']
+      poa_code = power_of_attorney.form_data&.dig('representative', 'poaCode')
 
       output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 

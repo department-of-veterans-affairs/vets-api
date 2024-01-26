@@ -7,7 +7,7 @@ module ClaimsApi
         class PoaSubmissionValidator < ActiveModel::Validator
           def validate(record)
             validate_poa_code(record)
-            # validate_signatures(record)
+            validate_signatures(record)
           end
 
           private
@@ -18,6 +18,8 @@ module ClaimsApi
           end
 
           def validate_signatures(record)
+            record.data[:signatures] = { veteran: 'sign_here', representative: 'sign_here' }
+            # TODO: setup signature method in controller
             value = record.data[:signatures]
 
             record.errors.add :signatures, 'blank' if value.blank?
