@@ -58,7 +58,7 @@ module V0
         StatsD.increment("#{stats_key}.failure")
         log_validation_error_to_metadata(in_progress_form, claim)
         Rails.logger.error("Submit #{claim.class::FORM} Failed for user_id: #{user_uuid}",
-                           { in_progress_form_id: in_progress_form&.id })
+                           { in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors })
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
