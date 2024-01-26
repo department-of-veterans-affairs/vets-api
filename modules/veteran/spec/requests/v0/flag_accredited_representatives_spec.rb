@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'FlagAccreditedRepresentativesController', type: :request do
+RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :request do
   describe 'POST #create' do
     let(:base_path) { '/services/veteran/v0/flag_accredited_representatives' }
 
