@@ -12,7 +12,7 @@ module ClaimsApi
           {
             code: poa[:code],
             name: poa[:name],
-            phone: { number: poa[:phone_number] }
+            phone_number: poa[:phone_number]
           }
         end
 

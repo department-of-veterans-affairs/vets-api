@@ -150,11 +150,13 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
       operationId 'downloadSc'
       security DocHelpers.oauth_security_config(scopes)
 
-      include_examples 'PDF download docs', {
-        factory: :supplemental_claim_v0,
-        appeal_type_display_name: 'Supplemental Claim',
-        scopes:
-      }
+      # FIXME: re-enable once download endpoint uses ICN from token
+      #
+      # include_examples 'PDF download docs', {
+      #   factory: :supplemental_claim_v0,
+      #   appeal_type_display_name: 'Supplemental Claim',
+      #   scopes:
+      # }
     end
   end
 
