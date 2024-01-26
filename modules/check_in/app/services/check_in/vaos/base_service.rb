@@ -13,7 +13,7 @@ module CheckIn
 
       STATSD_KEY_PREFIX = 'api.check_in.vaos'
 
-      def initialize(patient_icn: )
+      def initialize(patient_icn:)
         @patient_icn = patient_icn
         @token_service = CheckIn::Map::TokenService.build({ patient_icn: })
         super()

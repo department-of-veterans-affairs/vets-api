@@ -22,5 +22,4 @@ describe CheckIn::VAOS::Configuration do
       expect(subject.connection).to be_an_instance_of(Faraday::Connection)
     end
   end
-
 end
