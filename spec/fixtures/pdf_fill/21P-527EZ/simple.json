@@ -17,23 +17,23 @@
   },
   "serviceNumber": "123456",
   "serveUnderOtherNames": false,
-  "previousEmployers": [
-    {
-      "jobType": "Customer service",
-      "jobHoursWeek": 20,
-      "jobTitle": "Manager"
-    }
-  ],
   "placeOfSeparation": "Westbrook, MA",
   "powStatus": false,
   "socialSecurityDisability": true,
   "medicalCondition": false,
   "nursingHome": false,
-  "medicaidStatus": true,
   "specialMonthlyPension": false,
   "vaTreatmentHistory": false,
   "federalTreatmentHistory": false,
   "currentEmployment": false,
+  "previousEmployers": [
+    {
+      "jobDate": "2020-06-15",
+      "jobType": "Customer service",
+      "jobHoursWeek": 20,
+      "jobTitle": "Manager"
+    }
+  ],
   "maritalStatus": "Never Married",
   "totalNetWorth": true,
   "hasCareExpenses": false,

@@ -39,7 +39,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       VCR.use_cassette('mobile/claims/claims_with_errors') do
         VCR.use_cassette('mobile/appeals/appeals') do
           expect(Rails.logger).to receive(:warn).with(
-            'mobile claims pre-cache set failed',
+            'mobile claims pre-cache fetch errors',
             { errors: [{ error_details: [{ 'key' => 'EVSS_7022',
                                            'severity' => 'ERROR',
                                            'text' =>
@@ -56,9 +56,14 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
 
     context 'when user is not found' do
       it 'caches the expected claims and appeals' do
+        expect(Rails.logger).to receive(:warn).with(
+          'mobile claims pre-cache job failed', user_uuid: 'iamtheuuidnow',
+                                                errors: 'iamtheuuidnow',
+                                                type: 'Mobile::V0::PreCacheClaimsAndAppealsJob::MissingUserError'
+        )
         expect do
           subject.perform('iamtheuuidnow')
-        end.to raise_error(described_class::MissingUserError, 'iamtheuuidnow')
+        end.not_to raise_error(described_class::MissingUserError, 'iamtheuuidnow')
         expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
       end
     end
