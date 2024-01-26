@@ -21,12 +21,16 @@
   "serveUnderOtherNames": true,
   "previousNames": [
     {
-      "first": "John",
-      "last": "Doe"
+      "previousFullName": {
+        "first": "Joseph",
+        "last": "Doe"
+      }
     },
     {
-      "first": "Johnny",
-      "last": "Doe"
+      "previousFullName": {
+        "first": "Jarrod",
+        "last": "Doe"
+      }
     }
   ],
   "placeOfSeparation": "West Brookfield, MA",
@@ -62,6 +66,11 @@
       "jobType": "Customer service",
       "jobHoursWeek": 20,
       "jobTitle": "Manager"
+    },
+    {
+      "jobType": "Customer service",
+      "jobHoursWeek": 20,
+      "jobTitle": "Representative"
     }
   ],
   "maritalStatus": "Separated",
@@ -345,33 +354,33 @@
   "incomeSources": [
     {
       "typeOfIncome": "SOCIAL_SECURITY",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 278.05
     },
     {
       "typeOfIncome": "INTEREST_DIVIDEND",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 78.5
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "part-time Uber",
-      "receiver": "Jane Doe",
+      "receiver": "SPOUSE",
       "payer": "John Doe",
       "amount": 278.99
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "full time job",
-      "receiver": "Jane Doe",
+      "receiver": "SPOUSE",
       "payer": "John Doe",
       "amount": 3278.75
     },
     {
       "typeOfIncome": "PENSION",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 55.27
     }
