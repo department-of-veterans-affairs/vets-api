@@ -152,13 +152,14 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         end
 
         it 'uses IAM session authentication' do
+          # require 'pry'; binding.pry;
           user = iam_sign_in
           expect_any_instance_of(IAMSSOeOAuth::SessionManager).to receive(:find_or_create_user).and_call_original
 
           VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
             get :index
           end
-
+          # require 'pry'; binding.pry;
           expect(response).to have_http_status(:ok)
           expect(controller.payload[:user_uuid]).to eq(user.uuid)
           expect(controller.payload[:session]).to eq(iam_session_token)
