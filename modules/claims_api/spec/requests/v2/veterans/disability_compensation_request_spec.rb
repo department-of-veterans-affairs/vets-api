@@ -3913,10 +3913,21 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       context 'when the PDF string is not generated' do
-        it 'returns a 422 response' do
+        it 'returns a 422 response when empty object is returned' do
           allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
             .to receive(:generate_526_pdf)
             .and_return({})
+
+          mock_ccg(scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+
+        it 'returns a 422 response if nil gets returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return(nil)
 
           mock_ccg(scopes) do |auth_header|
             post generate_pdf_path, params: data, headers: auth_header

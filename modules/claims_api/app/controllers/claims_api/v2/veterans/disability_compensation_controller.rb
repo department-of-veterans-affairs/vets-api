@@ -80,8 +80,7 @@ module ClaimsApi
         end
 
         # Returns filled out 526EZ form as PDF
-        def generate_pdf
-          # map the submitted form data
+        def generate_pdf # rubocop:disable Metrics/MethodLength
           mapped_claim = generate_pdf_mapper_service(
             form_attributes,
             get_pdf_data_wrapper,
@@ -89,18 +88,21 @@ module ClaimsApi
             veteran_middle_initial,
             Time.zone.now
           ).map_claim
-          # generate the PDF string from mapped data
           pdf_string = generate_526_pdf(mapped_claim)
-          if pdf_string.empty?
+          if pdf_string.present?
+            file_name = SecureRandom.hex.to_s
+            Tempfile.create([file_name, '.pdf']) do |pdf|
+              pdf.binmode # Set the file to binary mode
+              pdf.write(pdf_string)
+              pdf.rewind # after writing return to the start of the PDF
+
+              send_data pdf.read, filename: file_name, type: 'application/pdf', disposition: 'inline'
+              # Once this block closes the tempfile will delete
+            end
+          else
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
               detail: 'Failed to generate PDF'
             )
-          elsif pdf_string
-            file_name = "#{SecureRandom.hex}.pdf"
-            path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-            pdf = File.open(path)
-            # Return the PDF
-            send_data pdf, filename: file_name, type: 'application/pdf', disposition: 'inline'
           end
         end
 
