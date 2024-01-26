@@ -669,9 +669,9 @@ module PdfFill
             }
           },
           'spouseFullNameOverflow' => {
-            question_num: 7.1,
+            question_num: 7.2,
             question_suffix: '[Veteran]',
-            question_text: 'WHO WERE YOU MARRIED TO?'
+            question_text: 'WHO WAS YOUR SPOUSE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
             key: "Spouse_Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
