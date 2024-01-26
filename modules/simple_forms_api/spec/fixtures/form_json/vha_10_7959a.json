@@ -3,7 +3,7 @@
     "veteran": {
       "date_of_birth": "1987-02-02",
       "address": {
-        "country": "USA",
+
         "street": "1 First Ln",
         "city": "Place",
         "state": "AL",
@@ -15,7 +15,6 @@
         "last": "Surname"
       },
       "ssn_or_tin": "222554444",
-      "va_claim_number": "123456789",
       "phone_number": "9876543213",
       "is_new_address": true
     },
@@ -53,7 +52,6 @@
         "last": "Claimant_Surname"
       },
       "address": {
-        "country": "USA",
         "street": "2 Second Ln",
         "city": "Place Two",
         "state": "PA",

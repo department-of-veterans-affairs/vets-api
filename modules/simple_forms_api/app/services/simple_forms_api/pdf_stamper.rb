@@ -33,6 +33,7 @@ module SimpleFormsApi
       stamp107959a_resubmission(stp, [186.5, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'private'
       stamp107959a_resubmission(stp, [283, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'medicare'
       stamp107959a_resubmission(stp, [394, 327], 'o', 10) if form.data.dig('ohi_info', 'coverage_type') == 'other'
+      stamp107959a_resubmission(stp, [245, 103], form.data.dig('claimant', 'signature'))
     end
 
     def self.stamp107959a_resubmission(stamped_template_path, coordinates, text, font_size = 12)
