@@ -36,13 +36,15 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
   end
 
   describe '#perform' do
+    let(:notification_client) { double('Notifications::Client') }
+
     %w[ch33 comp_pen].each do |dd_type|
       context "with a dd type of #{dd_type}" do
         it 'sends a confirmation email' do
-          client = double
-          expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
+          allow(VaNotify::Service).to receive(:new)
+            .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
 
-          expect(client).to receive(:send_email).with(
+          expect(notification_client).to receive(:send_email).with(
             email_address: email,
             template_id: dd_type == 'ch33' ? 'edu_template_id' : 'comp_pen_template_id'
           )
@@ -50,6 +52,41 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
           described_class.new.perform(email, dd_type)
         end
       end
+    end
+
+    it 'handles 4xx errors when sending an email' do
+      allow(Notifications::Client).to receive(:new).and_return(notification_client)
+
+      error = Common::Exceptions::BackendServiceException.new(
+        'VANOTIFY_400',
+        { source: VaNotify::Service.to_s },
+        400,
+        'Error'
+      )
+
+      allow(notification_client).to receive(:send_email).and_raise(error)
+
+      expect(described_class).to receive(:log_exception_to_sentry).with(error)
+      expect { subject.perform(email, 'comp_pen') }
+        .to trigger_statsd_increment('worker.direct_deposit_confirmation_email.error')
+    end
+
+    it 'handles 5xx errors when sending an email' do
+      allow(Notifications::Client).to receive(:new).and_return(notification_client)
+
+      error = Common::Exceptions::BackendServiceException.new(
+        'VANOTIFY_500',
+        { source: VaNotify::Service.to_s },
+        500,
+        'Error'
+      )
+
+      allow(notification_client).to receive(:send_email).and_raise(error)
+
+      expect(described_class).to receive(:log_exception_to_sentry).with(error)
+      expect { subject.perform(email, 'comp_and_pen') }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+        .and trigger_statsd_increment('worker.direct_deposit_confirmation_email.error')
     end
   end
 end
