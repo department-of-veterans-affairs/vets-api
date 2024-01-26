@@ -19,7 +19,7 @@ module Lighthouse
     # retry for one day
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg|
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob exhausted!',
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob Exhausted!',
                          { saved_claim_id: @saved_claim_id, error: msg })
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
@@ -38,8 +38,9 @@ module Lighthouse
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      Rails.logger.info({ message: 'PensionBenefitIntakeJob Attempt',
-                          claim_id: @claim.id, uuid: @lighthouse_service.uuid })
+      Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Attempt', {
+                          claim_id: @claim.id,
+                          benefits_intake_uuid: @lighthouse_service.uuid })
 
       form_submission_polling
 
@@ -56,7 +57,7 @@ module Lighthouse
 
       check_success(response)
     rescue => e
-      Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob failed!',
+      Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob FAILED!',
                         { error: e.message })
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
       @form_submission_attempt&.fail!
@@ -126,7 +127,8 @@ module Lighthouse
     # @param [Object] response
     def check_success(response)
       if response.success?
-        Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: @claim.id })
+        Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!',
+          { claim_id: @claim.id, benefits_intake_uuid: @lighthouse_service.uuid })
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
@@ -146,7 +148,7 @@ module Lighthouse
       )
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
 
-      Datadog::Tracing.active_trace&.set_tag('uuid', @lighthouse_service.uuid)
+      Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @lighthouse_service.uuid)
     end
 
     # Delete temporary stamped PDF files for this instance.
