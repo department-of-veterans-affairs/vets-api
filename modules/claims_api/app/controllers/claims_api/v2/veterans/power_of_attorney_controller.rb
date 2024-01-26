@@ -43,10 +43,10 @@ module ClaimsApi
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
           end
 
-          submit_power_of_attorney(poa_code)
+          submit_power_of_attorney(poa_code, '2122A')
         end
 
-        def submit_power_of_attorney(poa_code)
+        def submit_power_of_attorney(poa_code, form_number = nil)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers:,
@@ -59,7 +59,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           # This builds the POA form *AND* uploads it to VBMS
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
