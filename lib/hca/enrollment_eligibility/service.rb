@@ -261,6 +261,14 @@ module HCA
         return if date_str.blank?
 
         Date.parse(date_str).to_s
+      rescue Date::Error => e
+        log_exception_to_sentry(e)
+        PersonalInformationLog.create!(
+          data: date_str,
+          error_class: 'Form1010Ezr DateError'
+        )
+
+        nil
       end
 
       def part_a_effective_date(response)
