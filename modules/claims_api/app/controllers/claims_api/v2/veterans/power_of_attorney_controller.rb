@@ -46,24 +46,6 @@ module ClaimsApi
           submit_power_of_attorney(poa_code, 'submit2122a')
         end
 
-        def validate2122a
-          target_veteran
-          validate_json_schema('2122a'.upcase)
-
-          poa_code = form_attributes.dig('representative', 'poaCode')
-          validate_individual_poa_code!(poa_code)
-
-          render json: validation_success
-        end
-
-        def validate2122
-          shared_form_validation('2122')
-
-          render json: validation_success
-        end
-
-        private
-
         def submit_power_of_attorney(poa_code, action)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
@@ -87,11 +69,18 @@ module ClaimsApi
           )
         end
 
+        def validate2122a
+          shared_form_validation('2122A')
+
+          render json: validation_success
+        end
+
+        private
+
         def shared_form_validation(form_number)
           target_veteran
-          form = form_number == '2122' ? '2122' : '2122a'
-          validate_json_schema(form.upcase)
           rep_or_org = form_number == '2122' ? 'serviceOrganization' : 'representative'
+          validate_json_schema(form_number.upcase)
           poa_code = form_attributes.dig(rep_or_org, 'poaCode')
           validate_individual_poa_code!(poa_code)
         end
