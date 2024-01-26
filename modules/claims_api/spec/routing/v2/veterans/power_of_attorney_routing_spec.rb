@@ -56,7 +56,7 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
     expect(post(submit_2122a_path)).to route_to(
       format: 'json',
       controller: expected_controller,
-      action: 'submit_2122a',
+      action: 'submit2122a',
       veteranId: '123'
     )
   end
