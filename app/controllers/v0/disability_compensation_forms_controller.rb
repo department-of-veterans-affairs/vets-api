@@ -43,7 +43,6 @@ module V0
 
       render json: response,
              each_serializer: EVSSSeparationLocationSerializer
-
     end
 
     def suggested_conditions
