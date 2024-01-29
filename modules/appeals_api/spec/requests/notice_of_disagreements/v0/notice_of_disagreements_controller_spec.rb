@@ -52,19 +52,24 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     end
 
     describe 'responses' do
+      let(:created_notice_of_disagreement) { AppealsApi::NoticeOfDisagreement.find(parsed_response.dig('data', 'id')) }
+
       before do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
           post(path, params:, headers: headers.merge(auth_header))
         end
       end
 
-      it 'creates an NOD record having api_version: "V0"' do
+      it 'returns 201 status' do
         expect(response).to have_http_status(:created)
+      end
 
-        nod_guid = parsed_response['data']['id']
-        nod = AppealsApi::NoticeOfDisagreement.find(nod_guid)
+      it 'creates an NOD record having api_version: "V0"' do
+        expect(created_notice_of_disagreement.api_version).to eq('V0')
+      end
 
-        expect(nod.api_version).to eq('V0')
+      it 'includes the form_data with PII in the serialized response' do
+        expect(parsed_response.dig('data', 'attributes', 'formData')).to be_present
       end
 
       context 'when body does not match schema' do
@@ -167,7 +172,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
         with_openid_auth(described_class::OAUTH_SCOPES[:GET]) { |auth_header| get(path, headers: auth_header) }
       end
 
-      it 'returns only the data from the ALLOWED_COLUMNS' do
+      it 'returns only minimal data with no PII' do
         expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
       end
     end

@@ -11,6 +11,7 @@ module PdfFill
     class Va21p527ez < FormBase
       include FormHelper
       include FormHelper::PhoneNumberFormatting
+      include ActiveSupport::NumberHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
@@ -18,6 +19,12 @@ module PdfFill
         'VETERAN' => 0,
         'SPOUSE' => 1,
         'CHILD' => 2
+      }.freeze
+
+      INCOME_RECIPIENTS = {
+        'VETERAN' => 0,
+        'SPOUSE' => 1,
+        'DEPENDENT' => 2
       }.freeze
 
       INCOME_TYPES = {
@@ -37,6 +44,18 @@ module PdfFill
         'ONCE_MONTH' => 0,
         'ONCE_YEAR' => 1,
         'ONE_TIME' => 2
+      }.freeze
+
+      REASONS_FOR_SEPARATION = {
+        'spouse’s death' => 0,
+        'divorce' => 1,
+        'other' => 2
+      }.freeze
+
+      SPOUSES_REASONS_FOR_SEPARATION = {
+        'death' => 0,
+        'divorce' => 1,
+        'other' => 2
       }.freeze
 
       KEY = {
@@ -544,39 +563,44 @@ module PdfFill
             key: 'form1[0].#subform[49].Monthly_Amount[2]'
           }
         },
-        # 7
+        # 7a-j Veteran's prior marriages
         'marriages' => {
           limit: 2,
           first_key: 'otherExplanation',
-          question_num: 7,
+          question_num: 7.1,
           'spouseFullName' => {
             'first' => {
               limit: 12,
-              question_num: 7,
+              question_num: 7.1,
               question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 7,
+              question_num: 7.1,
               question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
               key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 7,
+              question_num: 7.1,
               question_suffix: '[Veteran]',
               question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
               key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
             }
+          },
+          'spouseFullNameOverflow' => {
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: 'WHO WERE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
             key: "Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
           },
           'otherExplanation' => {
             limit: 43,
-            question_num: 7,
+            question_num: 7.1,
             question_suffix: '[Veteran]',
             question_text: 'HOW DID YOUR PREVIOUS MARRIAGE END?',
             key: "Marriages.Other_Specify[#{ITERATOR}]"
@@ -605,50 +629,56 @@ module PdfFill
           },
           'locationOfMarriage' => {
             limit: 63,
-            question_num: 7,
+            question_num: 7.1,
             question_suffix: '[Veteran]',
             question_text: 'PLACE OF MARRIAGE',
             key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
-            question_num: 7,
+            question_num: 7.1,
             question_suffix: '[Veteran]',
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
+        # 7l-u Spouse's prior marriages
         'spouseMarriages' => {
           limit: 2,
           first_key: 'otherExplanation',
           'spouseFullName' => {
             'first' => {
               limit: 12,
-              question_num: 7,
+              question_num: 7.2,
               question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 7,
+              question_num: 7.2,
               question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 7,
+              question_num: 7.2,
               question_suffix: '[Spouse]',
               question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
               key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
             }
+          },
+          'spouseFullNameOverflow' => {
+            question_num: 7.2,
+            question_suffix: '[Veteran]',
+            question_text: 'WHO WAS YOUR SPOUSE YOU MARRIED TO?'
           },
           'reasonForSeparation' => {
             key: "Spouse_Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
           },
           'otherExplanation' => {
             limit: 43,
-            question_num: 7,
+            question_num: 7.2,
             question_suffix: '[Spouse]',
             question_text: 'HOW DID THE PREVIOUS MARRIAGE END?',
             key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
@@ -677,22 +707,24 @@ module PdfFill
           },
           'locationOfMarriage' => {
             limit: 63,
-            question_num: 7,
+            question_num: 7.2,
             question_suffix: '[Spouse]',
             question_text: 'PLACE OF MARRIAGE',
             key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'locationOfSeparation' => {
             limit: 54,
-            question_num: 7,
+            question_num: 7.2,
             question_suffix: '[Spouse]',
             question_text: 'PLACE OF MARRIAGE TERMINATION',
             key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
           }
         },
+        # 7k
         'additionalMarriages' => {
           key: 'form1[0].#subform[50].RadioButtonList[15]'
         },
+        # 7v
         'additionalSpouseMarriages' => {
           key: 'form1[0].#subform[50].RadioButtonList[17]'
         },
@@ -707,25 +739,29 @@ module PdfFill
         # 8b-p Dependent Children
         'dependents' => {
           limit: 3,
-          first_key: 'fullName',
+          first_key: 'childPlaceOfBirth',
           'fullName' => {
             'first' => {
               limit: 12,
-              question_num: 8,
+              question_num: 8.1,
               question_text: 'CHILD\'S FIRST NAME',
               key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
             },
             'middle' => {
-              question_num: 8,
+              question_num: 8.1,
               question_text: 'CHILD\'S MIDDLE NAME',
               key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
               limit: 18,
-              question_num: 8,
-              question_text: 'CUSTODIAN\'S LAST NAME',
+              question_num: 8.1,
+              question_text: 'CHILD\'S LAST NAME',
               key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
             }
+          },
+          'fullNameOverflow' => {
+            question_num: 8.1,
+            question_text: 'CHILD\'S NAME'
           },
           'childDateOfBirth' => {
             'month' => {
@@ -739,7 +775,7 @@ module PdfFill
             }
           },
           'childDateOfBirthOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
@@ -754,12 +790,12 @@ module PdfFill
             }
           },
           'childSocialSecurityNumberOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
@@ -787,7 +823,7 @@ module PdfFill
             key: "Dependent_Children.Does_Not_Live_With_You_But_Contributes[#{ITERATOR}]"
           },
           'childStatusOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'CHILD\'S STATUS'
           },
           'monthlyPayment' => {
@@ -802,7 +838,7 @@ module PdfFill
             }
           },
           'monthlyPaymentOverflow' => {
-            question_num: 8,
+            question_num: 8.1,
             question_text: 'Amount of Contribution For Child'
           }
         },
@@ -811,10 +847,12 @@ module PdfFill
           key: 'form1[0].#subform[51].RadioButtonList[20]'
         },
         # 8r
-        'custodian' => {
+        'custodians' => {
+          limit: 1,
+          first_key: 'first',
           'first' => {
             limit: 12,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S FIRST NAME',
             key: 'form1[0].#subform[51].Custodians_FirstName[0]'
@@ -824,47 +862,63 @@ module PdfFill
           },
           'last' => {
             limit: 18,
-            question_num: 8,
+            question_num: 8.2,
             question_suffix: 'R',
             question_text: 'CUSTODIAN\'S LAST NAME',
             key: 'form1[0].#subform[51].Custodians_LastName[0]'
-          }
-        },
-        'custodianAddress' => {
-          'street' => {
-            limit: 30,
-            question_num: 8,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
-            key: 'form1[0].#subform[51].NumberStreet[3]'
           },
-          'street2' => {
-            limit: 5,
-            question_num: 8,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
-            key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
-          },
-          'city' => {
-            limit: 18,
-            question_num: 8,
-            question_suffix: 'R',
-            question_text: 'CUSTODIAN\'S ADDRESS CITY',
-            key: 'form1[0].#subform[51].City[2]'
-          },
-          'state' => {
-            key: 'form1[0].#subform[51].State_Or_Province[1]'
-          },
-          'country' => {
-            key: 'form1[0].#subform[51].Country[2]'
-          },
-          'postalCode' => {
-            'firstFive' => {
-              key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+          'custodianAddress' => {
+            'street' => {
+              limit: 30,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
+              key: 'form1[0].#subform[51].NumberStreet[3]'
             },
-            'lastFour' => {
-              key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+            'street2' => {
+              limit: 5,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
+              key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
+            },
+            'city' => {
+              limit: 18,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS CITY',
+              key: 'form1[0].#subform[51].City[2]'
+            },
+            'state' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              key: 'form1[0].#subform[51].State_Or_Province[1]'
+            },
+            'country' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              key: 'form1[0].#subform[51].Country[2]'
+            },
+            'postalCode' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              'firstFive' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+              },
+              'lastFour' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+              }
             }
+          },
+          'custodianAddressOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS'
+          },
+          'dependentsWithCustodianOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
           }
         },
         # 9a
@@ -914,17 +968,18 @@ module PdfFill
         # 9h-k Income Sources
         'incomeSources' => {
           limit: 4,
-          first_key: 'childName',
+          first_key: 'dependentName',
           # (1) Recipient
           'receiver' => {
             key: "Income_Recipient[#{ITERATOR}]"
           },
           'receiverOverflow' => {
+            key: "Income_Recipient[#{ITERATOR}]",
             question_num: 9,
             question_suffix: '(1)',
-            question_text: 'INCOME RECIPIENT'
+            question_text: 'PAYMENT RECIPIENT'
           },
-          'childName' => {
+          'dependentName' => {
             key: "Income_Recipient_Child[#{ITERATOR}]",
             limit: 29,
             question_num: 9,
@@ -986,31 +1041,31 @@ module PdfFill
             key: "Care_Expenses.Recipient[#{ITERATOR}]"
           },
           'recipientsOverflow' => {
-            question_num: 10,
-            question_suffix: '(1)',
+            question_num: 10.1,
+            question_suffix: '[Care](1)',
             question_text: 'CARE EXPENSE RECIPIENT'
           },
           'childName' => {
             key: "Care_Expenses.Child_Specify[#{ITERATOR}]",
             limit: 45,
-            question_num: 10,
-            question_suffix: '(1)',
+            question_num: 10.1,
+            question_suffix: '[Care](1)',
             question_text: 'CARE EXPENSE CHILD NAME'
           },
           # (2) Provider
           'provider' => {
             key: "Care_Expenses.Name_Of_Provider[#{ITERATOR}]",
             limit: 70,
-            question_num: 10,
-            question_suffix: '(2)',
+            question_num: 10.1,
+            question_suffix: '[Care](2)',
             question_text: 'CARE EXPENSE PROVIDER NAME'
           },
           'careType' => {
             key: "Care_Expenses.Care_Type[#{ITERATOR}]"
           },
           'careTypeOverflow' => {
-            question_num: 10,
-            question_suffix: '(2)',
+            question_num: 10.1,
+            question_suffix: '[Care](2)',
             question_text: 'CARE TYPE'
           },
           # (3) Rate Per Hour
@@ -1023,14 +1078,14 @@ module PdfFill
             }
           },
           'ratePerHourOverflow' => {
-            question_num: 10,
-            question_suffix: '(3)',
+            question_num: 10.1,
+            question_suffix: '[Care](3)',
             question_text: 'CARE EXPENSE RATE PER HOUR'
           },
           'hoursPerWeek' => {
             limit: 3,
-            question_num: 10,
-            question_suffix: '(3)',
+            question_num: 10.1,
+            question_suffix: '[Care](3)',
             question_text: 'HOURS PER WEEK CARE RECEIVED',
             key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
           },
@@ -1060,8 +1115,8 @@ module PdfFill
             }
           },
           'careDateRangeOverflow' => {
-            question_num: 10,
-            question_suffix: '(4)',
+            question_num: 10.1,
+            question_suffix: '[Care](4)',
             question_text: 'DATE RANGE CARE RECEIVED'
           },
           'noCareEndDate' => {
@@ -1072,8 +1127,8 @@ module PdfFill
             key: "Care_Expenses.Payment_Frequency[#{ITERATOR}]"
           },
           'paymentFrequencyOverflow' => {
-            question_num: 10,
-            question_suffix: '(5)',
+            question_num: 10.1,
+            question_suffix: '[Care](5)',
             question_text: 'CARE EXPENSE PAYMENT FREQUENCY'
           },
           # (6) Rate Per Frequency
@@ -1089,8 +1144,8 @@ module PdfFill
             }
           },
           'paymentAmountOverflow' => {
-            question_num: 10,
-            question_suffix: '(6)',
+            question_num: 10.1,
+            question_suffix: '[Care](6)',
             question_text: 'CARE EXPENSE PAYMENT AMOUNT'
           }
         },
@@ -1103,31 +1158,31 @@ module PdfFill
             key: "Med_Expenses.Recipient[#{ITERATOR}]"
           },
           'recipientsOverflow' => {
-            question_num: 9,
-            question_suffix: '(1)',
+            question_num: 10.2,
+            question_suffix: '[Medical](1)',
             question_text: 'MEDICAL EXPENSE RECIPIENT'
           },
           'childName' => {
             key: "Med_Expenses.Child_Specify[#{ITERATOR}]",
             limit: 45,
-            question_num: 10,
-            question_suffix: '(1)',
+            question_num: 10.2,
+            question_suffix: '[Medical](1)',
             question_text: 'MEDICAL EXPENSE CHILD NAME'
           },
           # (2) Provider
           'provider' => {
             key: "Med_Expenses.Paid_To[#{ITERATOR}]",
             limit: 108,
-            question_num: 10,
-            question_suffix: '(2)',
+            question_num: 10.2,
+            question_suffix: '[Medical](2)',
             question_text: 'MEDICAL EXPENSE PROVIDER NAME'
           },
           # (3) Purpose
           'purpose' => {
             key: "Med_Expenses.Purpose[#{ITERATOR}]",
             limit: 108,
-            question_num: 10,
-            question_suffix: '(3)',
+            question_num: 10.2,
+            question_suffix: '[Medical](3)',
             question_text: 'MEDICAL EXPENSE PURPOSE'
           },
           # (4) Payment Date
@@ -1143,8 +1198,8 @@ module PdfFill
             }
           },
           'paymentDateOverflow' => {
-            question_num: 10,
-            question_suffix: '(4)',
+            question_num: 10.2,
+            question_suffix: '[Medical](4)',
             question_text: 'MEDICAL EXPENSE PAYMENT DATE'
           },
           # (5) Payment Frequency
@@ -1152,8 +1207,8 @@ module PdfFill
             key: "Med_Expenses.Payment_Frequency[#{ITERATOR}]"
           },
           'paymentFrequencyOverflow' => {
-            question_num: 10,
-            question_suffix: '(5)',
+            question_num: 10.2,
+            question_suffix: '[Medical](5)',
             question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY'
           },
           # (6) Rate Per Frequency
@@ -1170,8 +1225,8 @@ module PdfFill
             }
           },
           'paymentAmountOverflow' => {
-            question_num: 10,
-            question_suffix: '(6)',
+            question_num: 10.2,
+            question_suffix: '[Medical](6)',
             question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT'
           }
         },
@@ -1267,6 +1322,9 @@ module PdfFill
 
       # SECTION III: VETERAN'S SERVICE INFORMATION
       def expand_veteran_service_information
+        prev_names = @form_data['previousNames']
+
+        @form_data['previousNames'] = prev_names.pluck('previousFullName') if prev_names.present?
         @form_data['activeServiceDateRange'] = {
           'from' => split_date(@form_data.dig('activeServiceDateRange', 'from')),
           'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
@@ -1293,11 +1351,11 @@ module PdfFill
       # SECTION IV: PENSION INFORMATION
       def expand_pension_information
         @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
-        @form_data['medicaidStatus'] = to_radio_yes_no(@form_data['medicaidStatus'])
-        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
-        @form_data['medicalCondition'] = to_radio_yes_no(
-          @form_data['medicalCondition'] || @form_data['medicaidCoverage']
+        @form_data['medicaidStatus'] = to_radio_yes_no(
+          @form_data['medicaidStatus'] || @form_data['medicaidCoverage']
         )
+        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
+        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
         @form_data['socialSecurityDisability'] = to_radio_yes_no(
           @form_data['socialSecurityDisability'] || @form_data['isOver65']
         )
@@ -1383,18 +1441,19 @@ module PdfFill
 
       # SECTION VII: PRIOR MARITAL HISTORY
       def expand_prior_marital_history
-        reason_for_separation_lookup = {
-          'death' => 0,
-          'divorce' => 1,
-          'other' => 2
-        }
-        %w[marriages spouseMarriages].each do |key|
-          @form_data[key] = @form_data[key]&.map do |marriage|
-            reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
-            marriage.merge({ 'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
-                             'reasonForSeparation' => reason_for_separation_lookup[reason_for_separation],
-                             'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
-          end
+        @form_data['marriages'] = @form_data['marriages']&.map do |marriage|
+          reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                           'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
+                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
+        end
+        @form_data['spouseMarriages'] = @form_data['spouseMarriages']&.map do |marriage|
+          reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                           'reasonForSeparation' => SPOUSES_REASONS_FOR_SEPARATION[reason_for_separation],
+                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']) })
         end
         if @form_data['marriages']&.any?
           @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages'].length.to_i > 3)
@@ -1410,27 +1469,49 @@ module PdfFill
         @form_data['dependents'] = @form_data['dependents']&.map { |dependent| dependent_to_hash(dependent) }
         # 8Q Do all children not living with you reside at the same address?
         custodian_addresses = {}
-        dependents_not_in_household = @form_data['dependents']&.reject do |dependent|
-          dependent['childInHousehold']
-        end || []
+        dependents_not_in_household = @form_data['dependents']&.reject { |dep| dep['childInHousehold'] } || []
         dependents_not_in_household.each do |dependent|
           custodian_key = dependent['personWhoLivesWithChild'].values.join('_')
-          custodian_hash = {
-            'custodian' => dependent['personWhoLivesWithChild'],
-            'custodianAddress' => dependent['childAddress']
-                           .merge({ 'postalCode' => split_postal_code(dependent['childAddress']) })
-          }
-          custodian_addresses[custodian_key] = custodian_hash if custodian_addresses[custodian_key].nil?
+          if custodian_addresses[custodian_key].nil?
+            custodian_addresses[custodian_key] = build_custodian_hash_from_dependent(dependent)
+          else
+            custodian_addresses[custodian_key]['dependentsWithCustodianOverflow'] +=
+              ", #{dependent['fullName'].values.join(' ')}"
+          end
         end
         if custodian_addresses.any?
           @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
         end
-        @form_data['custodian'] = custodian_addresses.values.first&.dig('custodian') || {}
-        @form_data['custodianAddress'] = custodian_addresses.values.first&.dig('custodianAddress') || {}
+        @form_data['custodians'] = custodian_addresses.values
+      end
+
+      def build_custodian_hash_from_dependent(dependent)
+        dependent['personWhoLivesWithChild']
+          .merge({
+                   'custodianAddress' => dependent['childAddress'].merge(
+                     'postalCode' => split_postal_code(dependent['childAddress'])
+                   )
+                 })
+          .merge({
+                   'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
+                   'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
+                 })
+      end
+
+      def build_address_string(address)
+        return '' if address.blank?
+
+        country = address['country'].present? ? "#{address['country']}, " : ''
+        address_arr = [
+          (address['street']).to_s, address['street2'].presence,
+          "#{address['city']}, #{address['state']}, #{country}#{address['postalCode']}"
+        ].compact
+
+        address_arr.join("\n")
       end
 
       def select_children_in_household(dependents)
-        return '0' unless dependents&.any?
+        return unless dependents&.any?
 
         dependents.select do |dependent|
           dependent['childInHousehold']
@@ -1447,26 +1528,26 @@ module PdfFill
       end
 
       def dependent_to_hash(dependent)
-        dependent.merge({
-                          'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
-                          'childDateOfBirthOverflow' => dependent['childDateOfBirth'],
-                          'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
-                          'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
-                          'childRelationship' => {
-                            'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
-                            'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
-                            'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
-                          },
-                          'disabled' => to_checkbox_on_off(dependent['disabled']),
-                          'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
-                          'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
-                          'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
-                          'childStatusOverflow' => child_status_overflow(dependent).join(', '),
-                          'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
-                          'monthlyPaymentOverflow' => ActiveSupport::NumberHelper.number_to_currency(
-                            dependent['monthlyPayment']
-                          )
-                        })
+        dependent
+          .merge({
+                   'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
+                   'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
+                   'childDateOfBirthOverflow' => dependent['childDateOfBirth'],
+                   'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
+                   'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
+                   'childRelationship' => {
+                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
+                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
+                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
+                   },
+                   'disabled' => to_checkbox_on_off(dependent['disabled']),
+                   'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
+                   'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
+                   'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                   'childStatusOverflow' => child_status_overflow(dependent).join(', '),
+                   'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
+                   'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
+                 })
       end
 
       # SECTION IX: INCOME AND ASSETS
@@ -1493,18 +1574,19 @@ module PdfFill
 
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
-          income_source.merge({
-                                # TODO: Update this once the front-end is updated post MVP
-                                'receiver' => 0,
-                                # TODO: Update this once the front-end is updated post MVP
-                                'receiverOverflow' => 'VETERAN',
-                                'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
-                                'typeOfIncomeOverflow' => income_source['typeOfIncome'],
-                                'amount' => split_currency_amount(income_source['amount']),
-                                'amountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
-                                  income_source['amount']
-                                )
-                              })
+          income_source_hash = {
+            'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
+            'receiverOverflow' => income_source['receiver']&.humanize,
+            'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
+            'typeOfIncomeOverflow' => income_source['typeOfIncome']&.humanize,
+            'amount' => split_currency_amount(income_source['amount']),
+            'amountOverflow' => number_to_currency(income_source['amount'])
+          }
+          if income_source['dependentName'].present?
+            income_source_hash['dependentName'] =
+              income_source['dependentName']
+          end
+          income_source.merge(income_source_hash)
         end
       end
 
@@ -1529,7 +1611,7 @@ module PdfFill
           'careType' => CARE_TYPES[care_expense['careType']],
           'careTypeOverflow' => care_expense['careType']&.humanize,
           'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
-          'ratePerHourOverflow' => ActiveSupport::NumberHelper.number_to_currency(care_expense['ratePerHour']),
+          'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
           'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
           'careDateRange' => {
             'from' => split_date(care_expense.dig('careDateRange', 'from')),
@@ -1540,7 +1622,7 @@ module PdfFill
           'paymentFrequency' => PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
           'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
           'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
-          'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(care_expense['paymentAmount'])
+          'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
         }
       end
 
@@ -1554,7 +1636,7 @@ module PdfFill
                                   'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
                                   'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
                                   'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
-                                  'paymentAmountOverflow' => ActiveSupport::NumberHelper.number_to_currency(
+                                  'paymentAmountOverflow' => number_to_currency(
                                     medical_expense['paymentAmount']
                                   )
                                 })
@@ -1594,7 +1676,7 @@ module PdfFill
           3 => 'three'
         }
 
-        arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
+        arr = number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
         split_hash = { 'part_cents' => arr.last }
         arr.pop
         arr.each_with_index { |x, i| split_hash["part_#{number_map[arr.length - i]}"] = x }
