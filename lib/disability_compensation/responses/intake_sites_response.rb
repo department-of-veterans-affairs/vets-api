@@ -2,7 +2,6 @@
 
 module DisabilityCompensation
   module ApiProvider
-
     class SeparationLocation
       include ActiveModel::Serialization
       include Virtus.model
