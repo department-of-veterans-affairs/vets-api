@@ -30,6 +30,18 @@ describe VRE::CreateCh31SubmissionsReportJob do
     Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '351 - Muskogee' }
   end
 
+  describe 'raises an exception' do
+
+    it 'when queue is exhausted' do
+      VRE::CreateCh31SubmissionsReportJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once).with(
+          'Failed all retries on VRE::CreateCh31SubmissionsReportJob, last error: An error occured'
+        )
+        expect(StatsD).to receive(:increment).with('worker.vre.create_ch31_submissions_report_job.exhausted')
+      end
+    end
+  end
+
   describe '#perform' do
     subject { described_class.new.perform(sidekiq_scheduler_args, specific_date) }
 
@@ -55,16 +67,6 @@ describe VRE::CreateCh31SubmissionsReportJob do
     #     subject
     #   end
     # end
-    describe 'raises an exception' do
-      it 'when queue is exhausted' do
-        VRE::CreateCh31SubmissionsReportJob.within_sidekiq_retries_exhausted_block do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Failed all retries on VRE::CreateCh31SubmissionsReportJob, last error: An error occured'
-          )
-          expect(StatsD).to receive(:increment).with('worker.vre.create_ch31_submissions_report_job.exhausted')
-        end
-      end
-    end
 
     context 'passed specific date in YYYY-MM-DD format' do
       let(:sidekiq_scheduler_args) { {} }
