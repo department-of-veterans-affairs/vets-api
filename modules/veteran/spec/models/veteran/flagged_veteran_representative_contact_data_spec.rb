@@ -43,11 +43,11 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
         end
       end
 
-      it 'is not valid with an invalid flag_type' do
-        flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'invalid_type',
-                                   flagged_value: 'invalid_type value')
-        expect(flag).not_to be_valid
-        expect(flag.errors[:flag_type]).to include('Invalid flag type: must be phone, email, address, or other')
+      it 'raises ArgumentError with an invalid flag_type' do
+        expect do
+          described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'invalid_type',
+                              flagged_value: 'invalid_type value')
+        end.to raise_error(ArgumentError, /is not a valid flag_type/)
       end
     end
 
