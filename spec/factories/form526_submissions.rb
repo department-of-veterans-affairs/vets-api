@@ -41,6 +41,13 @@ FactoryBot.define do
     end
   end
 
+  trait :with_non_us_address do
+    form_json do
+      # [wipn8923] where do these live?  create this file
+      File.read("#{submissions_path}/with_non_us_address.json")
+    end
+  end
+
   trait :hypertension_claim_for_increase do
     user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
