@@ -24,24 +24,38 @@ module ClaimsApi
           end
         end
 
-        def appoint_organization
-          validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
-          validated_poa_code = shared_form_validation('2122')
-          unless poa_code_in_organization?(validated_poa_code)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an organization.')
+        def submit2122
+          poa_code = parse_and_validate_poa_code('2122')
+          unless poa_code_in_organization?(poa_code)
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'POA Code must belong to an organization.'
+            )
           end
 
-          submit_power_of_attorney(validated_poa_code, '2122')
+          submit_power_of_attorney(poa_code, '2122')
         end
 
         def submit2122a
-          validated_poa_code = shared_form_validation('2122a')
-          validate_request!(ClaimsApi::V2::ParamsValidation::PowerOfAttorney)
-          if poa_code_in_organization?(validated_poa_code)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
-          end
+          poa_code = get_poa_code('2122a')
+          shared_form_validation('2122a')
+          validate_individual_poa_code!(poa_code)
 
-          submit_power_of_attorney(validated_poa_code, '2122A')
+          submit_power_of_attorney(poa_code, '2122A')
+        end
+
+        def validate2122a
+          shared_form_validation('2122A')
+          poa_code = get_poa_code('2122a')
+          validate_individual_poa_code!(poa_code)
+
+          render json: validation_success
+        end
+
+        private
+
+        def shared_form_validation(form_number)
+          target_veteran
+          validate_json_schema(form_number.upcase)
         end
 
         def submit_power_of_attorney(poa_code, form_number)
@@ -65,22 +79,6 @@ module ClaimsApi
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney', action: 'show', id: power_of_attorney.id
           )
-        end
-
-        def validate2122a
-          shared_form_validation('2122A')
-
-          render json: validation_success
-        end
-
-        private
-
-        def shared_form_validation(form_number)
-          target_veteran
-          validate_json_schema(form_number.upcase)
-          poa_code = get_poa_code(form_number)
-          validate_individual_poa_code!(poa_code)
-          parse_and_validate_poa_code('2122A')
         end
 
         def representative(poa_code)

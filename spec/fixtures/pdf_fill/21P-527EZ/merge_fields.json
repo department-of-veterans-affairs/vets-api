@@ -95,7 +95,8 @@
         "year": "1989"
       },
       "locationOfMarriage": "Dallas",
-      "reasonForSeparation": 0,
+      "reasonForSeparation": 2,
+      "otherExplanation": "Other reason",
       "dateOfSeparation": {
         "month": "03",
         "day": "02",
@@ -106,24 +107,24 @@
     },
     {
       "spouseFullName": {
-        "first": "Jennie",
+        "first": "Jane",
         "middle": "Middle",
-        "last": "Dane"
+        "last": "Doe"
       },
       "dateOfMarriage": {
         "month": "03",
         "day": "02",
-        "year": "1983"
+        "year": "1989"
       },
       "locationOfMarriage": "Dallas",
-      "reasonForSeparation": 1,
+      "reasonForSeparation": 0,
       "dateOfSeparation": {
         "month": "03",
         "day": "02",
-        "year": "1984"
+        "year": "1990"
       },
       "locationOfSeparation": "San Antonio, TX",
-      "spouseFullNameOverflow": "Jennie Middle Dane"
+      "spouseFullNameOverflow": "Jane Middle Doe"
     }
   ],
   "spouseDateOfBirth": {

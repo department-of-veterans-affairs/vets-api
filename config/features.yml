@@ -1005,6 +1005,10 @@ features:
     actor_type: user
     description: Allows veterans to cancel VA appointments
     enable_in_development: true
+  va_online_scheduling_clinic_filtering:
+    actor_type: user
+    description: Allows clinic selection filtering by stop codes
+    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
@@ -1024,10 +1028,6 @@ features:
   va_online_scheduling_GA4_migration:
     actor_type: user
     description: Toggle for the GA4 events migration work.
-    enable_in_development: true
-  va_online_scheduling_unenrolled_vaccine:
-    actor_type: user
-    description: Toggle for unenrolled vaccine scheduling discovery work.
     enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user

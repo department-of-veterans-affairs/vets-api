@@ -22,6 +22,10 @@ module MAP
         Settings.map_services.check_in_client_id
       end
 
+      def appointments_client_id
+        Settings.map_services.appointments_client_id
+      end
+
       def client_key_path
         Settings.map_services.client_key_path
       end
