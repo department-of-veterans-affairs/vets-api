@@ -15,7 +15,8 @@ module Veteran
 
           if flags.all?(&:valid?)
             flags.each(&:save!)
-            render json: flags, status: :created
+            render json: flags, each_serializer: Veteran::FlaggedVeteranRepresentativeContactDataSerializer,
+                   status: :created
           else
             raise ActiveRecord::Rollback, 'Invalid flags present'
           end
