@@ -13,7 +13,6 @@ module VAProfile
   module Demographics
     class Service < VAProfile::Service
       OID = '2.16.840.1.113883.4.349'
-      STATS_KEY = 'api.va_profile.demographics'
       include Common::Client::Concerns::Monitoring
       configuration VAProfile::Demographics::Configuration
 
@@ -26,7 +25,6 @@ module VAProfile
           build_response(response&.status, response&.body)
         end
       rescue Common::Client::Errors::ClientError => e
-        StatsD.increment("#{STATS_KEY}.failure")
         if e.status == 404
           log_exception_to_sentry(
             e,
@@ -73,7 +71,6 @@ module VAProfile
       end
 
       def response_successful?(response)
-        StatsD.increment("#{STATS_KEY}.success")
         response&.status == 200 && response&.body == {}
       end
 
