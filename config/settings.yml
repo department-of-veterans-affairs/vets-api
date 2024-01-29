@@ -1462,6 +1462,8 @@ chip:
     password: '12345'
 
 check_in:
+  vaos:
+    mock: false
   map_api:
     url: https://veteran.apps-staging.va.gov
     service_name: MAP-API
