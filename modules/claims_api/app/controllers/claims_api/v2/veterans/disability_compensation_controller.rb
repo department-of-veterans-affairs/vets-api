@@ -72,7 +72,7 @@ module ClaimsApi
             )
           end
 
-          documents_service(params, claim).process_documents unless Flipper.enabled? :claims_load_testing
+          documents_service(params, claim).process_documents
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             claim, root: :data
