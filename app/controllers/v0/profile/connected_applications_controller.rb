@@ -82,7 +82,7 @@ module V0
         [
           {
             title: lh_app['scopeTitle'],
-            id: lh_app['grantId'],
+            id: lh_app['scopeId'],
             created: lh_app['connectionDate']
           }
         ]

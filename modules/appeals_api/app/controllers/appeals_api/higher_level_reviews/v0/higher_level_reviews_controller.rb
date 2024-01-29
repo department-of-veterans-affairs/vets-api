@@ -40,11 +40,7 @@ module AppealsApi::HigherLevelReviews::V0
 
     def show
       hlr = AppealsApi::HigherLevelReview.find(params[:id])
-<<<<<<< HEAD
-=======
       validate_token_icn_access!(hlr.veteran_icn)
-
->>>>>>> 085e98ed5b6a98f9a6ac9a43d238c2c960ade1c8
       hlr = with_status_simulation(hlr) if status_requested_and_allowed?
 
       render_higher_level_review(hlr)
