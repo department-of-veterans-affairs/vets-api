@@ -29,6 +29,8 @@ module ClaimsApi
       end
 
       def page2_signatures(signatures)
+        return [] if signatures.nil?
+
         [
           ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 263),
           ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 216)
