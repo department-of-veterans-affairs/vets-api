@@ -42,7 +42,7 @@ module Veteran
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:flag_a_representative_enable_api)
+        routing_error unless Flipper.enabled?(:flag_a_representative)
       end
     end
   end
