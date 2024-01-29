@@ -55,6 +55,16 @@ describe VRE::CreateCh31SubmissionsReportJob do
     #     subject
     #   end
     # end
+    describe 'raises an exception' do
+      it 'when queue is exhausted' do
+        VRE::CreateCh31SubmissionsReportJob.within_sidekiq_retries_exhausted_block do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Failed all retries on VRE::CreateCh31SubmissionsReportJob, last error: An error occured'
+          )
+          expect(StatsD).to receive(:increment).with('worker.vre.create_ch31_submissions_report_job.exhausted')
+        end
+      end
+    end
 
     context 'passed specific date in YYYY-MM-DD format' do
       let(:sidekiq_scheduler_args) { {} }
