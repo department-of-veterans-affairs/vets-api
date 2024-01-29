@@ -56,17 +56,29 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         Flipper.disable(:dependents_central_submission_lighthouse)
         datestamp_double1 = double
         datestamp_double2 = double
-
+        datestamp_double3 = double
+        timestamp = claim.created_at
         expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
         expect(claim).to receive(:to_pdf).and_return('path1')
         expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
         expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
         expect(datestamp_double2).to receive(:run).with(
           text: 'FDC Reviewed - va.gov Submission',
-          x: 429,
+          x: 400,
           y: 770,
           text_only: true
+        ).and_return('path3')
+        expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+        expect(datestamp_double3).to receive(:run).with(
+          text: 'Application Submitted on va.gov',
+          x: 400,
+          y: 675,
+          text_only: true,
+          timestamp:,
+          page_number: 6,
+          template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
+          multistamp: true
         ).and_return(path)
         expect(Digest::SHA256).to receive(:file).with(path).and_return(
           OpenStruct.new(hexdigest: 'hexdigest')
@@ -132,20 +144,32 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           .with(with_upload_location: true)
           .and_return(lighthouse_mock)
         expect(lighthouse_mock).to receive(:uuid).and_return('uuid')
-
         datestamp_double1 = double
         datestamp_double2 = double
+        datestamp_double3 = double
+        timestamp = claim.created_at
 
         expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
         expect(claim).to receive(:to_pdf).and_return('path1')
         expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
         expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
         expect(datestamp_double2).to receive(:run).with(
           text: 'FDC Reviewed - va.gov Submission',
-          x: 429,
+          x: 400,
           y: 770,
           text_only: true
+        ).and_return('path3')
+        expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+        expect(datestamp_double3).to receive(:run).with(
+          text: 'Application Submitted on va.gov',
+          x: 400,
+          y: 675,
+          text_only: true,
+          timestamp:,
+          page_number: 6,
+          template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
+          multistamp: true
         ).and_return(path)
 
         data = JSON.parse('{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload"}')
@@ -156,6 +180,14 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         ).and_return(OpenStruct.new(success?: success, data:))
 
         expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
+
+        expect(FormSubmission).to receive(:create).with(
+          form_type: '686C-674',
+          benefits_intake_uuid: 'uuid',
+          saved_claim: claim,
+          user_account: nil
+        ).and_return(FormSubmission.new)
+        expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission))
       end
 
       context 'with an response error' do
@@ -164,7 +196,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         it 'raises CentralMailResponseError and updates submission to failed' do
           mailer_double = double('Mail::Message')
           allow(mailer_double).to receive(:deliver_now)
-          expect(claim).to receive(:submittable_686?).and_return(true)
+          expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
           expect(claim).to receive(:submittable_674?).and_return(false)
           expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
                                                           mailer_double
@@ -184,7 +216,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
             'first_name' => 'MARK'
           }
         )
-        expect(claim).to receive(:submittable_686?).and_return(true)
+        expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
         subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
         expect(central_mail_submission.reload.state).to eq('success')
@@ -204,23 +236,36 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
   end
 
   describe '#process_pdf' do
-    subject { job.process_pdf('path1') }
+    timestamp = Time.zone.now
+    subject { job.process_pdf('path1', timestamp, '686C-674') }
 
     it 'processes a record and add stamps' do
       datestamp_double1 = double
       datestamp_double2 = double
+      datestamp_double3 = double
 
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
-        x: 429,
+        x: 400,
         y: 770,
         text_only: true
       ).and_return('path3')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(datestamp_double3).to receive(:run).with(
+        text: 'Application Submitted on va.gov',
+        x: 400,
+        y: 675,
+        text_only: true,
+        timestamp:,
+        page_number: 6,
+        template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
+        multistamp: true
+      ).and_return('path4')
 
-      expect(subject).to eq('path3')
+      expect(subject).to eq('path4')
     end
 
     describe '#get_hash_and_pages' do
