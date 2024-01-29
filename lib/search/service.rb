@@ -87,6 +87,7 @@ module Search
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
+        handle_server_error!(error)
         message = parse_messages(error).first
         save_error_details(message)
         handle_429!(error)
@@ -113,6 +114,21 @@ module Search
 
       StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
       raise_backend_exception('SEARCH_429', self.class, error)
+    end
+
+    def handle_server_error!(error)
+      return unless [503, 504].include?(error.status)
+      exceptions = {
+        503 => 'SEARCH_503',
+        504 => 'SEARCH_504'
+      }
+      if error.body.is_a?(Hash)
+        message = parse_messages(error).first
+      else
+        message = 'Search.gov is down'
+      end
+      save_error_details(message)
+      raise_backend_exception(exceptions[error.status], self.class, error)
     end
   end
 end
