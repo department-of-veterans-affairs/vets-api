@@ -31,7 +31,6 @@ describe VRE::CreateCh31SubmissionsReportJob do
   end
 
   describe 'raises an exception' do
-
     it 'when queue is exhausted' do
       VRE::CreateCh31SubmissionsReportJob.within_sidekiq_retries_exhausted_block do
         expect(Rails.logger).to receive(:error).exactly(:once).with(
