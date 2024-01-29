@@ -463,6 +463,14 @@ features:
     actor_type: user
     description: Enables frontend of Find a Representative
     enable_in_development: true
+  flag_a_representative_enable_api:
+    actor_type: user
+    description: Enables the flag a rep endpoint in Find a Rep
+    enable_in_development: true
+  flag_a_representative_enable_frontend:
+    actor_type: user
+    description: Enables the frontend of flag a rep in Find a Rep
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
