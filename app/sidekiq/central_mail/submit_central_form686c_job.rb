@@ -80,8 +80,8 @@ module CentralMail
 
     def get_files_from_claim
       # process the main pdf record and the attachments as we would for a vbms submission
-      form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674?
-      form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
+      form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686?
       @form_path = form_686c_path || form_674_path
       @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
       # Treat 674 as first attachment
