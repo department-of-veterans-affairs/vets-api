@@ -24,6 +24,6 @@ http_interactions:
       - application/json;charset=UTF-8
     body:
       encoding: ASCII-8BIT
-      string: '{"apps":[{"clientId":"0oa2ey2m6kEL2897N2p7","label":"ConnectedAppsTest","href":"logoName","status":"ACTIVE","connectionDate": "2021-09-16T02:21:11.000Z", "scopeTitle": "Read Claims information", "scopeId": "scp12334567"},{"clientId":"12304","label":"ConnectedApps2","href":"logoName2","status":"ACTIVE","connectionDate": "2021-09-16T02:21:11.000Z", "scopeTitle": "Read Claims information", "scopeId": "scp12334567"}]}'
+      string: '{"apps":[{"clientId":"0oa2ey2m6kEL2897N2p7","label":"ConnectedAppsTest","href":"logoName","status":"ACTIVE","connectionDate": "2021-09-16T02:21:11.000Z", "scopeTitle": "Read Claims information"},{"clientId":"12304","label":"ConnectedApps2","href":"logoName2","status":"ACTIVE","connectionDate": "2021-09-16T02:21:11.000Z", "scopeTitle": "Read Claims information"}]}'
     http_version: 
   recorded_at: Wed, 07 Nov 2018 14:57:37 GMT
