@@ -183,6 +183,10 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
       claim_by_id_description = 'Returns data such as processing status for a single claim by ID.'
       description claim_by_id_description
 
+      before do
+        Flipper.disable :claims_load_testing
+      end
+
       describe 'Getting a 200 response' do
         response '200', 'claims response' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claim.json')))

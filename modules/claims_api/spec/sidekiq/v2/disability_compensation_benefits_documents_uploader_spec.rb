@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
   before do
     Sidekiq::Job.clear_all
     stub_claims_api_auth_token
+    allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
