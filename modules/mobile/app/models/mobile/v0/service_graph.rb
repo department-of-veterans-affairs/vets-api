@@ -60,7 +60,7 @@ module Mobile
         start_time = update_window.start_time
         end_time = update_window.end_time
         description = update_window.description
-        require 'pry'; binding.pry;
+        # require 'pry'; binding.pry;
         MaintenanceWindow.new(
           id: Digest::UUID.uuid_v5(MAINTENANCE_WINDOW_NAMESPACE, downstream_name.to_s),
           service: downstream_name,
