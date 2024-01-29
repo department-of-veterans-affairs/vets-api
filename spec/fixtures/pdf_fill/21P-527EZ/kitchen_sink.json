@@ -21,8 +21,10 @@
   "serveUnderOtherNames": true,
   "previousNames": [
     {
-      "first": "John",
-      "last": "Doe"
+      "previousFullName": {
+        "first": "Joseph",
+        "last": "Doe"
+      }
     }
   ],
   "placeOfSeparation": "West Brookfield, MA",
@@ -33,7 +35,8 @@
   },
   "socialSecurityDisability": false,
   "medicalCondition": false,
-  "nursingHome": false,
+  "nursingHome": true,
+  "medicaidCoverage": false,
   "medicaidStatus": true,
   "specialMonthlyPension": false,
   "vaTreatmentHistory": true,
@@ -66,20 +69,21 @@
       },
       "dateOfMarriage": "1989-03-02",
       "locationOfMarriage": "Dallas",
-      "reasonForSeparation": "Spouse’s death",
+      "reasonForSeparation": "Other",
+      "otherExplanation": "Other reason",
       "dateOfSeparation": "1990-03-02",
       "locationOfSeparation": "San Antonio, TX"
     },
     {
       "spouseFullName": {
-        "first": "Jennie",
+        "first": "Jane",
         "middle": "Middle",
-        "last": "Dane"
+        "last": "Doe"
       },
-      "dateOfMarriage": "1983-03-02",
+      "dateOfMarriage": "1989-03-02",
       "locationOfMarriage": "Dallas",
-      "reasonForSeparation": "Divorce",
-      "dateOfSeparation": "1984-03-02",
+      "reasonForSeparation": "Spouse’s death",
+      "dateOfSeparation": "1990-03-02",
       "locationOfSeparation": "San Antonio, TX"
     },
     {
@@ -315,27 +319,28 @@
   "incomeSources": [
     {
       "typeOfIncome": "SOCIAL_SECURITY",
-      "receiver": "Jane Doe",
+      "receiver": "DEPENDENT",
+      "dependentName": "Bobby Doe",
       "payer": "John Doe",
       "amount": 278.05
     },
     {
       "typeOfIncome": "INTEREST_DIVIDEND",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 78.5
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "part-time Uber",
-      "receiver": "Jane Doe",
+      "receiver": "SPOUSE",
       "payer": "John Doe",
       "amount": 278.99
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "full time job",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 3278.75
     }
