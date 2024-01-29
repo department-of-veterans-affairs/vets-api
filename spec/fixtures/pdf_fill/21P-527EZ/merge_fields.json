@@ -103,7 +103,9 @@
         "year": "1990"
       },
       "locationOfSeparation": "San Antonio, TX",
-      "spouseFullNameOverflow": "Jessica Middle Doe"
+      "spouseFullNameOverflow": "Jessica Middle Doe",
+      "dateRangeOfMarriageOverflow": "1989-03-02 - 1990-03-02",
+      "reasonForSeparationOverflow": "other"
     },
     {
       "spouseFullName": {
@@ -124,7 +126,9 @@
         "year": "1990"
       },
       "locationOfSeparation": "San Antonio, TX",
-      "spouseFullNameOverflow": "Jane Middle Doe"
+      "spouseFullNameOverflow": "Jane Middle Doe",
+      "dateRangeOfMarriageOverflow": "1989-03-02 - 1990-03-02",
+      "reasonForSeparationOverflow": "spouse’s death"
     }
   ],
   "spouseDateOfBirth": {
@@ -179,7 +183,9 @@
         "year": "1990"
       },
       "locationOfSeparation": "Tacoma, WA",
-      "spouseFullNameOverflow": "Joe F Generic Jr."
+      "spouseFullNameOverflow": "Joe F Generic Jr.",
+      "dateRangeOfMarriageOverflow": "1980-03-02 - 1990-03-02",
+      "reasonForSeparationOverflow": "death"
     },
     {
       "dateOfMarriage": {
@@ -202,7 +208,9 @@
         "year": "2005"
       },
       "locationOfSeparation": "Tacoma, WA",
-      "spouseFullNameOverflow": "John F Person Jr."
+      "spouseFullNameOverflow": "John F Person Jr.",
+      "dateRangeOfMarriageOverflow": "1995-03-02 - 2005-03-02",
+      "reasonForSeparationOverflow": "other"
     }
   ],
   "dependents": [
