@@ -1,0 +1,29 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      id:
+        type: string
+        example: 'fe1776a8-3908-4efe-8e20-8dd31440ccb9'
+      type:
+        type: string
+        example: 'debts'
+      attributes:
+        type: object
+        required:
+          - hasDependentDebts
+          - debts
+        properties:
+          hasDependentDebts:
+            type: boolean
+          debts:
+            type: array
+            items:
+              $ref: "./DebtRecord.yml"
