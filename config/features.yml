@@ -953,9 +953,6 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
-  sign_in_page_and_modal_experiment_lga:
-    actor_type: user
-    description: Enables users to see updated design of the sign in page to facilitate login.gov and id.me adoption.
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
@@ -1007,6 +1004,10 @@ features:
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
+    enable_in_development: true
+  va_online_scheduling_clinic_filtering:
+    actor_type: user
+    description: Allows clinic selection filtering by stop codes
     enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
@@ -1100,6 +1101,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for Start Scheduling action link.
+  va_online_scheduling_physical_location:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to display the physical location of an appointment.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout

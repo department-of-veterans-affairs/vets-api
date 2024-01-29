@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     Sidekiq::Job.clear_all
     @vbms_client = FakeVBMS.new
     allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
+    allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
