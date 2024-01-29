@@ -12,6 +12,7 @@ module CentralMail
 
     FOREIGN_POSTALCODE = '00000'
     FORM_ID = '686C-674'
+    FORM_ID_674 = '21-674'
 
     sidekiq_options retry: false
 
@@ -60,15 +61,27 @@ module CentralMail
         attachments: attachment_paths.map(&method(:split_file_and_path)),
         form_metadata: generate_metadata_lh
       )
+      create_form_submission_attempt(uuid)
+
       Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Submission Successful', claim_id: claim.id,
                           uuid: })
       response
     end
 
+    def create_form_submission_attempt(intake_uuid)
+      form_submission = FormSubmission.create(
+        form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+        benefits_intake_uuid: intake_uuid,
+        saved_claim: claim,
+        user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
+      )
+      FormSubmissionAttempt.create(form_submission:)
+    end
+
     def get_files_from_claim
       # process the main pdf record and the attachments as we would for a vbms submission
-      form_674_path = process_pdf(claim.to_pdf(form_id: '21-674'), claim.created_at, '21-674') if claim.submittable_674?
-      form_686c_path = process_pdf(claim.to_pdf(form_id: '686C-674'), claim.created_at, '686C-674') if claim.submittable_686? # rubocop:disable Layout/LineLength
+      form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674?
+      form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
       @form_path = form_686c_path || form_674_path
       @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
       # Treat 674 as first attachment

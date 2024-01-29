@@ -144,7 +144,6 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           .with(with_upload_location: true)
           .and_return(lighthouse_mock)
         expect(lighthouse_mock).to receive(:uuid).and_return('uuid')
-
         datestamp_double1 = double
         datestamp_double2 = double
         datestamp_double3 = double
@@ -181,6 +180,14 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         ).and_return(OpenStruct.new(success?: success, data:))
 
         expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
+
+        expect(FormSubmission).to receive(:create).with(
+          form_type: '686C-674',
+          benefits_intake_uuid: 'uuid',
+          saved_claim: claim,
+          user_account: nil
+        ).and_return(FormSubmission.new)
+        expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission))
       end
 
       context 'with an response error' do
@@ -189,7 +196,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         it 'raises CentralMailResponseError and updates submission to failed' do
           mailer_double = double('Mail::Message')
           allow(mailer_double).to receive(:deliver_now)
-          expect(claim).to receive(:submittable_686?).and_return(true)
+          expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
           expect(claim).to receive(:submittable_674?).and_return(false)
           expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
                                                           mailer_double
@@ -209,7 +216,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
             'first_name' => 'MARK'
           }
         )
-        expect(claim).to receive(:submittable_686?).and_return(true)
+        expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
         subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
         expect(central_mail_submission.reload.state).to eq('success')
