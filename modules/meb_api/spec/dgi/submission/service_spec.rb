@@ -66,6 +66,16 @@ RSpec.describe MebApi::DGI::Submission::Service do
       routng_trnsit_nbr: '042102115'
     }
   end
+  let(:claimant_params_with_asterisks) do
+    duplicated_params = claimant_params.deep_dup
+    # Explicitly creating the nested structure if it doesn't exist
+    duplicated_params[:education_benefit] ||= {}
+    duplicated_params[:education_benefit][:direct_deposit] ||= {}
+    # Now that we're sure the structure exists, assign the values
+    duplicated_params[:education_benefit][:direct_deposit][:account_number] = '******1234'
+    duplicated_params[:education_benefit][:direct_deposit][:routing_number] = '*****2115'
+    duplicated_params
+  end
   let(:service) { MebApi::DGI::Submission::Service.new(user) }
   let(:faraday_response) { double('faraday_connection') }
 
@@ -90,7 +100,7 @@ RSpec.describe MebApi::DGI::Submission::Service do
       it 'replaces asterisked account and routing numbers with real values' do
         VCR.use_cassette('dgi/submit_claim') do
           response = service.submit_claim(
-            ActionController::Parameters.new(claimant_params[:education_benefit]),
+            ActionController::Parameters.new(claimant_params_with_asterisks[:education_benefit]),
             ActionController::Parameters.new(dd_params)
           )
           expect(response.status).to eq(200)
