@@ -14,14 +14,11 @@ module MebApi
         STATSD_KEY_PREFIX = 'api.dgi.submission'
 
         def submit_claim(params, response_data = nil)
-          if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ) && !Rails.env.development? && response_data.present?
-            update_dd_params(params, response_data)
-          end
-
+          updated_params = response_data.present? ? update_dd_params(params, response_data) : params
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
-            response = perform(:post, end_point, format_params(params), headers, options)
+            response = perform(:post, end_point, format_params(updated_params), headers, options)
 
             MebApi::DGI::Submission::SubmissionResponse.new(response.status, response)
           end
@@ -53,11 +50,11 @@ module MebApi
         end
 
         def update_dd_params(params, dd_params)
-          account_number = params.dig(:form, :direct_deposit, :direct_deposit_account_number)
+          account_number = params.dig(:direct_deposit, :account_number)
           check_masking = account_number&.include?('*')
           if check_masking
-            params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]
-            params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]
+            params[:direct_deposit][:account_number] = dd_params[:dposit_acnt_nbr]
+            params[:direct_deposit][:routing_number] = dd_params[:routng_trnsit_nbr]
           end
           params
         end
