@@ -12,7 +12,6 @@ RSpec.describe LighthouseBRDProvider do
   before do
     @provider = LighthouseBRDProvider.new(current_user)
     Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
   end
 
   after do
