@@ -13,14 +13,15 @@ module CentralMail
     def run(settings)
       stamp_path = Common::FileHelpers.random_file_path
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only], settings[:size],
-                     settings[:timestamp])
-      stamp(@file_path, stamp_path)
+                     settings[:timestamp], settings[:page_number], settings[:template])
+      stamp(@file_path, stamp_path, multistamp: settings[:multistamp])
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil)
+    # rubocop:disable Metrics/MethodLength
+    def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil, template = nil)
       timestamp ||= Time.zone.now
       unless text_only
         text += " #{I18n.l(timestamp, format: :pdf_stamp)}"
@@ -28,17 +29,34 @@ module CentralMail
       end
 
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-        pdf.draw_text text, at: [x, y], size:
+        if page_number.present? && template.present?
+          reader = PDF::Reader.new(template)
+          page_number.times do
+            pdf.start_new_page
+          end
+          (pdf.draw_text text, at: [x, y], size:)
+          (pdf.draw_text timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
+          (reader.page_count - page_number).times do
+            pdf.start_new_page
+          end
+        else
+          pdf.draw_text text, at: [x, y], size:
+        end
       end
     rescue => e
       Rails.logger.error "Failed to generate datestamp file: #{e.message}"
       raise
     end
     # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/MethodLength
 
-    def stamp(file_path, stamp_path)
+    def stamp(file_path, stamp_path, multistamp: false)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
-      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
+      if multistamp
+        PdfFill::Filler::PDF_FORMS.multistamp(file_path, stamp_path, out_path)
+      else
+        PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
+      end
       File.delete(file_path)
       out_path
     rescue
