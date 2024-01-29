@@ -23,6 +23,22 @@ RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :re
         post base_path, params: single_valid_flag_params
         expect(response).to have_http_status(:created)
       end
+
+      it 'returns the correct serialized data' do
+        post base_path, params: single_valid_flag_params
+        json_response_data = JSON.parse(response.body)['data']
+        expect(json_response_data).to be_an(Array)
+
+        flag_object = json_response_data.first
+        expect(flag_object).to include('id', 'type', 'attributes')
+
+        flag_object_attributes = flag_object['attributes']
+        expect(flag_object_attributes).to include('ip_address', 'representative_id', 'flag_type',
+                                                  'flagged_value')
+        expect(flag_object_attributes['representative_id']).to eq('1')
+        expect(flag_object_attributes['flag_type']).to eq('email')
+        expect(flag_object_attributes['flagged_value']).to eq('example@email.com')
+      end
     end
 
     context 'when submitting multiple valid flags' do
@@ -45,6 +61,16 @@ RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :re
         post base_path, params: multiple_valid_flags_params
         expect(response).to have_http_status(:created)
       end
+
+      it 'returns the correct serialized data for multiple flags' do
+        post base_path, params: multiple_valid_flags_params
+        json_response_data = JSON.parse(response.body)['data']
+
+        expect(json_response_data).to be_an(Array)
+        expect(json_response_data.length).to eq(2)
+        expect(json_response_data[0]['attributes']['flag_type']).to eq('email')
+        expect(json_response_data[1]['attributes']['flag_type']).to eq('phone')
+      end
     end
 
     context 'when submitting invalid flags' do
@@ -63,6 +89,15 @@ RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :re
       it 'responds with an unprocessable entity status' do
         post base_path, params: invalid_flags_params
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns appropriate error messages' do
+        post base_path, params: invalid_flags_params
+        json_response = JSON.parse(response.body)
+
+        expect(json_response).to have_key('errors')
+        expect(json_response['errors']['flag_type']).to be_an(Array)
+        expect(json_response['errors']['flag_type'].first).to include('is not a valid flag_type')
       end
     end
 
@@ -85,6 +120,15 @@ RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :re
       it 'responds with an unprocessable entity status' do
         post base_path, params: mixed_valid_and_invalid_flags_params
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns appropriate error messages for mixed valid and invalid flags' do
+        post base_path, params: mixed_valid_and_invalid_flags_params
+        json_response = JSON.parse(response.body)
+
+        expect(json_response).to have_key('errors')
+        expect(json_response['errors']['flag_type']).to be_an(Array)
+        expect(json_response['errors']['flag_type'].first).to include('is not a valid flag_type')
       end
     end
   end
