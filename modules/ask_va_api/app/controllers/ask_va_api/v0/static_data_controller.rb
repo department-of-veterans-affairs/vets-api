@@ -3,7 +3,7 @@
 module AskVAApi
   module V0
     class StaticDataController < ApplicationController
-      skip_before_action :authenticate, except: %i[index]
+      skip_before_action :authenticate
       around_action :handle_exceptions, except: %i[index]
 
       def index
