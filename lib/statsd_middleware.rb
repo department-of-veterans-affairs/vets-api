@@ -55,7 +55,6 @@ class StatsdMiddleware
     covid19screen
     dashboard
     dependents-view-dependents
-    disability-my-rated-disabilities
     discharge-upgrade-instructions
     ezr
     facilities
@@ -78,6 +77,7 @@ class StatsdMiddleware
     public-outreach-materials
     questionnaire
     questionnaire-list
+    rated-disabilities
     request-debt-help-form-5655
     resources-and-support
     search
