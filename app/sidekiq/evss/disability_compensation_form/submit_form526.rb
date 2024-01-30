@@ -77,58 +77,61 @@ module EVSS
       #
       # rubocop:disable Metrics/MethodLength
       def perform(submission_id)
+        send_notifications = true
         @submission_id = submission_id
 
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
-        submission.prepare_for_evss!
+        # This instantiates the service as defined by the inheriting object
+        # TODO: this meaningless variable assignment is required for the specs to pass, which
+        # indicates a problematic coupling of implementation and test logic.  This should eventually
+        # be addressed to make this service and test more robust and readable.
+        service = service(submission.auth_headers)
+
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
-          # This instantiates the service as defined by the inheriting object
-          # TODO: this meaningless variable assignment is required for the specs to pass, which
-          # indicates a problematic coupling of implementation and test logic.  This should eventually
-          # be addressed to make this service and test more robust and readable.
-          service = service(submission.auth_headers)
           submission.mark_birls_id_as_tried!
 
-          # send submission data to either EVSS or lighthouse
-          if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
-            # submit 526 through Lighthouse API
-            # 1. get user's ICN
-            user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                           Account.find_by(idme_uuid: submission.user_uuid)
-            icn = user_account.icn
-            # 2. transform submission data to Lighthouse format
-            transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
-            body = transform_service.transform(submission.form['form526'])
-            # 3. send transformed submission data to Lighthouse endpoint
-            service = BenefitsClaims::Service.new(icn)
-            raw_response = service.submit526(body)
-            # 4. convert raw response from Lighthouse to a FormSubmitResponse for further processing (claim_id, status)
-            raw_response_struct = OpenStruct.new({
-                                                   body: { claim_id: raw_response.body },
-                                                   status: raw_response.status
-                                                 })
-            response = EVSS::DisabilityCompensationForm::FormSubmitResponse
-                       .new(raw_response_struct.status, raw_response_struct)
-          else
-
-            response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+          begin
+            submission.prepare_for_evss!
+          rescue => e
+            handle_errors(submission, e)
+            return
           end
 
-          response_handler(response)
+          begin
+            # send submission data to either EVSS or Lighthouse (LH)
+            response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
+                         # submit 526 through LH API
+                         # 1. get user's ICN
+                         user_account = UserAccount.find_by(id: submission.user_account_id) ||
+                                        Account.find_by(idme_uuid: submission.user_uuid)
+                         icn = user_account.icn
+                         # 2. transform submission data to LH format
+                         transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+                         body = transform_service.transform(submission.form['form526'])
+                         # 3. send transformed submission data to LH endpoint
+                         service = BenefitsClaims::Service.new(icn)
+                         raw_response = service.submit526(body)
+                         # 4. convert LH raw response to a FormSubmitResponse for further processing (claim_id, status)
+                         raw_response_struct = OpenStruct.new({
+                                                                body: { claim_id: raw_response.body },
+                                                                status: raw_response.status
+                                                              })
+                         EVSS::DisabilityCompensationForm::FormSubmitResponse
+                           .new(raw_response_struct.status, raw_response_struct)
+                       else
+                         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+                       end
+
+            response_handler(response)
+          rescue => e
+            send_notifications = false
+            handle_errors(submission, e)
+          end
+
+          send_post_evss_notifications(submission) if send_notifications
         end
-        submission.send_post_evss_notifications!
-      rescue Common::Exceptions::BackendServiceException,
-             Common::Exceptions::GatewayTimeout,
-             Breakers::OutageException,
-             EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
-        retryable_error_handler(submission, e)
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        # retry submitting the form for specific upstream errors
-        retry_form526_error_handler!(submission, e)
-      rescue => e
-        non_retryable_error_handler(submission, e)
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -141,6 +144,26 @@ module EVSS
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
         submission.save
+      end
+
+      def send_post_evss_notifications(submission)
+        submission.send_post_evss_notifications!
+      rescue => e
+        handle_errors(submission, e)
+      end
+
+      def handle_errors(submission, error)
+        raise error
+      rescue Common::Exceptions::BackendServiceException,
+             Common::Exceptions::GatewayTimeout,
+             Breakers::OutageException,
+             EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
+        retryable_error_handler(submission, e)
+      rescue EVSS::DisabilityCompensationForm::ServiceException => e
+        # retry submitting the form for specific upstream errors
+        retry_form526_error_handler!(submission, e)
+      rescue => e
+        non_retryable_error_handler(submission, e)
       end
 
       def retryable_error_handler(_submission, error)
