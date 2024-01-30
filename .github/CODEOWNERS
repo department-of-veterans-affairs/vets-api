@@ -890,6 +890,8 @@ lib/okta/directory_service.rb @department-of-veterans-affairs/lighthouse-pivot
 lib/olive_branch_patch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/vfs-1095-b
+lib/pdf_fill/forms/pdfs/21P-527EZ.pdf @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/pensions
+lib/pdf_fill/forms/va21p527ez.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/pensions
 lib/pdf_info.rb @department-of-veterans-affairs/lighthouse-banana-peels
 lib/pdf_utilities @department-of-veterans-affairs/lighthouse-banana-peels
 lib/pension_burial @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/pensions @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
