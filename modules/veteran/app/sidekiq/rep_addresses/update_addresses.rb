@@ -70,7 +70,7 @@ module RepAddresses
 
       if record.nil?
         log_message_to_sentry(
-          "UpdateAddresses record not found for type: #{data['type']} and id: #{data['id']}",
+          "UpdateAddresses record not found for representative with id: #{data['id']}",
           :error
         )
       else
@@ -88,7 +88,7 @@ module RepAddresses
       meta = api_response['candidate_addresses'].first['address_meta_data']
       record_attributes = build_record_attributes(address, geocode, meta)
                           .merge({ raw_address: data['request_address'].to_json })
-      record_attributes[:email] = data['email_address'] if data['type'] == 'representative'
+      record_attributes[:email] = data['email_address']
       record.update(record_attributes)
     end
 
