@@ -81,6 +81,7 @@ module EVSS
         @submission_id = submission_id
 
         Sentry.set_tags(source: '526EZ-all-claims')
+        super(submission_id)
 
         # This instantiates the service as defined by the inheriting object
         # TODO: this meaningless variable assignment is required for the specs to pass, which
@@ -89,8 +90,9 @@ module EVSS
         service = service(submission.auth_headers)
 
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+          submission.mark_birls_id_as_tried!
+
           begin
-            super(submission_id)
             submission.prepare_for_evss!
           rescue => e
             handle_errors(submission, e)
@@ -98,8 +100,6 @@ module EVSS
           end
 
           begin
-            submission.mark_birls_id_as_tried!
-
             # send submission data to either EVSS or Lighthouse (LH)
             response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
                          # submit 526 through LH API
