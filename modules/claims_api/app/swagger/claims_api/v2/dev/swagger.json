@@ -8360,6 +8360,7 @@
             "name": "veteranId",
             "in": "path",
             "required": true,
+            "example": "1012667145V762142",
             "description": "ID of Veteran",
             "schema": {
               "type": "string"

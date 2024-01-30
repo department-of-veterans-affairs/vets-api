@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Map::Client do
+describe CheckIn::Map::Client do
   subject { described_class.build }
 
   describe '.build' do
