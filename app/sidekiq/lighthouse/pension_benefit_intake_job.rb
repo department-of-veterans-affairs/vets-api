@@ -48,13 +48,19 @@ module Lighthouse
       @form_path = process_pdf(@claim.to_pdf)
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
-      @metadata = generate_form_metadata_lh
-      response = @lighthouse_service.upload_doc(
+      metadata = generate_form_metadata_lh
+      payload = {
         upload_url: @lighthouse_service.location,
         file: split_file_and_path(@form_path),
-        metadata: @metadata.to_json,
+        metadata: metadata.to_json,
         attachments: @attachment_paths.map(&method(:split_file_and_path))
-      )
+      }
+
+      Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Upload', {
+                          file: payload[file:],
+                          attachments: payload[attachments:]
+                        })
+      response = @lighthouse_service.upload_doc(**payload)
 
       check_success(response)
     rescue => e
