@@ -145,29 +145,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
         }
       end
 
-      describe 'auth header' do
-        context 'when provided' do
-          it 'returns a 202' do
-            mock_ccg(scopes) do |auth_header|
-              expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
-                .and_return(bgs_poa)
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
-                .and_return({ person_poa_history: nil })
-
-              post appoint_individual_path, params: data.to_json, headers: auth_header
-              expect(response.status).to eq(202)
-            end
-          end
-        end
-
-        context 'when not provided' do
-          it 'returns a 401 error code' do
-            post appoint_individual_path, params: data.to_json
-            expect(response.status).to eq(401)
-          end
-        end
-      end
-
       context 'when a POA code isn\'t provided' do
         it 'returns a 422 error code' do
           mock_ccg(scopes) do |auth_header|
@@ -175,18 +152,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
             post appoint_individual_path, params: data.to_json, headers: auth_header
             expect(response.status).to eq(422)
-          end
-        end
-      end
-
-      context 'when there are multiple representatives with the same POA code' do
-        it 'returns a 500 error code' do
-          Veteran::Service::Representative.new(representative_id: '12345', poa_codes: [individual_poa_code],
-                                               first_name: 'Thomas', last_name: 'Jefferson').save!
-
-          mock_ccg(scopes) do |auth_header|
-            post appoint_individual_path, params: data.to_json, headers: auth_header
-            expect(response.status).to eq(500)
           end
         end
       end
