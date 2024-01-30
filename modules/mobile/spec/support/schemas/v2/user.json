@@ -28,7 +28,8 @@
             "lastName",
             "signinEmail",
             "birthDate",
-            "signinService"
+            "signinService",
+            "hasFacilityTransitioningToCerner"
           ],
           "properties": {
             "id": {
@@ -51,6 +52,9 @@
             },
             "signinService": {
               "type": "string"
+            },
+            "hasFacilityTransitioningToCerner": {
+              "type": "boolean"
             }
           }
         }
