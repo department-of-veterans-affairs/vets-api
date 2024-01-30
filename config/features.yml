@@ -59,6 +59,12 @@ features:
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
+  cerner_transition_556_t30:
+    actor_type: user
+    description: This will control the content that will be in effect 30 days prior to transition.
+  cerner_transition_556_t5:
+    actor_type: user
+    description: This will control the content that will be in effect 5 days prior to transition.
   cerner_override_463:
     actor_type: user
     description: This will show the Cerner facility 463 as `isCerner`.
