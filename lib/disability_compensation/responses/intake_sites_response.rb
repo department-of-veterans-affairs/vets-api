@@ -15,6 +15,10 @@ module DisabilityCompensation
       include Virtus.model
 
       attribute :separation_locations, Array[DisabilityCompensation::ApiProvider::SeparationLocation]
+
+      def cache?
+        true
+      end
     end
   end
 end
