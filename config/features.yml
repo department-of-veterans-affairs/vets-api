@@ -39,10 +39,6 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_household_v2_enabled:
-    actor_type: user
-    description: Enables the optimized household section flow.
-    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -59,6 +55,12 @@ features:
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
+  cerner_transition_556_t30:
+    actor_type: user
+    description: This will control the content that will be in effect 30 days prior to transition.
+  cerner_transition_556_t5:
+    actor_type: user
+    description: This will control the content that will be in effect 5 days prior to transition.
   cerner_override_463:
     actor_type: user
     description: This will show the Cerner facility 463 as `isCerner`.
@@ -738,6 +740,8 @@ features:
     actor_type: user
     description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
     enable_in_development: true
+  gibill_status_response_overwrite_inspect_method:
+    description: When enabled, overwrite the inspect() method of EVSS::Response to avoid leaking PII into logs - Issue 1525
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1073,10 +1077,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the breadcrumb and url changes for mhv
-  va_online_scheduling_print_list:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the print list initiative
   va_online_scheduling_use_dsot:
     actor_type: user
     enable_in_development: true
