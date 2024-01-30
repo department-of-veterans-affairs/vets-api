@@ -11,7 +11,8 @@ class LighthouseBRDProvider
   end
 
   def get_separation_locations
-    @service.get_data(path: 'intake-sites')
+    response = @service.get_data(path: 'intake-sites')
+    transform(response.body)
   end
 
   private
@@ -22,8 +23,7 @@ class LighthouseBRDProvider
         code: intake_site['id'],
         description: intake_site['description']
       )
-
-      DisabilityCompensation::ApiProvider::IntakeSitesResponse.new(separation_locations:)
     end
+    DisabilityCompensation::ApiProvider::IntakeSitesResponse.new(separation_locations:)
   end
 end
