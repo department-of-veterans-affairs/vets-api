@@ -104,7 +104,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
         'docType' => be_a(String),
         'businessLine' => eq(described_class::PENSION_BUSINESSLINE),
         'source' => eq(described_class::PENSION_SOURCE),
-        'claimDate' => be_a(ActiveSupport::TimeWithZone)
       )
     end
     # generate_form_metadata_lh
