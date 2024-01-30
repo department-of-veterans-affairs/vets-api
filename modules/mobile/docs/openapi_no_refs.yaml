@@ -14,11 +14,13 @@ paths:
       description: Returns the list of immunization records for given user
       responses:
         '200':
+          description: hiii
           content:
             application/json:
               schema:
                 properties:
                   data:
+                    type: array
                     items:
                       type: object
                       required:
@@ -32,15 +34,19 @@ paths:
                         id:
                           type: string
                           example: "358"
+                          description: is this thing on?
                         name:
                           type: string
                           example: "Cheyenne VA Medical Center"
+                          description: is this thing on?
                         city:
                           type: string
                           example: "Cheyenne"
+                          description: is this thing on?
                         state:
                           type: string
                           example: "WY"
+                          description: is this thing on?
                         cerner:
                           type: boolean
                           description: Is facility a cerner facility?
@@ -49,18 +55,21 @@ paths:
                           nullable: true
                           example: "3.17"
                           description: Distance from requested location (current/home) based on haversine distance
-/mobile/v1/test:
+  /mobile/v1/test:
     get:
       description: Returns the list of immunization records for given user
       responses:
         '200':
+          description: test
           content:
             application/json:
               schema:
                 properties:
                   data:
+                    type: array
                     items:
                       type: object
+                      additionalProperties: false
                       required:
                         - id
                       properties:
