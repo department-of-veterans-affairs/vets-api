@@ -19,7 +19,6 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
 
   path '/forms/200995' do
     post 'Creates a new Supplemental Claim' do
-      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'
       operationId 'createSc'
       description = <<~DESC
@@ -33,7 +32,7 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
       DESC
       description description
 
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST])
 
       consumes 'application/json'
       produces 'application/json'
@@ -49,6 +48,8 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
                     end
                   }
                 }
+
+      scopes = %w[system/SupplementalClaims.write]
 
       response '201', 'Supplemental Claim created' do
         let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
@@ -83,9 +84,21 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
         let(:sc_body) { nil }
 
         it_behaves_like 'rswag example',
-                        desc: 'Not JSON object',
+                        desc: 'Body is not a JSON object',
                         extract_desc: true,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create a Supplemental Claim for another veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:sc_body) do
+          fixture_as_json('supplemental_claims/v0/valid_200995.json').tap do |data|
+            data['data']['attributes']['veteran']['icn'] = '1234567890V987654'
+          end
+        end
+
+        it_behaves_like 'rswag example', scopes: %w[veteran/SupplementalClaims.write]
       end
 
       response '422', 'Violates JSON schema' do

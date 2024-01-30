@@ -12,6 +12,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   let(:default_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182.json' }
   let(:min_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_minimum.json' }
   let(:max_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_extra.json' }
+  let(:other_icn) { '1111111111V111111' }
   let(:parsed_response) { JSON.parse(response.body) }
   let(:other_icn) { '1111111111V111111' }
 
@@ -54,9 +55,10 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
 
     describe 'responses' do
       let(:created_notice_of_disagreement) { AppealsApi::NoticeOfDisagreement.find(parsed_response.dig('data', 'id')) }
+      let(:scopes) { %w[system/NoticeOfDisagreements.write] }
 
       before do
-        with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+        with_openid_auth(scopes) do |auth_header|
           post(path, params:, headers: headers.merge(auth_header))
         end
       end
@@ -153,6 +155,18 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
               expect(saved_appeal.metadata).to include({ 'potential_write_in_issue_count' => 1 })
             end
           end
+        end
+      end
+
+      context "with a veteran token where the token's ICN doesn't match the submitted ICN" do
+        let(:scopes) { %w[veteran/NoticeOfDisagreements.write] }
+        let(:data) do
+          default_data['data']['attributes']['veteran']['icn'] = other_icn
+          default_data
+        end
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end

@@ -20,13 +20,12 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
   path '/forms/10182' do
     post 'Creates a new Notice of Disagreement' do
-      scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
       tags 'Notice of Disagreements'
       operationId 'createNod'
       description 'Submits an appeal of type Notice of Disagreement.' \
                   ' This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
                   ' via mail or fax directly to the Board of Veterans’ Appeals.'
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST])
       consumes 'application/json'
       produces 'application/json'
       parameter name: :nod_body, in: :body, schema: { '$ref' => '#/components/schemas/nodCreate' }
@@ -34,6 +33,8 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
         'minimum fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') },
         'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
+
+      system_scopes = %w[system/NoticeOfDisagreements.write]
 
       response '201', 'Notice of Disagreement created' do
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
@@ -44,7 +45,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                         desc: 'minimum fields used',
                         response_wrapper: :normalize_appeal_response,
                         extract_desc: true,
-                        scopes:
+                        scopes: system_scopes
       end
 
       response '201', 'Notice of Disagreement created' do
@@ -55,7 +56,30 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                         desc: 'all fields used',
                         response_wrapper: :normalize_appeal_response,
                         extract_desc: true,
-                        scopes:
+                        scopes: system_scopes
+      end
+
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:nod_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Body is not a JSON object',
+                        extract_desc: true,
+                        scopes: system_scopes
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create a Notice of Disagreement for another veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:nod_body) do
+          fixture_as_json('notice_of_disagreements/v0/valid_10182.json').tap do |data|
+            data['data']['attributes']['veteran']['icn'] = '1234567890V987654'
+          end
+        end
+
+        it_behaves_like 'rswag example', scopes: %w[veteran/NoticeOfDisagreements.write]
       end
 
       response '422', 'Violates JSON schema' do
@@ -66,7 +90,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
           request_body
         end
 
-        it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes:
+        it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes: system_scopes
       end
 
       it_behaves_like 'rswag 500 response'
