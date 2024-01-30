@@ -57,8 +57,8 @@ module Lighthouse
       }
 
       Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Upload', {
-                          file: payload[file:],
-                          attachments: payload[attachments:]
+                          file: payload[:file],
+                          attachments: payload[:attachments]
                         })
       response = @lighthouse_service.upload_doc(**payload)
 
@@ -120,7 +120,7 @@ module Lighthouse
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'docType' => @claim.form_id,
         'businessLine' => PENSION_BUSINESSLINE,
-        'source' => PENSION_SOURCE,
+        'source' => PENSION_SOURCE
       }
 
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
