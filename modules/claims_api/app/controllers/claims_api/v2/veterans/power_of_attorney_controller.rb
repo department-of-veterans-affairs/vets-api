@@ -43,12 +43,22 @@ module ClaimsApi
           submit_power_of_attorney(poa_code, '2122A')
         end
 
+        def validate2122
+          target_veteran
+          validate_json_schema
+
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_org_poa_code!(poa_code)
+
+          render json: validation_success('21-22')
+        end
+
         def validate2122a
           shared_form_validation('2122A')
           poa_code = get_poa_code('2122A')
           validate_individual_poa_code!(poa_code)
 
-          render json: validation_success
+          render json: validation_success('21-22a')
         end
 
         private
@@ -121,10 +131,18 @@ module ClaimsApi
           )
         end
 
-        def validation_success
+        def validate_org_poa_code!(poa_code)
+          return if ::Veteran::Service::Organization.exists?(poa: poa_code)
+
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+            detail: "Could not find an Organization with code: #{poa_code}"
+          )
+        end
+
+        def validation_success(form_number)
           {
             data: {
-              type: 'form/21-22a/validation',
+              type: "form/#{form_number}/validation",
               attributes: {
                 status: 'valid'
               }
