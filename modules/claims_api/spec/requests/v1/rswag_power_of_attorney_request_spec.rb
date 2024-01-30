@@ -96,6 +96,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
             stub_poa_verification
             allow_any_instance_of(pws)
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
 
             mock_acg(scopes) do
               submit_request(example.metadata)
@@ -168,6 +170,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
           end
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
             mock_acg(scopes) do
               submit_request(example.metadata)
@@ -257,6 +261,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
             mock_acg(scopes) do
               allow_any_instance_of(pws)
                 .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
               allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
               submit_request(example.metadata)
             end
@@ -291,6 +297,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
           let(:Authorization) { nil }
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do
@@ -329,6 +337,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
           let(:id) { 999_999_999 }
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do
@@ -402,6 +412,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
           let(:id) { power_of_attorney.id }
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do
@@ -435,6 +447,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
           let(:id) { power_of_attorney.id }
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do
@@ -799,6 +813,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
               .to receive(:validate_poa_code!).and_return(true)
             allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
               .to receive(:validate_poa_code_for_current_user!).and_return(true)
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do
@@ -866,6 +882,8 @@ describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/clai
           let(:data) { { data: { attributes: nil } } }
 
           before do |example|
+            allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+              .to receive(:check_request_ssn_matches_mpi).and_return(nil)
             stub_poa_verification
 
             mock_acg(scopes) do

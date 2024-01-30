@@ -19,37 +19,36 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
            headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
     end
 
-    # TODO: Add these specs back in after json schema changes are complete
-    # context 'with invalid params' do
-    #   before do
-    #     allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-    #   end
-    #
-    #   let(:params) do
-    #     # JSON.parse(response.body)['errors']
-    #     {
-    #       pensionClaim: {
-    #         form: full_claim.merge('bankAccount' => 'just a string').to_json
-    #       }
-    #     }
-    #   end
-    #
-    #   it 'shows the validation errors' do
-    #     subject
-    #     expect(response.code).to eq('422')
-    #     expect(
-    #       JSON.parse(response.body)['errors'][0]['detail'].include?(
-    #         "The property '#/bankAccount' of type string"
-    #       )
-    #     ).to eq(true)
-    #   end
-    #
-    #   it 'logs the attempted submission' do
-    #     expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ Submission', be_a(Hash))
-    #     expect(Rails.logger).to receive(:error).with('Validation error.')
-    #     subject
-    #   end
-    # end
+    context 'with invalid params' do
+      before do
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+      end
+
+      let(:params) do
+        # JSON.parse(response.body)['errors']
+        {
+          pensionClaim: {
+            form: full_claim.merge('bankAccount' => 'just a string').to_json
+          }
+        }
+      end
+
+      it 'shows the validation errors' do
+        subject
+        expect(response.code).to eq('422')
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            "The property '#/bankAccount' of type string"
+          )
+        ).to eq(true)
+      end
+
+      it 'logs the attempted submission' do
+        expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ Submission', be_a(Hash))
+        expect(Rails.logger).to receive(:error).with('Validation error.')
+        subject
+      end
+    end
 
     context 'with valid params' do
       let(:params) do

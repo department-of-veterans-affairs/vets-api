@@ -11,7 +11,7 @@ module Mobile
         delegate :get_claim, to: :claims_service
 
         def request_decision(id)
-          claims_service.submit5103(id)
+          claims_service.submit5103(@user, id)
         end
 
         private

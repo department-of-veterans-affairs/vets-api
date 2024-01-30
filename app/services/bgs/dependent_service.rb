@@ -55,7 +55,7 @@ module BGS
       # submission failed.
 
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(form_hash_686c.to_json)
-      VBMS::SubmitDependentsPdfJob.perform_async(
+      submit_pdf_job_id = VBMS::SubmitDependentsPdfJob.perform_async(
         claim.id,
         encrypted_vet_info,
         claim.submittable_686?,
@@ -72,20 +72,26 @@ module BGS
         # why I am deliberately raising these errors here.
         validate_file_number_format!(file_number:)
         validate_file_number_matches_ssn!(file_number:)
-        if claim.submittable_686?
-          BGS::SubmitForm686cJob.perform_async(
-            uuid, @icn, claim.id, encrypted_vet_info
-          )
-        else
-          BGS::SubmitForm674Job.perform_async(
-            uuid, @icn, claim.id, encrypted_vet_info
-          )
-        end
+        submit_form_job_id = if claim.submittable_686?
+                               BGS::SubmitForm686cJob.perform_async(
+                                 uuid, @icn, claim.id, encrypted_vet_info
+                               )
+                             else
+                               BGS::SubmitForm674Job.perform_async(
+                                 uuid, @icn, claim.id, encrypted_vet_info
+                               )
+                             end
         Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
+
+      {
+        submit_pdf_job_id:,
+        submit_form_job_id:
+      }
     rescue => e
       Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      raise e
     end
     # rubocop:enable Metrics/MethodLength
 

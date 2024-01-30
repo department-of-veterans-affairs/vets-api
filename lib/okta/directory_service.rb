@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rest-client'
-
 module Okta
   class DirectoryService < Common::Client::Base
     def scopes(category)
@@ -16,9 +14,9 @@ module Okta
 
       headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
-      response = RestClient::Request.execute(method: :get, url: scopes_url, headers:)
+      response = Faraday.get(scopes_url, {}, headers)
 
-      if response.code == 200
+      if response.status == 200
         begin
           JSON.parse(response.body)
 
@@ -26,9 +24,11 @@ module Okta
         rescue JSON::ParserError
           { 'error' => 'Failed to parse JSON response' }
         end
-      else
+      elsif response.status == 204
         # category is found but no scopes are returned (204)
         []
+      else
+        raise Faraday::Error, "status: #{response.status}"
       end
     end
   end

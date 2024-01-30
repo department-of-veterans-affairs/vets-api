@@ -10,7 +10,9 @@ RSpec.describe Mobile::V0::LighthouseAssertion, type: :model do
     before do
       Timecop.freeze(Time.utc(2021, 10, 11, 0, 0, 0))
       allow(SecureRandom).to receive(:uuid).and_return(uuid)
-      allow(File).to receive(:read).and_return(rsa_key.to_s)
+      allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:rsa_key).and_return(
+        OpenSSL::PKey::RSA.new(rsa_key.to_s)
+      )
     end
 
     after { Timecop.return }

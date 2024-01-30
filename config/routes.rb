@@ -491,8 +491,7 @@ Rails.application.routes.draw do
   get '/flipper/features/logout', to: 'flipper#logout'
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
 
-  if Rails.env.production?
-    require 'coverband'
+  unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
 

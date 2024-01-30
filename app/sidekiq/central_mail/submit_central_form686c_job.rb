@@ -12,6 +12,7 @@ module CentralMail
 
     FOREIGN_POSTALCODE = '00000'
     FORM_ID = '686C-674'
+    FORM_ID_674 = '21-674'
 
     sidekiq_options retry: false
 
@@ -34,7 +35,6 @@ module CentralMail
       claim.add_veteran_info(vet_info)
 
       get_files_from_claim
-
       use_lighthouse = Flipper.enabled?(:dependents_central_submission_lighthouse)
       result = use_lighthouse ? upload_to_lh : CentralMail::Service.new.upload(create_request_body)
       check_success(result, saved_claim_id, user_struct)
@@ -61,17 +61,29 @@ module CentralMail
         attachments: attachment_paths.map(&method(:split_file_and_path)),
         form_metadata: generate_metadata_lh
       )
+      create_form_submission_attempt(uuid)
+
       Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Submission Successful', claim_id: claim.id,
                           uuid: })
       response
     end
 
+    def create_form_submission_attempt(intake_uuid)
+      form_submission = FormSubmission.create(
+        form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+        benefits_intake_uuid: intake_uuid,
+        saved_claim: claim,
+        user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
+      )
+      FormSubmissionAttempt.create(form_submission:)
+    end
+
     def get_files_from_claim
       # process the main pdf record and the attachments as we would for a vbms submission
-      form_674_path = process_pdf(claim.to_pdf(form_id: '21-674')) if claim.submittable_674?
-      form_686c_path = process_pdf(claim.to_pdf(form_id: '686C-674')) if claim.submittable_686?
+      form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686?
       @form_path = form_686c_path || form_674_path
-      @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
+      @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
       # Treat 674 as first attachment
       attachment_paths.insert(0, form_674_path) if form_686c_path.present? && form_674_path.present?
     end
@@ -135,15 +147,31 @@ module CentralMail
       )
     end
 
-    def process_pdf(pdf_path)
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
-      CentralMail::DatestampPdf.new(stamped_path1).run(
+    # rubocop:disable Metrics/MethodLength
+    def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
-        x: 429,
+        x: 400,
         y: 770,
         text_only: true
       )
+      if form_id.present?
+        CentralMail::DatestampPdf.new(stamped_path2).run(
+          text: 'Application Submitted on va.gov',
+          x: form_id == '686C-674' ? 400 : 300,
+          y: form_id == '686C-674' ? 675 : 775,
+          text_only: true, # passing as text only because we override how the date is stamped in this instance
+          timestamp:,
+          page_number: form_id == '686C-674' ? 6 : 0,
+          template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+          multistamp: true
+        )
+      else
+        stamped_path2
+      end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def get_hash_and_pages(file_path)
       {

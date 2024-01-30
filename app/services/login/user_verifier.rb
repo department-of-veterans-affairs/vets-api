@@ -119,7 +119,7 @@ module Login
     def post_transaction_message_logs
       Rails.logger.info(deprecated_log) if deprecated_log
       Rails.logger.info(user_account_mismatch_log) if user_account_mismatch_log
-      Rails.logger.info(new_user_log) if new_user_log
+      Rails.logger.info(new_user_log, { icn: }) if new_user_log
     end
 
     def set_deprecated_log(deprecated_user_account_id, user_verification_id, user_account_id)

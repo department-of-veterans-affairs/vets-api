@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe BGS::DependentService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date:) }
-  let(:user2) { FactoryBot.create(:evss_user, :loa3, participant_id: nil, birth_date:) }
+  let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
+  let(:user2) { FactoryBot.create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
   let(:birth_date) { '1809-02-12' }
   let(:claim) { double('claim') }
   let(:vet_info) do
@@ -41,6 +41,7 @@ RSpec.describe BGS::DependentService do
     it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
 
         service.submit_686c_form(claim)
@@ -117,7 +118,7 @@ RSpec.describe BGS::DependentService do
           claim.id, encrypted_vet_info,
           true, true
         )
-        service.submit_686c_form(claim)
+        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
       end
     end
 
@@ -136,7 +137,7 @@ RSpec.describe BGS::DependentService do
           claim.id, encrypted_vet_info,
           true, true
         )
-        service.submit_686c_form(claim)
+        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
       end
     end
 
@@ -155,7 +156,7 @@ RSpec.describe BGS::DependentService do
           claim.id, encrypted_vet_info,
           true, true
         )
-        service.submit_686c_form(claim)
+        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
       end
     end
   end
@@ -188,6 +189,7 @@ RSpec.describe BGS::DependentService do
     it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
 
         service.submit_686c_form(claim)
@@ -264,7 +266,7 @@ RSpec.describe BGS::DependentService do
           claim.id, encrypted_vet_info, false,
           true
         )
-        service.submit_686c_form(claim)
+        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
       end
     end
 
@@ -283,7 +285,7 @@ RSpec.describe BGS::DependentService do
           claim.id, encrypted_vet_info, false,
           true
         )
-        service.submit_686c_form(claim)
+        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
       end
     end
 
@@ -302,7 +304,7 @@ RSpec.describe BGS::DependentService do
           claim.id, encrypted_vet_info, false,
           true
         )
-        service.submit_686c_form(claim)
+        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
       end
     end
   end

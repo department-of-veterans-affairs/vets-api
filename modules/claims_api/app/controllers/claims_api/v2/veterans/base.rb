@@ -14,9 +14,9 @@ module ClaimsApi
 
         private
 
-        def validate_json_schema
+        def validate_json_schema(form_number = self.class::FORM_NUMBER)
           validator = ClaimsApi::FormSchemas.new(schema_version: 'v2')
-          validator.validate!(self.class::FORM_NUMBER, form_attributes)
+          validator.validate!(form_number, form_attributes)
         end
 
         def form_attributes

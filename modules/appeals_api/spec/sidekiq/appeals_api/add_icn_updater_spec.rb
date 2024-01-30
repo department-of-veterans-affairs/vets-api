@@ -7,7 +7,14 @@ describe AppealsApi::AddIcnUpdater, type: :job do
   it_behaves_like 'a monitored worker'
 
   describe '#perform' do
-    let(:hlr) { create(:higher_level_review_v2) }
+    let(:auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200996_headers.json' }
+    let(:hlr) do
+      # veteran_icn _should_ be set via model hook on creation, but it may be blank for older records:
+      hlr = create(:higher_level_review_v2)
+      hlr.veteran_icn = nil
+      hlr.save
+      hlr
+    end
 
     it 'updates the appeal record with ICN data' do
       expect(hlr.veteran_icn).to be_blank

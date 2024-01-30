@@ -129,7 +129,7 @@ RSpec.describe 'PPIU' do
 
         it 'sends an email through va notify' do
           expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-            user.all_emails, :comp_pen
+            user.all_emails, 'comp_and_pen'
           )
 
           subject

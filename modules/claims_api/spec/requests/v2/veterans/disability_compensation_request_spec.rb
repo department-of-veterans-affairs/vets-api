@@ -511,6 +511,58 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when currentVaEmployee is null' do
+          let(:current_va_employee) { nil }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+                current_va_employee
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when currentVaEmployee is absent' do
+          let(:veteran_identification) do
+            {
+              serviceNumber: '123456789',
+              veteranNumber: {
+                telephone: '5555555555',
+                internationalTelephone: '+44 20 1234 5678'
+              },
+              mailingAddress: {
+                addressLine1: '1234 Couch Street',
+                addressLine2: 'Unit 4',
+                addressLine3: 'Room 1',
+                city: 'Portland',
+                state: 'OR',
+                country: 'USA',
+                zipFirstFive: '41726',
+                zipLastFour: '1234'
+              },
+              emailAddress: {
+                email: 'valid@somedomain.com',
+                agreeToEmailRelatedToClaim: true
+              }
+            }
+          end
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification'] =
+                veteran_identification
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when serviceNumber exceeds max length' do
           let(:service_number) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
 
@@ -3819,6 +3871,68 @@ RSpec.describe 'Disability Claims', type: :request do
           duplicate_submit_parsed = JSON.parse(response.body)
           duplicate_id = duplicate_submit_parsed['data']['id']
           expect(@original_id).not_to eq(duplicate_id)
+        end
+      end
+    end
+  end
+
+  describe 'POST #generatePDF', vcr: 'claims_api/disability_comp' do
+    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:data) do
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+                             'form_526_json_api.json').read
+      temp = JSON.parse(temp)
+      attributes = temp['data']['attributes']
+      attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
+      attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      temp.to_json
+    end
+
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:veteran_id) { '1012832025V743496' }
+    let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF" }
+
+    context 'submission to generatePDF' do
+      it 'returns a 200 response when successful' do
+        mock_ccg(scopes) do |auth_header|
+          post generate_pdf_path, params: data, headers: auth_header
+          expect(response.header['Content-Disposition']).to include('filename')
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when invalid JSON is submitted' do
+        it 'returns a 422 response' do
+          mock_ccg(scopes) do |auth_header|
+            post generate_pdf_path, params: {}, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+      end
+
+      context 'when the PDF string is not generated' do
+        it 'returns a 422 response when empty object is returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return({})
+
+          mock_ccg(scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+
+        it 'returns a 422 response if nil gets returned' do
+          allow_any_instance_of(ClaimsApi::V2::Veterans::DisabilityCompensationController)
+            .to receive(:generate_526_pdf)
+            .and_return(nil)
+
+          mock_ccg(scopes) do |auth_header|
+            post generate_pdf_path, params: data, headers: auth_header
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
         end
       end
     end

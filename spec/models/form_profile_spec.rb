@@ -660,7 +660,6 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.address[:postal_code][0..4]
       },
       'gender' => user.gender,
-      'dayPhone' => us_phone,
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
@@ -955,36 +954,8 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  # For military_information_vaprofile flipper off test
-  let(:initialize_military_information) do
-    {
-      'service_episodes_by_date' => [],
-      'last_service_branch' => 'Air Force',
-      'hca_last_service_branch' => 'air force',
-      'last_entry_date' => '2007-04-01',
-      'last_discharge_date' => '2007-04-02',
-      'discharge_type' => 'honorable',
-      'post_nov111998_combat' => true,
-      'sw_asia_combat' => true,
-      'tours_of_duty' => [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }],
-      'currently_active_duty' => true,
-      'currently_active_duty_hash' => { yes: true },
-      'vic_verified' => true,
-      'service_branches' => ['F'],
-      'service_periods' => [{ service_branch: 'Air Force Reserve',
-                              date_range: { from: '2007-04-01', to: '2016-06-01' } }],
-      'guard_reserve_service_history' => [{ from: '2007-04-01', to: '2016-06-01' },
-                                          { from: '2002-02-14', to: '2007-01-01' }],
-      'latest_guard_reserve_service_period' => { from: '2007-04-01', to: '2016-06-01' }
-    }
-  end
-
   describe '#initialize_military_information', skip_va_profile: true do
-    context 'when military_information_vaprofile=true' do
-      before do
-        Flipper.enable(:military_information_vaprofile)
-      end
-
+    context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                          allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
@@ -1018,112 +989,8 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '#initialize_military_information Flipper false', skip_va_profile: true do
-    context 'when military_information_vaprofile=false' do
-      # When military_information_vaprofile Flipper is deleted, this test will be removed.
-      # rubocop:disable Metrics/MethodLength
-      def stub_methods_for_emis_data
-        military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-        expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
-        expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
-        expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
-        expect(military_information).to receive(:discharge_type).and_return('honorable')
-        expect(military_information).to receive(:post_nov111998_combat).and_return(true)
-        expect(military_information).to receive(:sw_asia_combat).and_return(true)
-        expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
-        expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
-        expect(military_information).to receive(:tours_of_duty).and_return(
-          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-        expect(military_information).to receive(:service_branches).and_return(['F'])
-        allow(military_information).to receive(:currently_active_duty_hash).and_return(
-          yes: true
-        )
-        expect(user).to receive(:can_access_id_card?).and_return(true)
-        expect(military_information).to receive(:service_periods).and_return(
-          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-        expect(military_information).to receive(:guard_reserve_service_history).and_return(
-          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
-        )
-        expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
-          from: '2007-04-01',
-          to: '2016-06-01'
-        )
-      end
-      # rubocop:enable Metrics/MethodLength
-
-      before do
-        Flipper.disable(:military_information_vaprofile)
-        stub_methods_for_emis_data
-      end
-
-      it 'prefills military data from va profile and emis' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
-
-          expected_output = initialize_military_information
-
-          actual_guard_reserve_service_history = output.delete('guard_reserve_service_history')
-          actual_latest_guard_reserve_service_period = output.delete('latest_guard_reserve_service_period')
-
-          expected_guard_reserve_service_history = expected_output.delete('guard_reserve_service_history')
-          expected_latest_guard_reserve_service_period = expected_output.delete('latest_guard_reserve_service_period')
-
-          # Now that the nested structures are removed from the outputs, compare the rest of the structure.
-          expect(output).to eq(expected_output)
-          # Compare the nested structures VAProfile::Models::ServiceHistory objects separately.
-          first_item = actual_guard_reserve_service_history.map(&:attributes).first
-          expect(first_item[:from].to_s).to eq(expected_guard_reserve_service_history.first[:from])
-          expect(first_item[:to].to_s).to eq(expected_guard_reserve_service_history.first[:to])
-
-          guard_period = actual_latest_guard_reserve_service_period.attributes.transform_keys(&:to_s)
-          expect(guard_period['from'].to_s).to eq(expected_latest_guard_reserve_service_period[:from])
-          expect(guard_period['to'].to_s).to eq(expected_latest_guard_reserve_service_period[:to])
-        end
-      end
-    end
-  end
-
-  describe '#initialize_military_information_vaprofile. Flipper false' do
-    context 'when va profile is down in production and Flipper military_information_vaprofile=false' do
-      before do
-        allow(Rails.env).to receive(:production?).and_return(true)
-        Flipper.disable(:military_information_vaprofile)
-      end
-
-      it 'logs exception and returns empty hash' do
-        expect(form_profile).to receive(:log_exception_to_sentry).with(
-          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :vaprofile_military
-        )
-
-        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq({})
-      end
-
-      it 'prefills military data from va profile' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-          expect(form_profile.send(:initialize_military_information_vaprofile)).to eq(
-            {
-              'hca_last_service_branch' => 'army',
-              'last_entry_date' => '2012-03-02',
-              'last_discharge_date' => '2018-10-31',
-              'discharge_type' => nil,
-              'post_nov111998_combat' => false,
-              'sw_asia_combat' => false
-            }
-          )
-        end
-      end
-    end
-  end
-
   describe '#initialize_va_profile_prefill_military_information' do
     context 'when va profile is down in production' do
-      before do
-        Flipper.enable(:military_information_vaprofile)
-      end
-
       it 'logs exception and returns empty hash' do
         expect(form_profile).to receive(:log_exception_to_sentry).with(
           instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :va_profile_prefill_military_information
@@ -1233,6 +1100,39 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill 10-10EZR' do
       let(:form_profile) do
         FormProfiles::VA1010ezr.new(user:, form_id: 'f')
+      end
+
+      context 'when the ee service is down' do
+        let(:v10_10_ezr_expected) do
+          {
+            'veteranFullName' => {
+              'first' => user.first_name&.capitalize,
+              'middle' => user.middle_name&.capitalize,
+              'last' => user.last_name&.capitalize,
+              'suffix' => user.suffix
+            },
+            'veteranSocialSecurityNumber' => user.ssn,
+            'gender' => user.gender,
+            'veteranDateOfBirth' => user.birth_date,
+            'homePhone' => us_phone,
+            'veteranAddress' => {
+              'street' => street_check[:street],
+              'street2' => street_check[:street2],
+              'city' => user.address[:city],
+              'state' => user.address[:state],
+              'country' => user.address[:country],
+              'postal_code' => user.address[:postal_code][0..4]
+            },
+            'email' => user.pciu_email
+          }
+        end
+
+        it 'prefills the rest of the data and logs exception to sentry' do
+          expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
+            instance_of(VCR::Errors::UnhandledHTTPRequestError)
+          )
+          expect_prefilled('10-10EZR')
+        end
       end
 
       context 'with a user with dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
@@ -1661,6 +1561,7 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+              Flipper.disable(:disability_compensation_remove_pciu)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do

@@ -140,7 +140,7 @@ class ClaimsApi::RswagConfig
             },
             productionOauth: {
               type: :oauth2,
-              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)',
+              description: 'This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)',
               flows: {
                 authorizationCode: {
                   authorizationUrl: 'https://api.va.gov/oauth2/authorization',
@@ -154,7 +154,7 @@ class ClaimsApi::RswagConfig
             },
             sandboxOauth: {
               type: :oauth2,
-              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)',
+              description: 'This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)',
               flows: {
                 authorizationCode: {
                   authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',

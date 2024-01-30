@@ -28,4 +28,15 @@ describe VRE::Submit1900Job do
       expect(claim).to receive(:send_to_vre).with(user)
     end
   end
+
+  describe 'raises an exception' do
+    it 'when queue is exhausted' do
+      VRE::Submit1900Job.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once).with(
+          'Failed all retries on VRE::Submit1900Job, last error: An error occured'
+        )
+        expect(StatsD).to receive(:increment).with('worker.vre.submit_1900_job.exhausted')
+      end
+    end
+  end
 end

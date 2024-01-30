@@ -699,26 +699,6 @@
     :path: "/api/v2/search/i14y"
     :file_path: "search/default"
 
-# Okta
-- :name: 'Okta'
-  :base_uri: <%= "#{URI(Settings.oidc.base_api_url).host}:#{URI(Settings.oidc.base_api_url).port}" %>
-  :endpoints:
-  # User
-  - :method: :get
-    :path: "/api/v1/users/*"
-    :file_path: "okta/users"
-    :cache_multiple_responses:
-      :uid_location: url
-      :uid_locator:  '\/api\/v1\/users\/(.*)'
-  # Keys
-  - :method: :get
-    :path: "/oauth2/default/v1/keys"
-    :file_path: "okta/keys"
-  # Metadata
-  - :method: :get
-    :path: "/oauth2/default/.well-known/oauth-authorization-server"
-    :file_path: "okta/metadata"
-
 #GIS
 - :name: 'GIS'
   :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>

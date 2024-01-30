@@ -20,7 +20,7 @@ module BenefitsIntakeService
 
     configuration BenefitsIntakeService::Configuration
 
-    attr_reader :uuid
+    attr_reader :uuid, :location
 
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 

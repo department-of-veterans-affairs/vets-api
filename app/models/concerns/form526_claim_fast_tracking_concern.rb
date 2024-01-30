@@ -76,7 +76,6 @@ module Form526ClaimFastTrackingConcern
   end
 
   def rrd_special_issue_set?
-    disabilities = form.dig('form526', 'form526', 'disabilities')
     disabilities.any? do |disability|
       disability['specialIssues']&.include?(RRD_CODE)
     end

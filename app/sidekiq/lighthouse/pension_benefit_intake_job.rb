@@ -47,16 +47,18 @@ module Lighthouse
       @attachment_paths = @claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
       @metadata = generate_form_metadata_lh
-      response = @lighthouse_service.upload_form(
-        main_document: split_file_and_path(@form_path),
-        attachments: @attachment_paths.map(&method(:split_file_and_path)),
-        form_metadata: @metadata
+      response = @lighthouse_service.upload_doc(
+        upload_url: @lighthouse_service.location,
+        file: split_file_and_path(@form_path),
+        metadata: @metadata.to_json,
+        attachments: @attachment_paths.map(&method(:split_file_and_path))
       )
 
       check_success(response)
     rescue => e
       Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob failed!',
                         { error: e.message })
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
       @form_submission_attempt&.fail!
       raise
     ensure
@@ -125,6 +127,8 @@ module Lighthouse
     def check_success(response)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!', { saved_claim_id: @claim.id })
+        StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise PensionBenefitIntakeError, response.to_s

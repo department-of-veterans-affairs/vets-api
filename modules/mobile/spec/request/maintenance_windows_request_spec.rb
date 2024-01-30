@@ -6,6 +6,10 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'maintenance windows', type: :request do
   include JsonSchemaMatchers
 
+  def mw_uuid(service_name)
+    Digest::UUID.uuid_v5(Mobile::V0::ServiceGraph::MAINTENANCE_WINDOW_NAMESPACE, service_name)
+  end
+
   describe 'GET /v0/maintenance_windows' do
     context 'when no maintenance windows are active' do
       before { get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' } }
@@ -58,7 +62,7 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.parsed_body['data']).to eq(
           [
             {
-              'id' => '321e9dcf-2578-5956-9baa-295735d97c3c',
+              'id' => mw_uuid('claims'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'claims',
@@ -67,7 +71,7 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => '14ad3ba9-7ec8-51b8-bbb3-dc20e6655b26',
+              'id' => mw_uuid('direct_deposit_benefits'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'direct_deposit_benefits',
@@ -76,7 +80,7 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => '858b59df-4cef-5f34-91a4-57edd382e4e5',
+              'id' => mw_uuid('disability_rating'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'disability_rating',
@@ -85,7 +89,7 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => 'cac05630-8879-594c-8655-1a6ff582dc5d',
+              'id' => mw_uuid('letters_and_documents'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'letters_and_documents',
@@ -94,7 +98,7 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => '117dd7ff-419b-5807-9943-6c8ee6ad4ddd',
+              'id' => mw_uuid('immunizations'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'immunizations',
@@ -123,7 +127,7 @@ RSpec.describe 'maintenance windows', type: :request do
       it 'includes payment history as an affected service' do
         expect(response.parsed_body['data']).to include(
           {
-            'id' => '4ebb2370-3f56-5f24-a2f9-3b211f59077e',
+            'id' => mw_uuid('payment_history'),
             'type' => 'maintenance_window',
             'attributes' => {
               'service' => 'payment_history',

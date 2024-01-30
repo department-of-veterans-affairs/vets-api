@@ -17,7 +17,6 @@ module AppealsApi::NoticeOfDisagreements::V0
     before_action :validate_json_schema, only: %i[create validate]
     before_action :validate_icn_parameter, only: %i[download]
 
-    ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
     API_VERSION = 'V0'
     FORM_NUMBER = '10182'
     MODEL_ERROR_STATUS = 422
@@ -42,7 +41,7 @@ module AppealsApi::NoticeOfDisagreements::V0
     }.freeze
 
     def show
-      nod = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS).find(params[:id])
+      nod = AppealsApi::NoticeOfDisagreement.find(params[:id])
       nod = with_status_simulation(nod) if status_requested_and_allowed?
 
       render_notice_of_disagreement(nod)
@@ -65,7 +64,7 @@ module AppealsApi::NoticeOfDisagreements::V0
       nod.save
       AppealsApi::PdfSubmitJob.perform_async(nod.id, 'AppealsApi::NoticeOfDisagreement', 'v3')
 
-      render_notice_of_disagreement(nod, status: :created)
+      render_notice_of_disagreement(nod, include_pii: true, status: :created)
     end
 
     def download
@@ -117,8 +116,9 @@ module AppealsApi::NoticeOfDisagreements::V0
       render json: { errors: e.errors }, status: :unprocessable_entity
     end
 
-    def render_notice_of_disagreement(nod, **)
-      render(json: NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
+    def render_notice_of_disagreement(nod_or_nods, include_pii: false, **)
+      serializer_class = (include_pii ? NoticeOfDisagreementSerializerWithPii : NoticeOfDisagreementSerializer)
+      render(json: serializer_class.new(nod_or_nods).serializable_hash, **)
     end
 
     def render_notice_of_disagreement_not_found(id)

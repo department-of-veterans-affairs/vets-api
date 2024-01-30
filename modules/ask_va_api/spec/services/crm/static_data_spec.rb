@@ -20,14 +20,15 @@ RSpec.describe Crm::StaticData do
         expect(static_data_instance.call).to eq(static_data)
       end
     end
+  end
 
+  describe '#fetch_api_data' do
     context 'when the cache is empty' do
       it 'fetches data from the service and stores it in the cache' do
-        expect(cache_client).to receive(:fetch).with(described_class::CACHE_KEY).and_return(nil)
         expect(service).to receive(:call).with(endpoint: described_class::ENDPOINT).and_return(static_data)
         expect(cache_client).to receive(:store_data).with(key: described_class::CACHE_KEY, data: static_data,
                                                           ttl: 86_400)
-        expect(static_data_instance.call).to eq(static_data)
+        expect(static_data_instance.fetch_api_data).to eq(static_data)
       end
     end
 
@@ -40,21 +41,19 @@ RSpec.describe Crm::StaticData do
       end
 
       it 'handles the service error through the ErrorHandler' do
-        expect(cache_client).to receive(:fetch).with(described_class::CACHE_KEY).and_return(nil)
         expect(service).to receive(:call).with(endpoint: described_class::ENDPOINT).and_raise('Service error')
         expect(Crm::ErrorHandler).to receive(:handle).with('topics', instance_of(RuntimeError))
-        expect { static_data_instance.call }.not_to raise_error
+        expect { static_data_instance.fetch_api_data }.not_to raise_error
       end
     end
 
     # Edge case where cache returns empty array which should be treated as no data
     context 'when the cache returns an empty array' do
       it 'fetches data from the service as if the cache was empty' do
-        expect(cache_client).to receive(:fetch).with(described_class::CACHE_KEY).and_return([])
         expect(service).to receive(:call).with(endpoint: described_class::ENDPOINT).and_return(static_data)
         expect(cache_client).to receive(:store_data).with(key: described_class::CACHE_KEY, data: static_data,
                                                           ttl: 86_400)
-        expect(static_data_instance.call).to eq(static_data)
+        expect(static_data_instance.fetch_api_data).to eq(static_data)
       end
     end
   end

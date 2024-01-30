@@ -355,20 +355,8 @@ class User < Common::RedisStore
     super
   end
 
-  def military_information
-    @military_information ||= if Flipper.enabled?(:military_information_vaprofile)
-                                FormProfile.new(form_id: nil, user: self).initialize_military_information
-                              else
-                                EMISRedis::MilitaryInformation.for_user(self)
-                              end
-  end
-
   def veteran_status
-    @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
-                          VAProfileRedis::VeteranStatus.for_user(self)
-                        else
-                          EMISRedis::VeteranStatus.for_user(self)
-                        end
+    @veteran_status ||= VAProfileRedis::VeteranStatus.for_user(self)
   end
 
   %w[profile grants].each do |okta_model_name|

@@ -259,5 +259,31 @@ describe SimpleFormsApiSubmission::MetadataValidator do
 
       expect(validated_metadata).to eq expected_metadata
     end
+
+    describe 'zip code is nil' do
+      it 'is set to 00000' do
+        metadata = {
+          'veteranFirstName' => 'John',
+          'veteranLastName' => 'Doe',
+          'fileNumber' => '444444444',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '21-0845',
+          'businessLine' => 'CMP'
+        }
+        expected_metadata = {
+          'veteranFirstName' => 'John',
+          'veteranLastName' => 'Doe',
+          'fileNumber' => '444444444',
+          'zipCode' => '00000',
+          'source' => 'VA Platform Digital Forms',
+          'docType' => '21-0845',
+          'businessLine' => 'CMP'
+        }
+
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: false)
+
+        expect(validated_metadata).to eq expected_metadata
+      end
+    end
   end
 end

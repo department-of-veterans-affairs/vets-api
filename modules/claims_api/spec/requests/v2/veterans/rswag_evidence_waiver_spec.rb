@@ -25,7 +25,7 @@ describe 'EvidenceWaiver5103',
       parameter name: :id,
                 in: :path,
                 type: :string,
-                example: '1234',
+                example: '600400703',
                 description: 'The ID of the claim being requested'
       parameter name: 'veteranId',
                 in: :path,
