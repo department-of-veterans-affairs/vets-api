@@ -12,7 +12,6 @@ module IAMSSOeOAuth
     end
 
     def find_or_create_user
-      # require 'pry'; binding.pry;
       return IAMUser.find(@session.uuid) if @session
 
       create_user_session
