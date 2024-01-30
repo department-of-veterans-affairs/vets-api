@@ -175,7 +175,7 @@ module Avs
 
     swagger_schema :procedure do
       property :code, type: :string
-      property :procedure, type: :string
+      property :name, type: :string
     end
 
     swagger_schema :immunization do
