@@ -30,8 +30,8 @@ module PdfFill
       INCOME_TYPES = {
         'SOCIAL_SECURITY' => 0,
         'INTEREST_DIVIDEND' => 1,
-        'RETIREMENT' => 2,
-        'PENSION' => 3,
+        'CIVIL_SERVICE' => 2,
+        'PENSION_RETIREMENT' => 3,
         'OTHER' => 4
       }.freeze
 
