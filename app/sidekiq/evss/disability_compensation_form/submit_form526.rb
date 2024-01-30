@@ -81,16 +81,17 @@ module EVSS
         @submission_id = submission_id
 
         Sentry.set_tags(source: '526EZ-all-claims')
-
-        # This instantiates the service as defined by the inheriting object
-        # TODO: this meaningless variable assignment is required for the specs to pass, which
-        # indicates a problematic coupling of implementation and test logic.  This should eventually
-        # be addressed to make this service and test more robust and readable.
-        service = service(submission.auth_headers)
+        super(submission_id)
 
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+          # This instantiates the service as defined by the inheriting object
+          # TODO: this meaningless variable assignment is required for the specs to pass, which
+          # indicates a problematic coupling of implementation and test logic.  This should eventually
+          # be addressed to make this service and test more robust and readable.
+          service = service(submission.auth_headers)
+          submission.mark_birls_id_as_tried!
+
           begin
-            super(submission_id)
             submission.prepare_for_evss!
           rescue => e
             handle_errors(submission, e)
@@ -98,8 +99,6 @@ module EVSS
           end
 
           begin
-            submission.mark_birls_id_as_tried!
-
             # send submission data to either EVSS or Lighthouse (LH)
             response = if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
                          # submit 526 through LH API
@@ -175,7 +174,6 @@ module EVSS
       def non_retryable_error_handler(submission, error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
         super(error)
-        submission.mark_birls_id_as_tried!
         submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
           silence_errors_and_log_to_sentry: true,
           extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
