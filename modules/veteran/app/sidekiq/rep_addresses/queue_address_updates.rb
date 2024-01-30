@@ -28,7 +28,7 @@ module RepAddresses
 
     def queue_address_updates(data)
       RepAddresses::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
-        next if data[sheet].empty?
+        next if data[sheet].blank?
 
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"

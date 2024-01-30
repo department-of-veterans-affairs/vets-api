@@ -17,7 +17,13 @@ RSpec.describe RepAddresses::QueueAddressUpdates, type: :job do
 
   describe '#perform' do
     let(:file_content) { 'dummy file content' }
-    let(:processed_data) { { 'Attorneys' => [{ 'data' => 'value' }] } }
+    let(:processed_data) do
+      {
+        'Agents' => [{ 'data' => 'value' }],
+        'Attorneys' => [{ 'data' => 'value' }],
+        'Representatives' => [{ 'data' => 'value' }]
+      }
+    end
 
     before do
       allow(RepAddresses::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
@@ -28,7 +34,7 @@ RSpec.describe RepAddresses::QueueAddressUpdates, type: :job do
       it 'processes the file and queues updates' do
         expect { subject.perform }.not_to raise_error
 
-        expected_jobs_count = processed_data['Attorneys'].size
+        expected_jobs_count = processed_data.keys.size
         expect(RepAddresses::UpdateAddresses.jobs.size).to eq(expected_jobs_count)
       end
     end

@@ -150,7 +150,7 @@ RSpec.describe RepAddresses::UpdateAddresses do
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'UpdateAddresses record not found for type: representative and id: 1234', :error
+            'UpdateAddresses record not found for representative with id: 1234', :error
           )
 
           subject.perform(json_data)
