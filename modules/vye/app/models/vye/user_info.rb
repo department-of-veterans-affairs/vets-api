@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Vye
-  class UserInfo < ApplicationRecord
-    class DobSerializer
+  class Vye::UserInfo < ApplicationRecord
+    class Vye::UserInfo::DobSerializer
       def self.load(v)
         Date.parse(v) if v.present?
       end
