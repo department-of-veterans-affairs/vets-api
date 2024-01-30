@@ -31,7 +31,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
 
     before do
-      sign_in(authorized_user)
       entity = OpenStruct.new(id: nil, info: 'pong')
       allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'optionset',
                                                                  payload: { name: 'irish_country' }).and_return(entity)
