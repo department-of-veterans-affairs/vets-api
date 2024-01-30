@@ -173,7 +173,7 @@
       },
       "servicePay": {
         "receivingMilitaryRetiredPay": "NO",
-        "futureMilitaryRetiredPay": "NO",
+        "futureMilitaryRetiredPay": "YES",
         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
         "militaryRetiredPay": {
           "branchOfService": "Air Force",
