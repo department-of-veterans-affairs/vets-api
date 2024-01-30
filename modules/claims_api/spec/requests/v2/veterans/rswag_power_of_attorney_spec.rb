@@ -172,7 +172,6 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '202', 'Valid request response' do
-
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
                                             'power_of_attorney', '2122a', 'submit.json').read)
           let(:data) do
