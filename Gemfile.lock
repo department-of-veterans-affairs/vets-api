@@ -130,6 +130,16 @@ PATH
     vye (0.1.0)
 
 GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (2.5.3)
+      einhorn (>= 0.7.4)
+      sidekiq (>= 6.5.0, < 7)
+      sidekiq-pro (>= 5.5.0, < 6)
+    sidekiq-pro (5.5.8)
+      sidekiq (~> 6.0, >= 6.5.6)
+
+GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
@@ -383,6 +393,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0)
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
@@ -581,8 +592,6 @@ GEM
     libddwaf (1.14.0.0.0-arm64-darwin)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
-      ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-x86_64-darwin)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-x86_64-linux)
       ffi (~> 1.0)
@@ -1038,7 +1047,6 @@ PLATFORMS
   x64-mingw32
   x86-mingw32
   x86-mswin32
-  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
@@ -1197,6 +1205,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
+  sidekiq-ent!
+  sidekiq-pro!
   sidekiq_alive
   simple_forms_api!
   simplecov
