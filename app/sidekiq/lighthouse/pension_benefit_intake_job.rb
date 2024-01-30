@@ -121,7 +121,6 @@ module Lighthouse
         'docType' => @claim.form_id,
         'businessLine' => PENSION_BUSINESSLINE,
         'source' => PENSION_SOURCE,
-        'claimDate' => @claim.created_at
       }
 
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
