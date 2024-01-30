@@ -40,7 +40,7 @@ module ClaimsApi
           validate_json_schema
 
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
-          validate_individual_poa_code!(poa_code)
+          validate_org_poa_code!(poa_code)
 
           render json: validation_success('21-22')
         end
@@ -124,6 +124,14 @@ module ClaimsApi
 
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
             detail: "Could not find an Accredited Representative with code: #{poa_code}"
+          )
+        end
+
+        def validate_org_poa_code!(poa_code)
+          return if ::Veteran::Service::Organization.exists?(poa: poa_code)
+
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+            detail: "Could not find an Organization with code: #{poa_code}"
           )
         end
 
