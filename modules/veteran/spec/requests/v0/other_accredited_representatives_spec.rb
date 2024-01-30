@@ -7,6 +7,9 @@ RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
   include_examples 'base_accredited_representatives_controller_shared_examples',
                    '/services/veteran/v0/other_accredited_representatives', 'attorney'
 
+  include_examples 'base_accredited_representatives_controller_shared_examples',
+                   '/services/veteran/v0/other_accredited_representatives', 'claims_agents'
+
   context 'when searching for an attorney' do
     let(:path) { '/services/veteran/v0/other_accredited_representatives' }
     let(:type) { 'attorney' }
