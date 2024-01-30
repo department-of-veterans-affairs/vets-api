@@ -36,8 +36,8 @@ module ClaimsApi
         end
 
         def submit2122a
-          poa_code = get_poa_code('2122a')
-          shared_form_validation('2122a')
+          shared_form_validation('2122A')
+          poa_code = get_poa_code('2122A')
           validate_individual_poa_code!(poa_code)
 
           submit_power_of_attorney(poa_code, '2122A')
@@ -45,7 +45,7 @@ module ClaimsApi
 
         def validate2122a
           shared_form_validation('2122A')
-          poa_code = get_poa_code('2122a')
+          poa_code = get_poa_code('2122A')
           validate_individual_poa_code!(poa_code)
 
           render json: validation_success
@@ -70,7 +70,6 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          # This builds the POA form *AND* uploads it to VBMS
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
