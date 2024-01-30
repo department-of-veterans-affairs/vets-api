@@ -58,11 +58,23 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
 
       let(:scopes) { %w[system/claim.read system/claim.write] }
 
-      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
+      parameter name: :disability_comp_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
+
+      parameter in: :body, examples: {
+        'Minimum Required Attributes' => {
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                            'disability_compensation', 'valid_526_minimum.json').read)
+        },
+        'Maximum Attributes' => {
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                            'disability_compensation', 'form_526_json_api.json').read)
+
+        }
+      }
 
       describe 'Getting a successful response' do
-        response '202', 'Successful response with disability' do
-          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
+        response '202', 'Successful response' do
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
@@ -77,18 +89,16 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             temp
           end
 
+          let(:disability_comp_request) do
+            data
+          end
+
+          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
+
           before do |example|
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
           end
 
           it 'returns a valid 202 response' do |example|
@@ -107,6 +117,10 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                                    'disability_compensation', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
             temp
+          end
+
+          let(:disability_comp_request) do
+            data
           end
 
           before do |example|
@@ -154,6 +168,10 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           context 'Violates JSON Schema' do
             let(:data) { { data: { attributes: nil } } }
 
+            let(:disability_comp_request) do
+              data
+            end
+
             before do |example|
               make_request(example)
             end
@@ -170,6 +188,10 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           context 'Not a JSON Object' do
             let(:data) do
               'This is not valid JSON'
+            end
+
+            let(:disability_comp_request) do
+              data
             end
 
             before do |example|
