@@ -18,10 +18,9 @@ module RepAddresses
     # @return [String, nil] The content of the file as a string, or nil if not fetched.
     def fetch
       setup_octokit_client
-      file_info = fetch_rep_addresses_file_info
-
       return nil unless file_recently_updated?
 
+      file_info = fetch_rep_addresses_file_info
       fetch_file_content(file_info.download_url)
     rescue => e
       log_error("Error fetching XLSX file: #{e.message}")
@@ -60,9 +59,9 @@ module RepAddresses
       false
     end
 
-    # # Downloads the file content from a given URL.
-    # # @param url [String] The URL to download the file content from.
-    # # @return [String] The body of the HTTP response, or nil if not successful.
+    # Downloads the file content from a given URL.
+    # @param url [String] The URL to download the file content from.
+    # @return [String] The body of the HTTP response, or nil if not successful.
     def fetch_file_content(url)
       uri = URI.parse(url)
       response = Net::HTTP.get_response(uri)
