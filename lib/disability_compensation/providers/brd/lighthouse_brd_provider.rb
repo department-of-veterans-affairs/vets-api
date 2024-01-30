@@ -12,6 +12,10 @@ class LighthouseBRDProvider
 
   def get_separation_locations
     response = @service.get_data(path: 'intake-sites')
+    if response.status != 200
+      return DisabilityCompensation::ApiProvider::IntakeSitesResponse.new(status: response.status)
+    end
+
     transform(response.body)
   end
 
@@ -24,6 +28,7 @@ class LighthouseBRDProvider
         description: intake_site['description']
       )
     end
-    DisabilityCompensation::ApiProvider::IntakeSitesResponse.new(separation_locations:)
+
+    DisabilityCompensation::ApiProvider::IntakeSitesResponse.new(separation_locations:, status: 200)
   end
 end
