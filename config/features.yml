@@ -1286,3 +1286,6 @@ features:
     description: >-
       Master toggle for the VYE (Verify Your Enrollment) project.
       If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
+  yellow_ribbon_search_enhancement:
+    actor_type: user
+    description: Enable changes to Find a Yellow Ribbon school search functionality
