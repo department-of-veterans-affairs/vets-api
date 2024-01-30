@@ -25,14 +25,14 @@ module ClaimsApi
         end
 
         def submit2122
-          poa_code = parse_and_validate_poa_code
+          poa_code = parse_and_validate_poa_code('2122')
           unless poa_code_in_organization?(poa_code)
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
               detail: 'POA Code must belong to an organization.'
             )
           end
 
-          submit_power_of_attorney(poa_code)
+          submit_power_of_attorney(poa_code, '2122')
         end
 
         def validate2122a
@@ -45,18 +45,22 @@ module ClaimsApi
           render json: validation_success
         end
 
-        def appoint_individual
-          poa_code = parse_and_validate_poa_code
-          if poa_code_in_organization?(poa_code)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'POA Code must belong to an individual.')
-          end
+        def submit2122a
+          poa_code = get_poa_code('2122a')
+          shared_form_validation('2122a')
+          validate_individual_poa_code!(poa_code)
 
-          submit_power_of_attorney(poa_code)
+          submit_power_of_attorney(poa_code, '2122A')
         end
 
         private
 
-        def submit_power_of_attorney(poa_code)
+        def shared_form_validation(form_number)
+          target_veteran
+          validate_json_schema(form_number.upcase)
+        end
+
+        def submit_power_of_attorney(poa_code, form_number)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers:,
@@ -68,11 +72,13 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
             root: :data
+          ), status: :accepted, location: url_for(
+            controller: 'power_of_attorney', action: 'show', id: power_of_attorney.id
           )
         end
 
@@ -147,9 +153,13 @@ module ClaimsApi
                                                                     'Authorization').to_json)
         end
 
-        def parse_and_validate_poa_code
-          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
-          validate_poa_code!(poa_code)
+        def get_poa_code(form_number)
+          rep_or_org = form_number.upcase == '2122A' ? 'representative' : 'serviceOrganization'
+          form_attributes&.dig(rep_or_org, 'poaCode')
+        end
+
+        def parse_and_validate_poa_code(form_number)
+          poa_code = get_poa_code(form_number)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
           poa_code
