@@ -39,9 +39,10 @@ module ClaimsApi
         def submit2122a
           shared_form_validation('2122A')
           poa_code = get_poa_code('2122A')
-          validate_individual_poa_code!(poa_code)
+          registration_number = get_registration_number('2122A')
+          rep = requested_representative(poa_code, registration_number)
 
-          submit_power_of_attorney(poa_code, '2122A')
+          submit_power_of_attorney(poa_code, rep, '2122A')
         end
 
         def validate2122
@@ -57,7 +58,8 @@ module ClaimsApi
         def validate2122a
           shared_form_validation('2122A')
           poa_code = get_poa_code('2122A')
-          validate_individual_poa_code!(poa_code)
+          registration_number = get_registration_number('2122A')
+          requested_representative(poa_code, registration_number)
 
           render json: validation_success('21-22a')
         end
@@ -69,7 +71,7 @@ module ClaimsApi
           validate_json_schema(form_number.upcase)
         end
 
-        def submit_power_of_attorney(poa_code, form_number)
+        def submit_power_of_attorney(poa_code, representative, form_number)
           attributes = {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers:,
@@ -83,8 +85,10 @@ module ClaimsApi
 
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
 
+          rep_result = format_representative(representative).merge({ id: power_of_attorney.id, code: poa_code })
+
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
-            representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
+            rep_result,
             root: :data
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney', action: 'show', id: power_of_attorney.id
@@ -124,12 +128,19 @@ module ClaimsApi
           }
         end
 
-        def validate_individual_poa_code!(poa_code)
-          return if ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).any?
+        def requested_representative(poa_code, rep_id)
+          individuals = ::Veteran::Service::Representative.where(representative_id: rep_id).where(
+            '? = ANY(poa_codes)', poa_code
+          ).order(created_at: :desc)
 
-          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-            detail: "Could not find an Accredited Representative with code: #{poa_code}"
-          )
+          if individuals.blank?
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find an Accredited Representative with POA code: #{poa_code} " \
+                      "and Registration Number: #{rep_id}"
+            )
+          end
+
+          individuals.first
         end
 
         def validate_org_poa_code!(poa_code)
@@ -173,6 +184,11 @@ module ClaimsApi
         def get_poa_code(form_number)
           rep_or_org = form_number.upcase == '2122A' ? 'representative' : 'serviceOrganization'
           form_attributes&.dig(rep_or_org, 'poaCode')
+        end
+
+        def get_registration_number(form_number)
+          rep_or_org = form_number.upcase == '2122A' ? 'representative' : 'serviceOrganization'
+          form_attributes&.dig(rep_or_org, 'registrationNumber')
         end
 
         def parse_and_validate_poa_code(form_number)

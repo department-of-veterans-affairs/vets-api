@@ -247,8 +247,7 @@
       "additionalProperties": false,
       "required": [
         "poaCode",
-        "firstName",
-        "lastName",
+        "registrationNumber",
         "type",
         "address"
       ],
@@ -258,15 +257,10 @@
           "type": "string",
           "example": "A1Q"
         },
-        "firstName": {
-          "description": "First Name of the representative.",
+        "registrationNumber": {
+          "description": "The Registration Number of the representative",
           "type": "string",
-          "example": "John"
-        },
-        "lastName": {
-          "description": "Last Name of the representative",
-          "type": "string",
-          "example": "Doe"
+          "example": "12345"
         },
         "type": {
           "description": "Type of individual representative",
