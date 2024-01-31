@@ -96,10 +96,7 @@ module SimpleFormsApi
             status: #{status}, uuid #{confirmation_number}"
         )
 
-        json = { confirmation_number: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-
-        render json:, status:
+        render json: get_json(confirmation_number, form_id), status:
       end
 
       def get_upload_location_and_uuid(lighthouse_service)
@@ -156,6 +153,13 @@ module SimpleFormsApi
         raise 'missing form_number in params' unless form_number
 
         FORM_NUMBER_MAP[form_number]
+      end
+
+      def get_json(confirmation_number, form_id)
+        json = { confirmation_number: }
+        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+
+        json
       end
     end
   end
