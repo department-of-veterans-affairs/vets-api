@@ -7,7 +7,7 @@
       "veteranIdentification": {
         "serviceNumber": "123456789",
         "veteranNumber": {
-          "telephone": "5555555555",
+          "telephone": "555-555-5555",
           "internationalTelephone": "+44 20 1234 5678"
         },
         "mailingAddress": {
@@ -48,7 +48,7 @@
         },
         "pointOfContact": "john stewart",
         "pointOfContactNumber": {
-          "telephone": "5555555555",
+          "telephone": "555-555-5555",
           "internationalTelephone": "+44 20 1234 5678"
         }
       },
@@ -169,7 +169,7 @@
           "unitAddress": "1243 pine court",
           "unitPhone": {
             "areaCode": "555",
-            "phoneNumber": "5555555"
+            "phoneNumber": "555-5555"
           },
           "receivingInactiveDutyTrainingPay": "YES"
         },
