@@ -30,6 +30,9 @@ module SimpleFormsApi
         person_address + organization_address
     end
 
+    def track_user_identity
+    end
+
     private
 
     def veteran_ssn

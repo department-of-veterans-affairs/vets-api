@@ -75,6 +75,7 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        form.track_user_identity
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = filler.generate

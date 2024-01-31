@@ -28,6 +28,9 @@ module SimpleFormsApi
         statement + witness_phone + witness_email
     end
 
+    def track_user_identity
+    end
+
     private
 
     def veteran_ssn

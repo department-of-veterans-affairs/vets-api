@@ -30,5 +30,8 @@ module SimpleFormsApi
         'businessLine' => 'CMP'
       }
     end
+
+    def track_user_identity
+    end
   end
 end

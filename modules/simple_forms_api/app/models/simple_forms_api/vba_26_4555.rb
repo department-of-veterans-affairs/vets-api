@@ -27,6 +27,9 @@ module SimpleFormsApi
       }
     end
 
+    def track_user_identity
+    end
+
     private
 
     def veteran_ssn
