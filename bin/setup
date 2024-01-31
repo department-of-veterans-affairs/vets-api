@@ -1,22 +1,26 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative '../lib/vets-api/commands/setup'
+
+option = ARGV.first
 if ARGV.include?('--help') || ARGV.include?('-h')
   puts <<~HELP
     Usage:
-      bin/setup [options]
+      bin/setup [option]
 
     Options:
-      --help, -h        Display help message for 'setup'
-      --change          Change developer environment
-      --skip-basic      Skip to developer environment setup
+      --help, -h            Display help message for 'setup'
+      --native              Setup native developer environment
+      --docker              Setup Docker developer environment
+      --hybrid              Setup hybrid developer environment
 
     Examples:
-      bin/setup --help                 Show help message
-      bin/setup --change               Change developer environment
-      bin/setup --skip-basic --change  Skip and change
-
+      bin/setup --help      Show help message
+      bin/setup --docker    Setup Docker developer environment
   HELP
+elsif option == "--native" || option == "--docker" || option == "--hybrid"
+  VetsApi::Commands::Setup.run(ARGV)
 else
-  VetsApi::Commands::Setup.run(args) if Rails.env.development? || Rails.env.test?
+  puts "Invalid option \"#{option || "NULL"}\". Use \"--help\" for usage information."
 end
