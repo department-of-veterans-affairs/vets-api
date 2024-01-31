@@ -40,7 +40,8 @@ module Lighthouse
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Attempt', {
                           claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid
+                          benefits_intake_uuid: @lighthouse_service.uuid,
+                          confirmation_number: @claim.confirmation_number
                         })
 
       form_submission_polling
@@ -58,14 +59,20 @@ module Lighthouse
 
       Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Upload', {
                           file: payload[:file],
-                          attachments: payload[:attachments]
+                          attachments: payload[:attachments],
+                          claim_id: @claim.id,
+                          benefits_intake_uuid: @lighthouse_service.uuid,
+                          confirmation_number: @claim.confirmation_number
                         })
       response = @lighthouse_service.upload_doc(**payload)
 
       check_success(response)
     rescue => e
       Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob FAILED!',
-                        { error: e.message })
+                        { error: e.message,
+                          claim_id: @claim&.id,
+                          benefits_intake_uuid: @lighthouse_service&.uuid,
+                          confirmation_number: @claim&.confirmation_number })
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
       @form_submission_attempt&.fail!
       raise
@@ -134,7 +141,9 @@ module Lighthouse
     def check_success(response)
       if response.success?
         Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Succeeded!',
-                          { claim_id: @claim.id, benefits_intake_uuid: @lighthouse_service.uuid })
+                          { claim_id: @claim.id,
+                            benefits_intake_uuid: @lighthouse_service.uuid,
+                            confirmation_number: @claim.confirmation_number })
         StatsD.increment("#{STATSD_KEY_PREFIX}.success")
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
