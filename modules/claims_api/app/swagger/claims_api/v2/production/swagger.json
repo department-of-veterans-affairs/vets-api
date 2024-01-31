@@ -1353,7 +1353,7 @@
                                       "description": "Veteran's phone number.",
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
-                                      "example": "5555555",
+                                      "example": "5555555555",
                                       "minLength": 10,
                                       "maxLength": 10,
                                       "nullable": true
@@ -2613,7 +2613,7 @@
                                     "description": "Veteran's phone number.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
+                                    "example": "5555555555",
                                     "minLength": 10,
                                     "maxLength": 10,
                                     "nullable": true
@@ -4418,7 +4418,7 @@
                                     "description": "Veteran's phone number.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
+                                    "example": "5555555555",
                                     "minLength": 10,
                                     "maxLength": 10,
                                     "nullable": true
@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "68fefe0e-2c91-4381-aece-c1634cbba647",
+                    "id": "7442e728-95f7-4aae-876d-0ab5975f6445",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {

@@ -43,8 +43,8 @@
             "telephone": {
               "description": "Veteran's phone number. Number including area code.",
               "type": ["string", "null"],
-              "pattern": "\\d{3}-\\d{3}-\\d{4}",
-              "example": "212-555-2368",
+              "pattern": "^\\d{10}?$",
+              "example": "5555555555",
               "nullable": true
             },
             "internationalTelephone": {
@@ -314,8 +314,8 @@
             "telephone": {
               "description": "Primary phone of point of contact.",
               "type": ["string", "null"],
-              "pattern": "\\d{3}-\\d{3}-\\d{4}",
-              "example": "555-555-5555",
+              "pattern": "^\\d{10}?$",
+              "example": "5555555555",
               "nullable": true
             },
             "internationalTelephone": {
@@ -818,9 +818,8 @@
                 "phoneNumber": {
                   "type": ["string", "null"],
                   "nullable": true,
-                  "maxLength": 1000,
-                  "pattern": "\\d{3}-\\d{4}",
-                  "example": "555-5555"
+                  "maxLength": 20,
+                  "example": "5555555"
                 }
               }
             },

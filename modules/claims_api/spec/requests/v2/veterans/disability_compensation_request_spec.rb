@@ -3935,26 +3935,6 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
-
-      context 'veteranIdentification validations' do
-        context 'when phone number does not have dashes' do
-          let(:telephone) { '5555555555' }
-
-          it 'responds with unprocessable request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['veteranNumber']['telephone'] = telephone
-              data = json.to_json
-              post generate_pdf_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-              response_body = JSON.parse(response.body)
-              expect(response_body['errors'][0]['detail']).to include(
-                'The property /veteranIdentification/veteranNumber/telephone did not match the following requirements:'
-              )
-            end
-          end
-        end
-      end
     end
   end
 end

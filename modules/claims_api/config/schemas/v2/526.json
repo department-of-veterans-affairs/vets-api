@@ -38,7 +38,7 @@
               "description": "Veteran's phone number.",
               "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
-              "example": "5555555",
+              "example": "5555555555",
               "minLength": 10,
               "maxLength": 10,
               "nullable": true

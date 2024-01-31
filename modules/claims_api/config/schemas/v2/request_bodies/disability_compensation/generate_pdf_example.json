@@ -7,7 +7,7 @@
       "veteranIdentification": {
         "serviceNumber": "123456789",
         "veteranNumber": {
-          "telephone": "555-555-5555"
+          "telephone": "5555555555"
         },
         "mailingAddress": {
           "addressLine1": "123 Main Street",
@@ -47,7 +47,7 @@
         },
         "pointOfContact": "John Doe",
         "pointOfContactNumber": {
-          "telephone": "555-555-5555"
+          "telephone": "5555555555"
         }
       },
       "toxicExposure": {
@@ -161,7 +161,7 @@
           "unitAddress": "1243 Main Street",
           "unitPhone": {
             "areaCode": "555",
-            "phoneNumber": "555-5555"
+            "phoneNumber": "5555555"
           },
           "receivingInactiveDutyTrainingPay": "YES"
         },
