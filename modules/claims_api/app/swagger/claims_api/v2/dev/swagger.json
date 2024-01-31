@@ -8471,7 +8471,6 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": null,
                     "type": "individual",
                     "attributes": {
                       "code": "A1Q",
@@ -8490,15 +8489,10 @@
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
-                        "id",
                         "type",
                         "attributes"
                       ],
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "nullable": true
-                        },
                         "type": {
                           "type": "string",
                           "nullable": true,
