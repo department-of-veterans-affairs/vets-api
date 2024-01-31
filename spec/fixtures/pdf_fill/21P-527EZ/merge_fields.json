@@ -141,7 +141,7 @@
     "second": "22",
     "third": "4444"
   },
-  "spouseIsVeteran": true,
+  "spouseIsVeteran": 1,
   "spouseVaFileNumber": "23423444",
   "spouseAddress": {
     "street": "123 7th st",
