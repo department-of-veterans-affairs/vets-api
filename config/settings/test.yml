@@ -225,8 +225,6 @@ lighthouse:
         client_id: abc123456
         rsa_key: path/to/key
       use_mocks: false
-  benefits_reference_data:
-    url: https://staging-api.va.gov
 
 rrd:
   alerts:
