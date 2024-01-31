@@ -12,7 +12,6 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   let(:default_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182.json' }
   let(:min_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_minimum.json' }
   let(:max_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_extra.json' }
-  let(:other_icn) { '1111111111V111111' }
   let(:parsed_response) { JSON.parse(response.body) }
   let(:other_icn) { '1111111111V111111' }
 

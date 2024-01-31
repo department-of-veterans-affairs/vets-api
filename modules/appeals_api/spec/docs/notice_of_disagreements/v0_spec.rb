@@ -269,7 +269,6 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
   path '/evidence-submissions' do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
-      scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
       tags 'Notice of Disagreements'
       operationId 'postNoticeOfDisagreementEvidenceSubmission'
       description <<~DESC
@@ -277,7 +276,9 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
         The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
       DESC
 
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(
+        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
+      )
 
       consumes 'application/json'
       produces 'application/json'
@@ -288,6 +289,8 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
       let(:nodId) { nod.id }
       let(:fileNumber) { nod.veteran.file_number }
       let(:nod_es_body) { { nodId:, fileNumber: } }
+
+      scopes = %w[system/NoticeOfDisagreements.write]
 
       response '201', 'Location created' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
@@ -302,13 +305,6 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                         scopes:
       end
 
-      response '404', 'Associated Notice of Disagreement not found' do
-        schema '$ref' => '#/components/schemas/errorModel'
-        let(:nod_es_body) { { nodId: '00000000-0000-0000-0000-000000000000', fileNumber: } }
-
-        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
-      end
-
       response '400', 'Bad request' do
         schema '$ref' => '#/components/schemas/errorModel'
 
@@ -318,6 +314,22 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                         desc: 'Not JSON object',
                         extract_desc: true,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create an Evidence Submission for a Notice of Disagreement belonging to another Veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
+        let(:evidence_submission) { create(:evidence_submission_v0, supportable: nod) }
+        let(:id) { evidence_submission.id }
+
+        it_behaves_like 'rswag example', desc: 'returns a 403 response', scopes: %w[veteran/NoticeOfDisagreements.write]
+      end
+
+      response '404', 'Associated Notice of Disagreement not found' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod_es_body) { { nodId: '00000000-0000-0000-0000-000000000000', fileNumber: } }
+
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
       end
 
       response '422', 'Validation errors' do
@@ -420,6 +432,8 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                 description: 'Notice of Disagreement UUID Evidence Submission',
                 example: 'b77404cf-ef08-45e4-8201-d5b7622f63df'
 
+      scopes = %w[system/NoticeOfDisagreements.read]
+
       response '200', 'Info about a single Notice of Disagreement Evidence Submission.' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
         let(:id) { FactoryBot.create(:evidence_submission).guid }
@@ -428,6 +442,15 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
                         desc: 'returns a 200 response',
                         response_wrapper: :normalize_evidence_submission_response,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to view an Evidence Submission belonging to another Veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
+        let(:evidence_submission) { create(:evidence_submission_v0, supportable: nod) }
+        let(:id) { evidence_submission.id }
+
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: %w[veteran/SupplementalClaims.read]
       end
 
       response '404', 'Notice of Disagreement Evidence Submission not found' do
