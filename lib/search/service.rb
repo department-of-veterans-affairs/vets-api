@@ -87,6 +87,7 @@ module Search
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
+        # Handle upstream 5xx errors first since the structure of those errors usually isn't the same.
         handle_server_error!(error)
         message = parse_messages(error).first
         save_error_details(message)
@@ -122,6 +123,7 @@ module Search
         503 => 'SEARCH_503',
         504 => 'SEARCH_504'
       }
+      # Catch when the error's structure doesn't match what's usually expected.
       if error.body.is_a?(Hash)
         message = parse_messages(error).first
       else
