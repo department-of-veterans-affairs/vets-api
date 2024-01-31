@@ -1411,8 +1411,7 @@
                                       "description": "State for the Veteran's current mailing address.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR",
-                                      "maxLength": 1000
+                                      "example": "OR"
                                     },
                                     "country": {
                                       "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -1510,8 +1509,7 @@
                                   "description": "State for the Veteran's new address.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR",
-                                  "maxLength": 1000
+                                  "example": "OR"
                                 },
                                 "country": {
                                   "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2696,8 +2694,7 @@
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
-                                    "maxLength": 1000
+                                    "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -2795,8 +2792,7 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
-                                "maxLength": 1000
+                                "example": "OR"
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4526,8 +4522,7 @@
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
-                                    "maxLength": 1000
+                                    "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -4625,8 +4620,7 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
-                                "maxLength": 1000
+                                "example": "OR"
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -5795,7 +5789,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5821fc46-a674-4be2-bbcd-bc83d6b4459e",
+                    "id": "fac03c9b-b2d5-4246-9633-a9300ead07ee",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5946,7 +5940,7 @@
                       "status": "404",
                       "detail": "Resource not found",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:70:in `attachments'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/disability_compensation_controller.rb:66:in `attachments'"
                       }
                     }
                   ]
@@ -6101,7 +6095,7 @@
                     "properties": {
                       "attributes": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
-                        "description": "Claims API 526 Schema",
+                        "description": "Claims API 526 GeneratePDF Schema",
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
@@ -6112,6 +6106,11 @@
                           "veteranIdentification"
                         ],
                         "properties": {
+                          "claimDate": {
+                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                            "type": "string",
+                            "example": "2018-06-04"
+                          },
                           "claimProcessType": {
                             "type": "string",
                             "description": "Select type of claim program/process that applies to the Veteran.",
@@ -6201,8 +6200,7 @@
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
-                                    "maxLength": 1000
+                                    "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -6300,8 +6298,7 @@
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
-                                "maxLength": 1000
+                                "example": "OR"
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -7211,6 +7208,7 @@
                   "data": {
                     "type": "form/526",
                     "attributes": {
+                      "claimDate": "2018-06-25",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
@@ -7885,8 +7883,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-30",
-                      "expirationDate": "2025-01-30",
+                      "creationDate": "2024-01-31",
+                      "expirationDate": "2025-01-31",
                       "type": "compensation",
                       "status": "active"
                     }

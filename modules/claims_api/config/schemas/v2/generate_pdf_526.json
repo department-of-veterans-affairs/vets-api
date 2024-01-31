@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "Claims API 526 Schema",
+  "description": "Claims API 526 GeneratePDF Schema",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,6 +11,11 @@
     "veteranIdentification"
   ],
   "properties": {
+    "claimDate": {
+      "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+      "type": "string",
+      "example": "2018-06-04"
+    },
     "claimProcessType": {
       "type": "string",
       "description": "Select type of claim program/process that applies to the Veteran.",
