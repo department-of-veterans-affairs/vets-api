@@ -22,6 +22,8 @@ module CentralMail
     # rubocop:disable Metrics/ParameterLists
     # rubocop:disable Metrics/MethodLength
     def generate_stamp(stamp_path, text, x, y, text_only, size = 10, timestamp = nil, page_number = nil, template = nil)
+      puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t timestamp: #{timestamp} \n\n")
+
       timestamp ||= Time.zone.now
       unless text_only
         text += " #{I18n.l(timestamp, format: :pdf_stamp)}"

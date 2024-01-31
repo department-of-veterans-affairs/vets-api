@@ -6,7 +6,7 @@ require 'pdf_fill/forms/form_helper'
 
 module PdfFill
   module Forms
-    class Va214142 < FormBase
+    class Va214142Wipn < FormBase
       include FormHelper
 
       PROVIDER_ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -123,7 +123,7 @@ module PdfFill
         'signature' => {
           key: 'F[0].#subform[1].CLAIMANT_SIGNATURE[0]'
         },
-        'signatureDate' => {
+        'signatureDate' => { # wipn8923 - add to this key
           key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]',
           format: 'date'
         },
@@ -348,6 +348,8 @@ module PdfFill
       end
 
       def merge_fields(_options = {})
+        expand_signature_date
+
         expand_va_file_number
 
         expand_ssn
@@ -357,6 +359,9 @@ module PdfFill
         expand_signature(@form_data['veteranFullName'])
         @form_data['printedName'] = @form_data['signature']
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
+        # [wipn8923] this is where i can monkey patch from i think
+        puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t signatureDate: #{@form_date['signatureDate']} \n\n")
+        # @form_data['signatureDate'] = '???'
 
         expand_claimant_address
 

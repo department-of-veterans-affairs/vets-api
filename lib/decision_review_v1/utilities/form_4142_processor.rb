@@ -7,7 +7,30 @@ require 'simple_forms_api_submission/metadata_validator'
 
 module DecisionReviewV1
   module Processor
-    class Form4142Processor
+    class Form4142ProcessorWipn
+
+      SC_REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
+      SC_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'SC-CREATE-RESPONSE-200_V1'
+      SC_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'SC-SHOW-RESPONSE-200_V1'
+
+      FORM4142_ID = '4142'
+      FORM_ID = '21-4142'
+      SUPP_CLAIM_FORM_ID = '20-0995'
+
+      NOD_REQUIRED_CREATE_HEADERS = %w[X-VA-File-Number X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date].freeze
+      NOD_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-CREATE-RESPONSE-200_V1'
+      NOD_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'NOD-SHOW-RESPONSE-200_V1'
+
+      HLR_REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
+      HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200_V1'
+      HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200_V1'
+
+      # TODO: rename the imported schema as its shared with Supplemental Claims
+      GET_LEGACY_APPEALS_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-LEGACY-APPEALS-RESPONSE-200'
+
+      GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA =
+      VetsJsonSchema::SCHEMAS.fetch 'DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1'
+
       # @return [Pathname] the generated PDF path
       attr_reader :pdf_path
 
@@ -15,8 +38,8 @@ module DecisionReviewV1
       attr_reader :request_body
 
       def initialize(form_data:, submission_id: nil)
-        @form = form_data
         @submission = Form526Submission.find_by(id: submission_id)
+        @form = add_timestamp(form_data)
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
         @request_body = {
@@ -25,17 +48,22 @@ module DecisionReviewV1
         }
       end
 
+      def add_timestamp(form_data)
+        form_data.merge({ signatureDate: timestamp })
+      end
+
       def generate_stamp_pdf
         pdf = PdfFill::Filler.fill_ancillary_form(
           @form, @uuid, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                              timestamp: submission_date)
+        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5, timestamp: submission_date)
+
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
-          text_only: true
+          text_only: false,
+          timestamp: submission_date
         )
       end
 
@@ -56,7 +84,7 @@ module DecisionReviewV1
           'veteranFirstName' => veteran_full_name['first'],
           'veteranLastName' => veteran_full_name['last'],
           'fileNumber' => @form['vaFileNumber'] || @form['veteranSocialSecurityNumber'],
-          'receiveDt' => received_date,
+          'receiveDt' => submission_date, # wipn << not received_date
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
           'uuid' => @uuid,
@@ -74,11 +102,9 @@ module DecisionReviewV1
       end
 
       def submission_date
-        if @submission.nil?
-          Time.now.in_time_zone('Central Time (US & Canada)')
-        else
-          @submission.created_at.in_time_zone('Central Time (US & Canada)')
-        end
+        timestamp = @submission.created_at.in_time_zone('Central Time (US & Canada)')
+        puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t timestamp: #{timestamp} \n\n")
+        timestamp
       end
 
       def received_date
@@ -87,3 +113,6 @@ module DecisionReviewV1
     end
   end
 end
+
+thing = DecisionReviewV1::Processor::Form4142ProcessorWipn.new(form_data: sub.form['form4142'], submission_id: sub.id)
+S3Uploader.new(file_path: thing.pdf_path).run
