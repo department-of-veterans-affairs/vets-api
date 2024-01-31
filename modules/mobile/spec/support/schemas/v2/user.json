@@ -28,8 +28,7 @@
             "lastName",
             "signinEmail",
             "birthDate",
-            "signinService",
-            "hasFacilityTransitioningToCerner"
+            "signinService"
           ],
           "properties": {
             "id": {

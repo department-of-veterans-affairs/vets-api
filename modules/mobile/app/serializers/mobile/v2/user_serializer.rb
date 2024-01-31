@@ -14,13 +14,17 @@ module Mobile
       def initialize(user)
         @user = user
         birth_date = user.birth_date.nil? ? nil : Date.parse(user.birth_date).iso8601
-        # this is a temporary fix
-        has_transitioning_facility = Flipper.enabled?(:mobile_cerner_transition,
-                                                      user) && user.va_treatment_facility_ids.include?('556')
         resource = UserStruct.new(user.uuid, user.first_name, user.middle_name, user.last_name, user.email,
                                   birth_date, user.identity.sign_in[:service_name].remove('oauth_'),
-                                  has_transitioning_facility)
+                                  transitioning_facility?(user))
         super(resource)
+      end
+
+      # this is a temporary fix
+      def transitioning_facility?(user)
+        transitioning_facility_id = Rails.env.production? ? '556' : '459'
+        Flipper.enabled?(:mobile_cerner_transition, user) &&
+          user.va_treatment_facility_ids.include?(transitioning_facility_id)
       end
 
       UserStruct = Struct.new(
