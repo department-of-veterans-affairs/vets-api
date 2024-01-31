@@ -119,16 +119,13 @@ module Search
 
     def handle_server_error!(error)
       return unless [503, 504].include?(error.status)
+      
       exceptions = {
         503 => 'SEARCH_503',
         504 => 'SEARCH_504'
       }
       # Catch when the error's structure doesn't match what's usually expected.
-      if error.body.is_a?(Hash)
-        message = parse_messages(error).first
-      else
-        message = 'Search.gov is down'
-      end
+      message = error.body.is_a?(Hash) ? parse_messages(error).first : 'Search.gov is down'
       save_error_details(message)
       raise_backend_exception(exceptions[error.status], self.class, error)
     end
