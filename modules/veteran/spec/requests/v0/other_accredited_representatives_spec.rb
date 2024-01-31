@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'accredited_representatives_shared_spec'
+require_relative 'base_accredited_representatives_shared_spec'
+require_relative 'other_accredited_representatives_shared_spec'
 
 RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
   let(:path) { '/services/veteran/v0/other_accredited_representatives' }
@@ -32,5 +33,11 @@ RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
                    '/services/veteran/v0/other_accredited_representatives', 'attorney'
 
   include_examples 'base_accredited_representatives_controller_shared_examples',
+                   '/services/veteran/v0/other_accredited_representatives', 'claim_agents'
+
+  include_examples 'other_accredited_representatives_controller_shared_examples',
+                   '/services/veteran/v0/other_accredited_representatives', 'attorney'
+
+  include_examples 'other_accredited_representatives_controller_shared_examples',
                    '/services/veteran/v0/other_accredited_representatives', 'claim_agents'
 end
