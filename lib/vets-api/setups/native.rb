@@ -1,108 +1,112 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'pry'
 require 'fileutils'
 
-
 module VetsApi
   module Setups
     class Native
-
-      # Keep initialize for future command options
-      def initialize
-        super
-      end
-
-      # check for case where already done
-      # check settings.local.yml to remove hybrid keys (rollback hybrid)
       def run
         puts "\nNative Setup... "
+        remove_other_setup_settings
         install_bundler
+        if RbConfig::CONFIG['host_os'] =~ /darwin/i
+          run_brewfile
+          configuring_clamav_antivirus
+          install_pdftk
+        else # Linx not Windows
+          "bin/setup doesn't support Linux yet"
+        end
         install_gems
         setup_db
-        clone_mockdata
-        set_local_betamocks_cache_dir
-        configuring_clamav_antivirus
+        if RbConfig::CONFIG['host_os'] =~ /darwin/i
+          puts
+          puts 'Follow the Platform Specific Notes instructions to install Postgres & PostGIS'
+          puts 'https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#osx'
+        end
         puts "\nNative Setup Complete!"
-        puts
-        puts "Follow the Platform Specific Notes instructions to install Postgres, Redis, ClamAV, and pdftk"
-        puts "https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#platform-specific-notes"
       end
 
       private
 
-        def install_bundler
-          if `gem install bundler -v #{bundler_version}`
-            puts "Bundler installed (#{bundler_version})"
-          end
+      def remove_other_setup_settings
+        print 'Removing other setup settings...'
+        settings_path = 'config/settings.local.yml'
+        settings_file = File.read(settings_path)
+        settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
+        hybrid_keys = %w(database_url test_database_url redis)
+
+        hybrid_keys.each do |key|
+          settings.delete(key) if settings.has_key?(key)
         end
 
-        def bundler_version
-          lockfile_path = Bundler.default_lockfile.to_s
-          lines = File.readlines(lockfile_path).reverse
+        File.write(settings_path, YAML.dump(settings).tr('---', ''))
+        puts 'Done'
+      end
 
-          bundler_line = lines.each_with_index do |line, index|
+      def install_bundler
+        print "Installing bundler gem v#{bundler_version}..."
+        `gem install bundler -v #{bundler_version}`
+        puts 'Done'
+      end
 
-            break index if line.strip == "BUNDLED WITH"
+      def bundler_version
+        lockfile_path = "#{Dir.pwd}/Gemfile.lock"
+        lines = File.readlines(lockfile_path).reverse
 
-          end
-          lines[bundler_line - 1].strip
+        bundler_line = lines.each_with_index do |line, index|
+          break index if line.strip == 'BUNDLED WITH'
         end
+        lines[bundler_line - 1].strip
+      end
 
-        def install_gems
-          if `bundle install`
-            puts "Gems installed"
-          end
-        end
+      def install_gems
+        print 'Installing all gems...'
+        `bundle install`
+        puts 'Done'
+      end
 
-        # TODO: create a syscall to prevent logs (except errors) from logging
-        def setup_db
-          if `bundle exec rails db:setup`
-            puts "Database created, schema loaded, seeds added"
-          end
-        end
+      # TODO: create a syscall to prevent logs (except errors) from logging
+      def setup_db
+        puts 'Setting up databse...'
+        `bundle exec rails db:setup`
+        puts 'Setting up databse...Done'
+      end
 
-        def mockdata_installed
-          File.exist?("../vets-api-mockdata/README.md")
+      def configuring_clamav_antivirus
+        print 'Enabling ClamAV...'
+        clam_directory = `brew --prefix clamav`.chomp
+        FileUtils.touch("#{clam_directory}/clamd.sock")
+        File.open("#{clam_directory}/clamd.conf", 'w') do |file|
+          file.puts "LocalSocket #{clam_directory}/clamd.sock"
         end
+        File.open("#{clam_directory}/freshclam.conf", 'w') do |file|
+          file.puts 'DatabaseMirror database.clamav.net'
+        end
+        `freshclam -v`
+        File.open("config/initializers/clamav.rb", "w") do |file|
+          file.puts "ENV['CLAMD_UNIX_SOCKET'] = '#{clam_directory}/clamd.sock'"
+        end
+        puts 'Done'
+      end
 
-        def clone_mockdata
-          if mockdata_installed
-            puts "Skipping vets-api-mockdata clone (already installed)"
-          else
-            puts "Cloning vets-api-mockdata to sibiling directory"
-            repo_url = "git@github.com:department-of-veterans-affairs/vets-api-mockdata.git"
-            destination = "../"
-            system("git clone #{repo_url} #{destination}mockdata")
-          end
-        end
+      def run_brewfile
+        print 'Installing binary dependencies...'
+        `brew bundle`
+        puts 'Done'
+      end
 
-        def set_local_betamocks_cache_dir
-          existing_settings = YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
-          cache_settings = { "betamocks" => {"cache_dir" => "../vets-api-mockdata"} }
-          if existing_settings.keys.include?("betamocks")
-            puts "Skipping betamocks cache_dir setting (setting already exists)"
-          else
-            print 'Editing config/settings.local.yml to set cache_dir for betamocks ...'
-            File.open('config/settings.local.yml', 'a') do |file|
-              file.puts cache_settings.to_yaml.tr("---", "")
-            end
-            puts 'Done'
-          end
+      def install_pdftk
+        if `pdftk --help`
+          puts "Skipping pdftk install (binary already installed)"
+        else
+          puts 'Installing pdftk...'
+          `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
+          `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
+          puts 'Installing pdftk...Done'
         end
-
-        def configuring_clamav_antivirus
-          existing_settings = YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
-          cache_settings = { "binaries" => {"clamdscan" => "./bin/fake_clamdscan"} }
-          if existing_settings.keys.include?("binaries")
-            puts "Skipping ClamAV setting (setting already exists)"
-          else
-            print 'Editing config/settings.local.yml to set ClamAV path ...'
-            File.open('config/settings.local.yml', 'a') do |file|
-              file.puts cache_settings.to_yaml.tr("---", "")
-            end
-            puts 'Done'
-          end
-        end
+      end
     end
   end
 end

@@ -1,44 +1,34 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'fileutils'
+require_relative '../setups/native'
+require_relative '../setups/docker'
+require_relative '../setups/hybrid'
 
 module VetsApi
   module Commands
     class Setup
       class << self
-
         # TODO: run check to make sure in the correct directory /vets-api
         def run(args)
-          @change_environment = false
-          if args.include?('--help') || args.include?('-h')
-            puts <<~HELP
-              Usage:
-                bin/vets setup [options]
-
-              Options:
-                --help, -h        Display help message for 'setup'
-                --change          Change developer environment
-                --skip-basic      Skip to developer environment setup
-
-              Examples:
-                bin/vets setup --help                 Show help message
-                bin/vets setup --change               Change developer environment
-                bin/vets setup --skip-basic --change  Skip and change
-
-            HELP
-          else
-            @change_environment = true if args.include?('--change')
-
-            unless args.include?('--skip-basic')
-              setup_localhost_authentication_for_id_me
-              create_local_settings
-              disable_signed_authentication_requests
-              prompt_setup_sidekiq_enterprise
-            end
-            choose_developer_environment
-          end
+          puts 'Base Setup... '
+          check_vets_api_directory
+          setup_localhost_authentication_for_id_me
+          create_local_settings
+          clone_mockdata
+          set_local_betamocks_cache_dir
+          disable_signed_authentication_requests
+          prompt_setup_sidekiq_enterprise
+          store_developer_environment_preference(args.first)
+          setup_developer_environment
         end
 
         private
+
+        def check_vets_api_directory
+          raise ScriptError, 'Error: only run this command in the app root directory' unless Dir.pwd.end_with?('vets-api')
+        end
 
         def setup_localhost_authentication_for_id_me
           if File.exist?('config/certs/vetsgov-localhost.key')
@@ -57,43 +47,68 @@ module VetsApi
             puts 'Skipping local settings (files already exist)'
           else
             print 'Copying default settings to local settings... '
-            FileUtils.cp('config/settings.local.yml.example','config/settings.local.yml')
+            FileUtils.cp('config/settings.local.yml.example', 'config/settings.local.yml')
+            puts 'Done'
+          end
+        end
+
+        def clone_mockdata
+          if File.exist?('../vets-api-mockdata/README.md')
+            puts 'Skipping vets-api-mockdata clone (already installed)'
+          else
+            puts 'Cloning vets-api-mockdata to sibiling directory'
+            repo_url = 'git@github.com:department-of-veterans-affairs/vets-api-mockdata.git'
+            destination = '../'
+            system("git clone #{repo_url} #{destination}mockdata")
+          end
+        end
+
+        def set_local_betamocks_cache_dir
+          existing_settings = YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
+          cache_settings = { 'betamocks' => { 'cache_dir' => '../vets-api-mockdata' } }
+          if existing_settings.keys.include?('betamocks')
+            puts 'Skipping betamocks cache_dir setting (setting already exists)'
+          else
+            print 'Editing config/settings.local.yml to set cache_dir for betamocks ...'
+            File.open('config/settings.local.yml', 'a') do |file|
+              file.puts cache_settings.to_yaml.tr('---', '')
+            end
             puts 'Done'
           end
         end
 
         def disable_signed_authentication_requests
           existing_settings = YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
-          saml_settings = { "saml" => {"authn_requests_signed" => false} }
-          if existing_settings.keys.include?("saml")
-            puts "Skipping disable signed authentication request (setting already exists)"
+          saml_settings = { 'saml' => { 'authn_requests_signed' => false } }
+          if existing_settings.keys.include?('saml')
+            puts 'Skipping disable signed authentication request (setting already exists)'
           else
             print 'Editing config/settings.local.yml to disable signed authentication requests...'
             File.open('config/settings.local.yml', 'a') do |file|
-              file.puts saml_settings.to_yaml.tr("---", "")
+              file.puts saml_settings.to_yaml.tr('---', '')
             end
             puts 'Done'
           end
         end
 
+        # TODO: figure out how to do this with docker
         def prompt_setup_sidekiq_enterprise
           existing = system('echo $BUNDLE_ENTERPRISE__CONTRIBSYS__COM')
-          print "Enter Sidekiq Enterprise License or press enter/return to skip: "
-          response = STDIN.gets.chomp
-          key_regex = %r{\A[0-9a-fA-F]{8}:[0-9a-fA-F]{8}\z}
+          print 'Enter Sidekiq Enterprise License or press enter/return to skip: '
+          response = $stdin.gets.chomp
+          key_regex = /\A[0-9a-fA-F]{8}:[0-9a-fA-F]{8}\z/
 
           if existing && response.empty?
-            puts "Skipping Sidekiq Enterprise License (value already set)"
+            puts 'Skipping Sidekiq Enterprise License (value already set)'
           elsif response && key_regex.match?(response)
-            print "Setting Sidekiq Enterprise License... "
+            print 'Setting Sidekiq Enterprise License... '
             `bundle config enterprise.contribsys.com #{response}`
-            if RbConfig::CONGIF['host_os'] =~ /mswin|msys|mingw|cygwin/i
+            if RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw|cygwin/i
               `set BUNDLE_ENTERPRISE__CONTRIBSYS__COM=#{response}"`
-              puts "Done"
             else
               system("BUNDLE_ENTERPRISE__CONTRIBSYS__COM=#{response}")
-              puts "Done"
             end
+            puts 'Done'
           else
             puts
             puts "\e[1;4m**Please do not commit a Gemfile.lock that does not include sidekiq-pro and sidekiq-ent**\e[0m"
@@ -101,66 +116,53 @@ module VetsApi
           end
         end
 
-        def choose_developer_environment(repeat = false)
+        def store_developer_environment_preference(input_environment)
           file_path = '.developer-environment'
-          environment = File.exist?(file_path) ? File.read(file_path) : ''
-          environment = '' if @change_environment
-          response =
-            case environment
-            when 'native'
-              'n'
-            when 'docker'
-              'd'
-            when 'hybrid'
-              'h'
-            else
-              unless repeat
-                puts <<~SETUP
-
-                  Developers who work with vets-api daily tend to prefer the native setup because they don't have to deal with the
-                  abstraction of docker-compose while those who would to spend less time on getting started prefer the docker setup.
-                  Docker is also useful when it's necessary to have a setup as close to production as possible.
-                  Finally, it's possible to use a hybrid setup where you run vets-api natively, but run the Postgres and Redis dependencies in docker.
-
-                SETUP
-              end
-              print "Would like run vets-api natively, docker, or hybrid [n,d,h]: "
-              STDIN.gets.chomp
-            end
-
-
-          if response == "n"
-            if RUBY_DESCRIPTION.include?("ruby 3.2.2")
-              VetsApi::Setups::Native.new.run
-            else
-              puts "\nBefore continuing Ruby v3.2.2 must be installed"
-              puts "We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby to install and maintain your version of Ruby."
-              puts "More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md"
-            end
-            File.write(file_path,'native')
-          elsif response == "d"
-            if `docker -v`
-              VetsApi::Setups::Docker.new.run
-            else
-              puts "\nBefore continuing Docker Desktop (Engine + Compose) must be installed"
-              puts "More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/docker.md"
-            end
-            File.write(file_path,'docker')
-          elsif response == "h"
-            if RUBY_DESCRIPTION.include?("ruby 3.2.2") && `docker -v`
-              VetsApi::Setups::Hybrid.new.run
-            else
-              puts "\nBefore continuing Ruby v3.2.2 AND Docker Desktop (Engine + Compose) must be installed"
-              puts "More information about Ruby managers: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md"
-              puts "More information about Docker Desktop (Engine + Compose): https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md"
-            end
-            File.write(file_path,'hybrid')
-          else
-            puts "\nInvalid input #{response}"
-            puts
-            choose_developer_environment(true)
+          if input_environment
+            File.write(file_path, input_environment.tr('--', ''))
           end
+        end
 
+        def setup_developer_environment
+          case File.read('.developer-environment')
+          when 'native'
+            setup_native
+          when 'docker'
+            setup_docker
+          when 'hybrid'
+            setup_hybrid
+          else
+            puts "Invalid option for .developer-environment"
+          end
+        end
+
+        def setup_native
+          if RUBY_DESCRIPTION.include?('ruby 3.2.2')
+            VetsApi::Setups::Native.new.run
+          else
+            puts "\nBefore continuing Ruby v3.2.2 must be installed"
+            puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby to install and maintain your version of Ruby.'
+            puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
+          end
+        end
+
+        def setup_docker
+          if `docker -v`
+            VetsApi::Setups::Docker.new.run
+          else
+            puts "\nBefore continuing Docker Desktop (Engine + Compose) must be installed"
+            puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/docker.md'
+          end
+        end
+
+        def setup_hybrid
+          if RUBY_DESCRIPTION.include?('ruby 3.2.2') && `docker -v`
+            VetsApi::Setups::Hybrid.new.run
+          else
+            puts "\nBefore continuing Ruby v3.2.2 AND Docker Desktop (Engine + Compose) must be installed"
+            puts 'More information about Ruby managers: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
+            puts 'More information about Docker Desktop (Engine + Compose): https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
+          end
         end
       end
     end

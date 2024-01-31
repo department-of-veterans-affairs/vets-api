@@ -102,3 +102,4 @@ node_modules
 # Ignore public folder (used for local document uploads)
 public
 
+.developer-environment
