@@ -7,7 +7,6 @@ RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
   let(:path) { '/services/veteran/v0/other_accredited_representatives' }
 
   before do
-    # Attorneys
     create(:representative, representative_id: '123', poa_codes: ['A12'], user_types: %w[attorney claim_agents],
                             long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
                             first_name: 'Bob', last_name: 'Law') # ~6 miles from Washington, D.C.
