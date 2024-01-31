@@ -232,8 +232,13 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        avs_link = get_avs_link(appt)
-        appt[:avs_path] = avs_link
+        # Testing AVS error message using the below id - remove after testing is complete
+        if appt[:id] == '199512'
+          appt[:avs_path] = AVS_ERROR_MESSAGE
+        else
+          avs_link = get_avs_link(appt)
+          appt[:avs_path] = avs_link
+        end
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
