@@ -10,6 +10,29 @@ module SimpleFormsApi
       @data = data
     end
 
+    def as_payload
+      {
+        remarks: data['remarks'],
+        livingSituation: {
+          careFacilityName: data.dig('living_situation', 'care_facility_name'),
+          careFacilityAddress: {
+            street: data.dig('living_situation', 'care_facility_address', 'street'),
+            street2: data.dig('living_situation', 'care_facility_address', 'street2'),
+            city: data.dig('living_situation', 'care_facility_address', 'city'),
+            state: data.dig('living_situation', 'care_facility_address', 'state'),
+            postalCode: data.dig('living_situation', 'care_facility_address', 'postal_code')
+          },
+          isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
+        },
+        previousHiApplication: {},
+        previousSahApplication: {},
+        veteran: {},
+        statementOfTruthSignature: data['statement_of_truth_signature'],
+        statementOfTruthCertified: data['statement_of_truth_certified'],
+        formNumber: data['form_number']
+      }
+    end
+
     def words_to_remove
       veteran_ssn + veteran_date_of_birth + veteran_address + previous_sah_application + previous_hi_application +
         living_situation + veteran_home_phone + veteran_mobile_phone + veteran_email
