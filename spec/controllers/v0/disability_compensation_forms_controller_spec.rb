@@ -46,14 +46,14 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       end
 
       it 'returns separation locations' do
-        VCR.use_cassette('brd/intake_sites') do
+        VCR.use_cassette('brd/separation_locations') do
           get(:separation_locations)
           expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
         end
       end
 
       it 'uses the cached response on the second request' do
-        VCR.use_cassette('brd/intake_sites') do
+        VCR.use_cassette('brd/separation_locations') do
           2.times do
             get(:separation_locations)
             expect(response.status).to eq(200)
