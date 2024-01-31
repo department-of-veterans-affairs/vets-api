@@ -138,7 +138,7 @@
   ],
   "spouseDateOfBirth": "1960-01-01",
   "spouseSocialSecurityNumber": "333224444",
-  "spouseIsVeteran": false,
+  "spouseIsVeteran": true,
   "spouseVaFileNumber": "23423444",
   "spouseAddress": {
     "street": "123 7th st",
