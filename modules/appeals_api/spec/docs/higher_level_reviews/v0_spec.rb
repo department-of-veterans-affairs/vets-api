@@ -103,16 +103,6 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
                                          scopes: veteran_scopes
       end
 
-      response '404', 'Higher-Level Review not found' do
-        schema '$ref' => '#/components/schemas/errorModel'
-
-        let(:id) { '11111111-1111-1111-1111-111111111111' }
-
-        it_behaves_like 'rswag example',
-                        desc: 'returns a 404 response',
-                        scopes: veteran_scopes
-      end
-
       response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Higher-Level Review' do
         schema '$ref' => '#/components/schemas/errorModel'
 
@@ -120,6 +110,16 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
 
         it_behaves_like 'rswag example',
                         desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Higher-Level Review',
+                        scopes: veteran_scopes
+      end
+
+      response '404', 'Higher-Level Review not found' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:id) { '11111111-1111-1111-1111-111111111111' }
+
+        it_behaves_like 'rswag example',
+                        desc: 'returns a 404 response',
                         scopes: veteran_scopes
       end
 
