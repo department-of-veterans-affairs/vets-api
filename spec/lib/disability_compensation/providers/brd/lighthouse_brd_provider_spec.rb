@@ -21,7 +21,7 @@ RSpec.describe LighthouseBRDProvider do
   it_behaves_like 'brd provider'
 
   it 'retrieves separation locations from the Lighthouse API' do
-    VCR.use_cassette('brd/intake_sites') do
+    VCR.use_cassette('brd/separation_locations') do
       response = @provider.get_separation_locations
       expect(response['response_body']['items'].length).to eq(324)
     end
