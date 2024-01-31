@@ -63,7 +63,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                       expected_response = {
                         'data' => {
-                          'id' => nil,
                           'type' => 'individual',
                           'attributes' => {
                             'code' => 'ABC',
