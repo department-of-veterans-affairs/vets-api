@@ -74,18 +74,21 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
   end
 
   path '/forms/10182/{id}' do
-    get 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)' do
-      scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
+    get 'Show a specific Notice of Disagreement' do
       tags 'Notice of Disagreements'
       operationId 'showNod'
-      description 'Returns all of the data associated with a specific Notice of Disagreement.'
-      security DocHelpers.oauth_security_config(scopes)
+      description 'Returns basic data associated with a specific Notice of Disagreement.'
+      security DocHelpers.oauth_security_config(
+        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
+      )
       produces 'application/json'
       parameter name: :id,
                 in: :path,
                 description: 'Notice of Disagreement UUID',
                 example: '02bbbe56-443c-42fa-aaf2-ef6200a6eddd',
                 schema: { type: :string, format: :uuid }
+
+      veteran_scopes = %w[veteran/NoticeOfDisagreements.read]
 
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodShowResponse'
@@ -94,14 +97,24 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
         it_behaves_like 'rswag example',
                         desc: 'returns a 200 response',
                         response_wrapper: :normalize_appeal_response,
-                        scopes:
+                        scopes: veteran_scopes
+      end
+
+      response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Notice of Disagreement' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:id) { FactoryBot.create(:notice_of_disagreement_v0, veteran_icn: '1234567890V123456').id }
+
+        it_behaves_like 'rswag example',
+                        desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Notice of Disagreement',
+                        scopes: veteran_scopes
       end
 
       response '404', 'Notice of Disagreement not found' do
         schema '$ref' => '#/components/schemas/errorModel'
         let(:id) { '00000000-0000-0000-0000-000000000000' }
 
-        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: veteran_scopes
       end
 
       it_behaves_like 'rswag 500 response'
@@ -115,13 +128,11 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
       operationId 'downloadNod'
       security DocHelpers.oauth_security_config(scopes)
 
-      # FIXME: re-enable once download endpoint uses ICN from token
-      #
-      # include_examples 'PDF download docs', {
-      #   factory: :notice_of_disagreement_v0,
-      #   appeal_type_display_name: 'Notice of Disagreement',
-      #   scopes:
-      # }
+      include_examples 'PDF download docs', {
+        factory: :notice_of_disagreement_v0,
+        appeal_type_display_name: 'Notice of Disagreement',
+        scopes:
+      }
     end
   end
 
