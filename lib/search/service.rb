@@ -119,7 +119,7 @@ module Search
 
     def handle_server_error!(error)
       return unless [503, 504].include?(error.status)
-      
+
       exceptions = {
         503 => 'SEARCH_503',
         504 => 'SEARCH_504'
