@@ -25,6 +25,7 @@ module ClaimsApi
         end
 
         def submit2122
+          shared_form_validation('2122')
           poa_code = parse_and_validate_poa_code('2122')
           unless poa_code_in_organization?(poa_code)
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(

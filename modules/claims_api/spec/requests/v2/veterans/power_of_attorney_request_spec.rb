@@ -202,47 +202,10 @@ RSpec.describe 'Power Of Attorney', type: :request do
         }
       end
 
-      describe 'auth header' do
-        context 'when provided' do
-          it 'returns a 202' do
-            skip 'not yet implemented'
-            mock_ccg(scopes) do |auth_header|
-              expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
-                .and_return(bgs_poa)
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
-                .and_return({ person_poa_history: nil })
-
-              post appoint_organization_path, params: data.to_json, headers: auth_header
-              expect(response.status).to eq(202)
-            end
-          end
-        end
-
-        context 'when not provided' do
-          it 'returns a 401 error code' do
-            post appoint_organization_path, params: data.to_json
-            expect(response.status).to eq(401)
-          end
-        end
-
-        context 'when the POA code is for an individual instead of an organization' do
-          it 'returns a 422 error code' do
-            skip 'not implemented yet'
-            mock_ccg(scopes) do |auth_header|
-              data[:data][:attributes][:serviceOrganization][:poaCode] = individual_poa_code.to_s
-
-              post appoint_organization_path, params: data.to_json, headers: auth_header
-              expect(response.status).to eq(422)
-            end
-          end
-        end
-      end
-
       context 'CCG (Client Credentials Grant) flow' do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 202' do
-              skip 'not yet implemented'
               mock_ccg(scopes) do |auth_header|
                 expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
