@@ -19,7 +19,7 @@ module Users
     end
 
     # Serializes the initialized error into one of the predetermined error types.
-    # Uses error classes that can be triggered by MVI, VA Profile, or Vet360 (aka VA Profile).
+    # Uses error classes that can be triggered by MVI or VA Profile (aka Vet360).
     #
     # The serialized error format is modelled after the Maintenance Windows schema,
     # per the FE's request.
