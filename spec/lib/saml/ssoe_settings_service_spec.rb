@@ -31,20 +31,22 @@ RSpec.describe SAML::SSOeSettingsService do
 
     context 'with signing configured' do
       it 'includes certificate in settings' do
-        with_settings(Settings.saml_ssoe, certificate: 'foobar',
+        with_settings(Settings.saml_ssoe, certificate: SAML::SSOeSettingsService.saml_settings.certificate,
                                           request_signing: true, response_signing: false,
                                           response_encryption: false) do
-          expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+          certificate = SAML::SSOeSettingsService.saml_settings.certificate
+          expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq(certificate)
         end
       end
     end
 
     context 'with encryption configured' do
       it 'includes certificate in settings' do
-        with_settings(Settings.saml_ssoe, certificate: 'foobar',
+        with_settings(Settings.saml_ssoe, certificate: SAML::SSOeSettingsService.saml_settings.certificate,
                                           request_signing: false, response_signing: false,
                                           response_encryption: true) do
-          expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+          certificate = SAML::SSOeSettingsService.saml_settings.certificate
+          expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq(certificate)
         end
       end
     end

@@ -21,9 +21,9 @@ module SAML
         settings = idp_metadata_parser.parse(File.read(Settings.saml_ssoe.idp_metadata_file))
 
         if pki_needed?
-          settings.certificate = Settings.saml_ssoe.certificate
-          settings.private_key = Settings.saml_ssoe.key
-          settings.certificate_new = Settings.saml_ssoe.certificate_new
+          settings.certificate = saml_ssoe_certificate
+          settings.private_key = saml_ssoe_key
+          settings.certificate_new = saml_ssoe_certificate_new
         end
         settings.sp_entity_id = Settings.saml_ssoe.issuer
         settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
@@ -40,6 +40,26 @@ module SAML
 
       def pki_needed?
         Settings.saml_ssoe.request_signing || Settings.saml_ssoe.response_encryption
+      end
+
+      private
+
+      def saml_ssoe_certificate
+        if Settings.saml_ssoe.cert_path.present? && File.file?(File.expand_path(Settings.saml_ssoe.cert_path))
+          File.read(File.expand_path(Settings.saml_ssoe.cert_path))
+        end
+      end
+
+      def saml_ssoe_certificate_new
+        if Settings.saml_ssoe.cert_new_path.present? && File.file?(File.expand_path(Settings.saml_ssoe.cert_new_path))
+          File.read(File.expand_path(Settings.saml_ssoe.cert_new_path))
+        end
+      end
+
+      def saml_ssoe_key
+        if Settings.saml_ssoe.key_path.present? && File.file?(File.expand_path(Settings.saml_ssoe.key_path))
+          File.read(File.expand_path(Settings.saml_ssoe.key_path))
+        end
       end
     end
   end
