@@ -5789,11 +5789,7 @@
               "application/json": {
                 "example": {
                   "data": {
-<<<<<<< HEAD
                     "id": "39ce54e5-93d9-41e2-942a-ef108149c24d",
-=======
-                    "id": "25003361-77c4-42f3-a85d-1a80241d83a9",
->>>>>>> master
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
