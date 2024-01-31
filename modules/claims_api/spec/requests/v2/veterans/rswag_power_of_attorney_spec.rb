@@ -359,7 +359,7 @@ describe 'PowerOfAttorney',
                                                       'claims_api',
                                                       'veterans',
                                                       'power-of-attorney',
-                                                      'get.json')))
+                                                      'post.json')))
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
