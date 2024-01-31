@@ -161,7 +161,7 @@
           "unitAddress": "1243 Main Street",
           "unitPhone": {
             "areaCode": "555",
-            "phoneNumber": "5555555"
+            "phoneNumber": "555-5555"
           },
           "receivingInactiveDutyTrainingPay": "YES"
         },
@@ -178,7 +178,7 @@
         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
         "militaryRetiredPay": {
           "branchOfService": "Air Force",
-          "monthlyAmount": 240.75
+          "monthlyAmount": 240
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "favorMilitaryRetiredPay": false, 
@@ -186,7 +186,7 @@
         "separationSeverancePay": {
           "datePaymentReceived": "2018-07-31",
           "branchOfService": "Air Force",
-          "preTaxAmountReceived": 179.25
+          "preTaxAmountReceived": 179
         },
         "favorTrainingPay": false
       },

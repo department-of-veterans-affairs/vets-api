@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5b801db2-b589-44d2-9eec-2ba4811d3ca3",
+                    "id": "b8c2b651-814e-411b-af5a-d86f25dab441",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7291,7 +7291,7 @@
                           "unitAddress": "1243 Main Street",
                           "unitPhone": {
                             "areaCode": "555",
-                            "phoneNumber": "5555555"
+                            "phoneNumber": "555-5555"
                           },
                           "receivingInactiveDutyTrainingPay": "YES"
                         },
@@ -7308,7 +7308,7 @@
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -7316,7 +7316,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -8626,7 +8626,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b8f36503-30ef-4066-b32e-718a94ab902e",
+                    "id": "209debd9-8016-42ee-b5c0-3e71afb064be",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
