@@ -89,6 +89,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
   describe 'when api_version is v0' do
     let(:supplemental_claim) { create(:supplemental_claim_v0) }
 
+    describe '#veteran_icn' do
+      subject { supplemental_claim.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq supplemental_claim.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
+
     describe '#soc_opt_in' do
       describe 'by default' do
         subject { supplemental_claim.soc_opt_in }
@@ -151,6 +160,25 @@ describe AppealsApi::SupplementalClaim, type: :model do
                        api_version: 'V2',
                        factory: :minimal_supplemental_claim,
                        form_data_fixture: 'decision_reviews/v2/valid_200995.json'
+    end
+
+    describe '#veteran_icn' do
+      subject { sc.veteran_icn }
+
+      let(:sc) { create(:supplemental_claim) }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq sc.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:sc) { create(:supplemental_claim, auth_headers: default_auth_headers.except('X-VA-ICN')) }
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
     end
 
     describe 'validations' do

@@ -13,23 +13,19 @@ module Crm
     end
 
     def call
-      categories_topics_subtopics = cache_client.fetch(CACHE_KEY)
+      cache_client.fetch(CACHE_KEY)
+    rescue => e
+      ErrorHandler.handle(ENDPOINT, e)
+    end
 
-      return categories_topics_subtopics if categories_topics_subtopics.present?
-
-      static_data = fetch_data
+    def fetch_api_data
+      static_data = service.call(endpoint: ENDPOINT)
 
       cache_client.store_data(key: CACHE_KEY, data: static_data, ttl: 86_400)
 
       static_data
     rescue => e
       ErrorHandler.handle(ENDPOINT, e)
-    end
-
-    private
-
-    def fetch_data
-      service.call(endpoint: ENDPOINT)
     end
   end
 end
