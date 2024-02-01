@@ -767,6 +767,18 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'SEARCH_503'
+        detail: 'Search.gov service is currently unavailable'
+        status: 503
+      SEARCH_504:
+        <<: *external_defaults
+        title: Gateway Timeout
+        code: 'SEARCH_504'
+        detail: 'Did not receive a timely response from Search.gov'
+        status: 504
       SEARCH_TYPEAHEAD_400:
         <<: *external_defaults
         title: Bad Request
