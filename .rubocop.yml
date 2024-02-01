@@ -98,10 +98,6 @@ Metrics/MethodLength:
 Metrics/ClassLength:
   Max: 400
 
-# removing rule because get_session implies HTTP GET, and informs method
-Naming/AccessorMethodName:
-  Enabled: false
-
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
