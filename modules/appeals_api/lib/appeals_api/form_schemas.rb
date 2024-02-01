@@ -43,7 +43,7 @@ module AppealsApi
       resolver = proc do |uri|
         return uri.path unless uri.path.end_with?('.json')
 
-        schema_type = uri.path.chomp('.json')
+        schema_type = uri.path.chomp('.json').tr('/', '')
         self.class.load_shared_schema(schema_type, schema_version, strip_description: true)
       end
 
