@@ -576,10 +576,19 @@ module VAOS
 
       def validate_appointments_schema(response)
         if response.success? && Flipper.enabled?(:schema_validation_appointments_index)
-          UpstreamSchemaValidationJob.perform_async(
-            response.response_body.to_json,
-            'modules/vaos/app/schemas/appointments.json'
-          )
+          beginning_of_today = Time.zone.today.beginning_of_day
+          record = SchemaContract.find_by(name: 'get_appointments')
+          return if record && record.last_updated >= beginning_of_today
+
+          if record
+            record.update(last_user_uuid: user.uuid, last_response: response.to_json)
+          else
+            record = SchemaContract.create(
+              name: 'get_appointments', schema: 'modules/vaos/app/schemas/appointments.json',
+              last_user_uuid: user.uuid, last_response: response.to_json
+            )
+          end
+          UpstreamSchemaValidationJob.perform_async(record.id)
         end
       end
     end
