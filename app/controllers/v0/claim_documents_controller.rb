@@ -13,7 +13,7 @@ module V0
 
       attachment = klass.new(form_id:)
       # add the file after so that we have a form_id and guid for the uploader to use
-      attachment.file = params['file']
+      attachment.file = unlock_pdf(params['file'], params['password'])
 
       raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
@@ -44,6 +44,19 @@ module V0
 
     def form_id
       params[:form_id].upcase
+    end
+
+    def unlock_pdf(file, file_password)
+      return file unless File.extname(file) == '.pdf'
+
+      pdftk = PdfForms.new(Settings.binaries.pdftk)
+      tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+
+      pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
+
+      file.tempfile.unlink
+      file.tempfile = tmpf
+      file
     end
   end
 end
