@@ -19,7 +19,6 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
 
   path '/forms/200995' do
     post 'Creates a new Supplemental Claim' do
-      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'
       operationId 'createSc'
       description = <<~DESC
@@ -33,7 +32,7 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
       DESC
       description description
 
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST])
 
       consumes 'application/json'
       produces 'application/json'
@@ -49,6 +48,8 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
                     end
                   }
                 }
+
+      scopes = %w[system/SupplementalClaims.write]
 
       response '201', 'Supplemental Claim created' do
         let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
@@ -83,9 +84,21 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
         let(:sc_body) { nil }
 
         it_behaves_like 'rswag example',
-                        desc: 'Not JSON object',
+                        desc: 'Body is not a JSON object',
                         extract_desc: true,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create a Supplemental Claim for another veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:sc_body) do
+          fixture_as_json('supplemental_claims/v0/valid_200995.json').tap do |data|
+            data['data']['attributes']['veteran']['icn'] = '1234567890V987654'
+          end
+        end
+
+        it_behaves_like 'rswag example', scopes: %w[veteran/SupplementalClaims.write]
       end
 
       response '422', 'Violates JSON schema' do
@@ -154,7 +167,7 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
   end
 
   path '/forms/200995/{id}/download' do
-    get 'Download a watermarked copy of a submitted Supplemental CLaim' do
+    get 'Download a watermarked copy of a submitted Supplemental Claim' do
       scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
       tags 'Supplemental Claims'
       operationId 'downloadSc'
@@ -384,12 +397,14 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
 
   path '/evidence-submissions/{id}' do
     get 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.' do
-      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
       tags 'Supplemental Claims'
       operationId 'getSupplementalClaimEvidenceSubmission'
       description 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.'
 
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(
+        AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
+      )
+
       produces 'application/json'
 
       parameter name: :id,
@@ -400,15 +415,26 @@ RSpec.describe 'Supplemental Claims', openapi_spec:, type: :request do
                   format: :uuid
                 }
 
+      scopes = %w[system/SupplementalClaims.read]
+
       response '200', 'Info about a single Supplemental Claim Evidence Submission.' do
         schema '$ref' => '#/components/schemas/scEvidenceSubmissionResponse'
 
-        let(:id) { FactoryBot.create(:sc_evidence_submission).guid }
+        let(:sc) { FactoryBot.create(:supplemental_claim_v0) }
+        let(:id) { FactoryBot.create(:evidence_submission_v0, supportable: sc).guid }
 
         it_behaves_like 'rswag example',
                         desc: 'returns a 200 response',
                         response_wrapper: :normalize_evidence_submission_response,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to view an Evidence Submission belonging to another Veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:sc) { FactoryBot.create(:supplemental_claim_v0, veteran_icn: '1111111111V111111') }
+        let(:id) { create(:evidence_submission_v0, supportable: sc).guid }
+
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: %w[veteran/SupplementalClaims.read]
       end
 
       response '404', 'Supplemental Claim Evidence Submission not found' do
