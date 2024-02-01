@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'emis/models/disability'
 
 describe EMIS::Models::Disability do
   %w[disability_percent pay_amount].each do |attr|
