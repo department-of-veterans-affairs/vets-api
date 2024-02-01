@@ -22,7 +22,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
   end
 
   describe '#monthly_income' do
-    context 'wwith valid fsr form data' do
+    context 'with valid fsr form data' do
       it 'returns monthly income' do
         post('/debts_api/v0/calculate_monthly_income', params: maximal_fsr_form_data.to_h, as: :json)
         expect(response).to have_http_status(:ok)
