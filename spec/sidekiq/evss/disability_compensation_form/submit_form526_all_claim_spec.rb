@@ -150,20 +150,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
             expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_count', 1)
             expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_age', 365)
-            submission.reload
-            expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
           end
 
           context 'when EP400 merge API call is enabled' do
-            before { Flipper.enable(:disability_526_ep_merge_api) }
-            after { Flipper.disable(:disability_526_ep_merge_api) }
+            before { Flipper.enable(:disability_526_ep_merge_api, user) }
+            after { Flipper.disable(:disability_526_ep_merge_api, user) }
 
-            it 'adds the EP400 special issue to the submission' do
+            it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
               subject.perform_async(submission.id)
               VCR.use_cassette('virtual_regional_office/contention_classification') do
                 described_class.drain
               end
-              expect(submission.reload.disabilities.first).to include('specialIssues' => ['EP400 Merge Project'])
+              submission.reload
+              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
+              expect(submission.disabilities.first).to include('specialIssues' => ['EP400 Merge Project'])
             end
           end
 
