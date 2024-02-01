@@ -52,13 +52,16 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     def create
+      submitted_icn = @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      validate_token_icn_access!(submitted_icn)
+
       nod = AppealsApi::NoticeOfDisagreement.new(
         auth_headers: request_headers,
         form_data: @json_body,
         source: request_headers['X-Consumer-Username'].presence&.strip,
         board_review_option: @json_body.dig('data', 'attributes', 'boardReviewOption'),
         api_version: self.class::API_VERSION,
-        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+        veteran_icn: submitted_icn
       )
 
       return render_model_errors(nod) unless nod.validate

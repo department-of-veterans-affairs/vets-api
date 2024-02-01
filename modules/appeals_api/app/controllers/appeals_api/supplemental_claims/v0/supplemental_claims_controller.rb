@@ -70,13 +70,16 @@ module AppealsApi::SupplementalClaims::V0
     end
 
     def create
+      submitted_icn = @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      validate_token_icn_access!(submitted_icn)
+
       sc = AppealsApi::SupplementalClaim.new(
         auth_headers: request_headers,
         form_data: @json_body,
         source: request_headers['X-Consumer-Username'].presence&.strip,
         evidence_submission_indicated: evidence_submission_indicated?,
         api_version: self.class::API_VERSION,
-        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+        veteran_icn: submitted_icn
       )
 
       return render_model_errors(sc) unless sc.validate
