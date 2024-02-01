@@ -100,7 +100,11 @@ module EVSS
       end
 
       def form4142
-        @form4142 ||= @submission.form[Form526Submission::FORM_4142]
+        @form4142 ||= expand_form_data(@submission.form[Form526Submission::FORM_4142])
+      end
+
+      def expand_form_data(incomming_data)
+        incomming_data.merge({ signatureDate: timestamp })
       end
     end
   end

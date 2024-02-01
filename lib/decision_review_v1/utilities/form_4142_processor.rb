@@ -15,7 +15,7 @@ module DecisionReviewV1
       attr_reader :request_body
 
       def initialize(form_data:, submission_id: nil)
-        @form = form_data
+        @form = expand_form_data(form_data)
         @submission = Form526Submission.find_by(id: submission_id)
         @pdf_path = generate_stamp_pdf
         @uuid = SecureRandom.uuid
@@ -83,6 +83,10 @@ module DecisionReviewV1
 
       def received_date
         submission_date.strftime('%Y-%m-%d %H:%M:%S')
+      end
+
+      def expand_form_data(incomming_data)
+        incomming_data.merge({ signatureDate: submission_date })
       end
     end
   end
