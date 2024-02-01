@@ -186,10 +186,6 @@ module Form1010cg
       @mpi_service ||= MPI::Service.new
     end
 
-    def emis_service
-      @emis_service ||= EMIS::VeteranStatusService.new
-    end
-
     def log_mpi_search_result(form_subject, result)
       self.class::AUDITOR.log_mpi_search_result(
         claim_guid: claim.guid,
