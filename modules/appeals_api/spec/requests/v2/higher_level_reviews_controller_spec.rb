@@ -326,7 +326,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         missing_required_fields_errors = errors.select { |h| h['title'] == 'Missing required fields' }
         missing_address_error = errors.find { |h| h['source']['pointer'] == '/data/attributes/claimant/address' }
 
-        expect(parsed['errors'].count).to eq(4)
+        expect(errors).to eq(4)
         expect(invalid_data_type_error).not_to be_nil
         expect(missing_required_fields_errors.count).to eq(3)
         expect(missing_address_error).not_to be_nil
