@@ -17,7 +17,7 @@ require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
 
 module PdfFill
-  module Filler
+  module FillerWipn
     module_function
 
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)

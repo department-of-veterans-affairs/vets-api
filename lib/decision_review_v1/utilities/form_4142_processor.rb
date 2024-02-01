@@ -53,7 +53,7 @@ module DecisionReviewV1
       end
 
       def generate_stamp_pdf
-        pdf = PdfFill::Filler.fill_ancillary_form(
+        pdf = PdfFill::FillerWipn.fill_ancillary_form(
           @form, @uuid, FORM_ID
         )
         stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5, timestamp: submission_date)
@@ -84,7 +84,7 @@ module DecisionReviewV1
           'veteranFirstName' => veteran_full_name['first'],
           'veteranLastName' => veteran_full_name['last'],
           'fileNumber' => @form['vaFileNumber'] || @form['veteranSocialSecurityNumber'],
-          'receiveDt' => submission_date, # wipn << not received_date
+          'receiveDt' => received_date
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
           'uuid' => @uuid,
@@ -102,9 +102,7 @@ module DecisionReviewV1
       end
 
       def submission_date
-        timestamp = @submission.created_at.in_time_zone('Central Time (US & Canada)')
-        puts("\n\n wipn8923 :: #{File.basename(__FILE__)}-#{self.class.name}##{__method__.to_s} - \n\t timestamp: #{timestamp} \n\n")
-        timestamp
+        @submission.created_at.in_time_zone('Central Time (US & Canada)')
       end
 
       def received_date
