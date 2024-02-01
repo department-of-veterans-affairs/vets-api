@@ -50,16 +50,6 @@ module EMIS
                     }
                   }
                 }
-              },
-              'combatPay' => {
-                model_class: EMIS::Models::CombatPay,
-                schema: {
-                  'combatPaySegmentIdentifier' => { rename: 'segment_identifier' },
-                  'combatPayBeginDate' => { rename: 'begin_date' },
-                  'combatPayEndDate' => { rename: 'end_date' },
-                  'combatPayTypeCode' => { rename: 'type_code' },
-                  'combatZoneCountryCode' => {}
-                }
               }
             }
           }
