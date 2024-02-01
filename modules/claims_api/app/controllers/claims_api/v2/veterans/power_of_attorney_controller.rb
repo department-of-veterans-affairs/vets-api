@@ -25,6 +25,7 @@ module ClaimsApi
         end
 
         def submit2122
+          shared_form_validation('2122')
           poa_code = parse_and_validate_poa_code('2122')
           unless poa_code_in_organization?(poa_code)
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
@@ -33,6 +34,14 @@ module ClaimsApi
           end
 
           submit_power_of_attorney(poa_code, '2122')
+        end
+
+        def submit2122a
+          shared_form_validation('2122A')
+          poa_code = get_poa_code('2122A')
+          validate_individual_poa_code!(poa_code)
+
+          submit_power_of_attorney(poa_code, '2122A')
         end
 
         def validate2122
@@ -46,21 +55,11 @@ module ClaimsApi
         end
 
         def validate2122a
-          target_veteran
-          validate_json_schema('2122a'.upcase)
-
-          poa_code = form_attributes.dig('representative', 'poaCode')
+          shared_form_validation('2122A')
+          poa_code = get_poa_code('2122A')
           validate_individual_poa_code!(poa_code)
 
           render json: validation_success('21-22a')
-        end
-
-        def submit2122a
-          poa_code = get_poa_code('2122a')
-          shared_form_validation('2122a')
-          validate_individual_poa_code!(poa_code)
-
-          submit_power_of_attorney(poa_code, '2122A')
         end
 
         private
@@ -178,6 +177,7 @@ module ClaimsApi
 
         def parse_and_validate_poa_code(form_number)
           poa_code = get_poa_code(form_number)
+          validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
           poa_code
