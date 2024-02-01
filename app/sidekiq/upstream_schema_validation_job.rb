@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/schema_validator'
+require 'schema_contract/validator'
 
 class UpstreamSchemaValidationJob
   include Sidekiq::Job
@@ -8,6 +8,6 @@ class UpstreamSchemaValidationJob
   sidekiq_options(unique_for: 30.minutes, retry: false)
 
   def perform(response, schema)
-    Common::SchemaValidator.new(response, schema).validate
+    SchemaContract::Validator.new(response, schema).validate
   end
 end

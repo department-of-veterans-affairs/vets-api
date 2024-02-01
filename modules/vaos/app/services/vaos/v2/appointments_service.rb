@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/errors'
+require 'schema_contract/runner'
 require 'json'
 require 'memoist'
 
@@ -29,7 +30,8 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
 
-          validate_appointments_schema(response)
+          SchemaContract::Runner.run(user, response, :schema_validation_appointments_index, 'get_appointments',
+                                     'modules/vaos/app/schemas/appointments.json')
 
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
@@ -572,24 +574,6 @@ module VAOS
 
       def date_format(date)
         date.strftime('%Y-%m-%dT%TZ')
-      end
-
-      def validate_appointments_schema(response)
-        if response.success? && Flipper.enabled?(:schema_validation_appointments_index)
-          beginning_of_today = Time.zone.today.beginning_of_day
-          record = SchemaContract.find_by(name: 'get_appointments')
-          return if record && record.last_updated >= beginning_of_today
-
-          if record
-            record.update(last_user_uuid: user.uuid, last_response: response.to_json)
-          else
-            record = SchemaContract.create(
-              name: 'get_appointments', schema: 'modules/vaos/app/schemas/appointments.json',
-              last_user_uuid: user.uuid, last_response: response.to_json
-            )
-          end
-          UpstreamSchemaValidationJob.perform_async(record.id)
-        end
       end
     end
   end

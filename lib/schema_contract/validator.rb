@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Common
-  class SchemaValidator
+module SchemaContract
+  class Validator
     def initialize(response, schema)
       @response = response
       @schema = schema
