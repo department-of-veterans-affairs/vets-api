@@ -64,6 +64,32 @@ RSpec.describe Users::ExceptionHandler do
       end
     end
 
+    context 'with a EMISRedis::VeteranStatus::NotAuthorized' do
+      let(:error) { EMISRedis::VeteranStatus::NotAuthorized.new(status: 401) }
+      let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
+
+      it 'returns a serialized version of the error' do
+        expect(results[:description]).to include 'EMISRedis::VeteranStatus::NotAuthorized'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 401
+      end
+    end
+
+    context 'with a EMISRedis::VeteranStatus::RecordNotFound' do
+      let(:error) { EMISRedis::VeteranStatus::RecordNotFound.new(status: 404) }
+      let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
+
+      it 'returns a serialized version of the error' do
+        expect(results[:description]).to include 'EMISRedis::VeteranStatus::RecordNotFound'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 404
+      end
+    end
+
     context 'with a MPI::Errors::RecordNotFound' do
       let(:error) { MPI::Errors::RecordNotFound.new('Record Not Found') }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
