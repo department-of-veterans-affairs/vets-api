@@ -321,9 +321,19 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
       it 'returns error objects in JSON API 1.1 ErrorObject format' do
         expected_keys = %w[code detail meta source status title]
-        expect(parsed['errors'].first.keys).to include(*expected_keys)
-        expect(parsed['errors'][3]['meta']['missing_fields']).to eq %w[addressLine1 countryCodeISO2 zipCode5]
-        expect(parsed['errors'][3]['source']['pointer']).to eq '/data/attributes/claimant/address'
+        errors = parsed['errors']
+        invalid_data_type_error = errors.find { |h| h['title'] == 'Invalid data type' }
+        missing_required_fields_errors = errors.select { |h| h['title'] == 'Missing required fields' }
+        missing_address_error = errors.find { |h| h['source']['pointer'] == '/data/attributes/claimant/address' }
+
+        expect(parsed['errors'].count).to eq(4)
+        expect(invalid_data_type_error).not_to be_nil
+        expect(missing_required_fields_errors.count).to eq(3)
+        expect(missing_address_error).not_to be_nil
+        expect(missing_address_error['meta']['missing_fields']).to eq(%w[addressLine1 countryCodeISO2 zipCode5])
+        missing_required_fields_errors.each do |error|
+          expect(error.keys).to include(*expected_keys)
+        end
       end
     end
 
