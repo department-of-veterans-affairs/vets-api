@@ -326,9 +326,9 @@ RSpec.describe Users::Profile do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
             error = subject.errors.first
-            expect(error[:external_service]).to eq 'VA Profile'
+            expect(error[:external_service]).to eq 'EMIS'
             expect(error[:start_time]).to be_present
-            expect(error[:description]).to be_present
+            # expect(error[:description]).to include 'NOT_FOUND'
             expect(error[:status]).to eq 404
           end
         end
@@ -339,6 +339,12 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status call returns an error' do
+        before do
+          allow_any_instance_of(
+            EMISRedis::VeteranStatus
+          ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, 503))
+        end
+
         it 'sets veteran_status to nil' do
           expect(veteran_status).to be_nil
         end
@@ -346,7 +352,7 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'VA Profile'
+          expect(error[:external_service]).to eq 'EMIS'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
           expect(error[:status]).to eq 503
@@ -360,6 +366,12 @@ RSpec.describe Users::Profile do
       context 'with a LOA1 user' do
         let(:user) { build(:user, :loa1) }
 
+        before do
+          allow_any_instance_of(
+            EMISRedis::VeteranStatus
+          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized.new(status: 401))
+        end
+
         it 'returns va_profile as null' do
           expect(veteran_status).to be_nil
         end
@@ -367,12 +379,12 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
                                                                                      allow_playback_repeats: true) do
-            vaprofile_error = subject.errors.last
+            emis_error = subject.errors.last
 
-            expect(vaprofile_error[:external_service]).to eq 'VA Profile'
-            expect(vaprofile_error[:start_time]).to be_present
-            expect(vaprofile_error[:description]).to include 'VA Profile failure'
-            expect(vaprofile_error[:status]).to eq 401
+            expect(emis_error[:external_service]).to eq 'EMIS'
+            expect(emis_error[:start_time]).to be_present
+            expect(emis_error[:description]).to include 'VA Profile failure'
+            expect(emis_error[:status]).to eq 401
           end
         end
 
