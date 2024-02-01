@@ -20,8 +20,6 @@ module Form1010Ezr
 
     FORM_ID = '10-10EZR'
 
-    attr_accessor :success_response
-
     # @param [Object] user
     def initialize(user)
       super()
@@ -34,7 +32,7 @@ module Form1010Ezr
         HealthCareApplication.get_user_identifier(@user)
       )
 
-      { success: true, formSubmissionId: '', timestamp: Time.now.getlocal.to_s }
+      { success: true, formSubmissionId: nil, timestamp: nil }
     end
 
     def submit_sync(parsed_form)

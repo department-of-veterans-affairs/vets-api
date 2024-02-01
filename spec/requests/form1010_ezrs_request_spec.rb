@@ -140,24 +140,20 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           end
           let(:body) do
             {
-              'formSubmissionId' => '',
-              'timestamp' => Time.now.getlocal.to_s,
+              'formSubmissionId' => nil,
+              'timestamp' => nil,
               'success' => true
             }
           end
 
-          it 'renders a successful response and deletes the saved form', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+          it 'renders a successful response and deletes the saved form' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_async',
               { match_requests_on: %i[method uri body], erb: true }
             ) do
-              # # The required fields for the Enrollment System should be absent from the form data initially
-              # # and then added via the 'post_fill_required_fields' method
-              # expect(params[:form].to_json['isEssentialAcaCoverage']).to eq(nil)
-              # expect(params[:form].to_json['vaMedicalFacility']).to eq(nil)
-              # expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
-              # subject
-              # expect(JSON.parse(response.body)).to eq(body)
+              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
+              subject
+              expect(JSON.parse(response.body)).to eq(body)
             end
           end
         end
