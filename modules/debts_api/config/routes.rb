@@ -7,6 +7,6 @@ DebtsApi::Engine.routes.draw do
         get :download_pdf
       end
     end
-   post 'calculate_monthly_income', to: 'financial_status_reports_calculations#monthly_income'
+    post 'calculate_monthly_income', to: 'financial_status_reports_calculations#monthly_income'
   end
 end
