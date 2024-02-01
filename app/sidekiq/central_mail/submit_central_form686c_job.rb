@@ -92,7 +92,6 @@ module CentralMail
       attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
 
-    # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
     def check_success(response, saved_claim_id, user_struct)
       if response.success?
         Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
@@ -105,8 +104,6 @@ module CentralMail
         raise CentralMailResponseError
       end
     end
-
-    # rubocop:enable Metrics/MethodLength
 
     def create_request_body
       body = {
