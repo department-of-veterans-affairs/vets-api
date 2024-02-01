@@ -16,7 +16,6 @@ RSpec.describe EvssBRDProvider do
 
   before do
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-    # allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
   end
 
   after do
