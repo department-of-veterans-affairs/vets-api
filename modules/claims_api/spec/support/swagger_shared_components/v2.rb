@@ -286,7 +286,7 @@ module SwaggerSharedComponents
             example: power_of_attorney_2122a_body_example
           }
         },
-        power_of_attorney_2122: {
+        power_of_attorney2122: {
           in: :body,
           name: 'data',
           required: true,

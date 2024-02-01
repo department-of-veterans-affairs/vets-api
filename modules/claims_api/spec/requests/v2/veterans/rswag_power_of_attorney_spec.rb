@@ -640,7 +640,7 @@ describe 'PowerOfAttorney',
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
-      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122]
+      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney2122]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
