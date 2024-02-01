@@ -20,6 +20,8 @@ module Form1010Ezr
 
     FORM_ID = '10-10EZR'
 
+    attr_accessor :success_response
+
     # @param [Object] user
     def initialize(user)
       super()
@@ -31,6 +33,8 @@ module Form1010Ezr
         HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
         HealthCareApplication.get_user_identifier(@user)
       )
+
+      { success: true, formSubmissionId: '', timestamp: Time.now.getlocal.to_s }
     end
 
     def submit_sync(parsed_form)
@@ -57,6 +61,7 @@ module Form1010Ezr
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
       parsed_form = configure_and_validate_form(parsed_form)
+
       if Flipper.enabled?(:ezr_async, @user)
         submit_async(parsed_form)
       else
