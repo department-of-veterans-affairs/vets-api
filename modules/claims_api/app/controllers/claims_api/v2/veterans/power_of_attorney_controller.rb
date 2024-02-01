@@ -62,6 +62,17 @@ module ClaimsApi
           render json: validation_success('21-22a')
         end
 
+        def status
+          poa = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          unless poa
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney with id: #{params[:id]}"
+            )
+          end
+
+          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+        end
+
         private
 
         def shared_form_validation(form_number)
