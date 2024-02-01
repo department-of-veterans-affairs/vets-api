@@ -148,7 +148,7 @@ module Users
         served_in_military: user.served_in_military?
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'EMIS').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'VA Profile').serialize_error
       nil
     end
 
