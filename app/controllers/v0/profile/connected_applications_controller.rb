@@ -74,18 +74,18 @@ module V0
         app['attributes']['title'] = lh_app['label']
         app['attributes']['logo'] = lh_app['href']
         app['attributes']['privacyUrl'] = ''
-        app['attributes']['grants'] = build_grants(lh_app)
+        app['attributes']['grants'] = build_grants(lh_app['grants'])
         app
       end
 
-      def build_grants(lh_app)
-        [
+      def build_grants(grants)
+        grants.map do |grant|
           {
-            title: lh_app['scopeTitle'],
+            title: grant['scopeTitle'],
             id: '',
-            created: lh_app['connectionDate']
+            created: grant['connectionDate']
           }
-        ]
+        end
       end
 
       def connected_accounts_params
