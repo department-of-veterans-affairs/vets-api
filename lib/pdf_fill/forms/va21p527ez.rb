@@ -1409,9 +1409,8 @@ module PdfFill
         @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
         @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
         @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
-        if (@form_data['maritalStatus']).zero?
-          @form_data['spouseIsVeteran'] =
-            to_radio_yes_no(@form_data['spouseIsVeteran'])
+        if @form_data['maritalStatus'] != 2
+          @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
         end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
