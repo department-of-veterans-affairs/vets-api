@@ -10,6 +10,7 @@ MebApi::Engine.routes.draw do
     post 'submit_claim', to: 'education_benefits#submit_claim'
     get 'enrollment', to: 'education_benefits#enrollment'
     get 'exclusion_periods', to: 'education_benefits#exclusion_periods'
+    get 'ch33_bank_accounts', to: 'education_benefits#ch33_bank_accounts'
 
     post 'submit_enrollment_verification', to: 'education_benefits#submit_enrollment_verification'
 

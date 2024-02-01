@@ -79,6 +79,21 @@ module MebApi
         }
       end
 
+      def ch33_bank_accounts
+        render json: {
+          data: {
+            id: "",
+            type: "hashes",
+            attributes: {
+              accountType: "Checking",
+              accountNumber: "*5555",
+              financialInstitutionRoutingNumber: "*****0872",
+              financialInstitutionName: "Arvest BANK_FAYETTEVILLE"
+            }
+          }
+        }
+      end
+
       def enrollment
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']
