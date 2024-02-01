@@ -81,4 +81,22 @@ RSpec.describe 'Claim Document Attachment', type: :request do
       post('/v0/claim_attachments', params:)
     end
   end
+
+  context 'with a password protected file' do
+    let(:file) do
+      fixture_file_upload('password_is_test.pdf')
+    end
+
+    it 'does not raise an error when password is correct' do
+      params = { file:, form_id: '26-1880', password: 'test' }
+      post('/v0/claim_attachments', params:)
+      expect(response.status).to eq(200)
+    end
+
+    it 'raises an error when password is incorrect' do
+      params = { file:, form_id: '26-1880', password: 'bad_password' }
+      post('/v0/claim_attachments', params:)
+      expect(response.status).to eq(500)
+    end
+  end
 end
