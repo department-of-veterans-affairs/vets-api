@@ -3,7 +3,6 @@
 require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
-require 'debt_management_center/debts_service'
 require 'debt_management_center/models/debt_store'
 
 RSpec.describe 'debts', type: :request do
