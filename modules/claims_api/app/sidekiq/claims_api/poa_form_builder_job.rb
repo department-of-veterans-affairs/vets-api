@@ -5,11 +5,21 @@ require 'claims_api/poa_vbms_sidekiq'
 require 'claims_api/poa_pdf_constructor/organization'
 require 'claims_api/poa_pdf_constructor/individual'
 require 'claims_api/stamp_signature_error'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   class PoaFormBuilderJob
     include Sidekiq::Job
     include ClaimsApi::PoaVbmsSidekiq
+
+    sidekiq_retries_exhausted do |message|
+      ClaimsApi::Logger.log(
+        'claims_api_retries_exhausted',
+        poa_id: message['args'].first,
+        detail: "Job retries exhausted for #{message['class']}",
+        error: message['error_message']
+      )
+    end
 
     # Generate a 21-22 or 21-22a form for a given POA request.
     # Uploads the generated form to VBMS. If successfully uploaded,

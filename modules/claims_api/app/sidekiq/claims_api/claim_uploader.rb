@@ -11,6 +11,15 @@ module ClaimsApi
 
     sidekiq_options retry: true, unique_until: :success
 
+    sidekiq_retries_exhausted do |message|
+      ClaimsApi::Logger.log(
+        'claims_api_retries_exhausted',
+        id: message['args'].first,
+        detail: "Job retries exhausted for #{message['class']}",
+        error: message['error_message']
+      )
+    end
+
     def perform(uuid)
       claim_object = ClaimsApi::SupportingDocument.find_by(id: uuid) ||
                      ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)

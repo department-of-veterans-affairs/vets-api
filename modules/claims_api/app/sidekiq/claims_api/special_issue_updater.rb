@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'sentry_logging'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   class SpecialIssueUpdater < UpdaterService
@@ -11,6 +12,13 @@ module ClaimsApi
     sidekiq_retries_exhausted do |message|
       log_exception_to_claim_record(message['args'].last, { text: 'Job retries exhausted' })
       log_exception_to_sentry(StandardError.new("Failed to apply special issues to contention: #{message}"))
+
+      ClaimsApi::Logger.log(
+        'claims_api_retries_exhausted',
+        claim_id: message['args'].first,
+        detail: "Job retries exhausted for #{message['class']}",
+        error: message['error_message']
+      )
     end
 
     # Update special issues for a single contention/disability

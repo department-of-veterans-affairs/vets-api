@@ -15,6 +15,14 @@ module ClaimsApi
       NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
       LOG_TAG = '526_v2_claim_service_base'
 
+      sidekiq_retries_exhausted do |message|
+        log_job_progress(
+          message['args'].first,
+          "Job retries exhausted for #{message['class']}. Error: #{message['error_message']}",
+          'claims_api_retries_exhausted'
+        )
+      end
+
       protected
 
       def set_established_state_on_claim(auto_claim)
@@ -97,8 +105,10 @@ module ClaimsApi
         ClaimsApi::AutoEstablishedClaim::ERRORED
       end
 
-      def log_job_progress(claim_id, detail)
-        ClaimsApi::Logger.log(self.class::LOG_TAG,
+      def log_job_progress(claim_id, detail, log_tag = nil)
+        tag = log_tag.presence || self.class::LOG_TAG
+
+        ClaimsApi::Logger.log(tag,
                               claim_id:,
                               detail:)
       end

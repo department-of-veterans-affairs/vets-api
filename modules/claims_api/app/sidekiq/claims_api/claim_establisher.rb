@@ -14,6 +14,15 @@ module ClaimsApi
     include SentryLogging
     include Sidekiq::MonitoredWorker
 
+    sidekiq_retries_exhausted do |message|
+      ClaimsApi::Logger.log(
+        'claims_api_retries_exhausted',
+        claim_id: message['args'].first,
+        detail: "Job retries exhausted for #{message['class']}",
+        error: message['error_message']
+      )
+    end
+
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
