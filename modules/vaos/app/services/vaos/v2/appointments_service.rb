@@ -30,8 +30,7 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
 
-          SchemaContract::Runner.run(user, response, :schema_validation_appointments_index, 'get_appointments',
-                                     'modules/vaos/app/schemas/appointments.json')
+          SchemaContract::Runner.run(user, response, :schema_validation_appointments_index, 'appointments_index')
 
           response.body[:data].each do |appt|
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690

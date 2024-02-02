@@ -1686,3 +1686,7 @@ brd:
 
 xlsx_file_fetcher:
   github_access_token: ~
+
+schema_contract:
+  appointments_index:
+    path: 'modules/vaos/app/schemas/'

@@ -2,8 +2,8 @@
 
 module SchemaContract
   class Runner
-    def self.run(user:, response:, flag:, test_name:, schema:)
-      if response.success? && Flipper.enabled?(flag)
+    def self.run(user:, response:, test_name:)
+      if response.success? && Flipper.enabled?("schema_contract_#{test_name}")
         record = SchemaContract.find_by(name: test_name)
 
         if record
@@ -13,7 +13,7 @@ module SchemaContract
           record.update(last_user_uuid: user.uuid, last_response: response.to_json)
         else
           record = SchemaContract.create(
-            name: 'get_appointments', schema:,
+            name: 'get_appointments', schema: "#{Settings.schema_contract.appointments_index.path}_#{test_name}.json",
             last_user_uuid: user.uuid, last_response: response.to_json
           )
         end
