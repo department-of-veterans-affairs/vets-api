@@ -73,8 +73,6 @@ RSpec.describe 'debts', type: :request do
                  'debtHistory' =>
                   [{ 'date' => '09/12/1998', 'letterCode' => '123',
                      'description' => 'Third Demand Letter - Potential Treasury Referral' }] }]
-
-      debts.map { |d| d['id'] = SecureRandom.uuid }
       debts[0]['id'] = debt_id
       debt_store = DebtManagementCenter::DebtStore.find_or_build(user.uuid)
       debt_store.update(debts:, uuid: user.uuid)
