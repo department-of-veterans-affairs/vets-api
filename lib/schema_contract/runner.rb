@@ -10,11 +10,11 @@ module SchemaContract
           beginning_of_today = Time.zone.today.beginning_of_day
           return if record.last_updated >= beginning_of_today
 
-          record.update(last_user_uuid: user.uuid, last_response: response.to_json)
+          record.update(last_user_uuid: user.uuid, last_response: response.to_json, last_run_initiated: Time.zone.now)
         else
           record = SchemaContract.create(
-            name: 'get_appointments', schema: "#{Settings.schema_contract.appointments_index.path}_#{test_name}.json",
-            last_user_uuid: user.uuid, last_response: response.to_json
+            name: 'get_appointments', last_user_uuid: user.uuid, last_response: response.to_json,
+            last_run_initiated: Time.zone.now
           )
         end
 

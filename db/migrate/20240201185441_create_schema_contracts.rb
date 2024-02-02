@@ -5,7 +5,8 @@ class CreateSchemaContracts < ActiveRecord::Migration[6.1]
       t.string :last_user_uuid
       t.jsonb :last_response
       t.string :schema
-      t.timestamp :last_run
+      t.timestamp :last_run_initiated
+      t.timestamp :last_run_completed
       t.timestamps
     end
   end
