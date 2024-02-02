@@ -243,6 +243,50 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Body is not a JSON object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "code": "109",
+                          "detail": "The request body isn't a JSON object",
+                          "status": "400",
+                          "title": "Bad Request"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to create a Notice of Disagreement for another veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Violates JSON schema",
             "content": {
@@ -468,12 +512,12 @@
     },
     "/forms/10182/{id}": {
       "get": {
-        "summary": "Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)",
+        "summary": "Show a specific Notice of Disagreement",
         "tags": [
           "Notice of Disagreements"
         ],
         "operationId": "showNod",
-        "description": "Returns all of the data associated with a specific Notice of Disagreement.",
+        "description": "Returns basic data associated with a specific Notice of Disagreement.",
         "security": [
           {
             "productionOauth": [
@@ -526,6 +570,26 @@
                 },
                 "schema": {
                   "$ref": "#/components/schemas/nodShowResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden access with a veteran-scoped OAuth token to an unowned Notice of Disagreement",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -601,12 +665,12 @@
             ]
           }
         ],
-        "description": "Returns a watermarked copy of a Notice of Disagreement PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Notice of Disagreement has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Notice of Disagreement has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n",
+        "description": "Returns a watermarked copy of a Notice of Disagreement PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Notice of Disagreement has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Notice of Disagreement has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n\nThe 'icn' parameter is required when accessing this endpoint using an OAuth token with the 'representative/NoticeOfDisagreements.read' or 'system/NoticeOfDisagreements.read' scopes.\nRequests made with the 'veteran/NoticeOfDisagreements.read' scope may omit the 'icn' parameter.\n",
         "parameters": [
           {
             "name": "icn",
-            "description": "ICN of the Veteran associated with the Notice of Disagreement",
-            "example": "0123456789V012345",
+            "description": "ICN of the Veteran associated with the Notice of Disagreement. Optional when using a veteran-scoped OAuth token. Required when using a representative- or system-scoped token.",
+            "example": "1012832025V743496",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]{10}V[0-9]{6}$",
@@ -614,7 +678,7 @@
               "maxLength": 17
             },
             "in": "query",
-            "required": true
+            "required": false
           },
           {
             "name": "id",
@@ -639,19 +703,63 @@
               }
             }
           },
-          "404": {
-            "description": "Notice of Disagreement record was not found, or the provided 'icn' query parameter does not match the record's ICN",
+          "400": {
+            "description": "Missing 'icn' query parameter (with a system- or representative-scoped OAuth token)",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
-                      "detail": "Notice of Disagreement with uuid 44444444-5555-6666-7777-888888888888 not found",
-                      "code": "404",
-                      "status": "404"
+                      "title": "Missing parameter",
+                      "detail": "The 'icn' parameter is required with this request",
+                      "code": "108",
+                      "status": "400"
                     }
                   ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden access (with a veteran-scoped OAuth token to an unowned Notice of Disagreement)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Invalid 'icn' parameter: Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Notice of Disagreement not found, or 'icn' parameter does not match the Notice of Disagreement's saved data": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Resource not found",
+                          "detail": "Notice of Disagreement with uuid 44444444-5555-6666-7777-888888888888 not found",
+                          "code": "404",
+                          "status": "404"
+                        }
+                      ]
+                    }
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
@@ -680,16 +788,16 @@
             }
           },
           "422": {
-            "description": "Missing 'icn' query parameter",
+            "description": "PDF not ready",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Unprocessable Entity",
-                      "detail": "'icn' parameter is required",
                       "code": "422",
-                      "status": "422"
+                      "detail": "PDF for NoticeOfDisagreement with id 44444444-5555-6666-7777-888888888888 cannot be downloaded yet because the appeal is still being submitted",
+                      "status": "422",
+                      "title": "PDF download not ready"
                     }
                   ]
                 },
@@ -2381,26 +2489,6 @@
               }
             }
           },
-          "404": {
-            "description": "Associated Notice of Disagreement not found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "not_found",
-                      "detail": "NoticeOfDisagreement with uuid 00000000-0000-0000-0000-000000000000 not found",
-                      "code": "404",
-                      "status": "404"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/errorModel"
-                }
-              }
-            }
-          },
           "400": {
             "description": "Bad request",
             "content": {
@@ -2418,6 +2506,46 @@
                       ]
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to create an Evidence Submission for a Notice of Disagreement belonging to another Veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Associated Notice of Disagreement not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Notice of Disagreement with uuid 00000000-0000-0000-0000-000000000000 not found",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
                 },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
@@ -2692,6 +2820,26 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to view an Evidence Submission belonging to another Veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Notice of Disagreement Evidence Submission not found",
             "content": {
@@ -2699,8 +2847,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Record not found",
-                      "detail": "The record identified by 00000000-0000-0000-0000-000000000000 could not be found",
+                      "title": "Resource not found",
+                      "detail": "Evidence Submission with uuid 00000000-0000-0000-0000-000000000000 not found",
                       "code": "404",
                       "status": "404"
                     }
