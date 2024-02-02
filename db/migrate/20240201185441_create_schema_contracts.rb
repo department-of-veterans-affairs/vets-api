@@ -7,6 +7,7 @@ class CreateSchemaContracts < ActiveRecord::Migration[6.1]
       t.string :schema
       t.timestamp :last_run_initiated
       t.timestamp :last_run_completed
+      t.string :last_run_result
       t.timestamps
     end
   end

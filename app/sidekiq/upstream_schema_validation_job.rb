@@ -7,7 +7,7 @@ class UpstreamSchemaValidationJob
 
   sidekiq_options(unique_for: 30.minutes, retry: false)
 
-  def perform(response, schema)
-    SchemaContract::Validator.new(response, schema).validate
+  def perform(test_name)
+    SchemaContract::Validator.new(test_name).validate
   end
 end

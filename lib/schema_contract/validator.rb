@@ -4,13 +4,19 @@ module SchemaContract
   class Validator
     def initialize(test_name)
       @test_name = test_name
+      @result = 'initialized'
     end
 
     def validate
       errors = JSON::Validator.fully_validate(parsed_schema, parsed_response)
-      log_schema_errors(errors) if errors.any?
+      if errors.any?
+        @result = 'schema_errors_found'
+        Rails.logger.error('Schema discrepancy found', schema_file: @schema, response: @response, details:)
+      else
+        @result = 'success'
+      end
     ensure
-      record&.update(last_run_completed: Time.zone.now)
+      record&.update(last_run_completed: Time.zone.now, last_run_result: @result)
     end
 
     private
@@ -26,6 +32,7 @@ module SchemaContract
     def parsed_response
       JSON.parse(record.last_response)
     rescue JSON::ParserError => e
+      @result = 'invalid_response'
       Rails.logger.error('Schema validator received invalid JSON response ', response: @response, details: e)
     end
 
@@ -33,13 +40,11 @@ module SchemaContract
       file_contents = File.read(schema_file)
       JSON.parse(file_contents)
     rescue Errno::ENOENT => e
-      Rails.logger.error('Schema validation file not found', file: @schema, details: e)
+      @result = 'validation_file_not_found'
+      Rails.logger.error('Schema validation file not found', schema_file: @schema, details: e)
     rescue JSON::ParserError => e
+      @result = 'invalid_schema_file'
       Rails.logger.error('Schema validator received invalid JSON schema file ', file_contents:, details: e)
-    end
-
-    def log_schema_errors(details)
-      Rails.logger.error('Schema discrepancy found', schema_file: @schema, response: @response, details:)
     end
   end
 end

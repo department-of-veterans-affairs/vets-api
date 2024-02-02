@@ -18,7 +18,7 @@ module SchemaContract
           )
         end
 
-        UpstreamSchemaValidationJob.perform_async(record.id)
+        UpstreamSchemaValidationJob.perform_async(record.test_name)
       end
     end
   end
