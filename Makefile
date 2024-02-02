@@ -16,7 +16,7 @@ endif
 
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
-BASH         := run --rm --service-ports vets-api bash
+BASH         := run --rm --service-ports web bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/ modules/

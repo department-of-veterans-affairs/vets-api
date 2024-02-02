@@ -13,4 +13,11 @@ services:
       - ./data:/var/lib/postgresql/data:cached
     ports:
       - "54320:5432"
-
+  clamav:
+    volumes:
+     - shared-vol:/vets-api
+    image: clamav/clamav
+    ports:
+      - 33100:3310
+volumes:
+ shared-vol:

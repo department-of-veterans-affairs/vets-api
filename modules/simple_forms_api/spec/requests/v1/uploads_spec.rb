@@ -83,6 +83,8 @@ RSpec.describe 'Forms uploader', type: :request do
         sign_in
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
       end
 
       describe 'veteran or surviving dependent' do

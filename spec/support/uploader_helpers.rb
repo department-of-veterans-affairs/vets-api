@@ -7,14 +7,8 @@ module UploaderHelpers
 
   module ClassMethods
     def stub_virus_scan
-      let(:result) do
-        {
-          safe?: true
-        }
-      end
-
       before do
-        allow(Common::VirusScan).to receive(:scan).and_return(OpenStruct.new(result))
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
       end
     end
   end

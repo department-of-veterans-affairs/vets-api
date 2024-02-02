@@ -52,7 +52,7 @@ gem 'bootsnap', require: false
 gem 'breakers'
 gem 'carrierwave'
 gem 'carrierwave-aws'
-gem 'clam_scan'
+gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
