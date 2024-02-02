@@ -10,7 +10,13 @@ module Mobile
       def index
         response = service.get_debts
 
-        render json: Mobile::V0::DebtSerializer.new(@current_user.uuid, response)
+        render json: Mobile::V0::DebtsSerializer.new(@current_user.uuid, response)
+      end
+
+      def show
+        response = service.get_debt_by_id(params[:id])
+
+        render json: Mobile::V0::DebtSerializer.new(response)
       end
 
       private
