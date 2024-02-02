@@ -744,8 +744,6 @@ features:
     actor_type: user
     description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
     enable_in_development: true
-  gibill_status_response_overwrite_inspect_method:
-    description: When enabled, overwrite the inspect() method of EVSS::Response to avoid leaking PII into logs - Issue 1525
   pre_entry_covid19_screener:
     actor_type: user
     description: >
