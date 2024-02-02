@@ -2,7 +2,7 @@
 
 module AskVAApi
   module Categories
-    class Retriever < Crm::BaseRetriever
+    class Retriever < BaseRetriever
       private
 
       def filter_data(data)
