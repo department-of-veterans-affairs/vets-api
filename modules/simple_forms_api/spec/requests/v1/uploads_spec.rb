@@ -291,8 +291,9 @@ RSpec.describe 'Forms uploader', type: :request do
 
   describe '#submit_supporting_documents' do
     it 'renders the attachment as json' do
-      allow(ClamScan::Client).to receive(:scan)
-        .and_return(instance_double(ClamScan::Response, safe?: true))
+      allow(Common::VirusScan).to receive(:scan).and_return(true)
+      allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
+      allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
       file = fixture_file_upload('doctors-note.gif')
       data = { form_id: '40-0247', file: }
 
