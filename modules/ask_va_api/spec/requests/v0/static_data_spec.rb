@@ -79,7 +79,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Crm::StaticData)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
         get categories_path
@@ -124,7 +124,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Crm::StaticData)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
         get topics_path
