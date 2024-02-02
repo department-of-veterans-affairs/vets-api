@@ -27,13 +27,13 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
-  revision: 5f40ee08bd62bfdf8259201e5803050f2d326576
-  branch: master
+  revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
+  tag: v2.0.0.vsp
   specs:
-    apivore (1.6.2.1.vsp)
+    apivore (2.0.0.vsp)
       actionpack (>= 4)
       hashie (~> 5.0)
-      json-schema (~> 3.0)
+      json-schema (~> 4.0)
       rspec (~> 3)
       rspec-expectations (~> 3.1)
       rspec-mocks (~> 3.1)
@@ -350,7 +350,7 @@ GEM
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
-    diff-lcs (1.5.0)
+    diff-lcs (1.5.1)
     docile (1.4.0)
     dogstatsd-ruby (5.6.1)
     domain_name (0.6.20240107)
@@ -567,7 +567,7 @@ GEM
     jmespath (1.6.2)
     json (2.7.1)
     json (2.7.1-java)
-    json-schema (3.0.0)
+    json-schema (4.1.1)
       addressable (>= 2.8)
     json_schemer (2.1.1)
       hana (~> 1.3)
