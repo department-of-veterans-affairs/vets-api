@@ -3880,8 +3880,8 @@ RSpec.describe 'Disability Claims', type: :request do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
-      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
-                             'form_526_json_api.json').read
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                             'disability_compensation', 'form_526_generate_pdf_json_api.json').read
       temp = JSON.parse(temp)
       attributes = temp['data']['attributes']
       attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
@@ -3890,7 +3890,7 @@ RSpec.describe 'Disability Claims', type: :request do
       temp.to_json
     end
 
-    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', 'generate_pdf_526.json').read }
     let(:veteran_id) { '1012832025V743496' }
     let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF" }
 

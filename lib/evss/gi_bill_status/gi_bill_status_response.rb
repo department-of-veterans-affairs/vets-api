@@ -126,6 +126,10 @@ module EVSS
         'unknown'
       end
 
+      def body
+        @response.body
+      end
+
       private
 
       def timeout?

@@ -104,7 +104,7 @@
       },
       "locationOfSeparation": "San Antonio, TX",
       "spouseFullNameOverflow": "Jessica Middle Doe",
-      "dateRangeOfMarriageOverflow": "1989-03-02 - 1990-03-02",
+      "dateRangeOfMarriageOverflow": "03-02-1989 - 03-02-1990",
       "reasonForSeparationOverflow": "other"
     },
     {
@@ -127,7 +127,7 @@
       },
       "locationOfSeparation": "San Antonio, TX",
       "spouseFullNameOverflow": "Jane Middle Doe",
-      "dateRangeOfMarriageOverflow": "1989-03-02 - 1990-03-02",
+      "dateRangeOfMarriageOverflow": "03-02-1989 - 03-02-1990",
       "reasonForSeparationOverflow": "spouse’s death"
     }
   ],
@@ -184,7 +184,7 @@
       },
       "locationOfSeparation": "Tacoma, WA",
       "spouseFullNameOverflow": "Joe F Generic Jr.",
-      "dateRangeOfMarriageOverflow": "1980-03-02 - 1990-03-02",
+      "dateRangeOfMarriageOverflow": "03-02-1980 - 03-02-1990",
       "reasonForSeparationOverflow": "death"
     },
     {
@@ -209,7 +209,7 @@
       },
       "locationOfSeparation": "Tacoma, WA",
       "spouseFullNameOverflow": "John F Person Jr.",
-      "dateRangeOfMarriageOverflow": "1995-03-02 - 2005-03-02",
+      "dateRangeOfMarriageOverflow": "03-02-1995 - 03-02-2005",
       "reasonForSeparationOverflow": "other"
     }
   ],
@@ -257,7 +257,7 @@
         "year": "1997"
       },
       "fullNameOverflow": "Bobby Middle Doe",
-      "childDateOfBirthOverflow": "1997-03-02",
+      "childDateOfBirthOverflow": "03-02-1997",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
       "attendingCollege": "Off",
@@ -290,7 +290,7 @@
         "year": "1993"
       },
       "fullNameOverflow": "Emily Middle Doe",
-      "childDateOfBirthOverflow": "1993-03-02",
+      "childDateOfBirthOverflow": "03-02-1993",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
       "attendingCollege": "Off",
@@ -341,7 +341,7 @@
         "year": "1992"
       },
       "fullNameOverflow": "Jack Middle Doe",
-      "childDateOfBirthOverflow": "1992-04-01",
+      "childDateOfBirthOverflow": "04-01-1992",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
       "attendingCollege": "Off",
@@ -388,7 +388,7 @@
       "recipientsOverflow": "Veteran",
       "careTypeOverflow": "Care facility",
       "ratePerHourOverflow": "$100.00",
-      "careDateRangeOverflow": "2020-08-01 - 2023-05-25",
+      "careDateRangeOverflow": "08-01-2020 - 05-25-2023",
       "noCareEndDate": "Off",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$2,500.00"
@@ -423,7 +423,7 @@
       "recipientsOverflow": "Spouse",
       "careTypeOverflow": "In home care provider",
       "ratePerHourOverflow": "$150.00",
-      "careDateRangeOverflow": "2021-08-01 - 2022-05-25",
+      "careDateRangeOverflow": "08-01-2021 - 05-25-2022",
       "noCareEndDate": "Off",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$1,500.00"
@@ -456,7 +456,7 @@
       "recipientsOverflow": "Child",
       "careTypeOverflow": "Care facility",
       "ratePerHourOverflow": "$200.00",
-      "careDateRangeOverflow": "2020-08-01 - No End Date",
+      "careDateRangeOverflow": "08-01-2020 - No End Date",
       "paymentFrequencyOverflow": "ONCE_YEAR",
       "paymentAmountOverflow": "$22,500.00"
     }
@@ -479,7 +479,7 @@
         "part_one": "000"
       },
       "recipientsOverflow": "Veteran",
-      "paymentDateOverflow": "2020-03-15",
+      "paymentDateOverflow": "03-15-2020",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$10,000.00"
     },
@@ -500,7 +500,7 @@
         "part_one": "000"
       },
       "recipientsOverflow": "Child",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$10,000.00"
     },
@@ -519,7 +519,7 @@
         "part_one": "500"
       },
       "recipientsOverflow": "Spouse",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$500.00"
     },
@@ -540,7 +540,7 @@
         "part_one": "000"
       },
       "recipientsOverflow": "Child",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_YEAR",
       "paymentAmountOverflow": "$5,000.00"
     },
@@ -559,7 +559,7 @@
         "part_one": "200"
       },
       "recipientsOverflow": "Spouse",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$200.00"
     },
@@ -579,7 +579,7 @@
         "part_one": "100"
       },
       "recipientsOverflow": "Child",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$100.00"
     }
