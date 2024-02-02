@@ -3529,10 +3529,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'loa3 user' do
-        let(:mhv_user) { build(:user, :loa3) }
+        let(:idme_uuid) { 'e444837a-e88b-4f59-87da-10d3c74c787b' }
+        let(:mhv_user) { build(:user, :loa3, idme_uuid:) }
 
         it 'returns ok status code' do
-          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+          VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
+            expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+          end
         end
       end
     end
