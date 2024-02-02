@@ -11,7 +11,7 @@ module Users
     attr_reader :error, :service
 
     # @param error [ErrorClass] An external service error
-    # @param service [String] The name of the external service (i.e. 'Vet360', 'MVI', 'VA Profile')
+    # @param service [String] The name of the external service (i.e. 'Vet360' or 'MVI')
     #
     def initialize(error, service)
       @error = validate!(error)
@@ -19,7 +19,7 @@ module Users
     end
 
     # Serializes the initialized error into one of the predetermined error types.
-    # Uses error classes that can be triggered by MVI or VA Profile (aka Vet360).
+    # Uses error classes that can be triggered by MVI or Vet360 (aka VA Profile).
     #
     # The serialized error format is modelled after the Maintenance Windows schema,
     # per the FE's request.

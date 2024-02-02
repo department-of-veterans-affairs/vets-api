@@ -326,7 +326,7 @@ RSpec.describe Users::Profile do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
             error = subject.errors.first
-            expect(error[:external_service]).to eq 'VA Profile'
+            expect(error[:external_service]).to eq 'Vet360'
             expect(error[:start_time]).to be_present
             expect(error[:description]).to be_present
             expect(error[:status]).to eq 404
@@ -346,7 +346,7 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'VA Profile'
+          expect(error[:external_service]).to eq 'Vet360'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
           expect(error[:status]).to eq 503
@@ -369,7 +369,7 @@ RSpec.describe Users::Profile do
                                                                                      allow_playback_repeats: true) do
             vaprofile_error = subject.errors.last
 
-            expect(vaprofile_error[:external_service]).to eq 'VA Profile'
+            expect(vaprofile_error[:external_service]).to eq 'Vet360'
             expect(vaprofile_error[:start_time]).to be_present
             expect(vaprofile_error[:description]).to include 'VA Profile failure'
             expect(vaprofile_error[:status]).to eq 401
