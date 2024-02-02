@@ -16,13 +16,12 @@ module AppealsApi::HigherLevelReviews::V0
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_json_schema, only: %i[create validate]
-    before_action :validate_icn_parameter, only: %i[download index]
+    before_action :validate_icn_parameter!, only: %i[download index]
 
     FORM_NUMBER = '200996'
     API_VERSION = 'V0'
     MODEL_ERROR_STATUS = 422
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'higher_level_reviews' }.freeze
-    ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
 
     OAUTH_SCOPES = {
       GET: %w[veteran/HigherLevelReviews.read representative/HigherLevelReviews.read system/HigherLevelReviews.read],
@@ -34,13 +33,15 @@ module AppealsApi::HigherLevelReviews::V0
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
     end
 
+    # NOTE: index route is disabled until questions around claimant vs. veteran privacy are resolved
     def index
-      veteran_hlrs = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).where(veteran_icn:).order(created_at: :desc)
-      render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
+      render_higher_level_review(AppealsApi::HigherLevelReview.where(veteran_icn:).order(created_at: :desc))
     end
 
     def show
-      hlr = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).find(params[:id])
+      hlr = AppealsApi::HigherLevelReview.find(params[:id])
+      validate_token_icn_access!(hlr.veteran_icn)
+
       hlr = with_status_simulation(hlr) if status_requested_and_allowed?
 
       render_higher_level_review(hlr)
@@ -60,12 +61,15 @@ module AppealsApi::HigherLevelReviews::V0
     end
 
     def create
+      submitted_icn = @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      validate_token_icn_access!(submitted_icn)
+
       hlr = AppealsApi::HigherLevelReview.new(
         auth_headers: request_headers,
         form_data: @json_body,
         source: request_headers['X-Consumer-Username'].presence&.strip,
         api_version: self.class::API_VERSION,
-        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+        veteran_icn: submitted_icn
       )
 
       return render_model_errors(hlr) unless hlr.validate
@@ -73,14 +77,14 @@ module AppealsApi::HigherLevelReviews::V0
       hlr.save
       AppealsApi::PdfSubmitJob.perform_async(hlr.id, 'AppealsApi::HigherLevelReview', 'v3')
 
-      render_higher_level_review(hlr, status: :created)
+      render_higher_level_review(hlr, include_pii: true, status: :created)
     end
 
     def download
       render_appeal_pdf_download(
         AppealsApi::HigherLevelReview.find(params[:id]),
         "#{FORM_NUMBER}-higher-level-review-#{params[:id]}.pdf",
-        params[:icn]
+        veteran_icn
       )
     rescue ActiveRecord::RecordNotFound
       render_higher_level_review_not_found(params[:id])
@@ -108,8 +112,9 @@ module AppealsApi::HigherLevelReviews::V0
       header_names.index_with { |key| request.headers[key] }.compact
     end
 
-    def render_higher_level_review(hlr, **)
-      render(json: HigherLevelReviewSerializer.new(hlr).serializable_hash, **)
+    def render_higher_level_review(hlr_or_hlrs, include_pii: false, **)
+      serializer = (include_pii ? HigherLevelReviewSerializerWithPii : HigherLevelReviewSerializer).new(hlr_or_hlrs)
+      render(json: serializer.serializable_hash, **)
     end
 
     def render_higher_level_review_not_found(id)
@@ -120,18 +125,6 @@ module AppealsApi::HigherLevelReviews::V0
 
     def render_model_errors(hlr)
       render json: model_errors_to_json_api(hlr), status: MODEL_ERROR_STATUS
-    end
-
-    def validate_icn_parameter
-      detail = nil
-
-      if params[:icn].blank?
-        detail = "'icn' parameter is required"
-      elsif !ICN_REGEX.match?(params[:icn])
-        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
-      end
-
-      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
     def token_validation_api_key

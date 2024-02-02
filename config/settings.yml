@@ -30,6 +30,7 @@ map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
   check_in_client_id: bc75b71c7e67
+  appointments_client_id: 74b3145e1354555e
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/map/oauth.crt
   client_key_path: spec/fixtures/map/oauth.key
@@ -833,29 +834,9 @@ reports:
       - adam.freemer@accenturefederal.com
 
 oidc:
-  auth_server_metadata_url: ~
-  issuer: ~
-  issuer_prefix: ~
-  audience: ~
   isolated_audience:
     default: ~
-    veteran_verification: ~
     claims: ~
-  charon:
-    endpoint: ~
-    audience: ~
-  base_api_url: https://example.com
-  base_api_token: ~
-  base_api_profile_key_icn: false
-  smart_launch_url: ~
-  issued_url: ~
-  issuers:
-    - prefix: "https://example.com/"
-      metadata: "/.well-known/openid-configuration"
-      proxy: "https://example.com/"
-  opaque_clients:
-    - route: ~
-      client_id: ~
 
 sentry:
   dsn: ~
@@ -890,7 +871,6 @@ maintenance:
     arcgis: P45YBFA
     coe: PXXXXXX
     dslogon: P9DJJAV
-    emis: P0HNT0I
     es: PH7OPR4
     evss: PZKWB6Y
     global: PLPSIB0
@@ -1479,6 +1459,8 @@ chip:
     password: '12345'
 
 check_in:
+  vaos:
+    mock: false
   map_api:
     url: https://veteran.apps-staging.va.gov
     service_name: MAP-API
