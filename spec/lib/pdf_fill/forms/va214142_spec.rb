@@ -29,18 +29,23 @@ describe PdfFill::Forms::Va214142 do
   describe '#expand_signature' do
     let(:form_data) do
       { 'signatureDate' => '2017-02-14',
-        'veteranFullName' => 'Foo Bar'
+        'veteranFullName' => {'first' => 'Foo',
+                              'last' => 'Bar'}
       }
     end
 
     it 'expands the Signature and Signature Date correctly' do
-      new_form_class.expand_signature(form_data['veteranFullName'], form_data['signature_date'])
+      new_form_class.expand_signature(form_data['veteranFullName'], form_data['signatureDate'])
       # Note on the expectation: the signature field gets filled in further down in the #merge_fields method
+
       expect(
         JSON.parse(class_form_data.to_json)
       ).to eq(
-        'signature' => '',
-        'veteranFullName' => 'Foo Bar',
+        'signature' => 'Foo Bar',
+        'veteranFullName' => {
+          'first' => 'Foo',
+          'last' => 'Bar'
+        },
         'signatureDate' => '2017-02-14'
       )
     end
