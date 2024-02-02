@@ -702,12 +702,20 @@ module ClaimsApi
         first_name = @auth_headers[:va_eauth_firstName]
         last_name = @auth_headers[:va_eauth_lastName]
         name = "#{first_name} #{last_name}"
-        date = make_date_object(@created_at, @created_at.length) if @created_at.present?
+        date_signed = get_date_signed
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
-                                               dateSigned: date,
+                                               dateSigned: date_signed,
                                                signature: name
                                              })
         @pdf_data[:data][:attributes].delete(:claimDate)
+      end
+
+      def get_date_signed
+        # generate_pdf allows for an optional claimDate on its schema
+        claim_date_value = @pdf_data.dig(:data, :attributes, :claimDate)
+        claim_date_obj = make_date_object(claim_date_value, claim_date_value.length) if claim_date_value.present?
+        date = make_date_object(@created_at, @created_at.length) if @created_at.present?
+        claim_date_obj || date
       end
 
       def get_service_pay
