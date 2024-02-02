@@ -1045,6 +1045,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  arm64-darwin-23
   java
   x64-mingw32
   x86-mingw32
