@@ -25,7 +25,7 @@ jobs:
           echo "WEB_BRANCH=${{ github.event.client_payload.web_branch }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.SOURCE_REF }}
 
