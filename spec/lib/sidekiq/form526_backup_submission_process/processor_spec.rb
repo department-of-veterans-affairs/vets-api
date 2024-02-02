@@ -18,7 +18,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         allow(Settings.form526_backup).to receive(:enabled).and_return(true)
       end
 
-      let!(:submission) { create :form526_submission, :with_non_us_address }
+      let!(:submission) { create(:form526_submission, :with_non_us_address) }
 
       it 'for a foreign address, sets the submission metadata zipcode to a default value' do
         instance = subject.new(submission.id, get_upload_location_on_instantiation: false)
