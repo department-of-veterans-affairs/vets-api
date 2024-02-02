@@ -140,7 +140,8 @@ RSpec.describe 'Forms uploader', type: :request do
       it 'appends the attachments to the PDF' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247_with_supporting_document.json')
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'vba_40_0247_with_supporting_document.json')
             pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
             data = JSON.parse(fixture_path.read)
             attachment = double
@@ -148,9 +149,9 @@ RSpec.describe 'Forms uploader', type: :request do
             allow(CombinePDF).to receive(:load).and_return([])
 
             expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
-  
+
             post '/simple_forms_api/v1/simple_forms', params: data
-  
+
             expect(response).to have_http_status(:ok)
           ensure
             metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
@@ -166,12 +167,12 @@ RSpec.describe 'Forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_unhandled.json')
           data = JSON.parse(fixture_path.read)
-  
+
           post '/simple_forms_api/v1/simple_forms', params: data
-  
+
           expect(response).to have_http_status(:error)
           expect(response.body).to include('something has gone wrong with your form')
-  
+
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
@@ -185,13 +186,13 @@ RSpec.describe 'Forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_21_4142.json')
           data = JSON.parse(fixture_path.read)
-  
+
           post '/simple_forms_api/v1/simple_forms', params: data
-  
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected ken at')
-  
+
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
@@ -207,13 +208,13 @@ RSpec.describe 'Forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_21_10210.json')
           data = JSON.parse(fixture_path.read)
-  
+
           post '/simple_forms_api/v1/simple_forms', params: data
-  
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
-  
+
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
           expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
@@ -229,12 +230,12 @@ RSpec.describe 'Forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_26_4555.json')
           data = JSON.parse(fixture_path.read)
-  
+
           post '/simple_forms_api/v1/simple_forms', params: data
-  
+
           expect(response).to have_http_status(:error)
           expect(response.body).to include('unexpected token at')
-  
+
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
@@ -248,13 +249,13 @@ RSpec.describe 'Forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_21P_0847.json')
           data = JSON.parse(fixture_path.read)
-  
+
           post '/simple_forms_api/v1/simple_forms', params: data
-  
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
-  
+
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['preparer_ssn']&.[](0..2))
           expect(exception).not_to include(data['preparer_ssn']&.[](3..4))
@@ -271,13 +272,13 @@ RSpec.describe 'Forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_21_0845.json')
           data = JSON.parse(fixture_path.read)
-  
+
           post '/simple_forms_api/v1/simple_forms', params: data
-  
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
-  
+
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
