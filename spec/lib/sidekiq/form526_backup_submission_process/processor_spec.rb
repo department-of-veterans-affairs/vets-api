@@ -20,7 +20,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
 
       let!(:submission) { create(:form526_submission, :with_non_us_address) }
 
-      it 'for a foreign address, sets the submission metadata zipcode to a default value' do
+      it 'sets the submission metadata zip code to a default value' do
         instance = subject.new(submission.id, get_upload_location_on_instantiation: false)
         expect(instance.zip).to eq('00000')
       end
