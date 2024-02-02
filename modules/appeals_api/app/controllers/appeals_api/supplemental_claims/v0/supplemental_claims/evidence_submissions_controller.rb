@@ -3,6 +3,7 @@
 module AppealsApi::SupplementalClaims::V0::SupplementalClaims
   class EvidenceSubmissionsController < AppealsApi::ApplicationController
     include AppealsApi::CharacterUtilities
+    include AppealsApi::IcnParameterValidation
     include AppealsApi::JsonFormatValidation
     include AppealsApi::OpenidAuth
     include AppealsApi::Schemas
@@ -19,7 +20,14 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
 
     def show
       submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
-      raise Common::Exceptions::RecordNotFound, params[:id] unless submission
+
+      unless submission
+        raise Common::Exceptions::ResourceNotFound.new(
+          detail: I18n.t('appeals_api.errors.not_found', type: 'Evidence Submission', id: params[:id])
+        )
+      end
+
+      validate_token_sc_access!(submission.supportable_id)
 
       submission = with_status_simulation(submission) if status_requested_and_allowed?
 
@@ -29,6 +37,8 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
     # rubocop:disable Metrics/MethodLength
     def create
       form_schemas.validate!('EVIDENCE_SUBMISSION', params.to_unsafe_h)
+
+      validate_token_sc_access!(params[:scId])
 
       status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(
         params[:scId], params[:ssn], 'SupplementalClaim'
@@ -57,6 +67,14 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
     # rubocop:enable Metrics/MethodLength
 
     private
+
+    def validate_token_sc_access!(sc_id)
+      validate_token_icn_access!(AppealsApi::SupplementalClaim.find(sc_id).veteran_icn)
+    rescue ActiveRecord::RecordNotFound
+      raise Common::Exceptions::ResourceNotFound.new(
+        detail: I18n.t('appeals_api.errors.not_found', type: 'Supplemental Claim', id: sc_id)
+      )
+    end
 
     def token_validation_api_key
       Settings.dig(:modules_appeals_api, :token_validation, :supplemental_claims, :api_key)

@@ -68,19 +68,61 @@ module ClaimsApi
             )
           end
 
-          documents_service(params, claim).process_documents unless Flipper.enabled? :claims_load_testing
+          documents_service(params, claim).process_documents
 
           render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
             claim, root: :data
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
         end
 
-        def generate_pdf
-          # Returns filled out 526EZ form as PDF
-          render json: { data: { attributes: {} } } # place holder
+        # Returns filled out 526EZ form as PDF
+        def generate_pdf # rubocop:disable Metrics/MethodLength
+          validate_json_schema('GENERATE_PDF_526')
+
+          mapped_claim = generate_pdf_mapper_service(
+            form_attributes,
+            get_pdf_data_wrapper,
+            auth_headers,
+            veteran_middle_initial,
+            Time.zone.now
+          ).map_claim
+          pdf_string = generate_526_pdf(mapped_claim)
+          if pdf_string.present?
+            file_name = SecureRandom.hex.to_s
+            Tempfile.create([file_name, '.pdf']) do |pdf|
+              pdf.binmode # Set the file to binary mode
+              pdf.write(pdf_string)
+              pdf.rewind # after writing return to the start of the PDF
+
+              send_data pdf.read, filename: file_name, type: 'application/pdf', disposition: 'inline'
+              # Once this block closes the tempfile will delete
+            end
+          else
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'Failed to generate PDF'
+            )
+          end
         end
 
         private
+
+        def generate_pdf_mapper_service(form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at)
+          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(
+            form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at
+          )
+        end
+
+        # Docker container wants data: but not attributes:
+        def generate_526_pdf(mapped_data)
+          pdf = get_pdf_data_wrapper
+          pdf[:data] = mapped_data[:data][:attributes]
+          client = PDFClient.new(pdf)
+          client.generate_pdf
+        end
+
+        def get_pdf_data_wrapper
+          { data: {} }
+        end
 
         def process_claim(auto_claim)
           ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
