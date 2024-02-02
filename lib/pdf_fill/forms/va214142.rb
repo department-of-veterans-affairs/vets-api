@@ -353,13 +353,8 @@ module PdfFill
         expand_ssn
 
         expand_veteran_full_name
-
-        [wipn8923] TODO: needs formatting
-        # sig_date = @form_data['signatureDate']
-        # this will work
-        sig_date = '01/01/2011'
-
-        expand_signature(@form_data['veteranFullName'], sig_date)
+        signature_date = @form_data['signatureDate']
+        expand_signature(@form_data['veteranFullName'], signature_date)
         @form_data['printedName'] = @form_data['signature']
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
