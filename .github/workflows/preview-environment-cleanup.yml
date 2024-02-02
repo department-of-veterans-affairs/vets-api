@@ -14,7 +14,7 @@ jobs:
     name: Clean Up Deleted Branch and Expired Preview Environments
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -41,7 +41,7 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Checkout Application Infra Manifests Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: department-of-veterans-affairs/vsp-infra-application-manifests
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
