@@ -283,11 +283,11 @@ class HealthCareApplication < ApplicationRecord
     @current_schema ||= begin
       schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
       if Flipper.enabled?(:hca_use_facilities_API)
-        schema
-      else
         schema.deep_dup.tap do |c|
           c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
         end
+      else
+        schema
       end
     end
   end
