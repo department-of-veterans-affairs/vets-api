@@ -18,6 +18,6 @@ class ContactSerializer < ActiveModel::Serializer
   )
 
   def id
-    object.tx_audit_id
+    nil
   end
 end

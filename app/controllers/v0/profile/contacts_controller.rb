@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/health_benefit/service'
+require 'va_profile/profile/v3/service'
 
 module V0
   module Profile
@@ -11,7 +11,7 @@ module V0
 
       # GET /v0/profile/contacts
       def index
-        response = service.get_associated_persons
+        response = service.get_health_benefit_bio
         render(
           json: response.associated_persons,
           each_serializer: ContactSerializer
@@ -25,7 +25,7 @@ module V0
       end
 
       def service
-        VAProfile::HealthBenefit::Service.new(current_user)
+        VAProfile::Profile::V3::Service.new(current_user)
       end
     end
   end
