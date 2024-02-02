@@ -96,7 +96,7 @@ RSpec.describe 'Claim Document Attachment', type: :request do
     it 'raises an error when password is incorrect' do
       params = { file:, form_id: '26-1880', password: 'bad_password' }
       post('/v0/claim_attachments', params:)
-      expect(response.status).to eq(500)
+      expect(response.status).to eq(422)
     end
   end
 end
