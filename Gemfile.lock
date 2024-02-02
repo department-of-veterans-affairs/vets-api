@@ -261,7 +261,7 @@ GEM
     blueprinter (1.0.1)
     bootsnap (1.18.3)
       msgpack (~> 1.2)
-    brakeman (6.1.1)
+    brakeman (6.1.2)
       racc
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
