@@ -87,9 +87,10 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
 
     describe 'responses' do
       let(:created_hlr) { AppealsApi::HigherLevelReview.find(parsed_response['data']['id']) }
+      let(:scopes) { %w[system/HigherLevelReviews.write] }
 
       before do
-        with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+        with_openid_auth(scopes) do |auth_header|
           post(path, params:, headers: headers.merge(auth_header))
         end
       end
@@ -151,6 +152,18 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
 
         it 'returns a 400 error' do
           expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context "with a veteran token where the token's ICN doesn't match the submitted ICN" do
+        let(:scopes) { %w[veteran/HigherLevelReviews.write] }
+        let(:data) do
+          default_data['data']['attributes']['veteran']['icn'] = other_icn
+          default_data
+        end
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
