@@ -37,7 +37,7 @@ RSpec.describe EVSSClaimService do
 
   context 'when user is not a Veteran' do
     # Overriding global user / service values
-    let(:user) { FactoryBot.create(:evss_user, birls_id: nil)}
+    let(:user) { FactoryBot.create(:evss_user, birls_id: nil) }
     let(:service) { described_class.new(user) }
 
     before do
@@ -54,10 +54,10 @@ RSpec.describe EVSSClaimService do
         expect(Rails.logger)
           .to have_received(:info)
           .with('Supplementing EVSS headers', {
-            message_type: 'evss.request_decision.no_birls_id',
-            claim_id: 1,
-            job_id: job_id
-          })
+                  message_type: 'evss.request_decision.no_birls_id',
+                  claim_id: 1,
+                  job_id:
+                })
       end
     end
 
@@ -86,10 +86,10 @@ RSpec.describe EVSSClaimService do
         expect(Rails.logger)
           .to have_received(:info)
           .with('Supplementing EVSS headers', {
-            message_type: 'evss.document_upload.no_birls_id',
-            claim_id: 1,
-            job_id: job_id
-          })
+                  message_type: 'evss.document_upload.no_birls_id',
+                  claim_id: 1,
+                  job_id:
+                })
       end
     end
   end

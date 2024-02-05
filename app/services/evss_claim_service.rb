@@ -51,9 +51,7 @@ class EVSSClaimService
 
     job_id = EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
 
-    if headers_supplemented
-      record_workaround('request_decision', claim.evss_id, job_id)
-    end
+    record_workaround('request_decision', claim.evss_id, job_id) if headers_supplemented
 
     job_id
   end
@@ -63,10 +61,10 @@ class EVSSClaimService
   def upload_document(evss_claim_document)
     uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
-    
+
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
-    
+
     # Workaround for non-Veteran users
     headers = auth_headers
     headers_supplemented = false
@@ -77,9 +75,7 @@ class EVSSClaimService
 
     job_id = EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
 
-    if headers_supplemented
-      record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id)
-    end
+    record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
     job_id
   rescue CarrierWave::IntegrityError => e
@@ -101,17 +97,15 @@ class EVSSClaimService
   def supplement_auth_headers(headers)
     # Assuming this header has a value of "", set it to the users SSN.
     # 'va_eauth_pnid' should already be set to their SSN, so use that
-    if headers['va_eauth_birlsfilenumber'].blank?
-      headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid']
-    end
+    headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid'] if headers['va_eauth_birlsfilenumber'].blank?
   end
 
   def record_workaround(task, claim_id, job_id)
     ::Rails.logger.info('Supplementing EVSS headers', {
-      message_type: "evss.#{task}.no_birls_id",
-      claim_id:,
-      job_id:
-    })
+                          message_type: "evss.#{task}.no_birls_id",
+                          claim_id:,
+                          job_id:
+                        })
   end
 
   def claims_scope
