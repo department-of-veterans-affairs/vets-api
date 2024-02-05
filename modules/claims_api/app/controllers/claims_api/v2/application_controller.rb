@@ -50,7 +50,8 @@ module ClaimsApi
       # @param validator_class [any] Class implementing ActiveModel::Validations
       #
       def validate_request!(validator_class)
-        validator = validator_class.validator(params)
+        data = validator_class.as_json.split('::')[-1] == 'PowerOfAttorney' ? form_attributes : params
+        validator = validator_class.validator(data)
         return if validator.valid?
 
         raise ::Common::Exceptions::ValidationErrorsBadRequest, validator

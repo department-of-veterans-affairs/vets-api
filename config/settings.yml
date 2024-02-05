@@ -30,6 +30,7 @@ map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
   check_in_client_id: bc75b71c7e67
+  appointments_client_id: 74b3145e1354555e
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/map/oauth.crt
   client_key_path: spec/fixtures/map/oauth.key
@@ -1459,6 +1460,8 @@ chip:
     password: '12345'
 
 check_in:
+  vaos:
+    mock: false
   map_api:
     url: https://veteran.apps-staging.va.gov
     service_name: MAP-API
