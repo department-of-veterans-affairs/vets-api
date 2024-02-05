@@ -315,17 +315,6 @@ FactoryBot.define do
       ssn { '796043735' }
     end
 
-    factory :evss_non_veteran_user, traits: [:loa3] do
-      first_name { 'WESLEY' }
-      last_name { 'FORD' }
-      edipi { '1007697216' }
-      birls_id { nil }
-      participant_id { '600061742' }
-      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
-      birth_date { '1986-05-06T00:00:00+00:00'.to_date.to_s }
-      ssn { '796043735' }
-    end
-
     factory :unauthorized_evss_user, traits: [:loa3] do
       first_name { 'WESLEY' }
       last_name { 'FORD' }

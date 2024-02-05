@@ -37,7 +37,7 @@ RSpec.describe EVSSClaimService do
 
   context 'when user is not a Veteran' do
     # Overriding global user / service values
-    let(:user) { FactoryBot.create(:evss_non_veteran_user)}
+    let(:user) { FactoryBot.create(:evss_user, birls_id: nil)}
     let(:service) { described_class.new(user) }
 
     before do
