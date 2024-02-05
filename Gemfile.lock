@@ -595,6 +595,8 @@ GEM
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
       ffi (~> 1.0)
+    libddwaf (1.14.0.0.0-x86_64-darwin)
+      ffi (~> 1.0)
     libddwaf (1.14.0.0.0-x86_64-linux)
       ffi (~> 1.0)
     liquid (5.4.0)
@@ -1051,6 +1053,7 @@ PLATFORMS
   x64-mingw32
   x86-mingw32
   x86-mswin32
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
