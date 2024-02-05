@@ -6,8 +6,7 @@ require 'claims_api/claim_logger'
 require 'bd/bd'
 
 module ClaimsApi
-  class ClaimUploader
-    include Sidekiq::Job
+  class ClaimUploader < ClaimsApi::V2::DisabilityCompensationClaimServiceBase
 
     sidekiq_options retry: true, unique_until: :success
 
@@ -51,11 +50,15 @@ module ClaimsApi
     def claim_bd_upload_document(claim, doc_type, pdf_path)
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
-    rescue Faraday::ParsingError, Faraday::TimeoutError => e
+    rescue Faraday::ParsingError, Faraday::TimeoutError, ::Common::Exceptions::BackendServiceException => e
       ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
                             detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
-      raise e
+      if will_retry_status_code?(e)
+        raise e
+      else
+        {}
+      end
     # Permanent failures, don't retry
     rescue => e
       message = if e.respond_to? :original_body
