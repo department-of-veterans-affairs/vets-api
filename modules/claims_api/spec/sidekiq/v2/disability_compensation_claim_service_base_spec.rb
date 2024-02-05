@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
+require 'sidekiq/testing'
 
 RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -80,5 +81,34 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
 
       service.send(:log_job_progress, claim.id, detail)
     end
+  end
+
+  RSpec.shared_examples 'logs to the Claim API logger correctly' do |service_class|
+    it "for #{service_class}" do
+      service = service_class
+      claim_id = claim.id
+      error_message = 'An error occurred'
+      detail = "Job retries exhausted for #{service}. Error: #{error_message}"
+
+      msg = { 'args' => [claim_id, 'value here'],
+              'class' => service,
+              'error_message' => error_message }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          claim_id:,
+          detail:
+        )
+      end
+    end
+  end
+
+  describe "when a job's retries are exhausted" do
+    include_examples 'logs to the Claim API logger correctly', ClaimsApi::V2::DisabilityCompensationPdfGenerator
+    include_examples 'logs to the Claim API logger correctly',
+                     ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
+    include_examples 'logs to the Claim API logger correctly',
+                     ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
   end
 end
