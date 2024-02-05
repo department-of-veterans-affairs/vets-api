@@ -309,7 +309,8 @@ GEM
       colored2 (~> 3.1)
     coverband (6.0.2)
       redis (>= 3.0)
-    crack (0.4.5)
+    crack (0.4.6)
+      bigdecimal
       rexml
     crass (1.0.6)
     danger (9.4.3)
