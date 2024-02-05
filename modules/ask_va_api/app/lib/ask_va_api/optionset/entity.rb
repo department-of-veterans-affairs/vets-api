@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Provinces
+  module Optionset
     class Entity
       attr_reader :id,
-                  :name,
-                  :abv
+                  :name
 
       def initialize(info)
         @id = info[:id]
         @name = info[:name]
-        @abv = info[:abbreviation]
       end
     end
   end
