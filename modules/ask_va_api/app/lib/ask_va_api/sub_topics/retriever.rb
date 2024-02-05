@@ -13,7 +13,7 @@ module AskVAApi
       private
 
       def filter_data(data)
-        data[:Topics].select { |t| t[:parentId] == topic_id }
+        data[:Topics].select { |t| t[:parentId] == topic_id }.sort_by { |sub| sub[:name] }
       end
     end
   end

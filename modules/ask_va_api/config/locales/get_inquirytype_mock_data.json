@@ -1,0 +1,32 @@
+{
+  "data": [
+      {
+          "id": 722310000,
+          "name": "Compliment"
+      },
+      {
+          "id": 722310001,
+          "name": "Question"
+      },
+      {
+          "id": 722310002,
+          "name": "Service Complaint"
+      },
+      {
+          "id": 722310006,
+          "name": "Suggestion"
+      },
+      {
+          "id": 722310003,
+          "name": "Town Hall"
+      },
+      {
+          "id": 722310004,
+          "name": "Other"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "b11df40b-f660-4de0-84af-787adfc3297a"
+}

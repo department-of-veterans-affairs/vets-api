@@ -1,0 +1,92 @@
+{
+  "data": [
+      {
+          "id": 722310007,
+          "name": "Child"
+      },
+      {
+          "id": 722310008,
+          "name": "Guardian"
+      },
+      {
+          "id": 722310005,
+          "name": "Parent"
+      },
+      {
+          "id": 722310012,
+          "name": "Sibling"
+      },
+      {
+          "id": 722310015,
+          "name": "Spouse/Surviving Spouse"
+      },
+      {
+          "id": 722310004,
+          "name": "Ex-spouse"
+      },
+      {
+          "id": 722310010,
+          "name": "GI Bill Beneficiary"
+      },
+      {
+          "id": 722310018,
+          "name": "Other (Personal)"
+      },
+      {
+          "id": 722310000,
+          "name": "Attorney"
+      },
+      {
+          "id": 722310001,
+          "name": "Authorized 3rd Party"
+      },
+      {
+          "id": 722310020,
+          "name": "Fiduciary"
+      },
+      {
+          "id": 722310006,
+          "name": "Funeral Director"
+      },
+      {
+          "id": 722310016,
+          "name": "OJT/Apprenticeship Supervisor"
+      },
+      {
+          "id": 722310013,
+          "name": "School Certifying Official"
+      },
+      {
+          "id": 722310019,
+          "name": "VA Employee"
+      },
+      {
+          "id": 722310017,
+          "name": "VSO"
+      },
+      {
+          "id": 722310014,
+          "name": "Work Study Site Supervisor"
+      },
+      {
+          "id": 722310011,
+          "name": "Other (Business)"
+      },
+      {
+          "id": 722310002,
+          "name": "School Official (DO NOT USE)"
+      },
+      {
+          "id": 722310009,
+          "name": "Helpless Child"
+      },
+      {
+          "id": 722310003,
+          "name": "Dependent Child"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "9c2a7bd5-03b1-48d0-87e0-b686ad982a83"
+}
