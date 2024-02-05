@@ -3,6 +3,7 @@
 require 'disability_compensation/providers/brd/brd_provider'
 require 'disability_compensation/responses/intake_sites_response'
 require 'lighthouse/benefits_reference_data/service'
+
 class LighthouseBRDProvider
   include BRDProvider
 
