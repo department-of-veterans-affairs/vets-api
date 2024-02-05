@@ -25,7 +25,7 @@ jobs:
           echo "WEB_BRANCH=${{ github.event.client_payload.web_branch }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.SOURCE_REF }}
 
@@ -33,7 +33,7 @@ jobs:
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -46,7 +46,7 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: latest
 
@@ -79,7 +79,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker Image #use "file" input to designate alternate dockerfile path. Defaults to "Dockerfile": https://github.com/docker/build-push-action
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
@@ -95,7 +95,7 @@ jobs:
           # cache-to: type=inline
 
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           event-type: deploy_review_instance

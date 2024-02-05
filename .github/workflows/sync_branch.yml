@@ -10,10 +10,10 @@ jobs:
   sync-branch:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -26,7 +26,7 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Merge master -> k8s
-        uses: everlytic/branch-merge@1.1.2
+        uses: everlytic/branch-merge@1.1.5
         with:
           github_token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           source_ref: 'master'
@@ -39,7 +39,7 @@ jobs:
     needs: [sync-branch]
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
