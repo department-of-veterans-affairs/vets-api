@@ -4,9 +4,25 @@ module AppealsApi
   class StatsReport
     DATE_FORMAT = '%b%e, %Y'
 
+    # [from, to] pairs to report transition times
     STATUS_TRANSITION_PAIRS = [
-      %w[processing submitted], %w[submitted complete], %w[processing success], %w[error success]
-    ].freeze
+      %w[pending, submitting],
+      %w[pending, error],
+
+      %w[submitting submitted],
+      %w[submitting error],
+
+      %w[submitted, processing],
+      %w[submitted, complete],
+      %w[submitted, success],
+      %w[submitted, error],
+
+      %w[processing, success],
+      %w[processing, complete],
+      
+      %w[success, complete],
+    ]
+
 
     STALLED_RECORD_MONTHS = (3..6)
 
