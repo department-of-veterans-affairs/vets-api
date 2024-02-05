@@ -203,4 +203,34 @@ describe SimpleFormsApi::ConfirmationEmail do
       end
     end
   end
+
+  describe '20_10206' do
+    let(:data) do
+      fixture_path = Rails.root.join(
+        'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10206.json'
+      )
+      JSON.parse(fixture_path.read)
+    end
+
+    describe 'citizen or non-citizen' do
+      it 'sends the confirmation email' do
+
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = described_class.new(form_data: data, form_number: 'vba_20_10206', confirmation_number: 'confirmation_number')
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'jv@example.com',
+          'form20_10206_confirmation_email_template_id',
+          {
+            'first_name' => 'JOHN',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => 'confirmation_number'
+          }
+        )
+      end
+    end
+  end
 end
