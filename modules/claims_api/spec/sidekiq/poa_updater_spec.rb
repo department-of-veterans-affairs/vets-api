@@ -85,7 +85,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     it 'logs to the ClaimsApi Logger' do
       poa = create_poa
 
-      msg = { 'args' => [poa.id, 'value here'],
+      msg = { 'args' => [poa.id],
               'class' => subject,
               'error_message' => 'An error occurred' }
 

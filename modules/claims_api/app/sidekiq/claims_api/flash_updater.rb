@@ -12,7 +12,7 @@ module ClaimsApi
     sidekiq_retries_exhausted do |message|
       ClaimsApi::Logger.log(
         'claims_api_retries_exhausted',
-        claim_id: message['args'].first,
+        claim_id: message['args'].last,
         detail: "Job retries exhausted for #{message['class']}",
         error: message['error_message']
       )

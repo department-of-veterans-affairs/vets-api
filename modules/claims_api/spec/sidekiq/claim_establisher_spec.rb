@@ -121,7 +121,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   describe 'when an errored claim has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
-      msg = { 'args' => [claim.id, 'value here'],
+      msg = { 'args' => [claim.id],
               'class' => subject,
               'error_message' => 'An error occurred' }
 
