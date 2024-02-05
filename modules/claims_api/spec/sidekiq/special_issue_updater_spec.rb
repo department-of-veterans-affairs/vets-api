@@ -258,4 +258,21 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
       end
     end
   end
+
+  describe 'when an errored claim has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      msg = { 'args' => ['value here', claim_record.id],
+              'class' => subject,
+              'error_message' => 'An error occurred' }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          claim_id: claim_record.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: 'An error occurred'
+        )
+      end
+    end
+  end
 end

@@ -98,7 +98,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
           'claims_api_retries_exhausted',
           claim_id:,
           detail:,
-          error_message:
+          error: error_message
         )
       end
     end

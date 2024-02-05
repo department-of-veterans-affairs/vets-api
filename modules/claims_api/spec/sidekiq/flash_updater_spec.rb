@@ -76,4 +76,21 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
     subject.new.perform(flashes, claim.id)
     expect(ClaimsApi::AutoEstablishedClaim.find(claim.id).bgs_flash_responses.count).to eq(flashes.count * 2)
   end
+
+  describe 'when an errored claim has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      msg = { 'args' => [claim.id, 'value here'],
+              'class' => subject,
+              'error_message' => 'An error occurred' }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          claim_id: claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: 'An error occurred'
+        )
+      end
+    end
+  end
 end

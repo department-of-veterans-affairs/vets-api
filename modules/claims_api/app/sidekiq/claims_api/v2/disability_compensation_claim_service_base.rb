@@ -19,7 +19,7 @@ module ClaimsApi
         ClaimsApi::Logger.log('claims_api_retries_exhausted',
                               claim_id: message['args'].first,
                               detail: "Job retries exhausted for #{message['class']}",
-                              error_message: message['error_message'])
+                              error: message['error_message'])
       end
 
       protected
