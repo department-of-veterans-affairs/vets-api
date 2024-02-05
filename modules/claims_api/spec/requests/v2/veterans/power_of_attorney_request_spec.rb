@@ -25,8 +25,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
                                                first_name: 'Abraham', last_name: 'Lincoln')
       Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
                                                first_name: 'George', last_name: 'Washington')
-      Veteran::Service::Organization.create(poa: organization_poa_code,
-                                            name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      Veteran::Service::Organization.create!(poa: organization_poa_code,
+                                             name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
     end
 
     describe 'show' do

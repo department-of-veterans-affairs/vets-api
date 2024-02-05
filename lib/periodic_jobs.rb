@@ -36,7 +36,7 @@ PERIODIC_JOBS = lambda { |mgr|
   # Email a decision reviews stats report for the past month to configured recipients first of the month
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
-  mgr.register('0 0 * * *', 'Crm::StaticDataJob')
+  mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
   # Update static data cache
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
