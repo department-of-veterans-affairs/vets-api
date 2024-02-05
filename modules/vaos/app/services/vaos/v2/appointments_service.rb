@@ -15,6 +15,7 @@ module VAOS
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
+      AVS_APPT_TEST_ID = '192308'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
 
@@ -229,7 +230,7 @@ module VAOS
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
         # Testing AVS error message using the below id - remove after testing is complete
-        if appt[:id] == '199512'
+        if appt[:id] == AVS_APPT_TEST_ID
           appt[:avs_path] = AVS_ERROR_MESSAGE
         else
           avs_link = get_avs_link(appt)
