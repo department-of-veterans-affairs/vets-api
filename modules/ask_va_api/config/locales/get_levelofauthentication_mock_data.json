@@ -1,0 +1,24 @@
+{
+  "data": [
+      {
+          "id": 722310002,
+          "name": "Authenticated"
+      },
+      {
+          "id": 722310000,
+          "name": "Unauthenticated"
+      },
+      {
+          "id": 722310001,
+          "name": "Personal"
+      },
+      {
+          "id": 722310003,
+          "name": "Business"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "4633a0e7-6928-4a22-81f9-0775bb86673c"
+}
