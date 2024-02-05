@@ -35,6 +35,65 @@ RSpec.describe EVSSClaimService do
     end
   end
 
+  context 'when user is not a Veteran' do
+    # Overriding global user / service values
+    let(:user) { FactoryBot.create(:evss_non_veteran_user)}
+    let(:service) { described_class.new(user) }
+
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
+    describe '#request_decision' do
+      it 'supplements the headers for non-Veteran users' do
+        claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
+        subject.request_decision(claim)
+
+        job_id = EVSS::RequestDecision.jobs.last['jid']
+
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Supplementing EVSS headers', {
+            message_type: 'evss.request_decision.no_birls_id',
+            claim_id: 1,
+            job_id: job_id
+          })
+      end
+    end
+
+    describe '#upload_document' do
+      let(:upload_file) do
+        f = Tempfile.new(['file with spaces', '.txt'])
+        f.write('test')
+        f.rewind
+        Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+      end
+
+      let(:document) do
+        EVSSClaimDocument.new(
+          evss_claim_id: 1,
+          tracked_item_id: 1,
+          file_obj: upload_file,
+          file_name: File.basename(upload_file.path)
+        )
+      end
+
+      it 'supplements the headers for non-Veteran users' do
+        subject.upload_document(document)
+
+        job_id = EVSS::DocumentUpload.jobs.last['jid']
+
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Supplementing EVSS headers', {
+            message_type: 'evss.document_upload.no_birls_id',
+            claim_id: 1,
+            job_id: job_id
+          })
+      end
+    end
+  end
+
   describe '#upload_document' do
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
