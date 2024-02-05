@@ -41,15 +41,9 @@ class EVSSClaimService
   def request_decision(claim)
     # Workaround for non-Veteran users
     headers = auth_headers
-    headers_supplemented = false
+    headers_supplemented = supplement_auth_headers(headers)
 
-    # If there is no file number, populate the header another way
-    if headers['va_eauth_birlsfilenumber'].blank?
-      supplement_auth_headers(headers)
-      headers_supplemented = true
-    end
-
-    job_id = EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    job_id = EVSS::RequestDecision.perform_async(headers, claim.evss_id)
 
     record_workaround('request_decision', claim.evss_id, job_id) if headers_supplemented
 
@@ -67,13 +61,9 @@ class EVSSClaimService
 
     # Workaround for non-Veteran users
     headers = auth_headers
-    headers_supplemented = false
-    if headers['va_eauth_birlsfilenumber'].blank?
-      supplement_auth_headers(headers)
-      headers_supplemented = true
-    end
+    headers_supplemented = supplement_auth_headers(headers)
 
-    job_id = EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+    job_id = EVSS::DocumentUpload.perform_async(headers, @user.uuid, evss_claim_document.to_serializable_hash)
 
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
@@ -97,7 +87,10 @@ class EVSSClaimService
   def supplement_auth_headers(headers)
     # Assuming this header has a value of "", set it to the users SSN.
     # 'va_eauth_pnid' should already be set to their SSN, so use that
-    headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid'] if headers['va_eauth_birlsfilenumber'].blank?
+    blank_header = headers['va_eauth_birlsfilenumber'].blank?
+    headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid'] if blank_header
+
+    blank_header
   end
 
   def record_workaround(task, claim_id, job_id)
