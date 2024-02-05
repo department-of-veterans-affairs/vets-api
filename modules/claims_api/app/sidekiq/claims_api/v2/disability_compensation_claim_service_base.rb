@@ -13,7 +13,7 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
-      RETRY_STATUS_CODES = ['500', '502', '503', '504']
+      RETRY_STATUS_CODES = %w[500 502 503 504].freeze
       LOG_TAG = '526_v2_claim_service_base'
 
       protected

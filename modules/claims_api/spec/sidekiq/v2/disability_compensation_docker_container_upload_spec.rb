@@ -202,11 +202,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
                                      ))
         )
 
-        # expect do
-        #   service.perform(claim.id)
-        # end.not_to change(subject.jobs, :size)
         expect do
-          byebug
           service.perform(claim.id)
         end.to raise_error(Common::Exceptions::BackendServiceException)
       end

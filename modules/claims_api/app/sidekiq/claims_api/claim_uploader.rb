@@ -7,7 +7,6 @@ require 'bd/bd'
 
 module ClaimsApi
   class ClaimUploader < ClaimsApi::V2::DisabilityCompensationClaimServiceBase
-
     sidekiq_options retry: true, unique_until: :success
 
     def perform(uuid)
