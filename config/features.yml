@@ -498,6 +498,10 @@ features:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
     enable_in_development: true
+  form20_10206_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10206 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
     description: Enables form 21-0845 email submission confirmation (VaNotify)
