@@ -16,11 +16,10 @@ module ClaimsApi
       LOG_TAG = '526_v2_claim_service_base'
 
       sidekiq_retries_exhausted do |message|
-        errored_class = message['class']
-        msg = message['error_message']
         ClaimsApi::Logger.log('claims_api_retries_exhausted',
                               claim_id: message['args'].first,
-                              detail: "Job retries exhausted for #{errored_class}. Error: #{msg}")
+                              detail: "Job retries exhausted for #{message['class']}",
+                              error_message: message['error_message'])
       end
 
       protected

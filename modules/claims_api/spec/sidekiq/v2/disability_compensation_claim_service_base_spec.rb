@@ -88,7 +88,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
       service = service_class
       claim_id = claim.id
       error_message = 'An error occurred'
-      detail = "Job retries exhausted for #{service}. Error: #{error_message}"
+      detail = "Job retries exhausted for #{service}"
 
       msg = { 'args' => [claim_id, 'value here'],
               'class' => service,
@@ -98,7 +98,8 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
         expect(ClaimsApi::Logger).to receive(:log).with(
           'claims_api_retries_exhausted',
           claim_id:,
-          detail:
+          detail:,
+          error_message:
         )
       end
     end
