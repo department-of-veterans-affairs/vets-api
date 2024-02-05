@@ -6,21 +6,21 @@ module AppealsApi
 
     # [from, to] pairs to report transition times
     STATUS_TRANSITION_PAIRS = [
-      %w[pending, submitting],
-      %w[pending, error],
+      %w[pending, submitting]
+      %w[pending, error]
 
-      %w[submitting submitted],
-      %w[submitting error],
+      %w[submitting submitted]
+      %w[submitting error]
 
-      %w[submitted, processing],
-      %w[submitted, complete],
-      %w[submitted, success],
-      %w[submitted, error],
+      %w[submitted, processing]
+      %w[submitted, complete]
+      %w[submitted, success]
+      %w[submitted, error]
 
-      %w[processing, success],
-      %w[processing, complete],
+      %w[processing, success]
+      %w[processing, complete]
       
-      %w[success, complete],
+      %w[success, complete]
     ]
 
 
