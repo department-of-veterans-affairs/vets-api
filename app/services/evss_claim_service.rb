@@ -40,7 +40,7 @@ class EVSSClaimService
 
   def request_decision(claim)
     # Workaround for non-Veteran users
-    headers = auth_headers
+    headers = auth_headers.clone
     headers_supplemented = supplement_auth_headers(headers)
 
     job_id = EVSS::RequestDecision.perform_async(headers, claim.evss_id)
@@ -60,7 +60,7 @@ class EVSSClaimService
     evss_claim_document.file_name = uploader.final_filename
 
     # Workaround for non-Veteran users
-    headers = auth_headers
+    headers = auth_headers.clone
     headers_supplemented = supplement_auth_headers(headers)
 
     job_id = EVSS::DocumentUpload.perform_async(headers, @user.uuid, evss_claim_document.to_serializable_hash)
@@ -70,8 +70,9 @@ class EVSSClaimService
     job_id
   rescue CarrierWave::IntegrityError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
-    raise Common::Exceptions::UnprocessableEntity.new(detail: e.message,
-                                                      source: 'EVSSClaimService.upload_document')
+    raise Common::Exceptions::UnprocessableEntity.new(
+      detail: e.message, source: 'EVSSClaimService.upload_document'
+    )
   end
 
   private

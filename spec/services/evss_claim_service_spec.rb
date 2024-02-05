@@ -45,11 +45,16 @@ RSpec.describe EVSSClaimService do
     end
 
     describe '#request_decision' do
-      it 'supplements the headers for non-Veteran users' do
+      it 'supplements the headers' do
         claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
         subject.request_decision(claim)
 
-        job_id = EVSS::RequestDecision.jobs.last['jid']
+        job = EVSS::RequestDecision.jobs.last
+        job_id = job['jid']
+        job_args = job['args'][0]
+
+        header = job_args['va_eauth_birlsfilenumber']
+        expect(header).to eq(user.ssn)
 
         expect(Rails.logger)
           .to have_received(:info)
@@ -78,10 +83,15 @@ RSpec.describe EVSSClaimService do
         )
       end
 
-      it 'supplements the headers for non-Veteran users' do
+      it 'supplements the headers' do
         subject.upload_document(document)
 
-        job_id = EVSS::DocumentUpload.jobs.last['jid']
+        job = EVSS::DocumentUpload.jobs.last
+        job_id = job['jid']
+        job_args = job['args'][0]
+
+        header = job_args['va_eauth_birlsfilenumber']
+        expect(header).to eq(user.ssn)
 
         expect(Rails.logger)
           .to have_received(:info)
