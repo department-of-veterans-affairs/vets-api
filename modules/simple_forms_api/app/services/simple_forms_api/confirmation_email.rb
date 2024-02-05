@@ -43,6 +43,7 @@ module SimpleFormsApi
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def form_specific_data
       email, first_name = case @form_number
                           when 'vba_21_0845'
@@ -75,6 +76,7 @@ module SimpleFormsApi
 
       [email, first_name]
     end
+    # rubocop:enable Metrics/MethodLength
 
     def form21_0845_contact_info(form_data)
       # (vet && signed in)
