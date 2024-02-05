@@ -26,12 +26,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   end
 
   describe 'GET #index' do
-    let(:index_path) { '/ask_va_api/v0/static_data' }
+    let(:index_path) { '/ask_va_api/v0/static_data?name=irish_country' }
     let(:expected_response) { 'pong' }
+    let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
 
     before do
       entity = OpenStruct.new(id: nil, info: 'pong')
-      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'topics').and_return(entity)
+      allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'optionset',
+                                                                 payload: { name: 'irish_country' }).and_return(entity)
       get index_path
     end
 
@@ -77,7 +79,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Crm::StaticData)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
         get categories_path
@@ -122,7 +124,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Crm::StaticData)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
         get topics_path

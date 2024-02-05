@@ -16,11 +16,12 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
     let(:response_data) { JSON.parse(response.body)&.dig('data') }
     let(:guid) { evidence_submissions.sample.guid }
     let(:path) { "/services/appeals/notice-of-disagreements/v0/evidence-submissions/#{guid}" }
+    let(:scopes) { %w[system/NoticeOfDisagreements.read] }
 
     describe 'responses' do
       before do
         stub_upload_location
-        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) { |auth_header| get(path, headers: auth_header) }
+        with_openid_auth(scopes) { |auth_header| get(path, headers: auth_header) }
       end
 
       context 'success' do
@@ -34,8 +35,19 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
         end
       end
 
-      context 'when the record is not found' do
-        let(:guid) { '00000000-0000-0000-0000-000000000000' }
+      context "when using a Veteran token whose ICN does not match the associated NOD's veteran_icn" do
+        let(:scopes) { %w[veteran/NoticeOfDisagreements.read] }
+        let(:notice_of_disagreement) do
+          create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111')
+        end
+
+        it 'returns a 403' do
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when the submission record is not found' do
+        let(:guid) { SecureRandom.uuid }
 
         it 'returns a 404' do
           expect(response).to have_http_status(:not_found)
@@ -59,10 +71,11 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
     let(:headers) { { 'X-Consumer-Username' => consumer_username, 'Content-Type' => 'application/json' } }
     let(:path) { '/services/appeals/notice-of-disagreements/v0/evidence-submissions' }
     let(:response_data) { JSON.parse(response.body)&.dig('data') }
+    let(:scopes) { %w[system/NoticeOfDisagreements.write] }
 
     before do
       stub_upload_location
-      with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+      with_openid_auth(scopes) do |auth_header|
         post(path, params:, headers: headers.merge(auth_header))
       end
     end
@@ -92,6 +105,26 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
       end
 
       describe 'errors' do
+        context 'when body is not JSON' do
+          let(:params) { 'this-is-not-json' }
+
+          it 'returns a 400 error' do
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
+
+        context "when using a veteran token whose ICN does not match the corresponding notice of disagreement's icn" do
+          let(:notice_of_disagreement) do
+            create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111')
+          end
+
+          let(:scopes) { %w[veteran/NoticeOfDisagreements.write] }
+
+          it 'returns a 403 error' do
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+
         context 'when the corresponding notice of disagreement is not found' do
           let(:nod_id) { '111111111111-1111-1111-1111-11111111' }
 
@@ -121,14 +154,6 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
 
           it 'returns a 422 error' do
             expect(response).to have_http_status(:unprocessable_entity)
-          end
-        end
-
-        context 'when body is not JSON' do
-          let(:params) { 'this-is-not-json' }
-
-          it 'returns a 400 error' do
-            expect(response).to have_http_status(:bad_request)
           end
         end
       end
