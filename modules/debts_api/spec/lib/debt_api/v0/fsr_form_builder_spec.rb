@@ -48,6 +48,12 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         comments = builder.vha_forms.first.form_data.dig('additionalData', 'additionalComments')
         expect(comments.include?('Combined FSR')).to eq(true)
       end
+
+      it 'adds an element for station type' do 
+        station_types = builder.vha_forms.map{|form| form.form_data['station_type']}
+        expect(station_types).to eq(["vista", "vista"])
+
+      end
     end
 
     context 'given a vba fsr' do
@@ -170,9 +176,10 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         expect(form_builder.sanitized_form['streamlined']).to eq(nil)
       end
 
-      it 'makes streamlined the last key in the form hash' do
+      it 'makes streamlined the 2nd to last and station_type the last key in the form hash' do
         vha_form = form_builder.vha_forms.first.form_data
-        expect(vha_form.keys.last).to eq('streamlined')
+        expect(vha_form.keys[-2]).to eq('streamlined')
+        expect(vha_form.keys.last).to eq('station_type')
       end
     end
 

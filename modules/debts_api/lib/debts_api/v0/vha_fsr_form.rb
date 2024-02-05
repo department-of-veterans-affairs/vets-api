@@ -58,6 +58,7 @@ module DebtsApi
       facility_form = remove_form_delimiters(facility_form)
       combined_adjustments(facility_form)
       streamline_adjustments(facility_form)
+      station_adjustments(facility_form)
       facility_form
     end
 
@@ -75,6 +76,20 @@ module DebtsApi
         else
           val
         end
+      end
+    end
+
+    def station_adjustments(form)
+      stations = []
+      @copays.each do |copay|
+        stations << 'vista' if copay['pHDfnNumber'].class == Integer && copay['pHDfnNumber'] > 0
+        stations << 'cerner' if copay['pHCernerPatientId'].class == String && copay['pHCernerPatientId'].strip.length > 0
+      end
+      stations.uniq!
+      if stations.include?('cerner') && stations.include?('vista')
+        form['station_type'] = "both"
+      else
+        form['station_type'] = stations[0]
       end
     end
 
