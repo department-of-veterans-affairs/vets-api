@@ -64,8 +64,8 @@ module ClaimsApi
       end
 
       def get_error_status_code(error)
-        if error.respond_to? :original_status
-          error.original_status
+        if error.respond_to? :status_code
+          error.status_code
         else
           "No status code for error: #{error}"
         end
