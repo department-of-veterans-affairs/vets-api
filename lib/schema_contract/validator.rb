@@ -2,9 +2,8 @@
 
 module SchemaContract
   class Validator
-    def initialize(test_name)
-      @test_name = test_name
-      @result = 'initialized'
+    def initialize(record_id)
+      @record_id = record_id
     end
 
     def validate
@@ -16,13 +15,14 @@ module SchemaContract
         @result = 'success'
       end
     ensure
-      record&.update(last_run_completed: Time.zone.now, last_run_result: @result)
+      # might need to tighten this up to avoid re-fetching the record if for some reason it's nil
+      record&.update(status: @result)
     end
 
     private
 
     def record
-      @record ||= SchemaContract.find_by!(name: @test_name)
+      @record ||= SchemaContract.find(id: @record_id)
     end
 
     def schema_file
@@ -30,10 +30,10 @@ module SchemaContract
     end
 
     def parsed_response
-      JSON.parse(record.last_response)
+      JSON.parse(record.response)
     rescue JSON::ParserError => e
       @result = 'invalid_response'
-      Rails.logger.error('Schema validator received invalid JSON response ', response: @response, details: e)
+      Rails.logger.error('Schema validator received invalid JSON response ', response: record.response, details: e)
     end
 
     def parsed_schema
@@ -41,7 +41,7 @@ module SchemaContract
       JSON.parse(file_contents)
     rescue Errno::ENOENT => e
       @result = 'validation_file_not_found'
-      Rails.logger.error('Schema validation file not found', schema_file: @schema, details: e)
+      Rails.logger.error('Schema validation file not found', schema_file:, details: e)
     rescue JSON::ParserError => e
       @result = 'invalid_schema_file'
       Rails.logger.error('Schema validator received invalid JSON schema file ', file_contents:, details: e)

@@ -4,21 +4,16 @@ module SchemaContract
   class Runner
     def self.run(user:, response:, test_name:)
       if response.success? && Flipper.enabled?("schema_contract_#{test_name}")
-        record = SchemaContract.find_by(name: test_name)
+        beginning_of_today = Time.zone.today.beginning_of_day
+        record = SchemaContract.where(name: test_name, created_at: "created_at >= #{beginning_of_today}").limit(1)
+        return if record
 
-        if record
-          beginning_of_today = Time.zone.today.beginning_of_day
-          return if record.last_updated >= beginning_of_today
+        record = SchemaContract.create(
+          name: test_name, last_user_uuid: user.uuid, last_response: response.to_json,
+          status: 'initiated'
+        )
 
-          record.update(last_user_uuid: user.uuid, last_response: response.to_json, last_run_initiated: Time.zone.now)
-        else
-          record = SchemaContract.create(
-            name: 'get_appointments', last_user_uuid: user.uuid, last_response: response.to_json,
-            last_run_initiated: Time.zone.now
-          )
-        end
-
-        UpstreamSchemaValidationJob.perform_async(record.test_name)
+        UpstreamSchemaValidationJob.perform_async(record.id)
       end
     end
   end
