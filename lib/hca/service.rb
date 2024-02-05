@@ -23,7 +23,7 @@ module HCA
     def submit_form(form)
       is_short_form = HealthCareApplication.new(form: form.to_json).short_form?
 
-      res = with_monitoring do
+      with_monitoring do
         es_submit(form, '10-10EZ')
       rescue => e
         increment_failure('submit_form_short_form', e) if is_short_form
@@ -31,8 +31,6 @@ module HCA
       ensure
         increment_total('submit_form_short_form') if is_short_form
       end
-
-      res
     end
 
     def health_check
