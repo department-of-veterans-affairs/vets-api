@@ -29,10 +29,15 @@ module VBADocuments
     end
 
     def stuck
-      UploadSubmission.where(
-        created_at: @from..@to,
-        status: 'uploaded'
-      ).order(:consumer_name, :status)
+      if Flipper.enabled?(:decision_review_delay_evidence)
+        UploadSubmission.where(created_at: @from..@to, status: 'uploaded')
+                        # Exclude Appeals API evidence submissions from report as these stay in "uploaded" much longer,
+                        # by design (we wait to submit to CMP until the associated appeal is in a sufficient status)
+                        .not_from_appeals_api
+                        .order(:consumer_name, :status)
+      else
+        UploadSubmission.where(created_at: @from..@to, status: 'uploaded').order(:consumer_name, :status)
+      end
     end
 
     # rubocop:disable Metrics/MethodLength

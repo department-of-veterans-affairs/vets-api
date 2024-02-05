@@ -29,7 +29,7 @@ RSpec.describe VeteranVerification::Service do
           it "throws a #{status} error if Lighthouse sends it back" do
             expect do
               test_error(
-                "lighthouse/veteran_verification/disability_rating/#{status == :'404' ? '404_ICN' : status}_response"
+                "lighthouse/veteran_verification/disability_rating/#{status == 404 ? '404_ICN' : status}_response"
               )
             end.to raise_error error_class
           end

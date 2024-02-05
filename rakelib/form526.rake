@@ -201,7 +201,7 @@ namespace :form526 do
 
       submissions_per_day[to_date_string(submission.created_at)] += 1
 
-      submission.form526_job_statuses.where.not(error_message: [nil, '']).find do |job_status|
+      submission.form526_job_statuses.where.not(error_message: [nil, '']).find_each do |job_status|
         if job_status.job_class == 'SubmitForm526AllClaim'
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         else
@@ -574,8 +574,8 @@ namespace :form526 do
     end
 
     def get_disability_array(form_data_hash)
-      new_conditions = form_data_hash['newDisabilities']&.collect { |d| d['condition'] } || []
-      rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
+      new_conditions = form_data_hash['newDisabilities']&.pluck('condition') || []
+      rated_disabilities = form_data_hash['ratedDisabilities']&.pluck('name') || []
       new_conditions + rated_disabilities
     end
 
@@ -713,6 +713,6 @@ namespace :form526 do
       icns.first
     end
 
-    Form526Submission.where(id: args.extras).find { |sub| puts_mpi_profile sub }
+    Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }
   end
 end

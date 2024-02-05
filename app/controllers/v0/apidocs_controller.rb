@@ -3,6 +3,7 @@
 module V0
   class ApidocsController < ApplicationController
     include Swagger::Blocks
+    service_tag 'platform-base'
 
     skip_before_action :authenticate
 
@@ -63,10 +64,6 @@ module V0
       tag do
         key :name, 'secure_messaging'
         key :description, 'Send and receive secure messages to health providers'
-      end
-      tag do
-        key :name, 'terms_and_conditions'
-        key :description, 'Terms and conditions acceptance for access to health tools'
       end
       tag do
         key :name, 'facilities'
@@ -177,7 +174,6 @@ module V0
       Swagger::Requests::SearchClickTracking,
       Swagger::Requests::SearchTypeahead,
       Swagger::Requests::SignIn,
-      Swagger::Requests::TermsAndConditions,
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
       Swagger::Requests::CaregiversAssistanceClaims,
@@ -243,7 +239,6 @@ module V0
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::SignIn,
       Swagger::Schemas::States,
-      Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Permission,

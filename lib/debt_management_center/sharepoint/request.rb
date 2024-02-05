@@ -37,7 +37,17 @@ module DebtManagementCenter
 
         list_item_id = get_pdf_list_item_id(upload_response)
 
-        update_list_item_fields(list_item_id:, form_submission:, station_id:)
+        resp = update_list_item_fields(list_item_id:, form_submission:, station_id:)
+        if resp.success?
+          StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+        else
+          StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+        end
+        resp
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+        Rails.logger.error('Sharepoint Upload failed', e.message)
+        raise e
       end
 
       private

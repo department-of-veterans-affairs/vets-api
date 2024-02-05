@@ -28,8 +28,8 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
 
     context 'with an invalid form' do
       it 'has an error in the response' do
-        allow(Raven).to receive(:tags_context)
-        expect(Raven).to receive(:tags_context).with(validation: 'gibft').at_least(:once)
+        allow(Sentry).to receive(:set_tags)
+        expect(Sentry).to receive(:set_tags).with(validation: 'gibft').at_least(:once)
         post(:create, params: { gi_bill_feedback: { form: { foo: 1 }.to_json } })
 
         expect(response.status).to eq(422)

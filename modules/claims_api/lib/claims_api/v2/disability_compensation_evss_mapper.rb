@@ -14,6 +14,9 @@ module ClaimsApi
         claim_attributes
         claim_meta
 
+        # must set to true by default so the EVSS Docker Container
+        # does not submit a duplicate PDF
+        @evss_claim[:autoCestPDFGenerationDisabled] = true
         { form526: @evss_claim }
       end
 
@@ -53,6 +56,7 @@ module ClaimsApi
       end
 
       def transform_disability_values!(disability)
+        disability.delete(:diagnosticCode) if disability&.dig(:diagnosticCode).nil?
         if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
@@ -86,7 +90,8 @@ module ClaimsApi
         @evss_claim[:veteran] ||= {}
         # EVSS Docker needs currentlyVAEmployee, 526 schema uses currentVaEmployee
         @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
-        @evss_claim[:veteran][:emailAddress] = @data.dig(:veteranIdentification, :emailAddress, :email)
+        email_address = @data.dig(:veteranIdentification, :emailAddress, :email)
+        @evss_claim[:veteran][:emailAddress] = email_address unless email_address.nil?
         @evss_claim[:veteran][:fileNumber] = @file_number
       end
 

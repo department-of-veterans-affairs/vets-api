@@ -77,7 +77,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   describe 'callbacks' do
     describe 'before_update' do
-      before { allow(notice_of_disagreement).to receive(:submit_evidence_to_central_mail) }
+      before { allow(notice_of_disagreement).to receive(:submit_evidence_to_central_mail!) }
 
       context 'when the status has changed to "success"' do
         let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'processing') }
@@ -85,20 +85,20 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
-          it 'calls "#submit_evidence_to_central_mail"' do
+          it 'calls "#submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'success')
 
-            expect(notice_of_disagreement).to have_received(:submit_evidence_to_central_mail)
+            expect(notice_of_disagreement).to have_received(:submit_evidence_to_central_mail!)
           end
         end
 
         context 'and the delay evidence feature is disabled' do
           before { Flipper.disable(:decision_review_delay_evidence) }
 
-          it 'does not call "#submit_evidence_to_central_mail"' do
+          it 'does not call "#submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'success')
 
-            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail)
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
           end
         end
       end
@@ -109,10 +109,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
-          it 'does not call "#submit_evidence_to_central_mail"' do
+          it 'does not call "#submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(source: 'VA.gov')
 
-            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail)
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
           end
         end
       end
@@ -123,10 +123,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
-          it 'does not call "submit_evidence_to_central_mail"' do
+          it 'does not call "submit_evidence_to_central_mail!"' do
             notice_of_disagreement.update(status: 'processing')
 
-            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail)
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
           end
         end
       end
@@ -269,7 +269,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     it { expect(notice_of_disagreement.stamp_text).to eq 'Doe - 6789' }
   end
 
-  describe '#submit_evidence_to_central_mail' do
+  describe '#submit_evidence_to_central_mail!' do
     let(:notice_of_disagreement) { create(:notice_of_disagreement) }
     let(:evidence_submission1) { create(:evidence_submission, supportable: notice_of_disagreement) }
     let(:evidence_submission2) { create(:evidence_submission, supportable: notice_of_disagreement) }
@@ -277,15 +277,15 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
     before do
       allow(notice_of_disagreement).to receive(:evidence_submissions).and_return(evidence_submissions)
-      allow(evidence_submission1).to receive(:submit_to_central_mail)
-      allow(evidence_submission2).to receive(:submit_to_central_mail)
+      allow(evidence_submission1).to receive(:submit_to_central_mail!)
+      allow(evidence_submission2).to receive(:submit_to_central_mail!)
     end
 
-    it 'calls "#submit_to_central_mail" for each evidence submission' do
-      notice_of_disagreement.submit_evidence_to_central_mail
+    it 'calls "#submit_to_central_mail!" for each evidence submission' do
+      notice_of_disagreement.submit_evidence_to_central_mail!
 
-      expect(evidence_submission1).to have_received(:submit_to_central_mail)
-      expect(evidence_submission2).to have_received(:submit_to_central_mail)
+      expect(evidence_submission1).to have_received(:submit_to_central_mail!)
+      expect(evidence_submission2).to have_received(:submit_to_central_mail!)
     end
   end
 
@@ -406,10 +406,38 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         form_data_fixture: 'decision_reviews/v2/valid_10182.json'
       }
     end
+
+    describe '#veteran_icn' do
+      subject { nod.veteran_icn }
+
+      let(:nod) { create(:extra_notice_of_disagreement_v2) }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq nod.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:nod) { create(:notice_of_disagreement_v2) }
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
+    end
   end
 
   describe 'when api_version is V0' do
     let(:appeal) { create(:extra_notice_of_disagreement_v0, api_version: 'V0') }
+
+    describe '#veteran_icn' do
+      subject { appeal.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq appeal.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
 
     it_behaves_like 'shared model validations',
                     required_claimant_headers: [],

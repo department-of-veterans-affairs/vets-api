@@ -15,7 +15,7 @@ module SimpleFormsApi
         'veteranFirstName' => data.dig('veteran_full_name', 'first'),
         'veteranLastName' => data.dig('veteran_full_name', 'last'),
         'fileNumber' => data['veteran_va_file_number'].presence || data['veteran_ssn'],
-        'zipCode' => data.dig('veteran_mailing_address', 'postal_code'),
+        'zipCode' => data.dig('veteran_mailing_address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
@@ -27,6 +27,8 @@ module SimpleFormsApi
         claimant_ssn + claimant_date_of_birth + claimant_mailing_address + claimant_phone + claimant_email +
         statement + witness_phone + witness_email
     end
+
+    def track_user_identity; end
 
     private
 

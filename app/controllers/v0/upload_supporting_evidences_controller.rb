@@ -6,6 +6,7 @@ module V0
   class UploadSupportingEvidencesController < ApplicationController
     include FormAttachmentCreate
     extend Logging::ThirdPartyTransaction::MethodWrapper
+    service_tag 'disability-application'
 
     FORM_ATTACHMENT_MODEL = SupportingEvidenceAttachment
 

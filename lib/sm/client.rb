@@ -293,6 +293,18 @@ module SM
     end
 
     ##
+    # Get a message thread with full body and attachments
+    #
+    # @param id [Fixnum] message id
+    # @return [Common::Collection[MessageThreadDetails]]
+    #
+    def get_full_messages_for_thread(id)
+      path = "message/#{id}/allmessagesforthread/1"
+      json = perform(:get, path, nil, token_headers).body
+      Common::Collection.new(MessageThreadDetails, **json)
+    end
+
+    ##
     # Create a message
     #
     # @param args [Hash] a hash of message arguments

@@ -25,6 +25,7 @@ RSpec.describe Login::UserVerifier do
     let(:mhv_correlation_id_identifier) { 'some-correlation-id' }
     let(:idme_uuid_identifier) { 'some-idme-uuid' }
     let(:logingov_uuid_identifier) { 'some-logingov-uuid' }
+    let(:locked) { false }
 
     let(:icn) { nil }
     let(:login_value) { nil }
@@ -63,7 +64,8 @@ RSpec.describe Login::UserVerifier do
         let!(:user_verification) do
           UserVerification.create!(type => idme_uuid_identifier,
                                    backing_idme_uuid:,
-                                   user_account:)
+                                   user_account:,
+                                   locked:)
         end
         let(:user_account) { UserAccount.new }
 
@@ -90,12 +92,13 @@ RSpec.describe Login::UserVerifier do
             UserVerification.create!(authn_identifier_type => authn_identifier,
                                      user_account:,
                                      backing_idme_uuid:,
-                                     verified_at:)
+                                     verified_at:,
+                                     locked:)
           end
           let(:verified_at) { Time.zone.now - 1.day }
 
           it 'does not make new user log to rails logger' do
-            expect(Rails.logger).not_to receive(:info).with(expected_log)
+            expect(Rails.logger).not_to receive(:info).with(expected_log, { icn: })
             subject
           end
 
@@ -244,7 +247,7 @@ RSpec.describe Login::UserVerifier do
           let(:expected_log) { "[Login::UserVerifier] New VA.gov user, type=#{login_value}, broker=#{auth_broker}" }
 
           it 'makes a new user log to rails logger' do
-            expect(Rails.logger).to receive(:info).with(expected_log)
+            expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
             subject
           end
 
@@ -308,7 +311,7 @@ RSpec.describe Login::UserVerifier do
           end
 
           it 'does not make new user log to rails logger' do
-            expect(Rails.logger).not_to receive(:info).with(expected_log)
+            expect(Rails.logger).not_to receive(:info).with(expected_log, { icn: })
             subject
           end
 
@@ -336,7 +339,7 @@ RSpec.describe Login::UserVerifier do
 
         context 'and user_verification for user credential does not already exist' do
           it 'makes a new user log to rails logger' do
-            expect(Rails.logger).to receive(:info).with(expected_log)
+            expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
             subject
           end
 

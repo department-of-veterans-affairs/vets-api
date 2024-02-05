@@ -11,8 +11,9 @@ properties:
     type: object
     required:
       - errors
-      - minutesCheckinEarlyWindow
-      - minutesCheckinLateWindow
+      - checkinWindow
+      - upcomingAppointmentsCount
+      - upcomingDaysLimit
     properties:
       errors:
         type: [array, null]
@@ -28,3 +29,9 @@ properties:
           minutesAfter:
             type: integer
             example: 15
+      upcomingAppointmentsCount:
+        type: number
+        description: The number of BOOKED, non-pending appointments in the next upcomingDaysLimit number of days.
+      upcomingDaysLimit:
+        type: number
+        description: The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7.

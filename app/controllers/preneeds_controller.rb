@@ -3,6 +3,7 @@
 require 'preneeds/service'
 
 class PreneedsController < ApplicationController
+  service_tag 'preneed-burial-application'
   skip_before_action(:authenticate)
 
   protected

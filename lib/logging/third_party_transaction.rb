@@ -15,7 +15,7 @@ module Logging
       #     log data
       #   - scoped to the class, will be available at instantiation
       #   - [ KEY ]: log identifier, [ VALUE ]: method chain to access desired instance value
-      #     - passed as an array, e.g. [:foo, :bar] will be calles as <instance>.foo.bar
+      #     - passed as an array, e.g. [:foo, :bar] will be called as <instance>.foo.bar
       #     - will fail silently and return nil if methods or values are not available
       def wrap_with_logging(*method_names, additional_class_logs: {}, additional_instance_logs: {})
         # including the instance method helpers inside this method makes them

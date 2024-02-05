@@ -16,14 +16,16 @@ module CheckIn
 
         patient_check_in_data = ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
 
-        if Flipper.enabled?('check_in_experience_45_minute_reminder') && !start_check_in_called?(patient_check_in_data)
-          ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
+        if Flipper.enabled?('check_in_experience_45_minute_reminder')
+          if start_check_in_called?(patient_check_in_data)
+            params[:set_e_checkin_started_called] = true
+          else
+            ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
+            params[:set_e_checkin_started_called] = false
+          end
         end
 
-        # Remove stale setECheckInCalled data from appointment data
-        appointment_data = patient_check_in_data.tap { |appt_data| appt_data[:payload]&.delete(:setECheckInCalled) }
-
-        render json: appointment_data
+        render json: patient_check_in_data
       end
 
       def create
@@ -41,7 +43,8 @@ module CheckIn
       end
 
       def permitted_params
-        params.require(:patient_check_ins).permit(:uuid, :appointment_ien)
+        params.require(:patient_check_ins).permit(:uuid, :appointment_ien, :set_e_checkin_started_called,
+                                                  :is_travel_enabled, :travel_submitted)
       end
 
       private
@@ -55,7 +58,7 @@ module CheckIn
       end
 
       def start_check_in_called?(patient_check_in_data)
-        patient_check_in_data.dig(:payload, :setECheckInCalled)
+        patient_check_in_data.dig(:payload, :setECheckinStartedCalled)
       end
     end
   end

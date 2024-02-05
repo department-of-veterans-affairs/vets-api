@@ -25,19 +25,20 @@ path 'modules' do
   gem 'my_health'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
+  gem 'travel_pay'
   gem 'va_forms'
   gem 'va_notify'
   gem 'vaos'
   gem 'vba_documents'
   gem 'veteran'
   gem 'veteran_confirmation'
-  gem 'veteran_verification'
+  gem 'vye'
 end
 
-gem 'rails', github: 'rails/rails', branch: '6-1-stable'
+gem 'rails', '~> 7.0.8'
 
 gem 'aasm'
-gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
+gem 'active_model_serializers'
 gem 'activerecord-import'
 gem 'activerecord-postgis-adapter'
 gem 'addressable'
@@ -55,32 +56,31 @@ gem 'clamav-client', require: 'clamav/client'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
-gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby', '5.6.0'
+gem 'dogstatsd-ruby', '5.6.1'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
-gem 'faraday'
+gem 'faraday', '~> 1.10'
 gem 'faraday_middleware'
 gem 'fastimage'
-gem 'fhir_client'
+gem 'fhir_client', git: 'https://github.com/adhocteam/fhir_client.git', tag: 'v6.0.1'
 gem 'fitbit_api'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-active_support_cache_store'
-gem 'flipper-ui', '0.22.0' # Flipper#552 (CSP) in 0.22.1 is causing our styles not to load
+gem 'flipper-ui'
 gem 'foreman'
 gem 'google-api-client'
 gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
-gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
+gem 'govdelivery-tms', git: 'https://github.com/adhocteam/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
-gem 'httpclient'
+gem 'httpclient' # for lib/evss/base_service.rb
 gem 'ice_nine'
 gem 'iso_country_codes'
 gem 'json'
@@ -100,7 +100,7 @@ gem 'mini_magick'
 gem 'net-sftp'
 gem 'nokogiri'
 gem 'notifications-ruby-client'
-gem 'octokit', '4.21.0'
+gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
@@ -130,11 +130,12 @@ gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
+gem 'roo'
 gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'
 gem 'savon'
-gem 'sentry-raven'
+gem 'sentry-ruby'
 gem 'shrine'
 gem 'sidekiq_alive'
 gem 'slack-notify'
@@ -143,6 +144,9 @@ gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
+# Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
+# POSIX systems should have this already, so we're not going to bring it in on other platforms
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
@@ -150,13 +154,16 @@ gem 'warden-github'
 gem 'will_paginate'
 gem 'with_advisory_lock'
 
+group :development, :production do
+  # This needs to be required as early as possible in the initialization
+  # process because it starts collecting data on 'require'.
+  # Only require this in development and production to avoid slowing down tests.
+  gem 'coverband'
+end
+
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
-
-  # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
-  # POSIX systems should have this already, so we're not going to bring it in on other platforms
-  gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
 end
@@ -170,6 +177,7 @@ group :test do
   gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
+  gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'
@@ -187,7 +195,6 @@ group :development, :test do
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
-  gem 'faraday_adapter_socks'
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec'

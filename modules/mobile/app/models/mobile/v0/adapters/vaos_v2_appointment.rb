@@ -13,17 +13,13 @@ module Mobile
           va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
         }.freeze
 
-        HIDDEN_STATUS = %w[
-          noshow
-          pending
-        ].freeze
-
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',
           arrived: 'BOOKED',
           cancelled: 'CANCELLED',
-          hidden: 'HIDDEN',
+          noshow: 'HIDDEN',
+          pending: 'HIDDEN',
           proposed: 'SUBMITTED'
         }.freeze
 
@@ -93,6 +89,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
+            appointment_ien: extract_station_and_ien(appointment),
             cancel_id:,
             comment:,
             facility_id:,
@@ -100,6 +97,7 @@ module Mobile
             healthcare_provider: appointment[:healthcare_provider],
             healthcare_service:,
             location:,
+            physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
             phone_only: appointment[:kind] == PHONE_KIND,
             start_date_local:,
@@ -127,6 +125,17 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        def extract_station_and_ien(appointment)
+          return nil if appointment[:identifier].nil?
+
+          regex = %r{VistADefinedTerms/409_(84|85)}
+          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
+
+          return if identifier.nil?
+
+          identifier[:value]&.split(':', 2)&.second
+        end
 
         def friendly_location_name
           return location[:name] if va_appointment?
@@ -177,9 +186,13 @@ module Mobile
         end
 
         def cancel_id
-          return nil unless appointment[:cancellable]
+          return nil unless cancellable?
 
           appointment[:id]
+        end
+
+        def cancellable?
+          appointment[:cancellable] && appointment[:kind] != 'telehealth'
         end
 
         def type_of_care(service_type)
@@ -190,7 +203,15 @@ module Mobile
 
         def cancellation_reason(cancellation_reason)
           if cancellation_reason.nil?
-            Rails.logger.info('Appt missing cancellation reason')
+            if status == STATUSES[:cancelled]
+              Rails.logger.info('cancelled appt missing cancellation reason with debug info',
+                                type: appointment_type,
+                                kind: appointment[:kind],
+                                vista_status: appointment.dig(:extension, :vista_status),
+                                facility_id:,
+                                clinic: appointment[:clinic])
+              return CANCELLATION_REASON[:prov]
+            end
             return nil
           end
 
@@ -225,8 +246,6 @@ module Mobile
         end
 
         def status
-          return STATUSES[:hidden] if HIDDEN_STATUS.include?(appointment[:status])
-
           STATUSES[appointment[:status].to_sym]
         end
 
@@ -461,10 +480,16 @@ module Mobile
         end
 
         def embedded_data_match(key)
-          match = appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
+          camelized_key = key.gsub(' ', '_').camelize(:lower)
+          match = reason_code_match(key) || reason_code_match(camelized_key)
+
           return nil unless match
 
           match[2].strip.presence
+        end
+
+        def reason_code_match(key)
+          appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
         end
 
         def time_to_datetime(time)

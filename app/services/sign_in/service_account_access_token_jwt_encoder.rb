@@ -15,12 +15,12 @@ module SignIn
     private
 
     def jwt_encode_service_account_access_token
-      JWT.encode(payload, private_key, Constants::AccessToken::JWT_ENCODE_ALGORITHM)
+      JWT.encode(payload, private_key, Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM)
     end
 
     def payload
       {
-        iss: Constants::AccessToken::ISSUER,
+        iss: Constants::ServiceAccountAccessToken::ISSUER,
         aud: service_account_access_token.audience,
         jti: service_account_access_token.uuid,
         sub: service_account_access_token.user_identifier,
@@ -28,7 +28,8 @@ module SignIn
         iat: service_account_access_token.created_time.to_i,
         version: service_account_access_token.version,
         scopes: service_account_access_token.scopes,
-        service_account_id: service_account_access_token.service_account_id
+        service_account_id: service_account_access_token.service_account_id,
+        user_attributes: service_account_access_token.user_attributes
       }
     end
 

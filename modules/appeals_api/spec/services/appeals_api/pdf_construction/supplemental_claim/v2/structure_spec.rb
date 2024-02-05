@@ -15,7 +15,8 @@ describe AppealsApi::PdfConstruction::SupplementalClaim::V2::Structure do
 
   describe '#insert_overlaid_pages' do
     it 'returns a temporary overlaid pdf path' do
-      form_fill_path = Prawn::Document.new.render_file("/tmp/#{supplemental_claim.id}.pdf")
+      form_fill_path = "/tmp/#{supplemental_claim.id}.pdf"
+      Prawn::Document.new.render_file(form_fill_path)
       result = described_class.new(supplemental_claim).insert_overlaid_pages(form_fill_path)
 
       expect(result).to eq("/tmp/#{supplemental_claim.id}-overlaid-form-fill-tmp.pdf")

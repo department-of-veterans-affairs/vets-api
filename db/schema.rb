@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_24_161640) do
-
+ActiveRecord::Schema[7.0].define(version: 2024_01_22_212019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -526,6 +525,17 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.index ["feature_name"], name: "index_feature_toggle_events_on_feature_name"
   end
 
+  create_table "flagged_veteran_representative_contact_data", force: :cascade do |t|
+    t.string "ip_address", null: false
+    t.string "representative_id", null: false
+    t.string "flag_type", null: false
+    t.text "flagged_value", null: false
+    t.boolean "flagged_value_updated", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
+  end
+
   create_table "flipper_features", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "created_at", null: false
@@ -620,6 +630,35 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.text "encrypted_kms_key"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
+  end
+
+  create_table "form_submission_attempts", force: :cascade do |t|
+    t.bigint "form_submission_id", null: false
+    t.jsonb "response"
+    t.string "aasm_state"
+    t.string "error_message"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
+  end
+
+  create_table "form_submissions", force: :cascade do |t|
+    t.string "form_type", null: false
+    t.uuid "benefits_intake_uuid"
+    t.uuid "submitted_claim_uuid"
+    t.uuid "user_account_id"
+    t.bigint "saved_claim_id"
+    t.bigint "in_progress_form_id"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "form_data_ciphertext"
+    t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
+    t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
+    t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
+    t.index ["submitted_claim_uuid"], name: "index_form_submissions_on_submitted_claim_uuid"
+    t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
 
   create_table "gibs_not_found_users", id: :serial, force: :cascade do |t|
@@ -838,6 +877,8 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.string "type"
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
+    t.string "uploaded_forms", default: [], array: true
+    t.datetime "itf_datetime"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
@@ -852,6 +893,7 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.string "certificates", array: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "access_token_user_attributes", default: [], array: true
     t.index ["service_account_id"], name: "index_service_account_configs_on_service_account_id", unique: true
   end
 
@@ -933,31 +975,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.datetime "updated"
     t.string "created_by"
     t.string "updated_by"
-  end
-
-  create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
-    t.string "name"
-    t.string "title"
-    t.text "terms_content"
-    t.text "header_content"
-    t.string "yes_content"
-    t.string "no_content"
-    t.string "footer_content"
-    t.string "version"
-    t.boolean "latest", default: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["name", "latest"], name: "index_terms_and_conditions_on_name_and_latest"
-  end
-
-  create_table "terms_and_conditions_acceptances", id: false, force: :cascade do |t|
-    t.string "user_uuid"
-    t.integer "terms_and_conditions_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.uuid "user_account_id"
-    t.index ["user_account_id"], name: "index_terms_and_conditions_acceptances_on_user_account_id"
-    t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
   create_table "terms_of_use_agreements", force: :cascade do |t|
@@ -1153,9 +1170,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.string "state", limit: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1171,6 +1185,9 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.float "long"
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.jsonb "raw_address"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
@@ -1190,9 +1207,6 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.text "dob_ciphertext"
     t.text "encrypted_kms_key"
     t.string "middle_initial"
-    t.string "address_line_1"
-    t.string "address_line_2"
-    t.string "address_line_3"
     t.string "address_type"
     t.string "city"
     t.string "country_code_iso3"
@@ -1209,6 +1223,9 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.jsonb "raw_address"
     t.string "full_name"
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "address_line3"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
@@ -1222,6 +1239,120 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
+  end
+
+  create_table "vye_address_changes", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "rpo"
+    t.string "benefit_type"
+    t.text "veteran_name_ciphertext"
+    t.text "address1_ciphertext"
+    t.text "address2_ciphertext"
+    t.text "address3_ciphertext"
+    t.text "address4_ciphertext"
+    t.text "city_ciphertext"
+    t.text "state_ciphertext"
+    t.text "zip_code_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
+  end
+
+  create_table "vye_awards", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "cur_award_ind"
+    t.datetime "award_begin_date"
+    t.datetime "award_end_date"
+    t.integer "training_time"
+    t.datetime "payment_date"
+    t.decimal "monthly_rate"
+    t.string "begin_rsn"
+    t.string "end_rsn"
+    t.string "type_training"
+    t.integer "number_hours"
+    t.string "type_hours"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
+  end
+
+  create_table "vye_direct_deposit_changes", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.string "rpo"
+    t.string "ben_type"
+    t.text "full_name_ciphertext"
+    t.text "phone_ciphertext"
+    t.text "phone2_ciphertext"
+    t.text "email_ciphertext"
+    t.text "acct_no_ciphertext"
+    t.text "acct_type_ciphertext"
+    t.text "routing_no_ciphertext"
+    t.text "chk_digit_ciphertext"
+    t.text "bank_name_ciphertext"
+    t.text "bank_phone_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
+  end
+
+  create_table "vye_pending_documents", force: :cascade do |t|
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
+    t.string "claim_no_ciphertext"
+    t.string "doc_type"
+    t.datetime "queue_date"
+    t.string "rpo"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
+  end
+
+  create_table "vye_user_infos", force: :cascade do |t|
+    t.string "icn"
+    t.string "ssn_digest"
+    t.text "ssn_ciphertext"
+    t.text "file_number_ciphertext"
+    t.string "suffix"
+    t.text "full_name_ciphertext"
+    t.text "address_line2_ciphertext"
+    t.text "address_line3_ciphertext"
+    t.text "address_line4_ciphertext"
+    t.text "address_line5_ciphertext"
+    t.text "address_line6_ciphertext"
+    t.text "zip_ciphertext"
+    t.text "dob_ciphertext"
+    t.text "stub_nm_ciphertext"
+    t.string "mr_status"
+    t.string "rem_ent"
+    t.datetime "cert_issue_date"
+    t.datetime "del_date"
+    t.datetime "date_last_certified"
+    t.integer "rpo_code"
+    t.string "fac_code"
+    t.decimal "payment_amt"
+    t.string "indicator"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["icn"], name: "index_vye_user_infos_on_icn"
+    t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
+  end
+
+  create_table "vye_verifications", force: :cascade do |t|
+    t.integer "user_info_id"
+    t.integer "award_id"
+    t.string "change_flag"
+    t.integer "rpo_code"
+    t.boolean "rpo_flag"
+    t.datetime "act_begin"
+    t.datetime "act_end"
+    t.string "source_ind"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
@@ -1277,13 +1408,16 @@ ActiveRecord::Schema.define(version: 2023_10_24_161640) do
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
+  add_foreign_key "form_submission_attempts", "form_submissions"
+  add_foreign_key "form_submissions", "in_progress_forms"
+  add_foreign_key "form_submissions", "saved_claims"
+  add_foreign_key "form_submissions", "user_accounts"
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
-  add_foreign_key "terms_and_conditions_acceptances", "user_accounts"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"

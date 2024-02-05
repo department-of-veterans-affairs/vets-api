@@ -71,6 +71,11 @@ class Message < Common::Base
   attribute :triage_group_name, String
   attribute :proxy_sender_name, String
   attribute :attachments, Array[Attachment]
+  attribute :has_attachments, Boolean
+  attribute :attachment1_id, Integer
+  attribute :attachment2_id, Integer
+  attribute :attachment3_id, Integer
+  attribute :attachment4_id, Integer
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, Array[ActionDispatch::Http::UploadedFile]

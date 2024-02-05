@@ -44,6 +44,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_va[:is_pending]).to eq(false)
       expect(cancelled_va.as_json).to eq({ 'id' => '121133',
                                            'appointment_type' => 'VA',
+                                           'appointment_ien' => nil,
                                            'cancel_id' => nil,
                                            'comment' => 'This is a free form comment',
                                            'facility_id' => '442',
@@ -69,6 +70,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                              'url' => nil,
                                              'code' => nil
                                            },
+                                           'physical_location' => nil,
                                            'minutes_duration' => 30,
                                            'phone_only' => false,
                                            'start_date_local' => '2022-08-27T09:45:00.000-06:00',
@@ -99,6 +101,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_va.as_json).to eq({
                                         'id' => '121133',
                                         'appointment_type' => 'VA',
+                                        'appointment_ien' => nil,
                                         'cancel_id' => nil,
                                         'comment' => nil,
                                         'facility_id' => '442',
@@ -124,6 +127,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'url' => nil,
                                           'code' => nil
                                         },
+                                        'physical_location' => nil,
                                         'minutes_duration' => 30,
                                         'phone_only' => false,
                                         'start_date_local' => '2018-03-07T00:00:00.000-07:00',
@@ -159,6 +163,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_cc.as_json).to eq({
                                         'id' => '72106',
                                         'appointment_type' => 'COMMUNITY_CARE',
+                                        'appointment_ien' => nil,
                                         'cancel_id' => '72106',
                                         'comment' => nil,
                                         'facility_id' => '552',
@@ -184,6 +189,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'url' => nil,
                                           'code' => nil
                                         },
+                                        'physical_location' => nil,
                                         'minutes_duration' => 60,
                                         'phone_only' => false,
                                         'start_date_local' => '2022-01-11T08:00:00.000-07:00',
@@ -218,6 +224,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_cc.as_json).to eq({
                                           'id' => '72105',
                                           'appointment_type' => 'COMMUNITY_CARE',
+                                          'appointment_ien' => nil,
                                           'cancel_id' => '72105',
                                           'comment' => 'this is a comment',
                                           'facility_id' => '552',
@@ -243,6 +250,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             'url' => nil,
                                             'code' => nil
                                           },
+                                          'physical_location' => nil,
                                           'minutes_duration' => 60,
                                           'phone_only' => false,
                                           'start_date_local' => '2022-01-25T17:00:00.000-07:00',
@@ -285,6 +293,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_va.as_json).to eq({
                                           'id' => '50956',
                                           'appointment_type' => 'VA',
+                                          'appointment_ien' => nil,
                                           'cancel_id' => '50956',
                                           'comment' => nil,
                                           'facility_id' => '442',
@@ -310,6 +319,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                             'url' => nil,
                                             'code' => nil
                                           },
+                                          'physical_location' => nil,
                                           'minutes_duration' => nil,
                                           'phone_only' => false,
                                           'start_date_local' => '2021-09-27T18:00:00.000-06:00',
@@ -345,6 +355,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(phone_va.as_json).to eq({
                                        'id' => '53352',
                                        'appointment_type' => 'VA',
+                                       'appointment_ien' => nil,
                                        'cancel_id' => '53352',
                                        'comment' => nil,
                                        'facility_id' => '442',
@@ -370,6 +381,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                          'url' => nil,
                                          'code' => nil
                                        },
+                                       'physical_location' => nil,
                                        'minutes_duration' => nil,
                                        'phone_only' => true,
                                        'start_date_local' => '2021-10-01T06:00:00.000-06:00',
@@ -406,7 +418,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(home_va.as_json).to eq({ 'id' => '50094',
                                       'appointment_type' => 'VA_VIDEO_CONNECT_HOME',
-                                      'cancel_id' => '50094',
+                                      'appointment_ien' => nil,
+                                      'cancel_id' => nil,
                                       'comment' => nil,
                                       'facility_id' => '442',
                                       'sta6aid' => '442',
@@ -423,6 +436,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                       'extension' => nil },
                                          'url' => 'http://www.meeting.com',
                                          'code' => nil },
+                                      'physical_location' => nil,
                                       'minutes_duration' => nil,
                                       'phone_only' => false,
                                       'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -459,7 +473,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(atlas_va.as_json).to eq({ 'id' => '50094',
                                        'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
-                                       'cancel_id' => '50094',
+                                       'appointment_ien' => nil,
+                                       'cancel_id' => nil,
                                        'comment' => nil,
                                        'facility_id' => '442',
                                        'sta6aid' => '442',
@@ -479,6 +494,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                        'extension' => nil },
                                           'url' => 'http://www.meeting.com',
                                           'code' => '420835' },
+                                       'physical_location' => nil,
                                        'minutes_duration' => nil,
                                        'phone_only' => false,
                                        'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -510,7 +526,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(gfe_va.as_json).to eq({ 'id' => '50094',
                                      'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
-                                     'cancel_id' => '50094',
+                                     'appointment_ien' => nil,
+                                     'cancel_id' => nil,
                                      'comment' => nil,
                                      'facility_id' => '442',
                                      'sta6aid' => '442',
@@ -526,6 +543,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'phone' => { 'area_code' => '307', 'number' => '778-7550', 'extension' => nil },
                                         'url' => 'http://www.meeting.com',
                                         'code' => nil },
+                                     'physical_location' => nil,
                                      'minutes_duration' => nil,
                                      'phone_only' => false,
                                      'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -557,7 +575,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(telehealth_onsite.as_json).to eq({ 'id' => '50094',
                                                 'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
-                                                'cancel_id' => '50094',
+                                                'appointment_ien' => nil,
+                                                'cancel_id' => nil,
                                                 'comment' => nil,
                                                 'facility_id' => '442',
                                                 'sta6aid' => '442',
@@ -579,6 +598,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                        'extension' => nil },
                                                     'url' => nil,
                                                     'code' => nil },
+                                                'physical_location' => nil,
                                                 'minutes_duration' => nil,
                                                 'phone_only' => false,
                                                 'start_date_local' => '2021-09-08T06:00:00.000-06:00',
@@ -611,6 +631,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_requested_va_appt.as_json).to eq({
                                                           'id' => '53241',
                                                           'appointment_type' => 'VA',
+                                                          'appointment_ien' => nil,
                                                           'cancel_id' => nil,
                                                           'comment' => 'testing',
                                                           'facility_id' => '442',
@@ -636,6 +657,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                             'url' => nil,
                                                             'code' => nil
                                                           },
+                                                          'physical_location' => nil,
                                                           'minutes_duration' => nil,
                                                           'phone_only' => false,
                                                           'start_date_local' => '2017-05-15T18:00:00.000-06:00',
@@ -783,6 +805,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
         {
           'id' => '145078',
           'appointment_type' => 'VA',
+          'appointment_ien' => nil,
           'cancel_id' => '145078',
           'comment' => 'My leg!',
           'facility_id' => '552',
@@ -805,6 +828,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
             'url' => nil,
             'code' => nil
           },
+          'physical_location' => nil,
           'minutes_duration' => nil,
           'phone_only' => false,
           'start_date_local' => '2022-12-12T19:00:00.000-05:00',
@@ -887,6 +911,23 @@ preferred dates:12/13/2022 PM|pager number:8675309"
         expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
         expect(result.comment).to be_nil
         expect(result.reason).to be_nil
+      end
+    end
+
+    context 'when some acheron field keys are camel case' do
+      it 'parses both camel case and non camel case fields' do
+        appointment = appointment_data[12]
+        appointment[:reason_code][:coding] = [{ code: 'will not be used' }]
+        appointment[:contact] = { telecom: { email: 'will not be used', phone: '1112223333' } }
+        appointment[:comment] = 'will not be used'
+        appointment[:reason_code][:text] =
+          'email:melissa.gra@va.gov|preferred dates:12/13/2022 AM|reasonCode:ROUTINEVISIT|comments:My leg!'
+
+        result = subject.parse([appointment]).first
+        expect(result.patient_email).to eq('melissa.gra@va.gov')
+        expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
+        expect(result.comment).to eq('My leg!')
+        expect(result.reason).to eq('Routine Follow-up')
       end
     end
   end

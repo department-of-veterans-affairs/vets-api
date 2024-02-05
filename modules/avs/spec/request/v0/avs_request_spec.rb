@@ -58,7 +58,7 @@ RSpec.describe 'V0::Avs', type: :request do
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(
           {
-            'path' => '/my-health/medical-records/care-summaries/avs/9A7AF40B2BC2471EA116891839113252'
+            'path' => '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
           }
         )
       end

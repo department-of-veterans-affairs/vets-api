@@ -41,6 +41,17 @@ RSpec.describe ApiProviderFactory do
       expect(provider.class).to equal(EvssRatedDisabilitiesProvider)
     end
 
+    it 'returns the correct factory type' do
+      factory = ApiProviderFactory.new(
+        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+        provider: nil,
+        options: { icn:, auth_headers: },
+        current_user: nil,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+      )
+      expect(factory.type).to equal(:rated_disabilities)
+    end
+
     it 'throw error if provider unknown' do
       expect do
         ApiProviderFactory.call(

@@ -17,7 +17,7 @@
   "paths": {
     "/appealable-issues/{decisionReviewType}": {
       "get": {
-        "summary": "Returns all appealable issues for a specific veteran.",
+        "summary": "Returns all appealable issues for a specific Veteran.",
         "tags": [
           "Appealable Issues"
         ],
@@ -94,98 +94,260 @@
           {
             "name": "icn",
             "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
-            "example": "1234567890V123456",
-            "required": true,
+            "example": "1012832025V743496",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]{10}V[0-9]{6}$",
               "minLength": 17,
               "maxLength": 17
             },
-            "in": "query"
+            "in": "query",
+            "required": false
           }
         ],
         "responses": {
           "200": {
-            "description": "JSON:API response returning all appealable issues for a specific veteran.",
+            "description": "Retrieve all appealable issues for a Veteran",
             "content": {
               "application/json": {
-                "example": {
-                  "data": [
-                    {
-                      "type": "appealableIssue",
-                      "attributes": {
-                        "ratingIssueSubjectText": "right knee",
-                        "ratingIssuePercentNumber": "10",
-                        "ratingIssueReferenceId": "826209920000",
-                        "ratingIssueProfileDate": "2019-02-22",
-                        "ratingIssueDiagnosticCode": null,
-                        "description": "Right knee",
-                        "isRating": true,
-                        "latestIssuesInChain": [
-                          {
-                            "id": null,
-                            "approxDecisionDate": "2019-02-26"
+                "examples": {
+                  "with a veteran-scoped token (no 'icn' parameter necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "right knee",
+                            "ratingIssuePercentNumber": "10",
+                            "ratingIssueReferenceId": "826209920000",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "Right knee",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-26"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-26",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
                           }
-                        ],
-                        "decisionIssueId": null,
-                        "ratingDecisionReferenceId": null,
-                        "approxDecisionDate": "2019-02-26",
-                        "rampClaimId": null,
-                        "titleOfActiveReview": null,
-                        "sourceReviewType": null,
-                        "timely": true
-                      }
-                    },
-                    {
-                      "type": "appealableIssue",
-                      "attributes": {
-                        "ratingIssueSubjectText": "ptsd",
-                        "ratingIssueReferenceId": "826209441170",
-                        "ratingIssueProfileDate": "2019-02-22",
-                        "ratingIssueDiagnosticCode": null,
-                        "description": "PTSD",
-                        "isRating": true,
-                        "latestIssuesInChain": [
-                          {
-                            "id": null,
-                            "approxDecisionDate": "2019-02-25"
+                        },
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "ptsd",
+                            "ratingIssueReferenceId": "826209441170",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "PTSD",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-25"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-25",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
                           }
-                        ],
-                        "decisionIssueId": null,
-                        "ratingDecisionReferenceId": null,
-                        "approxDecisionDate": "2019-02-25",
-                        "rampClaimId": null,
-                        "titleOfActiveReview": null,
-                        "sourceReviewType": null,
-                        "timely": true
-                      }
-                    },
-                    {
-                      "type": "appealableIssue",
-                      "attributes": {
-                        "ratingIssueSubjectText": "left knee",
-                        "ratingIssueReferenceId": "826209597423",
-                        "ratingIssueProfileDate": "2019-02-22",
-                        "ratingIssueDiagnosticCode": null,
-                        "description": "Left knee",
-                        "isRating": true,
-                        "latestIssuesInChain": [
-                          {
-                            "id": null,
-                            "approxDecisionDate": "2019-02-24"
+                        },
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "left knee",
+                            "ratingIssueReferenceId": "826209597423",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "Left knee",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-24"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-24",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
                           }
-                        ],
-                        "decisionIssueId": null,
-                        "ratingDecisionReferenceId": null,
-                        "approxDecisionDate": "2019-02-24",
-                        "rampClaimId": null,
-                        "titleOfActiveReview": null,
-                        "sourceReviewType": null,
-                        "timely": true
-                      }
+                        }
+                      ]
                     }
-                  ]
+                  },
+                  "with a representative-scoped token ('icn' parameter is necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "right knee",
+                            "ratingIssuePercentNumber": "10",
+                            "ratingIssueReferenceId": "826209920000",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "Right knee",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-26"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-26",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
+                          }
+                        },
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "ptsd",
+                            "ratingIssueReferenceId": "826209441170",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "PTSD",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-25"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-25",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
+                          }
+                        },
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "left knee",
+                            "ratingIssueReferenceId": "826209597423",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "Left knee",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-24"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-24",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "with a system-scoped token ('icn' parameter is necessary)": {
+                    "value": {
+                      "data": [
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "right knee",
+                            "ratingIssuePercentNumber": "10",
+                            "ratingIssueReferenceId": "826209920000",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "Right knee",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-26"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-26",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
+                          }
+                        },
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "ptsd",
+                            "ratingIssueReferenceId": "826209441170",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "PTSD",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-25"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-25",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
+                          }
+                        },
+                        {
+                          "type": "appealableIssue",
+                          "attributes": {
+                            "ratingIssueSubjectText": "left knee",
+                            "ratingIssueReferenceId": "826209597423",
+                            "ratingIssueProfileDate": "2019-02-22",
+                            "ratingIssueDiagnosticCode": null,
+                            "description": "Left knee",
+                            "isRating": true,
+                            "latestIssuesInChain": [
+                              {
+                                "id": null,
+                                "approxDecisionDate": "2019-02-24"
+                              }
+                            ],
+                            "decisionIssueId": null,
+                            "ratingDecisionReferenceId": null,
+                            "approxDecisionDate": "2019-02-24",
+                            "rampClaimId": null,
+                            "titleOfActiveReview": null,
+                            "sourceReviewType": null,
+                            "timely": true
+                          }
+                        }
+                      ]
+                    }
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/appealableIssues"
@@ -193,8 +355,64 @@
               }
             }
           },
+          "400": {
+            "description": "Missing ICN parameter",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "with a representative-scoped token and no 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The 'icn' parameter is required with this request",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  },
+                  "with a system-scoped token and no 'icn' parameter": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "The 'icn' parameter is required with this request",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Invalid 'icn' parameter: Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "404": {
-            "description": "Veteran not found",
+            "description": "Veteran record not found",
             "content": {
               "application/json": {
                 "example": {
@@ -252,33 +470,14 @@
                       ]
                     }
                   },
-                  "'icn' parameter missing": {
+                  "ICN parameter formatted incorrectly": {
                     "value": {
                       "errors": [
                         {
-                          "title": "Invalid length",
-                          "detail": "'' did not fit within the defined length limits",
-                          "code": "142",
-                          "source": {
-                            "pointer": "/icn"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "max_length": 17,
-                            "min_length": 17
-                          }
-                        },
-                        {
-                          "title": "Invalid pattern",
-                          "detail": "'' did not match the defined pattern",
-                          "code": "143",
-                          "source": {
-                            "pointer": "/icn"
-                          },
-                          "status": "422",
-                          "meta": {
-                            "regex": "^[0-9]{10}V[0-9]{6}$"
-                          }
+                          "title": "Unprocessable Entity",
+                          "detail": "'icn' parameter has an invalid format. Pattern: /^[0-9]{10}V[0-9]{6}$/",
+                          "code": "422",
+                          "status": "422"
                         }
                       ]
                     }
@@ -311,7 +510,7 @@
             }
           },
           "502": {
-            "description": "Unknown error",
+            "description": "Unknown upstream error",
             "content": {
               "application/json": {
                 "example": {
@@ -323,6 +522,9 @@
                       "status": "502"
                     }
                   ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -594,6 +796,14 @@
             }
           }
         }
+      },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17,
+        "example": "1012832025V743496"
       }
     }
   },

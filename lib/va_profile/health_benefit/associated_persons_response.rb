@@ -21,9 +21,9 @@ module VAProfile
           status_code = response.status
           json = JSON.parse(response.body)
           associated_persons = json['associated_persons']
-            &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
+                               &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
           messages = json['messages']
-            &.map { |m| VAProfile::Models::Message.build_from(m) }
+                     &.map { |m| VAProfile::Models::Message.build_from(m) }
           new(status_code, { associated_persons:, messages: })
         end
       end

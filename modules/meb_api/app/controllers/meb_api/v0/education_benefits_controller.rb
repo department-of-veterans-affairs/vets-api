@@ -5,6 +5,7 @@ require 'dgi/automation/service'
 require 'dgi/submission/service'
 require 'dgi/enrollment/service'
 require 'dgi/contact_info/service'
+require 'dgi/exclusion_period/service'
 
 module MebApi
   module V0
@@ -56,7 +57,18 @@ module MebApi
       end
 
       def submit_claim
-        response = submission_service.submit_claim(params[:education_benefit].except(:form_id))
+        response_data = nil
+        if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
+          begin
+            response_data = payment_service.get_ch33_dd_eft_info
+          rescue => e
+            Rails.logger.error("BGS service error: #{e}")
+            head :internal_server_error
+            return
+          end
+        end
+
+        response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -105,6 +117,14 @@ module MebApi
         render json: response, serializer: ContactInfoSerializer
       end
 
+      def exclusion_periods
+        claimant_response = claimant_service.get_claimant_info
+        claimant_id = claimant_response['claimant_id']
+        exclusion_response = exclusion_period_service.get_exclusion_periods(claimant_id)
+
+        render json: exclusion_response, serializer: ExclusionPeriodSerializer
+      end
+
       private
 
       def contact_info_service
@@ -119,12 +139,20 @@ module MebApi
         MebApi::DGI::Automation::Service.new(@current_user)
       end
 
+      def payment_service
+        BGS::Service.new(@current_user)
+      end
+
       def submission_service
         MebApi::DGI::Submission::Service.new(@current_user)
       end
 
       def enrollment_service
         MebApi::DGI::Enrollment::Service.new(@current_user)
+      end
+
+      def exclusion_period_service
+        MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
       end
     end
   end

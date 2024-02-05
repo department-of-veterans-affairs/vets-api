@@ -1,0 +1,25 @@
+meta {
+  name: Upload NOD evidence submission
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{nod_evidence_submission_location}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Content-Type: multipart/form-data
+  ~Content-MD5: 
+}
+
+body:multipart-form {
+  content: {{vets_api_dir}}/modules/vba_documents/spec/fixtures/21x21.pdf
+  metadata: {{vets_api_dir}}/modules/vba_documents/spec/fixtures/valid_metadata.json
+}
+
+assert {
+  res.status: eq 200
+}

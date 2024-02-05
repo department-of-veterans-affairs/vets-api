@@ -4,6 +4,7 @@ require 'appeals_api/health_checker'
 
 module AppealsApi
   class MetadataController < ::ApplicationController
+    service_tag 'lighthouse-appeals'
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)

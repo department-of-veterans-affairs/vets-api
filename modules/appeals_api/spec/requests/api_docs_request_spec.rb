@@ -17,7 +17,7 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
           expect(response).to have_http_status(:ok), "Invalid HTTP status (#{status}) from #{path} on #{env}"
 
           json = JSON.parse(response.body)
-          openapi_version = opts.fetch("openapi_version_#{env}".to_sym, '3.0.0')
+          openapi_version = opts.fetch(:"openapi_version_#{env}", '3.0.0')
           expect(json['openapi']).to eq(openapi_version), "Invalid openapi version (#{json['openapi']}) on #{env}"
         end
       end

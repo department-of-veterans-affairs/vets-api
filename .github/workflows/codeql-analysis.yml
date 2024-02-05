@@ -29,3 +29,4 @@ jobs:
         uses: department-of-veterans-affairs/codeql-tools/codeql-analysis@main
         with:
           language: ${{ matrix.language }}
+          config-file: ./.github/codeql/config.yml

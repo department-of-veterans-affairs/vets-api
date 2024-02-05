@@ -21,6 +21,11 @@ describe Common::Client::Concerns::MhvFhirSessionClient do
       def config
         OpenStruct.new(app_token: 'sample_token', base_request_headers: {})
       end
+
+      # This wrapper is necessary for testing as get_session is protected.
+      def test_get_session
+        get_session
+      end
     end
   end
 
@@ -48,7 +53,7 @@ describe Common::Client::Concerns::MhvFhirSessionClient do
         expect(dummy_instance).to receive(:perform_phr_refresh)
         expect(dummy_instance).to receive(:get_patient_fhir_id).with(jwt_token)
         expect(dummy_instance).to receive(:save_session)
-        expect { dummy_instance.get_session }.not_to raise_error
+        expect { dummy_instance.test_get_session }.not_to raise_error
       end
     end
 
@@ -58,7 +63,7 @@ describe Common::Client::Concerns::MhvFhirSessionClient do
       it 'saves a partial session and raises the first occurring exception' do
         allow(dummy_instance).to receive(:get_patient_fhir_id).and_raise(Common::Exceptions::Unauthorized)
         expect(dummy_instance).to receive(:save_session)
-        expect { dummy_instance.get_session }.to raise_error(Common::Exceptions::Unauthorized)
+        expect { dummy_instance.test_get_session }.to raise_error(Common::Exceptions::Unauthorized)
       end
     end
   end

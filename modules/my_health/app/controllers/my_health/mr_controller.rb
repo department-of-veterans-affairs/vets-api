@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'medical_records/client'
+require 'medical_records/phr_mgr/client'
 
 module MyHealth
   class MrController < ApplicationController
@@ -15,6 +16,10 @@ module MyHealth
     def client
       @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
                                                         icn: current_user.icn })
+    end
+
+    def phrmgr_client
+      @phrmgr_client ||= PHRMgr::Client.new(current_user.icn)
     end
 
     def authorize

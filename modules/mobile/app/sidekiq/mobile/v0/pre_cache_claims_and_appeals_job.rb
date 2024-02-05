@@ -16,11 +16,16 @@ module Mobile
         data, errors = claims_proxy(user).get_claims_and_appeals
 
         if errors.size.positive?
-          Rails.logger.warn('mobile claims pre-cache set failed', user_uuid: uuid,
-                                                                  errors:)
+          Rails.logger.warn('mobile claims pre-cache fetch errors', user_uuid: uuid,
+                                                                    errors:)
         else
           Mobile::V0::ClaimOverview.set_cached(user, data)
         end
+      rescue => e
+        Rails.logger.warn('mobile claims pre-cache job failed',
+                          user_uuid: uuid,
+                          errors: e.message,
+                          type: e.class.to_s)
       end
 
       private

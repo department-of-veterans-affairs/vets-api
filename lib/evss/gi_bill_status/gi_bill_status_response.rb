@@ -89,6 +89,15 @@ module EVSS
         super(status, attributes)
       end
 
+      # Overriding inspect to avoid displaying PII contained
+      # in the response
+      def inspect
+        instance_variables_to_inspect = instance_variables - [:@response]
+        instance_variables_to_inspect.map do |var|
+          "#{var}=#{instance_variable_get(var).inspect}"
+        end.join(', ')
+      end
+
       ##
       # @return [Time] The response timestamp in UTC
       #
@@ -111,6 +120,10 @@ module EVSS
         end
 
         'unknown'
+      end
+
+      def body
+        @response.body
       end
 
       private

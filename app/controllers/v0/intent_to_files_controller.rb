@@ -8,6 +8,7 @@ require 'logging/third_party_transaction'
 module V0
   class IntentToFilesController < ApplicationController
     extend Logging::ThirdPartyTransaction::MethodWrapper
+    service_tag 'intent-to-file'
 
     before_action { authorize :evss, :access_form526? }
     before_action :validate_type_param, only: %i[active submit]

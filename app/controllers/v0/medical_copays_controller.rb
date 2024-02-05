@@ -2,6 +2,7 @@
 
 module V0
   class MedicalCopaysController < ApplicationController
+    service_tag 'debt-resolution'
     before_action(except: :send_statement_notifications) { authorize :medical_copays, :access? }
     before_action(only: :send_statement_notifications) { authorize :medical_copays, :access_notifications? }
 

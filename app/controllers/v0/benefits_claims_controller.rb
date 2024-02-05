@@ -5,9 +5,14 @@ require 'lighthouse/benefits_claims/service'
 module V0
   class BenefitsClaimsController < ApplicationController
     before_action { authorize :lighthouse, :access? }
+    service_tag 'claims-shared'
 
     def index
       claims = service.get_claims
+
+      check_for_birls_id
+      check_for_file_number
+
       tap_claims(claims['data'])
 
       render json: claims
@@ -16,11 +21,26 @@ module V0
     def show
       claim = service.get_claim(params[:id])
 
+      # Document uploads to EVSS require a birls_id; This restriction should
+      # be removed when we move to Lighthouse Benefits Documents for document uploads
+      claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
+
+      # We want to log some details about claim type patterns to track in DataDog
+      claim_info = claim['data']['attributes']
+      ::Rails.logger.info('Claim Type Details',
+                          { message_type: 'lh.cst.claim_types',
+                            claim_type: claim_info['claimType'],
+                            claim_type_code: claim_info['claimTypeCode'],
+                            num_contentions: claim_info['contentions'].count,
+                            ep_code: claim_info['endProductCode'],
+                            claim_id: params[:id] })
+      tap_claims([claim['data']])
+
       render json: claim
     end
 
     def submit5103
-      res = service.submit5103(params[:id])
+      res = service.submit5103(@current_user, params[:id])
 
       render json: res
     end
@@ -33,6 +53,15 @@ module V0
 
     def service
       @service ||= BenefitsClaims::Service.new(@current_user.icn)
+    end
+
+    def check_for_birls_id
+      ::Rails.logger.info('[BenefitsClaims#index] No birls id') if current_user.birls_id.nil?
+    end
+
+    def check_for_file_number
+      bgs_file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user).file_number
+      ::Rails.logger.info('[BenefitsClaims#index] No file number') if bgs_file_number.blank?
     end
 
     def tap_claims(claims)

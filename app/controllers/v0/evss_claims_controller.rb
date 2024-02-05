@@ -3,6 +3,7 @@
 module V0
   class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
+    service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
 
@@ -17,7 +18,7 @@ module V0
     def show
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       unless claim
-        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
+        Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
         raise Common::Exceptions::RecordNotFound, params[:id]
       end
 
@@ -29,7 +30,7 @@ module V0
     def request_decision
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       unless claim
-        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
+        Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
         raise Common::Exceptions::RecordNotFound, params[:id]
       end
 

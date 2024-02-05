@@ -4,6 +4,7 @@ require 'debts_api/v0/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
+    service_tag 'financial-report'
     before_action { authorize :debt, :access? }
 
     rescue_from ::DebtsApi::V0::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found

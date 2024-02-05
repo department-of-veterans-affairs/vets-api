@@ -2,12 +2,14 @@
 
 module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
+    service_tag 'career-guidance-application'
+
     def create
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
 

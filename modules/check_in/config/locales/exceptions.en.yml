@@ -26,6 +26,7 @@ en:
         code: 'LOROTA-API_401'
         detail: 'Authentication Error'
         status: 401
+        sentry_type: none
       CIE-VETS-API_404:
         <<: *external_defaults
         title: Data Not Found

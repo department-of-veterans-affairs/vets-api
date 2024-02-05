@@ -18,9 +18,9 @@ RSpec.describe 'claims decision request', type: :request do
       expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 
-    it 'returns 500 for non-existent record' do
+    it 'returns 404 for non-existent record' do
       post '/mobile/v0/claim/3242233/request-decision', headers: sis_headers
-      expect(response).to have_http_status(:internal_server_error)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

@@ -6,6 +6,10 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'maintenance windows', type: :request do
   include JsonSchemaMatchers
 
+  def mw_uuid(service_name)
+    Digest::UUID.uuid_v5(Mobile::V0::ServiceGraph::MAINTENANCE_WINDOW_NAMESPACE, service_name)
+  end
+
   describe 'GET /v0/maintenance_windows' do
     context 'when no maintenance windows are active' do
       before { get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' } }
@@ -58,7 +62,7 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.parsed_body['data']).to eq(
           [
             {
-              'id' => '321e9dcf-2578-5956-9baa-295735d97c3c',
+              'id' => mw_uuid('claims'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'claims',
@@ -67,7 +71,7 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => '14ad3ba9-7ec8-51b8-bbb3-dc20e6655b26',
+              'id' => mw_uuid('direct_deposit_benefits'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'direct_deposit_benefits',
@@ -76,7 +80,7 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => '858b59df-4cef-5f34-91a4-57edd382e4e5',
+              'id' => mw_uuid('disability_rating'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'disability_rating',
@@ -85,10 +89,19 @@ RSpec.describe 'maintenance windows', type: :request do
               }
             },
             {
-              'id' => 'cac05630-8879-594c-8655-1a6ff582dc5d',
+              'id' => mw_uuid('letters_and_documents'),
               'type' => 'maintenance_window',
               'attributes' => {
                 'service' => 'letters_and_documents',
+                'startTime' => '2021-05-25T21:33:39.000Z',
+                'endTime' => '2021-05-25T22:33:39.000Z'
+              }
+            },
+            {
+              'id' => mw_uuid('immunizations'),
+              'type' => 'maintenance_window',
+              'attributes' => {
+                'service' => 'immunizations',
                 'startTime' => '2021-05-25T21:33:39.000Z',
                 'endTime' => '2021-05-25T22:33:39.000Z'
               }
@@ -114,7 +127,7 @@ RSpec.describe 'maintenance windows', type: :request do
       it 'includes payment history as an affected service' do
         expect(response.parsed_body['data']).to include(
           {
-            'id' => '4ebb2370-3f56-5f24-a2f9-3b211f59077e',
+            'id' => mw_uuid('payment_history'),
             'type' => 'maintenance_window',
             'attributes' => {
               'service' => 'payment_history',
@@ -147,7 +160,7 @@ RSpec.describe 'maintenance windows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents])
+                                                          letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_eariest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_eariest_end_time])
 
@@ -157,7 +170,7 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
         expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents])
+                                                          letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_middle_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_middle_end_time])
 
@@ -167,7 +180,7 @@ RSpec.describe 'maintenance windows', type: :request do
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
         expect(attributes.pluck('service').uniq).to eq(%w[claims direct_deposit_benefits disability_rating
-                                                          letters_and_documents])
+                                                          letters_and_documents immunizations])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_latest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_latest_end_time])
       end

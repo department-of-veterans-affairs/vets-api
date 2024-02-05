@@ -76,11 +76,18 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
 
     describe 'GET /meb_api/v0/claim_status' do
       context 'Retrieves a veterans claim status' do
-        it 'returns a 200 status when given claimant id as parameter' do
+        it 'returns a 200 status when given claimant id as parameter and claimant is returned' do
           VCR.use_cassette('dgi/get_claim_status') do
             get '/meb_api/v0/claim_status'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('dgi/claim_status_response', { strict: false })
+          end
+        end
+
+        it 'returns a 200 status when given claimant id as parameter and no claimant is returned' do
+          VCR.use_cassette('dgi/get_claim_status_no_claimant') do
+            get '/meb_api/v0/claim_status'
+            expect(response).to have_http_status(:ok)
           end
         end
       end
@@ -124,6 +131,17 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
           VCR.use_cassette('dgi/post_contact_info') do
             post '/meb_api/v0/duplicate_contact_info',
                  params: { "emails": [], "phones": [] }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
+
+    describe 'GET /meb_api/v0/exclusion_periods' do
+      context 'retrieves data contact info ' do
+        it 'returns a 200 status when it' do
+          VCR.use_cassette('dgi/get_exclusion_period_controller') do
+            get '/meb_api/v0/exclusion_periods'
             expect(response).to have_http_status(:ok)
           end
         end

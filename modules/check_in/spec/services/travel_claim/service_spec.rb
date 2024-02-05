@@ -47,7 +47,7 @@ describe TravelClaim::Service do
     context 'when it does not exist in redis' do
       before do
         expect_any_instance_of(TravelClaim::Client).to receive(:token)
-          .and_return(Faraday::Response.new(body: { access_token: }.to_json, status: 200))
+          .and_return(Faraday::Response.new(response_body: { access_token: }.to_json, status: 200))
       end
 
       it 'returns token by calling client' do
@@ -86,7 +86,7 @@ describe TravelClaim::Service do
           }
         }
       end
-      let(:faraday_response) { Faraday::Response.new(body: claims_json, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: claims_json, status: 200) }
 
       let(:submit_claim_response) { { data: claims_json.merge(code: 'CLM_000_SUCCESS'), status: 200 } }
 

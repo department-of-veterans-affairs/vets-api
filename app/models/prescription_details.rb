@@ -26,4 +26,30 @@ class PrescriptionDetails < Prescription
   attribute :rx_rf_records, Array[String]
   attribute :tracking, Boolean
   attribute :orderable_item, String
+  attribute :sorted_dispensed_date
+
+  def sorted_dispensed_date
+    has_refills = try(:rx_rf_records).present?
+    last_refill_date = Date.new(0)
+
+    if has_refills
+      refills = rx_rf_records[0][1]
+
+      refills.each do |r|
+        last_dispensed = r.try(:[], :dispensed_date)
+        next if last_dispensed.nil?
+
+        refill_date = Date.parse(r.try(:[], :dispensed_date))
+        last_refill_date = refill_date if refill_date.present? && refill_date > last_refill_date
+      end
+    end
+
+    if has_refills && last_refill_date.present?
+      last_refill_date.to_date
+    elsif dispensed_date.present?
+      dispensed_date.to_date
+    else
+      Date.new(0)
+    end
+  end
 end

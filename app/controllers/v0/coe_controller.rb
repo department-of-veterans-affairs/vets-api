@@ -4,6 +4,8 @@ require 'lgy/service'
 
 module V0
   class CoeController < ApplicationController
+    service_tag 'home-loan-status'
+
     def status
       coe_status = lgy_service.coe_status
       render json: { data: { attributes: coe_status } }, status: :ok
@@ -20,7 +22,7 @@ module V0
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
-        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
 

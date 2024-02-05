@@ -34,13 +34,13 @@ describe AppealsApi::DecisionReviewReport do
     let(:old_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.year.ago) }
     let(:recent_error) { create(:higher_level_review_v2, status: 'error', created_at: 1.day.ago) }
 
-    it 'will retrieve recent errored records if dates are provided' do
+    it 'retrieves recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
       expect(subject.faulty_hlr).to eq([recent_error])
     end
 
-    it 'will retrieve all errored records if no dates are provided' do
+    it 'retrieves all errored records if no dates are provided' do
       subject = described_class.new(from: nil, to: nil)
 
       expect(subject.faulty_hlr).to eq([recent_error, old_error])
@@ -82,13 +82,13 @@ describe AppealsApi::DecisionReviewReport do
     let(:old_error) { create(:notice_of_disagreement, :status_error, created_at: 1.year.ago) }
     let(:recent_error) { create(:notice_of_disagreement, :status_error, created_at: 1.day.ago) }
 
-    it 'will retrieve recent errored records if dates are provided' do
+    it 'retrieves recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
       expect(subject.faulty_nod).to eq([recent_error])
     end
 
-    it 'will retrieve all errored records if no dates are provided' do
+    it 'retrieves all errored records if no dates are provided' do
       subject = described_class.new(from: nil, to: nil)
 
       expect(subject.faulty_nod).to eq([recent_error, old_error])
@@ -127,13 +127,13 @@ describe AppealsApi::DecisionReviewReport do
     let(:old_error) { create(:supplemental_claim, :status_error, created_at: 1.year.ago) }
     let(:recent_error) { create(:supplemental_claim, :status_error, created_at: 1.day.ago) }
 
-    it 'will retrieve recent errored records if dates are provided' do
+    it 'retrieves recent errored records if dates are provided' do
       subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
       expect(subject.faulty_sc).to eq([recent_error])
     end
 
-    it 'will retrieve all errored records if no dates are provided' do
+    it 'retrieves all errored records if no dates are provided' do
       subject = described_class.new(from: nil, to: nil)
 
       expect(subject.faulty_sc).to eq([recent_error, old_error])
@@ -154,7 +154,7 @@ describe AppealsApi::DecisionReviewReport do
       let!(:evidence_submission_2) { create(:evidence_submission, created_at: 1.week.ago) }
 
       describe '#evidence_submission_by_status_and_count' do
-        it 'will retrieve recent errored records if dates are provided' do
+        it 'retrieves recent errored records if dates are provided' do
           subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
           expect(subject.evidence_submission_by_status_and_count).to eq({
@@ -169,7 +169,7 @@ describe AppealsApi::DecisionReviewReport do
           })
         end
 
-        it 'will retrieve all errored records if no dates are provided' do
+        it 'retrieves all errored records if no dates are provided' do
           subject = described_class.new(from: nil, to: nil)
 
           expect(subject.evidence_submission_by_status_and_count).to eq({
@@ -189,12 +189,12 @@ describe AppealsApi::DecisionReviewReport do
         let!(:recent_error) { create(:evidence_submission, :status_error, created_at: 1.day.ago) }
         let!(:old_error) { create(:evidence_submission, :status_error, created_at: 1.year.ago) }
 
-        it 'will retrieve recent errored records if dates are provided' do
+        it 'retrieves recent errored records if dates are provided' do
           subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
           expect(subject.faulty_evidence_submission).to eq([recent_error])
         end
 
-        it 'will retrieve all errored records if no dates are provided' do
+        it 'retrieves all errored records if no dates are provided' do
           subject = described_class.new(from: nil, to: nil)
 
           expect(subject.faulty_evidence_submission).to eq([recent_error, old_error])
@@ -204,7 +204,7 @@ describe AppealsApi::DecisionReviewReport do
 
     describe 'sc' do
       describe '#evidence_submission_by_status_and_count' do
-        it 'will retrieve recent errored records if dates are provided' do
+        it 'retrieves recent errored records if dates are provided' do
           create(:sc_evidence_submission)
           create(:sc_evidence_submission, created_at: 1.week.ago)
           create(:evidence_submission)
@@ -223,7 +223,7 @@ describe AppealsApi::DecisionReviewReport do
           })
         end
 
-        it 'will retrieve all errored records if no dates are provided' do
+        it 'retrieves all errored records if no dates are provided' do
           create(:sc_evidence_submission)
           create(:sc_evidence_submission, created_at: 1.week.ago)
           create(:evidence_submission)
@@ -248,13 +248,13 @@ describe AppealsApi::DecisionReviewReport do
         let!(:recent_error) { create(:sc_evidence_submission, :status_error, created_at: 1.day.ago) }
         let!(:old_error) { create(:sc_evidence_submission, :status_error, created_at: 1.year.ago) }
 
-        it 'will retrieve recent errored records if dates are provided' do
+        it 'retrieves recent errored records if dates are provided' do
           subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
           expect(subject.sc_faulty_evidence_submission).to eq([recent_error])
         end
 
-        it 'will retrieve all errored records if no dates are provided' do
+        it 'retrieves all errored records if no dates are provided' do
           subject = described_class.new(from: nil, to: nil)
 
           expect(subject.sc_faulty_evidence_submission).to eq([recent_error, old_error])

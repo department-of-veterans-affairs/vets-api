@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/12345%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"militaryPerson.adminDecisions"},{"bioPath":"militaryPerson.adminEpisodes"},{"bioPath":"militaryPerson.dentalIndicators"},{"bioPath":"militaryPerson.militaryOccupations","parameters":{"scope":"all"}},{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}},{"bioPath":"militaryPerson.militarySummary"},{"bioPath":"militaryPerson.militarySummary.customerType.dodServiceSummary"},{"bioPath":"militaryPerson.payGradeRanks","parameters":{"scope":"highest"}},{"bioPath":"militaryPerson.prisonerOfWars"},{"bioPath":"militaryPerson.transferOfEligibility"},{"bioPath":"militaryPerson.retirements"},{"bioPath":"militaryPerson.separationPays"},{"bioPath":"militaryPerson.retirementPays"},{"bioPath":"militaryPerson.combatPays"},{"bioPath":"militaryPerson.unitAssignments"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1310658490", dtSInfo;desc="0"
+      - dtRpid;desc="-1587339681", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - fad67238-afdd-4da6-ae9d-17b8339739c8
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 22 Nov 2023 18:53:44 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '184'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"MVI201","key":"MviNotFound","text":"The person
+        with the identifier requested was not found in MVI.","severity":"ERROR","potentiallySelfCorrectingOnRetry":false}]}'
+  recorded_at: Wed, 22 Nov 2023 18:53:44 GMT
+recorded_with: VCR 6.2.0

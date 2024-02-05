@@ -46,18 +46,16 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
             message: 'BackendServiceException: {:source=>"VAProfile::Person::Service", :code=>"VET360_PERS101"}'
           }
         )
-        expect do
-          subject.perform(user.uuid)
-        end.to raise_error(Common::Exceptions::BackendServiceException)
+        subject.perform(user.uuid)
       end
     end
   end
 
   context 'when user is not found' do
     it 'caches the expected claims and appeals' do
-      expect do
-        subject.perform('iamtheuuidnow')
-      end.to raise_error(described_class::MissingUserError, 'iamtheuuidnow')
+      expect(Rails.logger).to receive(:error).with('Mobile Vet360 account linking request failed for user with uuid',
+                                                   { user_uuid: 'iamtheuuidnow', message: 'iamtheuuidnow' })
+      subject.perform('iamtheuuidnow')
     end
   end
 end

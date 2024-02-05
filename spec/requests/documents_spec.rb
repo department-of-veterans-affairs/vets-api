@@ -73,6 +73,7 @@ RSpec.describe 'Documents management', type: :request do
     it 'rejects locked PDFs with the incocorrect password' do
       params = { file: locked_file, tracked_item_id:, document_type:, password: 'bad' }
       post('/v0/evss_claims/189625/documents', params:)
+
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(
         I18n.t('errors.messages.uploads.pdf.incorrect_password')

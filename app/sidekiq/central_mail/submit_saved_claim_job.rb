@@ -11,36 +11,65 @@ module CentralMail
     include SentryLogging
 
     FOREIGN_POSTALCODE = '00000'
+    STATSD_KEY_PREFIX = 'worker.central_mail.submit_saved_claim_job'
 
-    sidekiq_options retry: false
+    # Sidekiq has built in exponential back-off functionality for retries
+    # A max retry attempt of 14 will result in a run time of ~25 hours
+    RETRY = 14
+
+    sidekiq_options retry: RETRY
 
     class CentralMailResponseError < StandardError
     end
 
+    sidekiq_retries_exhausted do |msg, _ex|
+      Rails.logger.send(
+        :error,
+        "Failed all retries on CentralMail::SubmitSavedClaimJob, last error: #{msg['error_message']}"
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+    end
+
+    # Performs an asynchronous job for submitting a saved claim to central mail service
+    #
+    # @param saved_claim_id [Integer] the claim id
+    #
     def perform(saved_claim_id)
       PensionBurial::TagSentry.tag_sentry
+      @saved_claim_id = saved_claim_id
+      log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
+
+      response = send_claim_to_central_mail(saved_claim_id)
+
+      if response.success?
+        update_submission('success')
+        log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
+
+        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      else
+        raise CentralMailResponseError, response.body
+      end
+    rescue => e
+      update_submission('failed')
+      log_message_to_sentry(
+        'CentralMail::SubmitSavedClaimJob failed, retrying...', :warn, generate_sentry_details(e)
+      )
+      raise
+    end
+
+    def send_claim_to_central_mail(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
 
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
-
       response = CentralMail::Service.new.upload(create_request_body)
-      log_cmp_response(response) if @claim.is_a?(SavedClaim::VeteranReadinessEmploymentClaim)
+
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
-      if response.success?
-        update_submission('success')
-
-        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      else
-        raise CentralMailResponseError
-      end
-    rescue
-      update_submission('failed')
-      raise
+      response
     end
 
     def create_request_body
@@ -96,8 +125,8 @@ module CentralMail
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
+        'veteranFirstName' => remove_invalid_characters(veteran_full_name['first']),
+        'veteranLastName' => remove_invalid_characters(veteran_full_name['last']),
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => @claim.guid,
@@ -122,8 +151,20 @@ module CentralMail
 
     private
 
-    def log_cmp_response(response)
-      log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
+    def generate_sentry_details(e = nil)
+      details = {
+        'guid' => @claim&.guid,
+        'docType' => @claim&.form_id,
+        'savedClaimId' => @saved_claim_id
+      }
+      details['error'] = e.message if e
+      details
+    end
+
+    def remove_invalid_characters(str)
+      # Replace characters that do not match the pattern with an empty string
+      str = I18n.transliterate(str)
+      @claim.respond_to?(:central_mail_submission) ? str.gsub(%r{[^A-Za-z'/ -]}, '') : str
     end
   end
 end

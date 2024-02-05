@@ -7,10 +7,6 @@ module ClaimsApi
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
   class BRD
-    def initialize(request = nil)
-      @request = request
-    end
-
     ##
     # List of valid countries
     #
@@ -39,12 +35,10 @@ module ClaimsApi
     private
 
     def client
-      base_name = if !Settings.brd&.base_name.nil?
-                    Settings.brd.base_name
-                  elsif @request&.host_with_port.nil?
+      base_name = if Settings.brd&.base_name.nil?
                     'api.va.gov/services'
                   else
-                    "#{@request&.host_with_port}/services"
+                    Settings.brd.base_name
                   end
 
       api_key = Settings.brd&.api_key || ENV.fetch('BRD_API_KEY', '')

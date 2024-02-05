@@ -74,5 +74,57 @@ RSpec.describe 'check in', type: :request do
         expect(JSON.parse(response.body).dig('errors', 0)).to eq(response_values)
       end
     end
+
+    context 'unknown server exception' do
+      let(:expected_body) do
+        { 'errors' => [
+          {
+            'title' => 'Internal Server Error',
+            'detail' => [{ 'errors' => [{ 'status' => '500', 'title' => 'Authenticated Check-in vista error' }] }],
+            'code' => 'CHIP_500',
+            'status' => '500'
+          }
+        ] }
+      end
+
+      it 'returns 500 with error message' do
+        VCR.use_cassette('chip/authenticated_check_in/post_check_in_unknown_server_error_500') do
+          VCR.use_cassette('chip/token/token_200') do
+            params = { appointmentIEN: 'test-appt-ien', patient_dfn: 'test-patient-dfn', station_no: 'test-station-no' }
+            post '/mobile/v0/appointments/check-in', headers: sis_headers, params:
+          end
+        end
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body).to eq(expected_body)
+      end
+    end
+
+    context 'when token call returns a failure' do
+      let(:expected_body) do
+        { 'errors' => [
+          {
+            'title' => 'Internal Server Error',
+            'detail' => [
+              {
+                'status' => '500',
+                'title' => 'Could not retrieve a token from LoROTA'
+              }
+            ],
+            'code' => 'CHIP_500',
+            'status' => '500'
+          }
+        ] }
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/token/token_500') do
+          params = { appointmentIEN: 'test-appt-ien', patient_dfn: 'test-patient-dfn', station_no: 'test-station-no' }
+          post '/mobile/v0/appointments/check-in', headers: sis_headers, params:
+        end
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body).to eq(expected_body)
+      end
+    end
   end
 end

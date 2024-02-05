@@ -2,6 +2,7 @@
 
 module V0
   class VeteranReadinessEmploymentClaimsController < ClaimsBaseController
+    service_tag 'vre-application'
     before_action :authenticate
     skip_before_action :load_user
 
@@ -15,7 +16,7 @@ module V0
         render json: claim
       else
         StatsD.increment("#{stats_key}.failure")
-        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
     end

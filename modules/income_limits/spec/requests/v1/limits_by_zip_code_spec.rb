@@ -23,14 +23,16 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
                                                      state_id: zipcode_data.state_id)
         gmt_threshold_data = FactoryBot.create(:gmt_threshold, state_name: state_data.name,
                                                                county_name: "#{county_data.name} county", effective_year: income_threshold_data.income_threshold_year)
-
+        state_fips_code = state_data.fips_code
+        county_number = format('%03d', county_data.county_number)
+        county_indentifier = state_fips_code.to_s + county_number.to_s
         allow(StdIncomeThreshold).to receive(:find_by).and_return(income_threshold_data)
         allow(StdZipcode).to receive(:find_by).and_return(zipcode_data)
         allow(StdState).to receive(:find_by).and_return(state_data)
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
+          .with(fips: county_indentifier)
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
@@ -77,14 +79,16 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
                                                                state_id: zipcode_data.state_id)
         gmt_threshold_data = FactoryBot.create(:gmt_threshold_0_variant, state_name: state_data.name,
                                                                          county_name: "#{county_data.name} county", effective_year: income_threshold_data.income_threshold_year)
-
+        state_fips_code = state_data.fips_code
+        county_number = format('%03d', county_data.county_number)
+        county_indentifier = state_fips_code.to_s + county_number.to_s
         allow(StdIncomeThreshold).to receive(:find_by).and_return(income_threshold_data)
         allow(StdZipcode).to receive(:find_by).and_return(zipcode_data)
         allow(StdState).to receive(:find_by).and_return(state_data)
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
+          .with(fips: county_indentifier)
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
@@ -131,14 +135,16 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
                                                      state_id: zipcode_data.state_id)
         gmt_threshold_data = FactoryBot.create(:gmt_threshold, state_name: state_data.name,
                                                                county_name: "#{county_data.name} county", effective_year: income_threshold_data.income_threshold_year)
-
+        state_fips_code = state_data.fips_code
+        county_number = format('%03d', county_data.county_number)
+        county_indentifier = state_fips_code.to_s + county_number.to_s
         allow(StdIncomeThreshold).to receive(:find_by).and_return(income_threshold_data)
         allow(StdZipcode).to receive(:find_by).and_return(zipcode_data)
         allow(StdState).to receive(:find_by).and_return(state_data)
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
+          .with(fips: county_indentifier)
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
@@ -174,14 +180,16 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
                                                      state_id: zipcode_data.state_id)
         gmt_threshold_data = FactoryBot.create(:gmt_threshold, state_name: state_data.name,
                                                                county_name: "#{county_data.name} county", effective_year: income_threshold_data.income_threshold_year)
-
+        state_fips_code = state_data.fips_code
+        county_number = format('%03d', county_data.county_number)
+        county_indentifier = state_fips_code.to_s + county_number.to_s
         allow(StdIncomeThreshold).to receive(:find_by).and_return(income_threshold_data)
         allow(StdZipcode).to receive(:find_by).and_return(nil)
         allow(StdState).to receive(:find_by).and_return(state_data)
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
+          .with(fips: county_indentifier)
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)

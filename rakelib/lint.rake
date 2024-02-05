@@ -15,7 +15,7 @@ task :lint, [:files] => [:environment] do |_, args|
             --format clang \
             --parallel"
          else
-           '--display-cop-names --auto-correct'
+           '--display-cop-names --autocorrect'
          end
 
   opts += ' --force-exclusion' if files.present?

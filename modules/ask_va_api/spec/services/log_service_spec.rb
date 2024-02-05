@@ -43,12 +43,12 @@ RSpec.describe LogService do
       let(:error_message) { 'Sample Error' }
 
       before do
-        allow(Raven).to receive(:capture_exception)
+        allow(Sentry).to receive(:capture_exception)
       end
 
-      it 'captures the exception with Raven' do
+      it 'captures the exception with Sentry' do
         expect { logger.call(action, tags:) { raise StandardError, error_message } }.not_to raise_error
-        expect(Raven).to have_received(:capture_exception).with(instance_of(StandardError), extra: { action: })
+        expect(Sentry).to have_received(:capture_exception).with(instance_of(StandardError), extra: { action: })
       end
 
       it 'logs the error' do

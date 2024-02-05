@@ -12,8 +12,8 @@ module AppealsApi
     attr_readonly :auth_headers
     attr_readonly :form_data
 
-    before_create :assign_metadata
-    before_update :submit_evidence_to_central_mail, if: -> { status_changed_to_success? && delay_evidence_enabled? }
+    before_create :assign_metadata, :assign_veteran_icn
+    before_update :submit_evidence_to_central_mail!, if: -> { status_changed_to_success? && delay_evidence_enabled? }
 
     def self.past?(date)
       date < Time.zone.today
@@ -278,8 +278,8 @@ module AppealsApi
       update_status(status:, code:, detail:, raise_on_error: true)
     end
 
-    def submit_evidence_to_central_mail
-      evidence_submissions&.each(&:submit_to_central_mail)
+    def submit_evidence_to_central_mail!
+      evidence_submissions&.each(&:submit_to_central_mail!)
     end
 
     def lob
@@ -351,6 +351,19 @@ module AppealsApi
 
     def clear_memoized_values
       @contestable_issues = @veteran = @claimant = nil
+    end
+
+    def assign_veteran_icn
+      # Ensure veteran_icn is set - this value will be retained after the PII is deleted
+      if veteran_icn.blank?
+        self.veteran_icn = if (header_icn = auth_headers['X-VA-ICN'].presence)
+                             # Decision Reviews API
+                             header_icn
+                           else
+                             # Supplemental Claims API v0
+                             form_data.dig('data', 'attributes', 'veteran', 'icn').presence
+                           end
+      end
     end
   end
 end

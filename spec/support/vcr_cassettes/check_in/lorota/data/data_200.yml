@@ -135,7 +135,8 @@ http_interactions:
                 "zip4": null,
                 "country": "USA"
               }
-            }
+            },
+            "setECheckinStartedCalled": false
           }
         }
   recorded_at: Thu, 19 Nov 2020 16:45:03 GMT

@@ -41,7 +41,7 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
 
     it 'raises an error if submission is missing' do
       with_settings(Settings.sentry, dsn: 'T') do
-        expect(Raven).to receive(:capture_exception)
+        expect(Sentry).to receive(:capture_exception)
         expect { subject.perform('fakeid') }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end

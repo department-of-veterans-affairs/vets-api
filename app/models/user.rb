@@ -33,6 +33,7 @@ class User < Common::RedisStore
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
+  attribute :credential_lock, Boolean
 
   def account
     @account ||= Identity::AccountCreator.new(self).call
@@ -44,6 +45,12 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
+  end
+
+  def credential_lock
+    return @credential_lock unless @credential_lock.nil?
+
+    @credential_lock = user_verification&.locked
   end
 
   def needs_accepted_terms_of_use
@@ -275,6 +282,10 @@ class User < Common::RedisStore
     mpi_profile&.vha_facility_hash || {}
   end
 
+  def mpi_gcids
+    mpi_profile&.full_mvi_ids || []
+  end
+
   # MPI setter methods
 
   def set_mhv_ids(mhv_id)
@@ -344,23 +355,8 @@ class User < Common::RedisStore
     super
   end
 
-  %w[military_information payment].each do |emis_method|
-    define_method(emis_method) do
-      emis_model = instance_variable_get(:"@#{emis_method}")
-      return emis_model if emis_model.present?
-
-      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
-      instance_variable_set(:"@#{emis_method}", emis_model)
-      emis_model
-    end
-  end
-
   def veteran_status
-    @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
-                          VAProfile::VeteranStatus::Service.new(self)
-                        else
-                          EMISRedis::VeteranStatus.for_user(self)
-                        end
+    @veteran_status ||= VAProfileRedis::VeteranStatus.for_user(self)
   end
 
   %w[profile grants].each do |okta_model_name|

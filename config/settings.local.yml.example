@@ -1,3 +1,6 @@
+# saml:
+  # authn_requests_signed: false
+
 # betamocks:
   # For NATIVE installation
   # The relative path to department-of-veterans-affairs/vets-api-mockdata

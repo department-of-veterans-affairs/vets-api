@@ -5,6 +5,7 @@ require 'sentry_logging'
 module TestUserDashboard
   class ApplicationController < ActionController::API
     include SentryLogging
+    include Traceable
 
     def require_jwt
       token = request.headers['JWT']
@@ -31,7 +32,7 @@ module TestUserDashboard
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'test-user-dashboard' }
-      Raven.tags_context(source: 'test-user-dashboard')
+      Sentry.set_tags(source: 'test-user-dashboard')
     end
   end
 end

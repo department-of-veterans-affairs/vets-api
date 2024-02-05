@@ -4,6 +4,7 @@ require 'va_forms/health_checker'
 
 module VAForms
   class MetadataController < ::ApplicationController
+    service_tag 'lighthouse-forms'
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)

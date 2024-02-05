@@ -9,7 +9,7 @@ describe V2::Chip::Response do
     context 'when status 200' do
       context 'when json string' do
         it 'returns a formatted response' do
-          resp = Faraday::Response.new(body: { foo: 'bar' }, status: 200)
+          resp = Faraday::Response.new(response_body: { foo: 'bar' }, status: 200)
           hsh = { data: { foo: 'bar' }, status: 200 }
 
           expect(subject.build(response: resp).handle).to eq(hsh)
@@ -18,7 +18,7 @@ describe V2::Chip::Response do
 
       context 'when non json string' do
         it 'returns a formatted response' do
-          resp = Faraday::Response.new(body: 'bar', status: 200)
+          resp = Faraday::Response.new(response_body: 'bar', status: 200)
           hsh = { data: 'bar', status: 200 }
 
           expect(subject.build(response: resp).handle).to eq(hsh)
@@ -28,7 +28,7 @@ describe V2::Chip::Response do
 
     context 'when status 404' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: 'Not found', status: 404)
+        resp = Faraday::Response.new(response_body: 'Not found', status: 404)
         hsh = { data: { error: true, message: 'We could not find that UUID' }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
@@ -37,7 +37,7 @@ describe V2::Chip::Response do
 
     context 'when status 403' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: 'Forbidden', status: 403)
+        resp = Faraday::Response.new(response_body: 'Forbidden', status: 403)
         hsh = { data: { error: true, message: 'Forbidden' }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
@@ -46,7 +46,7 @@ describe V2::Chip::Response do
 
     context 'when status 401' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: 'Unauthorized', status: 401)
+        resp = Faraday::Response.new(response_body: 'Unauthorized', status: 401)
         hsh = { data: { error: true, message: 'Unauthorized' }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
@@ -55,7 +55,7 @@ describe V2::Chip::Response do
 
     context 'when status 400' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: { error: true, message: 'Invalid uuid' }, status: 400)
+        resp = Faraday::Response.new(response_body: { error: true, message: 'Invalid uuid' }, status: 400)
         hsh = { data: { error: true, message: 'Invalid uuid' }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)
@@ -64,7 +64,7 @@ describe V2::Chip::Response do
 
     context 'when status 500' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: 'Something went wrong', status: 500)
+        resp = Faraday::Response.new(response_body: 'Something went wrong', status: 500)
         hsh = { data: { error: true, message: 'Something went wrong' }, status: resp.status }
 
         expect(subject.build(response: resp).handle).to eq(hsh)

@@ -1,6 +1,28 @@
 ---
 :services:
 
+#CRM API GET endpoint
+- :name: "CRM API GET endpoint"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
+      :file_path: "/ask_va/dynamics_api"
+      :response_delay: 15
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
+      :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :response_delay: 0.3
+
+#CRM Token post
+- :name: "CRM VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.auth_url).host}:#{URI(Settings.ask_va_api.crm_api.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/ask_va/token/default"
+      :response_delay: 0.3
+
 - :name: 'carma'
   :base_uri: <%= "#{URI(Settings['salesforce-carma'].url).host}:#{URI(Settings['salesforce-carma'].url).port}" %>
   :endpoints:
@@ -677,26 +699,6 @@
     :path: "/api/v2/search/i14y"
     :file_path: "search/default"
 
-# Okta
-- :name: 'Okta'
-  :base_uri: <%= "#{URI(Settings.oidc.base_api_url).host}:#{URI(Settings.oidc.base_api_url).port}" %>
-  :endpoints:
-  # User
-  - :method: :get
-    :path: "/api/v1/users/*"
-    :file_path: "okta/users"
-    :cache_multiple_responses:
-      :uid_location: url
-      :uid_locator:  '\/api\/v1\/users\/(.*)'
-  # Keys
-  - :method: :get
-    :path: "/oauth2/default/v1/keys"
-    :file_path: "okta/keys"
-  # Metadata
-  - :method: :get
-    :path: "/oauth2/default/.well-known/oauth-authorization-server"
-    :file_path: "okta/metadata"
-
 #GIS
 - :name: 'GIS'
   :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
@@ -830,6 +832,10 @@
       :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-demographics" %>
       :file_path: "/chip/update-demographics/default"
       :response_delay: 4
+    - :method: :post
+      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/set-e-check-in-started" %>
+      :file_path: "/chip/set-echeckin-started/default"
+      :response_delay: 2
 
 # LGY: Certificate of Eligibility
 - :name: "LGY"
@@ -935,7 +941,7 @@
 
 # Security Token Service API
 - :name: "MAP STS"
-  :base_uri: <%= "#{URI(Settings.mobile_application_platform.oauth_url).host}:#{URI(Settings.mobile_application_platform.oauth_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.map_services.oauth_url).host}:#{URI(Settings.map_services.oauth_url).port}" %>
   :endpoints:
     - :method: :post
       :path: "/sts/oauth/v1/token"
@@ -943,7 +949,7 @@
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
-  :base_uri: <%= "#{URI(Settings.mobile_application_platform.sign_up_service_url).host}:#{URI(Settings.mobile_application_platform.sign_up_service_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.map_services.sign_up_service_url).host}:#{URI(Settings.map_services.sign_up_service_url).port}" %>
   :endpoints:
     - :method: :get
       :path: "/signup/v1/patients/*/status/summary"

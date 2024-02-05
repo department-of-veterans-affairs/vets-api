@@ -5,7 +5,7 @@ require 'token_validation/v2/client'
 require_relative '../../rails_helper'
 
 RSpec.describe 'Veteran Identifier Endpoint', type: :request,
-                                              swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+                                              openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:path) { '/services/claims/v2/veteran-id:find' }
   let(:data) do
     {
@@ -89,7 +89,6 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request,
             mock_ccg(scopes) do |auth_header|
               allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
               post path, params: data, headers: auth_header
-
               expect(response.status).to eq(401)
             end
           end

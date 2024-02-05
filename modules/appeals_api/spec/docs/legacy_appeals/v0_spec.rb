@@ -7,22 +7,26 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json"
 end
 
-# rubocop:disable RSpec/VariableName
-RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
+# rubocop:disable RSpec/VariableName, Layout/LineLength
+RSpec.describe 'Legacy Appeals', openapi_spec:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
+  expected_icn = '1012832025V743496'
+  cassette = %w[caseflow/legacy_appeals_get_by_ssn mpi/find_candidate/valid]
+  veteran_scopes = %w[veteran/LegacyAppeals.read]
+
   path '/legacy-appeals' do
     get 'Returns eligible appeals in the legacy process for a Veteran.' do
-      scopes = AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
-
       tags 'Legacy Appeals'
       operationId 'getLegacyAppeals'
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(
+        AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
+      )
       consumes 'application/json'
       produces 'application/json'
       description = 'Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of ' \
@@ -30,27 +34,73 @@ RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
                     'date of declaration is within the last 60 days.'
       description description
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header].merge(
-        {
-          required: false,
-          description: 'Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-SSN: 123456789'
-        }
+      parameter(
+        parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
+          {
+            name: :icn,
+            in: :query,
+            description: "Veteran's Master Person Index (MPI) Integration Control Number (ICN). Optional when using a veteran-scoped token. Required when using a representative- or system-scoped token.",
+            required: false
+          }
+        )
       )
-      let(:'X-VA-SSN') { '123456789' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header].merge(
-        { description: 'Either X-VA-SSN or X-VA-File-Number is required. Example X-VA-File-Number: 123456789' }
-      )
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-
-      response '200', 'Returns eligible legacy appeals for a Veteran' do
+      response '200', 'Retrieve legacy appeals for the Veteran with the supplied ICN' do
         schema '$ref' => '#/components/schemas/legacyAppeals'
 
+        describe 'with veteran-scoped token' do
+          it_behaves_like 'rswag example',
+                          desc: "with a veteran-scoped token (no 'icn' parameter necessary)",
+                          extract_desc: true,
+                          cassette:,
+                          scopes: veteran_scopes
+        end
+
+        describe 'with representative-scoped token' do
+          let(:icn) { expected_icn }
+
+          it_behaves_like 'rswag example',
+                          desc: "with a representative-scoped token ('icn' parameter is necessary)",
+                          extract_desc: true,
+                          cassette:,
+                          scopes: %w[representative/LegacyAppeals.read]
+        end
+
+        describe 'with system-scoped token' do
+          let(:icn) { expected_icn }
+
+          it_behaves_like 'rswag example',
+                          desc: "with a system-scoped token ('icn' parameter is necessary)",
+                          extract_desc: true,
+                          cassette:,
+                          scopes: %w[system/LegacyAppeals.read]
+        end
+      end
+
+      response '400', 'Missing ICN parameter' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
         it_behaves_like 'rswag example',
-                        desc: 'returns a 200 response',
-                        cassette: 'caseflow/legacy_appeals_get_by_ssn',
-                        scopes:
+                        desc: "with a representative-scoped token and no 'icn' parameter",
+                        extract_desc: true,
+                        cassette:,
+                        scopes: %w[representative/LegacyAppeals.read]
+
+        it_behaves_like 'rswag example',
+                        desc: "with a system-scoped token and no 'icn' parameter",
+                        extract_desc: true,
+                        cassette:,
+                        scopes: %w[system/LegacyAppeals.read]
+      end
+
+      response '403', 'Access forbidden' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:icn) { '1234567890V123456' }
+
+        it_behaves_like 'rswag example',
+                        desc: "with a veteran-scoped token and an optional 'icn' parameter that does not match the Veteran's ICN",
+                        cassette:,
+                        scopes: veteran_scopes
       end
 
       response '404', 'Veteran record not found' do
@@ -58,94 +108,33 @@ RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
 
         it_behaves_like 'rswag example',
                         desc: 'returns a 404 response',
-                        cassette: 'caseflow/legacy_appeals_no_veteran_record',
-                        scopes:
+                        cassette: %w[caseflow/legacy_appeals_no_veteran_record mpi/find_candidate/valid],
+                        scopes: veteran_scopes
       end
 
-      response '422', 'Header Errors' do
+      response '422', "Invalid 'icn' parameter" do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        describe 'X-VA-SSN and X-VA-File-Number both missing' do
-          let(:'X-VA-SSN') { nil }
-          let(:'X-VA-File-Number') { nil }
+        let(:icn) { '12345' }
 
-          it_behaves_like 'rswag example',
-                          desc: 'when X-VA-SSN and X-VA-File-Number are missing',
-                          extract_desc: true,
-                          scopes:
-        end
-
-        describe 'missing X-VA-ICN' do
-          let(:'X-VA-ICN') { nil }
-
-          it_behaves_like 'rswag example',
-                          desc: 'when X-VA-ICN is missing',
-                          extract_desc: true,
-                          scopes:
-        end
-
-        describe 'malformed SSN' do
-          let(:'X-VA-SSN') { '12n-~89' }
-
-          it_behaves_like 'rswag example',
-                          desc: 'when SSN formatted incorrectly',
-                          extract_desc: true,
-                          scopes:
-        end
-
-        context 'malformed ICN' do
-          let(:'X-VA-ICN') { '12345' }
-
-          it_behaves_like 'rswag example',
-                          desc: 'when ICN formatted incorrectly',
-                          extract_desc: true,
-                          scopes:
-        end
+        it_behaves_like 'rswag example',
+                        desc: 'when ICN is formatted incorrectly',
+                        extract_desc: true,
+                        cassette:,
+                        scopes: veteran_scopes
       end
 
       it_behaves_like 'rswag 500 response'
 
-      response '502', 'Unknown Error' do
-        schema type: :object,
-               properties: {
-                 errors: {
-                   type: :array,
-                   items: {
-                     properties: {
-                       status: {
-                         type: 'string',
-                         example: '502'
-                       },
-                       detail: {
-                         type: 'string',
-                         example: 'Received a 500 response from the upstream server'
-                       },
-                       code: {
-                         type: 'string',
-                         example: 'CASEFLOWSTATUS500'
-                       },
-                       title: {
-                         type: 'string',
-                         example: 'Bad Gateway'
-                       }
-                     }
-                   }
-                 }
-               }
+      response '502', 'Unknown upstream error' do
+        schema '$ref' => '#/components/schemas/errorModel'
 
-        before do |example|
-          with_rswag_auth(scopes) do
-            submit_request(example.metadata)
-          end
-        end
-
-        # rubocop:disable RSpec/NoExpectationExample
-        it 'returns a 502 response' do |_example|
-          # NOOP
-        end
-        # rubocop:enable RSpec/NoExpectationExample
+        it_behaves_like 'rswag example',
+                        desc: 'Upstream error from Caseflow service',
+                        cassette: %w[mpi/find_candidate/valid caseflow/legacy_appeals_server_error],
+                        scopes: veteran_scopes
       end
     end
   end
 end
-# rubocop:enable RSpec/VariableName
+# rubocop:enable RSpec/VariableName, Layout/LineLength

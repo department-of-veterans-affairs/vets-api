@@ -5,6 +5,7 @@ require 'search_click_tracking/service'
 module V0
   class SearchClickTrackingController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
+    service_tag 'search'
 
     skip_before_action :authenticate
     skip_before_action :verify_authenticity_token

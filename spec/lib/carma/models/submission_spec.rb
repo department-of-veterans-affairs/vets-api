@@ -179,7 +179,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.metadata.claim_guid).to eq(claim.guid)
     end
 
-    it 'will override :claim_id when passed in metadata and use claim.id instead' do
+    it 'overrides :claim_id when passed in metadata and use claim.id instead' do
       claim = build(:caregivers_assistance_claim)
 
       submission = described_class.from_claim(claim, claim_id: 99)
@@ -193,7 +193,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.metadata.claim_id).to eq(claim.id)
     end
 
-    it 'will override :claim_guid when passed in metadata and use claim.guid instead' do
+    it 'overrides :claim_guid when passed in metadata and use claim.guid instead' do
       claim = build(:caregivers_assistance_claim)
 
       submission = described_class.from_claim(claim, claim_guid: 'not-this-claims-guid')

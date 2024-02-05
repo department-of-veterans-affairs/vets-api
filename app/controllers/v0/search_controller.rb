@@ -5,6 +5,7 @@ require 'search/service'
 module V0
   class SearchController < ApplicationController
     include ActionView::Helpers::SanitizeHelper
+    service_tag 'search'
 
     skip_before_action :authenticate
 

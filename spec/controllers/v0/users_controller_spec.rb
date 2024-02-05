@@ -101,4 +101,31 @@ RSpec.describe V0::UsersController, type: :controller do
       end
     end
   end
+
+  describe '#icn' do
+    let(:user) { build(:user, :loa1) }
+
+    context 'when logged in' do
+      let(:expected_response) { { icn: user.icn }.as_json }
+
+      before do
+        sign_in_as(user)
+      end
+
+      it 'returns the users icn' do
+        get :icn
+
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)).to eq(expected_response)
+      end
+    end
+
+    context 'when not logged in' do
+      it 'returns unauthorized' do
+        get :icn
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
 end

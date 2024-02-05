@@ -3,6 +3,7 @@
 module IncomeLimits
   module V1
     class IncomeLimitsController < ApplicationController
+      service_tag 'income-limit-calculator'
       skip_before_action :authenticate
 
       def index
@@ -109,13 +110,13 @@ module IncomeLimits
       def find_gmt_threshold_data(zipcode_data, year)
         state_data = StdState.find_by(id: zipcode_data.state_id)
         county_data = find_county_data(zipcode_data)
-        state_name = state_data.name
-        county_name = county_data.name
-        GmtThreshold
-          .where('lower(state_name) = ? AND lower(county_name) LIKE ?', state_name.downcase, "#{county_name.downcase}%")
-          .where(effective_year: year)
-          .order(trhd1: :desc)
-          .first
+        state_fips_code = state_data.fips_code
+        county_number = format('%03d', county_data.county_number)
+        county_indentifier = state_fips_code.to_s + county_number.to_s
+        GmtThreshold.where(fips: county_indentifier)
+                    .where(effective_year: year)
+                    .order(trhd1: :desc)
+                    .first
       end
 
       def render_invalid_year_error

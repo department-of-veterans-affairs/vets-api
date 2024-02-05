@@ -6,6 +6,8 @@ module Mobile
       skip_before_action :authenticate
 
       # deers? vacols? corpDB?
+      # lighthouse upstream service documentation:
+      # https://github.com/department-of-veterans-affairs/leeroy-jenkles/wiki/API-Backend-Systems#api-to-va-backend-mapping
       SERVICE_GRAPH = Mobile::V0::ServiceGraph.new(
         %i[bgs lighthouse],
         %i[mpi lighthouse],
@@ -21,10 +23,12 @@ module Mobile
         %i[lighthouse direct_deposit_benefits],
         %i[lighthouse disability_rating],
         %i[lighthouse letters_and_documents],
+        %i[lighthouse immunizations],
         %i[mhv secure_messaging],
         %i[vaos appointments],
         %i[vet360 user_profile_update],
-        %i[mhv rx_refill]
+        %i[mhv rx_refill],
+        %i[eoas preneed_burial]
       )
 
       def index

@@ -1,0 +1,414 @@
+---
+schema-version: v2.1
+dd-service: dependent-change
+team: benefits
+application: 686c/674
+tier: '1'
+lifecycle: production
+contacts:
+  - name: benefits-dependents-management
+    type: slack
+    contact: https://dsva.slack.com/archives/C0547Q0K0LF
+links:
+  - name: Benefits - Depdendents 686/672
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/vad-969-xqc/benefits---dependents-686674
+integrations: {}
+---
+schema-version: v2.1
+dd-service: mobile-application
+tier: '1'
+lifecycle: production
+contacts:
+  - name: va-mobile-app
+    type: slack
+    contact: https://dsva.slack.com/archives/C018V2JCWRJ
+links:
+  - name: Mobile API Dashboard 2.0
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/j6m-3ws-x4c/mobile-api-dashboard-20?refresh_mode=sliding&from_ts=1697647938386&to_ts=1698252738386&live=true
+  - name: Mobile API Dashboard
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/pzz-7x2-4cs/mobile-api-dashboard
+integrations: {}
+---
+schema-version: v2.1
+dd-service: claim-status
+team: benefits
+application: claim status tool application
+tier: '1'
+description: Claim Status Tool application
+lifecycle: production
+contacts:
+  - name: benefits-management-tools
+    type: slack
+    contact: https://dsva.slack.com/archives/C04KHCT3ZMY
+links:
+  - name: Benefits - Claim Status Tool
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/uc8-jnr-zhm/benefits---claim-status-tool
+integrations: {}
+---
+schema-version: v2.1
+dd-service: gibill-application
+team: vfs-education
+tier: '1'
+lifecycle: production
+contacts:
+  - name: benefits-education
+    type: slack
+    contact: https://dsva.slack.com/archives/CG6N59X40
+integrations: {}
+---
+schema-version: v2.1
+dd-service: healthcare-application
+team: 1010-health-apps
+application: health
+tier: '1'
+lifecycle: production
+contacts:
+  - name: 1010-health-apps
+    type: slack
+    contact: https://dsva.slack.com/archives/CMJ2V70UV
+links:
+  - name: 1010 Health Apps
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/p5g-fys-epz/1010-health-apps
+integrations: {}
+---
+schema-version: v2.1
+dd-service: profile
+team: auth-experience-profile
+tier: '1'
+lifecycle: production
+contacts:
+  - name: accountexp-authexp
+    type: slack
+    contact: https://dsva.slack.com/archives/C909ZG2BB
+integrations: {}
+---
+schema-version: v2.1
+dd-service: education-forms
+team: vfs-education
+tier: '1'
+lifecycle: production
+contacts:
+  - name: benefits-education
+    type: slack
+    contact: https://dsva.slack.com/archives/CG6N59X40
+integrations: {}
+---
+schema-version: v2.1
+dd-service: ask-va
+team: octo-engineers
+tier: '2'
+lifecycle: production
+contacts:
+  - name: ask-va-public
+    type: slack
+    contact: https://dsva.slack.com/archives/C05A2F6DEAE
+integrations: {}
+---
+schema-version: v2.1
+dd-service: evidence-upload
+team: benefits
+application: Notice of Disagreement, Supplemental Claims
+tier: '1'
+description: Evidence upload services for Notice of Disagreement and Supplemental
+  Claims
+lifecycle: Production
+contacts:
+  - name: benefits-management-tools
+    type: slack
+    contact: https://dsva.slack.com/archives/C04KHCT3ZMY
+links:
+  - name: Benefits - Evidence Uploads
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/u78-itq-2yt
+integrations: {}
+---
+schema-version: v2.1
+dd-service: appeal-application
+team: benefits
+application: Supplemental Claims
+tier: '1'
+description: Supplemental Claims application
+lifecycle: production
+contacts:
+  - name: "#benefits-decision-reviews"
+    type: slack
+    contact: https://dsva.slack.com/archives/C5AGLBNRK
+links:
+  - name: Benefits - Supplemental Claims
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/uc7-8ai-6c3/benefits---supplemental-claims
+integrations: {}
+---
+schema-version: v2.1
+dd-service: direct-deposit
+team: auth-experience-profile
+tier: '1'
+lifecycle: production
+contacts:
+  - name: accountexp-authexp
+    type: slack
+    contact: https://dsva.slack.com/archives/C909ZG2BB
+links:
+  - name: 'Authenticated Experience: C&P Direct Deposit'
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/gra-npe-h52/authenticated-experience-cp-direct-deposit
+integrations: {}
+---
+schema-version: v2.1
+dd-service: avs
+team: After Visit Summary
+description: Displays after visit summaries to veterans.
+contacts:
+  - name: "#after-visit-summary"
+    type: slack
+    contact: https://dsva.slack.com/archives/C04UBETRY8N
+integrations: {}
+---
+schema-version: v2.1
+dd-service: disability-application
+team: benefits
+application: disability benefits application
+tier: '1'
+description: disability benefits application
+lifecycle: production
+contacts:
+  - name: "#benefits-disability"
+    type: slack
+    contact: https://dsva.slack.com/archives/C04KW0B46N5
+links:
+  - name: Form 526 Disability Compensation
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/ygg-v6d-nza/form-526-disability-compensation
+integrations: {}
+---
+schema-version: v2.1
+dd-service: appeal-status
+team: benefits
+application: Appeal Status - part of Claim Status Tool
+tier: '1'
+description: Appeal Status application
+lifecycle: Production
+contacts:
+  - name: benefits-management-tools
+    type: slack
+    contact: https://dsva.slack.com/archives/C04KHCT3ZMY
+links:
+  - name: Benefits - Claim Status Tool - Appeals
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/cpt-6qy-rbc
+integrations: {}
+---
+schema-version: v2.1
+dd-service: homepage
+team: vfs-websites
+tier: '1'
+description: VA.gov homepage.
+contacts:
+  - name: "#sitewide-public-websites"
+    type: slack
+    contact: https://dsva.slack.com/archives/C52CL1PKQ
+tags:
+  - homepage
+integrations: {}
+---
+schema-version: v2.1
+dd-service: caregiver-application
+team: 1010-health-apps
+tier: '1'
+lifecycle: production
+contacts:
+  - name: 1010-health-apps
+    type: slack
+    contact: https://dsva.slack.com/archives/CMJ2V70UV
+links:
+  - name: 1010 Health Apps
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/p5g-fys-epz/1010-health-apps
+integrations: {}
+---
+schema-version: v2.1
+dd-service: feature-flag
+team: platform
+application: platform
+tier: '1'
+lifecycle: production
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/archives/CBU0KDSB1
+links:
+  - name: Feature Toggles 500 errors
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/sbb-id5-kwh/feature-toggles-500-errors
+integrations: {}
+---
+schema-version: v2.1
+dd-service: financial-report
+team: vfs-debt
+tier: '1'
+contacts:
+  - name: debt-resolution
+    type: slack
+    contact: https://dsva.slack.com/archives/CPE4AJ6Q0
+integrations: {}
+---
+schema-version: v2.1
+dd-service: search
+team: vfs-websites
+tier: '1'
+lifecycle: production
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/archives/C011K1VSTC3
+integrations: {}
+---
+schema-version: v2.1
+dd-service: save-in-progress
+team: platform
+application: platform
+tier: '1'
+lifecycle: production
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/archives/CBU0KDSB1
+integrations: {}
+---
+schema-version: v2.1
+dd-service: authentication
+team: platform-identity
+tier: '1'
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/archives/CSFV4QTKN
+links:
+  - name: VSP Identity Monitor Dashboard
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/52g-hyg-wcj/vsp-identity-monitor-dashboard
+integrations: {}
+---
+schema-version: v2.1
+dd-service: mobile-app
+team: vfs-mobile
+tier: '1'
+lifecycle: production
+contacts:
+  - name: va-mobile-app
+    type: slack
+    contact: https://dsva.slack.com/archives/C018V2JCWRJ
+links:
+  - name: Mobile API Dashboard 2.0
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/j6m-3ws-x4c/mobile-api-dashboard-20?refresh_mode=sliding&from_ts=1697647938386&to_ts=1698252738386&live=true
+  - name: Mobile API Dashboard
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/pzz-7x2-4cs/mobile-api-dashboard
+integrations: {}
+---
+schema-version: v2.1
+dd-service: pension-application
+team: benefits
+application: Pension / form 21P-527EZ
+tier: '1'
+description: 21P-527EZ Pension application
+lifecycle: production
+contacts:
+  - name: benefits-pension
+    type: slack
+    contact: https://dsva.slack.com/archives/C05MS96P6P2
+links:
+  - name: Benefits - Form 527 Pension Benefits
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/vk2-6zi-zzu/benefits---form-527-pension-benefits
+integrations: {}
+---
+schema-version: v2.1
+dd-service: education-enrollment-verification
+team: vfs-education
+tier: '1'
+lifecycle: production
+contacts:
+  - name: benefits-education
+    type: slack
+    contact: https://dsva.slack.com/archives/CG6N59X40
+integrations: {}
+---
+schema-version: v2.1
+dd-service: mhv-messaging
+team: vfs-myhealth
+application: health
+tier: '1'
+lifecycle: production
+contacts:
+  - name: mhv-secure-messaging
+    type: slack
+    contact: https://dsva.slack.com/archives/C03ECSBGSKX
+links:
+  - name: MHV Secure Messaging
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/5r5-ra2-qga/mhv-secure-messaging
+integrations: {}
+---
+schema-version: v2.1
+dd-service: intent-to-file
+team: benefits
+application: disability-app
+tier: '1'
+description: Intent to File functionality in 526EZ and other applications
+lifecycle: production
+contacts:
+  - name: benefits-disability
+    type: slack
+    contact: https://dsva.slack.com/archives/C04KW0B46N5
+links:
+  - name: Benefits - Intent to File
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/9c7-45v-3fx
+integrations: {}
+---
+schema-version: v2.1
+dd-service: mhv-medications
+team: vfs-myhealth
+application: health
+tier: '1'
+contacts:
+  - name: mhv-medications-rx
+    type: slack
+    contact: https://dsva.slack.com/archives/C04PRFEJQTY
+integrations: {}
+---
+schema-version: v2.1
+dd-service: find-a-form
+team: vfs-websites
+tier: '1'
+lifecycle: production
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/archives/CUB5X5MGF
+links:
+  - name: Public Websites Dashboard
+    type: dashboard
+    provider: Datadog
+    url: https://vagov.ddog-gov.com/dashboard/szu-xny-9fu/public-websites-dashboard
+integrations: {}

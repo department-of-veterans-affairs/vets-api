@@ -257,6 +257,8 @@ RSpec.describe V0::InProgressFormsController do
 
       context 'when a form mapping is not found' do
         it 'returns a 500' do
+          allow(FormProfile).to receive(:prefill_enabled_forms).and_return(['FOO'])
+
           get v0_in_progress_form_url('foo'), params: nil
           expect(response).to have_http_status(:internal_server_error)
         end
@@ -379,11 +381,11 @@ RSpec.describe V0::InProgressFormsController do
           before { allow(StatsD).to receive(:increment) }
 
           context 'has no ratings with maximum_rating_percentage' do
-            it 'updates form and does not include cfiMetric in metadata nor logs metric' do
+            it 'updates form with cfiMetric metadata but does not call StatsD' do
               put v0_in_progress_form_url(existing_form.form_id),
                   params: { form_data:, metadata: existing_form.metadata }
               expect(response).to have_http_status(:ok)
-              expect(existing_form.reload.metadata.keys).not_to include('cfiMetric')
+              expect(existing_form.reload.metadata.keys).to include('cfiMetric')
               expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.7101')
             end
           end
@@ -435,11 +437,13 @@ RSpec.describe V0::InProgressFormsController do
         context 'has not checked \'One or more of my rated conditions that have gotten worse\'' do
           before { allow(StatsD).to receive(:increment) }
 
-          it 'updates form and does not include cfiMetric in metadata' do
+          let(:existing_form) { create(:in_progress_526_form, user_uuid: user.uuid) }
+
+          it 'updates form with cfiMetric metadata but does not call StatsD' do
             put v0_in_progress_form_url(existing_form.form_id),
                 params: { form_data:, metadata: existing_form.metadata }
             expect(response).to have_http_status(:ok)
-            expect(existing_form.reload.metadata.keys).not_to include('cfiMetric')
+            expect(existing_form.reload.metadata.keys).to include('cfiMetric')
             expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated-disabilities')
           end
         end

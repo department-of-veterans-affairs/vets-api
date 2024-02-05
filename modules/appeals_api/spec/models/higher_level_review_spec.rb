@@ -121,6 +121,15 @@ describe AppealsApi::HigherLevelReview, type: :model do
                      factory: :higher_level_review_v0,
                      form_data_fixture: 'higher_level_reviews/v0/valid_200996.json'
 
+    describe '#veteran_icn' do
+      subject { higher_level_review.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq higher_level_review.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
+
     describe '#soc_opt_in' do
       describe 'by default' do
         subject { higher_level_review.soc_opt_in }
@@ -172,6 +181,25 @@ describe AppealsApi::HigherLevelReview, type: :model do
     include_examples 'HLR metadata',
                      factory: :higher_level_review_v2,
                      form_data_fixture: 'decision_reviews/v2/valid_200996.json'
+
+    describe '#veteran_icn' do
+      subject { higher_level_review.veteran_icn }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq higher_level_review.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:higher_level_review) do
+          create(:higher_level_review_v2, auth_headers: default_auth_headers.except('X-VA-ICN'))
+        end
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
+    end
 
     describe '#full_name' do
       subject { higher_level_review.full_name }

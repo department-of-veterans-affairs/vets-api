@@ -50,14 +50,14 @@ module SAML
       @saml_attributes = saml_response.attributes
       @tracker_uuid = saml_response.in_response_to
 
-      Raven.extra_context(
+      Sentry.set_extras(
         saml_attributes: saml_attributes&.to_h,
         saml_response: Base64.encode64(saml_response&.response || '')
       )
 
       @user_attributes = SAML::UserAttributes::SSOe.new(saml_attributes, authn_context, tracker_uuid)
 
-      Raven.tags_context(
+      Sentry.set_tags(
         sign_in_service_name: user_attributes.sign_in&.fetch(:service_name, nil),
         sign_in_account_type: user_attributes.sign_in&.fetch(:account_type, nil),
         sign_in_auth_broker: user_attributes.sign_in&.fetch(:auth_broker, nil)
@@ -79,7 +79,7 @@ module SAML
     def authn_context
       saml_response.authn_context_text
     rescue
-      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      Sentry.set_tags(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
   end

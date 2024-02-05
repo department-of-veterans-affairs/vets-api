@@ -48,47 +48,57 @@
     "meta": {
       "properties": {
         "errors": {
-          "properties": {
-            "service": {
-              "type": "string",
-              "enum": [
-                "claims",
-                "appeals"
-              ]
-            },
-            "errorDetails": {
-              "type": "array"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "service": {
+                "type": "string",
+                "enum": [
+                  "claims",
+                  "appeals"
+                ]
+              },
+              "errorDetails": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "array" }
+                ]
+              }
             }
           }
         },
-        "type": "array"
-      },
-      "pagination": {
-        "type": "object",
-        "required": [
-          "currentPage",
-          "perPage",
-          "totalPages",
-          "totalEntries"
-        ],
-        "properties": {
-          "currentPage": {
-            "type": "integer"
-          },
-          "perPage": {
-            "type": "integer"
-          },
-          "totalPages": {
-            "type": "integer"
-          },
-          "totalEntries": {
-            "type": "integer"
+        "pagination": {
+          "type": "object",
+          "required": [
+            "currentPage",
+            "perPage",
+            "totalPages",
+            "totalEntries"
+          ],
+          "properties": {
+            "currentPage": {
+              "type": "integer"
+            },
+            "perPage": {
+              "type": "integer"
+            },
+            "totalPages": {
+              "type": "integer"
+            },
+            "totalEntries": {
+              "type": "integer"
+            }
           }
+        },
+        "activeClaimsCount": {
+          "type": "number"
         }
       },
       "required": [
         "errors",
-        "pagination"
+        "pagination",
+        "activeClaimsCount"
       ],
       "type": "object"
     }

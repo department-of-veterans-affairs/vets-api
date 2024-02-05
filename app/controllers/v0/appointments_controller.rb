@@ -4,6 +4,7 @@ require 'ihub/appointments/service'
 
 module V0
   class AppointmentsController < ApplicationController
+    service_tag 'deprecated'
     def index
       response = service.appointments
 

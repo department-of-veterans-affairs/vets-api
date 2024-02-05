@@ -3,6 +3,8 @@
 module V0
   module MDOT
     class SuppliesController < ApplicationController
+      service_tag 'medical-supply-reordering'
+
       def create
         render(json: client.submit_order(supply_params))
       end

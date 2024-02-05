@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VBA214142
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.21_4142'
 
     attribute :data
 
@@ -20,11 +21,15 @@ module SimpleFormsApi
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
+        'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def track_user_identity
+      StatsD.increment("#{STATS_KEY}.#{data.dig('preparer_identification', 'relationship_to_veteran')}")
     end
 
     private

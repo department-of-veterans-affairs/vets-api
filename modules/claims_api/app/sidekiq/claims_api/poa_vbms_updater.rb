@@ -16,38 +16,45 @@ module ClaimsApi
       )
 
       ClaimsApi::Logger.log(
-        'poa',
+        'poa_vbms_updater',
         poa_id: power_of_attorney_id,
         detail: 'Updating Access',
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
       )
 
+      # allow_poa_c_add reports 'No Data' if sent lowercase
       response = service.corporate_update.update_poa_access(
         participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
         allow_poa_access: 'y',
-        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'y' : 'n'
+        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'Y' : 'N'
       )
 
       if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
-        ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'VBMS Success')
+        ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
       else
         poa_form.vbms_error_message = 'update_poa_access failed with code '\
                                       "#{response[:return_code]}: #{response[:return_message]}"
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
-        ClaimsApi::Logger.log('poa',
+        ClaimsApi::Logger.log('poa_vbms_updater',
                               poa_id: power_of_attorney_id,
                               detail: 'VBMS Failed',
                               error: response[:return_message])
       end
 
       poa_form.save
+    rescue BGS::ShareError => e
+      poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
+      poa_form.vbms_error_message = e.respond_to?(:message) ? e.message : 'BGS::ShareError'
+      poa_form.save
+      ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
     end
 
     def allow_address_change?(poa_form, power_of_attorney_id)
-      ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'consent to change address has changed')
+      ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id,
+                                                detail: 'consent to change address has changed')
       poa_form.form_data['consentAddressChange']
     end
   end

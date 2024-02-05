@@ -2,6 +2,7 @@
 
 module DhpConnectedDevices
   class VeteranDeviceRecordsController < ApplicationController
+    service_tag 'connected-devices'
     def index
       if @current_user&.icn.blank?
         render json: { connectionAvailable: false }

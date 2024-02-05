@@ -60,7 +60,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     service = described_class.new
 
     context 'successful submission' do
-      it 'submits successfully' do
+      it 'queues the job' do
         expect do
           subject.perform_async(claim.id)
         end.to change(subject.jobs, :size).by(1)
@@ -76,29 +76,115 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           expect(errored_claim.status).to eq('pending')
         end
       end
-    end
 
-    it 'removes the evss_response on successful docker Container submission' do
-      VCR.use_cassette('claims_api/evss/submit') do
-        expect(claim_with_evss_response.status).to eq('errored')
-        expect(claim_with_evss_response.evss_response).to eq('Just a test evss error response')
+      it 'removes the evss_response on successful docker Container submission' do
+        VCR.use_cassette('claims_api/evss/submit') do
+          expect(claim_with_evss_response.status).to eq('errored')
+          expect(claim_with_evss_response.evss_response).to eq('Just a test evss error response')
 
-        service.perform(claim_with_evss_response.id)
+          service.perform(claim_with_evss_response.id)
 
-        claim_with_evss_response.reload
-        expect(claim_with_evss_response.status).to eq('pending')
-        expect(claim_with_evss_response.evss_response).to eq(nil)
+          claim_with_evss_response.reload
+          expect(claim_with_evss_response.status).to eq('pending')
+          expect(claim_with_evss_response.evss_response).to eq(nil)
+        end
+      end
+
+      it 'does retry when form526.submit.establshClaim.serviceError gets retruned' do
+        body = {
+          messages: [
+            { key: 'form526.submit.establshClaim.serviceError',
+              severity: 'FATAL',
+              text: 'Error calling external service to establish the claim during submit.' }
+          ]
+        }
+
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       'form526.submit.establshClaim.serviceError', {}, nil, body
+                                     ))
+        )
+
+        expect do
+          service.perform(claim.id)
+        end.to raise_error(Common::Exceptions::BackendServiceException)
       end
     end
 
-    context 'handles an errored claim correctly' do
+    context 'errored submission' do
       it 'does not call the next job when the claim.status is errored' do
-        allow(errored_claim).to receive(:status).and_return('errored')
+        VCR.use_cassette('claims_api/evss/submit') do
+          allow(errored_claim).to receive(:status).and_return('errored')
 
-        subject.perform_async(errored_claim.id)
+          service.perform(errored_claim.id)
+
+          errored_claim.reload
+          expect(service).not_to receive(:start_bd_uploader_job)
+        end
+      end
+
+      it 'updates the evss_response with the error message' do
+        body = {
+          messages: [
+            { key: 'form526.submit.noRetryError',
+              severity: 'FATAL',
+              text: 'Claim could not be established. Retries will fail.' }
+          ]
+        }
+        # Rubocop formatting
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       'form526.submit.noRetryError', {}, nil, body
+                                     ))
+        )
+
+        service.perform(errored_claim.id)
 
         errored_claim.reload
-        expect(service).not_to receive(:start_bd_uploader_job)
+        expect(errored_claim.evss_response).to eq(
+          [{ 'key' => 'form526.submit.noRetryError', 'severity' => 'FATAL',
+             'text' => 'Claim could not be established. Retries will fail.' }]
+        )
+      end
+
+      it 'does not retry when form526.submit.noRetryError error gets retruned' do
+        body = {
+          messages: [
+            { key: 'form526.submit.noRetryError',
+              severity: 'FATAL',
+              text: 'Claim could not be established. Retries will fail.' }
+          ]
+        }
+        # Rubocop formatting
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       'form526.submit.noRetryError', {}, nil, body
+                                     ))
+        )
+
+        expect do
+          service.perform(claim.id)
+        end.not_to change(subject.jobs, :size)
+      end
+
+      it 'does not retry when form526.InProcess error gets retruned' do
+        body = {
+          messages: [
+            { key: 'form526.InProcess',
+              severity: 'FATAL',
+              text: 'Form 526 is already in-process' }
+          ]
+        }
+        # Rubocop formatting
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       'form526.InProcess', {}, nil, body
+                                     ))
+        )
+
+        expect do
+          service.perform(claim.id)
+        end.not_to change(subject.jobs, :size)
       end
     end
   end

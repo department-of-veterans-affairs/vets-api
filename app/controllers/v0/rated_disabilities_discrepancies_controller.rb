@@ -5,6 +5,7 @@ require 'lighthouse/veteran_verification/service'
 
 module V0
   class RatedDisabilitiesDiscrepanciesController < ApplicationController
+    service_tag 'disability-rating'
     before_action { authorize :evss, :access? }
     before_action { authorize :lighthouse, :access? }
 

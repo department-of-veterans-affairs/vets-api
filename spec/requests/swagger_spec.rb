@@ -967,6 +967,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
+        Flipper.disable('disability_compensation_prevent_submission_job')
       end
 
       let(:form526v2) do
@@ -1916,93 +1917,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting user with some external errors', skip_mvi: true do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
-      end
-    end
-
-    context 'terms and conditions routes' do
-      context 'with some terms and acceptances' do
-        let!(:terms) { create(:terms_and_conditions, latest: true) }
-        # The Faker in the factory will _sometimes_ return the same name. make sure it's different
-        # so that the association in terms_acc works as expected with these tests.
-        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
-        let!(:terms_acc) do
-          create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
-        end
-
-        it 'validates the routes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions',
-            200
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            200,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            200,
-            headers.merge('name' => terms.name)
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            422,
-            headers.merge('name' => terms.name)
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            200,
-            headers.merge('name' => terms2.name)
-          )
-        end
-
-        it 'validates auth errors' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            401,
-            'name' => terms.name
-          )
-        end
-      end
-
-      context 'with no terms and acceptances' do
-        it 'validates the routes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions',
-            200
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            404,
-            'name' => 'blat'
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            404,
-            headers.merge('name' => 'blat')
-          )
-          expect(subject).to validate(
-            :post,
-            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
-            404,
-            headers.merge('name' => 'blat')
-          )
-        end
       end
     end
 
@@ -3078,28 +2992,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports getting connected applications' do
-        with_okta_configured do
-          expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
-          VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_200') do
-            expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, headers)
-          end
+        expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
+        VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_200') do
+          expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, headers)
         end
       end
 
       it 'supports removing connected applications grants' do
-        with_okta_configured do
-          parameters = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
-          expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, parameters)
-          VCR.use_cassette('lighthouse/auth/client_credentials/revoke_consent_204', allow_playback_repeats: true) do
-            expect(subject).to(
-              validate(
-                :delete,
-                '/v0/profile/connected_applications/{application_id}',
-                204,
-                headers.merge(parameters)
-              )
+        parameters = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
+        expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, parameters)
+        VCR.use_cassette('lighthouse/auth/client_credentials/revoke_consent_204', allow_playback_repeats: true) do
+          expect(subject).to(
+            validate(
+              :delete,
+              '/v0/profile/connected_applications/{application_id}',
+              204,
+              headers.merge(parameters)
             )
-          end
+          )
         end
       end
     end
@@ -3367,6 +3277,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'dependents applications' do
+      let!(:user) { build(:user, ssn: '796043735') }
+
       it 'supports getting dependent information' do
         expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
@@ -3375,14 +3287,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports adding a dependency claim' do
-        expect(subject).to validate(
-          :post,
-          '/v0/dependents_applications',
-          200,
-          headers.merge(
-            '_data' => build(:dependency_claim).parsed_form
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          expect(subject).to validate(
+            :post,
+            '/v0/dependents_applications',
+            200,
+            headers.merge(
+              '_data' => build(:dependency_claim).parsed_form
+            )
           )
-        )
+        end
 
         expect(subject).to validate(
           :post,
@@ -3612,10 +3529,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'loa3 user' do
-        let(:mhv_user) { build(:user, :loa3) }
+        let(:idme_uuid) { 'e444837a-e88b-4f59-87da-10d3c74c787b' }
+        let(:mhv_user) { build(:user, :loa3, idme_uuid:) }
 
         it 'returns ok status code' do
-          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+          VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
+            expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+          end
         end
       end
     end

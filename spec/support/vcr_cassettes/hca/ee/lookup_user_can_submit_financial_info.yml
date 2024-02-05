@@ -1,0 +1,115 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <%= Settings.hca.ee.endpoint %>
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0"?>
+        <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sch="http://jaxws.webservices.esr.med.va.gov/schemas">
+          <SOAP-ENV:Header>
+            <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" SOAP-ENV:mustUnderstand="1">
+              <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="XWSSGID-1281117217796-43574433">
+                <wsse:Username>HCASvcUsr</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"><EE_PASS></wsse:Password>
+              </wsse:UsernameToken>
+            </wsse:Security>
+          </SOAP-ENV:Header>
+          <SOAP-ENV:Body>
+            <sch:getEESummaryRequest>
+              <sch:key>1013144622V807216</sch:key>
+              <sch:requestName>HCAData</sch:requestName>
+            </sch:getEESummaryRequest>
+          </SOAP-ENV:Body>
+        </SOAP-ENV:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Date:
+      - Mon, 04 Dec 2023 22:32:14 GMT
+      Content-Length:
+      - '975'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 04 Dec 2023 22:32:14 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      Content-Length:
+      - '8815'
+      Accept:
+      - text/xml
+      X-Oracle-Dms-Rid:
+      - '0'
+      X-Oracle-Dms-Ecid:
+      - 70d23c87-7271-4fae-acfa-176969f871b8-000029fc
+      Soapaction:
+      - '""'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - max-age=0, no-store
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-206260948"
+      Content-Type:
+      - text/xml; charset=UTF-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><env:Body><getEESummaryResponse
+        xmlns="http://jaxws.webservices.esr.med.va.gov/schemas"><eesVersion>5.12.0.05003</eesVersion><summary><insuranceList><insurance><groupName>Part
+        A</groupName><groupNumber>Part A</groupNumber><companyName>Medicare</companyName><policyHolderName>ANDREWS,
+        KENNETH</policyHolderName><policyNumber>1A2B3C4D5E6</policyNumber><enrolledInPartA>true</enrolledInPartA><partAEffectiveDate>20230501000000</partAEffectiveDate><lastEditedDate>2023-08-31T18:21:56.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance><insurance><groupName>Test
+        Group</groupName><groupNumber>87654321</groupNumber><companyName>Test Insurance</companyName><policyExpirationDate>20240302</policyExpirationDate><policyHolderName>Kenneth
+        Andrews</policyHolderName><policyNumber>12345678</policyNumber><lastEditedDate>2023-08-31T18:20:38.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship><insAddress><line1>1
+        TEST AVE</line1><city>PINEHURST</city><county>MOORE</county><state>NC</state><zipCode>28374</zipCode><addressTypeCode>Firm/Business</addressTypeCode></insAddress><insurancePhones><phone><type>Business</type><phoneNumber>(738)723-7431</phoneNumber></phone></insurancePhones></insurance></insuranceList><enrollmentDeterminationInfo><calculationSource>HEC</calculationSource><enrollmentStatus>Pending;
+        Other</enrollmentStatus><effectiveDate>2019-09-08T22:23:05.000-05:00</effectiveDate><veteran>true</veteran><primaryEligibility><type>NSC</type><indicator>P</indicator><eligibilityReportDate>2019-09-08T22:23:05.000-05:00</eligibilityReportDate></primaryEligibility><serviceConnectionAward><serviceConnectedIndicator>false</serviceConnectedIndicator><scReportDate>2019-09-08T22:23:05.000-05:00</scReportDate></serviceConnectionAward><recordCreatedDate>2019-09-08T22:23:05.000-05:00</recordCreatedDate><recordModifiedDate>2019-09-08T22:23:05.000-05:00</recordModifiedDate><enrollmentCategoryName>In-Process</enrollmentCategoryName></enrollmentDeterminationInfo><demographics><contactInfo><addresses><address><line1>142
+        WHITEHAVEN CIR</line1><city>HIGHLANDS RANCH</city><county>DOUGLAS</county><state>CO</state><zipCode>80129</zipCode><zipPlus4>6676</zipPlus4><country>USA</country><addressTypeCode>Permanent</addressTypeCode><addressChangeDateTime>2023-08-31T17:55:07.000-05:00</addressChangeDateTime><addressChangeSource>Health
+        Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
+        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2023-08-31T17:55:37.000-05:00</contactMethodReportDate></address><address><line1>142
+        WHITEHAVEN CIR</line1><city>HIGHLANDS RANCH</city><county>DOUGLAS</county><state>CO</state><zipCode>80129</zipCode><zipPlus4>6676</zipPlus4><country>USA</country><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2023-09-01T13:59:50.000-05:00</addressChangeDateTime><addressChangeSource>Health
+        Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
+        CENTER</addressChangeSite></address></addresses><phones><phone><type>Mobile</type><phoneNumber>(432)541-1111</phoneNumber><phoneNumberReportDate>2023-09-01T14:12:37.000-05:00</phoneNumberReportDate></phone><phone><type>Home</type><phoneNumber>(432)435-3333</phoneNumber><phoneNumberReportDate>2023-09-01T14:12:37.000-05:00</phoneNumberReportDate></phone></phones><emails><email><type>Personal</type><address>test@test.com</address><siteOfChange>742
+        - HEALTH ELIGIBILITY CENTER</siteOfChange><sourceOfChange>HEC</sourceOfChange></email></emails></contactInfo></demographics><financialsInfo><incomeTest><gmtAddressInfo><line1>142
+        WHITEHAVEN CIR</line1><city>HIGHLANDS RANCH</city><county>DOUGLAS</county><state>CO</state><zipcode>80129</zipcode><country>USA</country></gmtAddressInfo><incomeYear>2022</incomeYear><discloseFinancialInformation>true</discloseFinancialInformation><agreesToPayDeductible>true</agreesToPayDeductible><effectiveDate>2023-07-23T00:00:00.000-05:00</effectiveDate><totalNumberOfDependents>0</totalNumberOfDependents><primaryIncomeTest>true</primaryIncomeTest><futureTest>false</futureTest><incomeTestsource>HEC</incomeTestsource><incomeTestType>Means
+        Test</incomeTestType><incomeTestReportDate>2023-09-01T10:08:33.000-05:00</incomeTestReportDate><thresholdA>39849</thresholdA><gmtThresholdAmount>62600</gmtThresholdAmount><totalIncome>53750</totalIncome><netIncome>47737.65</netIncome><deductibleExpenses>6012.35</deductibleExpenses><netWorth>0</netWorth><statuses><status><determinedStatus>GMT
+        Copay Required</determinedStatus><completedDate>2023-09-01T10:08:33.000-05:00</completedDate><lastEditedDate>2023-09-01T10:08:33.000-05:00</lastEditedDate><incomeTestType>Means
+        Test</incomeTestType><status>GMT Copay Required</status></status><status><incomeTestType>Co-Pay
+        Exemption Test</incomeTestType><status>Non-Exempt</status></status></statuses><networthThreshold>80000</networthThreshold><pensionThreshold>16037</pensionThreshold><childIncomeExclusionThreshold>13850</childIncomeExclusionThreshold><cadAdjusted>false</cadAdjusted></incomeTest><financialStatement><incomeYear>2022</incomeYear><expenses><expense><expenseType>Funeral
+        and Burial Expenses</expenseType><amount>500</amount><expenseReportDate>2023-09-01T10:08:33.000-05:00</expenseReportDate></expense><expense><expenseType>Total
+        Non-Reimbursed Medical Expenses</expenseType><amount>5000</amount><expenseReportDate>2023-09-01T10:08:33.000-05:00</expenseReportDate></expense><expense><expenseType>Veteran's
+        Educational Expenses</expenseType><amount>1250</amount><expenseReportDate>2023-09-01T10:08:33.000-05:00</expenseReportDate></expense><expense><expenseType>Adjusted
+        Medical Expense</expenseType><amount>4262.35</amount><expenseReportDate>2023-09-01T10:08:33.000-05:00</expenseReportDate></expense></expenses><incomes><income><type>All
+        Other Income</type><amount>750</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income><income><type>Total
+        Employment Income</type><amount>52000</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income><income><type>Net
+        Income from Farm, Ranch, Property, Business</type><amount>1000</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income></incomes><marriedLastCalendarYear>false</marriedLastCalendarYear><numberOfDependentChildren>0</numberOfDependentChildren><spouseFinancialsList><spouseFinancials><incomeYear>2022</incomeYear><incomes><income><type>All
+        Other Income</type><amount>2000</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income><income><type>Total
+        Employment Income</type><amount>37000</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income><income><type>Net
+        Income from Farm, Ranch, Property, Business</type><amount>2500</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income></incomes><livedWithPatient>true</livedWithPatient><validDependent>false</validDependent><spouse><dob>19940821</dob><familyName>Andrews</familyName><gender>Female</gender><givenName>Dorothy</givenName><middleName>Janett</middleName><relationship>SPOUSE</relationship><ssns><ssn><ssnText>666726364</ssnText><type>Active</type><ssaVerificationStatus>New
+        Record</ssaVerificationStatus></ssn></ssns><startDate>20190213</startDate><maidenName>Johnson</maidenName></spouse></spouseFinancials></spouseFinancialsList><dependentFinancialsList><dependentFinancials><incomeYear>2022</incomeYear><expenses><expense><expenseType>Child's
+        Educational Expenses</expenseType><amount>450</amount><expenseReportDate>2023-09-01T10:08:33.000-05:00</expenseReportDate></expense></expenses><incomes><income><type>Total
+        Employment Income</type><amount>2000</amount><incomeReportDate>2023-09-01T10:08:33.000-05:00</incomeReportDate></income></incomes><livedWithPatient>false</livedWithPatient><dependentInfo><dob>20230121</dob><familyName>Andrews</familyName><gender>Male</gender><givenName>Michael</givenName><middleName>Gregory</middleName><relationship>SON</relationship><ssns><ssn><ssnText>666837455</ssnText><type>Active</type><ssaVerificationStatus>New
+        Record</ssaVerificationStatus></ssn></ssns><startDate>20230121</startDate></dependentInfo><incapableOfSelfSupport>false</incapableOfSelfSupport><contributedToSupport>true</contributedToSupport><hasIncome>true</hasIncome><incomeAvailableToPatient>true</incomeAvailableToPatient><attendedSchool>true</attendedSchool></dependentFinancials></dependentFinancialsList><vamcReportDate>2023-09-01T10:08:33.000-05:00</vamcReportDate></financialStatement></financialsInfo></summary><invocationDate>2023-12-04T16:32:14</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
+  recorded_at: Mon, 04 Dec 2023 22:32:14 GMT
+recorded_with: VCR 6.2.0

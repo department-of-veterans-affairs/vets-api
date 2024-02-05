@@ -6,8 +6,9 @@ module Common
   module Client
     module Concerns
       ##
-      # Module mixin for overriding session logic when making MHV FHIR-based client connections. This mixin itself
-      # includes another mixin for handling the JWT-based session logic.
+      # Module mixin for overriding session logic when making MHV JWT/FHIR-based client connections.
+      #
+      # All refrences to "session" in this module refer to the upstream MHV/FHIR session.
       #
       # @see MedicalRecords::Client
       #
@@ -16,41 +17,23 @@ module Common
       #
       module MhvFhirSessionClient
         extend ActiveSupport::Concern
-        include SentryLogging
         include MHVJwtSessionClient
+
+        protected
+
+        LOCK_RETRY_DELAY = 1 # Number of seconds to wait between attempts to acquire a session lock
+        RETRY_ATTEMPTS = 10 # How many times to attempt to acquire a session lock
 
         def incomplete?(session)
           session.icn.blank? || session.patient_fhir_id.blank? || session.token.blank? || session.expires_at.blank?
         end
 
-        ##
-        # Ensures the MHV based session is not expired or incomplete.
-        #
-        # @return [MHVJwtSessionClient] instance of `self`
-        #
-        def authenticate
-          @session = get_session if session.expired? || incomplete?(session)
-          self
+        def invalid?(session)
+          session.expired? || incomplete?(session)
         end
 
         ##
-        # Takes information from the session variable and saves a new session instance in redis.
-        #
-        # @return [MedicalRecords::ClientSession] the updated session
-        #
-        def save_session
-          new_session = @session.class.new(user_id: session.user_id.to_s,
-                                           patient_fhir_id: session.patient_fhir_id,
-                                           icn: session.icn,
-                                           expires_at: session.expires_at,
-                                           token: session.token,
-                                           refresh_time: session.refresh_time)
-          new_session.save
-          new_session
-        end
-
-        ##
-        # Creates and saves a FHIR session for a patient. If any step along the way fails, save
+        # Creates and saves an MHV/FHIR session for a patient. If any step along the way fails, save
         # the partial session before raising the exception.
         #
         # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
@@ -80,6 +63,8 @@ module Common
 
           new_session
         end
+
+        private
 
         ##
         # Checks to see if a PHR refresh is necessary, performs the refresh, and updates the refresh timestamp.
@@ -127,15 +112,19 @@ module Common
         end
 
         ##
-        # Override client_session method to use extended ::ClientSession classes
+        # Takes information from the session variable and saves a new session instance in redis.
         #
-        module ClassMethods
-          ##
-          # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
-          #
-          def client_session(klass = nil)
-            @client_session ||= klass
-          end
+        # @return [MedicalRecords::ClientSession] the updated session
+        #
+        def save_session
+          new_session = @session.class.new(user_id: session.user_id.to_s,
+                                           patient_fhir_id: session.patient_fhir_id,
+                                           icn: session.icn,
+                                           expires_at: session.expires_at,
+                                           token: session.token,
+                                           refresh_time: session.refresh_time)
+          new_session.save
+          new_session
         end
       end
     end

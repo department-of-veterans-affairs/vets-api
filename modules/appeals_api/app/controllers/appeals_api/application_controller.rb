@@ -2,6 +2,7 @@
 
 module AppealsApi
   class ApplicationController < ::ApplicationController
+    service_tag 'lighthouse-appeals'
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     before_action :deactivate_endpoint
@@ -40,7 +41,7 @@ module AppealsApi
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'appeals_api' }
-      Raven.tags_context(source: 'appeals_api')
+      Sentry.set_tags(source: 'appeals_api')
     end
 
     def model_errors_to_json_api(model)

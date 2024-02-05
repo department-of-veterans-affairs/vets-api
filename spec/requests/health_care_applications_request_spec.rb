@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'hca/service'
+require 'bgs/service'
 
 RSpec.describe 'Health Care Application Integration', type: %i[request serializer] do
   let(:test_veteran) do
@@ -27,6 +28,21 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       expect(JSON.parse(response.body)['data']['attributes']).to eq(
         { 'user_percent_of_disability' => 100 }
       )
+    end
+
+    context 'User not found' do
+      before do
+        error404 = Common::Exceptions::RecordNotFound.new(1)
+        allow_any_instance_of(BGS::Service).to receive(:find_rating_data).and_raise(error404)
+      end
+
+      it 'returns a 404 if user not found' do
+        get(rating_info_v0_health_care_applications_path)
+
+        errors = JSON.parse(response.body)['errors']
+        expect(errors.first['title']).to eq('Record not found')
+        expect(response.code).to eq('404')
+      end
     end
 
     context 'with an loa1 user' do
@@ -68,7 +84,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
         parsed_status: inelig_character_of_discharge,
-        primary_eligibility: 'SC LESS THAN 50%' }
+        primary_eligibility: 'SC LESS THAN 50%',
+        can_submit_financial_info: true }
     end
     let(:loa1_response) do
       { parsed_status: login_required }
@@ -85,8 +102,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       it 'logs user loa' do
-        allow(Raven).to receive(:extra_context)
-        expect(Raven).to receive(:extra_context).with(user_loa: nil)
+        allow(Sentry).to receive(:set_extras)
+        expect(Sentry).to receive(:set_extras).with(user_loa: nil)
 
         get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
       end
@@ -156,6 +173,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             effective_date: '2019-01-02T21:58:55.000-06:00',
             primary_eligibility: 'SC LESS THAN 50%',
             priority_group: 'Group 3',
+            can_submit_financial_info: true,
             parsed_status: enrolled
           }
         end
@@ -377,7 +395,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           end
 
           it 'renders error message' do
-            expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
+            expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
 
             subject
 
@@ -388,6 +406,32 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
               ]
             )
           end
+        end
+      end
+
+      context 'with hca_use_facilities_API enabled' do
+        before do
+          Flipper.enable(:hca_use_facilities_API)
+        end
+
+        let(:params) do
+          test_veteran['vaMedicalFacility'] = '000'
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        let(:body) do
+          {
+            'formSubmissionId' => nil,
+            'timestamp' => nil,
+            'state' => 'pending'
+          }
+        end
+
+        it 'does not error on vaMedicalFacility validation' do
+          subject
+          expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
         end
       end
     end

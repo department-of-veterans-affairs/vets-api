@@ -819,6 +819,16 @@ describe VAOS::V2::AppointmentsService do
         subject.send(:log_telehealth_data, appt)
       end
     end
+
+    context 'when an exception is raised getting the telehealth data' do
+      it 'logs the exception' do
+        allow_any_instance_of(VAOS::V2::AppointmentsService)
+          .to receive(:atlas_details).and_raise(StandardError)
+
+        expect(Rails.logger).to receive(:warn).with('Error logging VAOS telehealth atlas details: StandardError')
+        subject.send(:log_telehealth_data, appt)
+      end
+    end
   end
 
   describe '#extract_station_and_ien' do
@@ -926,25 +936,37 @@ describe VAOS::V2::AppointmentsService do
     let(:expected_avs_link) do
       '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
     end
+    let(:appt) do
+      {
+        identifier: [
+          {
+            system: 'Appointment/',
+            value: '4139383338323131'
+          },
+          {
+            system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
+            value: '500:9876543'
+          }
+        ]
+      }
+    end
 
     context 'with good station number and ien' do
-      appt =
-        {
-          identifier: [
-            {
-              system: 'Appointment/',
-              value: '4139383338323131'
-            },
-            {
-              system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
-              value: '500:9876543'
-            }
-          ]
-        }
-
       it 'returns avs link' do
         VCR.use_cassette('vaos/v2/appointments/avs-search-9876543', match_requests_on: %i[method path query]) do
           expect(subject.send(:get_avs_link, appt)).to eq(expected_avs_link)
+        end
+      end
+    end
+
+    context 'with mismatched icn' do
+      it 'returns nil and logs mismatch' do
+        VCR.use_cassette('vaos/v2/appointments/avs-search-9876543', match_requests_on: %i[method path query]) do
+          allow(Rails.logger).to receive(:warn)
+          user.identity.icn = '123'
+
+          expect(subject.send(:get_avs_link, appt)).to be_nil
+          expect(Rails.logger).to have_received(:warn).with('VAOS: AVS response ICN does not match user ICN')
         end
       end
     end
@@ -954,6 +976,7 @@ describe VAOS::V2::AppointmentsService do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
     let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+    let(:avs_error_message) { 'Error retrieving AVS link' }
 
     context 'when AVS successfully retrieved the AVS link' do
       it 'fetches the avs link and updates the appt hash' do
@@ -969,7 +992,47 @@ describe VAOS::V2::AppointmentsService do
           .and_raise(Common::Exceptions::BackendServiceException)
         expect(Rails.logger).to receive(:error)
         subject.send(:fetch_avs_and_update_appt_body, appt)
-        expect(appt[:avs_path]).to be_nil
+        expect(appt[:avs_path]).to eq(avs_error_message)
+      end
+    end
+  end
+
+  describe '#page_params' do
+    context 'when per_page is positive' do
+      context 'when per_page is positive' do
+        let(:pagination_params) do
+          { per_page: 3, page: 2 }
+        end
+
+        it 'returns pageSize and page' do
+          result = subject.send(:page_params, pagination_params)
+
+          expect(result).to eq({ pageSize: 3, page: 2 })
+        end
+      end
+    end
+
+    context 'when per_page is not positive' do
+      let(:pagination_params) do
+        { per_page: 0, page: 2 }
+      end
+
+      it 'returns pageSize only' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
+      end
+    end
+
+    context 'when per_page does not exist' do
+      let(:pagination_params) do
+        { page: 2 }
+      end
+
+      it 'returns pageSize as 0' do
+        result = subject.send(:page_params, pagination_params)
+
+        expect(result).to eq({ pageSize: 0 })
       end
     end
   end

@@ -30,4 +30,15 @@ class SavedClaim::Pension < CentralMailClaim
       }
     )
   end
+
+  # Send this Pension claim to the Lighthouse Benefit Intake API
+  # https://developer.va.gov/explore/api/benefits-intake/docs
+  # @see Lighthouse::PensionBenefitIntakeJob
+  def upload_to_lighthouse
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.find_each { |f| f.update(saved_claim_id: id) }
+
+    Lighthouse::PensionBenefitIntakeJob.perform_async(id)
+  end
 end

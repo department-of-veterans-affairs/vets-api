@@ -8,17 +8,15 @@ module VAForms
     include Sidekiq::Job
 
     WARNING_EMOJI = ':warning:'
-    DISABLED_FLAG_EMOJI = ':vertical_traffic_light:'
-    MISSING_FLAG_EMOJI = ':no_entry_sign:'
+    TRAFFIC_LIGHT_EMOJI = ':vertical_traffic_light:'
 
     sidekiq_options retry: 5, unique_for: 30.minutes
 
     def perform
       features_to_check = load_features_from_config
       if features_to_check.present?
-        @feature_statuses = Flipper::Utilities::BulkFeatureChecker.enabled_status(features_to_check)
-
-        slack_notify unless all_features_enabled?
+        feature_statuses = Flipper::Utilities::BulkFeatureChecker.enabled_status(features_to_check)
+        notify_slack(feature_statuses[:disabled]) unless feature_statuses[:disabled].empty?
       end
     end
 
@@ -40,7 +38,7 @@ module VAForms
       else
         VAForms::Slack::Messenger.new(
           {
-            warning: "#{WARNING_EMOJI} #{self.class.name} features file does not exist",
+            warning: "#{WARNING_EMOJI} #{self.class.name} features file does not exist.",
             file_path: path.to_s
           }
         ).notify!
@@ -48,28 +46,13 @@ module VAForms
       end
     end
 
-    def all_features_enabled?
-      @feature_statuses[:missing].empty? && @feature_statuses[:disabled].empty?
-    end
-
-    def slack_notify
+    def notify_slack(disabled_features)
       slack_details = {
         class: self.class.name,
-        warning: "#{WARNING_EMOJI} One or more features expected to be enabled were found disabled or missing",
-        disabled_flags: slack_message(:disabled),
-        missing_flags: slack_message(:missing)
+        warning: "#{WARNING_EMOJI} One or more features expected to be enabled were found to be disabled.",
+        disabled_flags: "#{TRAFFIC_LIGHT_EMOJI} #{disabled_features.join(', ')} #{TRAFFIC_LIGHT_EMOJI}"
       }
-
       VAForms::Slack::Messenger.new(slack_details).notify!
-    end
-
-    def slack_message(flag_category)
-      if @feature_statuses[flag_category].present?
-        emoji = self.class.const_get("#{flag_category.upcase}_FLAG_EMOJI")
-        "#{emoji} #{@feature_statuses[flag_category].join(', ')} #{emoji}"
-      else
-        'None'
-      end
     end
   end
 end

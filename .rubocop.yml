@@ -98,10 +98,6 @@ Metrics/MethodLength:
 Metrics/ClassLength:
   Max: 400
 
-# removing rule because get_session implies HTTP GET, and informs method
-Naming/AccessorMethodName:
-  Enabled: false
-
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
@@ -148,7 +144,6 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/education_benefits_claim.rb"
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
-    - "app/models/terms_and_conditions.rb"
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
@@ -314,7 +309,7 @@ RSpec/ScatteredLet:
     - 'spec/lib/bb/client_spec.rb'
     - 'spec/lib/evss/auth_headers_spec.rb'
     - 'spec/lib/evss/gi_bill_status/service_spec.rb'
-    - 'spec/lib/sentry/processor/log_as_warning_processor_spec.rb'
+    - 'spec/lib/sentry/scrubbers/log_as_warning_spec.rb'
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'

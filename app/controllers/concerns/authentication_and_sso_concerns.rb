@@ -105,6 +105,14 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     headers['X-Session-Expiration'] = @session_object.ttl_in_time.httpdate if @session_object.present?
   end
 
+  def log_sso_info
+    action = "#{self.class}##{action_name}"
+
+    Rails.logger.info(
+      "#{action} request completed", sso_logging_info
+    )
+  end
+
   # Info for logging purposes related to SSO.
   def sso_logging_info
     { user_uuid: @current_user&.uuid,
@@ -122,7 +130,7 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
     return unless @session_object
 
     user = User.find(@session_object.uuid)
-    @current_user = user if skip_terms_check || !user&.needs_accepted_terms_of_use
+    @current_user = user if (skip_terms_check || !user&.needs_accepted_terms_of_use) && !user&.credential_lock
   end
 
   def sso_cookie_content

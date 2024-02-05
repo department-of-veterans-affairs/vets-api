@@ -2,6 +2,7 @@
 
 module V0
   class MaintenanceWindowsController < ApplicationController
+    service_tag 'maintenance-windows'
     skip_before_action :authenticate
 
     def index

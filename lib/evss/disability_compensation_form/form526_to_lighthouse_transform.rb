@@ -11,7 +11,6 @@ module EVSS
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
         lh_request_body.claimant_certification = true
-        lh_request_body.claim_date = form526['claimDate'] if form526['claimDate']
         lh_request_body.claim_process_type = evss_claims_process_type(form526) # basic_info[:claim_process_type]
 
         veteran = form526['veteran']
@@ -51,7 +50,7 @@ module EVSS
 
       def transform_veteran(veteran)
         veteran_identification = Requests::VeteranIdentification.new
-        veteran_identification.currently_va_employee = veteran['currentlyVAEmployee']
+        veteran_identification.current_va_employee = veteran['currentlyVAEmployee']
         veteran_identification.service_number = veteran['serviceNumber']
         veteran_identification.email_address = Requests::EmailAddress.new
         veteran_identification.email_address.email = veteran['emailAddress']
@@ -71,12 +70,9 @@ module EVSS
                                  change_of_address_source['city']
         change_of_address.state = change_of_address_source['militaryStateCode'] || change_of_address_source['state']
         change_of_address.country = change_of_address_source['country']
-        change_of_address.number_and_street = change_of_address_source['addressLine1']
-        change_of_address.apartment_or_unit_number = change_of_address_source['addressLine2']
-        if change_of_address_source['addressLine3']
-          # TODO: make sure the below concat doesn't exceed field length (pending discussions with stakeholders)
-          change_of_address.apartment_or_unit_number += change_of_address_source['addressLine3']
-        end
+        change_of_address.address_line_1 = change_of_address_source['addressLine1']
+        change_of_address.address_line_2 = change_of_address_source['addressLine2']
+        change_of_address.address_line_3 = change_of_address_source['addressLine3']
 
         change_of_address.zip_first_five = change_of_address_source['internationalPostalCode'] ||
                                            change_of_address_source['zipFirstFive']
@@ -92,19 +88,11 @@ module EVSS
       def transform_homeless(veteran)
         homeless = Requests::Homeless.new
         homelessness = veteran['homelessness']
-        homeless.currently_homeless = Requests::CurrentlyHomeless.new(
-          homeless_situation_options: homelessness['currentlyHomeless'],
-          other_description: homelessness['otherLivingSituation']
-        )
-        homeless.risk_of_becoming_homeless = Requests::RiskOfBecomingHomeless.new(
-          living_situation_options: homelessness['homelessnessRiskSituationType '],
-          other_description: homelessness['otherLivingSituation']
-        )
-        homeless.point_of_contact = homelessness['pointOfContact']['pointOfContactName']
-        primary_phone = homelessness['pointOfContact']['primaryPhone']
-        homeless.point_of_contact_number = Requests::ContactNumber.new(
-          telephone: primary_phone['areaCode'] + primary_phone['phoneNumber']
-        )
+
+        fill_currently_homeless(homelessness, homeless) if homelessness['currentlyHomeless'].present?
+
+        fill_risk_of_becoming_homeless(homelessness, homeless) if homelessness['homelessnessRisk'].present?
+
         homeless
       end
 
@@ -112,16 +100,20 @@ module EVSS
         service_information = Requests::ServiceInformation.new
         transform_service_periods(service_information_source, service_information)
         if service_information_source['confinements']
-          transform_confinements(service_information_source,
-                                 service_information)
+          transform_confinements(service_information_source, service_information)
         end
         if service_information_source['alternateName']
-          transform_alternate_names(service_information_source,
-                                    service_information)
+          transform_alternate_names(service_information_source, service_information)
         end
         if service_information_source['reservesNationalGuardService']
-          transform_reserves_national_guard_service(service_information_source,
-                                                    service_information)
+          transform_reserves_national_guard_service(service_information_source, service_information)
+          reserves_national_guard_service_source =
+            service_information_source['reservesNationalGuardService']['title10Activation']
+          # Title10Activation == FederalActivation
+          service_information.federal_activation = Requests::FederalActivation.new(
+            anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
+            activation_date: reserves_national_guard_service_source['title10ActivationDate']
+          )
         end
 
         service_information
@@ -139,7 +131,8 @@ module EVSS
               state: center['state'],
               city: center['city']
             ),
-            begin_date: convert_approximate_date(treatment['startDate'])
+            # LH spec says YYYY-DD or YYYY date format
+            begin_date: convert_approximate_date(treatment['startDate'], short: true)
           )
         end
       end
@@ -169,8 +162,11 @@ module EVSS
       def transform_separation_pay(service_pay_source, service_pay_target)
         separation_pay_source = service_pay_source['separationPay']
 
-        service_pay_target.retired_status = service_pay_source['retiredStatus'] if separation_pay_source.present?
-        service_pay_target.received_separation_or_severance_pay = separation_pay_source['received']
+        if separation_pay_source.present?
+          service_pay_target.retired_status = service_pay_source['retiredStatus']&.upcase
+        end
+        service_pay_target.received_separation_or_severance_pay =
+          convert_nullable_bool(separation_pay_source['received'])
 
         separation_pay_payment_source = separation_pay_source['payment'] if separation_pay_source.present?
         if separation_pay_payment_source.present?
@@ -185,8 +181,10 @@ module EVSS
       def transform_military_retired_pay(service_pay_source, service_pay_target)
         military_retired_pay_source = service_pay_source['militaryRetiredPay']
 
-        service_pay_target.receiving_military_retired_pay = military_retired_pay_source['receiving']
-        service_pay_target.future_military_retired_pay = military_retired_pay_source['willReceiveInFuture']
+        service_pay_target.receiving_military_retired_pay =
+          convert_nullable_bool(military_retired_pay_source['receiving'])
+        service_pay_target.future_military_retired_pay =
+          convert_nullable_bool(military_retired_pay_source['willReceiveInFuture'])
 
         military_retired_pay_payment_source = military_retired_pay_source['payment']
         if military_retired_pay_payment_source.present?
@@ -230,16 +228,12 @@ module EVSS
       def initialize_reserves_national_guard_service(reserves_national_guard_service_source, service_information)
         service_information.reserves_national_guard_service = Requests::ReservesNationalGuardService.new(
           obligation_term_of_service: Requests::ObligationTermsOfService.new(
-            start_date: reserves_national_guard_service_source['obligationTermOfServiceFromDate'],
+            begin_date: reserves_national_guard_service_source['obligationTermOfServiceFromDate'],
             end_date: reserves_national_guard_service_source['obligationTermOfServiceToDate']
           ),
           unit_name: reserves_national_guard_service_source['unitName'],
           receiving_inactive_duty_training_pay:
-            reserves_national_guard_service_source['receivingInactiveDutyTrainingPay'],
-          title_10_activation: Requests::Title10Activation.new(
-            anticipated_separation_date: reserves_national_guard_service_source['anticipatedSeparationDate'],
-            title_10_activation_date: reserves_national_guard_service_source['title10ActivationDate']
-          )
+            convert_nullable_bool(reserves_national_guard_service_source['receivingInactiveDutyTrainingPay'])
         )
 
         if reserves_national_guard_service_source['unitPhone']
@@ -252,14 +246,10 @@ module EVSS
 
       def transform_mailing_address(veteran, veteran_identification)
         veteran_identification.mailing_address = Requests::MailingAddress.new
-        veteran_identification.mailing_address.number_and_street = veteran['currentMailingAddress']['addressLine1']
-        veteran_identification.mailing_address.apartment_or_unit_number =
-          veteran['currentMailingAddress']['addressLine2']
-        if veteran['currentMailingAddress']['addressLine3']
-          # TODO: make sure the below concat doesn't exceed field length (pending discussions with stakeholders)
-          veteran_identification.mailing_address.apartment_or_unit_number +=
-            veteran['currentMailingAddress']['addressLine3']
-        end
+        veteran_identification.mailing_address.address_line_1 = veteran['currentMailingAddress']['addressLine1']
+        veteran_identification.mailing_address.address_line_2 = veteran['currentMailingAddress']['addressLine2']
+        veteran_identification.mailing_address.address_line_3 = veteran['currentMailingAddress']['addressLine3']
+
         veteran_identification.mailing_address.city = veteran['currentMailingAddress']['militaryPostOfficeTypeCode'] ||
                                                       veteran['currentMailingAddress']['city']
         veteran_identification.mailing_address.state = veteran['currentMailingAddress']['militaryStateCode'] ||
@@ -302,11 +292,17 @@ module EVSS
         'Active'
       end
 
-      def convert_approximate_date(approximate_date_source)
-        approximate_date = ''
-        approximate_date = "#{approximate_date_source['month']}-" if approximate_date_source['month']
-        approximate_date += "#{approximate_date_source['day']}-" if approximate_date_source['day']
-        approximate_date += (approximate_date_source['year']).to_s
+      # convert EVSS date object format into YYYY-MM-DD lighthouse string format
+      # @param approximate_date_source Hash EVSS format data object
+      # @param short boolean (optional) return a shortened date YYYY-MM
+      def convert_approximate_date(approximate_date_source, short: false)
+        approximate_date = approximate_date_source['year'].to_s
+        approximate_date += "-#{approximate_date_source['month']}" if approximate_date_source['month']
+
+        # returns YYYY-MM if only "short" date is requested
+        return approximate_date if short
+
+        approximate_date += "-#{approximate_date_source['day']}" if approximate_date_source['day']
 
         approximate_date
       end
@@ -317,10 +313,7 @@ module EVSS
           dis.disability_action_type = disability_source['disabilityActionType']
           dis.name = disability_source['name']
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
-          dis.service_relevance = disability_source['serviceRelevance']
-          if disability_source['approximateBeginDate']
-            dis.approximate_date = convert_approximate_date(disability_source['approximateBeginDate'])
-          end
+          dis.service_relevance = disability_source['serviceRelevance'] || ''
           dis.rated_disability_id = disability_source['ratedDisabilityId'] if disability_source['ratedDisabilityId']
           dis.diagnostic_code = disability_source['diagnosticCode'] if disability_source['diagnosticCode']
           if disability_source['secondaryDisabilities']
@@ -338,10 +331,7 @@ module EVSS
           if secondary_disability_source['classificationCode']
             sd.classification_code = secondary_disability_source['classificationCode']
           end
-          sd.service_relevance = secondary_disability_source['serviceRelevance']
-          if secondary_disability_source['approximateBeginDate']
-            sd.approximate_date = convert_approximate_date(secondary_disability_source['approximateBeginDate'])
-          end
+          sd.service_relevance = secondary_disability_source['serviceRelevance'] || ''
           sd
         end
       end
@@ -368,7 +358,7 @@ module EVSS
       end
 
       def fill_change_of_address(change_of_address_source, change_of_address)
-        # convert dates to MM-DD-YYYY
+        # convert dates to YYYY-MM-DD
         if change_of_address_source['beginningDate'].present?
           change_of_address.dates.begin_date =
             convert_date(change_of_address_source['beginningDate'])
@@ -379,8 +369,45 @@ module EVSS
         end
       end
 
+      # only needs currentlyHomeless from 'homelessness' source
+      def fill_currently_homeless(source, target)
+        options = source['currentlyHomeless']['homelessSituationType']&.strip
+        send_other_description = options == 'OTHER'
+        other_description = source['currentlyHomeless']['otherLivingSituation'] || nil
+        target.currently_homeless = Requests::CurrentlyHomeless.new(
+          homeless_situation_options: options,
+          other_description: send_other_description ? other_description : nil
+        )
+        target.point_of_contact = source['pointOfContact']['pointOfContactName']
+        primary_phone = source['pointOfContact']['primaryPhone']
+        target.point_of_contact_number = Requests::ContactNumber.new(
+          telephone: primary_phone['areaCode'] + primary_phone['phoneNumber']
+        )
+      end
+
+      # needs whole `homelessness` object source
+      def fill_risk_of_becoming_homeless(source, target)
+        target.risk_of_becoming_homeless = Requests::RiskOfBecomingHomeless.new(
+          living_situation_options: source['homelessnessRisk']['homelessnessRiskSituationType'],
+          other_description: source['homelessnessRisk']['otherLivingSituation']
+        )
+        target.point_of_contact = source['pointOfContact']['pointOfContactName']
+        primary_phone = source['pointOfContact']['primaryPhone']
+        target.point_of_contact_number = Requests::ContactNumber.new(
+          telephone: primary_phone['areaCode'] + primary_phone['phoneNumber']
+        )
+      end
+
+      def convert_nullable_bool(boolean_value)
+        return 'YES' if boolean_value == true
+        return 'NO' if boolean_value == false
+
+        # placing nil may not be necessary
+        nil
+      end
+
       def convert_date(date)
-        Date.parse(date).strftime('%m-%d-%Y')
+        Date.parse(date).strftime('%Y-%m-%d')
       end
     end
   end

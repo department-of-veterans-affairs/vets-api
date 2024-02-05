@@ -7,12 +7,12 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, Layout/LineLength
-describe 'Higher-Level Reviews', swagger_doc:, type: :request do
+describe 'Higher-Level Reviews', openapi_spec:, type: :request do
   include DocHelpers
   include FixtureHelpers
   let(:apikey) { 'apikey' }

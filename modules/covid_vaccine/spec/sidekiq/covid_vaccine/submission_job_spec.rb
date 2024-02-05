@@ -29,7 +29,7 @@ RSpec.describe CovidVaccine::SubmissionJob, type: :worker do
       it 'raises an error' do
         with_settings(Settings.sentry, dsn: 'T') do
           VCR.use_cassette('covid_vaccine/facilities/query_97212', match_requests_on: %i[method path]) do
-            expect(Raven).to receive(:capture_exception)
+            expect(Sentry).to receive(:capture_exception)
             expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_raise(Common::Exceptions::BackendServiceException, 'VA900')
             expect { subject.perform(pending_submission.id, user_type) }.to raise_error(StandardError)
@@ -51,7 +51,7 @@ RSpec.describe CovidVaccine::SubmissionJob, type: :worker do
 
     it 'raises an error if submission is missing' do
       with_settings(Settings.sentry, dsn: 'T') do
-        expect(Raven).to receive(:capture_exception)
+        expect(Sentry).to receive(:capture_exception)
         expect { subject.perform('fakeid', user_type) }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end

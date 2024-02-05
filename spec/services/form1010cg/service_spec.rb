@@ -265,7 +265,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'when email is provided' do
-      it 'will provid that email in the mvi search' do
+      it 'provids that email in the mvi search' do
         veteran_email = 'veteran-email@example.com'
         veteran_data = build_claim_data_for(:veteran) do |data|
           data['email'] = veteran_email
@@ -309,7 +309,7 @@ RSpec.describe Form1010cg::Service do
         )
       end
 
-      it 'will log the result of a successful search' do
+      it 'logs the result of a successful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
             create(:find_profile_response, profile: double(icn: :ICN_123))
@@ -325,7 +325,7 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
-      it 'will log the result of a unsuccessful search' do
+      it 'logs the result of a unsuccessful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
             create(:find_profile_not_found_response, error: double(message: 'some-message'))
@@ -341,7 +341,7 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
-      it 'will log when a search is skipped' do
+      it 'logs when a search is skipped' do
         subject = described_class.new(
           build(
             :caregivers_assistance_claim,
@@ -380,7 +380,7 @@ RSpec.describe Form1010cg::Service do
         end.to raise_error(StandardError)
       end
 
-      it 'will not log the search result when reading from cache' do
+      it 'does not log the search result when reading from cache' do
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
           create(:find_profile_response, profile: double(icn: :ICN_123))
         )
@@ -399,204 +399,12 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe '#is_veteran' do
-    it 'returns false if the icn for the for the subject is "NOT_FOUND"' do
-      subject = described_class.new(
-        build(
-          :caregivers_assistance_claim,
-          form: {
-            'veteran' => build_claim_data_for(:veteran),
-            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-          }.to_json
-        )
-      )
-
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect_any_instance_of(EMIS::VeteranStatusService).not_to receive(:get_veteran_status)
-
-      expect(subject.is_veteran('veteran')).to eq(false)
-    end
-
-    describe 'searches eMIS and' do
-      context 'when title38_status_code is "V1"' do
-        it 'returns true' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: false,
-            items: [
-              double(
-                title38_status_code: 'V1'
-              )
-            ]
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(true)
-        end
-      end
-
-      context 'when title38_status_code is not "V1"' do
-        it 'returns false' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: false,
-            items: [
-              double(
-                title38_status_code: 'V4'
-              )
-            ]
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(false)
-        end
-      end
-
-      context 'when title38_status_code is not present' do
-        it 'returns false' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: false,
-            items: []
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(false)
-        end
-      end
-
-      context 'when the search fails' do
-        it 'returns false' do
-          subject = described_class.new(
-            build(
-              :caregivers_assistance_claim,
-              form: {
-                'veteran' => build_claim_data_for(:veteran),
-                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-              }.to_json
-            )
-          )
-
-          expected_icn = :ICN_123
-          emis_response = double(
-            error?: true,
-            error: Common::Client::Errors::HTTPError.new('BadRequest', 400, nil),
-            items: []
-          )
-
-          expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
-          expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status).with(
-            icn: expected_icn
-          ).and_return(
-            emis_response
-          )
-
-          expect(subject.is_veteran('veteran')).to eq(false)
-        end
-      end
-    end
-
-    it 'returns a cached responses when called more than once for a given subject' do
-      subject = described_class.new(
-        build(
-          :caregivers_assistance_claim,
-          form: {
-            'veteran' => build_claim_data_for(:veteran),
-            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
-          }.to_json
-        )
-      )
-
-      emis_service = double
-      expect(EMIS::VeteranStatusService).to receive(:new).with(no_args).and_return(emis_service)
-
-      # Only two calls should be made to eMIS for the six calls of :is_veteran below
-      2.times do |index|
-        expected_form_subject = index.zero? ? 'veteran' : 'primaryCaregiver'
-        expected_icn = "ICN_#{index}".to_sym
-
-        expect(subject).to receive(:icn_for).with(expected_form_subject).and_return(expected_icn)
-
-        emis_response_title38_value = index.zero? ? 'V1' : 'V4'
-        emis_response = double(
-          error?: false,
-          items: [
-            double(
-              title38_status_code: emis_response_title38_value
-            )
-          ]
-        )
-
-        expect(emis_service).to receive(:get_veteran_status).with(
-          icn: expected_icn
-        ).and_return(
-          emis_response
-        )
-      end
-
-      3.times do
-        expect(subject.is_veteran('veteran')).to eq(true)
-        expect(subject.is_veteran('primaryCaregiver')).to eq(false)
-      end
-    end
-  end
-
   describe '#build_metadata' do
     it 'returns the icn for each subject on the form and the veteran\'s status' do
       %w[veteran primaryCaregiver secondaryCaregiverOne].each_with_index do |form_subject, index|
-        return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : "ICN_#{index}".to_sym
+        return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : :"ICN_#{index}"
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
-
-      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.build_metadata).to eq(
         veteran: {
@@ -615,15 +423,14 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#assert_veteran_status' do
-    it 'will raise error if veteran\'s icn can not be found' do
+    it "raises error if veteran's icn can not be found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
-    it 'will not raise error if veteran\'s icn is found' do
+    it "does not raise error if veteran's icn is found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
-      expect(subject).not_to receive(:is_veteran)
 
       expect(subject.assert_veteran_status).to eq(nil)
     end

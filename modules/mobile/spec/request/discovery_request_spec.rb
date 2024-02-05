@@ -11,16 +11,10 @@ RSpec.describe 'discovery', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns a welcome message' do
-      expect(response.parsed_body).to eq(
-        {
-          'data' => {
-            'attributes' => {
-              'message' => 'Welcome to the mobile API'
-            }
-          }
-        }
-      )
+    it 'returns a welcome message and list of mobile endpoints' do
+      attributes = response.parsed_body.dig('data', 'attributes')
+      expect(attributes['message']).to eq('Welcome to the mobile API.')
+      expect(attributes['endpoints']).to include('mobile/v0/appeal/:id', 'mobile/v0/appointments')
     end
   end
 end

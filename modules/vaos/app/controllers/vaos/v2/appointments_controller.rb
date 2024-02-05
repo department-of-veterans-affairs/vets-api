@@ -118,11 +118,6 @@ module VAOS
           VAOS::V2::AppointmentsService.new(current_user)
       end
 
-      def systems_service
-        @systems_service ||=
-          VAOS::V2::SystemsService.new(current_user)
-      end
-
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
@@ -420,8 +415,6 @@ module VAOS
 
       def appointment_id
         params[:appointment_id]
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('appointment_id', params[:appointment_id])
       end
     end
   end

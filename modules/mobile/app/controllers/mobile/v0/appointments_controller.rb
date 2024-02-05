@@ -3,16 +3,21 @@
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
+      UPCOMING_DAYS_LIMIT = 7
+
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
-        validated_params = validated_index_params
-        appointments, failures = fetch_appointments(validated_params)
-        appointments = filter_by_date_range(appointments, validated_params)
+        appointments, failures = fetch_appointments
+        appointments = filter_by_date_range(appointments)
         partial_errors = partial_errors(failures)
         status = get_response_status(failures)
-        page_appointments, page_meta_data = paginate(appointments, validated_params)
-        page_meta_data[:meta] = page_meta_data[:meta].merge(partial_errors) unless partial_errors.nil?
+        page_appointments, page_meta_data = paginate(appointments)
+        page_meta_data[:meta].merge!(partial_errors) unless partial_errors.nil?
+        page_meta_data[:meta].merge!(
+          upcoming_appointments_count: upcoming_appointments_count(appointments),
+          upcoming_days_limit: UPCOMING_DAYS_LIMIT
+        )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
@@ -32,22 +37,24 @@ module Mobile
 
       private
 
-      def validated_index_params
-        use_cache = params[:useCache] || true
-        start_date = params[:startDate] || appointments_cache_interface.latest_allowable_cache_start_date
-        end_date = params[:endDate] || appointments_cache_interface.earliest_allowable_cache_end_date
-        reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
+      def validated_params
+        @validated_params ||= begin
+          use_cache = params[:useCache] || true
+          start_date = params[:startDate] || appointments_cache_interface.latest_allowable_cache_start_date
+          end_date = params[:endDate] || appointments_cache_interface.earliest_allowable_cache_end_date
+          reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
-        Mobile::V0::Contracts::Appointments.new.call(
-          start_date:,
-          end_date:,
-          page_number: params.dig(:page, :number),
-          page_size: params.dig(:page, :size),
-          use_cache:,
-          reverse_sort:,
-          included: params[:included],
-          include: params[:include]
-        )
+          Mobile::V0::Contracts::Appointments.new.call(
+            start_date:,
+            end_date:,
+            page_number: params.dig(:page, :number),
+            page_size: params.dig(:page, :size),
+            use_cache:,
+            reverse_sort:,
+            included: params[:included],
+            include: params[:include]
+          )
+        end
       end
 
       def appointments_service
@@ -62,13 +69,13 @@ module Mobile
         Mobile::V0::Appointment.clear_cache(@current_user)
       end
 
-      def fetch_appointments(validated_params)
+      def fetch_appointments
         appointments, failures = appointments_cache_interface.fetch_appointments(
           user: @current_user, start_date: validated_params[:start_date], end_date: validated_params[:end_date],
           fetch_cache: validated_params[:use_cache]
         )
 
-        appointments.filter! { |appt| appt.is_pending == false } unless include_pending?(validated_params)
+        appointments.filter! { |appt| appt.is_pending == false } unless include_pending?
         appointments.reverse! if validated_params[:reverse_sort]
 
         [appointments, failures]
@@ -95,7 +102,7 @@ module Mobile
         end
       end
 
-      def filter_by_date_range(appointments, validated_params)
+      def filter_by_date_range(appointments)
         appointments.filter do |appointment|
           appointment.start_date_utc.between?(
             validated_params[:start_date].beginning_of_day, validated_params[:end_date].end_of_day
@@ -103,12 +110,19 @@ module Mobile
         end
       end
 
-      def paginate(appointments, validated_params)
+      def paginate(appointments)
         Mobile::PaginationHelper.paginate(list: appointments, validated_params:)
       end
 
-      def include_pending?(params)
-        params[:include]&.include?('pending') || params[:included]&.include?('pending')
+      def include_pending?
+        validated_params[:include]&.include?('pending') || validated_params[:included]&.include?('pending')
+      end
+
+      def upcoming_appointments_count(appointments)
+        appointments.count do |appt|
+          appt.is_pending == false && appt.status == 'BOOKED' && appt.start_date_utc > Time.now.utc &&
+            appt.start_date_utc <= UPCOMING_DAYS_LIMIT.days.from_now.end_of_day.utc
+        end
       end
 
       def appointments_helper

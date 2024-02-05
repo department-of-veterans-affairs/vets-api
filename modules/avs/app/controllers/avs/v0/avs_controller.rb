@@ -3,6 +3,7 @@
 module Avs
   module V0
     class AvsController < ApplicationController
+      service_tag 'after-visit-summary'
       before_action :feature_enabled
       before_action { :authenticate }
 
@@ -16,15 +17,15 @@ module Avs
 
         response = avs_service.get_avs_by_appointment(station_no, appointment_ien)
 
-        if response['body'].empty?
+        if response.body.empty?
           data = {}
         else
-          if response['body'][0]['icn'].nil? || !icns_match?(@current_user.icn, response['body'][0]['icn'])
+          if response.body[0]['icn'].nil? || !icns_match?(@current_user.icn, response.body[0]['icn'])
             render_client_error('Not authorized', 'User may not view the AVS for this appointment.', :unauthorized)
             return
           end
 
-          data = { path: get_avs_path(response['body'][0]['sid']) }
+          data = { path: get_avs_path(response.body[0]['sid']) }
         end
 
         render json: data
@@ -63,7 +64,7 @@ module Avs
 
       def get_avs_path(sid)
         # TODO: define and use constant for base path.
-        "/my-health/medical-records/care-summaries/avs/#{sid}"
+        "/my-health/medical-records/summaries-and-notes/visit-summary/#{sid}"
       end
 
       def render_client_error(title, message, status = :bad_request)

@@ -12,6 +12,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
+require 'support/stub_va_profile'
 require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
 require 'support/va_profile/stub_vet360'
@@ -29,6 +30,7 @@ require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
+require 'support/service_account_authorization_context'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
@@ -176,7 +178,7 @@ RSpec.configure do |config|
 
   config.before do |example|
     stub_mpi unless example.metadata[:skip_mvi]
-    stub_emis unless example.metadata[:skip_emis]
+    stub_va_profile unless example.metadata[:skip_va_profile]
     stub_vet360 unless example.metadata[:skip_vet360]
 
     Sidekiq::Job.clear_all
@@ -194,3 +196,10 @@ BGS.configure do |config|
 end
 
 Gem::Deprecate.skip = true
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end

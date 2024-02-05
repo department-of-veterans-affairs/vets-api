@@ -12,11 +12,13 @@ RSpec.describe 'decision letters', type: :request do
 
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(FakeVBMS.new)
-    Flipper.disable('mobile_filter_doc_27_decision_letters_out')
+    Flipper.enable(:mobile_claims_log_decision_letter_sent)
+    Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
   end
 
   after do
-    Flipper.disable('mobile_filter_doc_27_decision_letters_out')
+    Flipper.disable(:mobile_claims_log_decision_letter_sent)
+    Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
   end
 
   # This endpoint's upstream service mocks it's own data for test env. HTTP client is not exposed by the

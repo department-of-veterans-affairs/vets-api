@@ -3,24 +3,19 @@
 module Lighthouse
   module LettersGenerator
     class VeteranSponsorResolver
-      # Returns the user's ICN if user is a Veteran, or the associated
-      # Veteran's ICN if the user is a dependent.
+      # Returns the Veteran sponsor's ICN if user is a dependent, or nil
+      # if the user is not a depdendent
       # In this relationship, the related Veteran is also called
       # "sponsor" or "headOfFamily"
-      def self.get_icn(user)
-        icn = user.icn
-
+      def self.get_sponsor_icn(user)
         if dependent? user
           sponsor = get_sponsor_for user
-          raise ArgumentError, 'Unable to find sponsor for dependent user' unless sponsor
 
-          icn = sponsor.icn
+          sponsor.icn
         end
-
-        icn
       end
 
-      private_class_method def self.dependent?(user)
+      def self.dependent?(user)
         user.person_types&.include?('DEP')
       end
 

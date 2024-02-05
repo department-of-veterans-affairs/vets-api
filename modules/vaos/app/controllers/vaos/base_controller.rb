@@ -4,6 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   class BaseController < ::ApplicationController
+    service_tag 'mhv-appointments'
     before_action :authorize
 
     protected

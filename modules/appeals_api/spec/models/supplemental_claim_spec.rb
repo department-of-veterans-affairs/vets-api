@@ -89,6 +89,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
   describe 'when api_version is v0' do
     let(:supplemental_claim) { create(:supplemental_claim_v0) }
 
+    describe '#veteran_icn' do
+      subject { supplemental_claim.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq supplemental_claim.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
+
     describe '#soc_opt_in' do
       describe 'by default' do
         subject { supplemental_claim.soc_opt_in }
@@ -153,6 +162,25 @@ describe AppealsApi::SupplementalClaim, type: :model do
                        form_data_fixture: 'decision_reviews/v2/valid_200995.json'
     end
 
+    describe '#veteran_icn' do
+      subject { sc.veteran_icn }
+
+      let(:sc) { create(:supplemental_claim) }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq sc.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:sc) { create(:supplemental_claim, auth_headers: default_auth_headers.except('X-VA-ICN')) }
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
+    end
+
     describe 'validations' do
       let(:appeal) { build(:extra_supplemental_claim) }
 
@@ -188,6 +216,33 @@ describe AppealsApi::SupplementalClaim, type: :model do
             .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
           expect(error.message).to eq '2020-05-10 must before or the same day as 2020-04-10. ' \
                                       'Both dates must also be in the past.'
+        end
+      end
+
+      context "when 'evidenceSubmission.retrieveFrom.endDate' is in the future" do
+        it 'errors with a point to the offending evidenceDates index' do
+          retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+          end_date = (Time.zone.today + 1.day).to_s
+          retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = end_date
+
+          expect(appeal.valid?).to be false
+          expect(appeal.errors.size).to eq 1
+          error = appeal.errors.first
+          expect(error.attribute)
+            .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
+          expect(error.message).to eq "2020-04-10 must before or the same day as #{end_date}. " \
+                                      'Both dates must also be in the past.'
+        end
+      end
+
+      context "when 'evidenceSubmission.retrieveFrom.endDate' is same as submission date" do
+        it 'does not errort' do
+          retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+          end_date = Time.zone.today.to_s
+          retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = end_date
+
+          expect(appeal.valid?).to be true
+          expect(appeal.errors.size).to eq 0
         end
       end
     end
@@ -327,7 +382,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       it { expect(sc_with_nvc.lob).to eq 'CMP' }
     end
 
-    describe '#submit_evidence_to_central_mail' do
+    describe '#submit_evidence_to_central_mail!' do
       let(:supplemental_claim) { create(:supplemental_claim) }
       let(:evidence_submission1) { create(:evidence_submission, supportable: supplemental_claim) }
       let(:evidence_submission2) { create(:evidence_submission, supportable: supplemental_claim) }
@@ -335,15 +390,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
       before do
         allow(supplemental_claim).to receive(:evidence_submissions).and_return(evidence_submissions)
-        allow(evidence_submission1).to receive(:submit_to_central_mail)
-        allow(evidence_submission2).to receive(:submit_to_central_mail)
+        allow(evidence_submission1).to receive(:submit_to_central_mail!)
+        allow(evidence_submission2).to receive(:submit_to_central_mail!)
       end
 
-      it 'calls "#submit_to_central_mail" for each evidence submission' do
-        supplemental_claim.submit_evidence_to_central_mail
+      it 'calls "#submit_to_central_mail!" for each evidence submission' do
+        supplemental_claim.submit_evidence_to_central_mail!
 
-        expect(evidence_submission1).to have_received(:submit_to_central_mail)
-        expect(evidence_submission2).to have_received(:submit_to_central_mail)
+        expect(evidence_submission1).to have_received(:submit_to_central_mail!)
+        expect(evidence_submission2).to have_received(:submit_to_central_mail!)
       end
     end
 
@@ -426,7 +481,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
   describe 'callbacks' do
     describe 'before_update' do
-      before { allow(supplemental_claim).to receive(:submit_evidence_to_central_mail) }
+      before { allow(supplemental_claim).to receive(:submit_evidence_to_central_mail!) }
 
       context 'when the status has changed to "success"' do
         let(:supplemental_claim) { create(:supplemental_claim, status: 'processing') }
@@ -434,20 +489,20 @@ describe AppealsApi::SupplementalClaim, type: :model do
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
-          it 'calls "#submit_evidence_to_central_mail"' do
+          it 'calls "#submit_evidence_to_central_mail!"' do
             supplemental_claim.update(status: 'success')
 
-            expect(supplemental_claim).to have_received(:submit_evidence_to_central_mail)
+            expect(supplemental_claim).to have_received(:submit_evidence_to_central_mail!)
           end
         end
 
         context 'and the delay evidence feature is disabled' do
           before { Flipper.disable(:decision_review_delay_evidence) }
 
-          it 'does not call "#submit_evidence_to_central_mail"' do
+          it 'does not call "#submit_evidence_to_central_mail!"' do
             supplemental_claim.update(status: 'success')
 
-            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail)
+            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
           end
         end
       end
@@ -458,10 +513,10 @@ describe AppealsApi::SupplementalClaim, type: :model do
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
-          it 'does not call "#submit_evidence_to_central_mail"' do
+          it 'does not call "#submit_evidence_to_central_mail!"' do
             supplemental_claim.update(source: 'VA.gov')
 
-            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail)
+            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
           end
         end
       end
@@ -472,10 +527,10 @@ describe AppealsApi::SupplementalClaim, type: :model do
         context 'and the delay evidence feature is enabled' do
           before { Flipper.enable(:decision_review_delay_evidence) }
 
-          it 'does not call "submit_evidence_to_central_mail"' do
+          it 'does not call "submit_evidence_to_central_mail!"' do
             supplemental_claim.update(status: 'processing')
 
-            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail)
+            expect(supplemental_claim).not_to have_received(:submit_evidence_to_central_mail!)
           end
         end
       end

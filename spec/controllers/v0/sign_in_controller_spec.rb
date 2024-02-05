@@ -596,9 +596,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error_status) { :ok }
         let(:auth_param) { 'fail' }
         let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
-        let(:expected_error_message) do
-          { errors: expected_error, client_id:, type:, acr: }
-        end
+        let(:expected_error_message) { { errors: expected_error, client_id:, type:, acr: } }
         let(:request_id) { SecureRandom.uuid }
         let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
@@ -1528,12 +1526,12 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:anti_csrf) { false }
     let(:loa) { nil }
     let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
+    let(:expected_error_status) { :bad_request }
 
     before { allow(Rails.logger).to receive(:info) }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:expected_error_status) { :bad_request }
       let(:statsd_token_failure) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE }
       let(:expected_error_log) { '[SignInService] [V0::SignInController] token error' }
       let(:expected_error_context) { { errors: expected_error.to_s } }
@@ -1620,6 +1618,7 @@ RSpec.describe V0::SignInController, type: :controller do
           {
             uuid:,
             service_account_id:,
+            user_attributes: {},
             user_identifier:,
             scopes:,
             audience:,
@@ -1711,6 +1710,13 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:expected_log) { '[SignInService] [V0::SignInController] token' }
 
               before { allow(Rails.logger).to receive(:info) }
+
+              context 'and the retrieved UserVerification is locked' do
+                let(:user_verification) { create(:user_verification, locked: true) }
+                let(:expected_error) { 'Credential is locked' }
+
+                it_behaves_like 'error response'
+              end
 
               context 'and client config is configured with enforced terms' do
                 let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
@@ -2004,6 +2010,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let!(:client_config) { create(:client_config, authentication:, anti_csrf:, enforced_terms:) }
     let(:enforced_terms) { nil }
     let(:anti_csrf) { false }
+    let(:expected_error_status) { :unauthorized }
 
     before { allow(Rails.logger).to receive(:info) }
 
@@ -2040,7 +2047,6 @@ RSpec.describe V0::SignInController, type: :controller do
         SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
       end
       let(:expected_error) { 'Anti CSRF token is not valid' }
-      let(:expected_error_status) { :unauthorized }
 
       context 'and anti_csrf_token param is not given' do
         let(:anti_csrf_token_param) { {} }
@@ -2060,7 +2066,6 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when refresh_token is an arbitrary string' do
       let(:refresh_token) { 'some-refresh-token' }
       let(:expected_error) { 'Refresh token cannot be decrypted' }
-      let(:expected_error_status) { :unauthorized }
 
       it_behaves_like 'error response'
     end
@@ -2092,7 +2097,6 @@ RSpec.describe V0::SignInController, type: :controller do
           split_token.join
         end
         let(:expected_error) { 'Refresh token cannot be decrypted' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
@@ -2105,7 +2109,6 @@ RSpec.describe V0::SignInController, type: :controller do
           split_token.join('.')
         end
         let(:expected_error) { 'Refresh nonce is invalid' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
@@ -2118,14 +2121,12 @@ RSpec.describe V0::SignInController, type: :controller do
           split_token.join('.')
         end
         let(:expected_error) { 'Refresh token version is invalid' }
-        let(:expected_error_status) { :unauthorized }
 
         it_behaves_like 'error response'
       end
 
       context 'and refresh token is expired' do
         let(:expected_error) { 'No valid Session found' }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           session = session_container.session
@@ -2138,7 +2139,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and refresh token does not map to an existing session' do
         let(:expected_error) { 'No valid Session found' }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           session = session_container.session
@@ -2150,7 +2150,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and refresh token is not a parent or child according to the session' do
         let(:expected_error) { 'Token theft detected' }
-        let(:expected_error_status) { :unauthorized }
 
         before do
           session = session_container.session
@@ -2167,6 +2166,19 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and refresh token is unmodified and valid' do
         before { allow(Rails.logger).to receive(:info) }
+
+        context 'and the retrieved UserVerification is locked' do
+          let(:locked_user_verification) { create(:user_verification, locked: true) }
+          let(:expected_error) { 'Credential is locked' }
+
+          before do
+            session = session_container.session
+            session.user_verification = locked_user_verification
+            session.save!
+          end
+
+          it_behaves_like 'error response'
+        end
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)

@@ -1,9 +1,36 @@
 type: object
 required:
   - data
+  - meta
 properties:
   data:
     type: array
     items:
       type: object
       $ref: "./PrescriptionRecord.yml"
+  meta:
+    type: object
+    required:
+      - prescriptionStatusCount
+    properties:
+      prescriptionStatusCount:
+        type: object
+        description: |
+          Count of different types of prescriptions. "active" contains prescriptions that have a `refillStatus` of active,
+          submitted, providerHold, activeParked, refillinprocess, and/or prescriptions that have a tracking number 
+          associated with them. If a prescriptions does not meet the criteria for "active", it appends it's `refillStatus` to the list. 
+          If a refillStatus is not present in any prescription, it will not be included in this list.
+          See `refillStatus` enum for all possible values. "isRefillable" is a separate count of prescriptions with `isRefillable` set to true. 
+          A prescription can be counted in both `isRefillable` and any other status count.
+        example:
+            active: 1
+            isRefillable: 1
+            discontinued: 1
+            expired: 2
+            historical: 3
+            pending: 1
+            transferred: 2
+            submitted: 1
+            hold: 1
+            unknown: 2
+            total: 14

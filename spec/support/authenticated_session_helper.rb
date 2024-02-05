@@ -9,7 +9,7 @@ module AuthenticatedSessionHelper
     if raw
       Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
     elsif cookies.is_a?(ActionDispatch::Cookies::CookieJar)
-      request.session = session_object.to_hash
+      request.session = ActionController::TestSession.new(session_object.to_hash)
     else
       raw_session_cookie = Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
       cookies.merge(raw_session_cookie)

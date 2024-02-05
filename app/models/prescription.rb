@@ -40,6 +40,7 @@ require 'common/models/base'
 #
 class Prescription < Common::Base
   attribute :prescription_id, Integer, sortable: { order: 'ASC' }, filterable: %w[eq not_eq]
+  attribute :prescription_image, String
   attribute :refill_status, String, sortable: { order: 'ASC' }, filterable: %w[eq not_eq]
   attribute :refill_submit_date, Common::UTCTime, sortable: { order: 'DESC' }, filterable: %w[eq not_eq]
   attribute :refill_date, Common::UTCTime, sortable: { order: 'DESC' }

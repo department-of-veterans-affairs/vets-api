@@ -107,4 +107,20 @@ describe VAOS::Middleware::VAOSLogging do
       client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt })
     end
   end
+
+  context 'with timeout' do
+    it 'logs timeout error and re-raises error' do
+      statsd_msg = 'api.vaos.va_mobile.response.fail'
+      rails_log_msg = 'VAOS service call failed - timeout'
+
+      allow_any_instance_of(Faraday::Adapter).to receive(:call).and_raise(Faraday::TimeoutError)
+      allow(Rails.logger).to receive(:warn).with(rails_log_msg, anything).and_call_original
+      allow(StatsD).to receive(:increment).and_call_original
+      allow(StatsD).to receive(:increment).with(statsd_msg, anything)
+
+      expect { client.post(user_service_uri) }.to raise_error(Faraday::TimeoutError)
+      expect(Rails.logger).to have_received(:warn).with(rails_log_msg, anything).once
+      expect(StatsD).to have_received(:increment).with(statsd_msg, anything).once
+    end
+  end
 end

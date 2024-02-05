@@ -71,9 +71,7 @@ module SwaggerSharedComponents
             'config',
             'schemas',
             'v2',
-            'request_bodies',
-            'disability_compensation',
-            'request.json'
+            '526.json'
           )
         )
       )
@@ -89,6 +87,63 @@ module SwaggerSharedComponents
             'request_bodies',
             'disability_compensation',
             'example.json'
+          )
+        )
+      )
+
+      disability_compensation_generate_pdf_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'generate_pdf_526.json'
+          )
+        )
+      )
+
+      disability_compensation_generate_pdf_request_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'request_bodies',
+            'disability_compensation',
+            'generate_pdf_example.json'
+          )
+        )
+      )
+
+      power_of_attorney_2122a_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '2122a.json'
+          )
+        )
+      )
+
+      power_of_attorney_2122a_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'spec',
+            'fixtures',
+            'v2',
+            'veterans',
+            'power_of_attorney',
+            '2122a',
+            'valid.json'
           )
         )
       )
@@ -123,9 +178,36 @@ module SwaggerSharedComponents
           required: true,
           schema: {
             type: :object,
-            required: disability_compensation_json_schema['required'],
-            properties: disability_compensation_json_schema['properties'],
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', disability_compensation_json_schema['required']],
+                properties: {
+                  attributes: disability_compensation_json_schema
+                }
+              }
+            },
             example: disability_compensation_request_body_example
+          }
+        },
+        disability_compensation_generate_pdf: {
+          in: :body,
+          name: 'data',
+          required: true,
+          schema: {
+            type: :object,
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', disability_compensation_generate_pdf_json_schema['required']],
+                properties: {
+                  attributes: disability_compensation_generate_pdf_json_schema
+                }
+              }
+            },
+            example: disability_compensation_generate_pdf_request_body_example
           }
         },
         power_of_attorney: {
@@ -152,6 +234,64 @@ module SwaggerSharedComponents
                     )
                   )
                 }
+              }
+            }
+          }
+        },
+        power_of_attorney_2122a: {
+          in: :body,
+          name: 'data',
+          required: true,
+          schema: {
+            type: :object,
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', power_of_attorney_2122a_json_schema['required']],
+                properties: {
+                  attributes: power_of_attorney_2122a_json_schema
+                }
+              }
+            },
+            example: power_of_attorney_2122a_body_example
+          }
+        }
+      }
+    end
+
+    def self.schemas # rubocop:disable Metrics/MethodLength
+      disability_compensation_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '526.json'
+          )
+        )
+      )
+
+      {
+        disability_compensation: {
+          name: 'data',
+          required: ['data'],
+          properties: {
+            data: {
+              type: :object,
+              required: %w[id type attributes],
+              properties: {
+                id: {
+                  type: 'string',
+                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
+                },
+                type: {
+                  type: 'string',
+                  example: 'form/526'
+                },
+                attributes: disability_compensation_json_schema.except('$schema')
               }
             }
           }

@@ -7,7 +7,7 @@
       "type": "object",
       "required": ["id", "type", "attributes"],
       "additionalProperties": false,
-      "description": "Claim with some details for the given Veteran info",
+      "description": "Claim details",
       "properties": {
         "id": {
           "type": "string",
@@ -26,7 +26,7 @@
           "properties": {
             "claimTypeCode": {
               "type": "string",
-              "description": "Type Code of benefit claim",
+              "description": "Type code of benefit claim",
               "example": "400PREDSCHRG"
             },
             "claimType": {
@@ -186,7 +186,7 @@
             },
             "jurisdiction": {
               "type": "string",
-              "description": "Current station of jurisdiction"
+              "description": "Regional office to which the claim is currently assigned."
             },
             "lighthouseId": {
               "type": "string",
@@ -198,14 +198,14 @@
               "format": "date",
               "type": "string",
               "nullable": true,
-              "description": "Minimum Estimated Claim Completion Date",
+              "description": "Minimum estimated claim completion date",
               "example": "2019-06-04"
             },
             "maxEstClaimDate": {
               "format": "date",
               "type": "string",
               "nullable": true,
-              "description": "Maximum Estimated Claim Completion Date",
+              "description": "Maximum estimated claim completion date",
               "example": "2019-09-04"
             },
             "status": {
@@ -224,12 +224,12 @@
             },
             "submitterApplicationCode": {
               "type": "string",
-              "description": "Application Code of benefit claim submitter",
+              "description": "Application code of benefit claim submitter",
               "example": "EBN"
             },
             "submitterRoleCode": {
               "type": "string",
-              "description": "Role Code of benefit claim submitter",
+              "description": "Role code of benefit claim submitter",
               "example": "VET"
             },
             "supportingDocuments": {
@@ -285,7 +285,7 @@
                     "type": "string",
                     "nullable": true,
                     "description": "Description of the tracked item",
-                    "example": "Buddy mentioned - No complete address"
+                    "example": "You may also submit statements from individuals having knowledge of your claimed condition."
                   },
                   "requestedDate": {
                     "format": "date",
@@ -303,7 +303,7 @@
                     "type": "string",
                     "nullable": true,
                     "description": "Description of the tracked item",
-                    "example": "Buddy mentioned - No complete address"
+                    "example": "Submit buddy statement(s)"
                   },
                   "receivedDate": {
                     "format": "date",

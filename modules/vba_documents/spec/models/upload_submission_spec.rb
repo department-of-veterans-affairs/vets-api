@@ -94,7 +94,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     it "returns records that have a status defined in 'IN_FLIGHT_STATUSES'" do
       all_statuses.each do |status|
-        upload = FactoryBot.create(:upload_submission, status:, guid: SecureRandom.uuid)
+        upload = FactoryBot.create(:upload_submission, status:)
 
         if in_flight_statuses.include?(status)
           expect(subject).to include(upload)
@@ -122,6 +122,25 @@ describe VBADocuments::UploadSubmission, type: :model do
     it 'does not return records created before the VBMS status deployment date' do
       upload = FactoryBot.create(:upload_submission, status: 'success', created_at: vbms_deployment_date.prev_day(1))
       expect(subject).not_to include(upload)
+    end
+  end
+
+  describe '.not_from_appeals_api' do
+    subject { described_class.not_from_appeals_api }
+
+    it 'returns records without "appeals_api" in the consumer_name' do
+      upload = create(:upload_submission, consumer_name: 'not an appeals consumer')
+      expect(subject).to include(upload)
+    end
+
+    it 'does not return records with "appeals_api" in the consumer_name' do
+      upload = create(:upload_submission, consumer_name: 'appeals_api_nod_evidence_submission')
+      expect(subject).not_to include(upload)
+    end
+
+    it 'returns records where the consumer_name is nil' do
+      upload = create(:upload_submission, consumer_name: nil)
+      expect(subject).to include(upload)
     end
   end
 

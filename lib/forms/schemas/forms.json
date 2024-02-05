@@ -38,7 +38,7 @@
                 "type": "boolean"
               },
               "sha256": {
-                "type":"string"
+                "type": ["string", "null"]
               },
               "lastSha256Change": {
                 "type": ["string", "null"]

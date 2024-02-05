@@ -9,7 +9,7 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
     let(:service_account_access_token) { create(:service_account_access_token) }
 
     context 'when input object is a service account access token' do
-      let(:expected_iss) { SignIn::Constants::AccessToken::ISSUER }
+      let(:expected_iss) { SignIn::Constants::ServiceAccountAccessToken::ISSUER }
       let(:expected_aud) { service_account_access_token.audience }
       let(:expected_jti) { service_account_access_token.uuid }
       let(:expected_sub) { service_account_access_token.user_identifier }
@@ -18,6 +18,7 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
       let(:expected_version) { service_account_access_token.version }
       let(:expected_scopes) { service_account_access_token.scopes }
       let(:expected_service_account_id) { service_account_access_token.service_account_id }
+      let(:expected_user_attributes) { service_account_access_token.user_attributes }
 
       before do
         allow(SecureRandom).to receive(:hex).and_return(expected_jti)
@@ -34,6 +35,17 @@ RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
         expect(decoded_jwt.version).to eq expected_version
         expect(decoded_jwt.scopes).to eq expected_scopes
         expect(decoded_jwt.service_account_id).to eq expected_service_account_id
+        expect(decoded_jwt.user_attributes).to eq expected_user_attributes
+      end
+
+      context 'with optional user_attributes claim' do
+        let(:service_account_access_token) { create(:service_account_access_token, user_attributes:) }
+        let(:user_attributes) { { 'foo' => 'bar' } }
+
+        it 'returns an encoded jwt with expected parameters' do
+          decoded_jwt = OpenStruct.new(JWT.decode(subject, false, nil).first)
+          expect(decoded_jwt.user_attributes).to eq expected_user_attributes
+        end
       end
     end
   end

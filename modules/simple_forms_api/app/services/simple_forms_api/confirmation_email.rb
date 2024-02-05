@@ -74,7 +74,7 @@ module SimpleFormsApi
     def form21_0845_contact_info(form_data)
       # (vet && signed in)
       if form_data['authorizer_type'] == 'veteran' && @user
-        [User.find(@user.uuid).email, form_data.dig('veteran_full_name', 'first')]
+        [@user.va_profile_email, form_data.dig('veteran_full_name', 'first')]
 
       # (non-vet && signed in) || (non-vet && anon)
       elsif form_data['authorizer_type'] == 'nonVeteran'

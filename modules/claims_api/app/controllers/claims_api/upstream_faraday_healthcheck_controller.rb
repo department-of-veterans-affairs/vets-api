@@ -2,6 +2,7 @@
 
 module ClaimsApi
   class UpstreamFaradayHealthcheckController < ApplicationController
+    service_tag 'lighthouse-claims'
     skip_before_action :authenticate
     def corporate
       st = DateTime.now
