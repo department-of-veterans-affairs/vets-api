@@ -49,10 +49,9 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         expect(comments.include?('Combined FSR')).to eq(true)
       end
 
-      it 'adds an element for station type' do 
-        station_types = builder.vha_forms.map{|form| form.form_data['station_type']}
-        expect(station_types).to eq(["vista", "vista"])
-
+      it 'adds an element for station type' do
+        station_types = builder.vha_forms.map { |form| form.form_data['station_type'] }
+        expect(station_types).to eq(%w[vista vista])
       end
     end
 
@@ -127,6 +126,15 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
 
       it 'does not have a vba form' do
         expect(builder.vba_form).to eq(nil)
+      end
+
+      it 'knows when it has both cerner and vista copays' do
+        dfn_numbers = vha_form_data['selected_debts_and_copays'].pluck('p_h_dfn_number').uniq
+        expect(dfn_numbers).to eq([123_456, 0])
+        cerner_ids = vha_form_data['selected_debts_and_copays'].pluck('p_h_cerner_patient_id').uniq
+        expect(cerner_ids).to eq(['                ', '123456789'])
+        station_types = builder.vha_forms.map { |form| form.form_data['station_type'] }
+        expect(station_types).to eq(%w[both vista])
       end
     end
 

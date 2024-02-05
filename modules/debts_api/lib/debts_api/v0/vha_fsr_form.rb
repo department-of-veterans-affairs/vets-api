@@ -82,15 +82,13 @@ module DebtsApi
     def station_adjustments(form)
       stations = []
       @copays.each do |copay|
-        stations << 'vista' if copay['pHDfnNumber'].class == Integer && copay['pHDfnNumber'] > 0
-        stations << 'cerner' if copay['pHCernerPatientId'].class == String && copay['pHCernerPatientId'].strip.length > 0
+        stations << 'vista' if copay['pHDfnNumber'].instance_of?(Integer) && (copay['pHDfnNumber']).positive?
+        if copay['pHCernerPatientId'].instance_of?(String) && copay['pHCernerPatientId'].strip.length.positive?
+          stations << 'cerner'
+        end
       end
       stations.uniq!
-      if stations.include?('cerner') && stations.include?('vista')
-        form['station_type'] = "both"
-      else
-        form['station_type'] = stations[0]
-      end
+      form['station_type'] = stations.include?('cerner') && stations.include?('vista') ? 'both' : stations[0]
     end
 
     def combined_adjustments(form)
