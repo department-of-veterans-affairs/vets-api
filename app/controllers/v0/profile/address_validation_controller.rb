@@ -6,6 +6,7 @@ require 'va_profile/address_validation/service'
 module V0
   module Profile
     class AddressValidationController < ApplicationController
+      skip_before_action: :authenticate, only: [:cors_preflight, :routing_errors, :create]
       service_tag 'profile'
 
       def create
