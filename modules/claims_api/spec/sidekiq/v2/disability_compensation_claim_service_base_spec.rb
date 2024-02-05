@@ -84,20 +84,16 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
 
   RSpec.shared_examples 'logs to the Claim API logger correctly' do |service_class|
     it "for #{service_class}" do
-      service = service_class
-      claim_id = claim.id
       error_message = 'An error occurred'
-      detail = "Job retries exhausted for #{service}"
-
-      msg = { 'args' => [claim_id, 'value here'],
-              'class' => service,
+      msg = { 'args' => [claim.id, 'value here'],
+              'class' => service_class,
               'error_message' => error_message }
 
       described_class.within_sidekiq_retries_exhausted_block(msg) do
         expect(ClaimsApi::Logger).to receive(:log).with(
           'claims_api_retries_exhausted',
-          claim_id:,
-          detail:,
+          claim_id: claim.id,
+          detail: "Job retries exhausted for #{service_class}",
           error: error_message
         )
       end
