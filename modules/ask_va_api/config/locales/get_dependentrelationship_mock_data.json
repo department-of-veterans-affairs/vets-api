@@ -1,0 +1,40 @@
+{
+  "data": [
+      {
+          "id": 722310000,
+          "name": "Daughter"
+      },
+      {
+          "id": 722310001,
+          "name": "Son"
+      },
+      {
+          "id": 722310002,
+          "name": "Stepson"
+      },
+      {
+          "id": 722310003,
+          "name": "Stepdaughter"
+      },
+      {
+          "id": 722310004,
+          "name": "Mother"
+      },
+      {
+          "id": 722310007,
+          "name": "Father"
+      },
+      {
+          "id": 722310008,
+          "name": "Spouse"
+      },
+      {
+          "id": 722310005,
+          "name": "Other"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "662f60a9-6b90-4553-9723-cb23fd54eb0b"
+}
