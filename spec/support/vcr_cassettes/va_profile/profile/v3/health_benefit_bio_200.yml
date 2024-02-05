@@ -2,19 +2,19 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.4.349/e444837a-e88b-4f59-87da-10d3c74c787b%5EPN%5E200VIDM%5EUSDVA
+    uri: https://localhost:4000/profile-service/profile/v3/2.16.840.1.113883.4.349/88f572d491af46efa393cba6c351e252%5EPN%5E200VIDM%5EUSDVA
     body:
       encoding: UTF-8
       string: '{"bios":[{"bioPath":"healthBenefit"}]}'
     headers:
-      User-Agent:
-      - Vets.gov Agent
-      Content-Type:
-      - application/json
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
@@ -24,10 +24,10 @@ http_interactions:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-2043532999", dtSInfo;desc="0"
-      - dtRpid;desc="1208055381", dtSInfo;desc="0"
+      - dtRpid;desc="-863262737", dtSInfo;desc="0"
+      - dtRpid;desc="1769430056", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - ebcbde1c-fcb4-4552-a2bc-fd2507c30a91
+      - b801e15a-2335-405b-b939-b3b4a798063f
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -44,30 +44,27 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Mon, 08 Jan 2024 16:01:24 GMT
+      - Mon, 05 Feb 2024 22:16:35 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
       - application/json
       Content-Length:
-      - '2396'
+      - '1847'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"profile":{"healthBenefit":{"identity":{"sensitivityInformation":{"sensitivityFlag":false,"sensitivityChangeSource":"HEC","sensitivityChangeSite":"742
-        - HEALTH ELIGIBILITY CENTER"}},"associatedPersons":[{"contactType":"Primary
-        Next of Kin","givenName":"Bob","familyName":"Hope","relationship":"UNRELATED
-        FRIEND","addressLine1":"100 MAIN STREET","city":"PLANO","state":"TX","zipCode":"75024"},{"contactType":"Emergency
-        Contact","givenName":"Bob","familyName":"Hope","relationship":"UNRELATED FRIEND","addressLine1":"100
-        MAIN STREET","city":"PLANO","state":"TX","zipCode":"75024"}],"healthCareEligibilityFactors":{"eligibilityStatus":"PENDING
-        VERIFICATION","veteran":true,"enrollmentEffectiveDate":"2023-08-31T21:39:13Z","ineligibleRecordCreateDate":"2023-08-23T18:48:20Z","eligibleForMedicaid":{"eligibleForMedicaid":false,"medicaidLastModifiedDate":"2023-08-23T18:06:00Z"},"clinicalDecisions":{"militarySexualTrauma":{"militarySexualTraumaStatus":"Unknown,
-        Not Screened"},"spinalCordInjury":{"spinalCordInjuryType":"NOT APPLICABLE"}},"specialAuthority":{"agentOrangeIndicator":false,"environmentalContaminantsIndicator":false,"radiationExposureIndicator":false}},"healthCareCoverages":[{"insuredRelationship":"Veteran","companyName":"BCBS","groupNumber":"123456","policyEffectiveDate":"20221113","policyHolderName":"greg
-        anderson","policyNumber":"12-99283","lastEditedDate":"2023-08-31T20:44:57Z","addressLine1":"100
-        INSURANCE WAY","city":"PLANO","state":"TX","zipCode":"75024","country":"USA","insurancePhones":[{"phoneNumber":"(843)737-4291","phoneType":"Business"}]},{"insuredRelationship":"Veteran","companyName":"Medicare","groupName":"Part
-        A","groupNumber":"Part A","enrolledInPartA":true,"partAEffectiveDate":"20220501000000","policyHolderName":"ANDERSON,
-        GREG","policyNumber":"1A2B3C4D5E6","lastEditedDate":"2023-08-31T21:03:11Z"}],"veteranMedicalBenefitPlans":[{"veteranMedicalBenefitPlanName":"Applicant
-        in Process","veteranMedicalBenefitPlanEffectiveDate":"2023-08-31T21:39:17Z","veteranMedicalBenefitPlanCopayEffectiveDate":"2023-08-31T21:39:17Z"}],"healthCare":{"appointmentRequestResponse":true,"appointmentRequestDate":"2023-11-01T05:00:00Z","appointmentRequestChangeDate":"2023-11-01T20:50:33Z","originalAppointmentRequestChangeDate":"2015-06-17T15:54:46Z","originalAppointmentRequestResponse":false,"preferredFacilities":[{"preferredFacility":"463GA
-        - FAIRBANKS VA CLINIC"}]}}}}'
-  recorded_at: Mon, 08 Jan 2024 16:01:24 GMT
+      string: '{"profile":{"healthBenefit":{"identity":{"sensitivityInformation":{"sensitivityFlag":false}},"associatedPersons":[{"contactType":"Emergency
+        Contact","givenName":"JOHN","familyName":"ALLEN","relationship":"BROTHER","addressLine1":"810
+        VERMONT AVE NW","city":"WASHINGTON","state":"DC","county":"DISTRICT OF COLUMBIA","zipCode":"20420","country":"USA","primaryPhone":"(202)333-6688"},{"contactType":"Primary
+        Next of Kin","givenName":"JANE","familyName":"ALLEN","relationship":"DAUGHTER","addressLine1":"3
+        COLLINGHAM GARDENS","city":"LONDON","postalCode":"SW5 0HW","country":"GBR","primaryPhone":"(202)334-9898"}],"healthCareEligibilityFactors":{"eligibilityStatus":"PENDING
+        VERIFICATION","veteran":true,"enrollmentEffectiveDate":"2023-10-05T20:10:02Z","incomeYear":2022,"eligibleForMedicaid":{"eligibleForMedicaid":true,"medicaidLastModifiedDate":"2023-10-05T20:10:02Z","medicaidEligibilityReportDate":"2023-10-05T20:10:02Z"},"clinicalDecisions":{"militarySexualTrauma":{"militarySexualTraumaStatus":"Unknown,
+        Not Screened"},"spinalCordInjury":{"spinalCordInjuryType":"NOT APPLICABLE"}}},"veteranMedicalBenefitPlans":[{"veteranMedicalBenefitPlanName":"Applicant
+        in Process","veteranMedicalBenefitPlanEffectiveDate":"2023-06-27T05:00:00Z","veteranMedicalBenefitPlanCopayEffectiveDate":"2023-06-27T05:00:00Z"}],"healthCare":{"appointmentRequestResponse":false,"appointmentRequestChangeDate":"2022-05-20T14:21:28Z","originalAppointmentRequestChangeDate":"2022-05-20T14:21:28Z","originalAppointmentRequestResponse":false,"visitSummaries":[{"incomeYear":2022,"visitSummaries":[{"hospitalInpatientDays":0,"hospitalOutpatientDays":0,"facilityVisited":"668
+        - MANN-GRANDSTAFF VAMC"},{"hospitalInpatientDays":0,"hospitalOutpatientDays":0,"facilityVisited":"442
+        - CHEYENNE VA MEDICAL"}]}],"preferredFacilities":[{"preferredFacility":"668HK
+        - SPOKANE MORC"}]}}}}'
+  recorded_at: Mon, 05 Feb 2024 22:16:35 GMT
 recorded_with: VCR 6.2.0
