@@ -214,10 +214,13 @@ describe SimpleFormsApi::ConfirmationEmail do
 
     describe 'citizen or non-citizen' do
       it 'sends the confirmation email' do
-
         allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(form_data: data, form_number: 'vba_20_10206', confirmation_number: 'confirmation_number')
+        subject = described_class.new(
+          form_data: data,
+          form_number: 'vba_20_10206',
+          confirmation_number: 'confirmation_number'
+        )
 
         subject.send
 
