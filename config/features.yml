@@ -335,10 +335,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission_lighthouse:
-    actor_type: user
-    description: Manage whether central processing submission uses Lighthouse API
-    enable_in_development: true
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
