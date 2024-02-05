@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
-require 'sidekiq/testing'
 
 RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
   let(:user) { FactoryBot.create(:user, :loa3) }
