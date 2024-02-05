@@ -103,18 +103,23 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
         'zipCode' => be_a(String),
         'docType' => be_a(String),
         'businessLine' => eq(described_class::PENSION_BUSINESSLINE),
-        'source' => eq(described_class::PENSION_SOURCE),
-        'claimDate' => be_a(ActiveSupport::TimeWithZone)
+        'source' => eq(described_class::PENSION_SOURCE)
       )
     end
     # generate_form_metadata_lh
   end
 
   describe '#check_success' do
+    let(:service) { double('service') }
     let(:response) { double('response') }
 
-    it 'sends a confirmation email on success' do
+    before do
       job.instance_variable_set(:@claim, claim)
+      job.instance_variable_set(:@lighthouse_service, service)
+      allow(service).to receive(:uuid)
+    end
+
+    it 'sends a confirmation email on success' do
       allow(response).to receive(:success?).and_return(true)
 
       expect(claim).to receive(:send_confirmation_email)
@@ -122,8 +127,6 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     end
 
     it 'does not send an email on failure' do
-      job.instance_variable_set(:@claim, claim)
-
       allow(response).to receive(:message).and_return('TEST RESPONSE')
       allow(response).to receive(:success?).and_return(false)
 

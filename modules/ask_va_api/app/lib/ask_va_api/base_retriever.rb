@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Crm
+module AskVAApi
   class BaseRetriever
     attr_reader :user_mock_data, :entity_class
 
@@ -23,7 +23,7 @@ module Crm
                static = File.read('modules/ask_va_api/config/locales/static_data.json')
                JSON.parse(static, symbolize_names: true)
              else
-               StaticData.new.call
+               Crm::CacheData.new.call('topics', 'categories_topics_subtopics')
              end
       filter_data(data)
     end

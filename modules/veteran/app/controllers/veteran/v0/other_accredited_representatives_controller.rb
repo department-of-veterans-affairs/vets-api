@@ -5,7 +5,7 @@ module Veteran
     class OtherAccreditedRepresentativesController < BaseAccreditedRepresentativesController
       before_action :verify_type
 
-      PERMITTED_TYPE = %w[attorney].freeze
+      PERMITTED_TYPE = %w[claim_agents attorney].freeze
 
       private
 

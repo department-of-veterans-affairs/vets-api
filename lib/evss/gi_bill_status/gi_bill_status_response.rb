@@ -92,14 +92,10 @@ module EVSS
       # Overriding inspect to avoid displaying PII contained
       # in the response
       def inspect
-        if Flipper.enabled?(:gibill_status_response_overwrite_inspect_method, nil)
-          instance_variables_to_inspect = instance_variables - [:@response]
-          instance_variables_to_inspect.map do |var|
-            "#{var}=#{instance_variable_get(var).inspect}"
-          end.join(', ')
-        else
-          super()
-        end
+        instance_variables_to_inspect = instance_variables - [:@response]
+        instance_variables_to_inspect.map do |var|
+          "#{var}=#{instance_variable_get(var).inspect}"
+        end.join(', ')
       end
 
       ##
@@ -124,6 +120,10 @@ module EVSS
         end
 
         'unknown'
+      end
+
+      def body
+        @response.body
       end
 
       private

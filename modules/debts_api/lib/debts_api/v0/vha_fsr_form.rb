@@ -58,7 +58,6 @@ module DebtsApi
       facility_form = remove_form_delimiters(facility_form)
       combined_adjustments(facility_form)
       streamline_adjustments(facility_form)
-      set_certification_date(facility_form)
       facility_form
     end
 

@@ -23,7 +23,7 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
     let(:result) { xlsx_processor.process }
 
     context 'with valid data' do
-      let(:expected_keys) { %w[id type email_address request_address] }
+      let(:expected_keys) { %w[id email_address request_address] }
       let(:request_address_keys) do
         %w[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
            country_code_iso3]
@@ -31,7 +31,7 @@ RSpec.describe RepAddresses::XlsxFileProcessor do
 
       it 'processes the file and validates the data structure and content' do
         expect(result).to be_a(Hash)
-        expect(result.keys).to include('Attorneys', 'Representatives')
+        expect(result.keys).to include('Agents', 'Attorneys', 'Representatives')
 
         result.each_value do |value_array|
           expect(value_array).to all(be_a(String))

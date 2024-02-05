@@ -45,3 +45,6 @@ properties:
           - DSL
           - MHV
           - LOGINGOV
+      hasFacilityTransitioningToCerner:
+        type: boolean
+        description: The user has a treatment facility that is currently transitioning to cerner. This is temporary.

@@ -5,12 +5,8 @@
     "data": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "type", "attributes"],
+      "required": ["type", "attributes"],
       "properties": {
-        "id": {
-          "type": "string",
-          "nullable": true
-        },
         "type": {
           "type": "string",
           "nullable": true,

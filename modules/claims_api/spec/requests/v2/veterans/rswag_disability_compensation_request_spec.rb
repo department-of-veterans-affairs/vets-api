@@ -534,12 +534,12 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       let(:Authorization) { 'Bearer token' }
       let(:data) do
         temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                               'disability_compensation', 'form_526_json_api.json').read
+                               'disability_compensation', 'form_526_generate_pdf_json_api.json').read
         temp = JSON.parse(temp)
 
         temp
       end
-      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation_generate_pdf]
       pdf_description = <<~VERBIAGE
         Returns a filled out 526EZ form for a disability compensation claim (21-526EZ).
 

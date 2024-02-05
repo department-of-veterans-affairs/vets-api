@@ -2,21 +2,21 @@
 
 require 'rails_helper'
 
-RSpec.describe Crm::StaticDataJob, type: :job do
+RSpec.describe Crm::TopicsDataJob, type: :job do
   include ActiveJob::TestHelper
 
   describe '#perform' do
-    let(:static_data_instance) { instance_double(Crm::StaticData) }
+    let(:static_data_instance) { instance_double(Crm::CacheData) }
 
     before do
-      allow(Crm::StaticData).to receive(:new).and_return(static_data_instance)
+      allow(Crm::CacheData).to receive(:new).and_return(static_data_instance)
       allow(static_data_instance).to receive(:fetch_api_data)
     end
 
-    it 'creates an instance of Crm::StaticData and calls it' do
+    it 'creates an instance of Crm::CacheData and calls it' do
       described_class.new.perform
 
-      expect(Crm::StaticData).to have_received(:new)
+      expect(Crm::CacheData).to have_received(:new)
       expect(static_data_instance).to have_received(:fetch_api_data)
     end
 

@@ -18,11 +18,10 @@ module RepAddresses
     # @return [String, nil] The content of the file as a string, or nil if not fetched.
     def fetch
       setup_octokit_client
-      file_info = fetch_rep_addresses_file_info
-
       return nil unless file_recently_updated?
 
-      fetch_file_content(file_info)
+      file_info = fetch_rep_addresses_file_info
+      fetch_file_content(file_info.download_url)
     rescue => e
       log_error("Error fetching XLSX file: #{e.message}")
       nil
@@ -60,21 +59,10 @@ module RepAddresses
       false
     end
 
-    # Fetches the content of the XLSX file.
-    # @param file_info [Sawyer::Resource] The file information resource from GitHub.
-    # @return [String] The decoded content of the XLSX file.
-    def fetch_file_content(file_info)
-      if file_info.content.empty?
-        download_file_content(file_info.download_url)
-      else
-        Base64.decode64(file_info.content)
-      end
-    end
-
     # Downloads the file content from a given URL.
     # @param url [String] The URL to download the file content from.
     # @return [String] The body of the HTTP response, or nil if not successful.
-    def download_file_content(url)
+    def fetch_file_content(url)
       uri = URI.parse(url)
       response = Net::HTTP.get_response(uri)
       response.body if response.is_a?(Net::HTTPSuccess)

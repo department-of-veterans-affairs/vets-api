@@ -19,14 +19,15 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
 
   path '/forms/200996' do
     post 'Creates a new Higher-Level Review' do
-      scopes = AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
       description 'Submits an appeal of type Higher-Level Review. ' \
                   'This endpoint is the same as submitting [VA Form 20-0996](https://www.va.gov/decision-reviews/higher-level-review/request-higher-level-review-form-20-0996)' \
                   ' via mail or fax directly to the Board of Veterans’ Appeals.'
 
       tags 'Higher-Level Reviews'
       operationId 'createHlr'
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(
+        AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
+      )
       consumes 'application/json'
       produces 'application/json'
 
@@ -37,6 +38,8 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
         'all fields used' => { value: FixtureHelpers.fixture_as_json('higher_level_reviews/v0/valid_200996_extra.json') }
       }
 
+      system_scopes = %w[system/HigherLevelReviews.write]
+
       response '201', 'Higher-Level Review created' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_minimum.json') }
 
@@ -46,7 +49,7 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
                         desc: 'minimum fields used',
                         response_wrapper: :normalize_appeal_response,
                         extract_desc: true,
-                        scopes:
+                        scopes: system_scopes
       end
 
       response '201', 'Higher-Level Review created' do
@@ -58,7 +61,30 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
                         desc: 'all fields used',
                         response_wrapper: :normalize_appeal_response,
                         extract_desc: true,
-                        scopes:
+                        scopes: system_scopes
+      end
+
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:hlr_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Body is not a JSON object',
+                        extract_desc: true,
+                        scopes: system_scopes
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create a Higher-Level Review for another veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:hlr_body) do
+          fixture_as_json('higher_level_reviews/v0/valid_200996.json').tap do |data|
+            data['data']['attributes']['veteran']['icn'] = '1234567890V987654'
+          end
+        end
+
+        it_behaves_like 'rswag example', scopes: %w[veteran/HigherLevelReviews.write]
       end
 
       response '422', 'Violates JSON schema' do
@@ -70,7 +96,7 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
           request_body
         end
 
-        it_behaves_like 'rswag example', desc: 'Returns a 422 response', scopes:
+        it_behaves_like 'rswag example', desc: 'Returns a 422 response', scopes: system_scopes
       end
 
       it_behaves_like 'rswag 500 response'
@@ -103,16 +129,6 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
                                          scopes: veteran_scopes
       end
 
-      response '404', 'Higher-Level Review not found' do
-        schema '$ref' => '#/components/schemas/errorModel'
-
-        let(:id) { '11111111-1111-1111-1111-111111111111' }
-
-        it_behaves_like 'rswag example',
-                        desc: 'returns a 404 response',
-                        scopes: veteran_scopes
-      end
-
       response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Higher-Level Review' do
         schema '$ref' => '#/components/schemas/errorModel'
 
@@ -120,6 +136,16 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
 
         it_behaves_like 'rswag example',
                         desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Higher-Level Review',
+                        scopes: veteran_scopes
+      end
+
+      response '404', 'Higher-Level Review not found' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:id) { '11111111-1111-1111-1111-111111111111' }
+
+        it_behaves_like 'rswag example',
+                        desc: 'returns a 404 response',
                         scopes: veteran_scopes
       end
 

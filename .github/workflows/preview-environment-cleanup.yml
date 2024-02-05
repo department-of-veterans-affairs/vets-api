@@ -14,10 +14,10 @@ jobs:
     name: Clean Up Deleted Branch and Expired Preview Environments
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: latest
 
@@ -28,7 +28,7 @@ jobs:
           npm install js-yaml
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -41,7 +41,7 @@ jobs:
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Checkout Application Infra Manifests Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: department-of-veterans-affairs/vsp-infra-application-manifests
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
@@ -55,7 +55,7 @@ jobs:
 
       - name: Add and Commit change(s)
         if: ${{ env.FILES_TO_DELETE == 'true'}}
-        uses: EndBug/add-and-commit@v7
+        uses: EndBug/add-and-commit@v9
         with:
           author_name: va-vsp-bot
           author_email: devops@va.gov
@@ -66,7 +66,7 @@ jobs:
 
       - name: Add and Commit change(s)
         if: ${{ env.ENVS_TO_DELETE == 'true'}}
-        uses: EndBug/add-and-commit@v7
+        uses: EndBug/add-and-commit@v9
         with:
           author_name: va-vsp-bot
           author_email: devops@va.gov

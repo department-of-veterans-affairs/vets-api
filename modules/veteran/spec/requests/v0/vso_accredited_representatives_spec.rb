@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative 'accredited_representatives_shared_spec'
+require_relative 'base_accredited_representatives_shared_spec'
 
 RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
   include_examples 'base_accredited_representatives_controller_shared_examples',

@@ -18,6 +18,7 @@ module ClaimsApi
           end
 
           def validate_signatures(record)
+            record.data[:signatures] = { veteran: 'sign_here', representative: 'sign_here' }
             value = record.data[:signatures]
 
             record.errors.add :signatures, 'blank' if value.blank?

@@ -17,6 +17,7 @@ module Avs
     attribute :diagnoses, Array
     attribute :vitals, Array
     attribute :orders, Array
+    attribute :procedures, Array
     attribute :immunizations, Array
     attribute :appointments, Array
     attribute :patient_instructions, String
