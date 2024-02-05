@@ -243,6 +243,50 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Body is not a JSON object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "code": "109",
+                          "detail": "The request body isn't a JSON object",
+                          "status": "400",
+                          "title": "Bad Request"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to create a Notice of Disagreement for another veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Violates JSON schema",
             "content": {
@@ -2445,26 +2489,6 @@
               }
             }
           },
-          "404": {
-            "description": "Associated Notice of Disagreement not found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "not_found",
-                      "detail": "NoticeOfDisagreement with uuid 00000000-0000-0000-0000-000000000000 not found",
-                      "code": "404",
-                      "status": "404"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/errorModel"
-                }
-              }
-            }
-          },
           "400": {
             "description": "Bad request",
             "content": {
@@ -2482,6 +2506,46 @@
                       ]
                     }
                   }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to create an Evidence Submission for a Notice of Disagreement belonging to another Veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Associated Notice of Disagreement not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Notice of Disagreement with uuid 00000000-0000-0000-0000-000000000000 not found",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
                 },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
@@ -2756,6 +2820,26 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to view an Evidence Submission belonging to another Veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Notice of Disagreement Evidence Submission not found",
             "content": {
@@ -2763,8 +2847,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Record not found",
-                      "detail": "The record identified by 00000000-0000-0000-0000-000000000000 could not be found",
+                      "title": "Resource not found",
+                      "detail": "Evidence Submission with uuid 00000000-0000-0000-0000-000000000000 not found",
                       "code": "404",
                       "status": "404"
                     }
