@@ -22,7 +22,7 @@ jobs:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     runs-on: ubuntu-16-cores-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Lock back to an @v1-version once https://github.com/ruby/setup-ruby/pull/491 is merged
       - uses: ruby/setup-ruby@v1
@@ -49,7 +49,7 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
     runs-on: ubuntu-16-cores-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: docker/login-action@v2
         with:
@@ -87,14 +87,14 @@ jobs:
           -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Coverage Report
           path: coverage
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Test Results
@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-16-cores-latest
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
