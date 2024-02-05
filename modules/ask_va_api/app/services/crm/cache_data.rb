@@ -9,11 +9,11 @@ module Crm
       @service = service
     end
 
-    def call(endpoint, cache_key)
+    def call(endpoint:, cache_key:, payload: {})
       data = cache_client.fetch(cache_key)
 
       if data.nil?
-        fetch_api_data(endpoint, cache_key)
+        fetch_api_data(endpoint:, cache_key:, payload:)
       else
         data
       end
@@ -21,8 +21,8 @@ module Crm
       ErrorHandler.handle(endpoint, e)
     end
 
-    def fetch_api_data(endpoint, cache_key)
-      data = service.call(endpoint:)
+    def fetch_api_data(endpoint:, cache_key:, payload: {})
+      data = service.call(endpoint:, payload:)
 
       cache_client.store_data(key: cache_key, data:, ttl: 86_400)
 
