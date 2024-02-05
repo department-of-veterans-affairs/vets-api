@@ -18,12 +18,6 @@ module PdfFill
       RECIPIENTS = {
         'VETERAN' => 0,
         'SPOUSE' => 1,
-        'CHILD' => 2
-      }.freeze
-
-      INCOME_RECIPIENTS = {
-        'VETERAN' => 0,
-        'SPOUSE' => 1,
         'DEPENDENT' => 2
       }.freeze
 
@@ -47,15 +41,9 @@ module PdfFill
       }.freeze
 
       REASONS_FOR_SEPARATION = {
-        'spouse’s death' => 0,
-        'divorce' => 1,
-        'other' => 2
-      }.freeze
-
-      SPOUSES_REASONS_FOR_SEPARATION = {
-        'death' => 0,
-        'divorce' => 1,
-        'other' => 2
+        'DEATH' => 0,
+        'DIVORCE' => 1,
+        'OTHER' => 2
       }.freeze
 
       KEY = {
@@ -1421,8 +1409,8 @@ module PdfFill
 
       def marital_status_to_radio(marital_status)
         case marital_status
-        when 'Married' then 0
-        when 'Separated' then 1
+        when 'MARRIED' then 0
+        when 'SEPARATED' then 1
         else 2
         end
       end
@@ -1472,10 +1460,8 @@ module PdfFill
       def build_marital_history(marriages, marriage_for = 'VETERAN')
         return [] unless marriages.present? && %w[VETERAN SPOUSE].include?(marriage_for)
 
-        separation_reasons = marriage_for.eql?('VETERAN') ? REASONS_FOR_SEPARATION : SPOUSES_REASONS_FOR_SEPARATION
-
         marriages.map do |marriage|
-          reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+          reason_for_separation = marriage['reasonForSeparation'].to_s
           marriage_date_range = {
             'from' => marriage['dateOfMarriage'],
             'to' => marriage['dateOfSeparation']
@@ -1484,8 +1470,8 @@ module PdfFill
                            'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
                            'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
                            'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
-                           'reasonForSeparation' => separation_reasons[reason_for_separation],
-                           'reasonForSeparationOverflow' => reason_for_separation })
+                           'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
+                           'reasonForSeparationOverflow' => reason_for_separation.humanize })
         end
       end
 
@@ -1545,7 +1531,7 @@ module PdfFill
       end
 
       def child_status_overflow(dependent)
-        child_status_overflow = [dependent['childRelationship']]
+        child_status_overflow = [dependent['childRelationship']&.humanize]
         child_status_overflow << 'seriously disabled' if dependent['disabled']
         child_status_overflow << '18-23 years old (in school)' if dependent['attendingCollege']
         child_status_overflow << 'previously married' if dependent['previouslyMarried']
@@ -1562,9 +1548,9 @@ module PdfFill
                    'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
                    'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
                    'childRelationship' => {
-                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
-                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
-                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
+                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'BIOLOGICAL'),
+                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'ADOPTED'),
+                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'STEP_CHILD')
                    },
                    'disabled' => to_checkbox_on_off(dependent['disabled']),
                    'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
@@ -1601,7 +1587,7 @@ module PdfFill
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
           income_source_hash = {
-            'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
+            'receiver' => RECIPIENTS[income_source['receiver']],
             'receiverOverflow' => income_source['receiver']&.humanize,
             'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
             'typeOfIncomeOverflow' => income_source['typeOfIncome']&.humanize,
