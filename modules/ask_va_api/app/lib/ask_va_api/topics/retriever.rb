@@ -2,7 +2,7 @@
 
 module AskVAApi
   module Topics
-    class Retriever < Crm::BaseRetriever
+    class Retriever < BaseRetriever
       attr_reader :category_id
 
       def initialize(category_id:, user_mock_data:, entity_class:)

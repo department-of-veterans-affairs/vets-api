@@ -42,6 +42,7 @@ class StatsdMiddleware
     5490-edu-benefits
     5495-edu-benefits
     686C-674
+    995-supplemental-claim
     ask-a-question
     auth
     beta-enrollment
