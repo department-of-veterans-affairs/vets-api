@@ -169,7 +169,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
   gem 'fakeredis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
