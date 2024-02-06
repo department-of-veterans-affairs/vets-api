@@ -26,6 +26,8 @@ describe AppealsApi::StatsReport do
   let(:outside_range_groups) { create_transition_groups }
 
   before do
+    stub_const('AppealsApi::StatsReport::STATUS_TRANSITION_PAIRS',
+               [%w[processing submitted], %w[submitted complete], %w[processing success], %w[error success]])
     Sidekiq::Testing.inline! do
       # Create statuses to support lists of stalled records:
       oldest_date = end_date - described_class::STALLED_RECORD_MONTHS.last.months - 2.weeks
