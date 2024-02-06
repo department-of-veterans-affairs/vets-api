@@ -1,0 +1,34 @@
+{
+  "data": {
+    "view:enhancedFinancialStatusReport": true,
+    "questions": {
+      "hasVehicle": false
+    },
+    "cashInBank": "200",
+    "cashOnHand": "100",
+    "recVehicleAmount": "1000",
+    "usSavingsBonds": "0",
+    "stocksAndOtherBonds": "0",
+    "assets": {
+      "realEstateValue": "2000",
+      "otherAssets": [
+        {
+          "amount": "10"
+        },
+        {
+          "amount": "10"
+        }
+      ],
+      "recVehicleAmount": "100",
+      "automobiles": [
+        {
+          "resaleValue": "100"
+        },
+        {
+          "resaleValue": "100"
+        }
+      ]
+    }
+  }
+}
+

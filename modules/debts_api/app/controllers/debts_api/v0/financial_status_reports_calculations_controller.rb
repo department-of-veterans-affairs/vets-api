@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
-require 'debts_api/v0/fsr_form_transform/income_calculator'
+require 'debts_api/v0/fsr_form_transform/asset_calculator'
 require 'debts_api/v0/fsr_form_transform/expense_calculator'
+require 'debts_api/v0/fsr_form_transform/income_calculator'
 
 module DebtsApi
   module V0
     class FinancialStatusReportsCalculationsController < ApplicationController
       service_tag 'financial-report'
+
+      def total_assets
+        render json: asset_calculator.get_total_assets
+      end
 
       def monthly_income
         render json: income_calculator.get_monthly_income
@@ -23,6 +28,24 @@ module DebtsApi
       private
 
       # rubocop:disable Metrics/MethodLength
+      def asset_form
+        params.require(:data).permit(
+          :cashInBank,
+          :cashOnHand,
+          :recVehicleAmount,
+          :usSavingsBonds,
+          :stocksAndOtherBonds,
+          :'view:enhancedFinancialStatusReport',
+          questions: [:hasVehicle],
+          assets: [
+            :realEstateValue,
+            { otherAssets: [:name, :amount] },
+            :recVehicleAmount,
+            { automobiles: [:resaleValue] }
+          ]
+        )
+      end
+
       def income_form
         params.require(:data).permit(
           :'view:enhancedFinancialStatusReport',
@@ -162,6 +185,10 @@ module DebtsApi
         ).to_hash
       end
       # rubocop:enable Metrics/MethodLength
+
+      def asset_calculator
+        DebtsApi::V0::FsrFormTransform::AssetCalculator.new(asset_form)
+      end
 
       def income_calculator
         DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(income_form)
