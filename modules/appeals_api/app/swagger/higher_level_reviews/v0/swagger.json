@@ -320,6 +320,50 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Body is not a JSON object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "code": "109",
+                          "detail": "The request body isn't a JSON object",
+                          "status": "400",
+                          "title": "Bad Request"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to create a Higher-Level Review for another veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Violates JSON schema",
             "content": {
@@ -684,26 +728,6 @@
               }
             }
           },
-          "404": {
-            "description": "Higher-Level Review not found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Resource not found",
-                      "detail": "Higher-Level Review with uuid 11111111-1111-1111-1111-111111111111 not found",
-                      "code": "404",
-                      "status": "404"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/errorModel"
-                }
-              }
-            }
-          },
           "403": {
             "description": "Forbidden access with a veteran-scoped OAuth token to an unowned Higher-Level Review",
             "content": {
@@ -715,6 +739,26 @@
                       "detail": "Veterans may access only their own records",
                       "code": "403",
                       "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Higher-Level Review not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Higher-Level Review with uuid 11111111-1111-1111-1111-111111111111 not found",
+                      "code": "404",
+                      "status": "404"
                     }
                   ]
                 },

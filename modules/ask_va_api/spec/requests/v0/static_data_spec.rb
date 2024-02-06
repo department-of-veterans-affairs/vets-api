@@ -31,7 +31,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
 
     before do
-      sign_in(authorized_user)
       entity = OpenStruct.new(id: nil, info: 'pong')
       allow_any_instance_of(Crm::Service).to receive(:call).with(endpoint: 'optionset',
                                                                  payload: { name: 'irish_country' }).and_return(entity)
@@ -80,7 +79,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Crm::StaticData)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
         get categories_path
@@ -125,7 +124,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Crm::StaticData)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
         get topics_path
@@ -174,6 +173,45 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
           .to receive(:call)
           .and_raise(StandardError, 'standard error')
         get subtopics_path, params: { mock: true }
+      end
+
+      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
+                      'standard error'
+    end
+  end
+
+  describe 'GET #optionset' do
+    let(:optionset) do
+      AskVAApi::Optionset::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
+    end
+    let(:expected_response) do
+      {
+        'id' => '722310000',
+        'type' => 'optionsets',
+        'attributes' => {
+          'name' => 'Air Force'
+        }
+      }
+    end
+    let(:optionset_path) { '/ask_va_api/v0/optionset' }
+
+    context 'when successful' do
+      before { get optionset_path, params: { user_mock_data: true, name: 'branchofservice' } }
+
+      it 'returns optionset data' do
+        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when an error occurs' do
+      let(:error_message) { 'service error' }
+
+      before do
+        allow_any_instance_of(AskVAApi::Optionset::Retriever)
+          .to receive(:call)
+          .and_raise(StandardError, 'standard error')
+        get optionset_path, params: { user_mock_data: true, mame: 'branchofservice' }
       end
 
       it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
@@ -262,40 +300,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
           .to receive(:fetch_data)
           .and_raise(StandardError.new(error_message))
         get states_path, params: { mock: true }
-      end
-
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'StandardError: standard error'
-    end
-  end
-
-  describe 'GET #Provinces' do
-    let(:provinces_path) { '/ask_va_api/v0/provinces' }
-    let(:scoped_response) do
-      [
-        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'Alberta', 'abv' => 'AB' } },
-        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'British Columbia', 'abv' => 'BC' } },
-        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'Manitoba', 'abv' => 'MB' } }
-      ]
-    end
-
-    context 'when successful' do
-      before { get provinces_path, params: { mock: true } }
-
-      it 'returns all the provinces' do
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data'].first(3)).to eq(scoped_response)
-      end
-    end
-
-    context 'when an error occurs' do
-      let(:error_message) { 'standard error' }
-
-      before do
-        allow_any_instance_of(AskVAApi::Provinces::Retriever)
-          .to receive(:fetch_data)
-          .and_raise(StandardError.new(error_message))
-        get provinces_path, params: { mock: true }
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
