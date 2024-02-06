@@ -36,10 +36,11 @@ module Mobile
                          debtHistory: debt['debtHistory'])
         end
 
-        super(resource, { meta: { hasDependentDebts: has_dependent_debts?(debts) }})
+        super(resource, { meta: { hasDependentDebts: has_dependent_debts?(debts) } })
       end
 
       private
+
       def has_dependent_debts?(debts)
         debts.any? { |debt| debt['payeeNumber'] != '00' }
       end
@@ -57,6 +58,5 @@ module Mobile
                             :originalAR,
                             :currentAR,
                             :debtHistory)
-
   end
 end
