@@ -212,28 +212,26 @@ describe SimpleFormsApi::ConfirmationEmail do
       JSON.parse(fixture_path.read)
     end
 
-    describe 'citizen or non-citizen' do
-      it 'sends the confirmation email' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
+    it 'sends the confirmation email' do
+      allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(
-          form_data: data,
-          form_number: 'vba_20_10206',
-          confirmation_number: 'confirmation_number'
-        )
+      subject = described_class.new(
+        form_data: data,
+        form_number: 'vba_20_10206',
+        confirmation_number: 'confirmation_number'
+      )
 
-        subject.send
+      subject.send
 
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          'jv@example.com',
-          'form20_10206_confirmation_email_template_id',
-          {
-            'first_name' => 'JOHN',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => 'confirmation_number'
-          }
-        )
-      end
+      expect(VANotify::EmailJob).to have_received(:perform_async).with(
+        'jv@example.com',
+        'form20_10206_confirmation_email_template_id',
+        {
+          'first_name' => 'JOHN',
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => 'confirmation_number'
+        }
+      )
     end
   end
 end
