@@ -35,6 +35,75 @@ RSpec.describe EVSSClaimService do
     end
   end
 
+  context 'when user is not a Veteran' do
+    # Overriding global user / service values
+    let(:user) { FactoryBot.create(:evss_user, birls_id: nil) }
+    let(:service) { described_class.new(user) }
+
+    before do
+      allow(Rails.logger).to receive(:info)
+    end
+
+    describe '#request_decision' do
+      it 'supplements the headers' do
+        claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
+        subject.request_decision(claim)
+
+        job = EVSS::RequestDecision.jobs.last
+        job_id = job['jid']
+        job_args = job['args'][0]
+
+        header = job_args['va_eauth_birlsfilenumber']
+        expect(header).to eq(user.ssn)
+
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Supplementing EVSS headers', {
+                  message_type: 'evss.request_decision.no_birls_id',
+                  claim_id: 1,
+                  job_id:
+                })
+      end
+    end
+
+    describe '#upload_document' do
+      let(:upload_file) do
+        f = Tempfile.new(['file with spaces', '.txt'])
+        f.write('test')
+        f.rewind
+        Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+      end
+
+      let(:document) do
+        EVSSClaimDocument.new(
+          evss_claim_id: 1,
+          tracked_item_id: 1,
+          file_obj: upload_file,
+          file_name: File.basename(upload_file.path)
+        )
+      end
+
+      it 'supplements the headers' do
+        subject.upload_document(document)
+
+        job = EVSS::DocumentUpload.jobs.last
+        job_id = job['jid']
+        job_args = job['args'][0]
+
+        header = job_args['va_eauth_birlsfilenumber']
+        expect(header).to eq(user.ssn)
+
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Supplementing EVSS headers', {
+                  message_type: 'evss.document_upload.no_birls_id',
+                  claim_id: 1,
+                  job_id:
+                })
+      end
+    end
+  end
+
   describe '#upload_document' do
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
