@@ -29,19 +29,19 @@ module RepAddresses
     private
 
     # Builds a validation address object from the provided address data.
-    # @param address_data [Hash] A hash containing address fields.
+    # @param request_address [Hash] A hash containing address fields.
     # @return [VAProfile::Models::ValidationAddress] A validation address object.
-    def build_validation_address(address_data)
+    def build_validation_address(request_address)
       VAProfile::Models::ValidationAddress.new(
-        address_pou: address_data['address_pou'],
-        address_line1: address_data['address_line1'],
-        address_line2: address_data['address_line2'],
-        address_line3: address_data['address_line3'],
-        city: address_data['city'],
-        state_code: address_data['state_province']['code'],
-        zip_code: address_data['zip_code5'],
-        zip_code_suffix: address_data['zip_code4'],
-        country_code_iso3: address_data['country_code_iso3']
+        address_pou: request_address['address_pou'],
+        address_line1: request_address['address_line1'],
+        address_line2: request_address['address_line2'],
+        address_line3: request_address['address_line3'],
+        city: request_address['city'],
+        state_code: request_address['state_province']['code'],
+        zip_code: request_address['zip_code5'],
+        zip_code_suffix: request_address['zip_code4'],
+        country_code_iso3: request_address['country_code_iso3']
       )
     end
 
@@ -70,7 +70,7 @@ module RepAddresses
 
       if record.nil?
         log_message_to_sentry(
-          "UpdateAddresses record not found for type: #{data['type']} and id: #{data['id']}",
+          "UpdateAddresses record not found for representative with id: #{data['id']}",
           :error
         )
       else
@@ -88,7 +88,7 @@ module RepAddresses
       meta = api_response['candidate_addresses'].first['address_meta_data']
       record_attributes = build_record_attributes(address, geocode, meta)
                           .merge({ raw_address: data['request_address'].to_json })
-      record_attributes[:email] = data['email_address'] if data['type'] == 'representative'
+      record_attributes[:email] = data['email_address']
       record.update(record_attributes)
     end
 
@@ -99,19 +99,19 @@ module RepAddresses
     # @return [Hash] The attributes to update the record with.
     def build_record_attributes(address, geocode, meta)
       {
+        address_type: meta['address_type'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
-        address_type: meta['address_type'],
         city: address['city'],
-        country_code_iso3: address['country']['iso3_code'],
-        country_name: address['country']['name'],
-        county_name: address.dig('county', 'name'),
-        county_code: address.dig('county', 'county_fips_code'),
         province: address['state_province']['name'],
         state_code: address['state_province']['code'],
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
+        country_code_iso3: address['country']['iso3_code'],
+        country_name: address['country']['name'],
+        county_name: address.dig('county', 'name'),
+        county_code: address.dig('county', 'county_fips_code'),
         lat: geocode['latitude'],
         long: geocode['longitude'],
         location: "POINT(#{geocode['longitude']} #{geocode['latitude']})"

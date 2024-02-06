@@ -2,7 +2,7 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::Pension < SavedClaim
+class SavedClaim::Pension < CentralMailClaim
   FORM = '21P-527EZ'
 
   def regional_office
@@ -35,10 +35,10 @@ class SavedClaim::Pension < SavedClaim
   # https://developer.va.gov/explore/api/benefits-intake/docs
   # @see Lighthouse::PensionBenefitIntakeJob
   def upload_to_lighthouse
-    Lighthouse::PensionBenefitIntakeJob.perform_async(id)
-  end
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.find_each { |f| f.update(saved_claim_id: id) }
 
-  def form_matches_schema
-    true # TODO: remove this when schema updates are in place
+    Lighthouse::PensionBenefitIntakeJob.perform_async(id)
   end
 end

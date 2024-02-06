@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'dependents', type: :request do
-  let!(:user) { sis_user }
+  let!(:user) { sis_user(ssn: '796043735') }
 
   describe '#index' do
     it 'returns a list of dependents' do
@@ -63,6 +63,51 @@ RSpec.describe 'dependents', type: :request do
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq(expected_response)
+      end
+    end
+  end
+
+  describe '#create' do
+    let(:dependency_claim) { build(:dependency_claim) }
+    let(:test_form) { dependency_claim.parsed_form }
+
+    context 'with valid input' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+      end
+
+      it 'returns job ids' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
+        end
+        expect(response).to have_http_status(:accepted)
+        submit_pdf_job_id = VBMS::SubmitDependentsPdfJob.jobs.first['jid']
+        submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
+        expect(response.parsed_body).to eq({ 'data' => { 'submitPdfJobId' => submit_pdf_job_id,
+                                                         'submitFormJobId' => submit_form_job_id } })
+      end
+    end
+
+    context 'with failed async job perform' do
+      before do
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_async)
+          .and_raise(Common::Exceptions::BackendServiceException)
+      end
+
+      it 'returns error' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
+        end
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq({ 'errors' => [
+                                             { 'title' => 'Operation failed',
+                                               'detail' => 'Operation failed',
+                                               'code' => 'VA900', 'status' => '400' }
+                                           ] })
       end
     end
   end

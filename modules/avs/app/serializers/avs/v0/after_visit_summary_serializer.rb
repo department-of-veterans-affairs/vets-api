@@ -15,6 +15,7 @@ module Avs
     attribute :diagnoses
     attribute :vitals
     attribute :orders
+    attribute :procedures
     attribute :immunizations
     attribute :appointments
     attribute :patient_info
@@ -27,6 +28,7 @@ module Avs
     attribute :problems
     attribute :clinical_reminders
     attribute :allergies_reactions
+    attribute :clinic_medications
     attribute :va_medications
     attribute :nonva_medications
     attribute :lab_results

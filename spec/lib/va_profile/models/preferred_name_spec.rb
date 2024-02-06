@@ -49,19 +49,21 @@ describe VAProfile::Models::PreferredName do
       model.valid?
       expect(model).to be_valid
     end
+
+    it 'when text contains a space' do
+      model.text = 'mr robot'
+      model.valid?
+      expect(model).to be_valid
+    end
   end
 
   context 'is invalid' do
     it 'when blank' do
-      model.text = nil
-      expect(model.valid?).to be(false)
-      expect(model.errors[:text]).to include("can't be blank")
-    end
-
-    it 'when text contains a space' do
-      model.text = 'mr robot'
-      expect(model.valid?).to be(false)
-      expect(model.errors[:text]).to include('must not contain spaces')
+      ['', ' ', nil].each do |entry|
+        model.text = entry
+        expect(model.valid?).to be(false)
+        expect(model.errors[:text]).to include("can't be blank")
+      end
     end
 
     it 'when text length is over 25' do
@@ -73,7 +75,9 @@ describe VAProfile::Models::PreferredName do
     it 'when text contains a digit' do
       model.text = 'mrrobot1'
       expect(model.valid?).to be(false)
-      expect(model.errors[:text]).to include('must only contain alpha, -, acute, grave, diaeresis, circumflex, tilde')
+      expect(model.errors[:text]).to include(
+        'must only contain alpha, -, space, acute, grave, diaeresis, circumflex, tilde'
+      )
     end
 
     it 'when text contains a special character' do
@@ -81,8 +85,28 @@ describe VAProfile::Models::PreferredName do
       special_chars.each do |special_char|
         model.text = special_char
         expect(model.valid?).to be(false)
-        expect(model.errors[:text]).to include('must only contain alpha, -, acute, grave, diaeresis, circumflex, tilde')
+        expect(model.errors[:text]).to include(
+          'must only contain alpha, -, space, acute, grave, diaeresis, circumflex, tilde'
+        )
       end
+    end
+  end
+
+  context 'removes spaces' do
+    it 'when leading' do
+      model.text = ' mr robot'
+      model.valid?
+
+      expect(model.text).to eq('mr robot')
+      expect(model).to be_valid
+    end
+
+    it 'when trailing' do
+      model.text = 'mr robot '
+      model.valid?
+
+      expect(model.text).to eq('mr robot')
+      expect(model).to be_valid
     end
   end
 end

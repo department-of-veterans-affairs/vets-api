@@ -129,7 +129,7 @@ RSpec.describe 'PPIU' do
 
         it 'sends an email through va notify' do
           expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-            user.all_emails, :comp_pen
+            user.all_emails, 'comp_and_pen'
           )
 
           subject
@@ -144,7 +144,7 @@ RSpec.describe 'PPIU' do
         it 'logs a message to Sentry' do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
             expect_any_instance_of(User).to receive(:all_emails).and_return([])
-            expect(Raven).to receive(:capture_message).once
+            expect(Sentry).to receive(:capture_message).once
 
             put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
             expect(response).to have_http_status(:ok)

@@ -89,9 +89,7 @@ class HealthCareApplication < ApplicationRecord
 
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error_short_form") if short_form?
 
-      Raven.extra_context(
-        user_loa: user&.loa
-      )
+      Sentry.set_extras(user_loa: user&.loa)
 
       PersonalInformationLog.create(
         data: parsed_form,
@@ -268,5 +266,29 @@ class HealthCareApplication < ApplicationRecord
 
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+  end
+
+  # If the hca_use_facilities_API flag is on then vaMedicalFacility will only
+  # validate for a string, else it will validate through the enum.  This avoids
+  # changes to vets-website and vets-json-schema having to deploy simultaneously.
+  def form_matches_schema
+    if form.present?
+      JSON::Validator.fully_validate(current_schema, parsed_form).each do |v|
+        errors.add(:form, v.to_s)
+      end
+    end
+  end
+
+  def current_schema
+    @current_schema ||= begin
+      schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+      if Flipper.enabled?(:hca_use_facilities_API)
+        schema.deep_dup.tap do |c|
+          c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
+        end
+      else
+        schema
+      end
+    end
   end
 end

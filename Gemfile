@@ -35,7 +35,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', github: 'rails/rails', branch: '6-1-stable'
+gem 'rails', '~> 7.0.8'
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -56,7 +56,6 @@ gem 'clam_scan'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
-gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
 gem 'dogstatsd-ruby', '5.6.1'
@@ -66,7 +65,7 @@ gem 'ethon', '>=0.13.0'
 gem 'faraday', '~> 1.10'
 gem 'faraday_middleware'
 gem 'fastimage'
-gem 'fhir_client'
+gem 'fhir_client', git: 'https://github.com/adhocteam/fhir_client.git', tag: 'v6.0.1'
 gem 'fitbit_api'
 gem 'flipper'
 gem 'flipper-active_record'
@@ -78,10 +77,10 @@ gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
-gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
+gem 'govdelivery-tms', git: 'https://github.com/adhocteam/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
-gem 'httpclient'
+gem 'httpclient' # for lib/evss/base_service.rb
 gem 'ice_nine'
 gem 'iso_country_codes'
 gem 'json'
@@ -136,7 +135,7 @@ gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip'
 gem 'savon'
-gem 'sentry-raven'
+gem 'sentry-ruby'
 gem 'shrine'
 gem 'sidekiq_alive'
 gem 'slack-notify'
@@ -155,6 +154,13 @@ gem 'warden-github'
 gem 'will_paginate'
 gem 'with_advisory_lock'
 
+group :development, :production do
+  # This needs to be required as early as possible in the initialization
+  # process because it starts collecting data on 'require'.
+  # Only require this in development and production to avoid slowing down tests.
+  gem 'coverband'
+end
+
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
@@ -163,7 +169,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
   gem 'fakeredis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'

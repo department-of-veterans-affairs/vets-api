@@ -323,8 +323,8 @@ module DecisionReview
         error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD)",
         data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
       )
-      Raven.tags_context external_service: self.class.to_s.underscore
-      Raven.extra_context url: config.base_path, message: error.message
+      Sentry.set_tags(external_service: self.class.to_s.underscore)
+      Sentry.set_extras(url: config.base_path, message: error.message)
     end
 
     def handle_error(error)
@@ -335,7 +335,7 @@ module DecisionReview
             when Faraday::ParsingError
               DecisionReview::ServiceException.new key: 'DR_502', response_values: source_hash
             when Common::Client::Errors::ClientError
-              Raven.extra_context body: error.body, status: error.status
+              Sentry.set_extras body: error.body, status: error.status
               if error.status == 403
                 Common::Exceptions::Forbidden.new source_hash
               else

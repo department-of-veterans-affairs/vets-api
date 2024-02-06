@@ -403,9 +403,9 @@ module MedicalRecords
       entries.sort_by! do |entry|
         case entry
         when FHIR::DiagnosticReport
-          -(entry.effectiveDateTime&.to_i || 0)
+          -entry.effectiveDateTime.to_i
         when FHIR::DocumentReference
-          -(entry.date&.to_i || 0)
+          -entry.date.to_i
         else
           0
         end

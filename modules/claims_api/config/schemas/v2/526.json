@@ -19,7 +19,10 @@
     "veteranIdentification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mailingAddress"],
+      "required": [
+        "mailingAddress",
+        "currentVaEmployee"
+      ],
       "properties": {
         "serviceNumber": {
           "type": ["null", "string"],
@@ -35,7 +38,7 @@
               "description": "Veteran's phone number.",
               "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
-              "example": "5555555",
+              "example": "5555555555",
               "minLength": 10,
               "maxLength": 10,
               "nullable": true
@@ -136,10 +139,9 @@
           }
         },
         "currentVaEmployee": {
-          "type": ["boolean", "null"],
+          "type": "boolean",
           "description": "Set to true if Veteran is a VA employee.",
-          "default": false,
-          "nullable": true
+          "nullable": false
         }
       }
     },
@@ -615,7 +617,7 @@
       }
     },
     "treatments": {
-      "description": "Identifies the Service Treatment information of the Veteran.",
+      "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
       "type": ["array", "null"],
       "nullable": true,
       "uniqueItems": true,
@@ -892,7 +894,7 @@
             },
             "monthlyAmount": {
               "description": "Amount being received.",
-              "type": ["number", "null"],
+              "type": ["integer", "null"],
               "nullable": true,
               "minimum": 1,
               "maximum": 999999,
@@ -913,8 +915,8 @@
         },
         "favorMilitaryRetiredPay": {
           "description": "Is the Veteran waiving VA benefits to retain military retired pay? See item 26 on form 21-526EZ for more details.",
-            "type": ["boolean", "null"],
-            "nullable": true,
+          "type": ["boolean", "null"],
+          "nullable": true,
           "example": true,
           "default": false
         },
@@ -944,7 +946,7 @@
             },
             "preTaxAmountReceived": {
               "description": "Amount being received.",
-              "type": ["number", "null"],
+              "type": ["integer", "null"],
               "nullable": true,
               "minimum": 1,
               "maximum": 999999,
@@ -954,8 +956,8 @@
         },
         "favorTrainingPay": {
           "description": "Is the Veteran waiving VA benefits to retain training pay? See item 28 on form 21-526EZ for more details. ",
-            "type": ["boolean", "null"],
-            "nullable": true,
+          "type": ["boolean", "null"],
+          "nullable": true,
           "example": true,
           "default": false
         }
@@ -977,6 +979,7 @@
           "description": "Account number for the direct deposit.",
           "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
           "type": ["string", "null"],
+          "maxLength": 14,
           "nullable": true,
           "example": "123123123123"
         },

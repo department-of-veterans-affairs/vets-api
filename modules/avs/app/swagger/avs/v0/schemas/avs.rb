@@ -46,6 +46,11 @@ module Avs
             key :$ref, :order
           end
         end
+        property :procedures, type: :array do
+          items do
+            key :$ref, :procedure
+          end
+        end
         property :immunizations, type: :array do
           items do
             key :$ref, :immunization
@@ -90,6 +95,11 @@ module Avs
             items do
               key :$ref, :allergy
             end
+          end
+        end
+        property :clinicMedications, type: :array do
+          items do
+            key :$ref, :medication
           end
         end
         property :vaMedications, type: :array do
@@ -161,6 +171,11 @@ module Avs
       property :type, type: :string
       property :date, type: :string
       property :text, type: :string
+    end
+
+    swagger_schema :procedure do
+      property :code, type: :string
+      property :name, type: :string
     end
 
     swagger_schema :immunization do

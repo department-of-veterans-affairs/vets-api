@@ -11,7 +11,6 @@ require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
 require 'support/sidekiq/batch'
 require 'support/stub_va_profile'
-require 'support/okta_users_helpers'
 require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
@@ -186,6 +185,16 @@ RSpec.configure do |config|
 
   config.after(:all, :enable_csrf_protection) do
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
+  end
+
+  # Disable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
+  config.before(:each, csrf: false) do
+    ActionController::Base.allow_forgery_protection = false
+  end
+
+  # Enable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
+  config.after(:each, csrf: false) do
+    ActionController::Base.allow_forgery_protection = true
   end
 
   config.after do
