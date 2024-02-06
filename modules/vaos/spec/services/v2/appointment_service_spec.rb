@@ -987,12 +987,22 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when an error occurs while retrieving AVS link' do
-      it 'logs the error and sets the avs_path to nil' do
+      it 'logs the error and sets the avs_path to an error message' do
         allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
           .and_raise(Common::Exceptions::BackendServiceException)
         expect(Rails.logger).to receive(:error)
         subject.send(:fetch_avs_and_update_appt_body, appt)
         expect(appt[:avs_path]).to eq(avs_error_message)
+      end
+    end
+
+    context 'when there is no available after visit summary for the appointment' do
+      let(:user) { build(:user, :vaos) }
+      let(:appt_no_avs) { { id: '192308' } }
+
+      it 'returns an error message in the avs field of the appointment response' do
+        subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
+        expect(appt_no_avs[:avs_path]).to eq(avs_error_message)
       end
     end
   end

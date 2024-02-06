@@ -163,6 +163,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
         let(:start_date) { Time.zone.parse('2023-10-13T14:25:00Z') }
         let(:end_date) { Time.zone.parse('2023-10-13T17:45:00Z') }
         let(:params) { { start: start_date, end: end_date } }
+        let(:avs_error_message) { 'Error retrieving AVS link' }
         let(:avs_path) do
           '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
         end
@@ -177,7 +178,11 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
-            expect(data[0]['attributes']['avsPath']).to eq(avs_path)
+
+            # TODO: currently appointment id 192308 is being used to trigger an avs error message;
+            # switch back this field to expect avs_path after testing on id 192308 is complete
+            expect(data[0]['attributes']['avsPath']).to eq(avs_error_message)
+
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
@@ -413,6 +418,24 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+          end
+        end
+
+        context 'with judy morrison test appointment' do
+          let(:current_user) { build(:user, :vaos) }
+          let(:avs_error_message) { 'Error retrieving AVS link' }
+
+          it 'includes an avs error message in response when appointment has no available avs' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_no_avs',
+                             match_requests_on: %i[method path query]) do
+              get '/vaos/v2/appointments/192308', headers: inflection_header
+              expect(response).to have_http_status(:ok)
+              expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              data = JSON.parse(response.body)['data']
+
+              expect(data['id']).to eq('192308')
+              expect(data['attributes']['avsPath']).to eq(avs_error_message)
+            end
           end
         end
 
