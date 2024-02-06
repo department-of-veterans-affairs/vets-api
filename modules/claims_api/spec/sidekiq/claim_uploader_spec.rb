@@ -168,7 +168,6 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
                                               ))
       )
       expect do
-        # byebug
         subject.new.perform(supporting_document.id)
       end.to raise_error(::Common::Exceptions::BackendServiceException)
     end

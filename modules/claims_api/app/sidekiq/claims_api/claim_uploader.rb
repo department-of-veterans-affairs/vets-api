@@ -6,7 +6,7 @@ require 'claims_api/claim_logger'
 require 'bd/bd'
 
 module ClaimsApi
-  class ClaimUploader < ClaimsApi::V2::DisabilityCompensationClaimServiceBase
+  class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
     def perform(uuid)

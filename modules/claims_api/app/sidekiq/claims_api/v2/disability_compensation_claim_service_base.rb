@@ -13,7 +13,7 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
-      RETRY_STATUS_CODES = %w[500 502 503 504].freeze
+
       LOG_TAG = '526_v2_claim_service_base'
 
       protected
@@ -71,14 +71,6 @@ module ClaimsApi
         end
       end
 
-      def get_original_status_code(error)
-        if error.respond_to? :original_status
-          error.original_status
-        else
-          "No status code for error: #{error}"
-        end
-      end
-
       def will_retry?(error)
         msg = if error.respond_to? :original_body
                 get_error_key(error.original_body)
@@ -88,11 +80,6 @@ module ClaimsApi
 
         # If there is a match return false because we will not retry
         NO_RETRY_ERROR_CODES.exclude?(msg)
-      end
-
-      def will_retry_status_code?(error)
-        status = get_original_status_code(error)
-        RETRY_STATUS_CODES.include?(status.to_s)
       end
 
       def get_claim(claim_id)
