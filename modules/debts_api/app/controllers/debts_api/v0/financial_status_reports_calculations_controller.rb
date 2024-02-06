@@ -39,7 +39,12 @@ module DebtsApi
           questions: [:hasVehicle],
           assets: [
             :realEstateValue,
-            { otherAssets: [:name, :amount] },
+            {
+              otherAssets: %i[
+                name
+                amount
+              ]
+            },
             :recVehicleAmount,
             { automobiles: [:resaleValue] }
           ]
