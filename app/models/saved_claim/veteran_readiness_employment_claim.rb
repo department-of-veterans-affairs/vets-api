@@ -118,7 +118,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       begin
         upload_to_vbms
         send_vbms_confirmation_email(user)
-      rescue => e
+      rescue
         log_message_to_sentry('Error uploading VRE claim to VBMS. Now attempting to upload claim to central mail...',
                               :warn, { uuid: user.uuid })
         begin
