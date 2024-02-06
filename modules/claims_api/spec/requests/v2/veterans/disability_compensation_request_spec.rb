@@ -5,6 +5,7 @@ require_relative '../../../rails_helper'
 
 RSpec.describe 'Disability Claims', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
+  let(:generate_pdf_scopes) { %w[claim.write claim.read claim.limited] }
   let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
 
   before do
@@ -3892,7 +3893,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', 'generate_pdf_526.json').read }
     let(:veteran_id) { '1012832025V743496' }
-    let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF" }
+    let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
 
     context 'submission to generatePDF' do
       it 'returns a 200 response when successful' do

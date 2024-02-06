@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f1b05d17-24b9-406c-9408-076fb9d4dd77",
+                    "id": "9a575de1-f4f4-4922-9352-b409bf26f954",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5943,9 +5943,9 @@
         }
       }
     },
-    "/veterans/{veteranId}/526/generatePDF": {
+    "/veterans/{veteranId}/526/generatePDF/minimum-validations": {
       "post": {
-        "summary": "Returns filled out 526EZ form as PDF",
+        "summary": "Returns filled out 526EZ form as PDF with minimum validations (Limited Access)",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -5954,13 +5954,15 @@
           {
             "productionOauth": [
               "system/claim.read",
-              "system/claim.write"
+              "system/claim.write",
+              "system/claim.limited"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
-              "system/claim.write"
+              "system/claim.write",
+              "system/claim.limited"
             ]
           },
           {
@@ -7806,8 +7808,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-31",
-                      "expirationDate": "2025-01-31",
+                      "creationDate": "2024-02-06",
+                      "expirationDate": "2025-02-06",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8625,7 +8627,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "52005890-7564-4a1e-846c-7431334b302f",
+                    "id": "90158084-28e7-4034-9c04-f8719d82de41",
                     "type": "individual",
                     "attributes": {
                       "code": "083",

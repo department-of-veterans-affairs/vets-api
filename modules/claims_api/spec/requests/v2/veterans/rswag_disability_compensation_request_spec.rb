@@ -511,13 +511,13 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     end
   end
 
-  path '/veterans/{veteranId}/526/generatePDF', production: false do
-    post 'Returns filled out 526EZ form as PDF' do
+  path '/veterans/{veteranId}/526/generatePDF/minimum-validations', production: false do
+    post 'Returns filled out 526EZ form as PDF with minimum validations (Limited Access)' do
       tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
       security [
-        { productionOauth: ['system/claim.read', 'system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write', 'system/claim.limited'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write', 'system/claim.limited'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
