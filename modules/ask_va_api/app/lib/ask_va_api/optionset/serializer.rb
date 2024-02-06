@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Provinces
+  module Optionset
     class Serializer < ActiveModel::Serializer
       include JSONAPI::Serializer
-      set_type :provinces
+      set_type :optionsets
 
-      attributes :name, :abv
+      attributes :name
     end
   end
 end
