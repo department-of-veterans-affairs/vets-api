@@ -17,7 +17,7 @@ RSpec.describe Crm::CacheData do
       it 'returns data from the cache without calling the service' do
         expect(cache_client).to receive(:fetch).with('categories_topics_subtopics').and_return(cache_data)
         expect(service).not_to receive(:call)
-        expect(cache_data_instance.call('topics', 'categories_topics_subtopics')).to eq(cache_data)
+        expect(cache_data_instance.call(endpoint: 'topics', cache_key: 'categories_topics_subtopics')).to eq(cache_data)
       end
     end
   end
@@ -25,10 +25,11 @@ RSpec.describe Crm::CacheData do
   describe '#fetch_api_data' do
     context 'when the cache is empty' do
       it 'fetches data from the service and stores it in the cache' do
-        expect(service).to receive(:call).with(endpoint: 'topics').and_return(cache_data)
+        expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_return(cache_data)
         expect(cache_client).to receive(:store_data).with(key: 'categories_topics_subtopics', data: cache_data,
                                                           ttl: 86_400)
-        expect(cache_data_instance.fetch_api_data('topics', 'categories_topics_subtopics')).to eq(cache_data)
+        expect(cache_data_instance.fetch_api_data(endpoint: 'topics',
+                                                  cache_key: 'categories_topics_subtopics')).to eq(cache_data)
       end
     end
 
@@ -41,19 +42,22 @@ RSpec.describe Crm::CacheData do
       end
 
       it 'handles the service error through the ErrorHandler' do
-        expect(service).to receive(:call).with(endpoint: 'topics').and_raise('Service error')
+        expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_raise('Service error')
         expect(Crm::ErrorHandler).to receive(:handle).with('topics', instance_of(RuntimeError))
-        expect { cache_data_instance.fetch_api_data('topics', 'categories_topics_subtopics') }.not_to raise_error
+        expect do
+          cache_data_instance.fetch_api_data(endpoint: 'topics', cache_key: 'categories_topics_subtopics')
+        end.not_to raise_error
       end
     end
 
     # Edge case where cache returns empty array which should be treated as no data
     context 'when the cache returns an empty array' do
       it 'fetches data from the service as if the cache was empty' do
-        expect(service).to receive(:call).with(endpoint: 'topics').and_return(cache_data)
+        expect(service).to receive(:call).with(endpoint: 'topics', payload: {}).and_return(cache_data)
         expect(cache_client).to receive(:store_data).with(key: 'categories_topics_subtopics', data: cache_data,
                                                           ttl: 86_400)
-        expect(cache_data_instance.fetch_api_data('topics', 'categories_topics_subtopics')).to eq(cache_data)
+        expect(cache_data_instance.fetch_api_data(endpoint: 'topics',
+                                                  cache_key: 'categories_topics_subtopics')).to eq(cache_data)
       end
     end
   end
