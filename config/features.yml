@@ -335,10 +335,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission_lighthouse:
-    actor_type: user
-    description: Manage whether central processing submission uses Lighthouse API
-    enable_in_development: true
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
@@ -739,10 +735,6 @@ features:
   pdf_warning_banner:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
-    enable_in_development: true
-  post_911_gibill_statuses_new_error_handling:
-    actor_type: user
-    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
     enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
