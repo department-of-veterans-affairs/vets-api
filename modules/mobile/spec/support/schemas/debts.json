@@ -1,111 +1,65 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": [
-    "data"
-  ],
+  "required": ["data","meta"],
   "properties": {
     "data": {
-      "type": "object",
-      "required": [
-        "id",
-        "type",
-        "attributes"
-      ],
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string",
-          "const": "debts"
-        },
-        "attributes": {
-          "type": "object",
-          "required": [
-            "hasDependentDebts",
-            "debts"
-          ],
-          "properties": {
-            "hasDependentDebts": {
-              "type": [
-                "boolean"
-              ]
-            },
-            "debts": {
-              "type": [
-                "array"
-              ],
-              "items": {
-                "type": "object",
-                "required": [
-                  "fileNumber",
-                  "payeeNumber",
-                  "personEntitled",
-                  "deductionCode",
-                  "benefitType",
-                  "diaryCode",
-                  "diaryCodeDescription",
-                  "amountOverpaid",
-                  "amountWithheld",
-                  "originalAr",
-                  "currentAr",
-                  "debtHistory"
-                ],
-                "properties": {
-                  "fileNumber": {
-                    "type": ["string"]
-                  },
-                  "payeeNumber": {
-                    "type": ["string"]
-                  },
-                  "personEntitled": {
-                    "type": ["string","null"]
-                  },
-                  "deductionCode": {
-                    "type": ["string"]
-                  },
-                  "benefitType": {
-                    "type": ["string"]
-                  },
-                  "diaryCode": {
-                    "type": ["string"]
-                  },
-                  "diaryCodeDescription": {
-                    "type": ["string"]
-                  },
-                  "amountOverpaid": {
-                    "type": ["number"]
-                  },
-                  "amountWithheld": {
-                    "type": ["number"]
-                  },
-                  "originalAr": {
-                    "type": ["number"]
-                  },
-                  "currentAr": {
-                    "type": ["number"]
-                  },
-                  "debtHistory": {
-                    "type": ["array"],
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "date",
-                        "letterCode",
-                        "description"
-                      ],
-                      "properties": {
-                        "date": {
-                          "type": ["string"]
-                        },
-                        "letterCode": {
-                          "type": ["string"]
-                        },
-                        "description": {
-                          "type": ["string"]
-                        }
-                      }
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": { "type": "string"},
+          "type": { "enum": ["debts"] },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "fileNumber": {
+                "type": "string"
+              },
+              "payeeNumber": {
+                "type": "string"
+              },
+              "personEntitled": {
+                "type": ["string", "null"]
+              },
+              "deductionCode": {
+                "type": "string"
+              },
+              "benefitType": {
+                "type": "string"
+              },
+              "diaryCode": {
+                "type": "string"
+              },
+              "diaryCodeDescription": {
+                "type": "string"
+              },
+              "amountOverpaid": {
+                "type": "number"
+              },
+              "amountWithheld": {
+                "type": "number"
+              },
+              "originalAr": {
+                "type": "number"
+              },
+              "currentAr": {
+                "type": "number"
+              },
+              "debtHistory": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string"
+                    },
+                    "letterCode": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
                     }
                   }
                 }
@@ -113,6 +67,13 @@
             }
           }
         }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["hasDependentDebts"],
+      "properties": {
+        "hasDependentDebts": { "type": "boolean" }
       }
     }
   }

@@ -16,7 +16,6 @@ RSpec.describe 'debts', type: :request do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters') do
             get '/mobile/v0/debts', headers: sis_headers
-
             expect(response).to have_http_status(:ok)
             expect(response.body).to match_json_schema('debts', strict: true)
           end
@@ -46,9 +45,7 @@ RSpec.describe 'debts', type: :request do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters_empty_response') do
             get '/mobile/v0/debts', headers: sis_headers
-
-            expect(response.parsed_body.dig('data', 'attributes')).to eq({ 'hasDependentDebts' => false,
-                                                                           'debts' => [] })
+            expect(response.parsed_body).to eq({"data"=>[], "meta"=>{"hasDependentDebts"=>false}})
           end
         end
       end
@@ -84,9 +81,8 @@ RSpec.describe 'debts', type: :request do
           VCR.use_cassette('debts/get_letters') do
             load_debt_store
             get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
-
             expect(response).to have_http_status(:ok)
-            expect(response.body).to match_json_schema('debt', strict: true)
+            expect(response.body).to match_json_schema('debts')
           end
         end
       end

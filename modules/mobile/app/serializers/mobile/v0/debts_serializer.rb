@@ -7,15 +7,56 @@ module Mobile
 
       set_type :debts
 
-      attributes :has_dependent_debts,
-                 :debts
-      def initialize(user_id, debt_info)
-        resource = DebtsStruct.new(id: user_id,
-                                   has_dependent_debts: debt_info[:has_dependent_debts],
-                                   debts: debt_info[:debts])
-        super(resource)
+      attributes :fileNumber,
+                 :payeeNumber,
+                 :personEntitled,
+                 :deductionCode,
+                 :benefitType,
+                 :diaryCode,
+                 :diaryCodeDescription,
+                 :amountOverpaid,
+                 :amountWithheld,
+                 :originalAR,
+                 :currentAR,
+                 :debtHistory
+      def initialize(debts, id = nil)
+        resource = debts.map do |debt|
+          DebtStruct.new(id: id || debt['id'],
+                         fileNumber: debt['fileNumber'],
+                         payeeNumber: debt['payeeNumber'],
+                         personEntitled: debt['personEntitled'],
+                         deductionCode: debt['deductionCode'],
+                         benefitType: debt['benefitType'],
+                         diaryCode: debt['diaryCode'],
+                         diaryCodeDescription: debt['diaryCodeDescription'],
+                         amountOverpaid: debt['amountOverpaid'],
+                         amountWithheld: debt['amountWithheld'],
+                         originalAR: debt['originalAR'],
+                         currentAR: debt['currentAR'],
+                         debtHistory: debt['debtHistory'])
+        end
+
+        super(resource, { meta: { hasDependentDebts: has_dependent_debts?(debts) }})
+      end
+
+      private
+      def has_dependent_debts?(debts)
+        debts.any? { |debt| debt['payeeNumber'] != '00' }
       end
     end
-    DebtsStruct = Struct.new(:id, :has_dependent_debts, :debts)
+    DebtStruct = Struct.new(:id,
+                            :fileNumber,
+                            :payeeNumber,
+                            :personEntitled,
+                            :deductionCode,
+                            :benefitType,
+                            :diaryCode,
+                            :diaryCodeDescription,
+                            :amountOverpaid,
+                            :amountWithheld,
+                            :originalAR,
+                            :currentAR,
+                            :debtHistory)
+
   end
 end
