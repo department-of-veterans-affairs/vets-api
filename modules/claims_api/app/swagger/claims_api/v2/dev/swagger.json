@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ea23b4c3-3bed-44f0-bcf5-516374db7fe9",
+                    "id": "f8d0a106-9463-4f6f-8100-bf3c677e8767",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5943,7 +5943,7 @@
         }
       }
     },
-    "/veterans/{veteranId}/526/generatePDF": {
+    "/veterans/{veteranId}/526/generatePDF/minimum-validations": {
       "post": {
         "summary": "Returns filled out 526EZ form as PDF",
         "tags": [
@@ -5954,13 +5954,15 @@
           {
             "productionOauth": [
               "system/claim.read",
-              "system/claim.write"
+              "system/claim.write",
+              "system/526-pdf.override"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
-              "system/claim.write"
+              "system/claim.write",
+              "system/526-pdf.override"
             ]
           },
           {
@@ -8625,7 +8627,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3878dbc3-0b55-4475-abee-72acb84c6f2d",
+                    "id": "57d93486-a01d-4ac3-8ba4-8b5ebfaee191",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
