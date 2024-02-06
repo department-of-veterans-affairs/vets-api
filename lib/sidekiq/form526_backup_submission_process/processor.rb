@@ -200,7 +200,7 @@ module Sidekiq
           'claimDate' => submission.created_at.iso8601
         }
         metadata['forceOfframp'] = 'true' if Flipper.enabled?(:form526_backup_submission_force_offramp)
-        SimpleFormsApiSubmission::MetadataValidator.validate(metadata).to_json
+        SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
       end
 
       def send_to_central_mail_through_lighthouse_claims_intake_api!
