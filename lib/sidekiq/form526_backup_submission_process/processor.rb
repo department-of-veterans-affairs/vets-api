@@ -197,9 +197,9 @@ module Sidekiq
           'source' => 'va.gov backup submission',
           'docType' => doc_type,
           'businessLine' => 'CMP',
-          'claimDate' => submission.created_at.iso8601
+          'claimDate' => submission.created_at.iso8601,
+          'forceOfframp' => 'true'
         }
-        metadata['forceOfframp'] = 'true' if Flipper.enabled?(:form526_backup_submission_force_offramp)
         SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
       end
 
