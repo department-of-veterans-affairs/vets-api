@@ -2265,7 +2265,7 @@
                                     },
                                     "monthlyAmount": {
                                       "description": "Amount being received.",
-                                      "type": "number",
+                                      "type": "integer",
                                       "nullable": true,
                                       "minimum": 1,
                                       "maximum": 999999,
@@ -2319,7 +2319,7 @@
                                     },
                                     "preTaxAmountReceived": {
                                       "description": "Amount being received.",
-                                      "type": "number",
+                                      "type": "integer",
                                       "nullable": true,
                                       "minimum": 1,
                                       "maximum": 999999,
@@ -3525,7 +3525,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -3579,7 +3579,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -3831,7 +3831,7 @@
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -3839,7 +3839,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -4096,7 +4096,7 @@
                           "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
                           "militaryRetiredPay": {
                             "branchOfService": "Army",
-                            "monthlyAmount": 840.75
+                            "monthlyAmount": 840
                           },
                           "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                           "favorMilitaryRetiredPay": false,
@@ -4104,7 +4104,7 @@
                           "separationSeverancePay": {
                             "datePaymentReceived": "2022-03-12",
                             "branchOfService": "Naval Academy",
-                            "preTaxAmountReceived": 379.25
+                            "preTaxAmountReceived": 379
                           },
                           "favorTrainingPay": true
                         },
@@ -5330,7 +5330,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -5384,7 +5384,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -5636,7 +5636,7 @@
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -5644,7 +5644,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9a575de1-f4f4-4922-9352-b409bf26f954",
+                    "id": "77cc15e1-ea90-48a6-8498-15befed347d7",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5955,14 +5955,14 @@
             "productionOauth": [
               "system/claim.read",
               "system/claim.write",
-              "system/claim.limited"
+              "system/526-pdf.override"
             ]
           },
           {
             "sandboxOauth": [
               "system/claim.read",
               "system/claim.write",
-              "system/claim.limited"
+              "system/526-pdf.override"
             ]
           },
           {
@@ -7006,7 +7006,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "example": 100
                                   }
@@ -7059,7 +7059,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "example": 100
                                   }
@@ -8627,7 +8627,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "90158084-28e7-4034-9c04-f8719d82de41",
+                    "id": "d1709eca-1749-4903-985b-7a1dde736634",
                     "type": "individual",
                     "attributes": {
                       "code": "083",

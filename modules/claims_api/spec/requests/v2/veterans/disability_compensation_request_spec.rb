@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 
 RSpec.describe 'Disability Claims', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
-  let(:generate_pdf_scopes) { %w[claim.write claim.read claim.limited] }
+  let(:generate_pdf_scopes) { %w[claim.write claim.read 526-pdf.override] }
   let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
 
   before do

@@ -9,6 +9,7 @@ require_relative '../../../support/swagger_shared_components/v2'
 describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
                                    vcr: 'claims_api/disability_comp' do
   let(:scopes) { %w[system/claim.read system/claim.write] }
+  let(:generate_pdf_minimum_validations_scopes) { %w[system/claim.read system/claim.write system/526-pdf.override] }
 
   path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
@@ -516,8 +517,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
       security [
-        { productionOauth: ['system/claim.read', 'system/claim.write', 'system/claim.limited'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write', 'system/claim.limited'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write', 'system/526-pdf.override'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write', 'system/526-pdf.override'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -550,7 +551,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
           before do |example|
-            mock_ccg(scopes) do
+            mock_ccg(generate_pdf_minimum_validations_scopes) do
               submit_request(example.metadata)
             end
           end
@@ -574,7 +575,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:Authorization) { nil }
 
           before do |example|
-            mock_acg(scopes) do
+            mock_acg(generate_pdf_minimum_validations_scopes) do
               allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)
             end
