@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e7857c29-c9ee-4ec0-bc72-c5c1b6cf22f6",
+                    "id": "ea23b4c3-3bed-44f0-bcf5-516374db7fe9",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7004,7 +7004,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "example": 100
                                   }
@@ -7057,7 +7057,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "example": 100
                                   }
@@ -7806,8 +7806,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-02-02",
-                      "expirationDate": "2025-02-02",
+                      "creationDate": "2024-02-06",
+                      "expirationDate": "2025-02-06",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8625,7 +8625,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5c30f9e7-4ca0-4475-a963-ed99bbf656e4",
+                    "id": "3878dbc3-0b55-4475-abee-72acb84c6f2d",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
