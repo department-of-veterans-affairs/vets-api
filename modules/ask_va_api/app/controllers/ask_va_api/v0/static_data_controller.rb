@@ -8,7 +8,7 @@ module AskVAApi
 
       def index
         service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'topics')
+        data = service.call(endpoint: 'optionset', payload: { name: params[:name] })
         render json: data.to_json, status: :ok
       end
 
@@ -17,9 +17,9 @@ module AskVAApi
         render_result(@categories)
       end
 
-      def provinces
-        get_resource('provinces', service: mock_service)
-        render_result(@provinces)
+      def optionset
+        get_resource('optionset', user_mock_data: params[:user_mock_data], name: params[:name])
+        render_result(@optionset)
       end
 
       def states
