@@ -47,7 +47,7 @@ RSpec.describe 'user', type: :request do
 
     describe 'has_facility_transitioning_to_cerner' do
       context 'with feature flag off and user\'s va_treatment_facility_ids contains the hardcoded facility id' do
-        let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['459']) }
+        let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['556']) }
 
         before { Flipper.disable(:mobile_cerner_transition) }
         after { Flipper.enable(:mobile_cerner_transition) }
@@ -59,7 +59,7 @@ RSpec.describe 'user', type: :request do
       end
 
       context 'with feature flag on and user\'s va_treatment_facility_ids contains the hardcoded facility id' do
-        let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['459']) }
+        let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['556']) }
 
         before { Flipper.enable(:mobile_cerner_transition) }
 
