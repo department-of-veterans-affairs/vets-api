@@ -65,10 +65,10 @@ module ClaimsApi
         raise e
       else
         ClaimsApi::Logger.log(
-          'claims_api_retries_exhausted',
+          'claims_api_sidekiq_failure',
           retry: false,
           claim_id: claim&.id.to_s,
-          detail: 'Job retries exhausted for ClaimUploader',
+          detail: 'ClaimUploader job failed',
           error: "#{e.message};"
         )
         {}
