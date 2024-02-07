@@ -2265,7 +2265,7 @@
                                     },
                                     "monthlyAmount": {
                                       "description": "Amount being received.",
-                                      "type": "number",
+                                      "type": "integer",
                                       "nullable": true,
                                       "minimum": 1,
                                       "maximum": 999999,
@@ -2319,7 +2319,7 @@
                                     },
                                     "preTaxAmountReceived": {
                                       "description": "Amount being received.",
-                                      "type": "number",
+                                      "type": "integer",
                                       "nullable": true,
                                       "minimum": 1,
                                       "maximum": 999999,
@@ -3525,7 +3525,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -3579,7 +3579,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -3831,7 +3831,7 @@
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -3839,7 +3839,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -4096,7 +4096,7 @@
                           "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
                           "militaryRetiredPay": {
                             "branchOfService": "Army",
-                            "monthlyAmount": 840.75
+                            "monthlyAmount": 840
                           },
                           "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                           "favorMilitaryRetiredPay": false,
@@ -4104,7 +4104,7 @@
                           "separationSeverancePay": {
                             "datePaymentReceived": "2022-03-12",
                             "branchOfService": "Naval Academy",
-                            "preTaxAmountReceived": 379.25
+                            "preTaxAmountReceived": 379
                           },
                           "favorTrainingPay": true
                         },
@@ -5330,7 +5330,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -5384,7 +5384,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -5636,7 +5636,7 @@
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -5644,7 +5644,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7442e728-95f7-4aae-876d-0ab5975f6445",
+                    "id": "d30f2989-bdd1-44a4-bea1-b99c013c9f9a",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -6413,8 +6413,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-31",
-                      "expirationDate": "2025-01-31",
+                      "creationDate": "2024-02-06",
+                      "expirationDate": "2025-02-06",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -7133,7 +7133,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:104:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:114:in `representative'"
                       }
                     }
                   ]
