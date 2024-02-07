@@ -2,73 +2,103 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "data": {
+    "status": {
+      "type": "integer"
+    },
+    "contacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "contact_type": {
+            "type": "string"
+          },
+          "given_name": {
+            "type": ["string", "null"]
+          },
+          "middle_name": {
+            "type": ["string", "null"]
+          },
+          "family_name": {
+            "type": ["string", "null"]
+          },
+          "relationship": {
+            "type": "string"
+          },
+          "address_line1": {
+            "type": ["string", "null"]
+          },
+          "address_line2": {
+            "type": ["string", "null"]
+          },
+          "address_line3": {
+            "type": ["string", "null"]
+          },
+          "city": {
+            "type": ["string", "null"]
+          },
+          "state": {
+            "type": ["string", "null"]
+          },
+          "zip_code": {
+            "type": ["string", "null"]
+          },
+          "primary_phone": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": [
+          "contact_type",
+          "given_name",
+          "middle_name",
+          "family_name",
+          "relationship",
+          "address_line1",
+          "address_line2",
+          "address_line3",
+          "city",
+          "state",
+          "zip_code",
+          "primary_phone"
+        ]
+      }
+    },
+    "messages": {
       "type": "array",
       "items": [
         {
           "type": "object",
           "properties": {
-            "id": {
-              "type": ["string", "null"]
-            },
-            "type": {
+            "code": {
               "type": "string"
             },
-            "attributes": {
-              "type": "object",
-              "properties": {
-                "contact_type": {
-                  "type": ["string", "null"]
-                },
-                "given_name": {
-                  "type": ["string", "null"]
-                },
-                "family_name": {
-                  "type": ["string", "null"]
-                },
-                "relationship": {
-                  "type": ["string", "null"]
-                },
-                "address_line1": {
-                  "type": ["string", "null"]
-                },
-                "address_line2": {
-                  "type": ["string", "null"]
-                },
-                "address_line3": {
-                  "type": ["string", "null"]
-                },
-                "city": {
-                  "type": ["string", "null"]
-                },
-                "state": {
-                  "type": ["string", "null"]
-                },
-                "zip_code": {
-                  "type": ["string", "null"]
-                },
-                "primary_phone": {
-                  "type": ["string", "null"]
-                }
-              },
-              "required": [
-                "contact_type",
-                "given_name",
-                "family_name",
-                "primary_phone"
-              ]
+            "key": {
+              "type": ["string", "null"]
+            },
+            "retryable": {
+              "type": ["string", "null"]
+            },
+            "severity": {
+              "type": ["string", "null"]
+            },
+            "text": {
+              "type": ["string", "null"]
             }
           },
           "required": [
-            "id",
-            "type",
-            "attributes"
+            "code",
+            "key",
+            "retryable",
+            "severity",
+            "text"
           ]
         }
       ]
     }
   },
   "required": [
-    "data"
+    "status",
+    "contacts",
+    "messages"
   ]
 }
