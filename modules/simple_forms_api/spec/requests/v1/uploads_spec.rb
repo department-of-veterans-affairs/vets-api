@@ -293,6 +293,7 @@ RSpec.describe 'Forms uploader', type: :request do
 
   describe '#submit_supporting_documents' do
     it 'renders the attachment as json' do
+      clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(true)
       allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
       allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
