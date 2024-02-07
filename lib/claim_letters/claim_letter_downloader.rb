@@ -63,11 +63,7 @@ module ClaimStatusTool
     def filter_letters(document)
       return nil unless @allowed_doctypes.include?(document[:doc_type])
 
-      if document.is_a?(OpenStruct)
-        document.marshal_dump
-      else
-        document
-      end
+      document
     end
 
     def filter_boa_letters(document)
@@ -78,7 +74,8 @@ module ClaimStatusTool
     end
 
     def format_letter_data(docs)
-      letters = docs.map { |d| filter_letters(d) }.compact
+      # using marshal_dump here because each document is an OpenStruct
+      letters = docs.map { |d| filter_letters(d.marshal_dump) }.compact
       letters = letters.select { |d| filter_boa_letters(d) }
       # TODO: (rare) Handle nil received_at
       letters.sort_by { |d| d[:received_at] }.reverse
