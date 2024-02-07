@@ -24,7 +24,7 @@ module SimpleFormsApi
         '20-10206' => 'vba_20_10206'
       }.freeze
 
-      UNAUTHENTICATED_FORMS = ['40-0247', '21-10210', '21P-0847']
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847].freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -74,21 +74,8 @@ module SimpleFormsApi
       end
 
       def submit_form_to_central_mail
-        parsed_form_data = JSON.parse(params.to_json)
         form_id = get_form_id
-        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        form.track_user_identity
-        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
-
-        file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
-                    else
-                      filler.generate
-                    end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
-
-        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
-
+        file_path, metadata = get_file_path_and_metadata
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
@@ -103,6 +90,24 @@ module SimpleFormsApi
         )
 
         render json: get_json(confirmation_number, form_id), status:
+      end
+
+      def get_file_path_and_metadata
+        parsed_form_data = JSON.parse(params.to_json)
+        form_id = get_form_id
+        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        form.track_user_identity
+        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
+
+        file_path = if @current_user
+                      filler.generate(@current_user.loa[:current])
+                    else
+                      filler.generate
+                    end
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
+
+        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
+        [file_path, metadata]
       end
 
       def get_upload_location_and_uuid(lighthouse_service)

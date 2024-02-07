@@ -15,7 +15,7 @@ module SimpleFormsApi
         send(stamp_method, stamped_template_path, form)
       end
 
-      current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S') + ' '
+      current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
       auth_text = case current_loa
                   when 3
                     'Signee signed with an identity-verified account.'
@@ -183,27 +183,26 @@ module SimpleFormsApi
       if config[:should_stamp_date?]
         date_title_stamp_position = config[:title_coords]
         date_text_stamp_position = config[:text_coords]
-        page_configuration = [
-          { type: :new_page },
-          { type: :new_page },
-          { type: :new_page },
-          { type: :new_page }
-        ]
+        page_configuration = default_page_configuration
         page_configuration[config[:page_number]] = { type: :text, position: date_title_stamp_position }
 
         multistamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12)
 
-        page_configuration = [
-          { type: :new_page },
-          { type: :new_page },
-          { type: :new_page },
-          { type: :new_page }
-        ]
+        page_configuration = default_page_configuration
         page_configuration[config[:page_number]] = { type: :text, position: date_text_stamp_position }
 
         multistamp(stamped_template_path, Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'), page_configuration,
                    12)
       end
+    end
+
+    def self.default_page_configuration
+      [
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page }
+      ]
     end
   end
 end
