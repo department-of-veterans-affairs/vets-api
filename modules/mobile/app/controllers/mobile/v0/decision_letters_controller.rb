@@ -41,7 +41,18 @@ module Mobile
       end
 
       def service
-        @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
+        @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user, allowed_doctypes)
+      end
+
+      # 27: Board Of Appeals Decision Letter
+      # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
+      # 339: Rating Decision Letter
+      def allowed_doctypes
+        if Flipper.enabled?(:mobile_filter_doc_27_decision_letters_out)
+          %w[184]
+        else
+          %w[27 184]
+        end
       end
     end
   end

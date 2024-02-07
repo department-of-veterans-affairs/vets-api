@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::ClaimLettersController, type: :controller do
+RSpec.describe V0::VirtualAgentClaimLettersController, type: :controller do
   let(:user) { build(:user, :loa3) }
   let(:document_id) { '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA87}' }
   let(:filename) { 'ClaimLetter-2022-9-22.pdf' }
@@ -23,28 +23,8 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
       # they _should_ all have the same keys.
       expect(letters.first.keys).to include(*expected_important_keys)
     end
-  end
 
-  describe '#index when "cst_include_ddl_boa_letters" feature flag is enabled' do
-    before do
-      Flipper.enable(:cst_include_ddl_boa_letters)
-    end
-
-    it 'lists correct documents' do
-      get(:index)
-      letters = JSON.parse(response.body)
-      allowed_letters = letters.select { |d| d['doc_type'] == '27' || d['doc_type'] == '184' }
-
-      expect(allowed_letters.length).to eql(letters.length)
-    end
-  end
-
-  describe '#index when "cst_include_ddl_boa_letters" feature flag is disabled' do
-    before do
-      Flipper.disable(:cst_include_ddl_boa_letters)
-    end
-
-    it 'lists correct documents' do
+    it 'lists only documents of the doctypes specified by the controller' do
       get(:index)
       letters = JSON.parse(response.body)
       allowed_letters = letters.select { |d| d['doc_type'] == '184' }

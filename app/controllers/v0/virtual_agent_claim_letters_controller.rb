@@ -3,7 +3,7 @@
 require 'claim_letters/claim_letter_downloader'
 
 module V0
-  class ClaimLettersController < ApplicationController
+  class VirtualAgentClaimLettersController < ApplicationController
     Sentry.set_tags(feature: 'claim-letters')
     service_tag 'claim-status'
 
@@ -31,11 +31,7 @@ module V0
     # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
     # 339: Rating Decision Letter
     def allowed_doctypes
-      if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
-        %w[27 184]
-      else
-        %w[184]
-      end
+      %w[184]
     end
   end
 end
