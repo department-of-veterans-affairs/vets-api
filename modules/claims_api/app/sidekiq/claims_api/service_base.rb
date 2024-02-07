@@ -14,7 +14,7 @@ module ClaimsApi
       if error.respond_to? :original_status
         error.original_status
       else
-        "No status code for error: #{error}"
+        ''
       end
     end
 
