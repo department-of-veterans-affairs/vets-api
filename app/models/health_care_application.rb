@@ -87,7 +87,7 @@ class HealthCareApplication < ApplicationRecord
     prefill_fields
 
     unless valid?
-      Rails.logger.info("HealthCareApplication::ValidationError: #{Flipper.enabled?(:hca_use_facilities_API)}")
+      Rails.logger.warn("HealthCareApplication::ValidationError: #{Flipper.enabled?(:hca_use_facilities_API)}")
 
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
 
@@ -291,7 +291,7 @@ class HealthCareApplication < ApplicationRecord
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
     return schema unless Flipper.enabled?(:hca_use_facilities_API)
 
-    Rails.logger.info(
+    Rails.logger.warn(
       "HealthCareApplication::hca_use_facilitiesAPI enabled = #{Flipper.enabled?(:hca_use_facilities_API)}"
     )
 
