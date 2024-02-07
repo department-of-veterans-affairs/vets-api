@@ -37,6 +37,10 @@ module DebtsApi
           :stocksAndOtherBonds,
           :'view:enhancedFinancialStatusReport',
           questions: [:hasVehicle],
+          realEstateRecords: %i[
+            realEstateType
+            realEstateAmount
+          ],
           assets: [
             :realEstateValue,
             {
