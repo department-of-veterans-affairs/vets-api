@@ -4,6 +4,8 @@ module Vye
   class Vye::Verification < ApplicationRecord
     belongs_to :user_info
 
+    validates(:source_ind, presence: true)
+
     enum source_ind: { web: 'W', phone: 'P' }
 
     scope :created_today, -> { includes(:user_info).where('created_at >= ?', Time.zone.now.beginning_of_day) }
