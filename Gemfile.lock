@@ -421,6 +421,9 @@ GEM
     faraday-net_http (3.1.0)
       net-http
     faraday-retry (1.0.3)
+    faraday-typhoeus (1.1.0)
+      faraday (~> 2.0)
+      typhoeus (~> 1.4)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
     fastimage (2.3.0)
@@ -1084,9 +1087,11 @@ DEPENDENCIES
   faker
   fakeredis
   faraday (~> 2.9)
+  faraday-follow_redirects
   faraday-httpclient
   faraday-multipart
   faraday-retry
+  faraday-typhoeus
   faraday_curl
   fastimage
   fhir_client!
@@ -1207,7 +1212,6 @@ DEPENDENCIES
   test_user_dashboard!
   timecop
   travel_pay!
-  typhoeus
   tzinfo-data
   utf8-cleaner
   va_forms!

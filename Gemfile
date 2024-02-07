@@ -66,6 +66,8 @@ gem 'faraday', '~> 2.9'
 gem 'faraday-httpclient'
 gem 'faraday-multipart'
 gem 'faraday-retry'
+gem 'faraday-follow_redirects'
+gem 'faraday-typhoeus'
 gem 'fastimage'
 gem 'fhir_client', git: 'https://github.com/adhocteam/fhir_client.git', tag: 'v6.0.1'
 gem 'fitbit_api'
@@ -145,7 +147,6 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
-gem 'typhoeus'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
