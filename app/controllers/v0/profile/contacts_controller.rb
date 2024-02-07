@@ -12,7 +12,10 @@ module V0
       # GET /v0/profile/contacts
       def index
         response = service.get_health_benefit_bio
-        render(status: response.status, json: response)
+        render(
+          status: response.status,
+          json: { data: response.contacts },
+        )
       end
 
       private
