@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f8d0a106-9463-4f6f-8100-bf3c677e8767",
+                    "id": "222d4e4b-1ddd-4098-845d-b5db4e39966d",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5945,7 +5945,7 @@
     },
     "/veterans/{veteranId}/526/generatePDF/minimum-validations": {
       "post": {
-        "summary": "Returns filled out 526EZ form as PDF",
+        "summary": "Returns filled out 526EZ form as PDF with minimum validations (Limited Access)",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -7808,8 +7808,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-02-06",
-                      "expirationDate": "2025-02-06",
+                      "creationDate": "2024-02-07",
+                      "expirationDate": "2025-02-07",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8627,7 +8627,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "57d93486-a01d-4ac3-8ba4-8b5ebfaee191",
+                    "id": "0e878644-0c67-4ad9-a252-f0a559a22191",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
