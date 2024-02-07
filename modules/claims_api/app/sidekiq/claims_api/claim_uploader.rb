@@ -50,12 +50,19 @@ module ClaimsApi
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError, ::Common::Exceptions::BackendServiceException => e
-      ClaimsApi::Logger.log('benefits_documents',
+      if will_retry_status_code?(e)
+        ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
                             detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
-      if will_retry_status_code?(e)
         raise e
       else
+        ClaimsApi::Logger.log(
+	        'claims_api_retries_exhausted',
+	        retry: false,
+	        claim_id: "#{claim&.id}",
+          detail: "Job retries exhausted for ClaimUploader",
+	        error: "#{e.message};"
+        )
         {}
       end
     # Permanent failures, don't retry
