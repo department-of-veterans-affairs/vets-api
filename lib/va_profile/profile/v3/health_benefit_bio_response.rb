@@ -6,27 +6,25 @@ require 'va_profile/models/message'
 
 module VAProfile::Profile::V3
   class HealthBenefitBioResponse < VAProfile::Response
-    attribute :associated_persons, Array[VAProfile::Models::AssociatedPerson]
+    attribute :contacts, Array[VAProfile::Models::AssociatedPerson]
     attribute :messages, Array[VAProfile::Models::Message]
-    attribute :body, String
 
-    def initialize(status_code, body, data)
-      super(status_code)
-      self.body = body
-      self.associated_persons = data[:associated_persons]
+    def initialize(status, data)
+      super(status)
+      self.contacts = data[:contacts]
       self.messages = data[:messages]
     end
 
     class << self
       def from(response)
-        associated_persons = response
-                             .body
-                             .dig('profile', 'healthBenefit', 'associatedPersons')
-                             &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
+        contacts = response
+                   .body
+                   .dig('profile', 'healthBenefit', 'associatedPersons')
+                   &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
         messages = response
                    .body['messages']
                    &.map { |m| VAProfile::Models::Message.build_from(m) }
-        new(response.status, response.body, { associated_persons:, messages: })
+        new(response.status, { contacts:, messages: })
       end
     end
   end
