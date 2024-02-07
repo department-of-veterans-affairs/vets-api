@@ -27,15 +27,15 @@ class BenefitsIntakeStatusJob
 
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
         StatsD.increment("#{STATS_KEY}.#{form_id}.failure")
-        StatsD.increment("#{STATS_KEY}.failure")
+        StatsD.increment("#{STATS_KEY}.all_forms.failure")
         handle_failure(submission)
       elsif submission.dig('attributes', 'status') == 'vbms'
         StatsD.increment("#{STATS_KEY}.#{form_id}.success")
-        StatsD.increment("#{STATS_KEY}.success")
+        StatsD.increment("#{STATS_KEY}.all_forms.success")
         handle_success(submission)
       else
         StatsD.increment("#{STATS_KEY}.#{form_id}.pending")
-        StatsD.increment("#{STATS_KEY}.pending")
+        StatsD.increment("#{STATS_KEY}.all_forms.pending")
       end
     end
   end
