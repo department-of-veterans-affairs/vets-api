@@ -46,22 +46,30 @@ module ClaimsApi
       end
     end
 
-    def claim_bd_upload_document(claim, doc_type, pdf_path)
+    def claim_bd_upload_document(claim, doc_type, pdf_path) # rubocop:disable Metrics/MethodLength
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
-    rescue Faraday::ParsingError, Faraday::TimeoutError, ::Common::Exceptions::BackendServiceException => e
-      if will_retry_status_code?(e)
-        ClaimsApi::Logger.log('benefits_documents',
+    rescue Faraday::ParsingError, Faraday::TimeoutError => e
+      ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
                             detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
+      raise e
+    # Check to determine if job should be retried based on status code
+    rescue ::Common::Exceptions::BackendServiceException => e
+      if will_retry_status_code?(e)
+        # rubocop:disable Layout/LineLength
+        ClaimsApi::Logger.log('benefits_documents',
+                              retry: true,
+                              detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
+        # rubocop:enable Layout/LineLength
         raise e
       else
         ClaimsApi::Logger.log(
-	        'claims_api_retries_exhausted',
-	        retry: false,
-	        claim_id: "#{claim&.id}",
-          detail: "Job retries exhausted for ClaimUploader",
-	        error: "#{e.message};"
+          'claims_api_retries_exhausted',
+          retry: false,
+          claim_id: claim&.id.to_s,
+          detail: 'Job retries exhausted for ClaimUploader',
+          error: "#{e.message};"
         )
         {}
       end
