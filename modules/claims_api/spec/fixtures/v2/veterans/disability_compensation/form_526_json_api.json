@@ -193,7 +193,7 @@
         "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
         "militaryRetiredPay": {
           "branchOfService": "Army",
-          "monthlyAmount": 840.75
+          "monthlyAmount": 840
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "favorMilitaryRetiredPay": false,
@@ -201,7 +201,7 @@
         "separationSeverancePay": {
           "datePaymentReceived": "2022-03-12",
           "branchOfService": "Naval Academy",
-          "preTaxAmountReceived": 379.25
+          "preTaxAmountReceived": 379
         },
         "favorTrainingPay": true
       },
