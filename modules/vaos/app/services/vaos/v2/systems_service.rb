@@ -3,6 +3,8 @@
 module VAOS
   module V2
     class SystemsService < VAOS::SessionService
+      STOP_CODE_FILTERS = :va_online_scheduling_clinic_filtering
+
       def get_facility_clinics(location_id:,
                                clinical_service: nil,
                                clinic_ids: nil,
@@ -18,6 +20,13 @@ module VAOS
             'pageSize' => page_size,
             'pageNumber' => page_number
           }.compact
+
+          #  'clinicalService' is used to retrieve clinics for appointment scheduling,
+          #  triggering stop code filtering to avoid displaying unavailable clinics.
+          if url_params['clinicalService'].present? && Flipper.enabled?(STOP_CODE_FILTERS, user)
+            url_params.merge!('enableStopCodeFilter' => true)
+          end
+
           response = perform(:get, url, url_params, headers)
           response.body[:data].map { |clinic| OpenStruct.new(clinic) }
         end

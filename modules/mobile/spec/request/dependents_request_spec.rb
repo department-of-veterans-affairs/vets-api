@@ -94,7 +94,7 @@ RSpec.describe 'dependents', type: :request do
       before do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        allow(VBMS::SubmitDependentsPdfEncryptedJob).to receive(:perform_async)
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_async)
           .and_raise(Common::Exceptions::BackendServiceException)
       end
 

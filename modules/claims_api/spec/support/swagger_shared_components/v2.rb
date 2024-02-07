@@ -91,6 +91,34 @@ module SwaggerSharedComponents
         )
       )
 
+      disability_compensation_generate_pdf_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'generate_pdf_526.json'
+          )
+        )
+      )
+
+      disability_compensation_generate_pdf_request_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'request_bodies',
+            'disability_compensation',
+            'generate_pdf_example.json'
+          )
+        )
+      )
+
       power_of_attorney_2122a_json_schema = JSON.parse(
         File.read(
           Rails.root.join(
@@ -115,6 +143,35 @@ module SwaggerSharedComponents
             'veterans',
             'power_of_attorney',
             '2122a',
+            'valid.json'
+          )
+        )
+      )
+
+      power_of_attorney_2122_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '2122.json'
+          )
+        )
+      )
+
+      power_of_attorney_2122_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'spec',
+            'fixtures',
+            'v2',
+            'veterans',
+            'power_of_attorney',
+            '2122',
             'valid.json'
           )
         )
@@ -163,6 +220,25 @@ module SwaggerSharedComponents
             example: disability_compensation_request_body_example
           }
         },
+        disability_compensation_generate_pdf: {
+          in: :body,
+          name: 'data',
+          required: true,
+          schema: {
+            type: :object,
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', disability_compensation_generate_pdf_json_schema['required']],
+                properties: {
+                  attributes: disability_compensation_generate_pdf_json_schema
+                }
+              }
+            },
+            example: disability_compensation_generate_pdf_request_body_example
+          }
+        },
         power_of_attorney: {
           in: :body,
           name: 'data',
@@ -208,6 +284,25 @@ module SwaggerSharedComponents
               }
             },
             example: power_of_attorney_2122a_body_example
+          }
+        },
+        power_of_attorney2122: {
+          in: :body,
+          name: 'data',
+          required: true,
+          schema: {
+            type: :object,
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', power_of_attorney_2122_json_schema['required']],
+                properties: {
+                  attributes: power_of_attorney_2122_json_schema
+                }
+              }
+            },
+            example: power_of_attorney_2122_body_example
           }
         }
       }
