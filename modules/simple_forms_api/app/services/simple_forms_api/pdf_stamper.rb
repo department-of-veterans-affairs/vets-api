@@ -161,7 +161,8 @@ module SimpleFormsApi
     def self.stamp(desired_stamps, stamped_template_path, append_to_stamp, text_only: true)
       current_file_path = stamped_template_path
       desired_stamps.each do |x, y, text|
-        out_path = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:).run(text:, x:, y:, text_only:)
+        out_path = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:).run(text:, x:, y:, text_only:,
+                                                                                          size: 9)
         current_file_path = out_path
       end
       File.rename(current_file_path, stamped_template_path)
