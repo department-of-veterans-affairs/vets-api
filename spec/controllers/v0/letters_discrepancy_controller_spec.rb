@@ -38,6 +38,7 @@ RSpec.describe V0::LettersDiscrepancyController, type: :controller do
                             service_verification civil_service benefit_summary benefit_verification]
             evss_letters = %w[commissary proof_of_service medicare_partd minimum_essential_coverage
                               service_verification civil_service benefit_summary]
+
             expect(Rails.logger)
               .to have_received(:info)
               .with('Letters Generator Discrepancies',
