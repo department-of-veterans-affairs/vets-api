@@ -72,7 +72,7 @@ sign_in:
   jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
   cookies_secure: false
   info_cookie_domain: localhost
-  auto_uplevel: true
+  auto_uplevel: false
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~

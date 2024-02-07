@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+   # frozen_string_literal: true
 
 require 'feature_flipper'
 require 'aes_256_cbc_encryptor'
