@@ -736,10 +736,6 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
-  post_911_gibill_statuses_new_error_handling:
-    actor_type: user
-    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
-    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1192,9 +1188,6 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
-  form526_backup_submission_force_offramp:
-    actor_type: user
-    description: If enabled add the "forceOfframp" flag to backup 526 submission metadata
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team

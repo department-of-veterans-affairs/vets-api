@@ -918,7 +918,7 @@
             },
             "monthlyAmount": {
               "description": "Amount being received.",
-              "type": ["number", "null"],
+              "type": ["integer", "null"],
               "nullable": true,
               "example": 100
             }
@@ -969,7 +969,7 @@
             },
             "preTaxAmountReceived": {
               "description": "Amount being received.",
-              "type": ["number", "null"],
+              "type": ["integer", "null"],
               "nullable": true,
               "example": 100
             }
