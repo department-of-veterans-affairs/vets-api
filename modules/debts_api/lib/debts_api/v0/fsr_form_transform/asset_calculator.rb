@@ -8,7 +8,7 @@ module DebtsApi
           @form = form
           @enhanced_fsr_active = @form['view:enhancedFinancialStatusReport']
           @assets = @form['assets']
-          @real_estate_records = ['realEstateRecords']
+          @real_estate_records = @form['realEstateRecords']
           @questions = @form['questions']
         end
 
