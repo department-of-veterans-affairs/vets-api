@@ -45,7 +45,7 @@ describe VAProfile::Profile::V3::Service do
         VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_404') do
           response = subject.get_health_benefit_bio
           expect(response.status).to eq(404)
-          expect(response.associated_persons.size).to eq(0)
+          expect(response.contacts.size).to eq(0)
           expect(response.messages.size).to eq(1)
         end
       end
