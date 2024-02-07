@@ -264,6 +264,32 @@ RSpec.describe 'BGS Claims management', type: :request do
         end
       end
 
+      it 'shows a single errored Claim with an error message in a different format' do
+        mock_acg(scopes) do |auth_header|
+          create(:auto_established_claim,
+                 source: 'abraham lincoln',
+                 auth_headers: auth_header,
+                 evss_id: 600_118_851,
+                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
+                 status: 'errored',
+                 evss_response: [{ 'key' => 400,
+                                   'severity' => 'FATAL',
+                                   'text' =>
+                 { 'messages' =>
+                 [
+
+                   { 'key' => 'form526.submit.establishClaim.serviceError', 'severity' => 'FATAL',
+                     'text' =>
+                     'Claim not established. System error with BGS. GUID: 00797c5d-89d4-4da6-aab7-24b4ad0e4a4f' }
+                 ] } }])
+          VCR.use_cassette('bgs/claims/claim') do
+            headers = request_headers.merge(auth_header)
+            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
+            expect(response.status).to eq(422)
+          end
+        end
+      end
+
       it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         mock_acg(scopes) do |auth_header|
           create(:auto_established_claim,
