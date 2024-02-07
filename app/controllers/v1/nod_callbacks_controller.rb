@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'decision_review_v1/utilities/logging_utils'
 
 module V1
