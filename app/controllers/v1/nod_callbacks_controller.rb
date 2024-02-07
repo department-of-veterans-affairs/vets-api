@@ -1,8 +1,10 @@
 # frozen_string_literal: true
+require 'decision_review_v1/utilities/logging_utils'
 
 module V1
   class NodCallbacksController < ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
+    include DecisionReviewV1::Appeals::LoggingUtils
 
     service_tag 'nod-callbacks'
 
@@ -12,11 +14,16 @@ module V1
     before_action :authenticate_header, only: [:create]
 
     def create
-      unless Flipper.enabled? :nod_callbacks_endpoint
-        return render json: nil, status: :not_found
-      end
+      return render json: nil, status: :not_found unless Flipper.enabled? :nod_callbacks_endpoint
 
-      Rails.logger.info(JSON.parse(request.body.string))
+      log_params = {
+        key: :callbacks,
+        form_id: '10182',
+        user_uuid: nil,
+        upstream_system: 'VANotify',
+        body: JSON.parse(request.body.string)
+      }
+      log_formatted(**log_params.merge(is_success: true))
 
       # TODO: save encrypted request body in database table for non-successful notifications
 
@@ -30,16 +37,17 @@ module V1
     end
 
     def authenticate_user_with_token
-      Rails.logger.debug("Received request, authenticating!")
-      authenticate_with_http_token do |token, options|
+      Rails.logger.info('nod-callbacks-74832 - Received request, authenticating')
+      authenticate_with_http_token do |token|
         return false if bearer_token_secret.nil?
+
         token == bearer_token_secret
       end
     end
 
     def authenticity_error
-      Rails.logger.debug("Failed to authenticate request")
-      render json: { message: "Invalid credentials" }, status: :unauthorized
+      Rails.logger.info('nod-callbacks-74832 - Failed to authenticate request')
+      render json: { message: 'Invalid credentials' }, status: :unauthorized
     end
 
     def bearer_token_secret
