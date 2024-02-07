@@ -3529,7 +3529,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'loa3 user' do
-        let(:idme_uuid) { 'e444837a-e88b-4f59-87da-10d3c74c787b' }
+        let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
         let(:mhv_user) { build(:user, :loa3, idme_uuid:) }
 
         it 'returns ok status code' do
