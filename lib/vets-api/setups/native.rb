@@ -81,6 +81,12 @@ module VetsApi
         puts 'Setting up parallel_test...Done'
       end
 
+      def setup_parallel_spec
+        puts 'Setting up parallel_test...'
+        system('RAILS_ENV=test bundle exec rake parallel:setup')
+        puts 'Setting up parallel_test...Done'
+      end
+
       def configuring_clamav_antivirus
         print 'Configuring ClamAV...'
         File.open("config/initializers/clamav.rb", "w") do |file|
