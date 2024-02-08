@@ -70,9 +70,9 @@ module VetsApi
 
       # TODO: create a syscall to prevent logs (except errors) from logging
       def setup_db
-        puts 'Setting up databse...'
+        puts 'Setting up database...'
         `bundle exec rails db:setup`
-        puts 'Setting up databse...Done'
+        puts 'Setting up database...Done'
       end
 
       def setup_parallel_spec
