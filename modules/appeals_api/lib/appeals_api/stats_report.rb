@@ -6,20 +6,17 @@ module AppealsApi
 
     # [from, to] pairs to report transition times
     STATUS_TRANSITION_PAIRS = [
-      %w[pending submitting],
-      %w[pending error],
-
       %w[submitting submitted],
       %w[submitting error],
 
       %w[submitted processing],
-      %w[submitted complete],
       %w[submitted success],
+      %w[submitted complete],
       %w[submitted error],
-
+      
       %w[processing success],
       %w[processing complete],
-
+      
       %w[success complete]
     ].freeze
 
@@ -88,7 +85,7 @@ module AppealsApi
             to: status_from,
             statusable_id: records.pluck(:statusable_id),
             statusable_type:
-          ).where.not(from: status_from).order(:statusable_id).select('distinct on (statusable_id) *')
+          ).where.not(from: status_from).order(:statusable_id, :status_update_time).select('distinct on (statusable_id) *')
 
           # filter out records with no matching previous record
           records = records.where(statusable_id: previous_records.pluck(:statusable_id))
@@ -117,11 +114,11 @@ module AppealsApi
     def timespan_in_words(seconds)
       return '(none)' if seconds.nil?
 
-      minutes, = seconds.divmod(60)
+      minutes, remaining_seconds = seconds.divmod(60)
       hours, minutes = minutes.divmod(60)
       days, hours = hours.divmod(24)
 
-      "#{days}d #{hours}h #{minutes}m"
+      "#{days}d #{hours}h #{minutes}m #{remaining_seconds.round}s"
     end
 
     def formatted_timespan_stats(appeal_class)
