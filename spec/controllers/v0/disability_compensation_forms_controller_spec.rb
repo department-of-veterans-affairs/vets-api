@@ -14,18 +14,50 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
   end
 
   describe '#separation_locations' do
-    it 'returns separation locations' do
-      VCR.use_cassette('evss/reference_data/get_intake_sites') do
-        get(:separation_locations)
-        expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
+    context 'evss' do
+      before do
+        Flipper.disable('disability_compensation_lighthouse_brd')
+      end
+
+      it 'returns separation locations' do
+        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          get(:separation_locations)
+          expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
+        end
+      end
+
+      it 'uses the cached response on the second request' do
+        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          2.times do
+            get(:separation_locations)
+            expect(response.status).to eq(200)
+          end
+        end
       end
     end
 
-    it 'uses the cached response on the second request' do
-      VCR.use_cassette('evss/reference_data/get_intake_sites') do
-        2.times do
+    context 'lighthouse' do
+      before do
+        Flipper.enable('disability_compensation_lighthouse_brd')
+      end
+
+      after(:all) do
+        Flipper.disable('disability_compensation_lighthouse_brd')
+      end
+
+      it 'returns separation locations' do
+        VCR.use_cassette('brd/separation_locations') do
           get(:separation_locations)
-          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
+        end
+      end
+
+      it 'uses the cached response on the second request' do
+        VCR.use_cassette('brd/separation_locations') do
+          2.times do
+            get(:separation_locations)
+            expect(response.status).to eq(200)
+          end
         end
       end
     end

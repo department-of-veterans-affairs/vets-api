@@ -186,6 +186,26 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           service.perform(claim.id)
         end.not_to change(subject.jobs, :size)
       end
+
+      it 'does retry when 5xx error gets returned' do
+        body = {
+          messages: [
+            { key: '',
+              severity: 'FATAL',
+              text: 'Error calling external service to establish the claim during submit.' }
+          ]
+        }
+        # Rubocop formatting
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       '', {}, nil, body
+                                     ))
+        )
+
+        expect do
+          service.perform(claim.id)
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
     end
   end
 end

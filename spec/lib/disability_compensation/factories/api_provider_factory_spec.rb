@@ -176,4 +176,38 @@ RSpec.describe ApiProviderFactory do
       )
     end
   end
+
+  context 'brd' do
+    def provider(api_provider = nil)
+      ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:brd],
+        provider: api_provider,
+        options: {},
+        current_user:,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+      )
+    end
+
+    it 'provides an EVSS brd provider' do
+      expect(provider(:evss).class).to equal(EvssBRDProvider)
+    end
+
+    it 'provides a Lighthouse brd provider' do
+      expect(provider(:lighthouse).class).to equal(LighthouseBRDProvider)
+    end
+
+    it 'provides brd provider based on Flipper' do
+      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
+      expect(provider.class).to equal(LighthouseBRDProvider)
+
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
+      expect(provider.class).to equal(EvssBRDProvider)
+    end
+
+    it 'throw error if provider unknown' do
+      expect do
+        provider(:random)
+      end.to raise_error NotImplementedError
+    end
+  end
 end

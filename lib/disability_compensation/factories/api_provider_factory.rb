@@ -12,6 +12,9 @@ require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_p
 require 'disability_compensation/providers/claims_service/claims_service_provider'
 require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
 require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
+require 'disability_compensation/providers/brd/brd_provider'
+require 'disability_compensation/providers/brd/evss_brd_provider'
+require 'disability_compensation/providers/brd/lighthouse_brd_provider'
 require 'logging/third_party_transaction'
 
 class ApiProviderFactory
@@ -27,7 +30,8 @@ class ApiProviderFactory
     rated_disabilities: :rated_disabilities,
     intent_to_file: :intent_to_file,
     ppiu: :ppiu,
-    claims: :claims
+    claims: :claims,
+    brd: :brd
   }.freeze
 
   # Splitting the rated disabilities functionality into two use cases:
@@ -42,6 +46,7 @@ class ApiProviderFactory
 
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
+  FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
 
   attr_reader :type
 
@@ -50,6 +55,7 @@ class ApiProviderFactory
     :intent_to_file_service_provider,
     :ppiu_service_provider,
     :claims_service_provider,
+    :brd_service_provider,
     additional_class_logs: {
       action: 'disability compensation factory choosing API Provider'
     },
@@ -83,6 +89,8 @@ class ApiProviderFactory
       ppiu_service_provider
     when FACTORIES[:claims]
       claims_service_provider
+    when FACTORIES[:brd]
+      brd_service_provider
     else
       raise UndefinedFactoryTypeError
     end
@@ -131,6 +139,17 @@ class ApiProviderFactory
       LighthouseClaimsServiceProvider.new(@options[:icn])
     else
       raise NotImplementedError, 'No known Claims Service Api Provider type provided'
+    end
+  end
+
+  def brd_service_provider
+    case api_provider
+    when API_PROVIDER[:evss]
+      EvssBRDProvider.new(@current_user)
+    when API_PROVIDER[:lighthouse]
+      LighthouseBRDProvider.new(@current_user)
+    else
+      raise NotImplementedError, 'No known BRD Api Provider type provided'
     end
   end
 

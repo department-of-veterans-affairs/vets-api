@@ -129,37 +129,19 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       controller.instance_variable_set(:@current_user, User.new)
     end
 
-    context 'when the feature toggle is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:post_911_gibill_statuses_new_error_handling,
-                                                  controller.instance_variable_get(:@current_user)).and_return(true)
+    it 'raises an InternalServerError including an exception with a detailed message' do
+      response = instance_double(EVSS::GiBillStatus::GiBillStatusResponse)
+      allow(response).to receive(:error_type).and_return('unknown')
+      allow(response).to receive(:status).and_return(500)
+      allow(response).to receive(:body).and_return('Unknown error')
+
+      expectation = expect do
+        controller.send(:render_error_json, response)
       end
 
-      it 'raises an InternalServerError including an exception with a detailed message' do
-        response = instance_double(EVSS::GiBillStatus::GiBillStatusResponse)
-        allow(response).to receive(:error_type).and_return('unknown')
-        allow(response).to receive(:status).and_return(500)
-        allow(response).to receive(:body).and_return('Unknown error')
-
-        expectation = expect do
-          controller.send(:render_error_json, response)
-        end
-
-        expectation.to raise_error(Common::Exceptions::InternalServerError) do |error|
-          expected_msg = 'An unknown error occurred. Response error type: unknown, status: 500, body: Unknown error'
-          expect(error.exception.message).to eq(expected_msg)
-        end
-      end
-    end
-
-    context 'when the feature toggle is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:post_911_gibill_statuses_new_error_handling,
-                                                  controller.instance_variable_get(:@current_user)).and_return(false)
-      end
-
-      it 'raises an ArgumentError because an exception argument is not supplied' do
-        expect { controller.send(:render_error_json, response) }.to raise_error(ArgumentError)
+      expectation.to raise_error(Common::Exceptions::InternalServerError) do |error|
+        expected_msg = 'An unknown error occurred. Response error type: unknown, status: 500, body: Unknown error'
+        expect(error.exception.message).to eq(expected_msg)
       end
     end
   end

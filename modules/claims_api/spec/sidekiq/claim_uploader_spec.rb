@@ -148,5 +148,28 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(args).and_return true
       subject.new.perform(supporting_document.id)
     end
+
+    it 'is an attachment resulting in error' do
+      tf = Tempfile.new(['pdf_path', '.pdf'], binmode: true)
+      allow(Tempfile).to receive(:new).and_return tf
+      allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
+
+      body = {
+        messages: [
+          { key: '',
+            severity: 'ERROR',
+            text: 'Error calling external service to upload claim document.' }
+        ]
+      }
+      args = { claim: supporting_document.auto_established_claim, doc_type: 'L023', pdf_path: tf.path }
+      allow_any_instance_of(ClaimsApi::BD).to(
+        receive(:upload).with(args).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                '', {}, 500, body
+                                              ))
+      )
+      expect do
+        subject.new.perform(supporting_document.id)
+      end.to raise_error(::Common::Exceptions::BackendServiceException)
+    end
   end
 end

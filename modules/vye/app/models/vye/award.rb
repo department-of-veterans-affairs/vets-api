@@ -4,6 +4,8 @@ module Vye
   class Vye::Award < ApplicationRecord
     belongs_to :user_info
 
+    enum cur_award_ind: { current: 'C', future: 'F', past: 'P' }
+
     REQUIRED_ATTRIBUTES = %i[
       award_begin_date award_end_date begin_rsn cur_award_ind end_rsn
       monthly_rate number_hours payment_date training_time type_hours type_training

@@ -1,0 +1,28 @@
+{
+  "data": [
+      {
+          "id": 722310005,
+          "name": "Phone"
+      },
+      {
+          "id": 722310004,
+          "name": "US Mail"
+      },
+      {
+          "id": 722310000,
+          "name": "AVA"
+      },
+      {
+          "id": 722310001,
+          "name": "Email"
+      },
+      {
+          "id": 722310002,
+          "name": "Facebook"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "99aff044-d45f-4d5e-954f-675ed4fc9e33"
+}

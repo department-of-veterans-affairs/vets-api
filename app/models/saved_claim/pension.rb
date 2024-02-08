@@ -6,7 +6,10 @@ class SavedClaim::Pension < CentralMailClaim
   FORM = '21P-527EZ'
 
   def regional_office
-    PensionBurial::ProcessingOffice.address_for(open_struct_form.veteranAddress.postalCode)
+    ['Department of Veteran Affairs',
+     'Pension Intake Center',
+     'P.O. Box 5365',
+     'Janesville, Wisconsin 53547-5365']
   end
 
   def attachment_keys

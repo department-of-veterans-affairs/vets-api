@@ -3,7 +3,7 @@
 require_relative '../../../rails_helper'
 
 RSpec.describe Vye::V1::UserInfosController, type: :request do
-  let!(:current_user) { create(:user, :loa3) }
+  let!(:current_user) { create(:user) }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
@@ -24,14 +24,9 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
   describe 'GET /vye/v1 with flag turned on' do
     before do
       Flipper.enable :vye_request_allowed
-      allow_any_instance_of(described_class).to receive(:load_user_info).and_return(true)
     end
 
     describe 'where current_user is not in VYE' do
-      before do
-        allow_any_instance_of(described_class).to receive(:user_info).and_return(nil)
-      end
-
       it 'does not accept the request' do
         get '/vye/v1'
         expect(response).to have_http_status(:forbidden)
@@ -39,30 +34,7 @@ RSpec.describe Vye::V1::UserInfosController, type: :request do
     end
 
     describe 'where current_user is in VYE' do
-      let(:user_info) { FactoryBot.create(:vye_user_info, ssn: current_user.ssn, icn: current_user.icn) }
-
-      before do
-        s =
-          Struct.new(:settings, :scrypt_config) do
-            include Vye::GenDigest
-            settings =
-              Config.load_files(
-                Rails.root / 'config/settings.yml',
-                Vye::Engine.root / 'config/settings/test.yml'
-              )
-            scrypt_config = extract_scrypt_config settings
-            new(settings, scrypt_config)
-          end
-
-        allow_any_instance_of(Vye::GenDigest::Common)
-          .to receive(:scrypt_config)
-          .and_return(s.scrypt_config)
-
-        allow(user_info).to receive(:awards).and_return([])
-        allow(user_info).to receive(:pending_documents).and_return([])
-        allow(user_info).to receive(:verifications).and_return([])
-        allow_any_instance_of(described_class).to receive(:user_info).and_return(user_info)
-      end
+      let!(:user_info) { FactoryBot.create(:vye_user_info, icn: current_user.icn) }
 
       it 'returns the user_info' do
         get '/vye/v1'

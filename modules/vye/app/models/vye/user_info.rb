@@ -23,6 +23,8 @@ module Vye
                                  inverse_of: :user_info
     has_many :verifications, dependent: :destroy
 
+    enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B' }
+
     ENCRYPTED_ATTRIBUTES = %i[
       address_line2 address_line3 address_line4 address_line5 address_line6 dob file_number full_name ssn stub_nm zip
     ].freeze

@@ -1,0 +1,48 @@
+{
+  "data": [
+      {
+          "id": 722310008,
+          "name": "Alberta"
+      },
+      {
+          "id": 722310005,
+          "name": "British Columbia"
+      },
+      {
+          "id": 722310004,
+          "name": "Manitoba"
+      },
+      {
+          "id": 722310003,
+          "name": "New Brunswick"
+      },
+      {
+          "id": 722310009,
+          "name": "Newfoundland"
+      },
+      {
+          "id": 722310002,
+          "name": "Nova Scotia"
+      },
+      {
+          "id": 722310000,
+          "name": "Ontario"
+      },
+      {
+          "id": 722310006,
+          "name": "Prince Edward Island"
+      },
+      {
+          "id": 722310001,
+          "name": "Quebec"
+      },
+      {
+          "id": 722310007,
+          "name": "Saskatchewan"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "9fc9d8fc-c71e-490b-b052-b049e9cda76b"
+}

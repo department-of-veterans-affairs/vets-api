@@ -39,7 +39,15 @@ class EVSSClaimService
   end
 
   def request_decision(claim)
-    EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    # Workaround for non-Veteran users
+    headers = auth_headers.clone
+    headers_supplemented = supplement_auth_headers(headers)
+
+    job_id = EVSS::RequestDecision.perform_async(headers, claim.evss_id)
+
+    record_workaround('request_decision', claim.evss_id, job_id) if headers_supplemented
+
+    job_id
   end
 
   # upload file to s3 and enqueue job to upload to EVSS, used by Claim Status Tool
@@ -47,13 +55,24 @@ class EVSSClaimService
   def upload_document(evss_claim_document)
     uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
+
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
-    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+
+    # Workaround for non-Veteran users
+    headers = auth_headers.clone
+    headers_supplemented = supplement_auth_headers(headers)
+
+    job_id = EVSS::DocumentUpload.perform_async(headers, @user.uuid, evss_claim_document.to_serializable_hash)
+
+    record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
+
+    job_id
   rescue CarrierWave::IntegrityError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
-    raise Common::Exceptions::UnprocessableEntity.new(detail: e.message,
-                                                      source: 'EVSSClaimService.upload_document')
+    raise Common::Exceptions::UnprocessableEntity.new(
+      detail: e.message, source: 'EVSSClaimService.upload_document'
+    )
   end
 
   private
@@ -64,6 +83,23 @@ class EVSSClaimService
 
   def auth_headers
     @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
+  end
+
+  def supplement_auth_headers(headers)
+    # Assuming this header has a value of "", set it to the users SSN.
+    # 'va_eauth_pnid' should already be set to their SSN, so use that
+    blank_header = headers['va_eauth_birlsfilenumber'].blank?
+    headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid'] if blank_header
+
+    blank_header
+  end
+
+  def record_workaround(task, claim_id, job_id)
+    ::Rails.logger.info('Supplementing EVSS headers', {
+                          message_type: "evss.#{task}.no_birls_id",
+                          claim_id:,
+                          job_id:
+                        })
   end
 
   def claims_scope
