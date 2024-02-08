@@ -31,9 +31,8 @@ describe PdfFill::Forms::Va210781 do
       { 'signatureDate' => '2017-02-14',
         'veteranFullName' => { 'first' => 'Foo',
                                'last' => 'Bar' } }
-
     end
-    let(:new_form_class) {described_class.new(form_data)}
+    let(:new_form_class) { described_class.new(form_data) }
 
     it 'expands the Signature and Signature Date correctly' do
       new_form_class.expand_signature(form_data['veteranFullName'], form_data['signatureDate'])

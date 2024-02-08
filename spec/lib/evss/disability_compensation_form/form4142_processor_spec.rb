@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/form4142_processor'
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 
-
 describe EVSS::DisabilityCompensationForm::Form4142Processor do
   let(:user) { build(:disabilities_compensation_user) }
   let(:auth_headers) do
@@ -21,13 +20,13 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
            user_uuid: user.uuid,
            auth_headers_json: auth_headers.to_json,
            saved_claim_id: saved_claim.id,
-           form_json: form_json,
+           form_json:,
            submitted_claim_id: 1)
   end
   let(:jid) { '123456789' }
   let(:processor) { described_class.new(submission, jid) }
-  let(:received_date) {submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S')}
-  let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate': received_date })}
+  let(:received_date) { submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
+  let(:form4142) { JSON.parse(form_json)['form4142'].merge({ signatureDate: received_date }) }
 
   describe '#initialize' do
     it 'initializes with submission and jid' do
