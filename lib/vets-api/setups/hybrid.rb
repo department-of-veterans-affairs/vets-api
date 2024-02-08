@@ -12,6 +12,7 @@ module VetsApi
         install_bundler
         install_gems
         setup_db
+        setup_parallel_spec
         configuring_clamav_antivirus
         dockerized_dependencies
         puts "\nHybrid Setup Complete!"
@@ -41,6 +42,18 @@ module VetsApi
         puts 'Gems installed' if `bundle install`
       end
 
+      def setup_db
+        puts 'Setting up databse...'
+        `bundle exec rails db:setup`
+        puts 'Setting up databse...Done'
+      end
+
+      def setup_parallel_spec
+        puts 'Setting up parallel_test...'
+        system('RAILS_ENV=test bundle exec rake parallel:setup')
+        puts 'Setting up parallel_test...Done'
+      end
+
       def configuring_clamav_antivirus
         print 'Configuring ClamAV...'
         File.open("config/initializers/clamav.rb", "w") do |file|
@@ -63,7 +76,7 @@ module VetsApi
         redis_settings = {
           'redis' => {
             'host' => 'localhost',
-            'port' => 63_790,
+            'port' => '63790',
             'app_data' => {
               'url' => 'redis://localhost:63790'
             },
