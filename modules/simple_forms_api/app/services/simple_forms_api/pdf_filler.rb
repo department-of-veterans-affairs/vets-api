@@ -14,13 +14,13 @@ module SimpleFormsApi
       @name = name || form_number
     end
 
-    def generate
+    def generate(current_loa = nil)
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
       generated_form_path = "tmp/#{name}-tmp.pdf"
       stamped_template_path = "tmp/#{name}-stamped.pdf"
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       FileUtils.copy(template_form_path, stamped_template_path)
-      PdfStamper.stamp_pdf(stamped_template_path, form)
+      PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
       pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
       generated_form_path
     ensure
