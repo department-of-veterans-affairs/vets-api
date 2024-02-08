@@ -59,11 +59,9 @@ module ClaimsApi
     rescue ::Common::Exceptions::BackendServiceException => e
       message = get_error_message(e)
       if will_retry_status_code?(e)
-        # rubocop:disable Layout/LineLength
         ClaimsApi::Logger.log('benefits_documents',
                               retry: true,
                               detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
-        # rubocop:enable Layout/LineLength
         raise e
       else
         ClaimsApi::Logger.log(

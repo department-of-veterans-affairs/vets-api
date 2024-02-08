@@ -2866,13 +2866,12 @@ RSpec.describe 'Disability Claims ', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         allow_any_instance_of(ClaimsApi::BD).to(
           receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(
-                                                  '', {}, 500, body
-                                                ))
+                                       '', {}, 500, body
+                                     ))
         )
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: base64_params, headers: headers.merge(auth_header))
-        byebug
         expect(response.status).to eq(200)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
