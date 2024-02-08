@@ -33,7 +33,7 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
-  caregiver_real_time_monitoring:
+  caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
   hca_browser_monitoring_enabled:
