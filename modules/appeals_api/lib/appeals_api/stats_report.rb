@@ -13,10 +13,10 @@ module AppealsApi
       %w[submitted success],
       %w[submitted complete],
       %w[submitted error],
-      
+
       %w[processing success],
       %w[processing complete],
-      
+
       %w[success complete]
     ].freeze
 
@@ -81,11 +81,12 @@ module AppealsApi
             status_update_time: date_from..date_to
           ).order(:statusable_id).select('distinct on (statusable_id) *')
 
-          previous_records = AppealsApi::StatusUpdate.where(
-            to: status_from,
-            statusable_id: records.pluck(:statusable_id),
-            statusable_type:
-          ).where.not(from: status_from).order(:statusable_id, :status_update_time).select('distinct on (statusable_id) *')
+          previous_records = AppealsApi::StatusUpdate.where(to: status_from,
+                                                            statusable_id: records.pluck(:statusable_id),
+                                                            statusable_type:)
+          previous_records = previous_records.where.not(from: status_from)
+          previous_records = previous_records.order(:statusable_id, :status_update_time)
+                                             .select('distinct on (statusable_id) *')
 
           # filter out records with no matching previous record
           records = records.where(statusable_id: previous_records.pluck(:statusable_id))
