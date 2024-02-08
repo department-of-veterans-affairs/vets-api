@@ -46,6 +46,7 @@ module VAProfile
             faraday.request :json
 
             faraday.response :betamocks if use_mocks?
+            faraday.response :snakecase, symbolize: false
             faraday.response :json, content_type: /\bjson/
 
             faraday.adapter Faraday.default_adapter

@@ -29,7 +29,7 @@ module VAProfile
           oid = MPI::Constants::VA_ROOT_OID
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
           response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
-          VAProfile::Profile::V3::HealthBenefitBioResponse.from(response)
+          VAProfile::Profile::V3::HealthBenefitBioResponse.new(response)
         end
 
         private
