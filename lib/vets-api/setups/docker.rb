@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require 'rake'
+require 'parallel_tests'
 require 'fileutils'
 
 module VetsApi
@@ -12,6 +14,7 @@ module VetsApi
         configuring_clamav_antivirus
         docker_build
         setup_db
+        setup_parallel_spec
         puts "\nDocker Setup Complete!"
       end
 
