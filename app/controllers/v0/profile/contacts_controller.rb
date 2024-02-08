@@ -14,7 +14,9 @@ module V0
         response = service.get_health_benefit_bio
         render(
           status: response.status,
-          json: { data: response.contacts },
+          json: response.contacts,
+          serializer: CollectionSerializer,
+          each_serializer: ContactSerializer
         )
       end
 

@@ -2,103 +2,112 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "status": {
-      "type": "integer"
-    },
-    "contacts": {
+    "data": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "contact_type": {
+          "id": {
             "type": "string"
           },
-          "given_name": {
-            "type": ["string", "null"]
-          },
-          "middle_name": {
-            "type": ["string", "null"]
-          },
-          "family_name": {
-            "type": ["string", "null"]
-          },
-          "relationship": {
+          "type": {
             "type": "string"
           },
-          "address_line1": {
-            "type": ["string", "null"]
-          },
-          "address_line2": {
-            "type": ["string", "null"]
-          },
-          "address_line3": {
-            "type": ["string", "null"]
-          },
-          "city": {
-            "type": ["string", "null"]
-          },
-          "state": {
-            "type": ["string", "null"]
-          },
-          "zip_code": {
-            "type": ["string", "null"]
-          },
-          "primary_phone": {
-            "type": ["string", "null"]
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "contact_type": {
+                "type": "string"
+              },
+              "given_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "middle_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "family_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "relationship": {
+                "type": "string"
+              },
+              "address_line1": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "address_line2": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "address_line3": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "city": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "zip_code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "primary_phone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "contact_type",
+              "given_name",
+              "middle_name",
+              "family_name",
+              "relationship",
+              "address_line1",
+              "address_line2",
+              "address_line3",
+              "city",
+              "state",
+              "zip_code",
+              "primary_phone"
+            ]
           }
         },
         "required": [
-          "contact_type",
-          "given_name",
-          "middle_name",
-          "family_name",
-          "relationship",
-          "address_line1",
-          "address_line2",
-          "address_line3",
-          "city",
-          "state",
-          "zip_code",
-          "primary_phone"
+          "id",
+          "type",
+          "attributes"
         ]
       }
-    },
-    "messages": {
-      "type": "array",
-      "items": [
-        {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "string"
-            },
-            "key": {
-              "type": ["string", "null"]
-            },
-            "retryable": {
-              "type": ["string", "null"]
-            },
-            "severity": {
-              "type": ["string", "null"]
-            },
-            "text": {
-              "type": ["string", "null"]
-            }
-          },
-          "required": [
-            "code",
-            "key",
-            "retryable",
-            "severity",
-            "text"
-          ]
-        }
-      ]
     }
   },
   "required": [
-    "status",
-    "contacts",
-    "messages"
+    "data"
   ]
 }
