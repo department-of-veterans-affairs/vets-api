@@ -3,6 +3,7 @@
 require 'ddtrace'
 require 'simple_forms_api_submission/service'
 require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api_submission/s3'
 
 module SimpleFormsApi
   module V1
@@ -19,9 +20,12 @@ module SimpleFormsApi
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
-        '10-10D' => 'vha_10_10d',
         '40-0247' => 'vba_40_0247',
         '20-10206' => 'vba_20_10206'
+      }.freeze
+
+      IVC_FORM_NUMBER_MAP = {
+        '10-10D' => 'vha_10_10d'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847].freeze
@@ -77,7 +81,17 @@ module SimpleFormsApi
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata = get_file_path_and_metadata(parsed_form_data)
-        status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+
+        if IVC_FORM_NUMBER_MAP.value?(form_id)
+          status, error_message = upload_pdf_to_ivc_s3(form_id, file_path)
+        else
+          status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+
+          Rails.logger.info(
+            "Simple forms api - sent to benefits intake: #{params[:form_number]},
+              status: #{status}, uuid #{confirmation_number}"
+          )
+        end
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
@@ -85,12 +99,9 @@ module SimpleFormsApi
           ).send
         end
 
-        Rails.logger.info(
-          "Simple forms api - sent to benefits intake: #{params[:form_number]},
-            status: #{status}, uuid #{confirmation_number}"
-        )
+        confirmation_number = defined?(confirmation_number) ? confirmation_number : nil
 
-        render json: get_json(confirmation_number, form_id), status:
+        render json: get_json(confirmation_number, form_id), status:, error_message:
       end
 
       def get_file_path_and_metadata(parsed_form_data)
@@ -116,6 +127,17 @@ module SimpleFormsApi
           uuid: upload_location.dig('data', 'id'),
           location: upload_location.dig('data', 'attributes', 'location')
         }
+      end
+
+      def upload_pdf_to_ivc_s3(form_id, file_path)
+        case ivc_s3_client.upload_file("#{form_id}.pdf", file_path)
+        in { success: true }
+          [:ok]
+        in { success: false, error_message: error_message }
+          [:bad_request, error_message]
+        else
+          [:internal_server_error, 'Unexpected response from S3 upload']
+        end
       end
 
       def upload_pdf_to_benefits_intake(file_path, metadata)
@@ -163,7 +185,11 @@ module SimpleFormsApi
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
-        FORM_NUMBER_MAP[form_number]
+        if IVC_FORM_NUMBER_MAP.key?(form_number)
+          IVC_FORM_NUMBER_MAP[form_number]
+        else
+          FORM_NUMBER_MAP[form_number]
+        end
       end
 
       def get_json(confirmation_number, form_id)
@@ -171,6 +197,15 @@ module SimpleFormsApi
         json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
 
         json
+      end
+
+      def ivc_s3_client
+        @ivc_s3_client ||= SimpleFormsApiSubmission::S3.new(
+          region: Settings.ivc_forms.s3.region,
+          access_key_id: Settings.ivc_forms.s3.aws_access_key_id,
+          secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
+          bucket_name: Settings.ivc_forms.s3.bucket
+        )
       end
     end
   end

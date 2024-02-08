@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Forms uploader', type: :request do
-  all_forms = [
-    'vha_10_10d.json',
+  non_ivc_forms = [
     'vba_26_4555.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
@@ -17,8 +16,12 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_20_10206.json'
   ]
 
+  ivc_forms = [
+    'vha_10_10d.json'
+  ]
+
   describe '#submit' do
-    all_forms.each do |form|
+    non_ivc_forms.each do |form|
       fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
 
@@ -51,6 +54,32 @@ RSpec.describe 'Forms uploader', type: :request do
             Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
+      end
+    end
+
+    # To test locally comment out these two things
+    let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+
+    before do
+      allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+    end
+    #######
+
+    ivc_forms.each do |form|
+      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+      data = JSON.parse(fixture_path.read)
+
+      it 'uploads a PDF file to S3' do
+        # Uncomment for testing -> VCR.use_cassette('s3-test-upload') do
+        # Note: Delete the generated .yml file to run again if there are changes to anything
+        allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        # comment out below for testing
+        allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:ok)
+        # Uncomment for testing -> end
       end
     end
 
