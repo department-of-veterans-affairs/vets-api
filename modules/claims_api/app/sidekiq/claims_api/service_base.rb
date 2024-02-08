@@ -10,6 +10,16 @@ module ClaimsApi
 
     protected
 
+    def get_error_message(error)
+      if error.respond_to? :original_body
+        error.original_body
+      elsif error.respond_to? :message
+        error.message
+      else
+        error
+      end
+    end
+
     def get_original_status_code(error)
       if error.respond_to? :original_status
         error.original_status
