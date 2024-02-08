@@ -26,7 +26,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
   describe '#initialize' do
     it 'initializes with submission and jid' do
-
       expect(PdfFill::Filler).to receive(:fill_ancillary_form)
         .and_call_original
         .once
