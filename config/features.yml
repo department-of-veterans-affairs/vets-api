@@ -652,6 +652,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
     enable_in_development: true
+  mhv_secure_messaging_cerner_pilot:
+    actor_type: user
+    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_blocked_triage_group_1_0:
     actor_type: user
     description: Enables/disables Secure Messaging Blocked Triage Group functionality on VA.gov
@@ -1005,6 +1009,10 @@ features:
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
+    enable_in_development: true
+  va_online_scheduling_booking_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
     enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
