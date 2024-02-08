@@ -41,6 +41,8 @@ spec:
               value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
             - name: "KMS_KEY_ID"
               value: "insecure-test-key"
+            - name: "GIT_REVISION"
+              value: "{{ .Chart.Version }}"
           readinessProbe:
             tcpSocket:
               port: http
