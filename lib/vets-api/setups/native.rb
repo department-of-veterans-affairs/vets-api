@@ -15,11 +15,12 @@ module VetsApi
           run_brewfile
           configuring_clamav_antivirus
           install_pdftk
-        else # Linx not Windows
-          "bin/setup doesn't support Linux yet"
+        else
+          "WARNING: bin/setup doesn't support Linux or Windows yet"
         end
         install_gems
         setup_db
+        setup_parallel_spec
         if RbConfig::CONFIG['host_os'] =~ /darwin/i
           puts
           puts 'Follow the Platform Specific Notes instructions to install Postgres & PostGIS'
@@ -72,6 +73,12 @@ module VetsApi
         puts 'Setting up databse...'
         `bundle exec rails db:setup`
         puts 'Setting up databse...Done'
+      end
+
+      def setup_parallel_spec
+        puts 'Setting up parallel_test...'
+        system('RAILS_ENV=test bundle exec rake parallel:setup')
+        puts 'Setting up parallel_test...Done'
       end
 
       def configuring_clamav_antivirus
