@@ -453,14 +453,6 @@ features:
     actor_type: user
     description: Enables Find a Representative tool
     enable_in_development: true
-  find_a_representative_enable_api:
-    actor_type: user
-    description: Enables the Find a Rep search endpoint
-    enable_in_development: true
-  find_a_representative_enable_frontend:
-    actor_type: user
-    description: Enables frontend of Find a Representative
-    enable_in_development: true
   flag_a_representative:
     actor_type: user
     description: Enables flag a rep for Find a Rep
