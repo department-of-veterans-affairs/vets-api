@@ -78,29 +78,58 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
 
-    describe 'request with intent to file authenticated' do
+    describe 'authenticated' do
       before do
         sign_in
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
       end
 
-      describe 'veteran or surviving dependent' do
-        %w[VETERAN SURVIVING_DEPENDENT].each do |identification|
-          it 'makes the request with an intent to file' do
-            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
-                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-                    fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                                   'vba_21_0966-min.json')
-                    data = JSON.parse(fixture_path.read)
-                    data['preparer_identification'] = identification
+      describe 'request with intent to file' do
+        describe 'veteran or surviving dependent' do
+          %w[VETERAN SURVIVING_DEPENDENT].each do |identification|
+            it 'makes the request with an intent to file' do
+              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
+                    VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+                      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                                     'vba_21_0966-min.json')
+                      data = JSON.parse(fixture_path.read)
+                      data['preparer_identification'] = identification
 
-                    post '/simple_forms_api/v1/simple_forms', params: data
+                      post '/simple_forms_api/v1/simple_forms', params: data
 
-                    expect(response).to have_http_status(:ok)
+                      expect(response).to have_http_status(:ok)
+                    end
                   end
+                end
+              end
+            end
+          end
+        end
+
+        describe 'third party' do
+          let(:expiration_date) { Time.zone.now }
+
+          before do
+            allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
+          end
+
+          %w[THIRD_PARTY_VETERAN THIRD_PARTY_SURVIVING_DEPENDENT].each do |identification|
+            it 'returns an expiration date' do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+                VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                  fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                                 'vba_21_0966.json')
+                  data = JSON.parse(fixture_path.read)
+                  data['preparer_identification'] = identification
+
+                  post '/simple_forms_api/v1/simple_forms', params: data
+
+                  parsed_response_body = JSON.parse(response.body)
+                  parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
+                  expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
                 end
               end
             end
@@ -108,29 +137,19 @@ RSpec.describe 'Forms uploader', type: :request do
         end
       end
 
-      describe 'third party' do
-        let(:expiration_date) { Time.zone.now }
+      it 'stamps the LOA3 text on the PDF' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'vba_21_4142.json')
+            data = JSON.parse(fixture_path.read)
+            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+            expect_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).with(3)
 
-        before do
-          allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
-        end
-
-        %w[THIRD_PARTY_VETERAN THIRD_PARTY_SURVIVING_DEPENDENT].each do |identification|
-          it 'returns an expiration date' do
-            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-                fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                               'vba_21_0966.json')
-                data = JSON.parse(fixture_path.read)
-                data['preparer_identification'] = identification
-
-                post '/simple_forms_api/v1/simple_forms', params: data
-
-                parsed_response_body = JSON.parse(response.body)
-                parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
-                expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
-              end
-            end
+            post '/simple_forms_api/v1/simple_forms', params: data
+          ensure
+            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
       end
