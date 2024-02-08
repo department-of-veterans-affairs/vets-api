@@ -2852,6 +2852,33 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    it 'support doc fails, should retry' do
+      mock_acg(scopes) do |auth_header|
+        body = {
+          messages: [
+            { key: '',
+              severity: 'ERROR',
+              text: 'Error calling external service to upload claim document.' }
+          ]
+        }
+
+        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        allow_any_instance_of(ClaimsApi::BD).to(
+          receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                  '', {}, 500, body
+                                                ))
+        )
+        count = auto_claim.supporting_documents.count
+        post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
+             params: base64_params, headers: headers.merge(auth_header))
+        byebug
+        expect(response.status).to eq(200)
+        auto_claim.reload
+        expect(auto_claim.supporting_documents.count).to eq(count + 2)
+      end
+    end
+
     context 'when a claim is already established' do
       let(:auto_claim) { create(:auto_established_claim, :status_established) }
 
