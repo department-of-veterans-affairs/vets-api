@@ -49,7 +49,7 @@ module Mobile
       # 339: Rating Decision Letter
       def allowed_doctypes
         doctypes = %w[184]
-        doctypes << '27' if Flipper.disabled?(:mobile_filter_doc_27_decision_letters_out)
+        doctypes << '27' unless Flipper.enabled?(:mobile_filter_doc_27_decision_letters_out)
         doctypes
       end
     end
