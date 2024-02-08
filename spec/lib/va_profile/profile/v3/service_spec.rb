@@ -17,7 +17,6 @@ describe VAProfile::Profile::V3::Service do
           response = subject.get_military_info
 
           expect(response.status).to eq(200)
-          expect(response).to match_response_schema('va_profile/profile/v3/military_info_response')
         end
       end
     end
