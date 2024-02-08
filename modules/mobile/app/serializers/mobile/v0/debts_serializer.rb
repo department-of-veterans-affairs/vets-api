@@ -36,6 +36,8 @@ module Mobile
                          debtHistory: debt['debtHistory'])
         end
 
+        resource = resource.first if resource.size == 1
+
         super(resource, { meta: { hasDependentDebts: dependent_debts?(debts) } })
       end
 

@@ -81,8 +81,9 @@ RSpec.describe 'debts', type: :request do
           VCR.use_cassette('debts/get_letters') do
             load_debt_store
             get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
+
             expect(response).to have_http_status(:ok)
-            expect(response.body).to match_json_schema('debts')
+            expect(response.body).to match_json_schema('debt')
           end
         end
       end
