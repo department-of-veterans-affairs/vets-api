@@ -75,7 +75,8 @@ module SimpleFormsApi
 
       def submit_form_to_central_mail
         form_id = get_form_id
-        file_path, metadata = get_file_path_and_metadata
+        parsed_form_data = JSON.parse(params.to_json)
+        file_path, metadata = get_file_path_and_metadata(parsed_form_data)
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
@@ -92,8 +93,7 @@ module SimpleFormsApi
         render json: get_json(confirmation_number, form_id), status:
       end
 
-      def get_file_path_and_metadata
-        parsed_form_data = JSON.parse(params.to_json)
+      def get_file_path_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         form.track_user_identity
