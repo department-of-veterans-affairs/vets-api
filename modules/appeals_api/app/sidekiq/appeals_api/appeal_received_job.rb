@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'feature_flipper'
 
 module AppealsApi
   class AppealReceivedJob
