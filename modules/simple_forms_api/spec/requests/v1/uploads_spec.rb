@@ -321,9 +321,11 @@ RSpec.describe 'Forms uploader', type: :request do
             VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
               get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
-              expect(JSON.parse(response.body)).to eq (
-                { "compensation_intent" => nil, "pension_intent" => nil, "survivor_intent" => nil }
-              )
+              expect(JSON.parse(response.body)).to eq {
+                'compensation_intent' => nil,
+                'pension_intent' => nil,
+                'survivor_intent' => nil
+              }
               expect(response).to have_http_status(:ok)
             end
           end
