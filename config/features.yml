@@ -453,7 +453,7 @@ features:
     actor_type: user
     description: Enables Find a Representative tool
     enable_in_development: true
-  flag_a_representative:
+  find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flag a rep for Find a Rep
     enable_in_development: true

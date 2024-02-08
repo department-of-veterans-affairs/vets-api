@@ -43,7 +43,7 @@ module Veteran
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:flag_a_representative)
+        routing_error unless Flipper.enabled?(:find_a_representative_flag_results_enabled)
       end
     end
   end
