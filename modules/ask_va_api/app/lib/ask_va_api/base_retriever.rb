@@ -23,7 +23,7 @@ module AskVAApi
                static = File.read('modules/ask_va_api/config/locales/static_data.json')
                JSON.parse(static, symbolize_names: true)
              else
-               Crm::CacheData.new.call('topics', 'categories_topics_subtopics')
+               Crm::CacheData.new.call(endpoint: 'topics', cache_key: 'categories_topics_subtopics')
              end
       filter_data(data)
     end
