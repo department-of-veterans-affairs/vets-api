@@ -20,23 +20,11 @@ module Mobile
                  :currentAR,
                  :debtHistory
       def initialize(debts, id = nil)
-        resource = debts.map do |debt|
-          DebtStruct.new(id: id || debt['id'],
-                         fileNumber: debt['fileNumber'],
-                         payeeNumber: debt['payeeNumber'],
-                         personEntitled: debt['personEntitled'],
-                         deductionCode: debt['deductionCode'],
-                         benefitType: debt['benefitType'],
-                         diaryCode: debt['diaryCode'],
-                         diaryCodeDescription: debt['diaryCodeDescription'],
-                         amountOverpaid: debt['amountOverpaid'],
-                         amountWithheld: debt['amountWithheld'],
-                         originalAR: debt['originalAR'],
-                         currentAR: debt['currentAR'],
-                         debtHistory: debt['debtHistory'])
-        end
-
-        resource = resource.first if resource.size == 1
+        resource = if debts.is_a? Array
+                     debts.map { |debt| serialize_debt(debt, id) }
+                   else
+                     serialize_debt(debts)
+                   end
 
         super(resource, { meta: { hasDependentDebts: dependent_debts?(debts) } })
       end
@@ -44,9 +32,26 @@ module Mobile
       private
 
       def dependent_debts?(debts)
-        debts.any? { |debt| debt['payeeNumber'] != '00' }
+        Array.wrap(debts).any? { |debt| debt['payeeNumber'] != '00' }
+      end
+
+      def serialize_debt(debt, id = nil)
+        DebtStruct.new(id: id || debt['id'],
+                       fileNumber: debt['fileNumber'],
+                       payeeNumber: debt['payeeNumber'],
+                       personEntitled: debt['personEntitled'],
+                       deductionCode: debt['deductionCode'],
+                       benefitType: debt['benefitType'],
+                       diaryCode: debt['diaryCode'],
+                       diaryCodeDescription: debt['diaryCodeDescription'],
+                       amountOverpaid: debt['amountOverpaid'],
+                       amountWithheld: debt['amountWithheld'],
+                       originalAR: debt['originalAR'],
+                       currentAR: debt['currentAR'],
+                       debtHistory: debt['debtHistory'])
       end
     end
+
     DebtStruct = Struct.new(:id,
                             :fileNumber,
                             :payeeNumber,

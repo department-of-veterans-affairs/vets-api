@@ -16,7 +16,7 @@ module Mobile
       def show
         response = service.get_debt_by_id(params[:id])
 
-        render json: Mobile::V0::DebtsSerializer.new(Array.wrap(response))
+        render json: Mobile::V0::DebtsSerializer.new(response)
       end
 
       private

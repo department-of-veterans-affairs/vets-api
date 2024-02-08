@@ -83,7 +83,7 @@ RSpec.describe 'debts', type: :request do
             get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
 
             expect(response).to have_http_status(:ok)
-            expect(response.body).to match_json_schema('debt')
+            expect(response.body).to match_json_schema('debt', strict: true)
           end
         end
       end
