@@ -31,11 +31,9 @@ module V0
     # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
     # 339: Rating Decision Letter
     def allowed_doctypes
-      if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
-        %w[27 184]
-      else
-        %w[184]
-      end
+      doctypes = %w[184]
+      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
+      doctypes
     end
   end
 end
