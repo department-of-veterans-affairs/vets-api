@@ -40,7 +40,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
       create(:representative, representative_id: '116', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
                               long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
                               first_name: 'Adriane', last_name: 'Crona') # ~57 miles from Washington, D.C.
-      create(:representative, representative_id: '117', poa_codes: ['A12'], user_types: %w[attorney claim_agents],
+      create(:representative, representative_id: '117', poa_codes: ['A12'], user_types: ['veteran_service_officer'],
                               first_name: 'No', last_name: 'Location') # no location
 
       # Create organizations
