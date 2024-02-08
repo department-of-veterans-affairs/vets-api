@@ -13,6 +13,7 @@ module ClaimsApi
       end
 
       def construct(data, id: SecureRandom.uuid)
+        set_version(data)
         sign_pdf(data['signatures'])
         fill_pdf(data)
         combine_pdf(id, @page1_path, @page2_path, @page3_path, @page4_path)
@@ -80,6 +81,15 @@ module ClaimsApi
         raise 'NotImplemented' # Extend this class and implement
       end
 
+      # v1 and v2 have dverging values on the form
+      def set_version(data)
+        @version = data.dig('veteran', 'address', 'addressLine1').present? ? 'v2' : 'v1'
+      end
+
+      def version_v2?
+        @version == 'v2'
+      end
+
       #
       # Converts segmented address information into single string representation.
       #
@@ -89,7 +99,32 @@ module ClaimsApi
       def stringify_address(address)
         return if address.nil?
 
-        "#{address['numberAndStreet']}, #{address['city']} #{address['state']} #{address['zipFirstFive']}"
+        # v2 or v1 ?
+        street_address = version_v2? ? address['addressLine1'] : address['numberAndStreet']
+        zip_code = version_v2? ? address['zipCode'] : address['zipFirstFive']
+
+        "#{street_address}, #{address['city']} #{address['state']} #{zip_code}"
+      end
+
+      def get_street_address(data, filer)
+        if version_v2?
+          data.dig(filer.to_s, 'address',
+                   'addressLine1')
+        else
+          data.dig(filer.to_s, 'address', 'numberAndStreet')
+        end
+      end
+
+      def get_unit_or_apartment(data, filer)
+        version_v2? ? data.dig(filer.to_s, 'address', 'addressLine2') : data.dig(filer.to_s, 'address', 'aptUnitNumber')
+      end
+
+      def get_zip_code_first_five(data, filer)
+        version_v2? ? data.dig(filer.to_s, 'address', 'zipCode') : data.dig(filer.to_s, 'address', 'zipFirstFive')
+      end
+
+      def get_zip_code_last_four(data, filer)
+        version_v2? ? data.dig(filer.to_s, 'address', 'zipCodeSuffix') : data.dig(filer.to_s, 'address', 'zipLastFour')
       end
 
       private

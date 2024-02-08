@@ -43,20 +43,22 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber": {
-              "type": "integer",
+            "addressLine2": { 
+              "description": "Unit or Apartment number.",
+              "type": "string",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 5
             },
             "city": {
@@ -77,13 +79,13 @@
               "example": "US",
               "maxLength": 2
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipcodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -156,20 +158,22 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber": {
-              "type": "integer",
+            "addressLine2": { 
+              "description": "Unit or Apartment number.",
+              "type": "string",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 5
             },
             "city": {
@@ -190,13 +194,13 @@
               "example": "US",
               "maxLength": 2
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipcodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -283,20 +287,22 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber": {
-              "type": "integer",
+            "addressLine2": { 
+              "description": "Unit or Apartment number.",
+              "type": "string",
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 5
             },
             "city": {
@@ -317,13 +323,13 @@
               "example": "US",
               "maxLength": 2
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipcodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
