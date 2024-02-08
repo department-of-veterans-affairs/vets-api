@@ -3,6 +3,7 @@
 require 'debts_api/v0/fsr_form'
 module DebtsApi
   class V0::VhaFsrForm < V0::FsrForm
+    DATE_TIMEZONE = 'Central Time (US & Canada)'
     VHA_TYPE_KEY = 'COPAY'
     VHA_AMOUNT_KEY = 'pHAmtDue'
     DEBTS_KEY = 'selectedDebtsAndCopays'
@@ -58,6 +59,13 @@ module DebtsApi
       combined_adjustments(facility_form)
       streamline_adjustments(facility_form)
       facility_form
+    end
+
+    def set_certification_date(form)
+      date = Time.now.in_time_zone(self.class::DATE_TIMEZONE)
+      date_formatted = date.strftime('%I:%M%p UTC%z %m/%d/%Y')
+
+      form['applicantCertifications']['veteranDateSigned'] = date_formatted if form['applicantCertifications']
     end
 
     def remove_form_delimiters(form)

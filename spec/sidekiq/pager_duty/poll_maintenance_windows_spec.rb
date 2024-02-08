@@ -81,7 +81,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
       described_class.new.perform
       window = MaintenanceWindow.find_by(pagerduty_id: 'ABCDEF')
       expect(window).not_to be_nil
-      expect(window.description).to eq('Sorry, EMIS is unavailable RN\nTry again later')
+      expect(window.description).to eq('Sorry, VIC is unavailable RN\nTry again later')
     end
   end
 

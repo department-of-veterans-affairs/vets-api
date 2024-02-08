@@ -1,0 +1,36 @@
+{
+  "data": [
+      {
+          "id": 722310000,
+          "name": "Jr"
+      },
+      {
+          "id": 722310001,
+          "name": "Sr"
+      },
+      {
+          "id": 722310003,
+          "name": "II"
+      },
+      {
+          "id": 722310004,
+          "name": "III"
+      },
+      {
+          "id": 722310006,
+          "name": "IV"
+      },
+      {
+          "id": 722310002,
+          "name": "V"
+      },
+      {
+          "id": 722310005,
+          "name": "VI"
+      }
+  ],
+  "message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "8b7f3990-2b8a-430d-a799-d602b9efb10c"
+}
