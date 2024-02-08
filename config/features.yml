@@ -335,10 +335,6 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
-  dependents_central_submission_lighthouse:
-    actor_type: user
-    description: Manage whether central processing submission uses Lighthouse API
-    enable_in_development: true
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
@@ -503,6 +499,10 @@ features:
   form21_10210_confirmation_email:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form20_10206_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10206 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
@@ -740,12 +740,6 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
-  post_911_gibill_statuses_new_error_handling:
-    actor_type: user
-    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
-    enable_in_development: true
-  gibill_status_response_overwrite_inspect_method:
-    description: When enabled, overwrite the inspect() method of EVSS::Response to avoid leaking PII into logs - Issue 1525
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1009,6 +1003,10 @@ features:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
     enable_in_development: true
+  va_online_scheduling_booking_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
+    enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
@@ -1174,6 +1172,9 @@ features:
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
+  mobile_cerner_transition:
+    actor_type: user
+    description: For mobile app, a facility is being transitioned to cerner.
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
@@ -1195,9 +1196,6 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
-  form526_backup_submission_force_offramp:
-    actor_type: user
-    description: If enabled add the "forceOfframp" flag to backup 526 submission metadata
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team

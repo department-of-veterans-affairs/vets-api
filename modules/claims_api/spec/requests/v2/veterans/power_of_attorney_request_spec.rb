@@ -12,7 +12,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:appoint_organization_path) { "/services/claims/v2/veterans/#{veteran_id}/2122" }
   let(:validate2122_path) { "/services/claims/v2/veterans/#{veteran_id}/2122/validate" }
   let(:validate2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }
-
+  let(:status_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney/" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
@@ -25,8 +25,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
                                                first_name: 'Abraham', last_name: 'Lincoln')
       Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
                                                first_name: 'George', last_name: 'Washington')
-      Veteran::Service::Organization.create(poa: organization_poa_code,
-                                            name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      Veteran::Service::Organization.create!(poa: organization_poa_code,
+                                             name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
     end
 
     describe 'show' do
@@ -118,6 +118,28 @@ RSpec.describe 'Power Of Attorney', type: :request do
               expect(response.status).to eq(401)
             end
           end
+        end
+      end
+    end
+
+    describe 'status' do
+      it 'returns the status of a POA' do
+        mock_ccg(scopes) do |auth_header|
+          poa = create(:power_of_attorney, auth_headers: auth_header)
+
+          get "#{status_path}/#{poa.id}", params: nil, headers: auth_header
+          json = JSON.parse(response.body)
+
+          expect(json['data']['type']).to eq('claims_api_power_of_attorneys')
+          expect(json['data']['attributes']['status']).to eq('submitted')
+        end
+      end
+
+      it 'returns 404 when given an unknown id' do
+        mock_ccg(scopes) do |auth_header|
+          get "#{status_path}/123456", params: nil, headers: auth_header
+
+          expect(response).to have_http_status(:not_found)
         end
       end
     end

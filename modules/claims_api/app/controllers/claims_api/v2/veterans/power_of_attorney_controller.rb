@@ -26,12 +26,8 @@ module ClaimsApi
 
         def submit2122
           shared_form_validation('2122')
-          poa_code = parse_and_validate_poa_code('2122')
-          unless poa_code_in_organization?(poa_code)
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'POA Code must belong to an organization.'
-            )
-          end
+          poa_code = get_poa_code('2122')
+          validate_org_poa_code!(poa_code)
 
           submit_power_of_attorney(poa_code, '2122')
         end
@@ -45,10 +41,8 @@ module ClaimsApi
         end
 
         def validate2122
-          target_veteran
-          validate_json_schema
-
-          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          shared_form_validation('2122')
+          poa_code = get_poa_code('2122')
           validate_org_poa_code!(poa_code)
 
           render json: validation_success('21-22')
@@ -60,6 +54,17 @@ module ClaimsApi
           validate_individual_poa_code!(poa_code)
 
           render json: validation_success('21-22a')
+        end
+
+        def status
+          poa = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          unless poa
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney with id: #{params[:id]}"
+            )
+          end
+
+          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         private
