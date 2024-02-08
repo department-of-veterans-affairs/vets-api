@@ -14,9 +14,9 @@ module VAProfile
       include Common::Client::Concerns::Monitoring
       include ERB::Util
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
       configuration VAProfile::ContactInformation::Configuration
 
-      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
       # Initializes a vet360_id for a user that does not have one. Can be used when a current user
       # is present, or through a rake task when no user is present (through passing in their ICN).
       # This is an asynchronous process for VAProfile, so it returns VAProfile transaction information.
