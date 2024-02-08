@@ -912,10 +912,6 @@ features:
     actor_type: user
     description: Enables the internationalization features for forms
     enable_in_development: true
-  show_header_v2:
-    action_type: user
-    description: Enables the new header
-    enable_in_development: true
   show_dgi_direct_deposit_1990EZ:
     actor_type: user
     description: Displays prefill enabled direct deposit component on 1990EZ form.
