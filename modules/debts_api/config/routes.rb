@@ -8,6 +8,7 @@ DebtsApi::Engine.routes.draw do
       end
     end
 
+    post 'calculate_total_assets', to: 'financial_status_reports_calculations#total_assets'
     post 'calculate_monthly_expenses', to: 'financial_status_reports_calculations#monthly_expenses'
     post 'calculate_all_expenses', to: 'financial_status_reports_calculations#all_expenses'
     post 'calculate_monthly_income', to: 'financial_status_reports_calculations#monthly_income'
