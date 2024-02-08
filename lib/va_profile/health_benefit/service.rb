@@ -4,11 +4,13 @@ require 'va_profile/health_benefit/configuration'
 require 'va_profile/health_benefit/associated_persons_response'
 require 'va_profile/models/associated_person'
 
+
 module VAProfile
   module HealthBenefit
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.veteran_status".freeze
       configuration VAProfile::HealthBenefit::Configuration
 
       OID = '1.2.3' # placeholder
