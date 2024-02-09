@@ -4,13 +4,12 @@ required:
   - meta
 properties:
   data:
-    type: array
-    items:
-      required:
+    type: object
+    required:
       - type
       - id
       - attributes
-      properties:
+    properties:
         id:
           type: string
           example: 'fe1776a8-3908-4efe-8e20-8dd31440ccb9'
