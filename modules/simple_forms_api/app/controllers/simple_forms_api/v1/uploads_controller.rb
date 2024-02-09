@@ -51,7 +51,8 @@ module SimpleFormsApi
         super
       rescue Common::Exceptions::Unauthorized
         Rails.logger.info(
-          "Simple forms api - unauthenticated user submitting form: #{params[:form_number]}"
+          'Simple forms api - unauthenticated user submitting form',
+          { form_number: params[:form_number] }
         )
       end
 
@@ -92,8 +93,12 @@ module SimpleFormsApi
         end
 
         Rails.logger.info(
-          "Simple forms api - sent to benefits intake: #{params[:form_number]},
-            status: #{status}, uuid #{confirmation_number}"
+          'Simple forms api - sent to benefits intake',
+          {
+            form_number: params[:form_number],
+            status: status,
+            uuid: confirmation_number
+          }
         )
 
         render json: get_json(confirmation_number, form_id), status:
@@ -120,8 +125,11 @@ module SimpleFormsApi
 
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
-          "Simple forms api - preparing to upload PDF to benefits intake:
-            location: #{uuid_and_location[:location]}, uuid: #{uuid_and_location[:uuid]}"
+          'Simple forms api - preparing to upload PDF to benefits intake',
+          {
+            location: uuid_and_location[:location],
+            uuid: uuid_and_location[:uuid]
+          }
         )
         response = lighthouse_service.upload_doc(
           upload_url: uuid_and_location[:location],
