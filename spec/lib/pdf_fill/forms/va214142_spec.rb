@@ -20,8 +20,32 @@ describe PdfFill::Forms::Va214142 do
   end
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(described_class.new(get_fixture('pdf_fill/21-4142/kitchen_sink')).merge_fields.to_json).to eq(
-        get_fixture('pdf_fill/21-4142/merge_fields').to_json
+      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142/kitchen_sink')).merge_fields.to_json)).to eq(
+        JSON.parse(get_fixture('pdf_fill/21-4142/merge_fields').to_json)
+      )
+    end
+  end
+
+  describe '#expand_signature' do
+    let(:form_data) do
+      { 'signatureDate' => '2017-02-14',
+        'veteranFullName' => { 'first' => 'Foo',
+                               'last' => 'Bar' } }
+    end
+
+    it 'expands the Signature and Signature Date correctly' do
+      new_form_class.expand_signature(form_data['veteranFullName'], form_data['signatureDate'])
+      # Note on the expectation: the signature field gets filled in further down in the #merge_fields method
+
+      expect(
+        JSON.parse(class_form_data.to_json)
+      ).to eq(
+        'signature' => 'Foo Bar',
+        'veteranFullName' => {
+          'first' => 'Foo',
+          'last' => 'Bar'
+        },
+        'signatureDate' => '2017-02-14'
       )
     end
   end
