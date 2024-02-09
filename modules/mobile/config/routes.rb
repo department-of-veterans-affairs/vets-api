@@ -30,6 +30,7 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/community-care-providers', to: 'community_care_providers#index'
     get '/debts', to: 'debts#index'
+    get '/debts/:id', to: 'debts#show'
     get '/dependents', to: 'dependents#index'
     post '/dependents', to: 'dependents#create'
     get '/dependents/request-decisions', to: 'dependents_request_decisions#index'
