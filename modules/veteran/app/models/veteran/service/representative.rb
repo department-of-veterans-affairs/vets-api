@@ -94,7 +94,7 @@ module Veteran
 
       #
       # Find all representatives that are located within a distance of a specific location
-      # @params long [Float] longitude of the location of interest
+      # @param long [Float] longitude of the location of interest
       # @param lat [Float] latitude of the location of interest
       # @param max_distance [Float] the maximum search distance in meters
       #

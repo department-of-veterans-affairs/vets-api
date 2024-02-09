@@ -6,9 +6,7 @@ require 'claims_api/claim_logger'
 require 'bd/bd'
 
 module ClaimsApi
-  class ClaimUploader
-    include Sidekiq::Job
-
+  class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
     sidekiq_retries_exhausted do |message|
@@ -57,21 +55,36 @@ module ClaimsApi
       end
     end
 
-    def claim_bd_upload_document(claim, doc_type, pdf_path)
+    def claim_bd_upload_document(claim, doc_type, pdf_path) # rubocop:disable Metrics/MethodLength
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError => e
+      message = get_error_message(e)
       ClaimsApi::Logger.log('benefits_documents',
                             retry: true,
-                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
+                            detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       raise e
+    # Check to determine if job should be retried based on status code
+    rescue ::Common::Exceptions::BackendServiceException => e
+      message = get_error_message(e)
+      if will_retry_status_code?(e)
+        ClaimsApi::Logger.log('benefits_documents',
+                              retry: true,
+                              detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
+        raise e
+      else
+        ClaimsApi::Logger.log(
+          'claims_api_sidekiq_failure',
+          retry: false,
+          claim_id: claim&.id.to_s,
+          detail: 'ClaimUploader job failed',
+          error: message
+        )
+        {}
+      end
     # Permanent failures, don't retry
     rescue => e
-      message = if e.respond_to? :original_body
-                  e.original_body
-                else
-                  e.message
-                end
+      message = get_error_message(e)
       ClaimsApi::Logger.log('benefits_documents',
                             retry: false,
                             detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")

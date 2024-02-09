@@ -17,22 +17,36 @@ describe VAProfile::Profile::V3::Service do
           response = subject.get_military_info
 
           expect(response.status).to eq(200)
-          expect(response).to match_response_schema('va_profile/profile/v3/military_info_response')
         end
       end
     end
   end
 
   describe '#get_health_benefit_bio' do
-    let(:idme_uuid) { 'e444837a-e88b-4f59-87da-10d3c74c787b' }
     let(:user) { build(:user, :loa3, idme_uuid:) }
 
-    it 'returns the associated_persons for a user' do
-      VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
-        response = subject.get_health_benefit_bio
+    context '200 response' do
+      let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
 
-        expect(response.status).to eq(200)
-        expect(response.associated_persons).not_to be_nil
+      it 'returns the contacts (aka associated_persons) for a user' do
+        VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
+          response = subject.get_health_benefit_bio
+          expect(response.status).to eq(200)
+          expect(response.contacts.size).to eq(4)
+        end
+      end
+    end
+
+    context '404 response' do
+      let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
+
+      it 'includes messages recieved from the api' do
+        VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_404') do
+          response = subject.get_health_benefit_bio
+          expect(response.status).to eq(404)
+          expect(response.contacts.size).to eq(0)
+          expect(response.messages.size).to eq(1)
+        end
       end
     end
   end

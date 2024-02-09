@@ -128,7 +128,7 @@ describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger
             stub_poa_verification
 
             allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:all).and_raise(
-              Common::Exceptions::ResourceNotFound.new(detail: 'The BGS server did not find the resource.')
+              Common::Exceptions::ResourceNotFound.new(detail: 'The Resource was not found.')
             )
             mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do

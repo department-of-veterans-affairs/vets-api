@@ -155,6 +155,9 @@ Rails.application.routes.draw do
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
+    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
+    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
+
     resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
@@ -438,6 +441,10 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+
+    scope format: false do
+      resources :nod_callbacks, only: [:create]
+    end
   end
 
   root 'v0/example#index', module: 'v0'
