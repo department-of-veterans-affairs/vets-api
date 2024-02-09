@@ -328,6 +328,86 @@ RSpec.describe 'Forms uploader', type: :request do
     end
   end
 
+  describe '#get_intents_to_file' do
+    before do
+      sign_in
+      allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+      allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+    end
+
+    describe 'no intents on file' do
+      it 'returns no intents' do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension') do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
+              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+              parsed_response = JSON.parse(response.body)
+              expect(parsed_response['compensation_intent']).to eq nil
+              expect(parsed_response['pension_intent']).to eq nil
+              expect(parsed_response['survivor_intent']).to eq nil
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'compensation intent on file' do
+      it 'returns a compensation intent' do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_pension') do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
+              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+              parsed_response = JSON.parse(response.body)
+              expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
+              expect(parsed_response['pension_intent']).to eq nil
+              expect(parsed_response['survivor_intent']).to eq nil
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'pension intent on file' do
+      it 'returns a pension intent' do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
+              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+              parsed_response = JSON.parse(response.body)
+              expect(parsed_response['compensation_intent']).to eq nil
+              expect(parsed_response['pension_intent']['type']).to eq 'pension'
+              expect(parsed_response['survivor_intent']).to eq nil
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'both intents on file' do
+      it 'returns a pension intent' do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response_survivor') do
+              get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
+
+              parsed_response = JSON.parse(response.body)
+              expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
+              expect(parsed_response['pension_intent']['type']).to eq 'pension'
+              expect(parsed_response['survivor_intent']).to eq nil
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+    end
+  end
+
   describe 'email confirmations' do
     let(:confirmation_number) { 'some_confirmation_number' }
 
