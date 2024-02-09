@@ -77,6 +77,9 @@ module VAOS
       #   - :meta: A hash containing pagination information
       #
       def get_facilities(ids:, schedulable:, children: nil, type: nil, pagination_params: {})
+        # remove Lovell sites GH#75460
+        ids = remove_ids_starting_with(ids, '556') if Flipper.enabled?(:va_online_scheduling_booking_exclusion, user)
+
         params = {
           ids:,
           schedulable:,
@@ -205,6 +208,27 @@ module VAOS
           Rails.cache.write("vaos_facility_#{facility[:id]}", facility, expires_in: 12.hours)
         end
         facilities[:data]
+      end
+
+      # Removes from a comma-separated list of identifiers those that start with a specified substring.
+      #
+      # @param ids [String] comma-separated string of identifiers.
+      # @param match [String] the substring that an identifier should start with to be removed.
+      #
+      # @return [String] a comma-separated string of identifiers not starting with the specified substring.
+      # Returns an empty string if the 'ids' argument is blank.
+      # Returns the original 'ids' string without any modification if the 'match' argument is blank.
+      #
+      # @example
+      #   remove_ids_starting_with('983,556, 556GD, 983GA', '556') #=> '983,983GA'
+      def remove_ids_starting_with(ids, match)
+        return '' if ids.blank?
+        return ids if match.blank?
+
+        elements = ids.gsub(/\s/, '').split(',')
+        filtered_ids = elements.reject { |element| element.start_with?(match) }
+
+        filtered_ids.join(',')
       end
 
       def deserialized_configurations(configuration_list)
