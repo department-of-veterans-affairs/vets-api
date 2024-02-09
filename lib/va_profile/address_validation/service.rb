@@ -34,7 +34,7 @@ module VAProfile
       def candidate(address)
         begin
           with_monitoring do
-            res = perform(
+            perform(
               :post,
               'candidate',
               address.address_validation_req.to_json
