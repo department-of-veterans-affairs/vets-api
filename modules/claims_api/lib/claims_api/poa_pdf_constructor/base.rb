@@ -81,7 +81,7 @@ module ClaimsApi
         raise 'NotImplemented' # Extend this class and implement
       end
 
-      # v1 and v2 have dverging values on the form
+      # v1 and v2 have different values on the form
       def set_version(data)
         @version = data.dig('veteran', 'address', 'addressLine1').present? ? 'v2' : 'v1'
       end
@@ -107,24 +107,19 @@ module ClaimsApi
       end
 
       def get_street_address(data, filer)
-        if version_v2?
-          data.dig(filer.to_s, 'address',
-                   'addressLine1')
-        else
-          data.dig(filer.to_s, 'address', 'numberAndStreet')
-        end
+        version_v2? ? data.dig(filer, 'address', 'addressLine1') : data.dig(filer, 'address', 'numberAndStreet')
       end
 
       def get_unit_or_apartment(data, filer)
-        version_v2? ? data.dig(filer.to_s, 'address', 'addressLine2') : data.dig(filer.to_s, 'address', 'aptUnitNumber')
+        version_v2? ? data.dig(filer, 'address', 'addressLine2') : data.dig(filer, 'address', 'aptUnitNumber')
       end
 
       def get_zip_code_first_five(data, filer)
-        version_v2? ? data.dig(filer.to_s, 'address', 'zipCode') : data.dig(filer.to_s, 'address', 'zipFirstFive')
+        version_v2? ? data.dig(filer, 'address', 'zipCode') : data.dig(filer, 'address', 'zipFirstFive')
       end
 
       def get_zip_code_last_four(data, filer)
-        version_v2? ? data.dig(filer.to_s, 'address', 'zipCodeSuffix') : data.dig(filer.to_s, 'address', 'zipLastFour')
+        version_v2? ? data.dig(filer, 'address', 'zipCodeSuffix') : data.dig(filer, 'address', 'zipLastFour')
       end
 
       private
