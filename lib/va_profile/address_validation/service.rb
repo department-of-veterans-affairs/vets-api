@@ -1,19 +1,14 @@
 # frozen_string_literal: true
 
-require 'common/client/concerns/monitoring'
 require 'common/exceptions'
 require 'va_profile/address_validation/configuration'
 require 'va_profile/address_validation/address_suggestions_response'
 require 'va_profile/service'
-require 'va_profile/stats'
 
 module VAProfile
   module AddressValidation
     # Wrapper for the VA profile address validation/suggestions API
     class Service < VAProfile::Service
-      include Common::Client::Concerns::Monitoring
-
-      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.address_validation".freeze
       configuration VAProfile::AddressValidation::Configuration
 
       def initialize; end
@@ -22,24 +17,20 @@ module VAProfile
       # @return [VAProfile::AddressValidation::AddressSuggestionsResponse] response wrapper around address
       #   suggestions data
       def address_suggestions(address)
-        with_monitoring do
-          candidate_res = candidate(address)
+        candidate_res = candidate(address)
 
-          AddressSuggestionsResponse.new(candidate_res)
-        end
+        AddressSuggestionsResponse.new(candidate_res)
       end
 
       # @return [Hash] raw data from VA profile address validation API including
       #   address suggestions, validation key, and address errors
       def candidate(address)
         begin
-          with_monitoring do
-            res = perform(
-              :post,
-              'candidate',
-              address.address_validation_req.to_json
-            )
-          end
+          res = perform(
+            :post,
+            'candidate',
+            address.address_validation_req.to_json
+          )
         rescue => e
           handle_error(e)
         end
