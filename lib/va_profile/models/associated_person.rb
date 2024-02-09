@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'base'
-
-class TitleCaseString < Virtus::Attribute
-  def coerce(value)
-    value&.downcase&.titleize
-  end
-end
+require 'common/models/base'
+require 'common/models/attribute_types/titlecase_string'
 
 module VAProfile
   module Models
@@ -24,14 +19,14 @@ module VAProfile
       ].freeze
 
       attribute :contact_type, String
-      attribute :given_name, TitleCaseString
-      attribute :middle_name, TitleCaseString
-      attribute :family_name, TitleCaseString
-      attribute :relationship, TitleCaseString
+      attribute :given_name, Common::TitlecaseString
+      attribute :middle_name, Common::TitlecaseString
+      attribute :family_name, Common::TitlecaseString
+      attribute :relationship, Common::TitlecaseString
       attribute :address_line1, String
       attribute :address_line2, String
       attribute :address_line3, String
-      attribute :city, TitleCaseString
+      attribute :city, Common::TitlecaseString
       attribute :state, String
       attribute :zip_code, String
       attribute :primary_phone, String
