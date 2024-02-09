@@ -129,9 +129,35 @@ RSpec.shared_examples 'base_accredited_representatives_controller_shared_example
       end
     end
 
+    context 'when distance can not be converted to an integer' do
+      it 'returns a bad request error' do
+        get path, params: { type:, lat: 39, long: 77, distance: 'abc' }
+
+        parsed_response = JSON.parse(response.body)
+
+        expect(parsed_response['errors'].size).to eq(1)
+        expect(parsed_response['errors'][0]['status']).to eq('400')
+        expect(parsed_response['errors'][0]['title']).to eq('Invalid field value')
+        expect(parsed_response['errors'][0]['detail']).to eq('"abc" is not a valid value for "distance"')
+      end
+    end
+
+    context 'when distance is not one of the allowed values' do
+      it 'returns a bad request error' do
+        get path, params: { type:, lat: 39, long: 77, distance: 42 }
+
+        parsed_response = JSON.parse(response.body)
+
+        expect(parsed_response['errors'].size).to eq(1)
+        expect(parsed_response['errors'][0]['status']).to eq('400')
+        expect(parsed_response['errors'][0]['title']).to eq('Invalid field value')
+        expect(parsed_response['errors'][0]['detail']).to eq('"42" is not a valid value for "distance"')
+      end
+    end
+
     context 'when there are no results for the search criteria' do
       it 'returns an empty list' do
-        get path, params: { type:, lat: 40.7128, long: -74.0060 }
+        get path, params: { type:, lat: 40.7128, long: -74.0060, distance: 50 }
 
         parsed_response = JSON.parse(response.body)
 
