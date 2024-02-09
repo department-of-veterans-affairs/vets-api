@@ -14,7 +14,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
             'icn' => '1234567890V123456',
             'smokingStatus' => 'Current smoker'
           },
-          'header' => { 'stationNo' => '500', 'timeZone' => 'US/Pacific' },
+          'header' => { 'pageHeader' => 'test page header', 'stationNo' => '500', 'timeZone' => 'US/Pacific' },
           'discreteData' => {
             temp: [
               {
@@ -51,6 +51,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           icn: '1234567890V123456',
           meta: {
             generated_date: '2020-01-01T00:00:00Z',
+            page_header: 'test page header',
             station_no: '500',
             time_zone: 'US/Pacific'
           },
@@ -75,10 +76,12 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team_members: [],
           problems: [],
           clinical_reminders: [],
+          clinical_services: [],
           allergies_reactions: nil,
           clinic_medications: [],
           va_medications: [],
           nonva_medications: [],
+          med_changes_summary: [],
           lab_results: [],
           radiology_reports1_yr: nil,
           more_help_and_information: nil,
@@ -106,6 +109,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           icn: '1234567890V123456',
           meta: {
             generated_date: '2020-01-01T00:00:00Z',
+            page_header: nil,
             station_no: '500',
             time_zone: 'US/Pacific'
           },
@@ -130,10 +134,12 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team_members: [],
           problems: [],
           clinical_reminders: [],
+          clinical_services: [],
           allergies_reactions: nil,
           clinic_medications: [],
           va_medications: [],
           nonva_medications: [],
+          med_changes_summary: [],
           lab_results: [],
           radiology_reports1_yr: nil,
           more_help_and_information: nil,
