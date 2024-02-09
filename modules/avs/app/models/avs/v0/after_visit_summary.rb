@@ -49,7 +49,7 @@ module Avs
       self.meta = {
         generated_date: data['generatedDate'],
         station_no: data.dig('data', 'header', 'stationNo'),
-        page_header: data.dig('data', 'header', 'pageHeader'),
+        page_header: sanitize_html(data.dig('data', 'header', 'pageHeader')),
         time_zone: data.dig('data', 'header', 'timeZone')
       }
       self.patient_info = {
@@ -58,6 +58,16 @@ module Avs
     end
 
     private
+
+    def sanitize_html(html)
+      if html
+        Sanitize.fragment(html, Sanitize::Config.merge(Sanitize::Config::BASIC,
+                                                       elements: [],
+                                                       whitespace_elements: {
+                                                         'div' => { before: '', after: "\n" }
+                                                       })).strip
+      end
+    end
 
     def set_attributes(data)
       data.each_key do |key|
