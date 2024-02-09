@@ -6,17 +6,22 @@ require 'va_profile/models/message'
 
 module VAProfile::Profile::V3
   class HealthBenefitBioResponse < VAProfile::Response
-    attribute :body, Hash
+    attr_reader :body
+
     attribute :contacts, Array[VAProfile::Models::AssociatedPerson]
     attribute :messages, Array[VAProfile::Models::Message]
 
     def initialize(response)
+      @body = response.body
       attributes = {
-        body: response.body,
         contacts: response.body.dig('profile', 'health_benefit', 'associated_persons'),
         messages: response.body['messages']
       }
       super(response.status, attributes)
+    end
+
+    def metadata
+      { status:, messages: }
     end
   end
 end
