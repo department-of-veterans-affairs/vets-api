@@ -13,11 +13,10 @@ module VAProfile::Profile::V3
 
     def initialize(response)
       @body = response.body
-      attributes = {
-        contacts: response.body.dig('profile', 'health_benefit', 'associated_persons'),
-        messages: response.body['messages']
-      }
-      super(response.status, attributes)
+      contacts = body.dig('profile', 'health_benefit', 'associated_persons')
+                     &.sort_by { |p| VAProfile::Models::AssociatedPerson::CONTACT_TYPES.index(p['contact_type']) }
+      messages = body['messages']
+      super(response.status, { contacts:, messages: })
     end
 
     def metadata

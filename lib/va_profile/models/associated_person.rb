@@ -1,32 +1,37 @@
 # frozen_string_literal: true
 
 require_relative 'base'
-require 'common/models/attribute_types/iso8601_time'
+
+class TitleCaseString < Virtus::Attribute
+  def coerce(value)
+    value&.downcase&.titleize
+  end
+end
 
 module VAProfile
   module Models
     class AssociatedPerson < Base
-      PRIMARY_NEXT_OF_KIN = 'Primary Next of Kin'
-      OTHER_NEXT_OF_KIN = 'Other Next of Kin'
       EMERGENCY_CONTACT = 'Emergency Contact'
       OTHER_EMERGENCY_CONTACT = 'Other emergency contact'
+      PRIMARY_NEXT_OF_KIN = 'Primary Next of Kin'
+      OTHER_NEXT_OF_KIN = 'Other Next of Kin'
 
       CONTACT_TYPES = [
-        PRIMARY_NEXT_OF_KIN,
-        OTHER_NEXT_OF_KIN,
         EMERGENCY_CONTACT,
-        OTHER_EMERGENCY_CONTACT
+        OTHER_EMERGENCY_CONTACT,
+        PRIMARY_NEXT_OF_KIN,
+        OTHER_NEXT_OF_KIN
       ].freeze
 
       attribute :contact_type, String
-      attribute :given_name, String
-      attribute :middle_name, String
-      attribute :family_name, String
-      attribute :relationship, String
+      attribute :given_name, TitleCaseString
+      attribute :middle_name, TitleCaseString
+      attribute :family_name, TitleCaseString
+      attribute :relationship, TitleCaseString
       attribute :address_line1, String
       attribute :address_line2, String
       attribute :address_line3, String
-      attribute :city, String
+      attribute :city, TitleCaseString
       attribute :state, String
       attribute :zip_code, String
       attribute :primary_phone, String
