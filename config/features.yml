@@ -1276,6 +1276,10 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_form_v2:
+    actor_type: user
+    description: Enable Burial form v2 re-design
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
