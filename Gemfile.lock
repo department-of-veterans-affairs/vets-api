@@ -592,11 +592,7 @@ GEM
     libdatadog (5.0.0.1.0-x86_64-linux)
     libddwaf (1.14.0.0.0)
       ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-arm64-darwin)
-      ffi (~> 1.0)
     libddwaf (1.14.0.0.0-java)
-      ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-x86_64-darwin)
       ffi (~> 1.0)
     libddwaf (1.14.0.0.0-x86_64-linux)
       ffi (~> 1.0)
@@ -1048,13 +1044,11 @@ GEM
     zeitwerk (2.6.12)
 
 PLATFORMS
-  arm64-darwin-22
-  arm64-darwin-23
   java
+  ruby
   x64-mingw32
   x86-mingw32
   x86-mswin32
-  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
