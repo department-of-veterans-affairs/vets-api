@@ -4,10 +4,7 @@
   "required": ["data","meta"],
   "properties": {
     "data": {
-      "type": "array",
-      "items": {
-        "$ref": "debt_record.json"
-      }
+      "$ref": "debt_record.json"
     },
     "meta": {
       "type": "object",
