@@ -500,6 +500,10 @@ features:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
     enable_in_development: true
+  form20_10206_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10206 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
     description: Enables form 21-0845 email submission confirmation (VaNotify)
@@ -644,6 +648,10 @@ features:
   mhv_secure_messaging_to_phase_1:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_cerner_pilot:
+    actor_type: user
+    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
     enable_in_development: true
   mhv_secure_messaging_blocked_triage_group_1_0:
     actor_type: user
@@ -999,6 +1007,10 @@ features:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
     enable_in_development: true
+  va_online_scheduling_booking_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
+    enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
@@ -1188,9 +1200,6 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
-  form526_backup_submission_force_offramp:
-    actor_type: user
-    description: If enabled add the "forceOfframp" flag to backup 526 submission metadata
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
