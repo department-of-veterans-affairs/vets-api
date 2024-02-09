@@ -977,9 +977,9 @@
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
 
 # VA Profile
-- :name: "VA Profile"
+- :name: "VA Profile veteran status"
   :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:
     - :method: :get
       :path: "profile-service/profile/v3/*/*"
-      :file_path: "va_profile/military_info"
+      :file_path: "va_profile/military_person/military_summary"
