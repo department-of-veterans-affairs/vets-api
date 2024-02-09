@@ -804,7 +804,7 @@ GEM
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
       uber (< 0.2.0)
-    request_store (1.5.1)
+    request_store (1.6.0)
       rack (>= 1.4)
     restforce (7.2.0)
       faraday (>= 1.1.0, < 2.10.0)
