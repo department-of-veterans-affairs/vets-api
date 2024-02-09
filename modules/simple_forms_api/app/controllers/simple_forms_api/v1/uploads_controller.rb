@@ -27,7 +27,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        if form_is210966 && icn && first_party?
+        if form_is210966 && icn
           handle_210966_authenticated
         else
           submit_form_to_central_mail
@@ -37,8 +37,8 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if params[:form_id] == '40-0247'
-          attachment = PersistentAttachments::MilitaryRecords.new(form_id: '40-0247')
+        if params[:form_id] == '40-0247' || params[:form_id] == '10-10D'
+          attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
@@ -75,13 +75,12 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        form.track_user_identity
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = filler.generate
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
+        form.handle_attachments(file_path) if form_id == 'vba_40_0247' || form_id == 'vha_10_10d'
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
@@ -96,7 +95,10 @@ module SimpleFormsApi
             status: #{status}, uuid #{confirmation_number}"
         )
 
-        render json: get_json(confirmation_number, form_id), status:
+        json = { confirmation_number: }
+        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+
+        render json:, status:
       end
 
       def get_upload_location_and_uuid(lighthouse_service)
@@ -144,22 +146,11 @@ module SimpleFormsApi
         @current_user&.icn
       end
 
-      def first_party?
-        %w[VETERAN SURVIVING_DEPENDENT].include?(params[:preparer_identification])
-      end
-
       def get_form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
         FORM_NUMBER_MAP[form_number]
-      end
-
-      def get_json(confirmation_number, form_id)
-        json = { confirmation_number: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-
-        json
       end
     end
   end
