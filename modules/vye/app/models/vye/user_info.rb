@@ -23,6 +23,14 @@ module Vye
                                  inverse_of: :user_info
     has_many :verifications, dependent: :destroy
 
+    accepts_nested_attributes_for(
+      :address_changes,
+      :awards,
+      :direct_deposit_changes,
+      :pending_documents,
+      :verifications
+    )
+
     enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B' }
 
     ENCRYPTED_ATTRIBUTES = %i[
