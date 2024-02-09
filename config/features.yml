@@ -449,19 +449,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enabled:
     actor_type: user
-    description: Enables frontend of Find a Representative
-    enable_in_development: true
-  find_a_representative_enable_api:
-    actor_type: user
-    description: Enables the Find a Rep search endpoint
+    description: Enables Find a Representative tool
     enable_in_development: true
   find_a_representative_enable_frontend:
     actor_type: user
-    description: Enables frontend of Find a Representative
+    description: Enables Find a Representative frontend
     enable_in_development: true
-  flag_a_representative:
+  find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flag a rep for Find a Rep
     enable_in_development: true
@@ -648,6 +644,10 @@ features:
   mhv_secure_messaging_to_phase_1:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_cerner_pilot:
+    actor_type: user
+    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
     enable_in_development: true
   mhv_secure_messaging_blocked_triage_group_1_0:
     actor_type: user
@@ -1003,6 +1003,14 @@ features:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
     enable_in_development: true
+  va_online_scheduling_booking_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
+    enable_in_development: true
+  va_online_scheduling_cancellation_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
+    enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
@@ -1245,6 +1253,10 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  nod_callbacks_endpoint:
+    actor_type: user
+    description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
