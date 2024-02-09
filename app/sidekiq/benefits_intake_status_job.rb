@@ -14,7 +14,7 @@ class BenefitsIntakeStatusJob
     pending_form_submission_ids = pending_form_submissions.map(&:benefits_intake_uuid)
     response = BenefitsIntakeService::Service.new.get_bulk_status_of_uploads(pending_form_submission_ids)
     total_handled = handle_response(response, pending_form_submissions)
-    Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled: total_handled)
+    Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:)
   end
 
   private
@@ -28,19 +28,13 @@ class BenefitsIntakeStatusJob
       end.form_type
 
       if submission.dig('attributes', 'status') == 'error' || submission.dig('attributes', 'status') == 'expired'
-        StatsD.increment("#{STATS_KEY}.#{form_id}.failure")
-        StatsD.increment("#{STATS_KEY}.all_forms.failure")
-        Rails.logger.info('BenefitsIntakeStatusJob', result: 'failure', form_id: form_id)
+        log_result('failure', form_id)
         handle_failure(submission)
       elsif submission.dig('attributes', 'status') == 'vbms'
-        StatsD.increment("#{STATS_KEY}.#{form_id}.success")
-        StatsD.increment("#{STATS_KEY}.all_forms.success")
-        Rails.logger.info('BenefitsIntakeStatusJob', result: 'success', form_id: form_id)
+        log_result('success', form_id)
         handle_success(submission)
       else
-        StatsD.increment("#{STATS_KEY}.#{form_id}.pending")
-        StatsD.increment("#{STATS_KEY}.all_forms.pending")
-        Rails.logger.info('BenefitsIntakeStatusJob', result: 'pending', form_id: form_id)
+        log_result('pending', form_id)
       end
 
       total_handled += 1
@@ -67,5 +61,11 @@ class BenefitsIntakeStatusJob
                               .order(created_at: :asc)
                               .last
     form_submission_attempt.vbms!
+  end
+
+  def log_result(result, form_id)
+    StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
+    StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
+    Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:)
   end
 end

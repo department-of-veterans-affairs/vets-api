@@ -31,7 +31,7 @@ module SimpleFormsApi
     def track_user_identity
       identity = data.dig('preparer_identification', 'relationship_to_veteran')
       StatsD.increment("#{STATS_KEY}.#{identity}")
-      Rails.logger.info('Simple forms api - 21-4142 submission user identity', identity: identity)
+      Rails.logger.info('Simple forms api - 21-4142 submission user identity', identity:)
     end
 
     private
