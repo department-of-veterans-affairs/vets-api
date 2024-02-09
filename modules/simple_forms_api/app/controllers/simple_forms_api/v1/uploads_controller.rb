@@ -49,6 +49,17 @@ module SimpleFormsApi
         end
       end
 
+      def get_intents_to_file
+        intent_service = SimpleFormsApi::IntentToFile.new(icn)
+        existing_intents = intent_service.existing_intents
+
+        render json: {
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
+        }
+      end
+
       def authenticate
         super
       rescue Common::Exceptions::Unauthorized
@@ -60,7 +71,7 @@ module SimpleFormsApi
       private
 
       def handle_210966_authenticated
-        intent_service = SimpleFormsApi::IntentToFile.new(params, icn)
+        intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
 

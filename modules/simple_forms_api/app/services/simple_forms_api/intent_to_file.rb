@@ -4,11 +4,11 @@ require 'lighthouse/benefits_claims/service'
 
 module SimpleFormsApi
   class IntentToFile
-    attr_reader :params, :icn
+    attr_reader :icn, :params
 
-    def initialize(params, icn)
-      @params = params
+    def initialize(icn, params = {})
       @icn = icn
+      @params = params
     end
 
     def submit
