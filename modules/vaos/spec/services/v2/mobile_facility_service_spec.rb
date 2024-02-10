@@ -81,7 +81,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'filters out schedulable configurations' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_false_required',
                          match_requests_on: %i[method path query]) do
-          response = subject.get_facilities(ids: '983,983GB,983GC,983GD', schedulable: false)
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD', schedulable: false)
           expect(response[:data].size).to eq(0)
         end
       end
@@ -91,7 +91,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns schedulable configurations' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_true_required',
                          match_requests_on: %i[method path query]) do
-          response = subject.get_facilities(ids: '983,983GB,983GC,983GD', schedulable: true)
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD', schedulable: true)
           expect(response[:data][0][:classification]).to eq('Primary Care CBOC')
           expect(response[:data][1][:classification]).to eq('Multi-Specialty CBOC')
           expect(response[:data][2][:classification]).to eq('Other Outpatient Services (OOS)')
@@ -134,7 +134,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_multi_facilities_with_children_schedulable_true_200',
                          match_requests_on: %i[method path query]) do
-          response = subject.get_facilities(children: true, schedulable: true, ids: '983,984')
+          response = subject.get_facilities(children: true, schedulable: true, ids: '983, 984')
           expect(response[:data].size).to eq(13)
         end
       end
@@ -490,24 +490,5 @@ describe VAOS::V2::MobileFacilityService do
         expect(result).to eq({ pageSize: 0 })
       end
     end
-  end
-
-  describe '#remove_ids_starting_with' do
-    it 'returns empty string when ids is blank' do
-      expect(subject.send(:remove_ids_starting_with, '', '556')).to eq('')
-      expect(subject.send(:remove_ids_starting_with, nil, '556')).to eq('')
-    end
-
-    it 'returns original ids when match is nil' do
-      expect(subject.send(:remove_ids_starting_with, '983,556', nil)).to eq('983,556')
-    end
-  end
-
-  it 'returns ids without ids starting with match' do
-    expect(subject.send(:remove_ids_starting_with, '983, 983GB, 556, 932, 556GD', '556')).to eq('983,983GB,932')
-  end
-
-  it 'returns empty string when all ids start with match' do
-    expect(subject.send(:remove_ids_starting_with, '556GA, 556GD, 556', '556')).to eq('')
   end
 end
