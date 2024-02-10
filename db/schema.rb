@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_01_22_212019) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_10_004449) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -782,6 +782,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_22_212019) do
     t.integer "vet360_link_attempts"
     t.boolean "vet360_linked"
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
+  end
+
+  create_table "nod_notifications", force: :cascade do |t|
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "oauth_sessions", force: :cascade do |t|
