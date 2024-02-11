@@ -306,6 +306,7 @@ Rails.application.routes.draw do
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
+      resource :military_occupations, only: :show, defaults: { format: :json }
 
       # Lighthouse
       namespace :direct_deposits do
