@@ -27,7 +27,7 @@ module VAProfile
           return unless bio_paths
 
           if bio_paths.include?(:all)
-            @bio_paths = add_all_bio_paths 
+            @bio_paths = add_all_bio_paths
           else
             bio_paths.each { |bio_path| add_bio_path(bio_path) }
           end
