@@ -31,7 +31,7 @@ module VAProfile
         ##
         # @return [Faraday::Response] response from POST request
         #
-        def post(path, body = {})
+        def submit(path, body = {})
           connection.post(path, body)
         end
 

@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require_relative 'bio_path_builder'
 require_relative 'configuration'
 require_relative 'health_benefit_bio_response'
+require_relative 'military_occupation_response'
 
 module VAProfile
   module Profile
@@ -22,7 +24,7 @@ module VAProfile
         end
 
         def get_military_info
-          config.post(path(@user.edipi), body)
+          config.submit(path(@user.edipi), body)
         end
 
         def get_health_benefit_bio
@@ -30,6 +32,20 @@ module VAProfile
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
           response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
           VAProfile::Profile::V3::HealthBenefitBioResponse.new(response)
+        end
+
+        def get_military_info
+          config.submit(path(@user.edipi), body)
+        end
+
+        def get_military_occupations
+          builder = VAProfile::Profile::V3::BioPathBuilder.new(:military_occupations)
+          response = submit(builder.params)
+          VAProfile::Profile::V3::MilitaryOccupationResponse.new(response)
+        end
+
+        def submit(params)
+          config.submit(path(@user.edipi), params)
         end
 
         private
