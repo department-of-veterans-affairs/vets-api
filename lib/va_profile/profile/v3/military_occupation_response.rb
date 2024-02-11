@@ -11,7 +11,7 @@ module VAProfile::Profile::V3
     def initialize(response)
       attributes = {
         military_occupations: response.body.dig('profile', 'military_person', 'military_occupations'),
-        messages: response.body.dig('messages')
+        messages: response.body['messages']
       }
 
       super(response.status, attributes)

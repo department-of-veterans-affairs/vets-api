@@ -23,10 +23,6 @@ module VAProfile
           super()
         end
 
-        def get_military_info
-          config.submit(path(@user.edipi), body)
-        end
-
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
