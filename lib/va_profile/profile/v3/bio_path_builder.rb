@@ -22,8 +22,15 @@ module VAProfile
           military_unit_assignments: 'militaryPerson.unitAssignments'
         }.freeze
 
-        def initialize
+        def initialize(*bio_paths)
           @bio_paths = []
+          return unless bio_paths
+
+          if bio_paths.include?(:all)
+            @bio_paths = add_all_bio_paths 
+          else
+            bio_paths.each { |bio_path| add_bio_path(bio_path) }
+          end
         end
 
         def add_bio_path(bio_path)
@@ -36,12 +43,12 @@ module VAProfile
           BIO_PATHS.key?(bio_path.to_sym) if bio_path
         end
 
-        def add_all_bio_paths
-          BIO_PATHS.each_key { |key| add_bio_path(key) }
-        end
-
         def params
           { bios: @bio_paths }
+        end
+
+        def add_all_bio_paths
+          BIO_PATHS.each_key { |key| add_bio_path(key) }
         end
       end
     end

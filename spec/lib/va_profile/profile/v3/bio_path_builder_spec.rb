@@ -11,18 +11,16 @@ describe VAProfile::Profile::V3::BioPathBuilder do
     end
 
     it 'adds a bio path to the list of params' do
-      builder = VAProfile::Profile::V3::BioPathBuilder.new
-      builder.add_bio_path(:military_admin_decisions)
+      builder = VAProfile::Profile::V3::BioPathBuilder.new(:military_admin_decisions)
 
       expected_params = { bios: [{ bioPath: 'militaryPerson.adminDecisions' }] }
       expect(builder.params).to eq(expected_params)
     end
 
     it 'adds multiple bio paths to the list of params' do
-      builder = VAProfile::Profile::V3::BioPathBuilder.new
-      builder.add_bio_path(:military_occupations)
-      builder.add_bio_path(:military_admin_decisions)
-      builder.add_bio_path(:military_transfer_of_eligibility)
+      builder = VAProfile::Profile::V3::BioPathBuilder.new(:military_occupations,
+                                                           :military_admin_decisions,
+                                                           :military_transfer_of_eligibility)
 
       expected_params = {
         bios: [
@@ -38,9 +36,8 @@ describe VAProfile::Profile::V3::BioPathBuilder do
 
   context 'when bio path is invalid' do
     it 'throws an ArgumentError exception' do
-      builder = VAProfile::Profile::V3::BioPathBuilder.new
       expect do
-        builder.add_bio_path(:bad_bio_path)
+        VAProfile::Profile::V3::BioPathBuilder.new(:bad_bio_path)
       end.to raise_error(ArgumentError, 'Invalid bio path: bad_bio_path')
     end
   end
