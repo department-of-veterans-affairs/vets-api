@@ -152,7 +152,7 @@ module SimpleFormsApi
 
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
-      Rails.logger.error "Failed to generate stamped file: #{e.message}"
+      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
