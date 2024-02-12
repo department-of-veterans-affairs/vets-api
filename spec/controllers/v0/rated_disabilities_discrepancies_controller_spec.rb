@@ -14,7 +14,7 @@ RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller d
 
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return(token)
   end
-
+z
   describe '#show' do
     context 'when successful' do
       it 'returns a status of 200' do

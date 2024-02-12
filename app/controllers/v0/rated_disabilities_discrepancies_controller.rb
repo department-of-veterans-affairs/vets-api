@@ -70,8 +70,8 @@ module V0
       ratings.select! { |rating| active?(rating) }
     end
 
-    def active?(rating)
-      rating['rating_end_date'].nil?
+    def deferred?(rating)
+      rating['decision'] == 'Deferred'
     end
 
     def deferred?(rating)

@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_profile/profile/v3/service'
+require 'va_profile/models/associated_person'
 
 describe VAProfile::Profile::V3::Service do
   include SchemaMatchers
@@ -57,11 +58,13 @@ describe VAProfile::Profile::V3::Service do
     context '200 response' do
       let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
 
-      it 'returns the contacts (aka associated_persons) for a user' do
+      it 'returns the contacts (aka associated_persons) for a user, sorted' do
         VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
           response = subject.get_health_benefit_bio
           expect(response.status).to eq(200)
           expect(response.contacts.size).to eq(4)
+          types = response.contacts.map(&:contact_type)
+          expect(types).to match_array(VAProfile::Models::AssociatedPerson::CONTACT_TYPES)
         end
       end
     end
