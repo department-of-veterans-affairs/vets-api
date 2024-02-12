@@ -7,8 +7,8 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[index]
 
       def index
-        service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'profile', payload: { secid: current_user.sec_id })
+        service = Crm::Service.new(icn: '1013694290V263188')
+        data = service.call(endpoint: 'profile')
         render json: data.to_json, status: :ok
       end
 
