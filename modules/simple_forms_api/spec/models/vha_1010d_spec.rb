@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # spec/models/simple_forms_api/vha1010d_spec.rb
 
 require 'rails_helper'
@@ -35,8 +36,6 @@ RSpec.describe SimpleFormsApi::VHA1010d do
       )
     end
   end
-
-
 
   describe '#handle_attachments' do
     it 'calls CombinePDF.new' do
