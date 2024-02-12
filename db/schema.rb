@@ -531,8 +531,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_181325) do
     t.string "flag_type", null: false
     t.text "flagged_value", null: false
     t.boolean "flagged_value_updated", default: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_flagged_veteran_representative_with_updated_at", unique: true
     t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
