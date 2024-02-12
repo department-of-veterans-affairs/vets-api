@@ -513,7 +513,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
   end
 
   path '/veterans/{veteranId}/526/generatePDF/minimum-validations' do
-    post 'Returns filled out 526EZ form as PDF with minimum validations (Limited Access)' do
+    post 'Returns filled out 526EZ form as PDF with minimum validations (restricted access)' do
       tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
       security [

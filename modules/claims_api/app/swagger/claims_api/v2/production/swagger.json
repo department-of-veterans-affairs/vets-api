@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a2766042-fdea-4790-ba8e-82d643494488",
+                    "id": "450bd9ed-ec42-414a-a338-d79c766f7c8e",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5945,7 +5945,7 @@
     },
     "/veterans/{veteranId}/526/generatePDF/minimum-validations": {
       "post": {
-        "summary": "Returns filled out 526EZ form as PDF with minimum validations (Limited Access)",
+        "summary": "Returns filled out 526EZ form as PDF with minimum validations (restricted access)",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -7808,8 +7808,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-02-07",
-                      "expirationDate": "2025-02-07",
+                      "creationDate": "2024-02-12",
+                      "expirationDate": "2025-02-12",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8528,7 +8528,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:114:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:108:in `representative'"
                       }
                     }
                   ]

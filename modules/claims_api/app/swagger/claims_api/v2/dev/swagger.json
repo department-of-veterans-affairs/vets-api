@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "222d4e4b-1ddd-4098-845d-b5db4e39966d",
+                    "id": "9658fd0d-827e-4dbf-bf6f-07c9a0d82957",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5945,7 +5945,7 @@
     },
     "/veterans/{veteranId}/526/generatePDF/minimum-validations": {
       "post": {
-        "summary": "Returns filled out 526EZ form as PDF with minimum validations (Limited Access)",
+        "summary": "Returns filled out 526EZ form as PDF with minimum validations (restricted access)",
         "tags": [
           "Disability Compensation Claims"
         ],
@@ -7808,8 +7808,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-02-07",
-                      "expirationDate": "2025-02-07",
+                      "creationDate": "2024-02-12",
+                      "expirationDate": "2025-02-12",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8627,7 +8627,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0e878644-0c67-4ad9-a252-f0a559a22191",
+                    "id": "dbfc639a-13e5-42e1-8729-ba80966f1c0c",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
@@ -9353,7 +9353,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aca869e7-ede2-4cab-bc1b-57d3d4fd1c1f",
+                    "id": "1102b6a0-534a-4c08-b800-8123bf7c2cd5",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -11489,11 +11489,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3479225d-e0b9-46ac-a3b1-65ae8fbb1cae",
+                    "id": "595b6aee-03c3-4b1c-bf82-e13129f69a6b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-02-08",
+                      "dateRequestAccepted": "2024-02-12",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
