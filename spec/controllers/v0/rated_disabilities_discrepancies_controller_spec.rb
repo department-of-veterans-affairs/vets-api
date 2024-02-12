@@ -36,8 +36,25 @@ RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller d
 
         expect(response).to have_http_status(:ok)
 
-        # Lighthouse should return 2 items, EVSS should return 1, so there should be a discrepancy
-        # of 1 disability rating
+        # Lighthouse should return 3 items, EVSS should return 1, so there should be a discrepancy
+        # of 2 disability rating
+        expect(Rails.logger).to have_received(:info).with(
+          'Discrepancy of 2 disability ratings',
+          { message_type: 'lh.rated_disabilities.length_discrepancy' }
+        )
+      end
+
+      it 'filters out deferred ratings' do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_deferred_response') do
+          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_tinnitus_max_rated') do
+            get(:show)
+          end
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        # Lighthouse should return 3 items, but filter out the deferred one, so when comparing
+        # with EVSS (which should return 1 rating), there should be a discrepancy of 1 rating
         expect(Rails.logger).to have_received(:info).with(
           'Discrepancy of 1 disability ratings',
           { message_type: 'lh.rated_disabilities.length_discrepancy' }
