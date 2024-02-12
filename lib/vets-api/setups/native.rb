@@ -82,18 +82,16 @@ module VetsApi
       end
 
       def configuring_clamav_antivirus
-        print 'Enabling ClamAV...'
-        clam_directory = `brew --prefix clamav`.chomp
-        FileUtils.touch("#{clam_directory}/clamd.sock")
-        File.open("#{clam_directory}/clamd.conf", 'w') do |file|
-          file.puts "LocalSocket #{clam_directory}/clamd.sock"
-        end
-        File.open("#{clam_directory}/freshclam.conf", 'w') do |file|
-          file.puts 'DatabaseMirror database.clamav.net'
-        end
-        `freshclam -v`
+        print 'Configuring ClamAV...'
         File.open("config/initializers/clamav.rb", "w") do |file|
-          file.puts "ENV['CLAMD_UNIX_SOCKET'] = '#{clam_directory}/clamd.sock'"
+          file.puts <<~CLAMD
+            # frozen_string_literal: true
+
+            if Rails.env.development?
+              ENV['CLAMD_TCP_HOST'] = '0.0.0.0'
+              ENV['CLAMD_TCP_PORT'] = '33100'
+            end
+          CLAMD
         end
         puts 'Done'
       end
