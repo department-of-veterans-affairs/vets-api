@@ -130,7 +130,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
           get "#{status_path}/#{poa.id}", params: nil, headers: auth_header
           json = JSON.parse(response.body)
 
-          expect(json['data']['type']).to eq('claims_api_power_of_attorneys')
+          expect(json['data']['type']).to eq('claimsApiPowerOfAttorneys')
           expect(json['data']['attributes']['status']).to eq('submitted')
         end
       end

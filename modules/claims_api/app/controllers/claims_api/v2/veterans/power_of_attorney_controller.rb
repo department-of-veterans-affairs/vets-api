@@ -64,7 +64,7 @@ module ClaimsApi
             )
           end
 
-          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer, key_transform: :camel_lower
         end
 
         private
