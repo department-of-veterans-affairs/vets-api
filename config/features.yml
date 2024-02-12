@@ -785,10 +785,6 @@ features:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
     actor_type: user
-  profile_use_field_editing_page:
-    description: Use a single page route in Profile for editing or adding a field value
-    enable_in_development: true
-    actor_type: user
   profile_use_hub_page:
     description: Use a hub style page as the root page for the profile application
     enable_in_development: true
