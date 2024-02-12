@@ -135,6 +135,10 @@ features:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
     enable_in_development: true
+  check_in_experience_cerner_travel_claims_enabled:
+    actor_type: user
+    description: Enables travel claims filing for Oracle Health (Cerner) sites
+    enable_in_development: true
   check_in_experience_travel_logic:
     actor_type: user
     description: Enables the travel reimbursement logic
