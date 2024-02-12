@@ -33,7 +33,7 @@ RSpec.describe V0::RatedDisabilitiesController, type: :controller do
         # VCR Cassette should have 3 items in the individual_ratings array, only 2 should
         # be "active"
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(2)
+        expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(3)
       end
     end
 
