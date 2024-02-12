@@ -2,6 +2,7 @@
 
 require 'pdf_fill/forms/va21p527ez'
 require 'pdf_fill/forms/va21p530'
+require 'pdf_fill/forms/va21p530ez'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
@@ -25,6 +26,7 @@ module PdfFill
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
       '21P-530' => PdfFill::Forms::Va21p530,
+      '21P-530ez' => PdfFill::Forms::Va21p530ez,
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,

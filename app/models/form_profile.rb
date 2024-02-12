@@ -120,6 +120,7 @@ class FormProfile
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
+    '21P-530EZ' => ::FormProfiles::VA21p530ez,
     '21-686C' => ::FormProfiles::VA21686c,
     '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
