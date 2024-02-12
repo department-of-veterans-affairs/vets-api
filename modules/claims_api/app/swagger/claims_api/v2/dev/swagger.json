@@ -1285,234 +1285,9 @@
         ],
         "responses": {
           "202": {
-            "description": "Successful response with disability",
+            "description": "Successful response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "2c0b508e-7cc3-4d9b-9164-a5705a6b8f54",
-                    "type": "forms/526",
-                    "attributes": {
-                      "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "veteranIdentification": {
-                        "serviceNumber": "123456789",
-                        "veteranNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
-                        },
-                        "mailingAddress": {
-                          "addressLine1": "1234 Couch Street",
-                          "addressLine2": "Unit 4",
-                          "addressLine3": "Room 1",
-                          "city": "Portland",
-                          "state": "OR",
-                          "country": "USA",
-                          "zipFirstFive": "41726",
-                          "zipLastFour": "1234"
-                        },
-                        "emailAddress": {
-                          "email": "valid@somedomain.com",
-                          "agreeToEmailRelatedToClaim": true
-                        },
-                        "currentVaEmployee": false
-                      },
-                      "changeOfAddress": {
-                        "typeOfAddressChange": "TEMPORARY",
-                        "addressLine1": "10 Peach St",
-                        "addressLine2": "Unit 4",
-                        "addressLine3": "Room 1",
-                        "city": "Atlanta",
-                        "state": "GA",
-                        "country": "USA",
-                        "zipFirstFive": "42220",
-                        "zipLastFour": "9897",
-                        "dates": {
-                          "beginDate": "2023-06-04",
-                          "endDate": "2023-12-04"
-                        }
-                      },
-                      "homeless": {
-                        "currentlyHomeless": {
-                          "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": "ABCDEFGHIJKLM"
-                        },
-                        "pointOfContact": "john stewart",
-                        "pointOfContactNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
-                        }
-                      },
-                      "toxicExposure": {
-                        "gulfWarHazardService": {
-                          "servedInGulfWarHazardLocations": "YES",
-                          "serviceDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "herbicideHazardService": {
-                          "servedInHerbicideHazardLocations": "YES",
-                          "otherLocationsServed": "ABCDEFGHIJKLM",
-                          "serviceDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "additionalHazardExposures": {
-                          "additionalExposures": [
-                            "ASBESTOS",
-                            "SHIPBOARD_HAZARD_AND_DEFENSE"
-                          ],
-                          "specifyOtherExposures": "Other exposure details",
-                          "exposureDates": {
-                            "beginDate": "2018-07",
-                            "endDate": "2018-08"
-                          }
-                        },
-                        "multipleExposures": [
-                          {
-                            "hazardExposedTo": "RADIATION",
-                            "exposureLocation": "Guam",
-                            "exposureDates": {
-                              "beginDate": "2012-12",
-                              "endDate": "2013-07"
-                            }
-                          }
-                        ]
-                      },
-                      "disabilities": [
-                        {
-                          "name": "Traumatic Brain Injury",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "serviceRelevance": "ABCDEFG",
-                          "approximateDate": "2018-03-11",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 9020,
-                          "isRelatedToToxicExposure": true,
-                          "secondaryDisabilities": [
-                            {
-                              "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
-                              "exposureOrEventOrInjury": "EXPOSURE",
-                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                              "disabilityActionType": "SECONDARY",
-                              "approximateDate": "2018-03-12",
-                              "classificationCode": "9014"
-                            }
-                          ]
-                        },
-                        {
-                          "name": "Cancer - Musculoskeletal - Elbow",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "approximateDate": "2018-03-02",
-                          "serviceRelevance": "ABCDEFG",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 249470,
-                          "isRelatedToToxicExposure": true
-                        },
-                        {
-                          "name": "Cancer - Musculoskeletal - Knee",
-                          "exposureOrEventOrInjury": "EXPOSURE",
-                          "approximateDate": "2015",
-                          "serviceRelevance": "ABCDEFG",
-                          "disabilityActionType": "NEW",
-                          "classificationCode": "9014",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 249470,
-                          "isRelatedToToxicExposure": true
-                        }
-                      ],
-                      "treatments": [
-                        {
-                          "beginDate": "2009-03",
-                          "treatedDisabilityNames": [
-                            "Traumatic Brain Injury",
-                            "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
-                            "Cancer - Musculoskeletal - Elbow"
-                          ],
-                          "center": {
-                            "name": "Center One",
-                            "city": "Decatur",
-                            "state": "GA"
-                          }
-                        }
-                      ],
-                      "serviceInformation": {
-                        "alternateNames": [
-                          "john jacob",
-                          "johnny smith"
-                        ],
-                        "servicePeriods": [
-                          {
-                            "serviceBranch": "Public Health Service",
-                            "serviceComponent": "Active",
-                            "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2023-10-30",
-                            "separationLocationCode": "98282"
-                          }
-                        ],
-                        "servedInActiveCombatSince911": "NO",
-                        "reservesNationalGuardService": {
-                          "component": "National Guard",
-                          "obligationTermsOfService": {
-                            "beginDate": "2019-06-04",
-                            "endDate": "2020-06-04"
-                          },
-                          "unitName": "National Guard Unit Name",
-                          "unitAddress": "1243 pine court",
-                          "unitPhone": {
-                            "areaCode": "555",
-                            "phoneNumber": "5555555"
-                          },
-                          "receivingInactiveDutyTrainingPay": "YES"
-                        },
-                        "federalActivation": {
-                          "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-01-24"
-                        },
-                        "confinements": [
-                          {
-                            "approximateBeginDate": "2018-06-04",
-                            "approximateEndDate": "2018-07-04"
-                          },
-                          {
-                            "approximateBeginDate": "2020-06",
-                            "approximateEndDate": "2020-07"
-                          }
-                        ]
-                      },
-                      "servicePay": {
-                        "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "YES",
-                        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
-                        "militaryRetiredPay": {
-                          "branchOfService": "Army",
-                          "monthlyAmount": 840.75
-                        },
-                        "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
-                        "favorMilitaryRetiredPay": false,
-                        "receivedSeparationOrSeverancePay": "NO",
-                        "separationSeverancePay": {
-                          "datePaymentReceived": "2022-03-12",
-                          "branchOfService": "Naval Academy",
-                          "preTaxAmountReceived": 379.25
-                        },
-                        "favorTrainingPay": true
-                      },
-                      "directDeposit": {
-                        "noAccount": false,
-                        "accountNumber": "ABCDEF",
-                        "accountType": "CHECKING",
-                        "financialInstitutionName": "Chase",
-                        "routingNumber": "123123123"
-                      },
-                      "claimantCertification": true
-                    }
-                  }
-                },
                 "schema": {
                   "name": "data",
                   "required": [
@@ -1578,7 +1353,7 @@
                                       "description": "Veteran's phone number.",
                                       "type": "string",
                                       "pattern": "^\\d{10}?$",
-                                      "example": "5555555",
+                                      "example": "5555555555",
                                       "minLength": 10,
                                       "maxLength": 10,
                                       "nullable": true
@@ -2180,7 +1955,7 @@
                               }
                             },
                             "treatments": {
-                              "description": "Identifies the Service Treatment information of the Veteran.",
+                              "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
                               "type": "array",
                               "nullable": true,
                               "uniqueItems": true,
@@ -2490,7 +2265,7 @@
                                     },
                                     "monthlyAmount": {
                                       "description": "Amount being received.",
-                                      "type": "number",
+                                      "type": "integer",
                                       "nullable": true,
                                       "minimum": 1,
                                       "maximum": 999999,
@@ -2544,7 +2319,7 @@
                                     },
                                     "preTaxAmountReceived": {
                                       "description": "Amount being received.",
-                                      "type": "number",
+                                      "type": "integer",
                                       "nullable": true,
                                       "minimum": 1,
                                       "maximum": 999999,
@@ -2577,6 +2352,7 @@
                                   "description": "Account number for the direct deposit.",
                                   "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                   "type": "string",
+                                  "maxLength": 14,
                                   "nullable": true,
                                   "example": "123123123123"
                                 },
@@ -2837,7 +2613,7 @@
                                     "description": "Veteran's phone number.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
+                                    "example": "5555555555",
                                     "minLength": 10,
                                     "maxLength": 10,
                                     "nullable": true
@@ -3439,7 +3215,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "uniqueItems": true,
@@ -3749,7 +3525,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -3803,7 +3579,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -3836,6 +3612,7 @@
                                 "description": "Account number for the direct deposit.",
                                 "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                 "type": "string",
+                                "maxLength": 14,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -4050,11 +3827,11 @@
                       },
                       "servicePay": {
                         "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "NO",
+                        "futureMilitaryRetiredPay": "YES",
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -4062,7 +3839,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -4076,10 +3853,276 @@
                     }
                   }
                 }
+              },
+              "examples": {
+                "Minimum Required Attributes": {
+                  "value": {
+                    "data": {
+                      "type": "form/526",
+                      "attributes": {
+                        "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "veteranIdentification": {
+                          "mailingAddress": {
+                            "addressLine1": "1234 Couch Street",
+                            "city": "Portland",
+                            "state": "OR",
+                            "country": "USA",
+                            "zipFirstFive": "12345"
+                          },
+                          "currentVaEmployee": false
+                        },
+                        "disabilities": [
+                          {
+                            "name": "hearing loss",
+                            "serviceRelevance": "Heavy equipment operator in service",
+                            "approximateDate": "2017-07",
+                            "disabilityActionType": "NEW"
+                          }
+                        ],
+                        "serviceInformation": {
+                          "servicePeriods": [
+                            {
+                              "serviceBranch": "Air Force",
+                              "serviceComponent": "Active",
+                              "activeDutyBeginDate": "2015-11-14",
+                              "activeDutyEndDate": "2018-11-30"
+                            }
+                          ]
+                        },
+                        "claimantCertification": true
+                      }
+                    }
+                  }
+                },
+                "Maximum Attributes": {
+                  "value": {
+                    "data": {
+                      "type": "form/526",
+                      "attributes": {
+                        "claimProcessType": "STANDARD_CLAIM_PROCESS",
+                        "veteranIdentification": {
+                          "serviceNumber": "123456789",
+                          "veteranNumber": {
+                            "telephone": "5555555555",
+                            "internationalTelephone": "+44 20 1234 5678"
+                          },
+                          "mailingAddress": {
+                            "addressLine1": "1234 Couch Street",
+                            "addressLine2": "Unit 4",
+                            "addressLine3": "Room 1",
+                            "city": "Portland",
+                            "state": "OR",
+                            "country": "USA",
+                            "zipFirstFive": "41726",
+                            "zipLastFour": "1234"
+                          },
+                          "emailAddress": {
+                            "email": "valid@somedomain.com",
+                            "agreeToEmailRelatedToClaim": true
+                          },
+                          "currentVaEmployee": false
+                        },
+                        "changeOfAddress": {
+                          "typeOfAddressChange": "TEMPORARY",
+                          "addressLine1": "10 Peach St",
+                          "addressLine2": "Unit 4",
+                          "addressLine3": "Room 1",
+                          "city": "Atlanta",
+                          "state": "GA",
+                          "country": "USA",
+                          "zipFirstFive": "42220",
+                          "zipLastFour": "9897",
+                          "dates": {
+                            "beginDate": "2023-06-04",
+                            "endDate": "2023-12-04"
+                          }
+                        },
+                        "homeless": {
+                          "currentlyHomeless": {
+                            "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                            "otherDescription": "ABCDEFGHIJKLM"
+                          },
+                          "pointOfContact": "john stewart",
+                          "pointOfContactNumber": {
+                            "telephone": "5555555555",
+                            "internationalTelephone": "+44 20 1234 5678"
+                          }
+                        },
+                        "toxicExposure": {
+                          "gulfWarHazardService": {
+                            "servedInGulfWarHazardLocations": "YES",
+                            "serviceDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "herbicideHazardService": {
+                            "servedInHerbicideHazardLocations": "YES",
+                            "otherLocationsServed": "ABCDEFGHIJKLM",
+                            "serviceDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "additionalHazardExposures": {
+                            "additionalExposures": [
+                              "ASBESTOS",
+                              "SHIPBOARD_HAZARD_AND_DEFENSE"
+                            ],
+                            "specifyOtherExposures": "Other exposure details",
+                            "exposureDates": {
+                              "beginDate": "2018-07",
+                              "endDate": "2018-08"
+                            }
+                          },
+                          "multipleExposures": [
+                            {
+                              "hazardExposedTo": "RADIATION",
+                              "exposureLocation": "Guam",
+                              "exposureDates": {
+                                "beginDate": "2012-12",
+                                "endDate": "2013-07"
+                              }
+                            }
+                          ]
+                        },
+                        "disabilities": [
+                          {
+                            "name": "Traumatic Brain Injury",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "serviceRelevance": "ABCDEFG",
+                            "approximateDate": "2018-03-11",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 9020,
+                            "isRelatedToToxicExposure": true,
+                            "secondaryDisabilities": [
+                              {
+                                "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                                "exposureOrEventOrInjury": "EXPOSURE",
+                                "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                                "disabilityActionType": "SECONDARY",
+                                "approximateDate": "2018-03-12",
+                                "classificationCode": "9014"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Cancer - Musculoskeletal - Elbow",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "approximateDate": "2018-03-02",
+                            "serviceRelevance": "ABCDEFG",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 249470,
+                            "isRelatedToToxicExposure": true
+                          },
+                          {
+                            "name": "Cancer - Musculoskeletal - Knee",
+                            "exposureOrEventOrInjury": "EXPOSURE",
+                            "approximateDate": "2015",
+                            "serviceRelevance": "ABCDEFG",
+                            "disabilityActionType": "NEW",
+                            "classificationCode": "9014",
+                            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                            "diagnosticCode": 249470,
+                            "isRelatedToToxicExposure": true
+                          }
+                        ],
+                        "treatments": [
+                          {
+                            "beginDate": "2009-03",
+                            "treatedDisabilityNames": [
+                              "Traumatic Brain Injury",
+                              "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
+                              "Cancer - Musculoskeletal - Elbow"
+                            ],
+                            "center": {
+                              "name": "Center One",
+                              "city": "Decatur",
+                              "state": "GA"
+                            }
+                          }
+                        ],
+                        "serviceInformation": {
+                          "alternateNames": [
+                            "john jacob",
+                            "johnny smith"
+                          ],
+                          "servicePeriods": [
+                            {
+                              "serviceBranch": "Public Health Service",
+                              "serviceComponent": "Active",
+                              "activeDutyBeginDate": "2008-11-14",
+                              "activeDutyEndDate": "2023-10-30",
+                              "separationLocationCode": "98282"
+                            }
+                          ],
+                          "servedInActiveCombatSince911": "NO",
+                          "reservesNationalGuardService": {
+                            "component": "National Guard",
+                            "obligationTermsOfService": {
+                              "beginDate": "2019-06-04",
+                              "endDate": "2020-06-04"
+                            },
+                            "unitName": "National Guard Unit Name",
+                            "unitAddress": "1243 pine court",
+                            "unitPhone": {
+                              "areaCode": "555",
+                              "phoneNumber": "5555555"
+                            },
+                            "receivingInactiveDutyTrainingPay": "YES"
+                          },
+                          "federalActivation": {
+                            "activationDate": "2023-10-01",
+                            "anticipatedSeparationDate": "2023-10-31"
+                          },
+                          "confinements": [
+                            {
+                              "approximateBeginDate": "2018-06-04",
+                              "approximateEndDate": "2018-07-04"
+                            },
+                            {
+                              "approximateBeginDate": "2020-06",
+                              "approximateEndDate": "2020-07"
+                            }
+                          ]
+                        },
+                        "servicePay": {
+                          "receivingMilitaryRetiredPay": "NO",
+                          "futureMilitaryRetiredPay": "YES",
+                          "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                          "militaryRetiredPay": {
+                            "branchOfService": "Army",
+                            "monthlyAmount": 840
+                          },
+                          "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
+                          "favorMilitaryRetiredPay": false,
+                          "receivedSeparationOrSeverancePay": "NO",
+                          "separationSeverancePay": {
+                            "datePaymentReceived": "2022-03-12",
+                            "branchOfService": "Naval Academy",
+                            "preTaxAmountReceived": 379
+                          },
+                          "favorTrainingPay": true
+                        },
+                        "directDeposit": {
+                          "noAccount": false,
+                          "accountNumber": "ABCDEF",
+                          "accountType": "CHECKING",
+                          "financialInstitutionName": "Chase",
+                          "routingNumber": "123123123"
+                        },
+                        "claimantCertification": true
+                      }
+                    }
+                  }
+                }
               }
             }
-          },
-          "required": true
+          }
         }
       }
     },
@@ -4375,7 +4418,7 @@
                                     "description": "Veteran's phone number.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
+                                    "example": "5555555555",
                                     "minLength": 10,
                                     "maxLength": 10,
                                     "nullable": true
@@ -4977,7 +5020,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "uniqueItems": true,
@@ -5287,7 +5330,7 @@
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -5341,7 +5384,7 @@
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
                                     "minimum": 1,
                                     "maximum": 999999,
@@ -5374,6 +5417,7 @@
                                 "description": "Account number for the direct deposit.",
                                 "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                 "type": "string",
+                                "maxLength": 14,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -5588,11 +5632,11 @@
                       },
                       "servicePay": {
                         "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "NO",
+                        "futureMilitaryRetiredPay": "YES",
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -5600,7 +5644,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -5676,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7f73e8cf-9d2e-4ab5-8a90-0b17d266ba03",
+                    "id": "ea23b4c3-3bed-44f0-bcf5-516374db7fe9",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -5943,12 +5987,7 @@
             "description": "post pdf response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "attributes": {
-                    }
-                  }
-                }
+                "example": "No example available"
               }
             }
           },
@@ -5987,7 +6026,7 @@
                     "properties": {
                       "attributes": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
-                        "description": "Claims API 526 Schema",
+                        "description": "Claims API 526 GeneratePDF Schema",
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
@@ -5998,6 +6037,11 @@
                           "veteranIdentification"
                         ],
                         "properties": {
+                          "claimDate": {
+                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                            "type": "string",
+                            "example": "2018-06-04"
+                          },
                           "claimProcessType": {
                             "type": "string",
                             "description": "Select type of claim program/process that applies to the Veteran.",
@@ -6018,7 +6062,8 @@
                               "serviceNumber": {
                                 "type": "string",
                                 "description": "Service identification number",
-                                "nullable": true
+                                "nullable": true,
+                                "maxLength": 1000
                               },
                               "veteranNumber": {
                                 "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
@@ -6026,19 +6071,18 @@
                                 "nullable": true,
                                 "properties": {
                                   "telephone": {
-                                    "description": "Veteran's phone number.",
+                                    "description": "Veteran's phone number. Number including area code.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
+                                    "example": "5555555555",
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
                                     "type": "string",
                                     "description": "Veteran's international phone number.",
                                     "example": "+44 20 1234 5678",
-                                    "nullable": true
+                                    "nullable": true,
+                                    "maxLength": 1000
                                   }
                                 }
                               },
@@ -6057,14 +6101,14 @@
                                     "description": "Address line 1 for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 325,
                                     "example": "1234 Couch Street"
                                   },
                                   "addressLine2": {
                                     "description": "Address line 2 for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 325,
                                     "example": "Unit 4",
                                     "nullable": true
                                   },
@@ -6072,7 +6116,7 @@
                                     "description": "Address line 3 for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 20,
+                                    "maxLength": 325,
                                     "example": "Room 1",
                                     "nullable": true
                                   },
@@ -6080,31 +6124,34 @@
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
-                                    "example": "Portland"
+                                    "example": "Portland",
+                                    "maxLength": 1000
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                    "example": "OR",
+                                    "maxLength": 1000,
+                                    "minLength": 0
                                   },
                                   "country": {
                                     "description": "Country for the Veteran's current mailing address.  Must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "USA",
+                                    "maxLength": 1000
                                   },
                                   "zipFirstFive": {
                                     "description": "Zip code (First 5 digits) for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^\\d{5}?$",
-                                    "example": "12345"
+                                    "example": "12345",
+                                    "maxLength": 500
                                   },
                                   "zipLastFour": {
                                     "description": "Zip code (Last 4 digits) for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "pattern": "^\\d{4}?$",
                                     "example": "6789",
-                                    "nullable": true
+                                    "nullable": true,
+                                    "maxLength": 500
                                   }
                                 }
                               },
@@ -6115,9 +6162,8 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 1000,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -6155,20 +6201,20 @@
                                 "description": "Address line 1 for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                "maxLength": 20,
+                                "maxLength": 325,
                                 "example": "1234 Couch Street"
                               },
                               "addressLine2": {
                                 "description": "Address line 2 for the Veteran's new address.",
                                 "type": "string",
-                                "maxLength": 20,
+                                "maxLength": 325,
                                 "example": "Unit 4",
                                 "nullable": true
                               },
                               "addressLine3": {
                                 "description": "Address line 3 for the Veteran's new address.",
                                 "type": "string",
-                                "maxLength": 20,
+                                "maxLength": 325,
                                 "example": "Room 1",
                                 "nullable": true
                               },
@@ -6176,31 +6222,34 @@
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
-                                "example": "Portland"
+                                "example": "Portland",
+                                "maxLength": 1000
                               },
                               "state": {
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR"
+                                "example": "OR",
+                                "maxLength": 1000
                               },
                               "country": {
                                 "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                 "type": "string",
-                                "example": "USA"
+                                "example": "USA",
+                                "maxLength": 1000
                               },
                               "zipFirstFive": {
                                 "description": "Zip code (First 5 digits) for the Veteran's new address.",
                                 "type": "string",
-                                "pattern": "^$|^\\d{5}?$",
-                                "example": "12345"
+                                "example": "12345",
+                                "maxLength": 500
                               },
                               "zipLastFour": {
                                 "description": "Zip code (Last 4 digits) for the Veteran's new address.",
                                 "type": "string",
                                 "nullable": true,
-                                "pattern": "^$|^\\d{4}?$",
-                                "example": "6789"
+                                "example": "6789",
+                                "maxLength": 500
                               },
                               "dates": {
                                 "type": "object",
@@ -6250,7 +6299,7 @@
                                     "description": "Explanation of living situation. Required if 'homelessSituationOptions' is 'OTHER'.",
                                     "type": "string",
                                     "nullable": true,
-                                    "maxLength": 500,
+                                    "maxLength": 5000,
                                     "example": "other living situation"
                                   }
                                 }
@@ -6274,7 +6323,7 @@
                                     "description": "Explanation of living situation. Required if 'livingSituationOptions' is 'OTHER'.",
                                     "type": "string",
                                     "nullable": true,
-                                    "maxLength": 500,
+                                    "maxLength": 5000,
                                     "example": "other living situation"
                                   }
                                 }
@@ -6284,7 +6333,7 @@
                                 "type": "string",
                                 "nullable": true,
                                 "minLength": 1,
-                                "maxLength": 100,
+                                "maxLength": 1000,
                                 "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
                                 "example": "Jane Doe"
                               },
@@ -6297,16 +6346,15 @@
                                     "description": "Primary phone of point of contact.",
                                     "type": "string",
                                     "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
-                                    "minLength": 10,
-                                    "maxLength": 10,
+                                    "example": "5555555555",
                                     "nullable": true
                                   },
                                   "internationalTelephone": {
                                     "description": "International phone of point of contact.",
                                     "type": "string",
                                     "example": "+44 20 1234 5678",
-                                    "nullable": true
+                                    "nullable": true,
+                                    "maxLength": 1000
                                   }
                                 }
                               }
@@ -6371,7 +6419,8 @@
                                     "type": "string",
                                     "nullable": true,
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "description": "Other location(s) where Veteran served."
+                                    "description": "Other location(s) where Veteran served.",
+                                    "maxLength": 5000
                                   },
                                   "serviceDates": {
                                     "description": "Date range for exposure in herbicide hazard location.",
@@ -6405,7 +6454,7 @@
                                     "description": "Additional exposure incidents.",
                                     "type": "array",
                                     "nullable": true,
-                                    "uniqueItems": true,
+                                    "maxItems": 5000,
                                     "items": {
                                       "type": "string",
                                       "additionalProperties": false,
@@ -6424,7 +6473,8 @@
                                     "type": "string",
                                     "nullable": true,
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "description": "Exposure to asbestos."
+                                    "description": "Exposure to asbestos.",
+                                    "maxLength": 5000
                                   },
                                   "exposureDates": {
                                     "type": "object",
@@ -6452,8 +6502,8 @@
                               "multipleExposures": {
                                 "type": "array",
                                 "nullable": true,
-                                "minItems": 1,
-                                "uniqueItems": true,
+                                "maxItems": 5000,
+                                "minItems": 0,
                                 "items": {
                                   "type": "object",
                                   "additionalProperties": false,
@@ -6462,13 +6512,15 @@
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                      "description": "Hazard the Veteran was exposed to."
+                                      "description": "Hazard the Veteran was exposed to.",
+                                      "maxLength": 1000
                                     },
                                     "exposureLocation": {
                                       "type": "string",
                                       "nullable": true,
                                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                      "description": "Location where the exposure happened."
+                                      "description": "Location where the exposure happened.",
+                                      "maxLength": 1000
                                     },
                                     "exposureDates": {
                                       "type": "object",
@@ -6499,6 +6551,7 @@
                           "disabilities": {
                             "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
                             "type": "array",
+                            "maxItems": 5000,
                             "minItems": 1,
                             "items": {
                               "type": "object",
@@ -6513,7 +6566,7 @@
                                   "type": "string",
                                   "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                   "example": "PTSD (post traumatic stress disorder)",
-                                  "maxLength": 255
+                                  "maxLength": 1000
                                 },
                                 "exposureOrEventOrInjury": {
                                   "type": "string",
@@ -6523,20 +6576,23 @@
                                     "Agent Orange",
                                     "radiation",
                                     "burn pits"
-                                  ]
+                                  ],
+                                  "maxLength": 1000
                                 },
                                 "serviceRelevance": {
                                   "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                                   "type": "string",
                                   "nullable": true,
-                                  "example": "Heavy equipment operator in service."
+                                  "example": "Heavy equipment operator in service.",
+                                  "maxLength": 1000
                                 },
                                 "approximateDate": {
                                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                                   "type": "string",
                                   "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
-                                  "nullable": true
+                                  "nullable": true,
+                                  "maxLength": 1000
                                 },
                                 "disabilityActionType": {
                                   "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
@@ -6585,7 +6641,7 @@
                                         "type": "string",
                                         "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                         "example": "PTSD (post traumatic stress disorder)",
-                                        "maxLength": 255
+                                        "maxLength": 1000
                                       },
                                       "exposureOrEventOrInjury": {
                                         "type": "string",
@@ -6595,13 +6651,15 @@
                                           "Agent Orange",
                                           "radiation",
                                           "burn pits"
-                                        ]
+                                        ],
+                                        "maxLength": 1000
                                       },
                                       "serviceRelevance": {
                                         "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
                                         "type": "string",
                                         "nullable": true,
-                                        "example": "Heavy equipment operator in service."
+                                        "example": "Heavy equipment operator in service.",
+                                        "maxLength": 1000
                                       },
                                       "disabilityActionType": {
                                         "description": "The status of the secondary disability.",
@@ -6616,7 +6674,8 @@
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4}(?:-(?!00)(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[1-2][0-9]|3[0-1]))?)?)$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "maxLength": 1000
                                       },
                                       "classificationCode": {
                                         "type": "string",
@@ -6631,10 +6690,10 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
-                            "uniqueItems": true,
+                            "maxItems": 5000,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
@@ -6704,8 +6763,7 @@
                                 "description": "List any other names under which the Veteran served, if applicable.",
                                 "type": "array",
                                 "nullable": true,
-                                "maxItems": 100,
-                                "uniqueItems": true,
+                                "maxItems": 5000,
                                 "items": {
                                   "type": "string",
                                   "additionalProperties": false,
@@ -6719,8 +6777,8 @@
                               "servicePeriods": {
                                 "description": "Identifies the Service dates and Branch the Veteran served in.",
                                 "type": "array",
+                                "maxItems": 5000,
                                 "minItems": 1,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "required": [
@@ -6733,7 +6791,8 @@
                                     "serviceBranch": {
                                       "description": "Branch of service during period. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                       "type": "string",
-                                      "example": "Air Force"
+                                      "example": "Air Force",
+                                      "maxLength": 1000
                                     },
                                     "serviceComponent": {
                                       "type": "string",
@@ -6811,11 +6870,13 @@
                                   },
                                   "unitName": {
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "nullable": true,
                                     "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                   },
                                   "unitAddress": {
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                                     "nullable": true
                                   },
@@ -6827,7 +6888,7 @@
                                       "areaCode": {
                                         "type": "string",
                                         "nullable": true,
-                                        "maxLength": 3,
+                                        "maxLength": 1000,
                                         "pattern": "^$|^\\d{3}$",
                                         "example": "555"
                                       },
@@ -6874,7 +6935,7 @@
                               "confinements": {
                                 "type": "array",
                                 "nullable": true,
-                                "uniqueItems": true,
+                                "maxItems": 5000,
                                 "items": {
                                   "additionalProperties": false,
                                   "type": "object",
@@ -6926,7 +6987,8 @@
                                 "description": "Explains why future pay will be received.",
                                 "type": "string",
                                 "example": "Will be retiring soon.",
-                                "nullable": true
+                                "nullable": true,
+                                "maxLength": 1000
                               },
                               "militaryRetiredPay": {
                                 "type": "object",
@@ -6937,14 +6999,13 @@
                                     "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                     "type": "string",
                                     "nullable": true,
+                                    "maxLength": 1000,
                                     "example": "Air Force"
                                   },
                                   "monthlyAmount": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
-                                    "minimum": 1,
-                                    "maximum": 999999,
                                     "example": 100
                                   }
                                 }
@@ -6990,15 +7051,14 @@
                                   "branchOfService": {
                                     "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve list of possible service branches.",
                                     "type": "string",
+                                    "maxLength": 1000,
                                     "nullable": true,
                                     "example": "Air Force"
                                   },
                                   "preTaxAmountReceived": {
                                     "description": "Amount being received.",
-                                    "type": "number",
+                                    "type": "integer",
                                     "nullable": true,
-                                    "minimum": 1,
-                                    "maximum": 999999,
                                     "example": 100
                                   }
                                 }
@@ -7026,8 +7086,8 @@
                               },
                               "accountNumber": {
                                 "description": "Account number for the direct deposit.",
-                                "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
                                 "type": "string",
+                                "maxLength": 14,
                                 "nullable": true,
                                 "example": "123123123123"
                               },
@@ -7043,7 +7103,7 @@
                               },
                               "financialInstitutionName": {
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                                "maxLength": 35,
+                                "maxLength": 1000,
                                 "type": "string",
                                 "nullable": true,
                                 "example": "Some Bank"
@@ -7052,7 +7112,7 @@
                                 "description": "Routing number for the direct deposit.",
                                 "type": "string",
                                 "nullable": true,
-                                "pattern": "^(?:\\d{9})?$",
+                                "maxLength": 9,
                                 "example": "123123123"
                               }
                             }
@@ -7071,6 +7131,7 @@
                   "data": {
                     "type": "form/526",
                     "attributes": {
+                      "claimDate": "2018-06-25",
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
                       "veteranIdentification": {
                         "serviceNumber": "123456789",
@@ -7242,11 +7303,11 @@
                       },
                       "servicePay": {
                         "receivingMilitaryRetiredPay": "NO",
-                        "futureMilitaryRetiredPay": "NO",
+                        "futureMilitaryRetiredPay": "YES",
                         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
                         "militaryRetiredPay": {
                           "branchOfService": "Air Force",
-                          "monthlyAmount": 240.75
+                          "monthlyAmount": 240
                         },
                         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "favorMilitaryRetiredPay": false,
@@ -7254,7 +7315,7 @@
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
                           "branchOfService": "Air Force",
-                          "preTaxAmountReceived": 179.25
+                          "preTaxAmountReceived": 179
                         },
                         "favorTrainingPay": false
                       },
@@ -7745,8 +7806,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-01-22",
-                      "expirationDate": "2025-01-22",
+                      "creationDate": "2024-02-06",
+                      "expirationDate": "2025-02-06",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8333,7 +8394,6 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": null,
                     "type": "individual",
                     "attributes": {
                       "code": "A1Q",
@@ -8352,15 +8412,10 @@
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
-                        "id",
                         "type",
                         "attributes"
                       ],
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "nullable": true
-                        },
                         "type": {
                           "type": "string",
                           "nullable": true,
@@ -8471,7 +8526,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:97:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:108:in `representative'"
                       }
                     }
                   ]
@@ -8524,13 +8579,13 @@
         }
       }
     },
-    "/veterans/{veteranId}/2122a/validate": {
+    "/veterans/{veteranId}/2122a": {
       "post": {
-        "summary": "Validates a 2122a form submission.",
+        "summary": "Appoint an individual Power of Attorney for a Veteran.",
         "tags": [
           "Power of Attorney"
         ],
-        "operationId": "post2122aValidate",
+        "operationId": "post2122a",
         "security": [
           {
             "productionOauth": [
@@ -8562,17 +8617,20 @@
             }
           }
         ],
-        "description": "Validates a request appointing an individual as Power of Attorney (21-22a).\n",
+        "description": "Updates current Power of Attorney for Veteran.",
         "responses": {
-          "200": {
+          "202": {
             "description": "Valid request response",
             "content": {
               "application/json": {
                 "example": {
                   "data": {
-                    "type": "form/21-22a/validation",
+                    "id": "62e7a49e-c3dd-407d-aba1-edefef6fbeed",
+                    "type": "individual",
                     "attributes": {
-                      "status": "valid"
+                      "code": "083",
+                      "name": "Firstname Lastname",
+                      "phoneNumber": "555-555-5555"
                     }
                   }
                 },
@@ -8594,19 +8652,25 @@
                         "type": {
                           "type": "string"
                         },
+                        "id": {
+                          "type": "string"
+                        },
                         "attributes": {
                           "type": "object",
                           "additionalProperties": false,
                           "required": [
-                            "status"
+                            "code"
                           ],
                           "properties": {
-                            "status": {
+                            "code": {
                               "type": "string",
-                              "description": "Says if submission of 21-22a would work with the given parameters",
-                              "enum": [
-                                "valid"
-                              ]
+                              "description": "code for Power of attorney"
+                            },
+                            "phoneNumber": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
                             }
                           }
                         }
@@ -8747,7 +8811,7 @@
                       "status": "404",
                       "detail": "Could not find an Accredited Representative with code: 083",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:124:in `validate_individual_poa_code!'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:135:in `validate_individual_poa_code!'"
                       }
                     }
                   ]
@@ -8816,7 +8880,7 @@
                     "properties": {
                       "attributes": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
-                        "description": "Form 2122 Schema",
+                        "description": "Form 2122a Schema",
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
@@ -9241,13 +9305,722 @@
         }
       }
     },
-    "/veterans/{veteranId}/2122a": {
+    "/veterans/{veteranId}/2122": {
       "post": {
-        "summary": "Appoint an individual as Power of Attorney.",
+        "summary": "Appoint an organization Power of Attorney for a Veteran.",
+        "description": "Updates current Power of Attorney for Veteran.",
         "tags": [
           "Power of Attorney"
         ],
-        "operationId": "post2122a",
+        "operationId": "post2122",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Valid request response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "aca869e7-ede2-4cab-bc1b-57d3d4fd1c1f",
+                    "type": "organization",
+                    "attributes": {
+                      "code": "083",
+                      "name": "083 - DISABLED AMERICAN VETERANS",
+                      "phoneNumber": "555-555-5555"
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "code"
+                          ],
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "description": "code for Power of attorney"
+                            },
+                            "phoneNumber": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not find an Organization with code: 083",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:143:in `validate_org_poa_code!'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "attributes",
+                      null
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Form 2122 Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "serviceOrganization"
+                        ],
+                        "properties": {
+                          "veteran": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "address",
+                              "phone",
+                              "email"
+                            ],
+                            "properties": {
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer"
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR"
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "USA"
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  }
+                                }
+                              },
+                              "phone": {
+                                "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "areaCode",
+                                  "phoneNumber"
+                                ],
+                                "properties": {
+                                  "countryCode": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code of the phone number.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "example": "555"
+                                  },
+                                  "phoneNumber": {
+                                    "description": "Phone number.",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,14}$",
+                                    "example": "555-5555"
+                                  },
+                                  "phoneNumberExt": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the veteran.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "veteran@example.com"
+                              },
+                              "serviceBranch": {
+                                "description": "Service Branch for the veteran.",
+                                "type": "string",
+                                "enum": [
+                                  "AIR FORCE",
+                                  "ARMY",
+                                  "COAST GUARD",
+                                  "MARINE CORPS",
+                                  "NAVY",
+                                  "SPACE FORCE",
+                                  "OTHER"
+                                ],
+                                "example": "ARMY"
+                              },
+                              "serviceBranchOther": {
+                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                                "type": "string",
+                                "maxLength": 50,
+                                "example": "Air National Guard"
+                              }
+                            }
+                          },
+                          "claimant": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "firstName",
+                              "lastName",
+                              "address",
+                              "phone",
+                              "email",
+                              "relationship"
+                            ],
+                            "properties": {
+                              "firstName": {
+                                "description": "First name of Claimant.",
+                                "type": "string",
+                                "example": "John"
+                              },
+                              "middleInitial": {
+                                "description": "Middle initial of Claimant.",
+                                "type": "string",
+                                "example": "M"
+                              },
+                              "lastName": {
+                                "description": "Last name of Claimant.",
+                                "type": "string",
+                                "example": "Dow"
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer"
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR"
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "USA"
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "phone": {
+                                "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "areaCode",
+                                  "phoneNumber"
+                                ],
+                                "properties": {
+                                  "countryCode": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code of the phone number.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "example": "555"
+                                  },
+                                  "phoneNumber": {
+                                    "description": "Phone number.",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,14}$",
+                                    "example": "555-5555"
+                                  },
+                                  "phoneNumberExt": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the claimant.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "claimant@example.com"
+                              },
+                              "relationship": {
+                                "description": "Relationship of claimant to the veteran.",
+                                "type": "string",
+                                "example": "Spouse"
+                              }
+                            }
+                          },
+                          "serviceOrganization": {
+                            "description": "Details of the Service Organization representing the veteran.",
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "poaCode"
+                            ],
+                            "properties": {
+                              "poaCode": {
+                                "description": "The POA code of the organization.",
+                                "type": "string",
+                                "example": "A1Q"
+                              },
+                              "organizationName": {
+                                "description": "Name of the service organization.",
+                                "type": "string",
+                                "example": "I help vets LLC."
+                              },
+                              "firstName": {
+                                "description": "First Name of the representative.",
+                                "type": "string",
+                                "example": "John"
+                              },
+                              "lastName": {
+                                "description": "Last Name of the representative",
+                                "type": "string",
+                                "example": "Doe"
+                              },
+                              "jobTitle": {
+                                "description": "Job title of the representative.",
+                                "type": "string",
+                                "example": "Veteran Service representative"
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer"
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR"
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "USA"
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the service organization or representative.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "veteran_representative@example.com"
+                              },
+                              "appointmentDate": {
+                                "description": "Date of appointment with Veteran.",
+                                "type": "string",
+                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
+                              }
+                            }
+                          },
+                          "recordConsent": {
+                            "description": "AUTHORIZATION FOR REPRESENTATIVE'S ACCESS TO RECORDS PROTECTED BY SECTION 7332, TITLE 38, U.S.C.",
+                            "type": "boolean"
+                          },
+                          "consentLimits": {
+                            "description": "Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "DRUG ABUSE",
+                                "ALCOHOLISM",
+                                "HIV",
+                                "SICKLE CELL"
+                              ]
+                            },
+                            "example": "DRUG ABUSE"
+                          },
+                          "consentAddressChange": {
+                            "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
+                            "type": "boolean"
+                          },
+                          "signatures": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "veteran",
+                              "representative"
+                            ],
+                            "properties": {
+                              "veteran": {
+                                "description": "Base64 encoded png image of the veteran or claimant signature.",
+                                "title": "Signature of the Veteran",
+                                "type": "string"
+                              },
+                              "representative": {
+                                "description": "Base64 encoded png image of the representative signature.",
+                                "title": "Signature of the Veteran Representative",
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "serviceOrganization": {
+                        "poaCode": "083"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/veterans/{veteranId}/2122a/validate": {
+      "post": {
+        "summary": "Validates a 2122a form submission.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "post2122aValidate",
         "security": [
           {
             "productionOauth": [
@@ -9282,11 +10055,679 @@
         "description": "Validates a request appointing an individual as Power of Attorney (21-22a).\n",
         "responses": {
           "200": {
-            "description": "Valid request response"
+            "description": "Valid request response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "type": "form/21-22a/validation",
+                    "attributes": {
+                      "status": "valid"
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if submission of 21-22a would work with the given parameters",
+                              "enum": [
+                                "valid"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not find an Accredited Representative with code: 083",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:135:in `validate_individual_poa_code!'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "attributes",
+                      null
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Form 2122a Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "representative"
+                        ],
+                        "properties": {
+                          "veteran": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "address",
+                              "phone"
+                            ],
+                            "properties": {
+                              "vaFileNumber": {
+                                "description": "The Veteran's VA file number",
+                                "type": "string",
+                                "maxLength": 9
+                              },
+                              "serviceNumber": {
+                                "description": "The Veteran's Service Number",
+                                "type": "string",
+                                "maxLength": 9
+                              },
+                              "serviceBranch": {
+                                "description": "Service Branch for the veteran.",
+                                "type": "string",
+                                "enum": [
+                                  "AIR FORCE",
+                                  "ARMY",
+                                  "COAST GUARD",
+                                  "MARINE CORPS",
+                                  "NAVY",
+                                  "SPACE FORCE",
+                                  "OTHER"
+                                ],
+                                "example": "ARMY"
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer",
+                                    "maxLength": 5
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland",
+                                    "maxLength": 18
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR",
+                                    "maxLength": 2
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "US",
+                                    "maxLength": 2
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  }
+                                }
+                              },
+                              "phone": {
+                                "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "areaCode",
+                                  "phoneNumber"
+                                ],
+                                "properties": {
+                                  "countryCode": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code of the phone number.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "example": "555"
+                                  },
+                                  "phoneNumber": {
+                                    "description": "Phone number.",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,14}$",
+                                    "example": "555-5555"
+                                  },
+                                  "phoneNumberExt": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the veteran.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "veteran@example.com"
+                              }
+                            }
+                          },
+                          "claimant": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "firstName",
+                              "lastName",
+                              "address",
+                              "phone",
+                              "relationship"
+                            ],
+                            "properties": {
+                              "firstName": {
+                                "description": "First name of Claimant.",
+                                "type": "string",
+                                "example": "John",
+                                "maxLength": 12
+                              },
+                              "middleInitial": {
+                                "description": "Middle initial of Claimant.",
+                                "type": "string",
+                                "example": "M",
+                                "maxLength": 1
+                              },
+                              "lastName": {
+                                "description": "Last name of Claimant.",
+                                "type": "string",
+                                "example": "Dow",
+                                "maxLength": 18
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer",
+                                    "maxLength": 5
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland",
+                                    "maxLength": 18
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR",
+                                    "maxLength": 2
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "US",
+                                    "maxLength": 2
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  }
+                                }
+                              },
+                              "phone": {
+                                "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "areaCode",
+                                  "phoneNumber"
+                                ],
+                                "properties": {
+                                  "countryCode": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code of the phone number.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "example": "555"
+                                  },
+                                  "phoneNumber": {
+                                    "description": "Phone number.",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,14}$",
+                                    "example": "555-5555"
+                                  },
+                                  "phoneNumberExt": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the claimant.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "claimant@example.com"
+                              },
+                              "relationship": {
+                                "description": "Relationship of claimant to the veteran.",
+                                "type": "string",
+                                "example": "Spouse"
+                              }
+                            }
+                          },
+                          "representative": {
+                            "description": "Details of the individual representative representing the veteran.",
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "poaCode",
+                              "firstName",
+                              "lastName",
+                              "type",
+                              "address"
+                            ],
+                            "properties": {
+                              "poaCode": {
+                                "description": "The POA code of the representative.",
+                                "type": "string",
+                                "example": "A1Q"
+                              },
+                              "firstName": {
+                                "description": "First Name of the representative.",
+                                "type": "string",
+                                "example": "John"
+                              },
+                              "lastName": {
+                                "description": "Last Name of the representative",
+                                "type": "string",
+                                "example": "Doe"
+                              },
+                              "type": {
+                                "description": "Type of individual representative",
+                                "type": "string",
+                                "enum": [
+                                  "ATTORNEY",
+                                  "AGENT",
+                                  "INDIVIDUAL PROVIDING REPRESENTATION UNDER SECTION 14.630",
+                                  "SERVICE ORGANIZATION REPRESENTATIVE"
+                                ],
+                                "example": "ATTORNEY"
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer",
+                                    "maxLength": 5
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland",
+                                    "maxLength": 18
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR",
+                                    "maxLength": 2
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "US",
+                                    "maxLength": 2
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  }
+                                }
+                              },
+                              "organizationName": {
+                                "description": "Name of the service organization.",
+                                "type": "string",
+                                "example": "I help vets LLC."
+                              }
+                            },
+                            "if": {
+                              "properties": {
+                                "type": {
+                                  "const": "SERVICE ORGANIZATION REPRESENTATIVE"
+                                }
+                              }
+                            },
+                            "then": {
+                              "required": [
+                                "organizationName"
+                              ]
+                            }
+                          },
+                          "recordConsent": {
+                            "description": "AUTHORIZATION FOR REPRESENTATIVE'S ACCESS TO RECORDS PROTECTED BY SECTION 7332, TITLE 38, U.S.C.",
+                            "type": "boolean"
+                          },
+                          "consentLimits": {
+                            "description": "Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "DRUG ABUSE",
+                                "ALCOHOLISM",
+                                "HIV",
+                                "SICKLE CELL"
+                              ]
+                            },
+                            "example": "DRUG ABUSE"
+                          },
+                          "consentAddressChange": {
+                            "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
+                            "type": "boolean"
+                          },
+                          "conditionsOfAppointment": {
+                            "description": "If the individual named in Item 15A is an accredited agent or attorney, the scope of representation provided before VA may be limited by the agent or attorney as indicated below in Item 23",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "representative": {
+                        "poaCode": "083",
+                        "firstName": "my",
+                        "lastName": "name",
+                        "type": "ATTORNEY",
+                        "address": {
+                          "numberAndStreet": "123",
+                          "city": "city",
+                          "country": "US",
+                          "zipFirstFive": "12345"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -9331,66 +10772,669 @@
         "description": "Validates a request appointing an organization as Power of Attorney (21-22).\n",
         "responses": {
           "200": {
-            "description": "Valid request response"
+            "description": "Valid request response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "type": "form/21-22/validation",
+                    "attributes": {
+                      "status": "valid"
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if submission of 21-22 would work with the given parameters",
+                              "enum": [
+                                "valid"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/veterans/{veteranId}/2122": {
-      "post": {
-        "summary": "Appoint an organization as Power of Attorney",
-        "tags": [
-          "Power of Attorney"
-        ],
-        "operationId": "post2122",
-        "security": [
-          {
-            "productionOauth": [
-              "system/claim.read",
-              "system/claim.write"
-            ]
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
-          {
-            "sandboxOauth": [
-              "system/claim.read",
-              "system/claim.write"
-            ]
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key poaCode",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
-          {
-            "bearer_token": [
-
-            ]
-          }
-        ],
-        "parameters": [
-          {
-            "name": "veteranId",
-            "in": "path",
-            "required": true,
-            "example": "1012667145V762142",
-            "description": "ID of Veteran",
-            "schema": {
-              "type": "string"
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not find an Organization with code: 083",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:143:in `validate_org_poa_code!'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
-        ],
-        "description": "Validates a request appointing an organization as Power of Attorney (21-22).\n",
-        "responses": {
-          "200": {
-            "description": "Valid request response"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "attributes",
+                      null
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "$schema": "http://json-schema.org/draft-07/schema#",
+                        "description": "Form 2122 Schema",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "serviceOrganization"
+                        ],
+                        "properties": {
+                          "veteran": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "address",
+                              "phone",
+                              "email"
+                            ],
+                            "properties": {
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer"
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR"
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "USA"
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  }
+                                }
+                              },
+                              "phone": {
+                                "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "areaCode",
+                                  "phoneNumber"
+                                ],
+                                "properties": {
+                                  "countryCode": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code of the phone number.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "example": "555"
+                                  },
+                                  "phoneNumber": {
+                                    "description": "Phone number.",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,14}$",
+                                    "example": "555-5555"
+                                  },
+                                  "phoneNumberExt": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the veteran.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "veteran@example.com"
+                              },
+                              "serviceBranch": {
+                                "description": "Service Branch for the veteran.",
+                                "type": "string",
+                                "enum": [
+                                  "AIR FORCE",
+                                  "ARMY",
+                                  "COAST GUARD",
+                                  "MARINE CORPS",
+                                  "NAVY",
+                                  "SPACE FORCE",
+                                  "OTHER"
+                                ],
+                                "example": "ARMY"
+                              },
+                              "serviceBranchOther": {
+                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                                "type": "string",
+                                "maxLength": 50,
+                                "example": "Air National Guard"
+                              }
+                            }
+                          },
+                          "claimant": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "firstName",
+                              "lastName",
+                              "address",
+                              "phone",
+                              "email",
+                              "relationship"
+                            ],
+                            "properties": {
+                              "firstName": {
+                                "description": "First name of Claimant.",
+                                "type": "string",
+                                "example": "John"
+                              },
+                              "middleInitial": {
+                                "description": "Middle initial of Claimant.",
+                                "type": "string",
+                                "example": "M"
+                              },
+                              "lastName": {
+                                "description": "Last name of Claimant.",
+                                "type": "string",
+                                "example": "Dow"
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer"
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR"
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "USA"
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "phone": {
+                                "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "areaCode",
+                                  "phoneNumber"
+                                ],
+                                "properties": {
+                                  "countryCode": {
+                                    "type": "string",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code of the phone number.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "example": "555"
+                                  },
+                                  "phoneNumber": {
+                                    "description": "Phone number.",
+                                    "type": "string",
+                                    "pattern": "^[0-9]{1,14}$",
+                                    "example": "555-5555"
+                                  },
+                                  "phoneNumberExt": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the claimant.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "claimant@example.com"
+                              },
+                              "relationship": {
+                                "description": "Relationship of claimant to the veteran.",
+                                "type": "string",
+                                "example": "Spouse"
+                              }
+                            }
+                          },
+                          "serviceOrganization": {
+                            "description": "Details of the Service Organization representing the veteran.",
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "poaCode"
+                            ],
+                            "properties": {
+                              "poaCode": {
+                                "description": "The POA code of the organization.",
+                                "type": "string",
+                                "example": "A1Q"
+                              },
+                              "organizationName": {
+                                "description": "Name of the service organization.",
+                                "type": "string",
+                                "example": "I help vets LLC."
+                              },
+                              "firstName": {
+                                "description": "First Name of the representative.",
+                                "type": "string",
+                                "example": "John"
+                              },
+                              "lastName": {
+                                "description": "Last Name of the representative",
+                                "type": "string",
+                                "example": "Doe"
+                              },
+                              "jobTitle": {
+                                "description": "Job title of the representative.",
+                                "type": "string",
+                                "example": "Veteran Service representative"
+                              },
+                              "address": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "numberAndStreet",
+                                  "city",
+                                  "country",
+                                  "zipFirstFive"
+                                ],
+                                "properties": {
+                                  "numberAndStreet": {
+                                    "description": "Street address with number and name.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 30
+                                  },
+                                  "aptUnitNumber": {
+                                    "type": "integer"
+                                  },
+                                  "city": {
+                                    "description": "City for the address.",
+                                    "type": "string",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State for the address.",
+                                    "type": "string",
+                                    "example": "OR"
+                                  },
+                                  "country": {
+                                    "description": "Country of the address.",
+                                    "type": "string",
+                                    "example": "USA"
+                                  },
+                                  "zipFirstFive": {
+                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{5}?$",
+                                    "example": "12345"
+                                  },
+                                  "zipLastFour": {
+                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "type": "string",
+                                    "pattern": "^\\d{4}?$",
+                                    "example": "6789"
+                                  },
+                                  "additionalProperties": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "email": {
+                                "description": "Email address of the service organization or representative.",
+                                "type": "string",
+                                "pattern": ".@.",
+                                "maxLength": 61,
+                                "example": "veteran_representative@example.com"
+                              },
+                              "appointmentDate": {
+                                "description": "Date of appointment with Veteran.",
+                                "type": "string",
+                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
+                              }
+                            }
+                          },
+                          "recordConsent": {
+                            "description": "AUTHORIZATION FOR REPRESENTATIVE'S ACCESS TO RECORDS PROTECTED BY SECTION 7332, TITLE 38, U.S.C.",
+                            "type": "boolean"
+                          },
+                          "consentLimits": {
+                            "description": "Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "DRUG ABUSE",
+                                "ALCOHOLISM",
+                                "HIV",
+                                "SICKLE CELL"
+                              ]
+                            },
+                            "example": "DRUG ABUSE"
+                          },
+                          "consentAddressChange": {
+                            "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
+                            "type": "boolean"
+                          },
+                          "signatures": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "veteran",
+                              "representative"
+                            ],
+                            "properties": {
+                              "veteran": {
+                                "description": "Base64 encoded png image of the veteran or claimant signature.",
+                                "title": "Signature of the Veteran",
+                                "type": "string"
+                              },
+                              "representative": {
+                                "description": "Base64 encoded png image of the representative signature.",
+                                "title": "Signature of the Veteran Representative",
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "serviceOrganization": {
+                        "poaCode": "083"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
-          "401": {
-            "description": "Unauthorized"
-          }
+          "required": true
         }
       }
     },
     "/veterans/{veteranId}/power-of-attorney/{id}": {
       "get": {
         "summary": "Checks status of Power of Attorney appointment form submission",
+        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)",
         "tags": [
           "Power of Attorney"
         ],
@@ -9430,19 +11474,234 @@
             "in": "path",
             "required": true,
             "example": "12e13134-7229-4e44-90ae-bcea2a4525fa",
-            "description": "Power of Attorney appointment request id",
+            "description": "The ID of the 21-22 submission",
             "schema": {
               "type": "string"
             }
           }
         ],
-        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)\n",
         "responses": {
           "200": {
-            "description": "Successful response"
+            "description": "Valid request response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "3479225d-e0b9-46ac-a3b1-65ae8fbb1cae",
+                    "type": "claimsApiPowerOfAttorneys",
+                    "attributes": {
+                      "status": "submitted",
+                      "dateRequestAccepted": "2024-02-08",
+                      "representative": {
+                        "serviceOrganization": {
+                          "poaCode": "074"
+                        }
+                      },
+                      "previousPoa": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Power of Attorney Submission UUID"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status",
+                            "dateRequestAccepted",
+                            "representative"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "pending",
+                                "submitted",
+                                "updated",
+                                "errored"
+                              ]
+                            },
+                            "dateRequestAccepted": {
+                              "type": "string",
+                              "description": "Date request was first accepted",
+                              "format": "date"
+                            },
+                            "representative": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "serviceOrganization"
+                              ],
+                              "properties": {
+                                "serviceOrganization": {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                  "required": [
+                                    "poaCode"
+                                  ],
+                                  "properties": {
+                                    "poa_code": {
+                                      "type": "string",
+                                      "description": "Power of Attorney Code submitted for Veteran"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "previousPoa": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not find Power of Attorney with id: -1",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:62:in `status'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

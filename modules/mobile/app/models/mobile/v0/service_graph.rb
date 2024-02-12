@@ -5,6 +5,8 @@ module Mobile
     class ServiceGraph
       attr_accessor :services
 
+      MAINTENANCE_WINDOW_NAMESPACE = 'fa1a248e-0f71-4077-8d25-ed7430bcdb34'
+
       def initialize(*graph)
         @services = {}
 
@@ -60,7 +62,7 @@ module Mobile
         description = update_window.description
 
         MaintenanceWindow.new(
-          id: Digest::UUID.uuid_v5('MaintenanceWindow', downstream_name.to_s),
+          id: Digest::UUID.uuid_v5(MAINTENANCE_WINDOW_NAMESPACE, downstream_name.to_s),
           service: downstream_name,
           start_time:,
           end_time:,

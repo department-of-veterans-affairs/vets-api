@@ -14,6 +14,7 @@ module VAProfile
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.veteran_status".freeze
       configuration VAProfile::VeteranStatus::Configuration
 
       OID = '2.16.840.1.113883.3.42.10001.100001.12' # double check swagger

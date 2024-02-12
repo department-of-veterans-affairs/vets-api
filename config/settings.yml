@@ -1289,6 +1289,7 @@ vanotify:
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
@@ -1459,6 +1460,8 @@ chip:
     password: '12345'
 
 check_in:
+  vaos:
+    mock: false
   map_api:
     url: https://veteran.apps-staging.va.gov
     service_name: MAP-API
@@ -1541,7 +1544,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience/merge
+  ep_merge_path: employee-experience-ep-merge-app/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:

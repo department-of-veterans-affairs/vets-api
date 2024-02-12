@@ -4,7 +4,7 @@ module RepAddresses
   class XlsxFileProcessor
     include SentryLogging
 
-    SHEETS_TO_PROCESS = %w[Attorneys Representatives].freeze
+    SHEETS_TO_PROCESS = %w[Agents Attorneys Representatives].freeze
 
     def initialize(file_content)
       @file_content = file_content
@@ -67,7 +67,6 @@ module RepAddresses
 
       {
         id: row[column_map['Number']],
-        type: 'representative',
         email_address: get_value(row, column_map, email_address_column_name(sheet_name)),
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
@@ -98,7 +97,7 @@ module RepAddresses
       when 'EmailAddress', 'WorkEmailAddress'
         get_email_address(sanitized_value)
       else
-        return_value_or_nil(sanitized_value)
+        get_value_or_nil(sanitized_value)
       end
     end
 
@@ -130,7 +129,7 @@ module RepAddresses
       email_regex.match?(email_address)
     end
 
-    def return_value_or_nil(value)
+    def get_value_or_nil(value)
       value.blank? || value.empty? || value.downcase == 'null' ? nil : value
     rescue => e
       log_error("Unexpected value: #{e.message}")
