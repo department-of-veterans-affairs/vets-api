@@ -1547,7 +1547,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience/merge
+  ep_merge_path: employee-experience-ep-merge-app/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
