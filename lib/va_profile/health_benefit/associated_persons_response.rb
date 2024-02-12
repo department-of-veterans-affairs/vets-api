@@ -11,8 +11,9 @@ module VAProfile
       attribute :messages, Array[VAProfile::Models::Message]
 
       def initialize(response)
-        associated_persons = response.body['associated_persons']
-        messages = response.body['messages']
+        resource = JSON.parse(response.body)
+        associated_persons = resource['associated_persons']
+        messages = resource['messages']
         super(response.status, { associated_persons:, messages: })
       end
     end
