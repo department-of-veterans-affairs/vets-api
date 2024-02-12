@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'faraday/multipart'
+
 module DebtManagementCenter
   module Sharepoint
     class Request
