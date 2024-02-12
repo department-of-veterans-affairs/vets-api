@@ -32,8 +32,13 @@ module CopayNotifications
     def perform(statement)
       StatsD.increment("#{STATSD_KEY_PREFIX}.total")
       statement_service = DebtManagementCenter::StatementIdentifierService.new(statement)
-      icn = statement_service.get_icn
-      DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, nil, 'icn')
+      user_data = statement_service.get_mpi_data
+      icn = user_data[:icn]
+      personalization = {
+        'first_name' => user_data[:first_name],
+        'todays_date' => Date.today.strftime('%B %d, %Y')
+      }
+      DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, personalization, 'icn')
     end
   end
 end
