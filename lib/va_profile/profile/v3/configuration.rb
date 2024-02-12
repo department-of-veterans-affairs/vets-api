@@ -35,6 +35,8 @@ module VAProfile
           connection.post(path, body)
         end
 
+        alias submit post
+
         ##
         # Creates a Faraday connection with parsing json and breakers functionality.
         #
