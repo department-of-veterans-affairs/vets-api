@@ -22,7 +22,6 @@ RSpec.describe 'SimpleFormsApi::VBA400247' do
       )
       allow_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).and_return(new_file_path)
       allow(CombinePDF).to receive(:new).and_return(combined_pdf)
-     
       allow(combined_pdf).to receive(:<<)
       allow(combined_pdf).to receive(:save).with(original_file_path)
       allow(CombinePDF).to receive(:load).with(original_file_path).and_return(original_pdf)
