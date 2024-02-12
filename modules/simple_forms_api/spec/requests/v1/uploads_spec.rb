@@ -313,7 +313,7 @@ RSpec.describe 'Forms uploader', type: :request do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
       file = fixture_file_upload('doctors-note.gif')
-      
+
       # Define data for both form IDs
       data_sets = [
         { form_id: '10-10D', file: file },

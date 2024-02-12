@@ -59,7 +59,7 @@ module SimpleFormsApi
           survivor_intent: existing_intents['survivor']
         }
       end
-      
+
       def authenticate
         super
       rescue Common::Exceptions::Unauthorized
