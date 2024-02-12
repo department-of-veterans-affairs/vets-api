@@ -64,15 +64,9 @@ module ClaimsApi
 
       def format_evss_errors(errors)
         errors.map do |error|
-          if error['key'] && error['text'].is_a?(String)
-            (formatted = error['key'] ? error['key'].gsub('.', '/') : error['key'])
-            { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish,
-              source: formatted }
-          else
-            formatted = error['text']['messages'][0]['key'].gsub('.', '/')
-            { status: 422, detail: "#{error['severity']}, #{error['text']['messages'][0]['text']}".squish,
-              source: formatted }
-          end
+          (formatted = error['key'] ? error['key'].gsub('.', '/') : error['key'])
+          { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish,
+            source: formatted }
         end
       end
     end

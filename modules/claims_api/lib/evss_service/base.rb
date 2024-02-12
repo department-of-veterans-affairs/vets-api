@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/benefits_documents/service'
+require 'claims_api/claim_logger'
+require 'common/client/errors'
 
 module ClaimsApi
   ##
@@ -25,6 +27,7 @@ module ClaimsApi
 
           resp # return is for v1 Sidekiq worker
         rescue => e
+          error_handler(e)
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('submit', 'error', detail, claim)
           ClaimsApi::Logger.log('526',
@@ -45,7 +48,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          formatted_err = handle_error(e) # for v1 controller reporting
+          formatted_err = error_handler(e) # for v1 controller reporting
           raise formatted_err
         end
       end
@@ -108,6 +111,43 @@ module ClaimsApi
       def log_outcome_for_claims_api(action, status, response, claim)
         ClaimsApi::Logger.log('526_docker_container',
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
+      end
+
+      def error_handler(error)
+        handle_service_unavailable_error(error)
+
+        log_error_details(error)
+        case error
+        when ((error.is_a?(::Common::Exceptions::BadRequest) && error.status != 403) ||
+          error.is_a?(Faraday::ConnectionFailed)) && error.body.is_a?(Hash)
+          raise ::Common::Exceptions::ServiceUnavailable, error.body
+        when Faraday::ParsingError
+          raise ::Common::Exceptions::InternalServerError if error.status == 500
+          raise ::Common::Exceptions::BadRequest if error.status == 400
+        when ::Common::Client::Errors::ClientError
+          raise ::Common::Exceptions::Forbidden if error.status == 403
+          raise ::Common::Exceptions::BadRequest if error.status == 400
+          raise ::Common::Exceptions::Authorization if error.status == 403
+        else
+          raise error
+        end
+      end
+
+      def handle_service_unavailable_error(error)
+        if error.is_a?(::Common::Client::Errors::ClientError) && error.status == 503
+          raise ::Common::Exceptions::ServiceError
+        end
+      end
+
+      def log_error_details(error)
+        info = {}
+        info['class'] = error.class if error.class.present?
+        info['status'] = error.original_status if error.original_status.present?
+        info['message'] = error.message if error.message.present?
+        info['transaction_id'] = @transaction_id if @transaction_id.present?
+        info['url'] = @request if @request.present?
+
+        ClaimsApi::Logger.log('docker_container_base', detail: info)
       end
     end
   end
