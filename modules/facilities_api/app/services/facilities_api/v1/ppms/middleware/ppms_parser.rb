@@ -4,7 +4,7 @@ module FacilitiesApi
   module V1
     module PPMS
       module Middleware
-        class PPMSParser < Faraday::Middleware
+        class PPMSParser < Faraday::Response::Middleware
           def on_complete(env)
             env.body = parse_body(env)
           end

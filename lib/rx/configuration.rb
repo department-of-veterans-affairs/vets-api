@@ -11,6 +11,7 @@ require 'rx/middleware/response/rx_parser'
 require 'rx/middleware/response/rx_failed_station'
 require 'rx/middleware/response/rx_raise_error'
 require 'typhoeus'
+require 'typhoeus/adapters/faraday'
 
 module Rx
   ##

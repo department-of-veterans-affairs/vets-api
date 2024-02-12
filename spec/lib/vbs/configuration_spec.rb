@@ -39,8 +39,8 @@ describe VBS::Configuration do
       expect(connection.adapter).to eq(Faraday::Adapter::NetHttp)
       expect(connection.builder.handlers).to eq(
         [
-          Faraday::Request::Json,
-          Faraday::Response::Json
+          FaradayMiddleware::EncodeJson,
+          FaradayMiddleware::ParseJson
         ]
       )
 

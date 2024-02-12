@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class PPMSParser < Faraday::Middleware
+        class PPMSParser < Faraday::Response::Middleware
           def on_complete(env)
             env.body = parse_body(env)
           end

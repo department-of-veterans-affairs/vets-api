@@ -72,9 +72,10 @@ module VAForms
     end
 
     def connection
+      basic_auth_class = Faraday::Request::BasicAuthentication
       @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
         faraday.request :url_encoded
-        faraday.request :authorization, :basic, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
+        faraday.use basic_auth_class, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
         faraday.adapter faraday_adapter
       end
     end

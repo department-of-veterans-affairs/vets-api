@@ -6,7 +6,7 @@ module Common
       module Response
         class BackendUnhandledException < StandardError; end
 
-        class RaiseError < Faraday::Middleware
+        class RaiseError < Faraday::Response::Middleware
           attr_reader :error_prefix, :body, :status
 
           def initialize(app, options = {})

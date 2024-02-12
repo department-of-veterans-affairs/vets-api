@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class Snakecase < Faraday::Middleware
+        class Snakecase < Faraday::Response::Middleware
           def initialize(app, options = { symbolize: true })
             super(app)
             @symbolize = options[:symbolize]

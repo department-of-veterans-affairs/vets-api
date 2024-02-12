@@ -4,7 +4,7 @@ module FacilitiesApi
   module V1
     module Lighthouse
       module Middleware
-        class Errors < Faraday::Middleware
+        class Errors < Faraday::Response::Middleware
           def on_complete(env)
             return if env.success?
 

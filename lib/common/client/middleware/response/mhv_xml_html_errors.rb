@@ -10,7 +10,7 @@ module Common
         # Faraday response middleware that checks the MHV service XML/HTML response for errors and raises
         # the appropriate exception for our application.
         #
-        class MHVXmlHtmlErrors < Faraday::Middleware
+        class MHVXmlHtmlErrors < Faraday::Response::Middleware
           include SentryLogging
           attr_reader :status
 

@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class SOAPParser < Faraday::Middleware
+        class SOAPParser < Faraday::Response::Middleware
           def on_complete(env)
             case env.status
             when 200

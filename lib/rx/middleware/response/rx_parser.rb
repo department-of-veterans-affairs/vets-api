@@ -6,7 +6,7 @@ module Rx
       ##
       # Middleware class responsible for customizing MHV Rx response parsing
       #
-      class RxParser < Faraday::Middleware
+      class RxParser < Faraday::Response::Middleware
         ##
         # Override the Faraday #on_complete method to filter body through custom #parse
         # @param env [Faraday::Env] the request environment

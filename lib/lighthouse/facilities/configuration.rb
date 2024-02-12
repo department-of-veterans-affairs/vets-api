@@ -22,7 +22,7 @@ module Lighthouse
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
-          conn.request :instrumentation, name: 'lighthouse.facilities.request.faraday'
+          conn.use :instrumentation, name: 'lighthouse.facilities.request.faraday'
 
           # Uncomment this if you want curl command equivalent or response output to log
           # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?

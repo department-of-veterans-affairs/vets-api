@@ -13,7 +13,7 @@ module CARMA
       def connection
         Faraday.new(base_path) do |conn|
           conn.use :breakers
-          conn.request :instrumentation, name: service_name
+          conn.use :instrumentation, name: service_name
           conn.adapter Faraday.default_adapter
         end
       end

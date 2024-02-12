@@ -6,7 +6,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class FacilityParser < Faraday::Middleware
+        class FacilityParser < Faraday::Response::Middleware
           def on_complete(env)
             env.body = parse_body(env)
           end

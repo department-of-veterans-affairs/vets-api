@@ -55,9 +55,10 @@ module CovidResearch
       end
 
       def conn
-        Faraday.new(url: Settings.genisis.base_url) do |c|
-          c.request :authorization, :basic, Settings.genisis.user, Settings.genisis.pass
-        end
+        c = Faraday.new(url: Settings.genisis.base_url)
+        c.basic_auth(Settings.genisis.user, Settings.genisis.pass)
+
+        c
       end
     end
   end
