@@ -10,6 +10,7 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
   end
 
   describe '#perform' do
+    let(:icn) { '1234' }
     let(:statement) do
       {
         'veteranIdentifier' => '492031291',
@@ -19,16 +20,10 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
         'statementDate' => '01/01/2023'
       }
     end
-    let(:personalisation) do
-      {
-        'icn' => '1234',
-        'first_name' => 'Guy'
-      }
-    end
 
     before do
       allow_any_instance_of(DebtManagementCenter::StatementIdentifierService)
-        .to receive(:get_mpi_data).and_return(personalisation)
+        .to receive(:get_icn).and_return(icn)
     end
 
     it 'sends a new mcp notification email job frome edipi' do
@@ -49,6 +44,11 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
           'facilityName' => 'VA Medical Center',
           'statementDate' => '01/01/2023'
         }
+      end
+
+      before do
+        allow_any_instance_of(DebtManagementCenter::StatementIdentifierService)
+          .to receive(:get_icn).and_return(icn)
       end
 
       it 'sends a new mcp notification email job frome facility and vista id' do

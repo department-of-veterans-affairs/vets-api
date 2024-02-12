@@ -39,15 +39,11 @@ module DebtManagementCenter
       @identifier_key = nil
     end
 
-    def get_mpi_data
+    def get_icn
       mpi_response = get_mpi_profile
       if mpi_response.ok?
         StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.success")
-        profile = mpi_response.profile
-        {
-          icn: profile.icn,
-          first_name: profile.given_names.first
-        }
+        mpi_response.profile.icn
       else
         StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.failure")
         raise mpi_response.error
