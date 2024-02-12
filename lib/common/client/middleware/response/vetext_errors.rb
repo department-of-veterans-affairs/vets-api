@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class VETextError < Faraday::Response::Middleware
+        class VETextError < Faraday::Middleware
           def on_complete(env)
             return if env.success?
 
