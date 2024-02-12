@@ -23,15 +23,15 @@ module Swagger::Schemas
       key :required, %i[contact_type given_name family_name primary_phone]
       property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::CONTACT_TYPES
       property :given_name, type: :string
-      property :middle_name, type: ['null', 'string']
+      property :middle_name, type: %w[null string]
       property :family_name, type: :string
-      property :relationship, type: ['null', 'string']
-      property :address_line1, type: ['null', 'string']
-      property :address_line2, type: ['null', 'string']
-      property :address_line3, type: ['null', 'string']
-      property :city, type: ['null', 'string']
-      property :state, type: ['null', 'string']
-      property :zip_code, type: ['null', 'string']
+      property :relationship, type: %w[null string]
+      property :address_line1, type: %w[null string]
+      property :address_line2, type: %w[null string]
+      property :address_line3, type: %w[null string]
+      property :city, type: %w[null string]
+      property :state, type: %w[null string]
+      property :zip_code, type: %w[null string]
       property :primary_phone, type: :string
     end
   end
