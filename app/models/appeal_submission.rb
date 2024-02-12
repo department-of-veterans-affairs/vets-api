@@ -32,15 +32,18 @@ class AppealSubmission < ApplicationRecord
       InProgressForm.form_for_user('10182',
                                    current_user)&.destroy!
 
-      appeal_submission.enqueue_uploads(uploads_arr, current_user)
+
+      version_number = decision_review_service.is_a?(DecisionReviewV1::Service) ? 'v2' : 'v1'
+      appeal_submission.enqueue_uploads(uploads_arr, current_user, version_number)
       nod_response_body
     end
   end
 
-  def enqueue_uploads(uploads_arr, _user)
+  def enqueue_uploads(uploads_arr, _user, version_number)
     uploads_arr.each do |upload_attrs|
       asu = AppealSubmissionUpload.create!(decision_review_evidence_attachment_guid: upload_attrs['confirmationCode'],
                                            appeal_submission_id: id)
+      StatsD.increment("nod_evidence_upload.#{version_number}.queued")
       DecisionReview::SubmitUpload.perform_async(asu.id)
     end
   end
