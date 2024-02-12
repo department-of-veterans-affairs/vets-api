@@ -26,7 +26,7 @@ module VAProfile
       attribute :address_line1, String
       attribute :address_line2, String
       attribute :address_line3, String
-      attribute :city, Common::TitlecaseString
+      attribute :city, String
       attribute :state, String
       attribute :zip_code, String
       attribute :primary_phone, String
