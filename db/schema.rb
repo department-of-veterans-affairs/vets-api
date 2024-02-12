@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_12_155948) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_12_181325) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -535,6 +535,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_155948) do
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_flagged_veteran_representative_with_updated_at", unique: true
+    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
