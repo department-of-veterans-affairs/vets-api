@@ -306,6 +306,7 @@ Rails.application.routes.draw do
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
+      resource :military_occupations, only: :show
 
       # Lighthouse
       namespace :direct_deposits do
@@ -441,6 +442,10 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+
+    scope format: false do
+      resources :nod_callbacks, only: [:create]
+    end
   end
 
   root 'v0/example#index', module: 'v0'
