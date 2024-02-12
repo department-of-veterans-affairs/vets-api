@@ -31,9 +31,11 @@ module VAProfile
         ##
         # @return [Faraday::Response] response from POST request
         #
-        def submit(path, body = {})
+        def post(path, body = {})
           connection.post(path, body)
         end
+
+        alias submit post
 
         ##
         # Creates a Faraday connection with parsing json and breakers functionality.
