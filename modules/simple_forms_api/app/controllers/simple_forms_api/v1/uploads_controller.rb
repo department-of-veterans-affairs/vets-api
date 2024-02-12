@@ -39,7 +39,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-          if %w[40-0247 10-10D].include?(params[:form_id])
+        if %w[40-0247 10-10D].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -59,6 +59,7 @@ module SimpleFormsApi
           survivor_intent: existing_intents['survivor']
         }
       end
+      
       def authenticate
         super
       rescue Common::Exceptions::Unauthorized
