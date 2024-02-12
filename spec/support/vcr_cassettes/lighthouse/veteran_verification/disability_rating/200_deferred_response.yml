@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 11 Oct 2023 17:22:38 GMT
+      - Mon, 12 Feb 2024 02:22:38 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -102,9 +102,8 @@ http_interactions:
         },
         {
           "description": "Service Connected",
-          "decision": "Service Connected",
+          "decision": "Deferred",
           "effective_date": "2018-03-12",
-          "rating_end_date": null,
           "rating_percentage": 30,
           "diagnostic_type_code": "6260",
           "diagnostic_type_name": "Tinnitus",          
@@ -125,5 +124,5 @@ http_interactions:
     }
   }
 }'
-  recorded_at: Wed, 11 Oct 2023 17:22:38 GMT
+  recorded_at: Mon, 12 Feb 2024 02:22:38 GMT
 recorded_with: VCR 6.2.0
