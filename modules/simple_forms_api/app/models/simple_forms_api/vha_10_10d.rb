@@ -52,7 +52,6 @@ module SimpleFormsApi
       if supporting_documents
         confirmation_codes = []
         supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-        
         PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
       end
 

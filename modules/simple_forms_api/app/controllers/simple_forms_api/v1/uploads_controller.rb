@@ -119,14 +119,14 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
         case form_id
-        when *%w[vba_40_0247 vha_10_10d]
+        when 'vba_40_0247', 'vha_10_10d'
           form.handle_attachments(file_path)
         end
 
         [file_path, metadata]
       end
 
-    def get_upload_location_and_uuid(lighthouse_service)
+      def get_upload_location_and_uuid(lighthouse_service)
         upload_location = lighthouse_service.get_upload_location.body
         {
           uuid: upload_location.dig('data', 'id'),
