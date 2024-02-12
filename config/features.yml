@@ -33,6 +33,9 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
+  caregiver_browser_monitoring_enabled:
+    actor_type: user
+    description: Enables Datadog Real Time User Monitoring
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -131,6 +134,10 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
+    enable_in_development: true
+  check_in_experience_cerner_travel_claims_enabled:
+    actor_type: user
+    description: Enables travel claims filing for Oracle Health (Cerner) sites
     enable_in_development: true
   check_in_experience_travel_logic:
     actor_type: user
@@ -449,19 +456,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enabled:
     actor_type: user
-    description: Enables frontend of Find a Representative
-    enable_in_development: true
-  find_a_representative_enable_api:
-    actor_type: user
-    description: Enables the Find a Rep search endpoint
+    description: Enables Find a Representative tool
     enable_in_development: true
   find_a_representative_enable_frontend:
     actor_type: user
-    description: Enables frontend of Find a Representative
+    description: Enables Find a Representative frontend
     enable_in_development: true
-  flag_a_representative:
+  find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flag a rep for Find a Rep
     enable_in_development: true
@@ -649,6 +652,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
     enable_in_development: true
+  mhv_secure_messaging_cerner_pilot:
+    actor_type: user
+    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_blocked_triage_group_1_0:
     actor_type: user
     description: Enables/disables Secure Messaging Blocked Triage Group functionality on VA.gov
@@ -783,10 +790,6 @@ features:
     description: Show/Hide the proof of veteran status page and links
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
-    enable_in_development: true
-    actor_type: user
-  profile_use_field_editing_page:
-    description: Use a single page route in Profile for editing or adding a field value
     enable_in_development: true
     actor_type: user
   profile_use_hub_page:
@@ -1006,6 +1009,10 @@ features:
   va_online_scheduling_booking_exclusion:
     actor_type: user
     description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
+    enable_in_development: true
+  va_online_scheduling_cancellation_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
     enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
@@ -1249,6 +1256,10 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  nod_callbacks_endpoint:
+    actor_type: user
+    description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring

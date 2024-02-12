@@ -26,6 +26,8 @@ describe AppealsApi::StatsReport do
   let(:outside_range_groups) { create_transition_groups }
 
   before do
+    stub_const('AppealsApi::StatsReport::STATUS_TRANSITION_PAIRS',
+               [%w[processing submitted], %w[submitted complete], %w[processing success], %w[error success]])
     Sidekiq::Testing.inline! do
       # Create statuses to support lists of stalled records:
       oldest_date = end_date - described_class::STALLED_RECORD_MONTHS.last.months - 2.weeks
@@ -133,22 +135,22 @@ describe AppealsApi::StatsReport do
     let(:expected_means_medians) do
       [
         [ # Higher Level Reviews
-          ['7d 20h 15m', '1d 4h 30m'],
-          ['8d 14h 15m', '2d 4h 30m'],
-          ['9d 8h 15m', '3d 4h 30m'],
-          ['10d 2h 15m', '4d 4h 30m']
+          ['7d 20h 15m 0s', '1d 4h 30m 0s'],
+          ['8d 14h 15m 0s', '2d 4h 30m 0s'],
+          ['9d 8h 15m 0s',  '3d 4h 30m 0s'],
+          ['10d 2h 15m 0s', '4d 4h 30m 0s']
         ],
         [ # Notice of Disagreements
-          ['7d 21h 0m', '1d 5h 30m'],
-          ['8d 15h 0m', '2d 5h 30m'],
-          ['9d 9h 0m', '3d 5h 30m'],
-          ['10d 3h 0m', '4d 5h 30m']
+          ['7d 21h 0m 0s', '1d 5h 30m 0s'],
+          ['8d 15h 0m 0s', '2d 5h 30m 0s'],
+          ['9d 9h 0m 0s',  '3d 5h 30m 0s'],
+          ['10d 3h 0m 0s', '4d 5h 30m 0s']
         ],
         [ # Supplemental Claims
-          ['7d 21h 45m', '1d 6h 30m'],
-          ['8d 15h 45m', '2d 6h 30m'],
-          ['9d 9h 45m', '3d 6h 30m'],
-          ['10d 3h 45m', '4d 6h 30m']
+          ['7d 21h 45m 0s', '1d 6h 30m 0s'],
+          ['8d 15h 45m 0s', '2d 6h 30m 0s'],
+          ['9d 9h 45m 0s',  '3d 6h 30m 0s'],
+          ['10d 3h 45m 0s', '4d 6h 30m 0s']
         ]
       ]
     end
