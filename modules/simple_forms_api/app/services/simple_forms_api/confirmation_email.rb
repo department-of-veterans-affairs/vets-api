@@ -9,7 +9,8 @@ module SimpleFormsApi
       'vba_21p_0847' => Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
       'vba_21_0972' => Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
       'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
-      'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email
+      'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
+      'vba_20_10206' => Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
@@ -42,6 +43,7 @@ module SimpleFormsApi
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def form_specific_data
       email, first_name = case @form_number
                           when 'vba_21_0845'
@@ -64,12 +66,17 @@ module SimpleFormsApi
                             return unless Flipper.enabled?(:form21_10210_confirmation_email)
 
                             form21_10210_contact_info(@form_data)
+                          when 'vba_20_10206'
+                            return unless Flipper.enabled?(:form20_10206_confirmation_email)
+
+                            [@form_data['email_address'], @form_data.dig('full_name', 'first')]
                           else
                             [nil, nil]
                           end
 
       [email, first_name]
     end
+    # rubocop:enable Metrics/MethodLength
 
     def form21_0845_contact_info(form_data)
       # (vet && signed in)

@@ -25,6 +25,6 @@ FactoryBot.define do
     rpo_code { Faker::Number.number(digits: 4) }
     fac_code { Faker::Lorem.word }
     payment_amt { Faker::Number.decimal(l_digits: 4, r_digits: 2) }
-    indicator { Faker::Lorem.word }
+    indicator { Vye::UserInfo.indicators.values.sample }
   end
 end
