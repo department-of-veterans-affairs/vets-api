@@ -10,7 +10,7 @@ module Swagger::Schemas
       key :required, [:data]
       property :data, type: :array do
         items do
-          property :id, type: :string
+          property :id, type: :string, example: 'dbbf9a58-41e5-40c0-bdb5-fc1407aa1f05'
           property :type, type: :string
           property :attributes do
             key :$ref, :Contact
@@ -22,17 +22,16 @@ module Swagger::Schemas
     swagger_schema :Contact do
       key :required, %i[contact_type given_name family_name primary_phone]
       property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::CONTACT_TYPES
-      property :given_name, type: :string
-      property :middle_name, type: %w[null string]
-      property :family_name, type: :string
-      property :relationship, type: %w[null string]
-      property :address_line1, type: %w[null string]
-      property :address_line2, type: %w[null string]
-      property :address_line3, type: %w[null string]
-      property :city, type: %w[null string]
-      property :state, type: %w[null string]
-      property :zip_code, type: %w[null string]
-      property :primary_phone, type: :string
+      property :given_name, type: %i[string null]
+      property :family_name, type: %i[string null]
+      property :relationship, type: %i[string null]
+      property :address_line1, type: %i[string null]
+      property :address_line2, type: %i[string null]
+      property :address_line3, type: %i[string null]
+      property :city, type: %i[string null]
+      property :state, type: %i[string null]
+      property :zip_code, type: %i[string null]
+      property :primary_phone, type: %i[string null]
     end
   end
 end
