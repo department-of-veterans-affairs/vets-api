@@ -146,6 +146,7 @@ module ClaimsApi
         info['message'] = error.message if error.message.present?
         info['transaction_id'] = @transaction_id if @transaction_id.present?
         info['url'] = @request if @request.present?
+        info['ssn'] = 'test user ssn 123456789' if @request.present?
 
         ClaimsApi::Logger.log('docker_container_base', detail: info)
       end
