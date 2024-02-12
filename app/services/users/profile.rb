@@ -117,7 +117,7 @@ module Users
         text_permission: person.text_permission
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       nil
     end
 
@@ -148,7 +148,7 @@ module Users
         served_in_military: user.served_in_military?
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       nil
     end
 
