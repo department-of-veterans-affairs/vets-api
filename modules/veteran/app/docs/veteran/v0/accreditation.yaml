@@ -49,6 +49,13 @@ paths:
             type: string
           description: Type of accredited representative (e.g., attorney or claim_agents).
         - in: query
+          name: distance
+          schema:
+            type: number
+            format: integer
+            enum: [5, 10, 25, 50, 100, 200]
+          description: Search radius in miles.
+        - in: query
           name: name
           schema:
             type: string
@@ -125,6 +132,13 @@ paths:
           schema:
             type: string
           description: Type of accredited representative (e.g., veteran_service_officer).
+        - in: query
+          name: distance
+          schema:
+            type: number
+            format: integer
+            enum: [5, 10, 25, 50, 100, 200]
+          description: Search radius in miles.
         - in: query
           name: name
           schema:
@@ -271,37 +285,37 @@ components:
       properties:
         self:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=3'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&distance=50&page=3'
         first:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=1'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&distance=50&page=1'
         prev:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=2'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&distance=50&page=2'
         next:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=4'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&distance=50&page=4'
         last:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&page=5'
+          example: 'https://api.va.gov/services/veteran/v0/other_accredited_representatives?lat=40.7128&long=-74.0060&type=attorney&distance=50&page=5'
     VSORepresentativeLinks:
       type: object
       properties:
         self:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=3'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&distance=50&page=3'
         first:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=1'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&distance=50&page=1'
         prev:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=2'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&distance=50&page=2'
         next:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=4'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&distance=50&page=4'
         last:
           type: string
-          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&page=5'
+          example: 'https://api.va.gov/services/veteran/v0/vso_accredited_representatives?lat=40.7128&long=-74.0060&type=veteran_service_officer&distance=50&page=5'
     CommonMeta:
       type: object
       properties:
