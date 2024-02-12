@@ -35,8 +35,8 @@ module CopayNotifications
       user_data = statement_service.get_mpi_data
       icn = user_data[:icn]
       personalization = {
-        'first_name' => user_data[:first_name],
-        'todays_date' => Date.today.strftime('%B %d, %Y')
+        'name' => user_data[:first_name],
+        'date' => Time.zone.today.strftime('%B %d, %Y')
       }
       DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, personalization, 'icn')
     end

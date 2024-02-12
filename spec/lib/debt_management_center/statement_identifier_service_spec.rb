@@ -68,7 +68,7 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, skip_vet360: tr
           VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
             service = described_class.new(edipi_statement)
             details = service.get_mpi_data
-            expect(details).to eq({:icn=>mpi_profile.icn, :first_name=>mpi_profile.given_names.first})
+            expect(details).to eq({ icn: mpi_profile.icn, first_name: mpi_profile.given_names.first })
           end
         end
       end
@@ -157,7 +157,7 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, skip_vet360: tr
         it 'can get an email from icn' do
           service = described_class.new(vista_statement)
           details = service.get_mpi_data
-          expect(details).to eq({:icn=>mpi_profile.icn, :first_name=>mpi_profile.given_names.first})
+          expect(details).to eq({ icn: mpi_profile.icn, first_name: mpi_profile.given_names.first })
         end
       end
 
