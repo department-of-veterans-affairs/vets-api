@@ -74,10 +74,6 @@ module V0
       rating['decision'] == 'Deferred'
     end
 
-    def deferred?(rating)
-      rating['decision'] == 'Deferred'
-    end
-
     def service
       @service ||= VeteranVerification::Service.new
     end
