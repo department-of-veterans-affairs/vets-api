@@ -1,22 +1,9 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'bgs'
-require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class PoaUpdater
-    include Sidekiq::Job
-
-    sidekiq_retries_exhausted do |message|
-      ClaimsApi::Logger.log(
-        'claims_api_retries_exhausted',
-        poa_id: message['args'].first,
-        detail: "Job retries exhausted for #{message['class']}",
-        error: message['error_message']
-      )
-    end
-
+  class PoaUpdater < ClaimsApi::ServiceBase
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       service = BGS::Services.new(

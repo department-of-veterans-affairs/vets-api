@@ -147,7 +147,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         )
       end
 
-      it 'does not retry when form526.submit.noRetryError error gets retruned' do
+      it 'does not retry when form526.submit.noRetryError error gets returned' do
         body = {
           messages: [
             { key: 'form526.submit.noRetryError',
@@ -167,7 +167,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         end.not_to change(subject.jobs, :size)
       end
 
-      it 'does not retry when form526.InProcess error gets retruned' do
+      it 'does not retry when form526.InProcess error gets returned' do
         body = {
           messages: [
             { key: 'form526.InProcess',
@@ -205,6 +205,23 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect do
           service.perform(claim.id)
         end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+  end
+
+  describe 'when an errored claim has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      msg = { 'args' => [claim.id],
+              'class' => subject,
+              'error_message' => 'An error occurred from the Docker Container Upload Job' }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: 'An error occurred from the Docker Container Upload Job'
+        )
       end
     end
   end

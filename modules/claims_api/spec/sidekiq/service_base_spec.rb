@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../rails_helper'
+require_relative '../rails_helper'
 
-RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
+RSpec.describe ClaimsApi::ServiceBase do
   let(:user) { FactoryBot.create(:user, :loa3) }
 
   let(:auth_headers) do
@@ -35,7 +35,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
     it 'updates claim status as ESTABLISHED' do
       service = described_class.new
 
-      service.send(:set_established_state_on_claim, claim) # Invoke the protected method using send
+      service.send(:set_established_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('established')
       expect(claim.evss_response).to eq(nil)
@@ -76,35 +76,9 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
 
     it 'logs job progress' do
       service = described_class.new
-      expect(ClaimsApi::Logger).to receive(:log).with('526_v2_claim_service_base', claim_id: claim.id, detail:)
+      expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:)
 
       service.send(:log_job_progress, claim.id, detail)
     end
-  end
-
-  RSpec.shared_examples 'logs to the Claim API logger correctly' do |service_class|
-    it "for #{service_class}" do
-      error_message = 'An error occurred'
-      msg = { 'args' => [claim.id, 'value here'],
-              'class' => service_class,
-              'error_message' => error_message }
-
-      described_class.within_sidekiq_retries_exhausted_block(msg) do
-        expect(ClaimsApi::Logger).to receive(:log).with(
-          'claims_api_retries_exhausted',
-          claim_id: claim.id,
-          detail: "Job retries exhausted for #{service_class}",
-          error: error_message
-        )
-      end
-    end
-  end
-
-  describe "when a job's retries are exhausted" do
-    include_examples 'logs to the Claim API logger correctly', ClaimsApi::V2::DisabilityCompensationPdfGenerator
-    include_examples 'logs to the Claim API logger correctly',
-                     ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
-    include_examples 'logs to the Claim API logger correctly',
-                     ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader
   end
 end

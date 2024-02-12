@@ -121,16 +121,17 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   describe 'when an errored claim has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Claim Establisher Job'
       msg = { 'args' => [claim.id],
-              'class' => subject,
-              'error_message' => 'An error occurred' }
+              'class' => described_class,
+              'error_message' => error_msg }
 
       described_class.within_sidekiq_retries_exhausted_block(msg) do
         expect(ClaimsApi::Logger).to receive(:log).with(
           'claims_api_retries_exhausted',
-          claim_id: claim.id,
-          detail: "Job retries exhausted for #{subject}",
-          error: 'An error occurred'
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{described_class}",
+          error: error_msg
         )
       end
     end

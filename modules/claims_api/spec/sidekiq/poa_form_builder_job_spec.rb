@@ -153,18 +153,19 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
     end
   end
 
-  describe 'when an errored claim has exhausted its retries' do
+  context 'when an errored claim has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred for the POA Form Builder Job'
       msg = { 'args' => [power_of_attorney.id, 'value here'],
               'class' => subject,
-              'error_message' => 'An error occurred' }
+              'error_message' => error_msg }
 
       described_class.within_sidekiq_retries_exhausted_block(msg) do
         expect(ClaimsApi::Logger).to receive(:log).with(
           'claims_api_retries_exhausted',
-          poa_id: power_of_attorney.id,
+          record_id: power_of_attorney.id,
           detail: "Job retries exhausted for #{subject}",
-          error: 'An error occurred'
+          error: error_msg
         )
       end
     end
