@@ -7,6 +7,7 @@ require 'va_profile/contact_information/transaction_response'
 require 'va_profile/service'
 require 'va_profile/stats'
 require 'identity/parsers/gc_ids_constants'
+require_relative 'configuration'
 
 module VAProfile
   module Person
