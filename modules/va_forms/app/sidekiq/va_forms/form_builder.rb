@@ -105,7 +105,7 @@ module VAForms
     # Given a form +url+, makes a request for the form and returns the response
     def fetch_form(url)
       connection = Faraday.new(url) do |conn|
-        conn.use FaradayMiddleware::FollowRedirects
+        conn.use Faraday::FollowRedirects::Middleware
         conn.options.open_timeout = 10
         conn.options.timeout = 30
         conn.adapter Faraday.default_adapter

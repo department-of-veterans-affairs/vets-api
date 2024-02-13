@@ -11470,6 +11470,7 @@
     "/veterans/{veteranId}/power-of-attorney/{id}": {
       "get": {
         "summary": "Checks status of Power of Attorney appointment form submission",
+        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)",
         "tags": [
           "Power of Attorney"
         ],
@@ -11509,19 +11510,234 @@
             "in": "path",
             "required": true,
             "example": "12e13134-7229-4e44-90ae-bcea2a4525fa",
-            "description": "Power of Attorney appointment request id",
+            "description": "The ID of the 21-22 submission",
             "schema": {
               "type": "string"
             }
           }
         ],
-        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)\n",
         "responses": {
           "200": {
-            "description": "Successful response"
+            "description": "Valid request response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "id": "3479225d-e0b9-46ac-a3b1-65ae8fbb1cae",
+                    "type": "claimsApiPowerOfAttorneys",
+                    "attributes": {
+                      "status": "submitted",
+                      "dateRequestAccepted": "2024-02-08",
+                      "representative": {
+                        "serviceOrganization": {
+                          "poaCode": "074"
+                        }
+                      },
+                      "previousPoa": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Power of Attorney Submission UUID"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status",
+                            "dateRequestAccepted",
+                            "representative"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "pending",
+                                "submitted",
+                                "updated",
+                                "errored"
+                              ]
+                            },
+                            "dateRequestAccepted": {
+                              "type": "string",
+                              "description": "Date request was first accepted",
+                              "format": "date"
+                            },
+                            "representative": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "serviceOrganization"
+                              ],
+                              "properties": {
+                                "serviceOrganization": {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                  "required": [
+                                    "poaCode"
+                                  ],
+                                  "properties": {
+                                    "poa_code": {
+                                      "type": "string",
+                                      "description": "Power of Attorney Code submitted for Veteran"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "previousPoa": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "status": "404",
+                      "detail": "Could not find Power of Attorney with id: -1",
+                      "source": {
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney_controller.rb:62:in `status'"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error status code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
