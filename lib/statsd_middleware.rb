@@ -67,6 +67,7 @@ class StatsdMiddleware
     login-page
     medical-copays
     messages
+    mhv-landing-page
     my-documents
     my-health-account-validation
     order-form-2346
