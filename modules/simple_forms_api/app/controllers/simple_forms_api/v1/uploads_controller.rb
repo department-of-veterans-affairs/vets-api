@@ -118,8 +118,7 @@ module SimpleFormsApi
                     end
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        case form_id
-        when 'vba_40_0247', 'vha_10_10d'
+        if form_id == 'vba_40_0247' || form_id == 'vha_10_10d'
           form.handle_attachments(file_path)
         end
 
