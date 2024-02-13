@@ -27,7 +27,7 @@ module ClaimsApi
 
           resp # return is for v1 Sidekiq worker
         rescue => e
-          error_handler(e)
+          error_handler(e, claim)
         end
       end
 
@@ -43,7 +43,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          formatted_err = error_handler(e) # for v1 controller reporting
+          formatted_err = error_handler(e, claim) # for v1 controller reporting
           raise formatted_err
         end
       end
@@ -108,45 +108,62 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def error_handler(error)
-        handle_service_unavailable_error(error)
+      def error_handler(error, claim)
+        log_info = {}
+        handle_faraday_failure(error, log_info, claim)
+        handle_bad_request(error, log_info, claim)
+        handle_parsing_error(error, log_info, claim)
+        handle_client_errors(error, log_info, claim)
+        raise error
+      end
 
-        log_error_details(error)
-        case error
-        when error.is_a?(::Common::Exceptions::BadRequest) && error.status != 403
-          raise ::Common::Exceptions::ServiceUnavailable, error.body
-        when Faraday::ParsingError
-          raise ::Common::Exceptions::InternalServerError if error.status == 500
-          raise ::Common::Exceptions::BadRequest if error.status == 400
-        when ::Common::Client::Errors::ClientError
-          raise ::Common::Exceptions::Forbidden if error.status == 403
-          raise ::Common::Exceptions::BadRequest if error.status == 400
-          raise ::Common::Exceptions::Authorization if error.status == 403
-        when error.is_a?(Faraday::ConnectionFailed)
-          raise ::Common::Exceptions::ServiceUnavailable, error
-        else
-          raise error
+      def handle_faraday_failure(error, log_info, claim)
+        if error.is_a?(Faraday::ConnectionFailed)
+          log_info['class'] = error.class if error.respond_to?(:class)
+          log_info['status'] = error.response_status if error.respond_to?(:response_status)
+          log_info['message'] = error.detailed_message if error.respond_to?(:detailed_message)
+          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+          raise ::Common::Exceptions::ServiceUnavailable
         end
       end
 
-      def handle_service_unavailable_error(error)
-        if error.is_a?(::Common::Client::Errors::ClientError) && error.status == 503
-          raise ::Common::Exceptions::ServiceError
+      def handle_client_errors(error, log_info, claim)
+        status = error.status if error.respond_to?(:status)
+        if ::Common::Client::Errors::ClientError
+          log_info['class'] = error.class if error.respond_to?(:class)
+          log_info['status'] = status
+          log_info['message'] = error.message.presence || error.detailed_message
+          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+
+          raise ::Common::Exceptions::Forbidden if status == 403
+          raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
+          raise ::Common::Exceptions::Authorization if status == 401
+          raise ::Common::Exceptions::ServiceError if status == 503
         end
       end
 
-      def log_error_details(error)
-        info = {}
-        status = error.original_status.presence || error.status
-        message = error.message.presence || error.detailed_message
+      def handle_parsing_error(error, log_info, claim)
+        if error.is_a?(Faraday::ParsingError)
+          log_info['class'] = error.class if error.respond_to?(:class)
+          status = error.response_status if error.respond_to?(:response_status)
+          log_info['status'] = status
+          log_info['message'] = error.detailed_message if error.respond_to?(:detailed_message)
+          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+          raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
+          raise ::Common::Exceptions::InternalServerError if status == 500
+        end
+      end
 
-        info['class'] = error.class if error.class.present?
-        info['status'] = status
-        info['message'] = message
-        info['transaction_id'] = @transaction_id if @transaction_id.present?
-        info['url'] = @request if @request.present?
+      def handle_bad_request(error, log_info, claim)
+        status = error.status_code if error.respond_to?(:status_code)
+        if error.is_a?(::Common::Exceptions::BadRequest) && status != 403
+          log_info['message'] = error.message.presence || error.detailed_message
+          log_info['class'] = error.class if error.respond_to?(:class)
+          log_info['status'] = status
+          log_outcome_for_claims_api('submit', 'error', log_info, claim)
 
-        log_outcome_for_claims_api('submit', 'error', info, claim)
+          raise ::Common::Exceptions::ServiceUnavailable
+        end
       end
     end
   end
