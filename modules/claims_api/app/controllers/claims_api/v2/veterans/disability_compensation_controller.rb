@@ -24,6 +24,10 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
+        before_action only: %i[generate_pdf] do
+          permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
+        end
+
         def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
