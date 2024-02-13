@@ -1940,3 +1940,4 @@ lib/logging/third_party_transaction.rb @department-of-veterans-affairs/backend-r
 spec/lib/logging/third_party_transaction_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/va_profile/contacts_request_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 /helmCharts @department-of-veterans-affairs/backend-review-group
+/.github/workflows/build-and-publish.yaml @department-of-veterans-affairs/backend-review-group
