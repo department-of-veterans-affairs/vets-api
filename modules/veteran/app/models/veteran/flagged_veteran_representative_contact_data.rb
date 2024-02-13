@@ -2,6 +2,7 @@
 
 module Veteran
   class FlaggedVeteranRepresentativeContactData < ApplicationRecord
+    self.ignored_columns += ['flagged_value_updated']
     self.table_name = 'flagged_veteran_representative_contact_data'
 
     enum flag_type: { phone: 'phone', email: 'email', address: 'address', other: 'other' }, _suffix: true
