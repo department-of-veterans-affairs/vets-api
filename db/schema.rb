@@ -786,6 +786,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
   end
 
+  create_table "nod_notifications", force: :cascade do |t|
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "oauth_sessions", force: :cascade do |t|
     t.uuid "handle", null: false
     t.uuid "user_account_id", null: false
