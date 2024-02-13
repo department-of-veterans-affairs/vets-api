@@ -530,7 +530,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "representative_id", null: false
     t.string "flag_type", null: false
     t.text "flagged_value", null: false
-    t.boolean "flagged_value_updated", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
