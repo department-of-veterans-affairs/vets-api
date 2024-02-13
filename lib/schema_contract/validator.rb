@@ -30,6 +30,7 @@ module SchemaContract
     end
 
     def parsed_response
+      # this is probably no longer necessary
       JSON.parse(record.response)
     rescue JSON::ParserError => e
       @result = 'invalid_response'
