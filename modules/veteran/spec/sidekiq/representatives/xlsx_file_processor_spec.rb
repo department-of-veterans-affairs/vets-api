@@ -23,7 +23,7 @@ RSpec.describe Representatives::XlsxFileProcessor do
     let(:result) { xlsx_processor.process }
 
     context 'with valid data' do
-      let(:expected_keys) { %w[id email_address request_address phone_number] }
+      let(:expected_keys) { %w[type id email_address request_address phone_number] }
       let(:request_address_keys) do
         %w[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
            country_code_iso3]

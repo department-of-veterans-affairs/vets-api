@@ -65,10 +65,11 @@ module Representatives
     def create_json_data(row, sheet_name, column_map)
       zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
 
-      data = {
+      {
         type: sheet_name,
         id: row[column_map['Number']],
         email_address: get_value(row, column_map, email_address_column_name(sheet_name)),
+        phone_number: get_value(row, column_map, 'WorkNumber'),
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
           address_line1: get_value(row, column_map, 'WorkAddress1'),
@@ -80,10 +81,7 @@ module Representatives
           zip_code4:,
           country_code_iso3: 'US'
         }
-      }
-
-      data['phone_number'] = get_value(row, column_map, 'WorkNumber') if sheet_name == 'Representatives'
-      data.to_json
+      }.to_json
     rescue => e
       log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
     end
