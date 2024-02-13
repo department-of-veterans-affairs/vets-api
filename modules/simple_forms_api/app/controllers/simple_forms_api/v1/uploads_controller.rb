@@ -111,12 +111,7 @@ module SimpleFormsApi
           ).send
         end
 
-        Rails.logger.info(
-          'Simple forms api - sent to benefits intake',
-          { form_number: params[:form_number], status:, uuid: confirmation_number }
-        )
-
-        render json: get_json(confirmation_number, form_id), status:, error_message:
+        render json: get_json(confirmation_number || nil, form_id), status:, error_message:
       end
 
       def get_file_path_and_metadata(parsed_form_data)
