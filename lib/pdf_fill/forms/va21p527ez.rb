@@ -145,6 +145,10 @@ module PdfFill
               key: 'form1[0].#subform[48].Zip_Postal_Code[0]'
             },
             'lastFour' => {
+              limit: 4,
+              question_num: 2,
+              question_suffix: 'A',
+              question_text: 'POSTAL CODE - LAST FOUR',
               key: 'form1[0].#subform[48].Zip_Postal_Code[1]'
             }
           }
