@@ -25,8 +25,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.datetime "idme_at"
     t.datetime "myhealthevet_at"
     t.datetime "dslogon_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "current_verification"
     t.datetime "logingov_at"
     t.index ["account_id"], name: "index_account_login_stats_on_account_id", unique: true
@@ -85,16 +85,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "decision_review_evidence_attachment_guid"
     t.string "appeal_submission_id"
     t.string "lighthouse_upload_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
     t.string "user_uuid"
     t.string "submitted_appeal_uuid"
     t.string "type_of_appeal"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "board_review_option"
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
@@ -105,8 +105,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "supportable_type"
     t.string "supportable_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "source"
     t.uuid "guid", null: false
     t.integer "upload_submission_id", null: false
@@ -135,8 +135,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
@@ -158,8 +158,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "statusable_type"
     t.string "statusable_id"
     t.datetime "status_update_time"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
     t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
@@ -172,8 +172,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "source"
     t.string "pdf_version"
     t.string "api_version"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "form_data_ciphertext"
     t.text "auth_headers_ciphertext"
     t.text "encrypted_kms_key"
@@ -205,32 +205,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.index ["user_uuid"], name: "index_async_transactions_on_user_uuid"
   end
 
-  create_table "base_facilities", id: false, force: :cascade do |t|
-    t.string "unique_id", null: false
-    t.string "name", null: false
-    t.string "facility_type", null: false
-    t.string "classification"
-    t.string "website"
-    t.float "lat", null: false
-    t.float "long", null: false
-    t.jsonb "address"
-    t.jsonb "phone"
-    t.jsonb "hours"
-    t.jsonb "services"
-    t.jsonb "feedback"
-    t.jsonb "access"
-    t.string "fingerprint"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
-    t.boolean "mobile"
-    t.string "active_status"
-    t.string "visn"
-    t.index ["lat"], name: "index_base_facilities_on_lat"
-    t.index ["location"], name: "index_base_facilities_on_location", using: :gist
-    t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
-    t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
-  end
+# Could not dump table "base_facilities" because of following StandardError
+#   Unknown type 'geography(Point,4326)' for column 'location'
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
     t.string "state", default: "pending", null: false
@@ -266,8 +242,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.uuid "claim_id", null: false
     t.string "claim_type", null: false
     t.string "consumer_label", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["claim_id"], name: "index_claims_api_claim_submissions_on_claim_id"
   end
 
@@ -275,8 +251,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.text "auth_headers_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "status"
     t.string "vbms_error_message"
     t.string "bgs_error_message"
@@ -288,8 +264,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "claims_api_intent_to_files", force: :cascade do |t|
     t.string "status"
     t.string "cid"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -329,8 +305,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.interval "access_token_duration", null: false
     t.string "access_token_audience", null: false
     t.interval "refresh_token_duration", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "logout_redirect_uri"
     t.boolean "pkce"
     t.string "certificates", array: true
@@ -382,8 +358,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "email_address", null: false
     t.string "email_template_id", null: false
     t.datetime "email_triggered_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
     t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
     t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
@@ -392,8 +368,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "deprecated_user_accounts", force: :cascade do |t|
     t.uuid "user_account_id"
     t.bigint "user_verification_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_deprecated_user_accounts_on_user_account_id", unique: true
     t.index ["user_verification_id"], name: "index_deprecated_user_accounts_on_user_verification_id", unique: true
   end
@@ -401,8 +377,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "devices", force: :cascade do |t|
     t.string "key"
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
@@ -416,8 +392,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.text "description"
     t.string "privacy_url"
     t.string "tos_url"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["name"], name: "index_directory_applications_on_name", unique: true
   end
 
@@ -432,18 +408,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", opclass: :gin_trgm_ops, using: :gin
   end
 
-  create_table "drivetime_bands", force: :cascade do |t|
-    t.string "name"
-    t.string "unit"
-    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
-    t.string "vha_facility_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "min"
-    t.integer "max"
-    t.datetime "vssc_extract_date", default: "2001-01-01 00:00:00"
-    t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
-  end
+# Could not dump table "drivetime_bands" because of following StandardError
+#   Unknown type 'geography(Polygon,4326)' for column 'polygon'
 
   create_table "education_benefits_claims", id: :serial, force: :cascade do |t|
     t.datetime "submitted_at"
@@ -485,8 +451,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.bigint "education_benefits_claim_id"
     t.string "automated_decision_state", default: "init"
     t.string "user_uuid", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "poa"
     t.integer "remaining_entitlement"
     t.datetime "denial_email_sent_at"
@@ -557,8 +523,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.datetime "accepted_at", null: false
     t.json "metadata"
     t.json "attachments"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.uuid "claim_guid", null: false
     t.index ["carma_case_id"], name: "index_form1010cg_submissions_on_carma_case_id", unique: true
     t.index ["claim_guid"], name: "index_form1010cg_submissions_on_claim_guid", unique: true
@@ -569,8 +535,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.integer "tax_year", null: false
     t.jsonb "form_data_ciphertext", null: false
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
   end
 
@@ -613,8 +579,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.text "form_json_ciphertext", null: false
     t.text "metadata_ciphertext"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.uuid "user_account_id"
     t.jsonb "public_metadata"
     t.integer "state", default: 0
@@ -640,8 +606,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "aasm_state"
     t.string "error_message"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
   end
 
@@ -653,8 +619,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.bigint "saved_claim_id"
     t.bigint "in_progress_form_id"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
     t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
     t.index ["in_progress_form_id"], name: "index_form_submissions_on_in_progress_form_id"
@@ -709,8 +675,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "user_uuid"
     t.string "appointment_id"
     t.string "questionnaire_response_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "questionnaire_response_data_ciphertext"
     t.text "user_demographics_data_ciphertext"
     t.text "encrypted_kms_key"
@@ -743,8 +709,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
 
   create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
     t.uuid "user_account_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
   end
 
@@ -771,16 +737,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "mhv_opt_in_flags", force: :cascade do |t|
     t.uuid "user_account_id"
     t.string "feature", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["feature"], name: "index_mhv_opt_in_flags_on_feature"
     t.index ["user_account_id"], name: "index_mhv_opt_in_flags_on_user_account_id"
   end
 
   create_table "mobile_users", force: :cascade do |t|
     t.string "icn", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "vet360_link_attempts"
     t.boolean "vet360_linked"
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
@@ -792,8 +758,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "hashed_refresh_token", null: false
     t.datetime "refresh_expiration", null: false
     t.datetime "refresh_creation", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "user_verification_id", null: false
     t.string "credential_email"
     t.string "client_id", null: false
@@ -811,8 +777,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "template_id", null: false
     t.string "va_profile_id", null: false
     t.boolean "dismissed", default: false, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
@@ -893,8 +859,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "access_token_audience", null: false
     t.interval "access_token_duration", null: false
     t.string "certificates", array: true
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "access_token_user_attributes", default: [], array: true
     t.index ["service_account_id"], name: "index_service_account_configs_on_service_account_id", unique: true
   end
@@ -905,8 +871,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "filename"
     t.datetime "successful_at"
     t.integer "retry_attempt", default: 0
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
   end
 
@@ -983,8 +949,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.uuid "user_account_id", null: false
     t.string "agreement_version", null: false
     t.integer "response", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_terms_of_use_agreements_on_user_account_id"
   end
 
@@ -994,8 +960,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.datetime "checkin_time"
     t.boolean "has_checkin_error"
     t.boolean "is_manual_checkin"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["account_uuid"], name: "tud_account_availability_logs"
   end
 
@@ -1011,8 +977,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "email"
     t.string "password"
     t.datetime "checkout_time"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "services"
     t.string "loa"
     t.uuid "idme_uuid"
@@ -1026,8 +992,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.datetime "acceptable_verified_credential_at"
     t.datetime "idme_verified_credential_at"
     t.uuid "user_account_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["acceptable_verified_credential_at"], name: "index_user_avc_on_acceptable_verified_credential_at"
     t.index ["idme_verified_credential_at"], name: "index_user_avc_on_idme_verified_credential_at"
     t.index ["user_account_id"], name: "index_user_acceptable_verified_credentials_on_user_account_id", unique: true
@@ -1035,8 +1001,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
 
   create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "icn"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
   end
 
@@ -1044,8 +1010,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.bigint "user_verification_id"
     t.text "credential_email_ciphertext"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_verification_id"], name: "index_user_credential_emails_on_user_verification_id", unique: true
   end
 
@@ -1056,8 +1022,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "mhv_uuid"
     t.string "dslogon_uuid"
     t.datetime "verified_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "backing_idme_uuid"
     t.boolean "locked", default: false, null: false
     t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
@@ -1099,8 +1065,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
     t.string "form_id", null: false
     t.uuid "user_account_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
     t.index ["user_account_id"], name: "index_va_notify_in_progress_reminders_sent_on_user_account_id"
   end
@@ -1110,8 +1076,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.jsonb "git_item"
     t.boolean "notified", default: false
     t.string "label"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
     t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
@@ -1120,8 +1086,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.integer "month", null: false
     t.integer "year", null: false
     t.jsonb "stats", default: {}
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["month", "year"], name: "index_vba_documents_monthly_stats_uniqueness", unique: true
   end
 
@@ -1159,80 +1125,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.bigint "device_id", null: false
     t.boolean "active", default: true, null: false
     t.string "icn", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_veteran_device_records_on_device_id"
     t.index ["icn", "device_id"], name: "index_veteran_device_records_on_icn_and_device_id", unique: true
   end
 
-  create_table "veteran_organizations", id: false, force: :cascade do |t|
-    t.string "poa", limit: 3
-    t.string "name"
-    t.string "phone"
-    t.string "state", limit: 2
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "address_type"
-    t.string "city"
-    t.string "country_code_iso3"
-    t.string "country_name"
-    t.string "county_name"
-    t.string "county_code"
-    t.string "international_postal_code"
-    t.string "province"
-    t.string "state_code"
-    t.string "zip_code"
-    t.string "zip_suffix"
-    t.float "lat"
-    t.float "long"
-    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
-    t.jsonb "raw_address"
-    t.string "address_line1"
-    t.string "address_line2"
-    t.string "address_line3"
-    t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
-    t.index ["name"], name: "index_veteran_organizations_on_name"
-    t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
-  end
+# Could not dump table "veteran_organizations" because of following StandardError
+#   Unknown type 'geography(Point,4326)' for column 'location'
 
-  create_table "veteran_representatives", id: false, force: :cascade do |t|
-    t.string "representative_id"
-    t.string "first_name"
-    t.string "last_name"
-    t.string "email"
-    t.string "phone"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "poa_codes", default: [], array: true
-    t.string "user_types", default: [], array: true
-    t.text "ssn_ciphertext"
-    t.text "dob_ciphertext"
-    t.text "encrypted_kms_key"
-    t.string "middle_initial"
-    t.string "address_type"
-    t.string "city"
-    t.string "country_code_iso3"
-    t.string "country_name"
-    t.string "county_name"
-    t.string "county_code"
-    t.string "international_postal_code"
-    t.string "province"
-    t.string "state_code"
-    t.string "zip_code"
-    t.string "zip_suffix"
-    t.float "lat"
-    t.float "long"
-    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
-    t.jsonb "raw_address"
-    t.string "full_name"
-    t.string "address_line1"
-    t.string "address_line2"
-    t.string "address_line3"
-    t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
-    t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
-    t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
-    t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
-  end
+# Could not dump table "veteran_representatives" because of following StandardError
+#   Unknown type 'geography(Point,4326)' for column 'location'
 
   create_table "vic_submissions", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -1256,8 +1159,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.text "state_ciphertext"
     t.text "zip_code_ciphertext"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1274,8 +1177,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "type_training"
     t.integer "number_hours"
     t.string "type_hours"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_info_id"], name: "index_vye_awards_on_user_info_id"
   end
 
@@ -1294,8 +1197,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.text "bank_name_ciphertext"
     t.text "bank_phone_ciphertext"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
   end
 
@@ -1307,8 +1210,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.datetime "queue_date"
     t.string "rpo"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
   end
 
@@ -1337,8 +1240,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.decimal "payment_amt"
     t.string "indicator"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["icn"], name: "index_vye_user_infos_on_icn"
     t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
   end
@@ -1352,8 +1255,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.datetime "act_begin"
     t.datetime "act_end"
     t.string "source_ind"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_info_id"], name: "index_vye_verifications_on_user_info_id"
   end
 
@@ -1367,8 +1270,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
   create_table "webhooks_notification_attempts", force: :cascade do |t|
     t.boolean "success", default: false
     t.jsonb "response", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "webhooks_notifications", force: :cascade do |t|
@@ -1381,8 +1284,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.jsonb "msg", null: false
     t.integer "final_attempt_id"
     t.integer "processing"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
     t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
   end
@@ -1393,16 +1296,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.uuid "consumer_id", null: false
     t.uuid "api_guid"
     t.jsonb "events", default: {"subscriptions"=>[]}
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
   end
 
-  add_foreign_key "account_login_stats", "accounts"
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "appeal_submissions", "user_accounts"
-  add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"

@@ -82,4 +82,20 @@ describe VAProfile::Profile::V3::Service do
       end
     end
   end
+
+  describe '#get_demographics' do
+    let(:user) { build(:user, :loa3, idme_uuid:) }
+
+    context '200 response' do
+      let(:idme_uuid) { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
+
+      it 'returns demographics for a user', vcr: :new_episodes do
+        VCR.use_cassette('va_profile/profile/v3/demograpics_bio_200.yml') do
+          response = subject.get_demographics
+          expect(resposne).to eq(200)
+          expect(response.demographics).not_to be_nil
+        end
+      end
+    end
+  end
 end

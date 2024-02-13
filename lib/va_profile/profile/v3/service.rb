@@ -23,6 +23,15 @@ module VAProfile
           super()
         end
 
+        def get_demographics
+          params = VAProfile::Profile::V3::BioPathBuilder.new(:demographics).params
+          oid = MPI::Constants::VA_ROOT_OID
+          path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
+          response = perform(:post, path, params)
+          binding.pry
+          VAProfile::Profile::V3::HealthBenefitBioResponse.new(response)
+        end
+
         def get_health_benefit_bio
           oid = MPI::Constants::VA_ROOT_OID
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
