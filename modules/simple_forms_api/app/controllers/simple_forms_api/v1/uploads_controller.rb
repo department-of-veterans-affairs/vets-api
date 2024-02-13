@@ -39,8 +39,8 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if params[:form_id] == '40-0247'
-          attachment = PersistentAttachments::MilitaryRecords.new(form_id: '40-0247')
+        if %w[40-0247 10-10D].include?(params[:form_id])
+          attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
@@ -118,7 +118,11 @@ module SimpleFormsApi
                     end
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        form.handle_attachments(file_path) if form_id == 'vba_40_0247'
+        case form_id
+        when 'vba_40_0247', 'vha_10_10d'
+          form.handle_attachments(file_path)
+        end
+
         [file_path, metadata]
       end
 
