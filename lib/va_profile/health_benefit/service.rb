@@ -23,7 +23,7 @@ module VAProfile
 
         with_monitoring do
           response = perform(:get, v1_read_path)
-          VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+          VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response)
         end
       rescue => e
         handle_error(e)
@@ -33,7 +33,7 @@ module VAProfile
         fixture_path = %w[spec fixtures va_profile health_benefit_v1_associated_persons.json]
         body = Rails.root.join(*fixture_path).read
         response = OpenStruct.new(status: 200, body:)
-        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+        VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response)
       end
 
       private
