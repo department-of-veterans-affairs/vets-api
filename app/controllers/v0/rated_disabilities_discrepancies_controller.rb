@@ -52,18 +52,18 @@ module V0
 
       # We only want active ratings
       if response.dig('data', 'attributes', 'individual_ratings')
-        remove_inactive_ratings!(response['data']['attributes']['individual_ratings'])
+        reject_deferred_ratings!(response['data']['attributes']['individual_ratings'])
       end
 
       response
     end
 
-    def remove_inactive_ratings!(ratings)
-      ratings.select! { |rating| active?(rating) }
+    def reject_deferred_ratings!(ratings)
+      ratings.reject! { |rating| deferred?(rating) }
     end
 
-    def active?(rating)
-      rating['rating_end_date'].nil?
+    def deferred?(rating)
+      rating['decision'] == 'Deferred'
     end
 
     def service
