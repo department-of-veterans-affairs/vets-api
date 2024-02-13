@@ -28,11 +28,6 @@ module ClaimsApi
           resp # return is for v1 Sidekiq worker
         rescue => e
           error_handler(e)
-          detail = e.respond_to?(:original_body) ? e.original_body : e
-          log_outcome_for_claims_api('submit', 'error', detail, claim)
-          ClaimsApi::Logger.log('526',
-                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim&.id)
-          raise e
         end
       end
 
@@ -118,8 +113,7 @@ module ClaimsApi
 
         log_error_details(error)
         case error
-        when ((error.is_a?(::Common::Exceptions::BadRequest) && error.status != 403) ||
-          error.is_a?(Faraday::ConnectionFailed)) && error.body.is_a?(Hash)
+        when error.is_a?(::Common::Exceptions::BadRequest) && error.status != 403
           raise ::Common::Exceptions::ServiceUnavailable, error.body
         when Faraday::ParsingError
           raise ::Common::Exceptions::InternalServerError if error.status == 500
@@ -128,6 +122,8 @@ module ClaimsApi
           raise ::Common::Exceptions::Forbidden if error.status == 403
           raise ::Common::Exceptions::BadRequest if error.status == 400
           raise ::Common::Exceptions::Authorization if error.status == 403
+        when error.is_a?(Faraday::ConnectionFailed)
+          raise ::Common::Exceptions::ServiceUnavailable, error
         else
           raise error
         end
@@ -141,13 +137,16 @@ module ClaimsApi
 
       def log_error_details(error)
         info = {}
+        status = error.original_status.presence || error.status
+        message = error.message.presence || error.detailed_message
+
         info['class'] = error.class if error.class.present?
-        info['status'] = error.original_status if error.original_status.present?
-        info['message'] = error.message if error.message.present?
+        info['status'] = status
+        info['message'] = message
         info['transaction_id'] = @transaction_id if @transaction_id.present?
         info['url'] = @request if @request.present?
 
-        ClaimsApi::Logger.log('docker_container_base', detail: info)
+        log_outcome_for_claims_api('submit', 'error', info, claim)
       end
     end
   end
