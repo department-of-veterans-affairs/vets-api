@@ -24,14 +24,6 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526AllClaim do
       let(:submission_data) do
         JSON.parse(File.read('spec/support/disability_compensation_form/submissions/526_bdd.json'))
       end
-
-      it 'returns a hash of submission data' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-            expect(JSON.parse(subject.to_submission_data(user))).to eq submission_data
-          end
-        end
-      end
     end
   end
 end

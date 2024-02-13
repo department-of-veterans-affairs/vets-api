@@ -15,7 +15,7 @@ module SimpleFormsApi
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
         'veteranLastName' => @data.dig('veteran_full_name', 'last'),
         'fileNumber' => @data.dig('veteran_id', 'va_file_number').presence || @data.dig('veteran_id', 'ssn'),
-        'zipCode' => @data.dig('applicant_address', 'postal_code') || '',
+        'zipCode' => @data.dig('applicant_address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
@@ -34,6 +34,12 @@ module SimpleFormsApi
         combined_pdf.save file_path
       end
     end
+
+    def submission_date_config
+      { should_stamp_date?: false }
+    end
+
+    def track_user_identity; end
 
     private
 
@@ -66,9 +72,10 @@ module SimpleFormsApi
         'postal_code' => additional_form_data.dig('additional_address', 'postal_code'),
         'country' => additional_form_data.dig('additional_address', 'country')
       }
+      additional_form_data['certificates'] = additional_form_data['additional_copies']
       filler = SimpleFormsApi::PdfFiller.new(
         form_number: 'vba_40_0247',
-        data: additional_form_data,
+        form: SimpleFormsApi::VBA400247.new(additional_form_data),
         name: 'vba_40_0247_additional_address'
       )
 

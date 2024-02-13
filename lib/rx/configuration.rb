@@ -11,7 +11,6 @@ require 'rx/middleware/response/rx_parser'
 require 'rx/middleware/response/rx_failed_station'
 require 'rx/middleware/response/rx_raise_error'
 require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 
 module Rx
   ##
@@ -23,6 +22,10 @@ module Rx
     #
     def app_token
       Settings.mhv.rx.app_token
+    end
+
+    def app_token_va_gov
+      Settings.mhv.rx.app_token_va_gov
     end
 
     ##

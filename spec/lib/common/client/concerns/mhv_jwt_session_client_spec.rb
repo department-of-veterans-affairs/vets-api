@@ -21,6 +21,16 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
       def config
         OpenStruct.new(app_token: 'sample_token')
       end
+
+      # The following methods are wrappers around private methods, so they can be tested here.
+
+      def test_get_jwt_from_headers(headers)
+        get_jwt_from_headers(headers)
+      end
+
+      def test_decode_jwt_token(jwt_token)
+        decode_jwt_token(jwt_token)
+      end
     end
   end
 
@@ -65,7 +75,7 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     context 'when authorization header is properly formatted' do
       it 'returns the JWT token' do
         headers = { 'authorization' => 'Bearer sample.jwt.token' }
-        token = dummy_instance.get_jwt_from_headers(headers)
+        token = dummy_instance.test_get_jwt_from_headers(headers)
         expect(token).to eq('sample.jwt.token')
       end
     end
@@ -73,7 +83,7 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     context 'when authorization header is missing' do
       it 'raises an Unauthorized exception' do
         headers = {}
-        expect { dummy_instance.get_jwt_from_headers(headers) }
+        expect { dummy_instance.test_get_jwt_from_headers(headers) }
           .to raise_error(Common::Exceptions::Unauthorized)
       end
     end
@@ -81,7 +91,7 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     context 'when authorization header does not start with Bearer' do
       it 'raises an Unauthorized exception' do
         headers = { 'authorization' => 'sample.jwt.token' }
-        expect { dummy_instance.get_jwt_from_headers(headers) }
+        expect { dummy_instance.test_get_jwt_from_headers(headers) }
           .to raise_error(Common::Exceptions::Unauthorized)
       end
     end
@@ -98,7 +108,7 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
       end
 
       it 'decodes the JWT token successfully' do
-        expect(dummy_instance.decode_jwt_token(valid_jwt_token)).to eq([{ 'some' => 'data' }])
+        expect(dummy_instance.test_decode_jwt_token(valid_jwt_token)).to eq([{ 'some' => 'data' }])
       end
     end
 
@@ -110,7 +120,7 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
 
       it 'raises an Unauthorized exception' do
         expect do
-          dummy_instance.decode_jwt_token(invalid_jwt_token)
+          dummy_instance.test_decode_jwt_token(invalid_jwt_token)
         end.to raise_error(Common::Exceptions::Unauthorized)
       end
     end

@@ -158,6 +158,36 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
       let(:params) { { start: start_date, end: end_date } }
       let(:facility_error_msg) { 'Error fetching facility details' }
 
+      context 'as Judy Morrison' do
+        let(:current_user) { build(:user, :vaos) }
+        let(:start_date) { Time.zone.parse('2023-10-13T14:25:00Z') }
+        let(:end_date) { Time.zone.parse('2023-10-13T17:45:00Z') }
+        let(:params) { { start: start_date, end: end_date } }
+        let(:avs_error_message) { 'Error retrieving AVS link' }
+        let(:avs_path) do
+          '/my-health/medical-records/summaries-and-notes/visit-summary/C46E12AA7582F5714716988663350853'
+        end
+
+        it 'fetches appointment list and includes avs on past booked appointments' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_booked_past_avs_200',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_avs_link)
+              .and_return(avs_path)
+            get '/vaos/v2/appointments?start=2023-10-13T14:25:00Z&end=2023-10-13T17:45:00Z&statuses=booked',
+                params:, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+
+            # TODO: currently appointment id 192308 is being used to trigger an avs error message;
+            # switch back this field to expect avs_path after testing on id 192308 is complete
+            expect(data[0]['attributes']['avsPath']).to eq(avs_error_message)
+
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+      end
+
       context 'requests a list of appointments' do
         it 'has access and returns va appointments and honors includes' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
@@ -391,6 +421,24 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
         end
 
+        context 'with judy morrison test appointment' do
+          let(:current_user) { build(:user, :vaos) }
+          let(:avs_error_message) { 'Error retrieving AVS link' }
+
+          it 'includes an avs error message in response when appointment has no available avs' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_no_avs',
+                             match_requests_on: %i[method path query]) do
+              get '/vaos/v2/appointments/192308', headers: inflection_header
+              expect(response).to have_http_status(:ok)
+              expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              data = JSON.parse(response.body)['data']
+
+              expect(data['id']).to eq('192308')
+              expect(data['attributes']['avsPath']).to eq(avs_error_message)
+            end
+          end
+        end
+
         it 'returns appointment and logs PAP/PID details' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_and_log_comm_data',
                            match_requests_on: %i[method path query]) do
@@ -410,7 +458,6 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
         end
 
-        # TODO: verify this cc request spec with NPI changes
         it 'has access and returns appointment - cc proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed_with_facility_200',
                            match_requests_on: %i[method path query]) do

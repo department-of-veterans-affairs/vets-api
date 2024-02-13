@@ -39,9 +39,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       let!(:form526_submission) { create(:form526_submission) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
-      it 'updates a StatsD counter and updates the status on and exhaustion event' do
+      it 'updates a StatsD counter and updates the status on an exhaustion event' do
         subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
-          expect(StatsD).to receive(:increment).with(subject::STATSD_KEY)
+          expect(StatsD).to receive(:increment).with("#{subject::STATSD_KEY_PREFIX}.exhausted")
           expect(Rails).to receive(:logger).and_call_original
         end
         form526_job_status.reload
@@ -84,6 +84,26 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                 expect(jid).to eq(jid_from_jobs)
                 described_class.drain
                 expect(jid).not_to be_empty
+
+                # The Backup Submission process gathers form 526 and any ancillary forms
+                # to send to Central Mail at the same time
+
+                # Form 4142 Backup Submission Process
+                expect(submission.form['form4142']).not_to be(nil)
+                form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
+                  form_data: submission.form['form4142'], submission_id: submission.id
+                )
+                request_body = form4142_processor.request_body
+                metadata_hash = JSON.parse(request_body['metadata'])
+                form4142_received_date = metadata_hash['receiveDt'].in_time_zone('Central Time (US & Canada)')
+                expect(
+                  submission.created_at.in_time_zone('Central Time (US & Canada)')
+                ).to be_within(1.second).of(form4142_received_date)
+
+                # Form 0781 Backup Submission Process
+                expect(submission.form['form0781']).not_to be(nil)
+                # not really a way to test the dates here
+
                 job_status = Form526JobStatus.last
                 expect(job_status.form526_submission_id).to eq(submission.id)
                 expect(job_status.job_class).to eq('BackupSubmission')

@@ -32,8 +32,8 @@ RSpec.describe 'V0::TravelClaims', type: :request do
     end
 
     context 'when session is not authorized' do
-      let(:body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
-      let(:unauth_response) { Faraday::Response.new(body:, status: 401) }
+      let(:response_body) { { 'permissions' => 'read.none', 'status' => 'success', 'uuid' => id } }
+      let(:unauth_response) { Faraday::Response.new(response_body:, status: 401) }
 
       it 'returns unauthorized response' do
         post '/check_in/v0/travel_claims', params: post_params

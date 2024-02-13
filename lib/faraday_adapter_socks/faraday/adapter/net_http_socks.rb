@@ -3,8 +3,8 @@
 # Reference: https://github.com/goldeneggg/faraday_adapter_socks/blob/master/lib/faraday/adapter/net_http_socks.rb
 
 module Faraday
-  class Adapter < Middleware
-    register_middleware net_http_socks: :NetHttpSocks
+  class Adapter
+    Faraday::Adapter.register_middleware net_http_socks: :NetHttpSocks
 
     class NetHttpSocks < Faraday::Adapter::NetHttp
       SOCKS_SCHEMES = %w[socks socks4 socks5].freeze

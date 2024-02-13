@@ -24,14 +24,14 @@ describe V2::Chip::Service do
 
   describe '#create_check_in' do
     let(:resp) { 'Checkin successful' }
-    let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+    let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
     let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
     context 'when token is already present' do
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
         allow_any_instance_of(::V2::Chip::Client).to receive(:check_in_appointment)
-          .and_return(Faraday::Response.new(body: 'Checkin successful', status: 200))
+          .and_return(Faraday::Response.new(response_body: 'Checkin successful', status: 200))
       end
 
       it 'returns correct response' do
@@ -71,7 +71,7 @@ describe V2::Chip::Service do
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
         allow_any_instance_of(::V2::Chip::Client).to receive(:refresh_appointments)
-          .and_return(Faraday::Response.new(body: 'Refresh successful', status: 200))
+          .and_return(Faraday::Response.new(response_body: 'Refresh successful', status: 200))
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{uuid}",
           appointment_identifiers.to_json,
@@ -109,7 +109,7 @@ describe V2::Chip::Service do
 
     context 'when token is already present' do
       let(:resp) { 'Pre-checkin successful' }
-      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
@@ -140,7 +140,7 @@ describe V2::Chip::Service do
 
   describe '#set_precheckin_started' do
     context 'when token is present and CHIP returns success response' do
-      let(:resp) { Faraday::Response.new(body: { 'uuid' => id }.to_json, status: 200) }
+      let(:resp) { Faraday::Response.new(response_body: { 'uuid' => id }.to_json, status: 200) }
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
@@ -156,7 +156,9 @@ describe V2::Chip::Service do
     end
 
     context 'when token is present but CHIP returns error' do
-      let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
+      let(:resp) do
+        Faraday::Response.new(response_body: { 'title' => 'An error was encountered.' }.to_json, status: 500)
+      end
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
@@ -208,7 +210,7 @@ describe V2::Chip::Service do
         }
       end
 
-      let(:set_echeckin_resp) { Faraday::Response.new(body: response_body.to_json, status: 200) }
+      let(:set_echeckin_resp) { Faraday::Response.new(response_body: response_body.to_json, status: 200) }
       let(:resp) { { data: response_body, status: 200 } }
 
       before do
@@ -229,7 +231,7 @@ describe V2::Chip::Service do
 
     context 'when token is present but CHIP returns error' do
       let(:set_echeckin_resp_body) { { 'title' => 'An error was encountered.' } }
-      let(:set_echeckin_resp) { Faraday::Response.new(body: set_echeckin_resp_body.to_json, status: 500) }
+      let(:set_echeckin_resp) { Faraday::Response.new(response_body: set_echeckin_resp_body.to_json, status: 500) }
       let(:resp) { { data: { error: true, message: 'Something went wrong' }, status: 500 } }
 
       before do
@@ -276,7 +278,7 @@ describe V2::Chip::Service do
     context 'when it does not exist in redis' do
       before do
         allow_any_instance_of(::V2::Chip::Client).to receive(:token)
-          .and_return(Faraday::Response.new(body: { token: 'jwt-token-123-abc' }.to_json, status: 200))
+          .and_return(Faraday::Response.new(response_body: { token: 'jwt-token-123-abc' }.to_json, status: 200))
       end
 
       it 'returns token from redis' do
@@ -332,7 +334,7 @@ describe V2::Chip::Service do
         }
       end
 
-      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
@@ -379,7 +381,7 @@ describe V2::Chip::Service do
           uuid: lorota_uuid
         }
       end
-      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
@@ -434,7 +436,7 @@ describe V2::Chip::Service do
         }
       end
 
-      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
@@ -477,7 +479,7 @@ describe V2::Chip::Service do
         }
       end
       let(:resp) { 'Delete Successful' }
-      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do

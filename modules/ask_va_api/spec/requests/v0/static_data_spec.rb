@@ -11,6 +11,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
@@ -25,12 +26,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   end
 
   describe 'GET #index' do
-    let(:index_path) { '/ask_va_api/v0/static_data' }
+    let(:index_path) { '/ask_va_api/v0/static_data?name=irish_country' }
     let(:expected_response) { 'pong' }
+    let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
 
     before do
+      sign_in(authorized_user)
       entity = OpenStruct.new(id: nil, info: 'pong')
-      allow_any_instance_of(Dynamics::Service).to receive(:call).with(endpoint: 'ping').and_return(entity)
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return(entity)
       get index_path
     end
 
@@ -46,12 +49,24 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   describe 'GET #categories' do
     let(:categories_path) { '/ask_va_api/v0/categories' }
     let(:expected_hash) do
-      { 'id' => '2', 'type' => 'categories', 'attributes' => { 'name' => 'Benefits Issues Outside the US' } }
+      {
+        'id' => '5a524deb-d864-eb11-bb24-000d3a579c45',
+        'type' => 'categories',
+        'attributes' => {
+          'name' => 'VA Center for Minority Veterans',
+          'allow_attachments' => false,
+          'description' => nil,
+          'display_name' => nil,
+          'parent_id' => nil,
+          'rank_order' => 18,
+          'requires_authentication' => false
+        }
+      }
     end
 
     context 'when successful' do
       before do
-        get categories_path, params: { mock: true }
+        get categories_path, params: { user_mock_data: true }
       end
 
       it 'returns categories data' do
@@ -64,37 +79,43 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+          .and_raise(StandardError)
         get categories_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::ServiceError: service error'
+                      'StandardError: StandardError'
     end
   end
 
   describe 'GET #Topics' do
     let(:category) do
-      AskVAApi::Categories::Entity.new({ id: 2, category: 'VA Health' })
+      AskVAApi::Categories::Entity.new({ id: '60524deb-d864-eb11-bb24-000d3a579c45' })
     end
     let(:expected_response) do
-      { 'data' =>
-        [{ 'id' => '6', 'type' => 'topics', 'attributes' => { 'name' => 'Compensation' } },
-         { 'id' => '7', 'type' => 'topics',
-           'attributes' => { 'name' => 'Education (Ch.30, 33, 35, 1606, etc. & Work Study)' } },
-         { 'id' => '8', 'type' => 'topics', 'attributes' => { 'name' => 'GI Bill' } },
-         { 'id' => '9', 'type' => 'topics',
-           'attributes' => { 'name' => 'Health Eligibility/Enrollment (Veterans)' } }] }
+      {
+        'id' => 'a52a8586-e764-eb11-bb23-000d3a579c3f',
+        'type' => 'topics',
+        'attributes' => {
+          'name' => 'Supplemental Claim',
+          'allow_attachments' => false,
+          'description' => nil,
+          'display_name' => nil,
+          'parent_id' => '60524deb-d864-eb11-bb24-000d3a579c45',
+          'rank_order' => 0,
+          'requires_authentication' => false
+        }
+      }
     end
     let(:topics_path) { "/ask_va_api/v0/categories/#{category.id}/topics" }
 
     context 'when successful' do
-      before { get topics_path, params: { mock: true } }
+      before { get topics_path, params: { user_mock_data: true } }
 
       it 'returns topics data' do
-        expect(JSON.parse(response.body)).to eq(expected_response)
+        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
         expect(response).to have_http_status(:ok)
       end
     end
@@ -103,41 +124,43 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+          .and_raise(StandardError)
         get topics_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::ServiceError: service error'
+                      'StandardError: StandardError'
     end
   end
 
   describe 'GET #SubTopics' do
     let(:topic) do
-      AskVAApi::Topics::Entity.new({ id: 2, topic: 'All other Questions' })
+      AskVAApi::Topics::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
     end
     let(:expected_response) do
-      { 'data' =>
-        [{
-          'id' => '2',
-          'type' => 'subtopics',
-          'attributes' => { 'name' => 'All other Questions' }
-        },
-         {
-           'id' => '3',
-           'type' => 'subtopics',
-           'attributes' => { 'name' => 'Claim Access Issue' }
-         }] }
+      {
+        'id' => '7d2dbcee-eb64-eb11-bb23-000d3a579b83',
+        'type' => 'sub_topics',
+        'attributes' => {
+          'name' => 'Can I get a link on VA site to my site',
+          'allow_attachments' => false,
+          'description' => nil,
+          'display_name' => nil,
+          'parent_id' => 'f0ba9562-e864-eb11-bb23-000d3a579c44',
+          'rank_order' => 0,
+          'requires_authentication' => false
+        }
+      }
     end
     let(:subtopics_path) { "/ask_va_api/v0/topics/#{topic.id}/subtopics" }
 
     context 'when successful' do
-      before { get subtopics_path, params: { mock: true } }
+      before { get subtopics_path, params: { user_mock_data: true } }
 
       it 'returns subtopics data' do
-        expect(JSON.parse(response.body)).to eq(expected_response)
+        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
         expect(response).to have_http_status(:ok)
       end
     end
@@ -150,6 +173,45 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
           .to receive(:call)
           .and_raise(StandardError, 'standard error')
         get subtopics_path, params: { mock: true }
+      end
+
+      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
+                      'standard error'
+    end
+  end
+
+  describe 'GET #optionset' do
+    let(:optionset) do
+      AskVAApi::Optionset::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
+    end
+    let(:expected_response) do
+      {
+        'id' => '722310000',
+        'type' => 'optionsets',
+        'attributes' => {
+          'name' => 'Air Force'
+        }
+      }
+    end
+    let(:optionset_path) { '/ask_va_api/v0/optionset' }
+
+    context 'when successful' do
+      before { get optionset_path, params: { user_mock_data: true, name: 'branchofservice' } }
+
+      it 'returns optionset data' do
+        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when an error occurs' do
+      let(:error_message) { 'service error' }
+
+      before do
+        allow_any_instance_of(AskVAApi::Optionset::Retriever)
+          .to receive(:call)
+          .and_raise(StandardError, 'standard error')
+        get optionset_path, params: { user_mock_data: true, mame: 'branchofservice' }
       end
 
       it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
@@ -238,40 +300,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
           .to receive(:fetch_data)
           .and_raise(StandardError.new(error_message))
         get states_path, params: { mock: true }
-      end
-
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'StandardError: standard error'
-    end
-  end
-
-  describe 'GET #Provinces' do
-    let(:provinces_path) { '/ask_va_api/v0/provinces' }
-    let(:scoped_response) do
-      [
-        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'Alberta', 'abv' => 'AB' } },
-        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'British Columbia', 'abv' => 'BC' } },
-        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'Manitoba', 'abv' => 'MB' } }
-      ]
-    end
-
-    context 'when successful' do
-      before { get provinces_path, params: { mock: true } }
-
-      it 'returns all the provinces' do
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data'].first(3)).to eq(scoped_response)
-      end
-    end
-
-    context 'when an error occurs' do
-      let(:error_message) { 'standard error' }
-
-      before do
-        allow_any_instance_of(AskVAApi::Provinces::Retriever)
-          .to receive(:fetch_data)
-          .and_raise(StandardError.new(error_message))
-        get provinces_path, params: { mock: true }
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',

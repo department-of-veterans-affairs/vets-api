@@ -8,6 +8,7 @@ require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
 require 'central_mail/datestamp_pdf'
+require 'simple_forms_api_submission/metadata_validator'
 
 module EVSS
   module DisabilityCompensationForm
@@ -22,7 +23,6 @@ module EVSS
       attr_reader :request_body
 
       FORM_ID = '21-4142'
-      FOREIGN_POSTALCODE = '00000'
 
       # @param submission [Form526Submission] a user's post-translated 526 submission
       # @param jid [String] the Sidekiq job id for the job submitting the 4142 form
@@ -47,9 +47,10 @@ module EVSS
       #
       def generate_stamp_pdf
         pdf = PdfFill::Filler.fill_ancillary_form(
-          @submission.form[Form526Submission::FORM_4142], @submission.submitted_claim_id, FORM_ID
+          form4142, @submission.submitted_claim_id, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5)
+        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
+                                                              timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
@@ -68,29 +69,42 @@ module EVSS
       end
 
       def generate_metadata(jid)
-        form = @submission.form[Form526Submission::FORM_4142]
-        veteran_full_name = form['veteranFullName']
-        address = form['veteranAddress']
-
-        {
+        address = form4142['veteranAddress']
+        country_is_us = address['country'] == 'USA'
+        veteran_full_name = form4142['veteranFullName']
+        metadata = {
           'veteranFirstName' => veteran_full_name['first'],
           'veteranLastName' => veteran_full_name['last'],
-          'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+          'fileNumber' => form4142['vaFileNumber'] || form4142['veteranSocialSecurityNumber'],
           'receiveDt' => received_date,
           'uuid' => jid,
-          'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+          'zipCode' => address['postalCode'],
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
           'numberAttachments' => 0,
           'docType' => FORM_ID,
           'numberPages' => PDF::Reader.new(@pdf_path).pages.size
-        }.to_json
+        }
+
+        SimpleFormsApiSubmission::MetadataValidator.validate(
+          metadata, zip_code_is_us_based: country_is_us
+        ).to_json
+      end
+
+      def submission_date
+        @submission.created_at.in_time_zone('Central Time (US & Canada)')
       end
 
       def received_date
-        date = SavedClaim::DisabilityCompensation.find(@submission.saved_claim_id).created_at
-        date = date.in_time_zone('Central Time (US & Canada)')
-        date.strftime('%Y-%m-%d %H:%M:%S')
+        submission_date.strftime('%Y-%m-%d %H:%M:%S')
+      end
+
+      def form4142
+        @form4142 ||= set_signature_date(@submission.form[Form526Submission::FORM_4142])
+      end
+
+      def set_signature_date(incoming_data)
+        incoming_data.merge({ signatureDate: received_date })
       end
     end
   end

@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "contact_type": {
+                "type": "string"
+              },
+              "given_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "middle_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "family_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "relationship": {
+                "type": "string"
+              },
+              "address_line1": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "address_line2": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "address_line3": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "city": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "zip_code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "primary_phone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "contact_type",
+              "given_name",
+              "middle_name",
+              "family_name",
+              "relationship",
+              "address_line1",
+              "address_line2",
+              "address_line3",
+              "city",
+              "state",
+              "zip_code",
+              "primary_phone"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ]
+      }
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

@@ -5,7 +5,7 @@ on:
     types:
       - merged
     branches:
-      - main
+      - master
     paths:
       - "datadog-service-catalog/**.yml"
 
@@ -37,7 +37,7 @@ jobs:
         file: ${{fromJSON(needs.get_files.outputs.files)}}
     steps:
       - name: 'Checkout repo'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - id: read_yaml
         name: 'Read in the Service Catalog data'
         uses: mikefarah/yq@master

@@ -35,10 +35,17 @@ module V0
         :all_users,
         :get_separation_locations
       ) do
-        EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+        api_provider = ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:brd],
+          provider: nil,
+          options: {},
+          current_user: @current_user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+        )
+        api_provider.get_separation_locations
       end
-
-      render json: response, each_serializer: EVSSSeparationLocationSerializer
+      render json: response,
+             each_serializer: EVSSSeparationLocationSerializer
     end
 
     def suggested_conditions
@@ -51,8 +58,18 @@ module V0
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
+      # if jid = 0 then the submission was prevented from going any further in the process
+      jid = 0
 
-      jid = submission.start
+      # Feature flag to stop submission from being submitted to third-party service
+      # With this on, the submission will NOT be processed by EVSS or Lighthouse,
+      # nor will it go to VBMS,
+      # but the line of code before this one creates the submission in the vets-api database
+      if Flipper.enabled?(:disability_compensation_prevent_submission_job, @current_user)
+        Rails.logger.info("Submission ID: #{submission.id} prevented from sending to third party service.")
+      else
+        jid = submission.start
+      end
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok

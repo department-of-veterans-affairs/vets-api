@@ -11,10 +11,10 @@ require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
 require 'support/sidekiq/batch'
 require 'support/stub_va_profile'
-require 'support/okta_users_helpers'
 require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
+require 'aasm/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -72,6 +72,7 @@ unless ENV['NOCOVERAGE']
     add_group 'Services', 'app/services'
     add_group 'Swagger', 'app/swagger'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
@@ -184,6 +185,16 @@ RSpec.configure do |config|
 
   config.after(:all, :enable_csrf_protection) do
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
+  end
+
+  # Disable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
+  config.before(:each, csrf: false) do
+    ActionController::Base.allow_forgery_protection = false
+  end
+
+  # Enable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
+  config.after(:each, csrf: false) do
+    ActionController::Base.allow_forgery_protection = true
   end
 
   config.after do

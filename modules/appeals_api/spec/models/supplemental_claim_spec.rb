@@ -89,6 +89,15 @@ describe AppealsApi::SupplementalClaim, type: :model do
   describe 'when api_version is v0' do
     let(:supplemental_claim) { create(:supplemental_claim_v0) }
 
+    describe '#veteran_icn' do
+      subject { supplemental_claim.veteran_icn }
+
+      it 'matches the ICN in the form data' do
+        expect(subject).to be_present
+        expect(subject).to eq supplemental_claim.form_data.dig('data', 'attributes', 'veteran', 'icn')
+      end
+    end
+
     describe '#soc_opt_in' do
       describe 'by default' do
         subject { supplemental_claim.soc_opt_in }
@@ -153,6 +162,25 @@ describe AppealsApi::SupplementalClaim, type: :model do
                        form_data_fixture: 'decision_reviews/v2/valid_200995.json'
     end
 
+    describe '#veteran_icn' do
+      subject { sc.veteran_icn }
+
+      let(:sc) { create(:supplemental_claim) }
+
+      it 'matches header' do
+        expect(subject).to be_present
+        expect(subject).to eq sc.auth_headers['X-VA-ICN']
+      end
+
+      describe 'when ICN not provided in header' do
+        let(:sc) { create(:supplemental_claim, auth_headers: default_auth_headers.except('X-VA-ICN')) }
+
+        it 'is blank' do
+          expect(subject).to be_blank
+        end
+      end
+    end
+
     describe 'validations' do
       let(:appeal) { build(:extra_supplemental_claim) }
 
@@ -188,6 +216,33 @@ describe AppealsApi::SupplementalClaim, type: :model do
             .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
           expect(error.message).to eq '2020-05-10 must before or the same day as 2020-04-10. ' \
                                       'Both dates must also be in the past.'
+        end
+      end
+
+      context "when 'evidenceSubmission.retrieveFrom.endDate' is in the future" do
+        it 'errors with a point to the offending evidenceDates index' do
+          retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+          end_date = (Time.zone.today + 1.day).to_s
+          retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = end_date
+
+          expect(appeal.valid?).to be false
+          expect(appeal.errors.size).to eq 1
+          error = appeal.errors.first
+          expect(error.attribute)
+            .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
+          expect(error.message).to eq "2020-04-10 must before or the same day as #{end_date}. " \
+                                      'Both dates must also be in the past.'
+        end
+      end
+
+      context "when 'evidenceSubmission.retrieveFrom.endDate' is same as submission date" do
+        it 'does not errort' do
+          retrieve_from = appeal.form_data['data']['attributes']['evidenceSubmission']['retrieveFrom']
+          end_date = Time.zone.today.to_s
+          retrieve_from[2]['attributes']['evidenceDates'][0]['endDate'] = end_date
+
+          expect(appeal.valid?).to be true
+          expect(appeal.errors.size).to eq 0
         end
       end
     end

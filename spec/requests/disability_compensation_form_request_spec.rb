@@ -17,6 +17,7 @@ RSpec.describe 'Disability compensation form' do
 
   before do
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.disable('disability_compensation_prevent_submission_job')
     sign_in_as(user)
   end
 
@@ -48,7 +49,7 @@ RSpec.describe 'Disability compensation form' do
       context 'error handling tests' do
         cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
 
-        Lighthouse::ServiceException::ERROR_MAP.each do |status, _error_class|
+        Lighthouse::ServiceException::ERROR_MAP.each_key do |status|
           cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
 
           it "returns #{status} response" do
@@ -215,13 +216,13 @@ RSpec.describe 'Disability compensation form' do
 
   describe 'Post /v0/disability_compensation_form/submit_all_claim' do
     before do
-      VCR.insert_cassette('emis/get_military_service_episodes/valid')
+      VCR.insert_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.insert_cassette('evss/ppiu/payment_information')
       VCR.insert_cassette('evss/intent_to_file/active_compensation')
     end
 
     after do
-      VCR.eject_cassette('emis/get_military_service_episodes/valid')
+      VCR.eject_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.eject_cassette('evss/ppiu/payment_information')
       VCR.eject_cassette('evss/intent_to_file/active_compensation')
     end

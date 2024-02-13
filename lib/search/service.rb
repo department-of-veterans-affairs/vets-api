@@ -87,6 +87,8 @@ module Search
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
+        # Handle upstream 5xx errors first since the structure of those errors usually isn't the same.
+        handle_server_error!(error)
         message = parse_messages(error).first
         save_error_details(message)
         handle_429!(error)
@@ -101,11 +103,11 @@ module Search
     end
 
     def save_error_details(error_message)
-      Raven.extra_context(
+      Sentry.set_extras(
         message: error_message,
         url: config.base_path
       )
-      Raven.tags_context(search: 'general_search_query_error')
+      Sentry.set_tags(search: 'general_search_query_error')
     end
 
     def handle_429!(error)
@@ -113,6 +115,19 @@ module Search
 
       StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
       raise_backend_exception('SEARCH_429', self.class, error)
+    end
+
+    def handle_server_error!(error)
+      return unless [503, 504].include?(error.status)
+
+      exceptions = {
+        503 => 'SEARCH_503',
+        504 => 'SEARCH_504'
+      }
+      # Catch when the error's structure doesn't match what's usually expected.
+      message = error.body.is_a?(Hash) ? parse_messages(error).first : 'Search.gov is down'
+      save_error_details(message)
+      raise_backend_exception(exceptions[error.status], self.class, error)
     end
   end
 end

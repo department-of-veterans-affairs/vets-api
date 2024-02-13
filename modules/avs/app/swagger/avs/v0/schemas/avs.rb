@@ -15,6 +15,12 @@ module Avs
         property :appointmentIens, type: :array do
           items type: :string
         end
+        property :meta, type: :object do
+          property :generatedDate, type: :string
+          property :pageHeader, type: :string
+          property :stationNo, type: :string
+          property :timeZone, type: :string
+        end
         property :clinicsVisited do
           key :$ref, :clinicVisited
         end
@@ -39,6 +45,11 @@ module Avs
         property :orders, type: :array do
           items do
             key :$ref, :order
+          end
+        end
+        property :procedures, type: :array do
+          items do
+            key :$ref, :procedure
           end
         end
         property :immunizations, type: :array do
@@ -72,6 +83,16 @@ module Avs
             key :$ref, :problem
           end
         end
+        property :clinicalReminders, type: :array do
+          items do
+            key :$ref, :clinicalReminder
+          end
+        end
+        property :clinicalServices, type: :array do
+          items do
+            key :$ref, :clinicalService
+          end
+        end
         property :allergiesReactions, type: :object do
           property :T, type: :string
           property :noAllergyAssessment, type: :boolean
@@ -82,9 +103,30 @@ module Avs
             end
           end
         end
+        property :clinicMedications, type: :array do
+          items do
+            key :$ref, :medication
+          end
+        end
         property :vaMedications, type: :array do
           items do
-            key :$ref, :vaMedication
+            key :$ref, :medication
+          end
+        end
+        property :nonvaMedications, type: :array do
+          items do
+            key :$ref, :medication
+          end
+        end
+        property :medChangesSummary, type: :array do
+          property :discontinuedMeds, type: :array do
+            items type: :string
+          end
+          property :newMedications, type: :array do
+            items type: :string
+          end
+          property :changedMedications, type: :array do
+            items type: :string
           end
         end
         property :labResults, type: :array do
@@ -98,6 +140,7 @@ module Avs
           end
         end
         property :radiologyReports1Yr, type: :string
+        property :moreHelpAndInformation, type: :string
       end
     end
     # rubocop:enable Metrics/BlockLength
@@ -145,6 +188,11 @@ module Avs
       property :type, type: :string
       property :date, type: :string
       property :text, type: :string
+    end
+
+    swagger_schema :procedure do
+      property :code, type: :string
+      property :name, type: :string
     end
 
     swagger_schema :immunization do
@@ -204,6 +252,23 @@ module Avs
       property :comments, type: :string
     end
 
+    swagger_schema :clinicalReminder do
+      property :ien, type: :string
+      property :whenDue, type: :string
+      property :lastOccurrence, type: :string
+      property :name, type: :string
+      property :frequency, type: :string
+    end
+
+    swagger_schema :clinicalService do
+      property :stationNo, type: :string
+      property :name, type: :string
+      property :location, type: :string
+      property :hours, type: :string
+      property :phone, type: :string
+      property :comment, type: :string
+    end
+
     swagger_schema :allergy do
       property :T, type: :string
       property :allergen, type: :string
@@ -217,23 +282,32 @@ module Avs
       property :verifiedDate, type: :string
     end
 
-    swagger_schema :vaMedication do
-      property :T, type: :string
+    swagger_schema :medication do
+      property :medId, type: :string
       property :name, type: :string
       property :type, type: :string
       property :sig, type: :string
       property :source, type: :string
       property :totalNumRefills, type: :integer
       property :refillsRemaining, type: :integer
+      property :startDate, type: :string
+      property :stopDate, type: :string
       property :dateExpires, type: :string
+      property :dateLastFilled, type: :string
       property :dateLastReleased, type: :string
-      property :fmDateLastReleased, type: :number
+      property :fmDateLastReleased, type: :integer
       property :stationName, type: :string
       property :stationNo, type: :string
+      property :provider, type: :string
+      property :description, type: :string
       property :ndc, type: :string
       property :statusIen, type: :string
       property :status, type: :string
+      property :discontinuedDate, type: :string
       property :fmDiscontinuedDate, type: :integer
+      property :comment, type: :string
+      property :documentor, type: :string
+      property :documentingFacility, type: :string
       property :quantity, type: :integer
       property :daysSupply, type: :integer
       property :orderingProvider, type: :string
@@ -242,7 +316,10 @@ module Avs
       property :rxNumber, type: :string
       property :prescriptionType, type: :string
       property :patientTaking, type: :boolean
-      property :fmIssueDate, type: :number
+      property :current, type: :string
+      property :remote, type: :string
+      property :dateDocumented, type: :string
+      property :fmIssueDate, type: :integer
     end
 
     swagger_schema :labResult do

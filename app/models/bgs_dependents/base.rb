@@ -125,9 +125,22 @@ module BGSDependents
       # this limit. For GBR, BIS expects "United Kingdom" instead. BIS has suggested using one of their web services
       # to get the correct country names, rather than relying on the IsoCountryCodes gem below. It may be worth
       # pursuing that some day. Until then, the following short-term improvement suffices.
+
+      # we are now using a short term fix for special country names that are different from IsoCountryCodes in BIS.
+      special_country_names = { 'USA' => 'USA', 'BOL' => 'Bolivia', 'BIH' => 'Bosnia-Herzegovina', 'BRN' => 'Brunei',
+                                'CPV' => 'Cape Verde', 'COG' => "Congo, People's Republic of",
+                                'COD' => 'Congo, Democratic Republic of', 'CIV' => "Cote d'Ivoire",
+                                'CZE' => 'Czech Republic', 'PRK' => 'North Korea', 'KOR' => 'South Korea',
+                                'LAO' => 'Laos', 'MKD' => 'Macedonia', 'MDA' => 'Moldavia', 'RUS' => 'Russia',
+                                'KNA' => 'St. Kitts', 'LCA' => 'St. Lucia', 'STP' => 'Sao-Tome/Principe',
+                                'SCG' => 'Serbia', 'SYR' => 'Syria', 'TZA' => 'Tanzania',
+                                'GBR' => 'United Kingdom', 'VEN' => 'Venezuela', 'VNM' => 'Vietnam',
+                                'YEM' => 'Yemen Arab Republic' }
       address['country_name'] =
-        if country_name.to_s == 'GBR'
-          'United Kingdom'
+        if country_name.to_s == 'TUR'
+          address['city'].to_s.downcase == 'adana' ? 'Turkey (Adana only)' : 'Turkey (except Adana)'
+        elsif special_country_names[country_name.to_s].present?
+          special_country_names[country_name.to_s]
         else
           IsoCountryCodes.find(country_name).name
         end

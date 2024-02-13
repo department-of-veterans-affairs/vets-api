@@ -2,1003 +2,1727 @@
 
 require 'pdf_fill/hash_converter'
 require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
 # rubocop:disable Metrics/ClassLength
-
 module PdfFill
   module Forms
     class Va21p527ez < FormBase
+      include FormHelper
+      include FormHelper::PhoneNumberFormatting
+      include ActiveSupport::NumberHelper
+
       ITERATOR = PdfFill::HashConverter::ITERATOR
-      INCOME_TYPES_KEY = {
-        'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
-        'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
-        'ira' => "IRA'S, KEOGH PLANS, ETC.",
-        'stocks' => 'STOCKS, BONDS, MUTUAL FUNDS, ETC.',
-        'realProperty' => 'REAL PROPERTY',
-        'socialSecurity' => 'SOCIAL SECURITY',
-        'civilService' => 'U.S. CIVIL SERVICE',
-        'railroad' => 'U.S. RAILROAD RETIREMENT',
-        'blackLung' => 'BLACK LUNG BENEFITS',
-        'serviceRetirement' => 'SERVICE RETIREMENT',
-        'ssi' => 'SUPPLEMENTAL SECURITY INCOME (SSI)/PUBLIC ASSISTANCE',
-        'salary' => 'GROSS WAGES AND SALARY',
-        'interest' => 'TOTAL DIVIDENDS AND INTEREST'
+
+      RECIPIENTS = {
+        'VETERAN' => 0,
+        'SPOUSE' => 1,
+        'CHILD' => 2
       }.freeze
-      # rubocop:disable Metrics/BlockLength
-      KEY = lambda do
-        key = {
-          'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
-          'spouseSocialSecurityNumber' => { key: 'F[0].Page_6[0].SSN[0]' },
-          'genderMale' => { key: 'F[0].Page_5[0].Male[0]' },
-          'genderFemale' => { key: 'F[0].Page_5[0].Female[0]' },
-          'hasFileNumber' => { key: 'F[0].Page_5[0].YesFiled[0]' },
-          'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
-          'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
-          'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
-          'signature' => {
-            key: 'F[0].Page_8[0].Signature[2]',
-            limit: 55,
-            question_num: 33,
+
+      INCOME_RECIPIENTS = {
+        'VETERAN' => 0,
+        'SPOUSE' => 1,
+        'DEPENDENT' => 2
+      }.freeze
+
+      INCOME_TYPES = {
+        'SOCIAL_SECURITY' => 0,
+        'INTEREST_DIVIDEND' => 1,
+        'CIVIL_SERVICE' => 2,
+        'PENSION_RETIREMENT' => 3,
+        'OTHER' => 4
+      }.freeze
+
+      CARE_TYPES = {
+        'CARE_FACILITY' => 0,
+        'IN_HOME_CARE_PROVIDER' => 1
+      }.freeze
+
+      PAYMENT_FREQUENCY = {
+        'ONCE_MONTH' => 0,
+        'ONCE_YEAR' => 1,
+        'ONE_TIME' => 2
+      }.freeze
+
+      REASONS_FOR_SEPARATION = {
+        'spouse’s death' => 0,
+        'divorce' => 1,
+        'other' => 2
+      }.freeze
+
+      SPOUSES_REASONS_FOR_SEPARATION = {
+        'death' => 0,
+        'divorce' => 1,
+        'other' => 2
+      }.freeze
+
+      KEY = {
+        # 1a
+        'veteranFullName' => {
+          'first' => {
+            limit: 12,
+            question_num: 1,
             question_suffix: 'A',
-            question_text: "VETERAN'S SIGNATURE"
+            question_text: 'VETERAN\'S FIRST NAME',
+            key: 'form1[0].#subform[48].VeteransFirstName[0]'
           },
-          'signatureDate' => {
-            key: 'F[0].Page_8[0].Date[0]',
-            limit: 11,
-            question_num: 33,
-            question_suffix: 'B',
-            question_text: 'DATE SIGNED',
-            format: 'date'
+          'middle' => {
+            key: 'form1[0].#subform[48].VeteransMiddleInitial1[0]'
           },
-          'monthlySpousePayment' => {
-            key: 'F[0].Page_6[0].MonthlySupport[0]',
-            limit: 11,
-            question_num: 22,
-            question_suffix: 'H',
-            dollar: true,
-            question_text: "HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
+          'last' => {
+            limit: 18,
+            question_num: 1,
+            question_suffix: 'A',
+            question_text: 'VETERAN\'S LAST NAME',
+            key: 'form1[0].#subform[48].VeteransLastName[0]'
+          }
+        },
+        # 1b
+        'veteranSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[48].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
           },
-          'spouseDateOfBirth' => {
-            key: 'F[0].Page_6[0].Date[8]',
-            format: 'date'
+          'second' => {
+            key: 'form1[0].#subform[48].VeteransSocialSecurityNumber_SecondTwoNumbers[0]'
           },
-          'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
-          'hasLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseYes[0]' },
-          'noSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetNo[0]' },
-          'hasSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetYes[0]' },
-          'maritalStatusNeverMarried' => {
-            key: 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]'
+          'third' => {
+            key: 'form1[0].#subform[48].VeteransSocialSecurityNumber_LastFourNumbers[0]'
+          }
+        },
+        # 1c
+        'veteranDateOfBirth' => {
+          'month' => {
+            key: 'form1[0].#subform[48].DOBmonth[0]'
           },
-          'maritalStatusWidowed' => { key: 'F[0].Page_6[0].CheckboxMaritalWidowed[0]' },
-          'maritalStatusDivorced' => { key: 'F[0].Page_6[0].CheckboxMaritalDivorced[0]' },
-          'maritalStatusMarried' => { key: 'F[0].Page_6[0].CheckboxMaritalMarried[0]' },
-          'hasChecking' => { key: 'F[0].Page_8[0].Account[2]' },
-          'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
-          'checkingAccountNumber' => {
-            limit: 11,
-            question_num: 29,
-            question_text: 'Checking Account Number',
-            key: 'F[0].Page_8[0].CheckingAccountNumber[0]'
+          'day' => {
+            key: 'form1[0].#subform[48].DOBday[0]'
           },
-          'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
-          'savingsAccountNumber' => {
-            limit: 11,
-            question_num: 29,
-            question_text: 'Savings Account Number',
-            key: 'F[0].Page_8[0].SavingsAccountNumber[0]'
+          'year' => {
+            key: 'form1[0].#subform[48].DOByear[0]'
+          }
+        },
+        # 1d
+        'vaClaimsHistory' => {
+          key: 'form1[0].#subform[48].RadioButtonList[0]'
+        },
+        # 1e
+        'vaFileNumber' => {
+          key: 'form1[0].#subform[48].VAFileNumber[0]'
+        },
+        # 2a
+        'veteranAddress' => {
+          'street' => {
+            limit: 30,
+            question_num: 2,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS NUMBER AND STREET',
+            key: 'form1[0].#subform[48].NumberStreet[0]'
           },
-          'bankAccount' => {
-            'bankName' => {
-              limit: 44,
-              question_num: 30,
-              question_text: 'NAME OF FINANCIAL INSTITUTION',
-              key: 'F[0].Page_8[0].Nameofbank[0]'
+          'street2' => {
+            limit: 5,
+            question_num: 2,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS APT/UNIT',
+            key: 'form1[0].#subform[48].Apt_Or_Unit_Number[0]'
+          },
+          'city' => {
+            limit: 18,
+            question_num: 2,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS CITY',
+            key: 'form1[0].#subform[48].City[0]'
+          },
+          'state' => {
+            key: 'form1[0].#subform[48].State[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[48].Country[0]'
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[48].Zip_Postal_Code[0]'
             },
-            'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
+            'lastFour' => {
+              key: 'form1[0].#subform[48].Zip_Postal_Code[1]'
+            }
+          }
+        },
+        # 2b
+        'mobilePhone' => {
+          'phone_area_code' => {
+            key: 'form1[0].#subform[48].Telephone_Number_First_Three_Numbers[0]'
           },
-          'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
-          'otherExpenses' => {
-            limit: 4,
-            first_key: 'purpose',
-            'amount' => {
-              limit: 10,
-              question_num: 28,
-              question_text: 'AMOUNT PAID BY YOU',
-              dollar: true,
-              key: 'otherExpenses.amount[%iterator%]'
+          'phone_first_three_numbers' => {
+            key: 'form1[0].#subform[48].Telephone_Number_Second_Three_Numbers[0]'
+          },
+          'phone_last_four_numbers' => {
+            key: 'form1[0].#subform[48].Telephone_Number_Last_Four_Numbers[0]'
+          }
+        },
+        'internationalPhone' => {
+          limit: 30,
+          question_num: 2,
+          question_suffix: 'C',
+          question_text: 'International Phone Number',
+          key: 'form1[0].#subform[48].International_Phone_Number[0]'
+        },
+        # 2c
+        'email' => {
+          limit: 32,
+          question_num: 2,
+          question_suffix: 'C',
+          question_text: 'VETERAN\'S E-MAIL ADDRESS',
+          key: 'form1[0].#subform[48].Veterans_Email_Address_Optional[0]'
+        },
+        # 3a
+        'previousNames' => {
+          limit: 1,
+          first_key: 'first',
+          'first' => {
+            limit: 12,
+            question_num: 3,
+            question_suffix: 'A',
+            question_text: 'OTHER FIRST NAME',
+            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_First_Name[0]'
+          },
+          'last' => {
+            limit: 18,
+            question_num: 3,
+            question_suffix: 'A',
+            question_text: 'OTHER LAST NAME',
+            key: 'form1[0].#subform[48].Other_Name_You_Served_Under_Last_Name[0]'
+          }
+        },
+        # 3b
+        'activeServiceDateRange' => {
+          'from' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Month[0]'
             },
-            'purpose' => {
-              limit: 58,
-              question_num: 28,
-              question_text: 'PURPOSE',
-              key: 'otherExpenses.purpose[%iterator%]'
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Day[0]'
             },
-            'paidTo' => {
-              question_num: 28,
-              question_text: 'PAID TO',
-              limit: 29,
-              key: 'otherExpenses.paidTo[%iterator%]'
-            },
-            'relationship' => {
-              limit: 33,
-              question_num: 28,
-              question_text: 'RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
-              key: 'otherExpenses.relationship[%iterator%]'
-            },
-            'date' => {
-              question_num: 28,
-              question_text: 'DATE PAID',
-              key: 'otherExpenses.date[%iterator%]',
-              format: 'date'
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Entered_Active_Duty_Year[0]'
             }
           },
-          'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
-          'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
-          'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
-          'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
-          'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
-          'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
-          'veteranDateOfBirth' => {
-            key: 'F[0].Page_5[0].Date[0]',
-            format: 'date'
-          },
-          'spouseVaFileNumber' => { key: 'F[0].Page_6[0].SpouseVAfilenumber[0]' },
-          'veteranSocialSecurityNumber' => { key: 'F[0].Page_5[0].SSN[0]' },
-          'severancePay' => {
-            'amount' => {
-              key: 'F[0].Page_5[0].Listamount[0]',
-              limit: 17,
-              question_num: 16,
-              question_suffix: 'B',
-              dollar: true,
-              question_text: 'LIST AMOUNT (If known)'
+          'to' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Month[0]'
             },
-            'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Day[0]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Of_Release_From_Active_Duty_Year[0]'
+            }
+          }
+        },
+        # 3e
+        'serviceBranch' => {
+          'army' => {
+            key: 'form1[0].#subform[48].Army[0]'
           },
-          'vamcTreatmentCenters' => {
-            limit: 2,
-            first_key: 'location',
-            'location' => {
-              limit: 46,
-              question_num: 10,
-              question_suffix: 'A',
-              question_text: \
-                'LIST ANY VA MEDICAL CENTERS WHERE YOU RECEIVED TREATMENT FOR YOUR CLAIMED DISABILITY(IES)',
-              key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
+          'navy' => {
+            key: 'form1[0].#subform[48].Navy[0]'
+          },
+          'airForce' => {
+            key: 'form1[0].#subform[48].Air_Force[0]'
+          },
+          'coastGuard' => {
+            key: 'form1[0].#subform[48].Coast_Guard[0]'
+          },
+          'marineCorps' => {
+            key: 'form1[0].#subform[48].Marine_Corps[0]'
+          },
+          'spaceForce' => {
+            key: 'form1[0].#subform[48].Space_Force[0]'
+          },
+          'usphs' => {
+            key: 'form1[0].#subform[48].USPHS[0]'
+          },
+          'noaa' => {
+            key: 'form1[0].#subform[48].NOAA[0]'
+          }
+        },
+        # 3d
+        'serviceNumber' => {
+          limit: 12,
+          question_num: 3,
+          question_suffix: 'D',
+          question_text: 'YOUR SERVICE NUMBER',
+          key: 'form1[0].#subform[48].Your_Service_Number[0]'
+        },
+        # 3f
+        'placeOfSeparationLineOne' => {
+          limit: 18,
+          question_num: 3,
+          question_suffix: 'F',
+          question_text: 'PLACE OF YOUR LAST SEPARATION.',
+          key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[1]'
+        },
+        'placeOfSeparationLineTwo' => {
+          key: 'form1[0].#subform[48].Place_Of_Your_Last_Separation[0]'
+        },
+        # 3g
+        'pow' => {
+          key: 'form1[0].#subform[48].RadioButtonList[1]'
+        },
+        # 3h
+        'powDateRange' => {
+          'from' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Started_Month[1]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Started_Day[1]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Started_Year[1]'
             }
           },
-          'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
-          'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
-          'powDateRangeStart' => {
-            key: 'F[0].Page_5[0].Date[1]',
-            format: 'date'
-          },
-          'powDateRangeEnd' => {
-            key: 'F[0].Page_5[0].Date[2]',
-            format: 'date'
-          },
-          'jobs' => {
-            first_key: 'nameAndAddr',
-            limit: 2,
-            'annualEarnings' => {
-              limit: 10,
-              question_num: 17,
-              question_suffix: 'F',
-              dollar: true,
-              question_text: 'WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
-              key: "jobs.annualEarnings[#{ITERATOR}]"
+          'to' => {
+            'month' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Ended_Month[1]'
             },
-            'nameAndAddr' => {
-              key: "jobs.nameAndAddr[#{ITERATOR}]",
-              limit: 27,
-              question_num: 17,
-              question_suffix: 'A',
-              question_text: 'WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+            'day' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Ended_Day[1]'
             },
-            'jobTitle' => {
-              key: "jobs.jobTitle[#{ITERATOR}]",
-              question_num: 17,
-              question_suffix: 'B',
-              question_text: 'WHAT WAS YOUR JOB TITLE?',
-              limit: 25
-            },
-            'dateRangeStart' => {
-              key: "jobs.dateRangeStart[#{ITERATOR}]",
-              question_num: 17,
-              question_suffix: 'C',
-              question_text: 'WHEN DID YOUR JOB BEGIN?',
-              format: 'date'
-            },
-            'dateRangeEnd' => {
-              key: "jobs.dateRangeEnd[#{ITERATOR}]",
-              question_num: 17,
-              question_suffix: 'D',
-              question_text: 'WHEN DID YOUR JOB END?',
-              format: 'date'
-            },
-            'daysMissed' => {
-              limit: 9,
-              question_num: 17,
-              question_suffix: 'E',
-              question_text: 'HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
-              key: "jobs.daysMissed[#{ITERATOR}]"
+            'year' => {
+              key: 'form1[0].#subform[48].Date_Confinement_Ended_Year[1]'
             }
-          },
-          'nationalGuard' => {
-            'nameAndAddr' => {
-              key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
-              limit: 59,
-              question_num: 14,
-              question_suffix: 'A',
-              question_text: 'WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
-            },
-            'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
-            'date' => {
-              key: 'F[0].Page_5[0].DateofActivation[0]',
-              format: 'date'
-            },
-            'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
-          },
-          'spouseAddress' => {
-            limit: 47,
-            question_num: 22,
+          }
+        },
+        # 4a
+        'socialSecurityDisability' => {
+          key: 'form1[0].#subform[48].RadioButtonList[2]'
+        },
+        # 4b
+        'medicalCondition' => {
+          key: 'form1[0].#subform[48].RadioButtonList[3]'
+        },
+        # 4c
+        'nursingHome' => {
+          key: 'form1[0].#subform[48].RadioButtonList[4]'
+        },
+        # 4d
+        'medicaidStatus' => {
+          key: 'form1[0].#subform[48].RadioButtonList[5]'
+        },
+        # 4e
+        'specialMonthlyPension' => {
+          key: 'form1[0].#subform[48].RadioButtonList[6]'
+        },
+        # 4f
+        'vaTreatmentHistory' => {
+          key: 'form1[0].#subform[49].RadioButtonList[7]'
+        },
+        'vaMedicalCenters' => {
+          limit: 1,
+          first_key: 'medicalCenter',
+          'medicalCenter' => {
+            limit: 33,
+            question_num: 4,
             question_suffix: 'F',
-            question_text: "WHAT IS YOUR SPOUSE'S ADDRESS?",
-            key: 'F[0].Page_6[0].Spouseaddress[0]'
+            question_text: 'Specify VA Facility',
+            key: 'form1[0].#subform[49].Facility[0]'
+          }
+        },
+        # 4g
+        'federalTreatmentHistory' => {
+          key: 'form1[0].#subform[49].RadioButtonList[8]'
+        },
+        'federalMedicalCenters' => {
+          limit: 1,
+          first_key: 'medicalCenter',
+          'medicalCenter' => {
+            limit: 44,
+            question_num: 4,
+            question_suffix: 'G',
+            question_text: 'Specify Federal Facility',
+            key: 'form1[0].#subform[49].Facility[1]'
+          }
+        },
+        # 5a
+        'currentEmployment' => {
+          key: 'form1[0].#subform[49].RadioButtonList[9]'
+        },
+        'currentEmployers' => {
+          limit: 1,
+          first_key: 'jobType',
+          # 5b
+          'jobType' => {
+            limit: 35,
+            question_num: 5,
+            question_suffix: 'B',
+            question_text: 'WHAT KIND OF WORK ARE YOU CURRENTLY DOING',
+            key: 'form1[0].#subform[49].What_Kind_Of_Work_Are_You_Currently_Doing[0]'
           },
-          'outsideChildren' => {
+          # 5c
+          'jobHoursWeek' => {
             limit: 3,
-            first_key: 'fullName',
-            'childAddress' => {
-              limit: 52,
-              question_num: 24,
-              question_suffix: 'B',
-              question_text: "CHILD'S COMPLETE ADDRESS",
-              key: 'outsideChildren.childAddress[%iterator%]'
+            question_num: 5,
+            question_suffix: 'B',
+            question_text: 'HOW MANY HOURS PER WEEK DO YOU AVERAGE',
+            key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Do_You_Average[0]'
+          }
+        },
+        'previousEmployers' => {
+          limit: 1,
+          first_key: 'jobTitle',
+          # 5d
+          'jobDate' => {
+            'month' => {
+              key: 'form1[0].#subform[49].Date_You_Last_Worked_Month[0]'
             },
-            'fullName' => {
-              limit: 48,
-              question_num: 24,
-              question_suffix: 'A',
-              question_text: 'NAME OF DEPENDENT CHILD',
-              key: 'outsideChildren.childFullName[%iterator%]'
+            'day' => {
+              key: 'form1[0].#subform[49].Date_You_Last_Worked_Day[0]'
             },
-            'monthlyPayment' => {
-              limit: 13,
-              question_num: 24,
-              question_suffix: 'D',
-              dollar: true,
-              question_text: "MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
-              key: 'outsideChildren.monthlyPayment[%iterator%]'
-            },
-            'personWhoLivesWithChild' => {
-              limit: 40,
-              question_num: 24,
-              question_suffix: 'C',
-              question_text: 'NAME OF PERSON THE CHILD LIVES WITH',
-              key: 'outsideChildren.personWhoLivesWithChild[%iterator%]'
+            'year' => {
+              key: 'form1[0].#subform[49].Date_You_Last_Worked_Year[0]'
             }
           },
-          'children' => {
+          'jobDateOverflow' => {
+            question_num: 5,
+            question_suffix: 'D',
+            question_text: 'WHEN DID YOU LAST WORK'
+          },
+          # 5e
+          'jobHoursWeek' => {
             limit: 3,
-            first_key: 'fullName',
-            'childSocialSecurityNumber' => {
-              question_num: 23,
-              question_suffix: 'C',
-              question_text: 'SOCIAL SECURITY NUMBER',
-              key: 'children.childSocialSecurityNumber[%iterator%]'
-            },
-            'childDateOfBirth' => {
-              question_num: 23,
-              question_suffix: 'B',
-              question_text: 'DATE OF BIRTH',
-              key: 'children.childDateOfBirth[%iterator%]',
-              format: 'date'
-            },
-            'childPlaceOfBirth' => {
+            question_num: 5,
+            question_suffix: 'E',
+            question_text: 'HOW MANY HOURS PER WEEK DID YOU AVERAGE',
+            key: 'form1[0].#subform[49].How_Many_Hours_Per_Week_Did_You_Average[0]'
+          },
+          # 5f
+          'jobTitle' => {
+            limit: 30,
+            question_num: 5,
+            question_suffix: 'F',
+            question_text: 'WHAT WAS YOUR JOB TITLE',
+            key: 'form1[0].#subform[49].What_Was_Your_Job_Title[0]'
+          },
+          # 5g
+          'jobType' => {
+            limit: 27,
+            question_num: 5,
+            question_suffix: 'G',
+            question_text: 'WHAT KIND OF WORK DID YOU DO',
+            key: 'form1[0].#subform[49].What_Kind_Of_Work_Did_You_Do[0]'
+          }
+        },
+        # 6a
+        'maritalStatus' => {
+          key: 'form1[0].#subform[49].RadioButtonList[10]'
+        },
+        'currentMarriage' => {
+          # 6b
+          'spouseFullName' => {
+            'first' => {
               limit: 12,
-              question_num: 23,
+              question_num: 6,
               question_suffix: 'B',
-              question_text: 'PLACE OF BIRTH',
-              key: 'children.childPlaceOfBirth[%iterator%]'
+              question_text: 'SPOUSE\'S CURRENT FIRST NAME',
+              key: 'form1[0].#subform[49].Spouses_Current_Legal_Name_First_Name[0]'
             },
-            'attendingCollege' => {
-              question_num: 23,
-              question_suffix: 'G',
-              question_text: '18-23 YEARS OLD (in school)',
-              key: 'children.attendingCollege[%iterator%]'
+            'middle' => {
+              key: 'form1[0].#subform[49].Spouses_Middle_Initial1[0]'
             },
-            'married' => {
-              question_num: 23,
-              question_suffix: 'I',
-              question_text: 'CHILD MARRIED',
-              key: 'children.married[%iterator%]'
+            'last' => {
+              limit: 18,
+              question_num: 6,
+              question_suffix: 'B',
+              question_text: 'SPOUSE\'S CURRENT LAST NAME',
+              key: 'form1[0].#subform[49].Spouses_Last_Name[0]'
+            }
+          },
+          # 6e
+          'dateOfMarriage' => {
+            'month' => {
+              key: 'form1[0].#subform[49].Date_Of_Marriage_Month[0]'
             },
-            'disabled' => {
-              question_num: 23,
-              question_suffix: 'H',
-              question_text: 'SERIOUSLY DISABLED',
-              key: 'children.disabled[%iterator%]'
+            'day' => {
+              key: 'form1[0].#subform[49].Date_Of_Marriage_Day[0]'
             },
+            'year' => {
+              key: 'form1[0].#subform[49].Date_Of_Marriage_Year[0]'
+            }
+          },
+          'locationOfMarriage' => {
+            limit: 22,
+            question_num: 6,
+            question_suffix: 'E',
+            question_text: 'PLACE OF MARRIAGE CITY AND STATE OR COUNTRY',
+            key: 'form1[0].#subform[49].Place_Of_Marriage_City_And_State_Or_Country[0]'
+          },
+          # 6f
+          'marriageType' => {
+            key: 'form1[0].#subform[49].RadioButtonList[11]'
+          },
+          'otherExplanation' => {
+            limit: 22,
+            question_num: 6,
+            question_suffix: 'F',
+            question_text: 'SPECIFY TYPE OF MARRIAGE',
+            key: 'form1[0].#subform[49].Other_Specify[0]'
+          }
+        },
+        # 6c
+        'spouseDateOfBirth' => {
+          'month' => {
+            key: 'form1[0].#subform[49].DOB_Month[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[49].DOB_Day[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[49].DOB_Year[0]'
+          }
+        },
+        # 6d
+        'spouseSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_FirstThreeNumbers[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_SecondTwoNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[49].Spouses_SocialSecurityNumber_LastFourNumbers[0]'
+          }
+        },
+        # 6g
+        'spouseIsVeteran' => {
+          key: 'form1[0].#subform[49].RadioButtonList[12]'
+        },
+        # 6h
+        'spouseVaFileNumber' => {
+          key: 'form1[0].#subform[49].Spouses_VAFileNumber_If_Any[0]'
+        },
+        # 6i
+        'reasonForCurrentSeparation' => {
+          key: 'form1[0].#subform[49].RadioButtonList[13]'
+        },
+        'otherExplanation' => {
+          limit: 39,
+          question_num: 6,
+          question_suffix: 'I',
+          question_text: '',
+          key: 'form1[0].#subform[49].Other_Specify[1]'
+        },
+        # 6j
+        'spouseAddress' => {
+          'street' => {
+            limit: 30,
+            question_num: 6,
+            question_suffix: 'J',
+            question_text: 'SPOUSE MAILING ADDRESS STREET',
+            key: 'form1[0].#subform[49].Number_And_Street[0]'
+          },
+          'street2' => {
+            limit: 5,
+            question_num: 6,
+            question_suffix: 'J',
+            question_text: 'SPOUSE MAILING ADDRESS APT NUMBER',
+            key: 'form1[0].#subform[49].Apt_Or_Unit_Number[1]'
+          },
+          'city' => {
+            limit: 18,
+            question_num: 6,
+            question_suffix: 'J',
+            question_text: 'SPOUSE MAILING ADDRESS CITY',
+            key: 'form1[0].#subform[49].City[1]'
+          },
+          'state' => {
+            key: 'form1[0].#subform[49].State_Or_Province[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[49].Country[1]'
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[49].Zip_Postal_Code[2]'
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[49].Zip_Postal_Code[3]'
+            }
+          }
+        },
+        # 6k
+        'currentSpouseMonthlySupport' => {
+          'part_two' => {
+            key: 'form1[0].#subform[49].Monthly_Amount[0]'
+          },
+          'part_one' => {
+            key: 'form1[0].#subform[49].Monthly_Amount[1]'
+          },
+          'part_cents' => {
+            key: 'form1[0].#subform[49].Monthly_Amount[2]'
+          }
+        },
+        # 7a-j Veteran's prior marriages
+        'marriages' => {
+          limit: 2,
+          first_key: 'otherExplanation',
+          question_num: 7.1,
+          'spouseFullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 7.1,
+              question_suffix: '[Veteran]',
+              question_text: 'WHO WERE YOU MARRIED TO? (FIRST NAME)',
+              key: "Marriages.Veterans_Prior_Spouse_FirstName[#{ITERATOR}]"
+            },
+            'middle' => {
+              question_num: 7.1,
+              question_suffix: '[Veteran]',
+              question_text: 'WHO WERE YOU MARRIED TO? (MIDDLE NAME)',
+              key: "Marriages.Veterans_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
+            },
+            'last' => {
+              limit: 18,
+              question_num: 7.1,
+              question_suffix: '[Veteran]',
+              question_text: 'WHO WERE YOU MARRIED TO? (LAST NAME)',
+              key: "Marriages.Veterans_Prior_Spouse_LastName[#{ITERATOR}]"
+            }
+          },
+          'spouseFullNameOverflow' => {
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: '(1) WHO WERE YOU MARRIED TO?'
+          },
+          'reasonForSeparation' => {
+            key: "Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
+          },
+          'reasonForSeparationOverflow' => {
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END?'
+          },
+          'otherExplanation' => {
+            limit: 43,
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: '(2) HOW DID YOUR PREVIOUS MARRIAGE END (OTHER REASON)?',
+            key: "Marriages.Other_Specify[#{ITERATOR}]"
+          },
+          'dateOfMarriage' => {
+            'month' => {
+              key: "Marriages.Date_Of_Prior_Marriage_Start_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Marriages.Date_Of_Prior_Marriage_Start_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Marriages.Date_Of_Prior_Marriage_Start_Year[#{ITERATOR}]"
+            }
+          },
+          'dateOfSeparation' => {
+            'month' => {
+              key: "Marriages.Date_Of_Prior_Marriage_End_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Marriages.Date_Of_Prior_Marriage_End_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Marriages.Date_Of_Prior_Marriage_End_Year[#{ITERATOR}]"
+            }
+          },
+          'dateRangeOfMarriageOverflow' => {
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
+          },
+          'locationOfMarriage' => {
+            limit: 63,
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: '(4) PLACE OF MARRIAGE',
+            key: "Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
+          },
+          'locationOfSeparation' => {
+            limit: 54,
+            question_num: 7.1,
+            question_suffix: '[Veteran]',
+            question_text: '(5) PLACE OF MARRIAGE TERMINATION',
+            key: "Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
+          }
+        },
+        # 7l-u Spouse's prior marriages
+        'spouseMarriages' => {
+          limit: 2,
+          first_key: 'otherExplanation',
+          'spouseFullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 7.2,
+              question_suffix: '[Spouse]',
+              question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (FIRST NAME)',
+              key: "Spouse_Marriages.Spouses_Prior_Spouse_FirstName[#{ITERATOR}]"
+            },
+            'middle' => {
+              question_num: 7.2,
+              question_suffix: '[Spouse]',
+              question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (MIDDLE NAME)',
+              key: "Spouse_Marriages.Spouses_Prior_Spouse_MiddleInitial1[#{ITERATOR}]"
+            },
+            'last' => {
+              limit: 18,
+              question_num: 7.2,
+              question_suffix: '[Spouse]',
+              question_text: 'WHO WAS YOUR SPOUSE MARRIED TO? (LAST NAME)',
+              key: "Spouse_Marriages.Spouses_Prior_Spouse_LastName[#{ITERATOR}]"
+            }
+          },
+          'spouseFullNameOverflow' => {
+            question_num: 7.2,
+            question_suffix: '[Spouse]',
+            question_text: '(1) WHO WAS YOUR SPOUSE YOU MARRIED TO?'
+          },
+          'reasonForSeparation' => {
+            key: "Spouse_Marriages.Previous_Marriage_End_Reason[#{ITERATOR}]"
+          },
+          'reasonForSeparationOverflow' => {
+            question_num: 7.2,
+            question_suffix: '[Spouse]',
+            question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END?'
+          },
+          'otherExplanation' => {
+            limit: 43,
+            question_num: 7.2,
+            question_suffix: '[Spouse]',
+            question_text: '(2) HOW DID THE PREVIOUS MARRIAGE END (OTHER REASON)?',
+            key: "Spouse_Marriages.Other_Specify[#{ITERATOR}]"
+          },
+          'dateOfMarriage' => {
+            'month' => {
+              key: "Spouse_Marriages.Date_Of_Prior_Marriage_Start_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Spouse_Marriages.Date_Of_Prior_Marriage_Start_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Spouse_Marriages.Date_Of_Prior_Marriage_Start_Year[#{ITERATOR}]"
+            }
+          },
+          'dateOfSeparation' => {
+            'month' => {
+              key: "Spouse_Marriages.Date_Of_Prior_Marriage_End_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Spouse_Marriages.Date_Of_Prior_Marriage_End_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Spouse_Marriages.Date_Of_Prior_Marriage_End_Year[#{ITERATOR}]"
+            }
+          },
+          'dateRangeOfMarriageOverflow' => {
+            question_num: 7.2,
+            question_suffix: '[Spouse]',
+            question_text: '(3) WHAT ARE THE DATES OF THE PREVIOUS MARRIAGE?'
+          },
+          'locationOfMarriage' => {
+            limit: 63,
+            question_num: 7.2,
+            question_suffix: '[Spouse]',
+            question_text: '(4) PLACE OF MARRIAGE',
+            key: "Spouse_Marriages.Place_Of_Marriage_City_And_State_Or_Country[#{ITERATOR}]"
+          },
+          'locationOfSeparation' => {
+            limit: 54,
+            question_num: 7.2,
+            question_suffix: '[Spouse]',
+            question_text: '(5) PLACE OF MARRIAGE TERMINATION',
+            key: "Spouse_Marriages.Place_Of_Marriage_Termination_City_And_State_Or_Country[#{ITERATOR}]"
+          }
+        },
+        # 7k
+        'additionalMarriages' => {
+          key: 'form1[0].#subform[50].RadioButtonList[15]'
+        },
+        # 7v
+        'additionalSpouseMarriages' => {
+          key: 'form1[0].#subform[50].RadioButtonList[17]'
+        },
+        # 8a
+        'dependentChildrenInHousehold' => {
+          key: 'form1[0].#subform[50].Number_Of_Dependent_Children_Who_Live_With_You[0]',
+          limit: 2,
+          question_num: 8,
+          question_suffix: 'A',
+          question_text: 'Number of Dependent Children Who Live With You'
+        },
+        # 8b-p Dependent Children
+        'dependents' => {
+          limit: 3,
+          first_key: 'childPlaceOfBirth',
+          'fullName' => {
+            'first' => {
+              limit: 12,
+              question_num: 8.1,
+              question_text: 'CHILD\'S FIRST NAME',
+              key: "Dependent_Children.Childs_FirstName[#{ITERATOR}]"
+            },
+            'middle' => {
+              question_num: 8.1,
+              question_text: 'CHILD\'S MIDDLE NAME',
+              key: "Dependent_Children.Childs_MiddleInitial1[#{ITERATOR}]"
+            },
+            'last' => {
+              limit: 18,
+              question_num: 8.1,
+              question_text: 'CHILD\'S LAST NAME',
+              key: "Dependent_Children.Childs_LastName[#{ITERATOR}]"
+            }
+          },
+          'fullNameOverflow' => {
+            question_num: 8.1,
+            question_text: '(1) CHILD\'S NAME'
+          },
+          'childDateOfBirth' => {
+            'month' => {
+              key: "Dependent_Children.Childs_DOB_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Dependent_Children.Childs_DOB_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Dependent_Children.Childs_DOB_Year[#{ITERATOR}]"
+            }
+          },
+          'childDateOfBirthOverflow' => {
+            question_num: 8.1,
+            question_text: '(2) CHILD\'S DATE OF BIRTH'
+          },
+          'childSocialSecurityNumber' => {
+            'first' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_FirstThreeNumbers[#{ITERATOR}]"
+            },
+            'second' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_SecondTwoNumbers[#{ITERATOR}]"
+            },
+            'third' => {
+              key: "Dependent_Children.Childs_SocialSecurityNumber_LastFourNumbers[#{ITERATOR}]"
+            }
+          },
+          'childSocialSecurityNumberOverflow' => {
+            question_num: 8.1,
+            question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
+          },
+          'childPlaceOfBirth' => {
+            limit: 60,
+            question_num: 8.1,
+            question_text: '(3) CHILD\'S PLACE OF BIRTH',
+            key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
+          },
+          'childRelationship' => {
             'biological' => {
-              question_num: 23,
-              question_suffix: 'D',
-              question_text: 'BIOLOGICAL',
-              key: 'children.biological[%iterator%]'
-            },
-            'fullName' => {
-              key: 'children.name[%iterator%]',
-              limit: 34,
-              question_num: 23,
-              question_suffix: 'A',
-              question_text: 'NAME OF DEPENDENT CHILD'
+              key: "Dependent_Children.Biological[#{ITERATOR}]"
             },
             'adopted' => {
-              question_num: 23,
-              question_suffix: 'E',
-              question_text: 'ADOPTED',
-              key: 'children.adopted[%iterator%]'
+              key: "Dependent_Children.Adopted[#{ITERATOR}]"
             },
             'stepchild' => {
-              question_num: 23,
-              question_suffix: 'F',
-              question_text: 'STEPCHILD',
-              key: 'children.stepchild[%iterator%]'
-            },
-            'previouslyMarried' => {
-              question_num: 23,
-              question_suffix: 'J',
-              question_text: 'CHILD PREVIOUSLY MARRIED',
-              key: 'children.previouslyMarried[%iterator%]'
+              key: "Dependent_Children.Stepchild[#{ITERATOR}]"
             }
           },
-          'hasNationalGuardActivation' => { key: 'F[0].Page_5[0].YesAD[0]' },
-          'noNationalGuardActivation' => { key: 'F[0].Page_5[0].NoAD[0]' },
-          'nightPhone' => { key: 'F[0].Page_5[0].Eveningphonenumber[0]' },
-          'mobilePhone' => { key: 'F[0].Page_5[0].Cellphonenumber[0]' },
-          'mobilePhoneAreaCode' => { key: 'F[0].Page_5[0].Cellphoneareacode[0]' },
-          'nightPhoneAreaCode' => { key: 'F[0].Page_5[0].Eveningareacode[0]' },
-          'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
-          'previousNames' => {
-            key: 'F[0].Page_5[0].Listothernames[0]',
-            limit: 53,
-            question_num: 11,
-            question_suffix: 'B',
-            question_text: 'PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
+          'disabled' => {
+            key: "Dependent_Children.Seriously_Disabled[#{ITERATOR}]"
           },
-          'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-          'servicePeriods' => {
-            limit: 1,
-            first_key: 'serviceBranch',
-            'serviceBranch' => {
-              key: 'F[0].Page_5[0].Branchofservice[0]',
-              limit: 25,
-              question_num: 12,
-              question_suffix: 'B',
-              question_text: 'BRANCH OF SERVICE'
+          'attendingCollege' => {
+            key: "Dependent_Children.Eighteen_To_Twenty_Three_Years_Old_In_School[#{ITERATOR}]"
+          },
+          'previouslyMarried' => {
+            key: "Dependent_Children.Previously_Married[#{ITERATOR}]"
+          },
+          'childNotInHousehold' => {
+            key: "Dependent_Children.Does_Not_Live_With_You_But_Contributes[#{ITERATOR}]"
+          },
+          'childStatusOverflow' => {
+            question_num: 8.1,
+            question_text: '(5) CHILD\'S STATUS'
+          },
+          'monthlyPayment' => {
+            'part_two' => {
+              key: "Dependent_Children.Amount_Of_Contribution_First_Two[#{ITERATOR}]"
             },
-            'activeServiceDateRangeStart' => {
-              question_num: 12,
-              question_suffix: 'A',
-              question_text: 'I ENTERED ACTIVE SERVICE ON',
-              key: 'F[0].Page_5[0].DateEnteredActiveService[0]',
-              format: 'date'
+            'part_one' => {
+              key: "Dependent_Children.Amount_Of_Contribution_Last_Three[#{ITERATOR}]"
             },
-            'activeServiceDateRangeEnd' => {
-              question_num: 12,
-              question_suffix: 'C',
-              question_text: 'RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
-              key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]',
-              format: 'date'
+            'part_cents' => {
+              key: "Dependent_Children.Amount_Of_Contribution_Cents[#{ITERATOR}]"
             }
           },
-          'veteranAddressLine1' => {
-            key: 'F[0].Page_5[0].Currentaddress[0]',
-            limit: 53,
-            question_num: 7,
-            question_suffix: 'A',
-            question_text: 'Street address'
+          'monthlyPaymentOverflow' => {
+            question_num: 8.1,
+            question_text: '(6) Amount of Contribution For Child'
+          }
+        },
+        # 8q
+        'dependentsNotWithYouAtSameAddress' => {
+          key: 'form1[0].#subform[51].RadioButtonList[20]'
+        },
+        # 8r
+        'custodians' => {
+          limit: 1,
+          first_key: 'first',
+          'first' => {
+            limit: 12,
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S FIRST NAME',
+            key: 'form1[0].#subform[51].Custodians_FirstName[0]'
           },
-          'email' => {
-            key: 'F[0].Page_5[0].Preferredemailaddress[0]',
-            limit: 43,
-            question_num: 8,
-            question_suffix: 'A',
-            question_text: 'PREFERRED E-MAIL ADDRESS'
+          'middle' => {
+            key: 'form1[0].#subform[51].Custodians_MiddleInitial1[0]'
           },
-          'altEmail' => {
-            key: 'F[0].Page_5[0].Alternateemailaddress[0]',
-            limit: 43,
-            question_num: 8,
-            question_suffix: 'B',
-            question_text: 'ALTERNATE E-MAIL ADDRESS'
+          'last' => {
+            limit: 18,
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S LAST NAME',
+            key: 'form1[0].#subform[51].Custodians_LastName[0]'
           },
-          'cityState' => {
-            key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
-            limit: 53,
-            question_num: 7,
-            question_suffix: 'A',
-            question_text: 'City, State, Zip, Country'
-          },
-          'placeOfSeparation' => {
-            key: 'F[0].Page_5[0].Placeofseparation[0]',
-            limit: 41,
-            question_num: 12,
-            question_suffix: 'E',
-            question_text: 'PLACE OF LAST OR ANTICIPATED SEPARATION'
-          },
-          'reasonForNotLivingWithSpouse' => {
-            limit: 47,
-            question_num: 22,
-            question_suffix: 'G',
-            question_text: 'TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
-            key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]'
-          },
-          'disabilities' => {
-            limit: 2,
-            first_key: 'name',
-            'name' => {
-              key: "disabilities.name[#{ITERATOR}]",
-              limit: 44,
-              question_num: 9,
-              question_suffix: 'A',
-              question_text: 'DISABILITY(IES)'
+          'custodianAddress' => {
+            'street' => {
+              limit: 30,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS NUMBER AND STREET',
+              key: 'form1[0].#subform[51].NumberStreet[3]'
             },
-            'disabilityStartDate' => {
-              key: "disabilities.disabilityStartDate[#{ITERATOR}]",
-              question_num: 9,
-              question_suffix: 'B',
-              question_text: 'DATE DISABILITY(IES) BEGAN',
-              format: 'date'
+            'street2' => {
+              limit: 5,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS APT/UNIT',
+              key: 'form1[0].#subform[51].Apt_Or_Unit_Number[2]'
+            },
+            'city' => {
+              limit: 18,
+              question_num: 8.2,
+              question_suffix: 'R',
+              question_text: 'CUSTODIAN\'S ADDRESS CITY',
+              key: 'form1[0].#subform[51].City[2]'
+            },
+            'state' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              key: 'form1[0].#subform[51].State_Or_Province[1]'
+            },
+            'country' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              key: 'form1[0].#subform[51].Country[2]'
+            },
+            'postalCode' => {
+              question_num: 8.2,
+              question_suffix: 'R',
+              'firstFive' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[4]'
+              },
+              'lastFour' => {
+                key: 'form1[0].#subform[51].Zip_Postal_Code[5]'
+              }
             }
           },
-          'veteranFullName' => {
+          'custodianAddressOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'CUSTODIAN\'S ADDRESS'
+          },
+          'dependentsWithCustodianOverflow' => {
+            question_num: 8.2,
+            question_suffix: 'R',
+            question_text: 'DEPENDENTS LIVING WITH THIS CUSTODIAN'
+          }
+        },
+        # 9a
+        'totalNetWorth' => {
+          key: 'form1[0].#subform[51].RadioButtonList[21]'
+        },
+        'netWorthEstimation' => {
+          'part_two' => {
+            key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[1]'
+          },
+          'part_one' => {
+            key: 'form1[0].#subform[51].Total_Value_Of_Assets_Amount[0]'
+          }
+        },
+        # 9b
+        'transferredAssets' => {
+          key: 'form1[0].#subform[51].RadioButtonList[22]'
+        },
+        # 9c
+        'homeOwnership' => {
+          key: 'form1[0].#subform[51].RadioButtonList[23]'
+        },
+        # 9d
+        'homeAcreageMoreThanTwo' => {
+          key: 'form1[0].#subform[51].RadioButtonList[24]'
+        },
+        # 9e
+        'homeAcreageValue' => {
+          'part_three' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[1]'
+          },
+          'part_two' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[2]'
+          },
+          'part_one' => {
+            key: 'form1[0].#subform[51].Value_Of_Land_Over_Two_Acres_Amount[0]'
+          }
+        },
+        # 9f
+        'landMarketable' => {
+          key: 'form1[0].#subform[51].RadioButtonList[25]'
+        },
+        # 9g
+        'moreThanFourIncomeSources' => {
+          key: 'form1[0].#subform[51].RadioButtonList[26]'
+        },
+        # 9h-k Income Sources
+        'incomeSources' => {
+          limit: 4,
+          first_key: 'dependentName',
+          # (1) Recipient
+          'receiver' => {
+            key: "Income_Recipient[#{ITERATOR}]"
+          },
+          'receiverOverflow' => {
+            question_num: 9,
+            question_suffix: '(1)',
+            question_text: 'PAYMENT RECIPIENT'
+          },
+          'dependentName' => {
+            key: "Income_Recipient_Child[#{ITERATOR}]",
+            limit: 29,
+            question_num: 9,
+            question_suffix: '(1)',
+            question_text: 'CHILD NAME'
+          },
+          # (2) Income Type
+          'typeOfIncome' => {
+            key: "Income_Type[#{ITERATOR}]"
+          },
+          'typeOfIncomeOverflow' => {
+            question_num: 9,
+            question_suffix: '(2)',
+            question_text: 'INCOME TYPE'
+          },
+          'otherTypeExplanation' => {
+            key: "Other_Specify_Type_Of_Income[#{ITERATOR}]",
+            limit: 31,
+            question_num: 9,
+            question_suffix: '(2)',
+            question_text: 'OTHER INCOME TYPE EXPLANATION'
+          },
+          # (3) Income Payer
+          'payer' => {
+            key: "Name_Of_Income_Payer[#{ITERATOR}]",
+            limit: 25,
+            question_num: 9,
+            question_suffix: '(3)',
+            question_text: 'PAYER NAME'
+          },
+          # (4) Gross Monthly Income
+          'amount' => {
+            'part_two' => {
+              key: "Income_Monthly_Amount_First_Three[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Income_Monthly_Amount_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Income_Monthly_Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'amountOverflow' => {
+            question_num: 9,
+            question_suffix: '(4)',
+            question_text: 'CURRENT GROSS MONTHLY INCOME'
+          }
+        },
+        # 10a
+        'hasAnyExpenses' => {
+          key: 'Has_Any_Expenses_Yes_No'
+        },
+        # 10b-d Care Expenses
+        'careExpenses' => {
+          limit: 3,
+          first_key: 'childName',
+          # (1) Recipient
+          'recipients' => {
+            key: "Care_Expenses.Recipient[#{ITERATOR}]"
+          },
+          'recipientsOverflow' => {
+            question_num: 10.1,
+            question_suffix: '[Care](1)',
+            question_text: 'CARE EXPENSE RECIPIENT'
+          },
+          'childName' => {
+            key: "Care_Expenses.Child_Specify[#{ITERATOR}]",
+            limit: 45,
+            question_num: 10.1,
+            question_suffix: '[Care](1)',
+            question_text: 'CARE EXPENSE CHILD NAME'
+          },
+          # (2) Provider
+          'provider' => {
+            key: "Care_Expenses.Name_Of_Provider[#{ITERATOR}]",
+            limit: 70,
+            question_num: 10.1,
+            question_suffix: '[Care](2)',
+            question_text: 'CARE EXPENSE PROVIDER NAME'
+          },
+          'careType' => {
+            key: "Care_Expenses.Care_Type[#{ITERATOR}]"
+          },
+          'careTypeOverflow' => {
+            question_num: 10.1,
+            question_suffix: '[Care](2)',
+            question_text: 'CARE TYPE'
+          },
+          # (3) Rate Per Hour
+          'ratePerHour' => {
+            'part_one' => {
+              key: "Care_Expenses.Rate_Per_Hour_Amount[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Care_Expenses.Rate_Per_Hour_Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'ratePerHourOverflow' => {
+            question_num: 10.1,
+            question_suffix: '[Care](3)',
+            question_text: 'CARE EXPENSE RATE PER HOUR'
+          },
+          'hoursPerWeek' => {
+            limit: 3,
+            question_num: 10.1,
+            question_suffix: '[Care](3)',
+            question_text: 'HOURS PER WEEK CARE RECEIVED',
+            key: "Care_Expenses.Hours_Worked_Per_Week[#{ITERATOR}]"
+          },
+          # (4) Provider Start/End Dates
+          'careDateRange' => {
+            'from' => {
+              'month' => {
+                key: "Care_Expenses.Provider_Start_Date_Month[#{ITERATOR}]"
+              },
+              'day' => {
+                key: "Care_Expenses.Provider_Start_Date_Day[#{ITERATOR}]"
+              },
+              'year' => {
+                key: "Care_Expenses.Provider_Start_Date_Year[#{ITERATOR}]"
+              }
+            },
+            'to' => {
+              'month' => {
+                key: "Care_Expenses.Provider_End_Date_Month[#{ITERATOR}]"
+              },
+              'day' => {
+                key: "Care_Expenses.Provider_End_Date_Day[#{ITERATOR}]"
+              },
+              'year' => {
+                key: "Care_Expenses.Provider_End_Date_Year[#{ITERATOR}]"
+              }
+            }
+          },
+          'careDateRangeOverflow' => {
+            question_num: 10.1,
+            question_suffix: '[Care](4)',
+            question_text: 'DATE RANGE CARE RECEIVED'
+          },
+          'noCareEndDate' => {
+            key: "Care_Expenses.CheckBox_No_End_Date[#{ITERATOR}]"
+          },
+          # (5) Payment Frequency
+          'paymentFrequency' => {
+            key: "Care_Expenses.Payment_Frequency[#{ITERATOR}]"
+          },
+          'paymentFrequencyOverflow' => {
+            question_num: 10.1,
+            question_suffix: '[Care](5)',
+            question_text: 'CARE EXPENSE PAYMENT FREQUENCY'
+          },
+          # (6) Rate Per Frequency
+          'paymentAmount' => {
+            'part_two' => {
+              key: "Care_Expenses.Rate_Per_Frequency_Amount_First_Three[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Care_Expenses.Rate_Per_Frequency_Amount_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Care_Expenses.Rate_Per_Frequency_Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'paymentAmountOverflow' => {
+            question_num: 10.1,
+            question_suffix: '[Care](6)',
+            question_text: 'CARE EXPENSE PAYMENT AMOUNT'
+          }
+        },
+        # 10e-j Medical Expenses
+        'medicalExpenses' => {
+          limit: 6,
+          first_key: 'childName',
+          # (1) Recipient
+          'recipients' => {
+            key: "Med_Expenses.Recipient[#{ITERATOR}]"
+          },
+          'recipientsOverflow' => {
+            question_num: 10.2,
+            question_suffix: '[Medical](1)',
+            question_text: 'MEDICAL EXPENSE RECIPIENT'
+          },
+          'childName' => {
+            key: "Med_Expenses.Child_Specify[#{ITERATOR}]",
+            limit: 45,
+            question_num: 10.2,
+            question_suffix: '[Medical](1)',
+            question_text: 'MEDICAL EXPENSE CHILD NAME'
+          },
+          # (2) Provider
+          'provider' => {
+            key: "Med_Expenses.Paid_To[#{ITERATOR}]",
+            limit: 108,
+            question_num: 10.2,
+            question_suffix: '[Medical](2)',
+            question_text: 'MEDICAL EXPENSE PROVIDER NAME'
+          },
+          # (3) Purpose
+          'purpose' => {
+            key: "Med_Expenses.Purpose[#{ITERATOR}]",
+            limit: 108,
+            question_num: 10.2,
+            question_suffix: '[Medical](3)',
+            question_text: 'MEDICAL EXPENSE PURPOSE'
+          },
+          # (4) Payment Date
+          'paymentDate' => {
+            'month' => {
+              key: "Med_Expenses.Date_Costs_Incurred_Month[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "Med_Expenses.Date_Costs_Incurred_Day[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "Med_Expenses.Date_Costs_Incurred_Year[#{ITERATOR}]"
+            }
+          },
+          'paymentDateOverflow' => {
+            question_num: 10.2,
+            question_suffix: '[Medical](4)',
+            question_text: 'MEDICAL EXPENSE PAYMENT DATE'
+          },
+          # (5) Payment Frequency
+          'paymentFrequency' => {
+            key: "Med_Expenses.Payment_Frequency[#{ITERATOR}]"
+          },
+          'paymentFrequencyOverflow' => {
+            question_num: 10.2,
+            question_suffix: '[Medical](5)',
+            question_text: 'MEDICAL EXPENSE PAYMENT FREQUENCY'
+          },
+          # (6) Rate Per Frequency
+          'paymentAmount' => {
+            'part_two' => {
+              limit: 2,
+              key: "Med_Expenses.Amount_First_Two[#{ITERATOR}]"
+            },
+            'part_one' => {
+              key: "Med_Expenses.Amount_Last_Three[#{ITERATOR}]"
+            },
+            'part_cents' => {
+              key: "Med_Expenses.Amount_Cents[#{ITERATOR}]"
+            }
+          },
+          'paymentAmountOverflow' => {
+            question_num: 10.2,
+            question_suffix: '[Medical](6)',
+            question_text: 'MEDICAL EXPENSE PAYMENT AMOUNT'
+          }
+        },
+        'bankAccount' => {
+          # 11a
+          'bankName' => {
             limit: 30,
-            question_num: 1,
-            question_text: "VETERAN'S NAME",
-            key: 'F[0].Page_5[0].Veteransname[0]'
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'NAME OF FINANCIAL INSTITUTION',
+            key: 'form1[0].#subform[54].Name_Of_Financial_Institution[0]'
+          },
+          # 11b
+          'accountType' => {
+            key: 'form1[0].#subform[54].RadioButtonList[55]'
+          },
+          # 11c
+          'routingNumber' => {
+            limit: 9,
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'ROUTING NUMBER',
+            key: 'form1[0].#subform[54].Routing_Number[0]'
+          },
+          # 11d
+          'accountNumber' => {
+            limit: 15,
+            question_num: 11,
+            question_suffix: 'D',
+            question_text: 'ACCOUNT NUMBER',
+            key: 'form1[0].#subform[54].Account_Number[0]'
+          }
+        },
+        # 12a
+        'noRapidProcessing' => {
+          # rubocop:disable Layout/LineLength
+          key: 'form1[0].#subform[54].CheckBox_I_Do_Not_Want_My_Claim_Considered_For_Rapid_Processing_Under_The_F_D_C_Program_Because_I_Plan_To_Submit_Further_Evidence_In_Support_Of_My_Claim[0]'
+          # rubocop:enable Layout/LineLength
+        },
+        # 12b
+        'statementOfTruthSignature' => {
+          key: 'form1[0].#subform[54].SignatureField1[0]'
+        },
+        # 12c
+        'signatureDate' => {
+          'month' => {
+            key: 'form1[0].#subform[54].Date_Signed_Month[0]'
+          },
+          'day' => {
+            key: 'form1[0].#subform[54].Date_Signed_Day[0]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[54].Date_Signed_Year[0]'
           }
         }
+      }.freeze
 
-        %w[netWorths monthlyIncomes expectedIncomes].each_with_index do |acct_type, i|
-          question_num = 25 + i
-          key[acct_type] = {
-            first_key: 'recipient',
-            'amount' => {
-              limit: 12,
-              key: "#{acct_type}.amount[#{ITERATOR}]"
-            },
-            'additionalSourceName' => {
-              limit: 14,
-              key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
-            },
-            'sourceAndAmount' => {
-              question_text: 'Source and Amount'
-            },
-            'recipient' => {
-              limit: 34,
-              question_text: 'Recipient',
-              key: "#{acct_type}.recipient[#{ITERATOR}]"
-            }
-          }
-          key[acct_type].each_value do |v|
-            v[:question_num] = question_num if v.is_a?(Hash)
-          end
-
-          key[acct_type][:limit] =
-            case acct_type
-            when 'netWorths'
-              8
-            when 'monthlyIncomes'
-              10
-            else
-              6
-            end
-        end
-
-        %w[m spouseM].each do |prefix|
-          sub_key = "#{prefix}arriages"
-          question_num = prefix == 'm' ? 19 : 21
-
-          key[sub_key] = {
-            limit: 2,
-            first_key: 'locationOfMarriage',
-            'dateOfMarriage' => {
-              question_suffix: 'A',
-              question_text: 'Date of Marriage',
-              key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]",
-              format: 'date'
-            },
-            'otherExplanations' => {
-              limit: 90,
-              skip_index: true,
-              question_suffix: 'F',
-              question_text: "IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
-              key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
-            },
-            'locationOfMarriage' => {
-              limit: 22,
-              question_text: 'PLACE OF MARRIAGE',
-              question_suffix: 'A',
-              key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]"
-            },
-            'locationOfSeparation' => {
-              limit: 13,
-              question_text: 'PLACE MARRIAGE TERMINATED',
-              question_suffix: 'E',
-              key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]"
-            },
-            'spouseFullName' => {
-              limit: 27,
-              question_text: 'TO WHOM MARRIED',
-              question_suffix: 'B',
-              key: "#{sub_key}.spouseFullName[#{ITERATOR}]"
-            },
-            'marriageType' => {
-              limit: 27,
-              question_text: 'TYPE OF MARRIAGE',
-              question_suffix: 'C',
-              key: "#{sub_key}.marriageType[#{ITERATOR}]"
-            },
-            'dateOfSeparation' => {
-              question_text: 'DATE MARRIAGE TERMINATED',
-              question_suffix: 'E',
-              key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]",
-              format: 'date'
-            },
-            'reasonForSeparation' => {
-              limit: 33,
-              question_text: 'HOW MARRIAGE TERMINATED',
-              question_suffix: 'D',
-              key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]"
-            }
-          }
-
-          key[sub_key].each_value do |v|
-            v[:question_num] = question_num if v.is_a?(Hash)
-          end
-        end
-
-        key
-      end.call.freeze
-      # rubocop:enable Metrics/BlockLength
-
-      DEFAULT_FINANCIAL_ACCT = { 'name' => 'None', 'amount' => 0, 'recipient' => 'None' }.freeze
-
-      def expand_pow_date_range(pow_date_range)
-        expand_checkbox(pow_date_range.present?, 'PowDateRange')
-      end
-
-      def expand_va_file_number(va_file_number)
-        expand_checkbox(va_file_number.present?, 'FileNumber')
-      end
-
-      def expand_previous_names(previous_names)
-        expand_checkbox(previous_names.present?, 'PreviousNames')
-      end
-
-      def expand_severance_pay(severance_pay)
-        amount = severance_pay.try(:[], 'amount') || 0
-
-        expand_checkbox(amount.positive?, 'SeverancePay')
-      end
-
-      def expand_chk_and_del_key(hash, key, new_key = nil)
-        new_key = StringHelpers.capitalize_only(key) if new_key.nil?
-        val = hash[key]
-        hash.delete(key)
-
-        expand_checkbox(val, new_key)
-      end
-
-      def combine_address(address)
-        return if address.blank?
-
-        combine_hash(address, %w[street street2], ', ')
-      end
-
-      def combine_city_state(address)
-        return if address.blank?
-
-        city_state_fields = %w[city state postalCode country]
-
-        combine_hash(address, city_state_fields, ', ')
-      end
-
-      def split_phone(phone)
-        return [nil, nil] if phone.blank?
-
-        [phone[0..2], phone[3..]]
-      end
-
-      def expand_gender(gender)
-        return {} if gender.blank?
-
-        {
-          'genderMale' => gender == 'M',
-          'genderFemale' => gender == 'F'
-        }
-      end
-
-      def expand_jobs(jobs)
-        return if jobs.blank?
-
-        jobs.each do |job|
-          combine_name_addr(job, name_key: 'employer')
-
-          expand_date_range(job, 'dateRange')
-        end
-      end
-
-      def replace_phone(hash, key)
-        return if hash.try(:[], key).blank?
-
-        phone_arr = split_phone(hash[key])
-        hash["#{key}AreaCode"] = phone_arr[0]
-        hash[key] = phone_arr[1]
-
-        hash
-      end
-
-      def expand_marital_status(hash, key)
-        marital_status = hash[key]
-        return if marital_status.blank?
-
-        [
-          'Married',
-          'Never Married',
-          'Separated',
-          'Widowed',
-          'Divorced'
-        ].each do |status|
-          if marital_status == status
-            hash["maritalStatus#{status.tr(' ', '_').camelize}"] = true
-            break
-          end
-        end
-
-        hash
-      end
-
-      def split_children(children)
-        children_split = {
-          outside: [],
-          cohabiting: []
-        }
-
-        children.each do |child|
-          children_split[child['childInHousehold'] ? :cohabiting : :outside] << child
-        end
-
-        children_split
-      end
-
-      def expand_dependents
-        @form_data['dependents']&.each do |dependent|
-          dependent['fullName'] = combine_full_name(dependent['fullName'])
-        end
-
-        expand_children(@form_data, 'dependents')
-      end
-
-      def expand_children(hash, key)
-        children = hash[key]
-        return if children.blank?
-
-        children.each do |child|
-          child['personWhoLivesWithChild'] = combine_full_name(child['personWhoLivesWithChild'])
-
-          child['childRelationship'].tap do |child_rel|
-            next if child_rel.blank?
-
-            child[child_rel] = true
-          end
-
-          combine_both_addr(child, 'childAddress')
-        end
-
-        children_split = split_children(children)
-
-        hash['children'] = children
-        hash['outsideChildren'] = children_split[:outside]
-
-        hash
-      end
-
-      def expand_marriages(hash, key)
-        marriages = hash[key]
-        return if marriages.blank?
-
-        other_explanations = []
-
-        marriages.each do |marriage|
-          marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
-          marriage['reasonForSeparation'] ||= 'Marriage has not been terminated'
-          other_explanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
-        end
-
-        marriages[0]['otherExplanations'] = other_explanations.join(', ')
-
-        hash
-      end
-
-      def expand_additional_sources(recipient, additional_sources, financial_accts)
-        additional_sources&.each do |additional_source|
-          source = additional_source['name']
-          amount = additional_source['amount']
-
-          financial_accts['additionalSources'] << {
-            'recipient' => recipient,
-            'amount' => amount,
-            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
-            'additionalSourceName' => source
-          }
-        end
-      end
-
-      def expand_financial_acct(recipient, financial_acct, financial_accts)
-        return if financial_acct.blank?
-
-        financial_accts.each do |income_type, financial_accts_for_type|
-          next if income_type == 'additionalSources'
-
-          amount = financial_acct[income_type]
-          next if amount.nil?
-
-          source = INCOME_TYPES_KEY[income_type]
-
-          financial_accts_for_type << {
-            'recipient' => recipient,
-            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
-            'amount' => amount
-          }
-        end
-
-        expand_additional_sources(recipient, financial_acct['additionalSources'], financial_accts)
-
-        financial_accts
-      end
-
-      def unfilled_multiline_acct?(acct_type, accts)
-        %w[socialSecurity salary].include?(acct_type) && accts.size < 2
-      end
-
-      def zero_financial_accts(financial_accts)
-        financial_accts.each do |acct_type, accts|
-          accts << DEFAULT_FINANCIAL_ACCT if accts.blank?
-          accts << DEFAULT_FINANCIAL_ACCT if unfilled_multiline_acct?(acct_type, accts)
-        end
-
-        financial_accts
-      end
-
-      def expand_financial_accts(definition)
-        financial_accts = {}
-        VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].each_key do |acct_type|
-          financial_accts[acct_type] = []
-        end
-
-        %w[myself spouse].each do |person|
-          expected_income = @form_data[
-            person == 'myself' ? definition : "spouse#{StringHelpers.capitalize_only(definition)}"
-          ]
-          expand_financial_acct(person.capitalize, expected_income, financial_accts)
-        end
-
-        dependents = @form_data['dependents'] || []
-
-        dependents.each do |dependent|
-          expand_financial_acct(dependent['fullName'], dependent[definition], financial_accts)
-        end
-
-        zero_financial_accts(financial_accts)
-      end
-
-      def expand_monthly_incomes
-        financial_accts = expand_financial_accts('monthlyIncome')
-        fill_financial_blanks(KEY['monthlyIncomes'][:limit], financial_accts)
-
-        monthly_incomes = []
-        10.times { monthly_incomes << {} }
-
-        monthly_incomes[0] = financial_accts['socialSecurity'][0]
-        monthly_incomes[1] = financial_accts['socialSecurity'][1]
-
-        %w[civilService railroad blackLung serviceRetirement ssi].each_with_index do |acct_type, i|
-          i += 2
-          monthly_incomes[i] = financial_accts[acct_type][0]
-        end
-
-        (7..9).each_with_index do |i, j|
-          monthly_incomes[i] = financial_accts['additionalSources'][j]
-        end
-
-        overflow_financial_accts(monthly_incomes, financial_accts)
-        @form_data['monthlyIncomes'] = monthly_incomes
-      end
-
-      def fill_financial_blanks(limit, financial_accts)
-        padding = limit - financial_accts.except('additionalSources').size - financial_accts['additionalSources'].size
-        additional = Array.new(padding) { |_| DEFAULT_FINANCIAL_ACCT }
-        expand_additional_sources('None', additional, financial_accts)
-        financial_accts
-      end
-
-      def overflow_financial_accts(financial_accts, all_financial_accts)
-        all_financial_accts.each_value do |arr|
-          arr.each do |financial_acct|
-            financial_accts << financial_acct unless financial_accts.include?(financial_acct)
-          end
-        end
-      end
-
-      def expand_net_worths
-        financial_accts = expand_financial_accts('netWorth')
-
-        net_worths = []
-        8.times do
-          net_worths << {}
-        end
-
-        %w[bank interestBank ira stocks realProperty].each_with_index do |acct_type, i|
-          net_worths[i] = financial_accts[acct_type][0]
-        end
-        [5, 6].each { |i| net_worths[i] = DEFAULT_FINANCIAL_ACCT }
-
-        if financial_accts['additionalSources'].size < 1
-          expand_additional_sources('None', [DEFAULT_FINANCIAL_ACCT], financial_accts)
-        end
-
-        net_worths[7] = financial_accts['additionalSources'][0]
-
-        overflow_financial_accts(net_worths, financial_accts)
-
-        @form_data['netWorths'] = net_worths
-      end
-
-      def expand_expected_incomes
-        financial_accts = expand_financial_accts('expectedIncome')
-        fill_financial_blanks(KEY['expectedIncomes'][:limit], financial_accts)
-
-        expected_incomes = []
-        6.times do
-          expected_incomes << {}
-        end
-
-        expected_incomes[0] = financial_accts['salary'][0]
-        expected_incomes[1] = financial_accts['salary'][1]
-        expected_incomes[2] = financial_accts['interest'][0]
-        (3..5).each_with_index do |i, j|
-          expected_incomes[i] = financial_accts['additionalSources'][j]
-        end
-
-        overflow_financial_accts(expected_incomes, financial_accts)
-
-        @form_data['expectedIncomes'] = expected_incomes
-      end
-
-      def expand_bank_acct(bank_account)
-        return if bank_account.blank?
-
-        account_type = bank_account['accountType']
-        @form_data['hasChecking'] = account_type == 'checking'
-        @form_data['hasSavings'] = account_type == 'savings'
-
-        account_number = bank_account['accountNumber']
-        @form_data["#{account_type}AccountNumber"] = account_number if account_type.present?
-
-        @form_data
-      end
-
-      def combine_other_expenses
-        other_expenses = @form_data['otherExpenses'] || []
-        other_expenses.each do |other_expense|
-          other_expense['relationship'] = 'Myself'
-        end
-
-        spouse_other_expenses = @form_data['spouseOtherExpenses']
-        spouse_other_expenses&.each do |other_expense|
-          other_expense['relationship'] = 'Spouse'
-        end
-        other_expenses += spouse_other_expenses if spouse_other_expenses.present?
-
-        @form_data['dependents']&.each do |dependent|
-          dependent_other_expenses = dependent['otherExpenses']
-          if dependent_other_expenses.present?
-            dependent_other_expenses.each do |other_expense|
-              other_expense['relationship'] = dependent['fullName']
-            end
-
-            other_expenses += dependent_other_expenses
-          end
-        end
-
-        @form_data['otherExpenses'] = other_expenses
-      end
-
-      def replace_phone_fields
-        %w[nightPhone dayPhone mobilePhone].each do |attr|
-          replace_phone(@form_data, attr)
-        end
-        replace_phone(@form_data['nationalGuard'], 'phone')
-      end
-
-      def expand_service_periods
-        service_periods = @form_data['servicePeriods']
-        return if service_periods.blank?
-
-        service_periods.each do |service_period|
-          expand_date_range(service_period, 'activeServiceDateRange')
-        end
-      end
-
-      def expand_spouse_addr
-        combine_both_addr(@form_data, 'spouseAddress')
-      end
-
-      # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
-        expand_signature(@form_data['veteranFullName'])
-        @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
-
-        %w[
-          gender
-          vaFileNumber
-          previousNames
-          severancePay
-          powDateRange
-        ].each do |attr|
-          @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
-        end
-
-        %w[
-          nationalGuardActivation
-          combatSince911
-          spouseIsVeteran
-          liveWithSpouse
-        ].each do |attr|
-          @form_data.merge!(public_send('expand_chk_and_del_key', @form_data, attr))
-        end
-
-        replace_phone_fields
-
-        @form_data['cityState'] = combine_city_state(@form_data['veteranAddress'])
-        @form_data['veteranAddressLine1'] = combine_address(@form_data['veteranAddress'])
-        @form_data.delete('veteranAddress')
-
-        @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
-
-        combine_name_addr(@form_data['nationalGuard'])
-
-        expand_jobs(@form_data['jobs'])
-
-        expand_date_range(@form_data, 'powDateRange')
-
-        expand_service_periods
-        expand_dependents
-
-        %w[marriages spouseMarriages].each do |marriage_type|
-          expand_marriages(@form_data, marriage_type)
-        end
-
-        @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length || 0
-        @form_data['marriageCount'] = @form_data['marriages']&.length || 0
-
-        expand_spouse_addr
-
-        expand_marital_status(@form_data, 'maritalStatus')
-
-        expand_expected_incomes
-        expand_net_worths
-        expand_monthly_incomes
-        combine_other_expenses
-
-        expand_bank_acct(@form_data['bankAccount'])
+        expand_veteran_identification_information
+        expand_veteran_contact_information
+        expand_veteran_service_information
+        expand_pension_information
+        expand_employment_history
+        expand_marital_status
+        expand_prior_marital_history
+        expand_dependent_children
+        expand_income_and_assets
+        expand_care_medical_expenses
+        expand_direct_deposit_information
+        expand_claim_certification_and_signature
 
         @form_data
       end
-      # rubocop:enable Metrics/MethodLength
+
+      # SECTION I: VETERAN'S IDENTIFICATION INFORMATION
+      def expand_veteran_identification_information
+        @form_data['veteranFullName'] ||= {}
+        @form_data['veteranFullName']['first'] = @form_data.dig('veteranFullName', 'first')&.titleize
+        @form_data['veteranFullName']['middle'] = @form_data.dig('veteranFullName', 'middle')&.titleize
+        @form_data['veteranFullName']['last'] = @form_data.dig('veteranFullName', 'last')&.titleize
+        @form_data['veteranSocialSecurityNumber'] = split_ssn(@form_data['veteranSocialSecurityNumber'])
+        @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
+        @form_data['vaClaimsHistory'] = to_radio_yes_no(@form_data['vaClaimsHistory'])
+      end
+
+      # SECTION II: VETERAN'S CONTACT INFORMATION
+      def expand_veteran_contact_information
+        @form_data['veteranAddress'] ||= {}
+        @form_data['veteranAddress']['postalCode'] =
+          split_postal_code(@form_data['veteranAddress'])
+        @form_data['mobilePhone'] = expand_phone_number(@form_data['mobilePhone'].to_s)
+      end
+
+      # SECTION III: VETERAN'S SERVICE INFORMATION
+      def expand_veteran_service_information
+        prev_names = @form_data['previousNames']
+
+        @form_data['previousNames'] = prev_names.pluck('previousFullName') if prev_names.present?
+        @form_data['activeServiceDateRange'] = {
+          'from' => split_date(@form_data.dig('activeServiceDateRange', 'from')),
+          'to' => split_date(@form_data.dig('activeServiceDateRange', 'to'))
+        }
+        @form_data['serviceBranch'] = @form_data['serviceBranch']&.select { |_, value| value == true }
+
+        @form_data['pow'] = to_radio_yes_no(@form_data['powDateRange'].present?)
+        if @form_data['pow'].zero?
+          @form_data['powDateRange'] ||= {}
+          @form_data['powDateRange']['from'] = split_date(@form_data.dig('powDateRange', 'from'))
+          @form_data['powDateRange']['to'] = split_date(@form_data.dig('powDateRange', 'to'))
+        end
+
+        place_of_separation = @form_data['placeOfSeparation'].to_s
+
+        if place_of_separation.length <= 36 # split lines
+          @form_data['placeOfSeparationLineOne'] = place_of_separation[0..17]
+          @form_data['placeOfSeparationLineTwo'] = place_of_separation[18..]
+        else # overflow
+          @form_data['placeOfSeparationLineOne'] = place_of_separation
+        end
+      end
+
+      # SECTION IV: PENSION INFORMATION
+      def expand_pension_information
+        @form_data['nursingHome'] = to_radio_yes_no(@form_data['nursingHome'])
+        @form_data['medicaidStatus'] = to_radio_yes_no(
+          @form_data['medicaidStatus'] || @form_data['medicaidCoverage']
+        )
+        @form_data['specialMonthlyPension'] = to_radio_yes_no(@form_data['specialMonthlyPension'])
+        @form_data['medicalCondition'] = to_radio_yes_no(@form_data['medicalCondition'])
+        @form_data['socialSecurityDisability'] = to_radio_yes_no(
+          @form_data['socialSecurityDisability'] || @form_data['isOver65']
+        )
+
+        # If "YES," skip question 4B
+        @form_data['medicalCondition'] = 'Off' if @form_data['socialSecurityDisability'].zero?
+
+        # If "NO," skip question 4D
+        @form_data['medicaidStatus'] = 'Off' if @form_data['nursingHome'] == 1
+
+        @form_data['vaTreatmentHistory'] = to_radio_yes_no(@form_data['vaTreatmentHistory'])
+        @form_data['federalTreatmentHistory'] = to_radio_yes_no(@form_data['federalTreatmentHistory'])
+      end
+
+      # SECTION V: EMPLOYMENT HISTORY
+      def expand_employment_history
+        @form_data['currentEmployment'] = to_radio_yes_no(@form_data['currentEmployment'])
+
+        @form_data['previousEmployers'] = @form_data['previousEmployers']&.map do |pe|
+          pe.merge({
+                     'jobDate' => split_date(pe['jobDate']),
+                     'jobDateOverflow' => to_date_string(pe['jobDate'])
+                   })
+        end
+
+        @form_data['currentEmployers'] = nil if @form_data['currentEmployment'] == 1
+      end
+
+      # SECTION VI: MARITAL STATUS
+      def expand_marital_status
+        @form_data['maritalStatus'] = marital_status_to_radio(@form_data['maritalStatus'])
+        @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
+        @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
+        @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
+        if @form_data['maritalStatus'] != 2
+          @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
+        end
+        @form_data['spouseAddress'] ||= {}
+        @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
+        @form_data['currentSpouseMonthlySupport'] = split_currency_amount(@form_data['currentSpouseMonthlySupport'])
+        @form_data['reasonForCurrentSeparation'] =
+          reason_for_current_separation_to_radio(@form_data['reasonForCurrentSeparation'])
+      end
+
+      def marital_status_to_radio(marital_status)
+        case marital_status
+        when 'Married' then 0
+        when 'Separated' then 1
+        else 2
+        end
+      end
+
+      def get_current_marriage(marriages)
+        current_marriage_index = marriages&.index { |marriage| !marriage.key?('dateOfSeparation') }
+
+        if current_marriage_index
+          current_marriage = marriages[current_marriage_index].clone
+          marriages.delete_at(current_marriage_index)
+        else
+          current_marriage = {}
+        end
+
+        return current_marriage if current_marriage.empty?
+
+        marriage_type = current_marriage['marriageType']
+        current_marriage['marriageType'] =
+          marriage_type == 'In a civil or religious ceremony with an officiant who signed my marriage license' ? 0 : 1
+        current_marriage['dateOfMarriage'] =
+          split_date(current_marriage['dateOfMarriage'])
+        current_marriage
+      end
+
+      def reason_for_current_separation_to_radio(reason_for_separation)
+        case reason_for_separation
+        when 'MEDICAL_CARE' then 0
+        when 'RELATIONSHIP' then 1
+        when 'LOCATION' then 2
+        when 'OTHER' then 3
+        else 'Off'
+        end
+      end
+
+      # SECTION VII: PRIOR MARITAL HISTORY
+      def expand_prior_marital_history
+        @form_data['marriages'] = build_marital_history(@form_data['marriages'], 'VETERAN')
+        @form_data['spouseMarriages'] = build_marital_history(@form_data['spouseMarriages'], 'SPOUSE')
+        if @form_data['marriages']&.any?
+          @form_data['additionalMarriages'] = to_radio_yes_no(@form_data['marriages'].length.to_i > 3)
+        end
+        if @form_data['spouseMarriages']&.any?
+          @form_data['additionalSpouseMarriages'] = to_radio_yes_no(@form_data['spouseMarriages'].length.to_i > 2)
+        end
+      end
+
+      def build_marital_history(marriages, marriage_for = 'VETERAN')
+        return [] unless marriages.present? && %w[VETERAN SPOUSE].include?(marriage_for)
+
+        separation_reasons = marriage_for.eql?('VETERAN') ? REASONS_FOR_SEPARATION : SPOUSES_REASONS_FOR_SEPARATION
+
+        marriages.map do |marriage|
+          reason_for_separation = marriage['reasonForSeparation'].to_s.downcase
+          marriage_date_range = {
+            'from' => marriage['dateOfMarriage'],
+            'to' => marriage['dateOfSeparation']
+          }
+          marriage.merge({ 'spouseFullNameOverflow' => marriage['spouseFullName']&.values&.join(' '),
+                           'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
+                           'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
+                           'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
+                           'reasonForSeparation' => separation_reasons[reason_for_separation],
+                           'reasonForSeparationOverflow' => reason_for_separation })
+        end
+      end
+
+      # SECTION VIII: DEPENDENT CHILDREN
+      def expand_dependent_children
+        @form_data['dependentChildrenInHousehold'] = select_children_in_household(@form_data['dependents'])
+        @form_data['dependents'] = @form_data['dependents']&.map { |dependent| dependent_to_hash(dependent) }
+        # 8Q Do all children not living with you reside at the same address?
+        custodian_addresses = {}
+        dependents_not_in_household = @form_data['dependents']&.reject { |dep| dep['childInHousehold'] } || []
+        dependents_not_in_household.each do |dependent|
+          custodian_key = dependent['personWhoLivesWithChild'].values.join('_')
+          if custodian_addresses[custodian_key].nil?
+            custodian_addresses[custodian_key] = build_custodian_hash_from_dependent(dependent)
+          else
+            custodian_addresses[custodian_key]['dependentsWithCustodianOverflow'] +=
+              ", #{dependent['fullName']&.values&.join(' ')}"
+          end
+        end
+        if custodian_addresses.any?
+          @form_data['dependentsNotWithYouAtSameAddress'] = to_radio_yes_no(custodian_addresses.length == 1)
+        end
+        @form_data['custodians'] = custodian_addresses.values
+      end
+
+      def build_custodian_hash_from_dependent(dependent)
+        dependent['personWhoLivesWithChild']
+          .merge({
+                   'custodianAddress' => dependent['childAddress'].merge(
+                     'postalCode' => split_postal_code(dependent['childAddress'])
+                   )
+                 })
+          .merge({
+                   'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
+                   'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
+                 })
+      end
+
+      def build_address_string(address)
+        return '' if address.blank?
+
+        country = address['country'].present? ? "#{address['country']}, " : ''
+        address_arr = [
+          (address['street']).to_s, address['street2'].presence,
+          "#{address['city']}, #{address['state']}, #{country}#{address['postalCode']}"
+        ].compact
+
+        address_arr.join("\n")
+      end
+
+      def select_children_in_household(dependents)
+        return unless dependents&.any?
+
+        dependents.select do |dependent|
+          dependent['childInHousehold']
+        end.length.to_s
+      end
+
+      def child_status_overflow(dependent)
+        child_status_overflow = [dependent['childRelationship']]
+        child_status_overflow << 'seriously disabled' if dependent['disabled']
+        child_status_overflow << '18-23 years old (in school)' if dependent['attendingCollege']
+        child_status_overflow << 'previously married' if dependent['previouslyMarried']
+        child_status_overflow << 'does not live with you but contributes' unless dependent['childInHousehold']
+        child_status_overflow
+      end
+
+      def dependent_to_hash(dependent)
+        dependent
+          .merge({
+                   'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
+                   'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
+                   'childDateOfBirthOverflow' => to_date_string(dependent['childDateOfBirth']),
+                   'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
+                   'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
+                   'childRelationship' => {
+                     'biological' => to_checkbox_on_off(dependent['childRelationship'] == 'biological'),
+                     'adopted' => to_checkbox_on_off(dependent['childRelationship'] == 'adopted'),
+                     'stepchild' => to_checkbox_on_off(dependent['childRelationship'] == 'stepchild')
+                   },
+                   'disabled' => to_checkbox_on_off(dependent['disabled']),
+                   'attendingCollege' => to_checkbox_on_off(dependent['attendingCollege']),
+                   'previouslyMarried' => to_checkbox_on_off(dependent['previouslyMarried']),
+                   'childNotInHousehold' => to_checkbox_on_off(!dependent['childInHousehold']),
+                   'childStatusOverflow' => child_status_overflow(dependent).join(', '),
+                   'monthlyPayment' => split_currency_amount(dependent['monthlyPayment']),
+                   'monthlyPaymentOverflow' => number_to_currency(dependent['monthlyPayment'])
+                 })
+      end
+
+      # SECTION IX: INCOME AND ASSETS
+      def expand_income_and_assets
+        @form_data['totalNetWorth'] = to_radio_yes_no(@form_data['totalNetWorth'])
+        if @form_data['netWorthEstimation']
+          @form_data['netWorthEstimation'] =
+            split_currency_amount(@form_data['netWorthEstimation'])
+        end
+        @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
+        @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
+        if (@form_data['homeOwnership']).zero?
+          @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
+          @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
+        end
+        if @form_data['homeAcreageValue'].present?
+          @form_data['homeAcreageValue'] =
+            split_currency_amount(@form_data['homeAcreageValue'])
+        end
+        @form_data['moreThanFourIncomeSources'] =
+          to_radio_yes_no(@form_data['incomeSources'].present? && @form_data['incomeSources'].length > 4)
+        @form_data['incomeSources'] = merge_income_sources(@form_data['incomeSources'])
+      end
+
+      def merge_income_sources(income_sources)
+        income_sources&.map do |income_source|
+          income_source_hash = {
+            'receiver' => INCOME_RECIPIENTS[income_source['receiver']],
+            'receiverOverflow' => income_source['receiver']&.humanize,
+            'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
+            'typeOfIncomeOverflow' => income_source['typeOfIncome']&.humanize,
+            'amount' => split_currency_amount(income_source['amount']),
+            'amountOverflow' => number_to_currency(income_source['amount'])
+          }
+          if income_source['dependentName'].present?
+            income_source_hash['dependentName'] =
+              income_source['dependentName']
+          end
+          income_source.merge(income_source_hash)
+        end
+      end
+
+      # SECTION X: CARE/MEDICAL EXPENSES
+      def expand_care_medical_expenses
+        @form_data['hasAnyExpenses'] =
+          to_radio_yes_no(@form_data['hasCareExpenses'] || @form_data['hasMedicalExpenses'])
+        @form_data['careExpenses'] = merge_care_expenses(@form_data['careExpenses'])
+        @form_data['medicalExpenses'] = merge_medical_expenses(@form_data['medicalExpenses'])
+      end
+
+      def merge_care_expenses(care_expenses)
+        care_expenses&.map do |care_expense|
+          care_expense.merge(care_expense_to_hash(care_expense))
+        end
+      end
+
+      def care_expense_to_hash(care_expense)
+        {
+          'recipients' => RECIPIENTS[care_expense['recipients']],
+          'recipientsOverflow' => care_expense['recipients']&.humanize,
+          'careType' => CARE_TYPES[care_expense['careType']],
+          'careTypeOverflow' => care_expense['careType']&.humanize,
+          'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
+          'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
+          'hoursPerWeek' => care_expense['hoursPerWeek'].to_s,
+          'careDateRange' => {
+            'from' => split_date(care_expense.dig('careDateRange', 'from')),
+            'to' => split_date(care_expense.dig('careDateRange', 'to'))
+          },
+          'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
+          'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
+          'paymentFrequency' => PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
+          'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
+          'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
+          'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
+        }
+      end
+
+      def merge_medical_expenses(medical_expenses)
+        medical_expenses&.map do |medical_expense|
+          medical_expense.merge({
+                                  'recipients' => RECIPIENTS[medical_expense['recipients']],
+                                  'recipientsOverflow' => medical_expense['recipients']&.humanize,
+                                  'paymentDate' => split_date(medical_expense['paymentDate']),
+                                  'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
+                                  'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
+                                  'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
+                                  'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
+                                  'paymentAmountOverflow' => number_to_currency(
+                                    medical_expense['paymentAmount']
+                                  )
+                                })
+        end
+      end
+
+      # SECTION XI: DIRECT DEPOSIT INFORMATION
+      def expand_direct_deposit_information
+        account_type = @form_data.dig('bankAccount', 'accountType')
+
+        @form_data['bankAccount'] = @form_data['bankAccount'].to_h.merge(
+          'accountType' => case account_type
+                           when 'checking' then 0
+                           when 'savings' then 1
+                           else 2 if @form_data['bankAccount'].nil?
+                           end
+        )
+      end
+
+      # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
+      def expand_claim_certification_and_signature
+        @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
+        # form was signed today
+        @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
+      end
+
+      def to_date_string(date)
+        date_hash = split_date(date)
+        return unless date_hash
+
+        "#{date_hash['month']}-#{date_hash['day']}-#{date_hash['year']}"
+      end
+
+      def build_date_range_string(date_range)
+        "#{to_date_string(date_range['from'])} - #{to_date_string(date_range['to']) || 'No End Date'}"
+      end
+
+      def split_currency_amount(amount)
+        return {} if amount.nil? || amount.negative? || amount >= 10_000_000
+
+        number_map = {
+          1 => 'one',
+          2 => 'two',
+          3 => 'three'
+        }
+
+        arr = number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
+        split_hash = { 'part_cents' => arr.last }
+        arr.pop
+        arr.each_with_index { |x, i| split_hash["part_#{number_map[arr.length - i]}"] = x }
+        split_hash
+      end
+
+      def to_checkbox_on_off(obj)
+        obj ? 1 : 'Off'
+      end
+
+      def to_radio_yes_no(obj)
+        obj ? 0 : 1
+      end
     end
   end
 end

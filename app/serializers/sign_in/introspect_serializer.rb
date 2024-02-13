@@ -3,7 +3,7 @@
 module SignIn
   class IntrospectSerializer < ActiveModel::Serializer
     attributes :uuid, :first_name, :middle_name, :last_name, :birth_date,
-               :email, :gender, :ssn, :birls_id, :authn_context,
+               :email, :gender, :birls_id, :authn_context,
                :icn, :edipi, :active_mhv_ids, :sec_id, :vet360_id,
                :participant_id, :cerner_id, :cerner_facility_ids, :idme_uuid,
                :vha_facility_ids, :id_theft_flag, :verified, :logingov_uuid
@@ -17,7 +17,6 @@ module SignIn
     delegate :idme_uuid, to: :object
     delegate :email, to: :object
     delegate :gender, to: :object
-    delegate :ssn, to: :object
     delegate :birls_id, to: :object
     delegate :icn, to: :object
     delegate :edipi, to: :object

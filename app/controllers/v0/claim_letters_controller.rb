@@ -4,7 +4,8 @@ require 'claim_letters/claim_letter_downloader'
 
 module V0
   class ClaimLettersController < ApplicationController
-    Raven.tags_context(feature: 'claim-letters')
+    Sentry.set_tags(feature: 'claim-letters')
+    service_tag 'claim-status'
 
     def index
       docs = service.get_letters
@@ -23,7 +24,16 @@ module V0
     private
 
     def service
-      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
+      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user, allowed_doctypes)
+    end
+
+    # 27: Board Of Appeals Decision Letter
+    # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
+    # 339: Rating Decision Letter
+    def allowed_doctypes
+      doctypes = %w[184]
+      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
+      doctypes
     end
   end
 end

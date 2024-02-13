@@ -127,66 +127,70 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         expect(e['code']).to eq('cnp.payment.api.gateway.timeout')
       end
     end
+  end
 
-    context 'when lighthouse direct deposit feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_direct_deposit, instance_of(User))
-                                            .and_return(false)
+  describe '#update successful' do
+    let(:params) do
+      {
+        account_number: '1234567890',
+        account_type: 'CHECKING',
+        routing_number: '031000503'
+      }
+    end
+
+    it 'returns a status of 200' do
+      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+        put(:update, params:)
       end
 
-      it 'returns routing error' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-          get(:show)
-        end
+      expect(response).to have_http_status(:ok)
+    end
 
-        expect(response).to have_http_status(:not_found)
+    it 'capitalizes account type' do
+      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+        put(:update, params:)
+      end
+
+      body = JSON.parse(response.body)
+      payment_account = body['data']['attributes']['payment_account']
+
+      expect(payment_account['account_type']).to eq('Checking')
+    end
+
+    context 'when the user does have an associated email address' do
+      it 'sends an email through va notify' do
+        # params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
+
+        expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
+          user.all_emails, 'comp_and_pen'
+        )
+
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+          put(:update, params:)
+        end
+      end
+    end
+
+    context 'when user does not have an associated email address' do
+      before do
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+      end
+
+      it 'logs a message to Sentry' do
+        # params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
+
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+          expect_any_instance_of(User).to receive(:all_emails).and_return([])
+          expect(Sentry).to receive(:capture_message).once
+
+          put(:update, params:)
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
   end
 
-  describe '#update' do
-    context 'when successful' do
-      it 'returns a status of 200' do
-        params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-
-        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put(:update, params:)
-        end
-
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'capitalizes account type' do
-        params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-
-        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put(:update, params:)
-        end
-
-        body = JSON.parse(response.body)
-        payment_account = body['data']['attributes']['payment_account']
-
-        expect(payment_account['account_type']).to eq('Checking')
-      end
-    end
-
-    context 'when lighthouse direct deposit feature flag is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_direct_deposit, instance_of(User))
-                                            .and_return(false)
-      end
-
-      it 'returns routing error' do
-        params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-
-        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
-          put(:update, params:)
-        end
-
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-
+  describe '#update unsuccessful' do
     context 'when missing account type' do
       let(:params) do
         {
@@ -363,6 +367,23 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
         expect(e['code']).to eq('cnp.payment.routing.number.invalid.checksum')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns a potential fraud error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud') do
+          expect { put(:update, params:) }
+            .to trigger_statsd_increment('cnp.payment.potential.fraud')
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('cnp.payment.potential.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end

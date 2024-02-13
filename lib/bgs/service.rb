@@ -40,6 +40,10 @@ module BGS
 
     def find_rating_data
       service.rating.find_rating_data(@user.ssn)
+    rescue BGS::ShareError => e
+      raise Common::Exceptions::RecordNotFound, @user.account_id if e.message =~ /No record found for/
+
+      raise e
     end
 
     def create_proc_form(vnp_proc_id, form_type_code)

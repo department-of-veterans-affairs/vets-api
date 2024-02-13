@@ -2,7 +2,14 @@
 
 require 'rails_helper'
 
+reg_office = 'Department of Veteran Affairs, Pension Intake Center, P.O. Box 5365, Janesville, Wisconsin 53547-5365'
+
 RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
+  before do
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+  end
+
   let(:full_claim) do
     build(:pension_claim).parsed_form
   end
@@ -37,6 +44,12 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
           )
         ).to eq(true)
       end
+
+      it 'logs the attempted submission' do
+        expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ Submission', be_a(Hash))
+        expect(Rails.logger).to receive(:error).with('Validation error.')
+        subject
+      end
     end
 
     context 'with valid params' do
@@ -52,6 +65,18 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
           .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
+      end
+
+      it 'logs the successful submission' do
+        expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ Submission', be_a(Hash))
+        expect(Rails.logger).to receive(:info).with('Submit 21P-527EZ Success', be_a(Hash))
+        subject
+      end
+
+      it 'returns the expected regional office' do
+        subject
+        expect(JSON.parse(response.body)['data']['attributes']['regionalOffice'].join(', '))
+          .to eq(reg_office)
       end
     end
   end

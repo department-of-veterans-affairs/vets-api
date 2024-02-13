@@ -7,6 +7,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end
 
+  before do
+    Flipper.disable(:ezr_async)
+  end
+
   describe 'POST create' do
     subject do
       post(
@@ -45,13 +49,13 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
         end
         let(:body) do
           {
-            'formSubmissionId' => 432_236_891,
-            'timestamp' => '2023-10-23T18:12:24.628-05:00',
+            'formSubmissionId' => 432_775_981,
+            'timestamp' => '2023-11-21T14:42:44.858-06:00',
             'success' => true
           }
         end
 
-        it 'renders a successful response and deletes the saved form', run_at: 'Mon, 23 Oct 2023 23:09:43 GMT' do
+        it 'renders a successful response and deletes the saved form', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
             { match_requests_on: %i[method uri body], erb: true }
@@ -66,6 +70,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           end
         end
 
+        it 'increments statsd' do
+          expect { subject }.to trigger_statsd_increment('api.1010ezr.submission_attempt')
+        end
+
         context 'when the form includes a Mexican province' do
           let(:params) do
             {
@@ -74,14 +82,14 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           end
           let(:body) do
             {
-              'formSubmissionId' => 432_236_923,
-              'timestamp' => '2023-10-23T18:42:52.975-05:00',
+              'formSubmissionId' => 432_777_930,
+              'timestamp' => '2023-11-21T16:29:52.432-06:00',
               'success' => true
             }
           end
 
           it "overrides the original province 'state' with the correct province initial and renders a " \
-             'successful response', run_at: 'Mon, 23 Oct 2023 23:42:13 GMT' do
+             'successful response', run_at: 'Tue, 21 Nov 2023 22:29:52 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_mexican_province',
               { match_requests_on: %i[method uri body], erb: true }
@@ -91,6 +99,60 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
               expect(JSON.parse(params[:form])['veteranHomeAddress']['state']).to eq('chihuahua')
               subject
 
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+        end
+
+        context 'when the form includes next of kin and/or emergency contact info' do
+          let(:params) do
+            {
+              form: File.read('spec/fixtures/form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact.json')
+            }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => 432_861_975,
+              'timestamp' => '2023-11-30T09:52:37.290-06:00',
+              'success' => true
+            }
+          end
+
+          it 'returns a successful response object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              subject
+
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+        end
+
+        context 'when ezr_async is on' do
+          before do
+            Flipper.enable(:ezr_async)
+          end
+
+          let(:params) do
+            { form: }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => nil,
+              'timestamp' => nil,
+              'success' => true
+            }
+          end
+
+          it 'renders a successful response and deletes the saved form' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_async',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
+              subject
               expect(JSON.parse(response.body)).to eq(body)
             end
           end

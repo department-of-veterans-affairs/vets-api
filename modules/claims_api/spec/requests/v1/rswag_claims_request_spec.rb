@@ -6,7 +6,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
-describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
+describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/claims' do
     get 'Find all benefits claims for a Veteran' do
       tags 'Claims'
@@ -128,7 +128,7 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
             stub_poa_verification
 
             allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:all).and_raise(
-              Common::Exceptions::ResourceNotFound.new(detail: 'The BGS server did not find the resource.')
+              Common::Exceptions::ResourceNotFound.new(detail: 'The Resource was not found.')
             )
             mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
@@ -182,6 +182,10 @@ describe 'EVSS Claims management', swagger_doc: 'modules/claims_api/app/swagger/
 
       claim_by_id_description = 'Returns data such as processing status for a single claim by ID.'
       description claim_by_id_description
+
+      before do
+        Flipper.disable :claims_load_testing
+      end
 
       describe 'Getting a 200 response' do
         response '200', 'claims response' do

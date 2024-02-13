@@ -102,11 +102,16 @@ describe MAP::SignUp::Service do
     context 'when response is successful' do
       let(:expected_log_message) { "#{log_prefix} agreements accept success, icn: #{icn}" }
 
-      before { allow(Rails.logger).to receive(:info) }
+      before do
+        Timecop.freeze(Time.zone.local(2023, 1, 1, 12, 0, 0))
+        allow(Rails.logger).to receive(:info)
+      end
+
+      after { Timecop.return }
 
       it 'logs an agreements accept success message' do
         VCR.use_cassette('map/security_token_service_200_response') do
-          VCR.use_cassette('map/sign_up_service_200_responses') do
+          VCR.use_cassette('map/sign_up_service_200_responses', match_requests_on: %i[method path body]) do
             expect(Rails.logger).to receive(:info).with(expected_log_message)
             subject
           end
@@ -247,6 +252,24 @@ describe MAP::SignUp::Service do
       it 'returns response hash with expected fields',
          vcr: { cassette_name: 'map/sign_up_service_412_responses' } do
         expect(subject).to eq(expected_response_hash)
+      end
+    end
+
+    context 'when there is a parsing error' do
+      let(:expected_log_message) { "#{log_prefix} update provisioning response parsing error" }
+      let(:response_body) do
+        { agreementSigned: true, optOut: false, cernerProvisioned: false, bypassEligible: false }.to_json
+      end
+      let(:expected_log_payload) { { response_body:, icn: } }
+
+      before do
+        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
+      end
+
+      it 'logs the expected error message',
+         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
+        expect(Rails.logger).to receive(:error).with(expected_log_message, { response_body:, icn: })
+        expect { subject }.to raise_error(JSON::ParserError)
       end
     end
   end

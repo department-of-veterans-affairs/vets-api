@@ -14,6 +14,8 @@ module VAOS
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
+      AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
+      AVS_APPT_TEST_ID = '192308'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
 
@@ -227,12 +229,17 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        avs_link = get_avs_link(appt)
-        appt[:avs_path] = avs_link
+        # Testing AVS error message using the below id - remove after testing is complete
+        if appt[:id] == AVS_APPT_TEST_ID
+          appt[:avs_path] = AVS_ERROR_MESSAGE
+        else
+          avs_link = get_avs_link(appt)
+          appt[:avs_path] = avs_link
+        end
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
-        appt[:avs_path] = nil
+        appt[:avs_path] = AVS_ERROR_MESSAGE
       end
 
       # Checks if appointment is eligible for receiving an AVS link, i.e.
@@ -530,7 +537,7 @@ module VAOS
         end
 
         {
-          failures: (response.body[:failures] || []) # VAMF drops null valued keys; ensure we always return empty array
+          failures: response.body[:failures] || [] # VAMF drops null valued keys; ensure we always return empty array
         }
       end
 

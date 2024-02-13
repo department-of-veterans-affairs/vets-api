@@ -8,7 +8,6 @@ require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
 
 class HealthCareApplication < ApplicationRecord
-  include TempFormValidation
   include SentryLogging
   include VA1010Forms::Utils
 
@@ -17,12 +16,15 @@ class HealthCareApplication < ApplicationRecord
   DISABILITY_THRESHOLD = 50
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
-  attr_accessor :user, :async_compatible, :google_analytics_client_id
+  attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
   validate(:long_form_required_fields, on: :create)
+
+  validates(:form, presence: true, on: :create)
+  validate(:form_matches_schema, on: :create)
 
   after_save(:send_failure_mail, if: proc do |hca|
     hca.saved_change_to_attribute?(:state) && hca.failed? && hca.form.present? && hca.parsed_form['email']
@@ -85,13 +87,13 @@ class HealthCareApplication < ApplicationRecord
     prefill_fields
 
     unless valid?
+      Rails.logger.warn("HealthCareApplication::ValidationError: #{Flipper.enabled?(:hca_use_facilities_API)}")
+
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
 
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error_short_form") if short_form?
 
-      Raven.extra_context(
-        user_loa: user&.loa
-      )
+      Sentry.set_extras(user_loa: user&.loa)
 
       PersonalInformationLog.create(
         data: parsed_form,
@@ -131,6 +133,7 @@ class HealthCareApplication < ApplicationRecord
     effective_date
     primary_eligibility
     priority_group
+    can_submit_financial_info
   ].freeze
 
   def self.parsed_ee_data(ee_data, loa3)
@@ -200,6 +203,10 @@ class HealthCareApplication < ApplicationRecord
     form_submission_id_string&.to_i
   end
 
+  def parsed_form
+    @parsed_form ||= JSON.parse(form)
+  end
+
   private
 
   def long_form_required_fields
@@ -267,5 +274,29 @@ class HealthCareApplication < ApplicationRecord
 
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+  end
+
+  # If the hca_use_facilities_API flag is on then vaMedicalFacility will only
+  # validate for a string, else it will validate through the enum.  This avoids
+  # changes to vets-website and vets-json-schema having to deploy simultaneously.
+  def form_matches_schema
+    if form.present?
+      JSON::Validator.fully_validate(current_schema, parsed_form).each do |v|
+        errors.add(:form, v.to_s)
+      end
+    end
+  end
+
+  def current_schema
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+    return schema unless Flipper.enabled?(:hca_use_facilities_API)
+
+    Rails.logger.warn(
+      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{Flipper.enabled?(:hca_use_facilities_API)}"
+    )
+
+    schema.deep_dup.tap do |c|
+      c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
+    end
   end
 end

@@ -2,34 +2,18 @@
 
 module AskVAApi
   module Topics
-    ENDPOINT = 'get_topics_mock_data'
+    class Retriever < BaseRetriever
+      attr_reader :category_id
 
-    class Retriever
-      attr_reader :service, :category_id
-
-      def initialize(category_id:, service: nil)
-        @service = service || default_service
+      def initialize(category_id:, user_mock_data:, entity_class:)
+        super(user_mock_data:, entity_class:)
         @category_id = category_id
-      end
-
-      def call
-        topics_array = fetch_data(payload: { category_id: })
-
-        topics_array.map do |topic|
-          Entity.new(topic)
-        end
-      rescue => e
-        ErrorHandler.handle_service_error(e)
       end
 
       private
 
-      def default_service
-        Dynamics::Service.new(icn: nil)
-      end
-
-      def fetch_data(payload:)
-        service.call(endpoint: ENDPOINT, payload:)
+      def filter_data(data)
+        data[:Topics].select { |t| t[:parentId] == category_id }.sort_by { |topic| topic[:name] }
       end
     end
   end

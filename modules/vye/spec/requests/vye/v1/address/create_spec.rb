@@ -1,0 +1,46 @@
+# frozen_string_literal: true
+
+require_relative '../../../../rails_helper'
+
+RSpec.describe Vye::V1::AddressChangesController, type: :request do
+  let!(:current_user) { create(:user) }
+  let(:params) { FactoryBot.attributes_for(:vye_address_change) }
+
+  before do
+    allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
+    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
+  end
+
+  describe 'POST /vye/v1/address with flag turned off' do
+    before do
+      Flipper.disable :vye_request_allowed
+    end
+
+    it 'does not accept the request' do
+      post('/vye/v1/address', params:)
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
+  describe 'POST /vye/v1/address with flag turned on' do
+    before do
+      Flipper.enable :vye_request_allowed
+    end
+
+    describe 'where current_user is not in VYE' do
+      it 'does not accept the request' do
+        post('/vye/v1/address', params:)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    describe 'where current_user is in VYE' do
+      let!(:user_info) { FactoryBot.create(:vye_user_info, icn: current_user.icn) }
+
+      it 'creates a new address' do
+        post('/vye/v1/address', params:)
+        expect(response).to have_http_status(:no_content)
+      end
+    end
+  end
+end

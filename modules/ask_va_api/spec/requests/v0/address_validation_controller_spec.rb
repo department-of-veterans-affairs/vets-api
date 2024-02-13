@@ -9,10 +9,6 @@ RSpec.describe AskVAApi::V0::AddressValidationController, type: :request do
     build(:va_profile_address, :multiple_matches)
   end
 
-  before do
-    sign_in_as(user)
-  end
-
   describe '#create' do
     context 'with an invalid address' do
       it 'returns an error' do

@@ -14,6 +14,7 @@ module VAProfile
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.veteran_status".freeze
       configuration VAProfile::VeteranStatus::Configuration
 
       OID = '2.16.840.1.113883.3.42.10001.100001.12' # double check swagger
@@ -84,7 +85,6 @@ module VAProfile
 
       def edipi_present!
         raise 'User does not have a valid edipi' if @user&.edipi.blank?
-        # raise 'User does not have a valid edipi' if @user&.identity&.edipi.blank?
       end
 
       def edipi_with_aaid

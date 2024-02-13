@@ -7,7 +7,8 @@ module Common
         # must be added right before http_client adapter
         class RemoveCookies < Faraday::Middleware
           def call(env)
-            @app.client.cookie_manager = nil
+            client = @app.build_connection(env)
+            client.cookie_manager = nil
             @app.call(env)
           end
         end

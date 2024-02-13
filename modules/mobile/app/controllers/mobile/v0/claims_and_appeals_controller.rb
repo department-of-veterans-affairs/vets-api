@@ -119,16 +119,34 @@ module Mobile
         status = get_response_status(errors)
         list = filter_by_date(validated_params[:start_date], validated_params[:end_date], list)
         list = filter_by_completed(list) if params[:showCompleted].present?
+        log_decision_letter_sent(list) if Flipper.enabled?(:mobile_claims_log_decision_letter_sent)
+        active_claim_count = active_claims_count(list)
         list, meta = paginate(list, validated_params)
 
         options = {
           meta: {
-            errors:, pagination: meta.dig(:meta, :pagination), active_claims_count: active_claims_count(list)
+            errors:, pagination: meta.dig(:meta, :pagination), active_claims_count: active_claim_count
           },
           links: meta[:links]
         }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
+      end
+
+      def log_decision_letter_sent(list)
+        decision_letters_sent = list.select(&:decision_letter_sent)
+
+        return nil if decision_letters_sent.empty?
+
+        claims_decision_letters_sent = decision_letters_sent.count { |item| item.type == 'claim' }
+        appeals_decision_letters_sent = decision_letters_sent.count { |item| item.type == 'appeal' }
+
+        Rails.logger.info('MOBILE CLAIM DECISION LETTERS SENT COUNT',
+                          user_uuid: @current_user.uuid,
+                          user_icn: @current_user.icn,
+                          claims_decision_letter_sent_count: claims_decision_letters_sent,
+                          appeals_decision_letter_sent_count: appeals_decision_letters_sent,
+                          decision_letter_sent_ids: decision_letters_sent.map(&:id))
       end
 
       def fetch_claims_and_appeals
@@ -241,7 +259,7 @@ module Mobile
       end
 
       def active_claims_count(list)
-        list.count { |item| item.type == 'claim' && item.completed == false }
+        list.count { |item| item.completed == false }
       end
     end
   end

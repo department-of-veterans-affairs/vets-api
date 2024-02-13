@@ -2,191 +2,200 @@
   "data": {
     "type": "form/526",
     "attributes": {
-      "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
       "veteranIdentification": {
-        "currentVaEmployee": false,
+        "serviceNumber": "123456789",
+        "veteranNumber": {
+          "telephone": "5555555555"
+        },
         "mailingAddress": {
           "addressLine1": "123 Main Street",
           "addressLine2": "Unit 1",
           "addressLine3": "Room 2",
           "city": "Portland",
+          "state": "OR",
           "country": "USA",
           "zipFirstFive": "41726",
-          "zipLastFour": "1234",
-          "state": "OR"
+          "zipLastFour": "1234"
         },
-        "serviceNumber": "123456789",
         "emailAddress": {
           "email": "valid@somedomain.com",
           "agreeToEmailRelatedToClaim": true
         },
-        "veteranNumber": {
-          "telephone": "5555555555"
-        }
+        "currentVaEmployee": false
       },
       "changeOfAddress": {
-        "dates": {
-          "beginDate": "2025-06-04",
-          "endDate": "2026-06-04"
-        },
         "typeOfAddressChange": "TEMPORARY",
         "addressLine1": "456 Main Street",
         "addressLine2": "Unit 3",
         "addressLine3": "Room 4",
         "city": "Atlanta",
+        "state": "GA",
+        "country": "USA",
         "zipFirstFive": "42220",
         "zipLastFour": "9897",
-        "state": "GA",
-        "country": "USA"
+        "dates": {
+          "beginDate": "2025-06-04",
+          "endDate": "2026-06-04"
+        }
       },
       "homeless": {
-        "pointOfContact": "John Doe",
-        "pointOfContactNumber": {
-          "telephone": "5555555555"
-        },
         "currentlyHomeless": {
           "homelessSituationOptions": "OTHER",
           "otherDescription": "Other living situation"
+        },
+        "pointOfContact": "John Doe",
+        "pointOfContactNumber": {
+          "telephone": "5555555555"
         }
       },
       "toxicExposure": {
         "gulfWarHazardService": {
-          "servedInGulfWarHazardLocations": "YES",
-          "serviceDates": {
-            "beginDate": "1999-07",
-            "endDate": "2005-01"
-          }
+          "servedInGulfWarHazardLocations": "NO"
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
-          "otherLocationsServed": "Guam",
+          "otherLocationsServed": "Other locations served",
           "serviceDates": {
-            "beginDate": "2002-03",
-            "endDate": "2004-10"
+            "beginDate": "1972-05",
+            "endDate": "1980-10"
           }
         },
         "additionalHazardExposures": {
           "additionalExposures": [
-            "ASBESTOS",
-            "SHIPBOARD_HAZARD_AND_DEFENSE"
+            "OTHER"
           ],
-          "specifyOtherExposures": "Other exposure details",
+          "specifyOtherExposures": "Agent Orange",
           "exposureDates": {
-            "beginDate": "2011-07",
-            "endDate": "2013-10"
+            "beginDate": "1972-05",
+            "endDate": "1980-10"
           }
         },
-        "multipleExposures": [
+        "multipleExposures":[
           {
+            "hazardExposedTo":"Agent Orange",
+            "exposureLocation":"Vietnam",
             "exposureDates": {
-              "beginDate": "2012-12",
-              "endDate": "2013-07"
-            },
-            "exposureLocation": "Guam",
-            "hazardExposedTo": "Hazard"
+              "beginDate":"1972-05",
+              "endDate":"1973-01"
+            }
+          },
+          {
+            "hazardExposedTo":"Agent Orange",
+            "exposureLocation":"Vietnam",
+            "exposureDates": {
+              "beginDate":"1979-04",
+              "endDate":"1980-10"
+            }
           }
         ]
       },
       "disabilities": [
         {
+          "name": "Diabetes",
+          "exposureOrEventOrInjury": "Agent Orange",
+          "serviceRelevance": "Service in Vietnam War",
+          "approximateDate": "1975-05",
           "disabilityActionType": "NEW",
-          "name": "Hearing Loss",
-          "serviceRelevance": "Heavy equipment operator in service",
-          "approximateDate": "1988-07",
-          "isRelatedToToxicExposure": false,
-          "exposureOrEventOrInjury": "Noise"
+          "isRelatedToToxicExposure": true
+        },
+        {
+          "name":"Hearing Loss",
+          "exposureOrEventOrInjury":"Noise",
+          "serviceRelevance":"Heavy equipment operator in service",
+          "approximateDate":"1968-07",
+          "disabilityActionType": "INCREASE",
+          "classificationCode":"8987",
+          "ratedDisabilityId":"1234567",
+          "diagnosticCode":5678,
+          "isRelatedToToxicExposure":false
         }
       ],
       "treatments": [
         {
+          "beginDate": "2021-04",
           "treatedDisabilityNames": [
-            "Hearing Loss"
+            "Diabetes"
           ],
           "center": {
-            "name": "Center One",
+            "name": "ATLANTA VA MEDICAL CENTER",
             "state": "GA",
-            "city": "Decatur"
-          },
-          "beginDate": "2009-04"
+            "city": "ATLANTA"
+          }
         },
         {
+          "beginDate": "1996-03",
           "treatedDisabilityNames": [
             "Hearing Loss"
           ],
           "center": {
-            "name": "Center One",
+            "name": "ATLANTA VA MEDICAL CENTER",
             "state": "GA",
-            "city": "Decatur"
-          },
-          "beginDate": "2009-03"
+            "city": "ATLANTA"
+          }
         }
       ],
       "serviceInformation": {
+        "alternateNames":[
+          "Jon Doe",
+          "Jane Doe"
+        ],
         "servicePeriods": [
           {
             "serviceBranch": "Air Force",
-            "activeDutyBeginDate": "2008-11-14",
-            "activeDutyEndDate": "2023-10-30",
             "serviceComponent": "Active",
-            "separationLocationCode": "98282"
+            "activeDutyBeginDate": "1964-11-14",
+            "activeDutyEndDate": "1980-10-30",
+            "separationLocationCode": "98289"
           }
         ],
-        "confinements": [
-          {
-            "approximateBeginDate": "2016-06-11",
-            "approximateEndDate": "2016-09-11"
-          },
-          {
-            "approximateBeginDate": "2019-06",
-            "approximateEndDate": "2019-07"
-          }
-        ],
-        "federalActivation": {
-          "anticipatedSeparationDate": "2025-10-03",
-          "activationDate": "2023-02-10"
-        },
+        "servedInActiveCombatSince911": "NO",
         "reservesNationalGuardService": {
+          "component": "National Guard",
           "obligationTermsOfService": {
-            "beginDate": "2016-11-24",
-            "endDate": "2017-11-17"
+            "beginDate":"1990-11-24",
+            "endDate":"1995-11-17"
           },
           "unitName": "National Guard Unit Name",
-          "unitAddress": "1243 pine court",
-          "component": "National Guard",
+          "unitAddress": "1243 Main Street",
           "unitPhone": {
             "areaCode": "555",
             "phoneNumber": "5555555"
           },
           "receivingInactiveDutyTrainingPay": "YES"
         },
-        "servedInActiveCombatSince911": "NO"
+        "confinements": [
+          {
+            "approximateBeginDate":"1970-06-11",
+            "approximateEndDate":"1970-09-11"
+          }
+        ]
       },
       "servicePay": {
-        "favorTrainingPay": true,
-        "favorMilitaryRetiredPay": false,
         "receivingMilitaryRetiredPay": "NO",
         "futureMilitaryRetiredPay": "YES",
         "futureMilitaryRetiredPayExplanation": "Explanation of future military retired pay",
         "militaryRetiredPay": {
-          "branchOfService": "Army",
-          "monthlyAmount": 840.75
+          "branchOfService": "Air Force",
+          "monthlyAmount": 240
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
-        "receivedSeparationOrSeverancePay": "NO",
+        "favorMilitaryRetiredPay": false, 
+        "receivedSeparationOrSeverancePay": "YES",
         "separationSeverancePay": {
           "datePaymentReceived": "2018-07-31",
-          "branchOfService": "Naval Academy",
-          "preTaxAmountReceived": 379.25
-        }
+          "branchOfService": "Air Force",
+          "preTaxAmountReceived": 179
+        },
+        "favorTrainingPay": false
       },
       "directDeposit": {
-        "accountType": "CHECKING",
         "accountNumber": "123123123123",
-        "routingNumber": "123456789",
+        "accountType": "CHECKING",
         "financialInstitutionName": "Chase",
-        "noAccount": false
-      }
+        "routingNumber": "123456789"
+      },
+      "claimantCertification": true
     }
   }
 }

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'emis/models/military_service_episode'
 
 describe EMIS::Models::MilitaryServiceEpisode do
   describe '#branch_of_service' do

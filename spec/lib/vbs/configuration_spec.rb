@@ -36,12 +36,11 @@ describe VBS::Configuration do
     it 'instantiates a Faraday client' do
       connection = subject.connection
       expect(connection).to be_instance_of(Faraday::Connection)
-
+      expect(connection.adapter).to eq(Faraday::Adapter::NetHttp)
       expect(connection.builder.handlers).to eq(
         [
-          FaradayMiddleware::EncodeJson,
-          FaradayMiddleware::ParseJson,
-          Faraday::Adapter::NetHttp
+          Faraday::Request::Json,
+          Faraday::Response::Json
         ]
       )
 

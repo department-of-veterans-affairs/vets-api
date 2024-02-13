@@ -105,7 +105,7 @@ module AppealsApi
             start_date = Date.parse(start_date_str)
             end_date = Date.parse(end_date_str)
 
-            valid_date_ranges = start_date <= end_date && start_date < Time.zone.today && end_date < Time.zone.today
+            valid_date_ranges = start_date <= end_date && start_date <= Time.zone.today && end_date <= Time.zone.today
 
             add_date_range_error(schema_pointer, start_date, end_date) unless valid_date_ranges
           end
@@ -152,7 +152,7 @@ module AppealsApi
     def should_validate_auth_headers?
       if api_version.blank?
         # api_version is set in controllers and has no default, so provide fallback logic:
-        return (auth_headers['X-VA-SSN'].present? || auth_headers['X-VA-File-Number'].present?)
+        return auth_headers['X-VA-SSN'].present? || auth_headers['X-VA-File-Number'].present?
       end
 
       api_version != 'V0'

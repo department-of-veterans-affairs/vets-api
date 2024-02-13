@@ -31,7 +31,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Date:
-      - Mon, 23 Oct 2023 23:42:13 GMT
+      - Tue, 21 Nov 2023 22:29:51 GMT
       Content-Length:
       - '975'
       Accept-Encoding:
@@ -42,7 +42,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Oct 2023 23:42:13 GMT
+      - Tue, 21 Nov 2023 22:29:51 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -50,13 +50,13 @@ http_interactions:
       Content-Security-Policy:
       - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
       Content-Length:
-      - '10207'
+      - '10998'
       Accept:
       - text/xml
       X-Oracle-Dms-Rid:
       - '0'
       X-Oracle-Dms-Ecid:
-      - d8527f36-8505-437b-89cb-dbb176465215-002d9eb7
+      - bddca6b8-059e-431a-8624-33eec916e5e2-00008453
       Soapaction:
       - '""'
       X-Oneagent-Js-Injection:
@@ -70,7 +70,7 @@ http_interactions:
       Cache-Control:
       - max-age=0, no-store
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="2052406152"
+      - dtSInfo;desc="0", dtRpid;desc="-13872712"
       Content-Type:
       - text/xml; charset=UTF-8
       Strict-Transport-Security:
@@ -86,35 +86,41 @@ http_interactions:
         A</groupName><groupNumber>Part A</groupNumber><companyName>Medicare</companyName><policyHolderName>ZZTEST,
         FIRSTNAME</policyHolderName><policyNumber>873462432</policyNumber><enrolledInPartA>true</enrolledInPartA><partAEffectiveDate>19991016</partAEffectiveDate><lastEditedDate>2023-10-23T18:12:24.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance><insurance><groupNumber>G1234</groupNumber><companyName>MyInsurance</companyName><policyHolderName>FirstName
         ZZTEST</policyHolderName><policyNumber>P1234</policyNumber><lastEditedDate>2023-10-23T18:12:24.000-05:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance></insuranceList><eligibilityVerificationInfo><eligibilityStatus>VERIFIED</eligibilityStatus><eligibilityStatusDate>20200319</eligibilityStatusDate><verificationMethod>dd214</verificationMethod></eligibilityVerificationInfo><purpleHeart><indicator>false</indicator><status>Rejected</status></purpleHeart><enrollmentDeterminationInfo><priorityGroup>Group
-        1</priorityGroup><calculationSource>HEC</calculationSource><enrollmentStatus>Verified</enrollmentStatus><enrollmentDate>2019-08-09T16:13:43.000-05:00</enrollmentDate><effectiveDate>2023-10-23T18:12:24.000-05:00</effectiveDate><eligibleForMedicaid>true</eligibleForMedicaid><applicationDate>2021-01-01T23:00:06.000-06:00</applicationDate><veteran>true</veteran><primaryEligibility><type>SERVICE
+        1</priorityGroup><calculationSource>HEC</calculationSource><enrollmentStatus>Verified</enrollmentStatus><enrollmentDate>2019-08-09T16:13:43.000-05:00</enrollmentDate><effectiveDate>2023-11-21T14:30:05.000-06:00</effectiveDate><eligibleForMedicaid>true</eligibleForMedicaid><applicationDate>2021-01-01T23:00:06.000-06:00</applicationDate><veteran>true</veteran><primaryEligibility><type>SERVICE
         CONNECTED 50% to 100%</type><indicator>P</indicator><eligibilityReportDate>2020-08-04T12:42:32.000-05:00</eligibilityReportDate></primaryEligibility><secondaryEligibilities><eligibility><type>Clinical
-        Evaluation</type><indicator>S</indicator><eligibilityReportDate>2023-07-11T11:29:24.000-05:00</eligibilityReportDate></eligibility></secondaryEligibilities><otherEligibilities><eligibility><type>Eligible
+        Evaluation</type><indicator>S</indicator><eligibilityReportDate>2023-07-11T11:29:24.000-05:00</eligibilityReportDate></eligibility><eligibility><type>SERVICE
+        ACT</type><indicator>S</indicator><eligibilityReportDate>2023-11-21T14:30:05.000-06:00</eligibilityReportDate></eligibility></secondaryEligibilities><otherEligibilities><eligibility><type>Eligible
         for Medicaid</type><indicator>O</indicator><eligibilityReportDate>2023-10-23T18:12:24.000-05:00</eligibilityReportDate></eligibility></otherEligibilities><monetaryBenefitAwardInfo><monetaryBenefits><monetaryBenefit><type>Aid
         And Attendance</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Housebound</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Disability
         Compensation</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>VA
         Pension</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2019-11-19T16:56:24.000-06:00</monetaryBenefitReportDate></monetaryBenefit></monetaryBenefits></monetaryBenefitAwardInfo><militarySexualTraumaInfo><status>Unknown,
         Not Screened</status></militarySexualTraumaInfo><specialFactors><agentOrangeInd>false</agentOrangeInd><radiationExposureInd>false</radiationExposureInd><envContaminantsInd>false</envContaminantsInd></specialFactors><cancelDeclineInfo><cancelDeclineIndicator>false</cancelDeclineIndicator></cancelDeclineInfo><serviceConnectionAward><serviceConnectedPercentage>60</serviceConnectedPercentage><serviceConnectedIndicator>true</serviceConnectedIndicator><combinedServiceConnectedPercentageEffectiveDate>20181105</combinedServiceConnectedPercentageEffectiveDate><unemployable>false</unemployable><permanentAndTotal>false</permanentAndTotal><ratedDisabilities><ratedDisability><disability>6711-Lung
         condition</disability><percentage>60</percentage><diagnosticExtremity>Both
-        Lower Extremities</diagnosticExtremity><recordModifiedDate>2020-08-04T12:42:32.000-05:00</recordModifiedDate><disabilityCode>6711</disabilityCode></ratedDisability></ratedDisabilities><scReportDate>2020-08-04T12:42:32.000-05:00</scReportDate></serviceConnectionAward><medicaidLastModifiedDate>2023-10-23T18:12:24.000-05:00</medicaidLastModifiedDate><recordCreatedDate>2018-02-02T18:08:22.000-06:00</recordCreatedDate><recordModifiedDate>2023-10-23T18:12:24.000-05:00</recordModifiedDate><enrollmentCategoryName>Enrolled</enrollmentCategoryName></enrollmentDeterminationInfo><associations><association><contactType>Emergency
+        Lower Extremities</diagnosticExtremity><recordModifiedDate>2020-08-04T12:42:32.000-05:00</recordModifiedDate><disabilityCode>6711</disabilityCode></ratedDisability></ratedDisabilities><scReportDate>2020-08-04T12:42:32.000-05:00</scReportDate></serviceConnectionAward><medicaidLastModifiedDate>2023-11-21T14:42:44.000-06:00</medicaidLastModifiedDate><recordCreatedDate>2018-02-02T18:08:22.000-06:00</recordCreatedDate><recordModifiedDate>2023-11-21T14:30:05.000-06:00</recordModifiedDate><enrollmentCategoryName>Enrolled</enrollmentCategoryName></enrollmentDeterminationInfo><associations><association><contactType>Emergency
         Contact</contactType><givenName>EMERG</givenName><familyName>IVM</familyName><relationship>FATHER</relationship><address><line1>877
         MAIN STREET</line1><city>NEWTOWN</city><state>CO</state><zipCode>99999</zipCode><zipPlus4>3530</zipPlus4><country>USA</country></address><primaryPhone>(555)457-2514</primaryPhone><lastUpdateDate>2022-02-16T21:43:32.000-06:00</lastUpdateDate></association></associations><militaryServiceInfo><militaryServiceSiteRecords><militaryServiceSiteRecord><site>988
         - DAYT20</site><servicePeriod>OTHER OR NONE</servicePeriod><militaryServiceEpisodes><militaryServiceEpisode><serviceBranch>ARMY</serviceBranch><dischargeType>HONORABLE</dischargeType><serviceNumber>379852146</serviceNumber><startDate>19540101</startDate><endDate>19640101</endDate></militaryServiceEpisode></militaryServiceEpisodes></militaryServiceSiteRecord><militaryServiceSiteRecord><site>742
         - HEALTH ELIGIBILITY CENTER</site><servicePeriod>VIETNAM ERA</servicePeriod><militaryServiceEpisodes><militaryServiceEpisode><serviceBranch>ARMY</serviceBranch><dischargeType>HONORABLE</dischargeType><serviceNumber>379852146</serviceNumber><startDate>19540101</startDate><endDate>19640101</endDate></militaryServiceEpisode></militaryServiceEpisodes></militaryServiceSiteRecord></militaryServiceSiteRecords></militaryServiceInfo><prisonerOfWarInfo><powIndicator>No</powIndicator></prisonerOfWarInfo><demographics><contactInfo><addresses><address><line1>123
-        NW 5TH ST</line1><city>ONTARIO</city><postalCode>21231</postalCode><country>CAN</country><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2023-10-23T18:12:24.000-05:00</addressChangeDateTime><addressChangeSource>Health
+        NW 5TH ST</line1><city>ONTARIO</city><postalCode>21231</postalCode><country>CAN</country><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2023-11-21T14:30:05.000-06:00</addressChangeDateTime><addressChangeSource>Health
         Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
-        CENTER</addressChangeSite></address><address><line1>7321 SW 7TH ST</line1><city>ONTARIO</city><postalCode>21534</postalCode><country>CAN</country><addressTypeCode>Permanent</addressTypeCode><addressChangeDateTime>2023-10-23T18:12:24.000-05:00</addressChangeDateTime><addressChangeSource>Health
+        CENTER</addressChangeSite></address><address><line1>123 M ST</line1><city>CO
+        SPGS</city><county>EL PASO</county><state>CO</state><zipCode>80922</zipCode><country>USA</country><addressTypeCode>Temporary</addressTypeCode><addressChangeDateTime>2018-04-04T21:41:20.000-05:00</addressChangeDateTime><addressChangeEffectiveDate>20180403</addressChangeEffectiveDate><addressChangeSource>Health
         Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
-        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2023-10-23T18:19:07.000-05:00</contactMethodReportDate></address><address><line1>123
-        M ST</line1><city>CO SPGS</city><county>EL PASO</county><state>CO</state><zipCode>80922</zipCode><country>USA</country><addressTypeCode>Temporary</addressTypeCode><addressChangeDateTime>2018-04-04T21:41:20.000-05:00</addressChangeDateTime><addressChangeEffectiveDate>20180403</addressChangeEffectiveDate><addressChangeSource>Health
+        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2019-11-19T16:56:24.000-06:00</contactMethodReportDate></address><address><line1>7321
+        SW 7TH ST</line1><city>ONTARIO</city><postalCode>21534</postalCode><country>CAN</country><addressTypeCode>Permanent</addressTypeCode><addressChangeDateTime>2023-11-21T14:42:44.000-06:00</addressChangeDateTime><addressChangeSource>Health
         Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
-        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2019-11-19T16:56:24.000-06:00</contactMethodReportDate></address></addresses><phones><phone><type>Mobile</type><phoneNumber>(123)555-1234</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone><phone><type>Home</type><phoneNumber>(123)124-1234</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone><phone><type>Business</type><phoneNumber>(801)444-8888</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone></phones><emails><email><type>Personal</type><address>foo@example.com</address><siteOfChange>742
+        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2023-11-21T14:42:44.000-06:00</contactMethodReportDate></address></addresses><phones><phone><type>Mobile</type><phoneNumber>(123)555-1234</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone><phone><type>Home</type><phoneNumber>(123)124-1234</phoneNumber><phoneNumberReportDate>2023-10-23T18:12:24.000-05:00</phoneNumberReportDate></phone><phone><type>Business</type><phoneNumber>(801)444-8888</phoneNumber><phoneNumberReportDate>2023-11-21T14:42:44.000-06:00</phoneNumberReportDate></phone></phones><emails><email><type>Personal</type><address>foo@example.com</address><siteOfChange>742
         - HEALTH ELIGIBILITY CENTER</siteOfChange><sourceOfChange>HEC</sourceOfChange></email></emails></contactInfo><maritalStatus>Married</maritalStatus><preferredFacility>988
-        - DAYT20</preferredFacility><appointmentRequestResponse>false</appointmentRequestResponse><assignmentDate>2023-10-23T18:12:26.000-05:00</assignmentDate><preferredLanguage>eng
+        - DAYT20</preferredFacility><appointmentRequestResponse>false</appointmentRequestResponse><assignmentDate>2023-11-21T14:42:45.000-06:00</assignmentDate><preferredLanguage>eng
         - English</preferredLanguage><preferredLanguageEntryDate>2018-08-28T00:00:00.000-05:00</preferredLanguageEntryDate><preferredFacilities><preferredFacilityInfo><preferredFacility>988
+        - DAYT20</preferredFacility><assignmentDate>2023-11-21T14:30:13.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
         - DAYT20</preferredFacility><assignmentDate>2018-02-02T18:08:28.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
+        - DAYT20</preferredFacility><assignmentDate>2018-02-02T18:08:24.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
+        - DAYT20</preferredFacility><assignmentDate>2023-11-21T14:41:55.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
+        - DAYT20</preferredFacility><assignmentDate>2023-11-21T14:42:45.000-06:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
         - DAYT20</preferredFacility><assignmentDate>2023-10-23T18:12:26.000-05:00</assignmentDate></preferredFacilityInfo><preferredFacilityInfo><preferredFacility>988
-        - DAYT20</preferredFacility><assignmentDate>2018-02-02T18:08:24.000-06:00</assignmentDate></preferredFacilityInfo></preferredFacilities></demographics><deathRecond><deathReportDate>2023-10-23T18:12:27.000-05:00</deathReportDate></deathRecond></summary><invocationDate>2023-10-23T18:42:13</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
-  recorded_at: Mon, 23 Oct 2023 23:42:13 GMT
+        - DAYT20</preferredFacility><assignmentDate>2023-10-23T18:42:54.000-05:00</assignmentDate></preferredFacilityInfo></preferredFacilities></demographics><deathRecond><deathReportDate>2023-10-23T18:12:27.000-05:00</deathReportDate></deathRecond></summary><invocationDate>2023-11-21T16:29:52</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
+  recorded_at: Tue, 21 Nov 2023 22:29:52 GMT
 - request:
     method: post
     uri: <%= Settings.hca.endpoint %>
@@ -123,18 +129,21 @@ http_interactions:
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://va.gov/schema/esr/voa/v1"
         xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
-        xmlns:va="http://va.gov/schema/esr/voa/v1"><va:formIdentifier><va:type>100</va:type><va:value>1010EZ</va:value><va:version>2986360436</va:version></va:formIdentifier><va:summary><eeSummary:demographics
+        xmlns:va="http://va.gov/schema/esr/voa/v1"><va:formIdentifier><va:type>101</va:type><va:value>1010EZR</va:value><va:version>2986360436</va:version></va:formIdentifier><va:summary><eeSummary:associations
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:association><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>MEX</eeSummary:country><eeSummary:line1>7321
+        SW 7th St</eeSummary:line1><eeSummary:provinceCode>CHIH.</eeSummary:provinceCode><eeSummary:postalCode>21534</eeSummary:postalCode></eeSummary:address><eeSummary:contactType>10</eeSummary:contactType><eeSummary:relationship>SPOUSE</eeSummary:relationship><eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName><eeSummary:middleName>MIDDLESPOUSE</eeSummary:middleName><eeSummary:familyName>LASTSPOUSE</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:association></eeSummary:associations><eeSummary:demographics
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:appointmentRequestResponse>false</eeSummary:appointmentRequestResponse><eeSummary:contactInfo><eeSummary:addresses><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>MEX</eeSummary:country><eeSummary:line1>7321
         SW 7th St</eeSummary:line1><eeSummary:provinceCode>CHIH.</eeSummary:provinceCode><eeSummary:postalCode>21534</eeSummary:postalCode><eeSummary:addressTypeCode>P</eeSummary:addressTypeCode></eeSummary:address><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>MEX</eeSummary:country><eeSummary:line1>123
         NW 5th St</eeSummary:line1><eeSummary:provinceCode>CHIH.</eeSummary:provinceCode><eeSummary:postalCode>21231</eeSummary:postalCode><eeSummary:addressTypeCode>R</eeSummary:addressTypeCode></eeSummary:address></eeSummary:addresses><eeSummary:emails><eeSummary:email><eeSummary:address>foo@example.com</eeSummary:address><eeSummary:type>1</eeSummary:type></eeSummary:email></eeSummary:emails><eeSummary:phones><eeSummary:phone><eeSummary:phoneNumber>1231241234</eeSummary:phoneNumber><eeSummary:type>1</eeSummary:type></eeSummary:phone><eeSummary:phone><eeSummary:phoneNumber>1235551234</eeSummary:phoneNumber><eeSummary:type>4</eeSummary:type></eeSummary:phone></eeSummary:phones></eeSummary:contactInfo><eeSummary:maritalStatus>M</eeSummary:maritalStatus><eeSummary:preferredFacility>988</eeSummary:preferredFacility><eeSummary:acaIndicator>false</eeSummary:acaIndicator></eeSummary:demographics><eeSummary:enrollmentDeterminationInfo
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:eligibleForMedicaid>true</eeSummary:eligibleForMedicaid><eeSummary:noseThroatRadiumInfo><eeSummary:receivingTreatment>false</eeSummary:receivingTreatment></eeSummary:noseThroatRadiumInfo><eeSummary:serviceConnectionAward><eeSummary:serviceConnectedIndicator>false</eeSummary:serviceConnectedIndicator></eeSummary:serviceConnectionAward><eeSummary:specialFactors><eeSummary:agentOrangeInd>false</eeSummary:agentOrangeInd><eeSummary:envContaminantsInd>false</eeSummary:envContaminantsInd><eeSummary:campLejeuneInd>false</eeSummary:campLejeuneInd><eeSummary:radiationExposureInd>false</eeSummary:radiationExposureInd></eeSummary:specialFactors></eeSummary:enrollmentDeterminationInfo><eeSummary:financialsInfo
-        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:incomeTest><eeSummary:discloseFinancialInformation>false</eeSummary:discloseFinancialInformation></eeSummary:incomeTest></eeSummary:financialsInfo><eeSummary:insuranceList
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:incomeTest><eeSummary:discloseFinancialInformation>true</eeSummary:discloseFinancialInformation></eeSummary:incomeTest><eeSummary:financialStatement><eeSummary:expenses><eeSummary:expense><eeSummary:amount>77.77</eeSummary:amount><eeSummary:expenseType>3</eeSummary:expenseType></eeSummary:expense><eeSummary:expense><eeSummary:amount>44.44</eeSummary:amount><eeSummary:expenseType>19</eeSummary:expenseType></eeSummary:expense><eeSummary:expense><eeSummary:amount>33.3</eeSummary:amount><eeSummary:expenseType>18</eeSummary:expenseType></eeSummary:expense></eeSummary:expenses><eeSummary:incomes><eeSummary:income><eeSummary:amount>123.33</eeSummary:amount><eeSummary:type>7</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>90.11</eeSummary:amount><eeSummary:type>13</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>10.1</eeSummary:amount><eeSummary:type>10</eeSummary:type></eeSummary:income></eeSummary:incomes><eeSummary:spouseFinancialsList><eeSummary:spouseFinancials><eeSummary:incomes><eeSummary:income><eeSummary:amount>64.1</eeSummary:amount><eeSummary:type>7</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>35.1</eeSummary:amount><eeSummary:type>13</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>12.3</eeSummary:amount><eeSummary:type>10</eeSummary:type></eeSummary:income></eeSummary:incomes><eeSummary:spouse><eeSummary:dob>04/06/1990</eeSummary:dob><eeSummary:relationship>2</eeSummary:relationship><eeSummary:startDate>05/10/2003</eeSummary:startDate><eeSummary:ssns><eeSummary:ssn><eeSummary:ssnText>111221234</eeSummary:ssnText></eeSummary:ssn></eeSummary:ssns><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>MEX</eeSummary:country><eeSummary:line1>7321
+        SW 7th St</eeSummary:line1><eeSummary:provinceCode>CHIH.</eeSummary:provinceCode><eeSummary:postalCode>21534</eeSummary:postalCode></eeSummary:address><eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName><eeSummary:middleName>MIDDLESPOUSE</eeSummary:middleName><eeSummary:familyName>LASTSPOUSE</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:spouse><eeSummary:contributedToSpousalSupport>false</eeSummary:contributedToSpousalSupport><eeSummary:livedWithPatient>true</eeSummary:livedWithPatient></eeSummary:spouseFinancials></eeSummary:spouseFinancialsList><eeSummary:marriedLastCalendarYear>true</eeSummary:marriedLastCalendarYear><eeSummary:numberOfDependentChildren>0</eeSummary:numberOfDependentChildren></eeSummary:financialStatement></eeSummary:financialsInfo><eeSummary:insuranceList
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:insurance><eeSummary:companyName>MyInsurance</eeSummary:companyName><eeSummary:policyHolderName>FirstName
         ZZTEST</eeSummary:policyHolderName><eeSummary:policyNumber>P1234</eeSummary:policyNumber><eeSummary:groupNumber>G1234</eeSummary:groupNumber><eeSummary:insuranceMappingTypeName>PI</eeSummary:insuranceMappingTypeName></eeSummary:insurance><eeSummary:insurance><eeSummary:companyName>Medicare</eeSummary:companyName><eeSummary:enrolledInPartA>true</eeSummary:enrolledInPartA><eeSummary:insuranceMappingTypeName>MDCR</eeSummary:insuranceMappingTypeName><eeSummary:policyNumber>873462432</eeSummary:policyNumber><eeSummary:partAEffectiveDate>10/16/1999</eeSummary:partAEffectiveDate></eeSummary:insurance></eeSummary:insuranceList><eeSummary:militaryServiceInfo
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:dischargeDueToDisability>false</eeSummary:dischargeDueToDisability><eeSummary:militaryServiceSiteRecords><eeSummary:militaryServiceSiteRecord><eeSummary:site>988</eeSummary:site></eeSummary:militaryServiceSiteRecord></eeSummary:militaryServiceSiteRecords></eeSummary:militaryServiceInfo><eeSummary:prisonerOfWarInfo
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:powIndicator>false</eeSummary:powIndicator></eeSummary:prisonerOfWarInfo><eeSummary:purpleHeart
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:indicator>false</eeSummary:indicator></eeSummary:purpleHeart><eeSummary:personInfo
-        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>FIRSTNAME</eeSummary:firstName><eeSummary:middleName>MIDDLENAME</eeSummary:middleName><eeSummary:lastName>ZZTEST</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>F</eeSummary:gender><eeSummary:dob>01/02/1986</eeSummary:dob><eeSummary:ssnText>111111234</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2023-10-23</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>FIRSTNAME</eeSummary:firstName><eeSummary:middleName>MIDDLENAME</eeSummary:middleName><eeSummary:lastName>ZZTEST</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>F</eeSummary:gender><eeSummary:dob>01/02/1986</eeSummary:dob><eeSummary:ssnText>111111234</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2023-11-21</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
         xmlns:va="http://va.gov/schema/esr/voa/v1"><va:authenticationLevel><va:type>102</va:type><va:value>Assurance
         Level 2</va:value></va:authenticationLevel><va:veteranIdentifier><va:type>1</va:type><va:value>1013032368V065534</va:value></va:veteranIdentifier></va:identity></ns1:submitFormRequest></soap:Body></soap:Envelope>
     headers:
@@ -145,9 +154,9 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Date:
-      - Mon, 23 Oct 2023 23:42:52 GMT
+      - Tue, 21 Nov 2023 22:29:52 GMT
       Content-Length:
-      - '5627'
+      - '8810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -156,7 +165,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 23 Oct 2023 23:42:52 GMT
+      - Tue, 21 Nov 2023 22:29:52 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -166,7 +175,7 @@ http_interactions:
       X-Oracle-Dms-Rid:
       - '0'
       X-Oracle-Dms-Ecid:
-      - cd3cfc2f-1944-4172-8638-7544ad043768-003220cc
+      - 666a9a68-12e6-47b1-8338-7f0ead38eb6b-0002628e
       X-Oneagent-Js-Injection:
       - 'true'
       Ssl-Env:
@@ -178,7 +187,7 @@ http_interactions:
       Cache-Control:
       - max-age=0, no-store
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="-988343936"
+      - dtSInfo;desc="0", dtRpid;desc="1759274849"
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -188,7 +197,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
-        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>432236923</formSubmissionId><message><type>Form
-        successfully received for EE processing</type></message><timeStamp>2023-10-23T18:42:52.975-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
-  recorded_at: Mon, 23 Oct 2023 23:42:53 GMT
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>432777930</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2023-11-21T16:29:52.432-06:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
+  recorded_at: Tue, 21 Nov 2023 22:29:52 GMT
 recorded_with: VCR 6.2.0

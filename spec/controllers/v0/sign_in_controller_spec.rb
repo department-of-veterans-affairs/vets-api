@@ -596,9 +596,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error_status) { :ok }
         let(:auth_param) { 'fail' }
         let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
-        let(:expected_error_message) do
-          { errors: expected_error, client_id:, type:, acr: }
-        end
+        let(:expected_error_message) { { errors: expected_error, client_id:, type:, acr: } }
         let(:request_id) { SecureRandom.uuid }
         let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
@@ -1620,6 +1618,7 @@ RSpec.describe V0::SignInController, type: :controller do
           {
             uuid:,
             service_account_id:,
+            user_attributes: {},
             user_identifier:,
             scopes:,
             audience:,

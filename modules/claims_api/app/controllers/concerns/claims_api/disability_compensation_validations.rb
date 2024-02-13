@@ -59,7 +59,7 @@ module ClaimsApi
     end
 
     def valid_countries
-      @valid_countries ||= ClaimsApi::BRD.new(request).countries
+      @valid_countries ||= ClaimsApi::BRD.new.countries
     end
 
     def validate_form_526_change_of_address!

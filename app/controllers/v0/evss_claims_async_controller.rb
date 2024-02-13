@@ -3,6 +3,7 @@
 module V0
   class EVSSClaimsAsyncController < ApplicationController
     include IgnoreNotFound
+    service_tag 'claim-status'
 
     before_action { authorize :evss, :access? }
 
@@ -28,7 +29,7 @@ module V0
         # Still no record in the DB, safe to assume that the claim doesn't belong to
         # current_user
         unless claim
-          Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
+          Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
           raise Common::Exceptions::RecordNotFound, params[:id]
         end
       end

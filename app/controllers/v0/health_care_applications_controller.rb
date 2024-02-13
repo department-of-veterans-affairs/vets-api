@@ -6,6 +6,8 @@ require 'pdf_fill/filler'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    include IgnoreNotFound
+
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
@@ -18,7 +20,6 @@ module V0
     def rating_info
       service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
-
       render(
         json: {
           user_percent_of_disability: disability_rating
@@ -54,13 +55,8 @@ module V0
         if loa3
           current_user.icn
         else
-          Raven.extra_context(
-            user_loa: current_user&.loa
-          )
-
-          HealthCareApplication.user_icn(
-            HealthCareApplication.user_attributes(params[:userAttributes])
-          )
+          Sentry.set_extras(user_loa: current_user&.loa)
+          HealthCareApplication.user_icn(HealthCareApplication.user_attributes(params[:userAttributes]))
         end
 
       raise Common::Exceptions::RecordNotFound, nil if icn.blank?

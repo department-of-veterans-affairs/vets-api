@@ -133,7 +133,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'start_date_local' => '2018-03-07T00:00:00.000-07:00',
                                         'start_date_utc' => '2018-03-07T07:00:00.000+00:00',
                                         'status' => 'BOOKED',
-                                        'status_detail' => 'CANCELLED BY CLINIC',
+                                        'status_detail' => nil,
                                         'time_zone' => 'America/Denver',
                                         'vetext_id' => '442;3180307.0',
                                         'reason' => nil,
@@ -195,7 +195,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'start_date_local' => '2022-01-11T08:00:00.000-07:00',
                                         'start_date_utc' => '2022-01-11T15:00:00.000+00:00',
                                         'status' => 'BOOKED',
-                                        'status_detail' => 'CANCELLED BY CLINIC',
+                                        'status_detail' => nil,
                                         'time_zone' => 'America/Denver',
                                         'vetext_id' => '552;3220111.08',
                                         'reason' => nil,
@@ -256,7 +256,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'start_date_local' => '2022-01-25T17:00:00.000-07:00',
                                           'start_date_utc' => '2022-01-26T00:00:00.000+00:00',
                                           'status' => 'SUBMITTED',
-                                          'status_detail' => 'CANCELLED BY CLINIC',
+                                          'status_detail' => nil,
                                           'time_zone' => 'America/Denver',
                                           'vetext_id' => '552;3220125.17',
                                           'reason' => nil,
@@ -325,7 +325,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'start_date_local' => '2021-09-27T18:00:00.000-06:00',
                                           'start_date_utc' => '2021-09-28T00:00:00.000+00:00',
                                           'status' => 'SUBMITTED',
-                                          'status_detail' => 'CANCELLED BY CLINIC',
+                                          'status_detail' => nil,
                                           'time_zone' => 'America/Denver',
                                           'vetext_id' => '442;3210927.18',
                                           'reason' => nil,
@@ -387,7 +387,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'start_date_local' => '2021-10-01T06:00:00.000-06:00',
                                        'start_date_utc' => '2021-10-01T12:00:00.000+00:00',
                                        'status' => 'SUBMITTED',
-                                       'status_detail' => 'CANCELLED BY CLINIC',
+                                       'status_detail' => nil,
                                        'time_zone' => 'America/Denver',
                                        'vetext_id' => '442;3211001.06',
                                        'reason' => nil,
@@ -419,7 +419,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(home_va.as_json).to eq({ 'id' => '50094',
                                       'appointment_type' => 'VA_VIDEO_CONNECT_HOME',
                                       'appointment_ien' => nil,
-                                      'cancel_id' => '50094',
+                                      'cancel_id' => nil,
                                       'comment' => nil,
                                       'facility_id' => '442',
                                       'sta6aid' => '442',
@@ -442,7 +442,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                       'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                       'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                       'status' => 'SUBMITTED',
-                                      'status_detail' => 'CANCELLED BY CLINIC',
+                                      'status_detail' => nil,
                                       'time_zone' => 'America/Denver',
                                       'vetext_id' => '442;3210908.06',
                                       'reason' => nil,
@@ -474,7 +474,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(atlas_va.as_json).to eq({ 'id' => '50094',
                                        'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
                                        'appointment_ien' => nil,
-                                       'cancel_id' => '50094',
+                                       'cancel_id' => nil,
                                        'comment' => nil,
                                        'facility_id' => '442',
                                        'sta6aid' => '442',
@@ -500,7 +500,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                        'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                        'status' => 'SUBMITTED',
-                                       'status_detail' => 'CANCELLED BY CLINIC',
+                                       'status_detail' => nil,
                                        'time_zone' => 'America/Denver',
                                        'vetext_id' => '442;3210908.06',
                                        'reason' => nil,
@@ -527,7 +527,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(gfe_va.as_json).to eq({ 'id' => '50094',
                                      'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
                                      'appointment_ien' => nil,
-                                     'cancel_id' => '50094',
+                                     'cancel_id' => nil,
                                      'comment' => nil,
                                      'facility_id' => '442',
                                      'sta6aid' => '442',
@@ -549,7 +549,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                      'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                      'status' => 'SUBMITTED',
-                                     'status_detail' => 'CANCELLED BY CLINIC',
+                                     'status_detail' => nil,
                                      'time_zone' => 'America/Denver',
                                      'vetext_id' => '442;3210908.06',
                                      'reason' => nil,
@@ -576,7 +576,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(telehealth_onsite.as_json).to eq({ 'id' => '50094',
                                                 'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
                                                 'appointment_ien' => nil,
-                                                'cancel_id' => '50094',
+                                                'cancel_id' => nil,
                                                 'comment' => nil,
                                                 'facility_id' => '442',
                                                 'sta6aid' => '442',
@@ -604,7 +604,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                 'start_date_local' => '2021-09-08T06:00:00.000-06:00',
                                                 'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
                                                 'status' => 'SUBMITTED',
-                                                'status_detail' => 'CANCELLED BY CLINIC',
+                                                'status_detail' => nil,
                                                 'time_zone' => 'America/Denver',
                                                 'vetext_id' => '442;3210908.06',
                                                 'reason' => nil,
@@ -834,7 +834,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
           'start_date_local' => '2022-12-12T19:00:00.000-05:00',
           'start_date_utc' => '2022-12-13T00:00:00.000+00:00',
           'status' => 'SUBMITTED',
-          'status_detail' => 'CANCELLED BY CLINIC',
+          'status_detail' => nil,
           'time_zone' => 'America/New_York',
           'vetext_id' => '552;3221212.19',
           'reason' => 'Routine Follow-up',
@@ -911,6 +911,23 @@ preferred dates:12/13/2022 PM|pager number:8675309"
         expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
         expect(result.comment).to be_nil
         expect(result.reason).to be_nil
+      end
+    end
+
+    context 'when some acheron field keys are camel case' do
+      it 'parses both camel case and non camel case fields' do
+        appointment = appointment_data[12]
+        appointment[:reason_code][:coding] = [{ code: 'will not be used' }]
+        appointment[:contact] = { telecom: { email: 'will not be used', phone: '1112223333' } }
+        appointment[:comment] = 'will not be used'
+        appointment[:reason_code][:text] =
+          'email:melissa.gra@va.gov|preferred dates:12/13/2022 AM|reasonCode:ROUTINEVISIT|comments:My leg!'
+
+        result = subject.parse([appointment]).first
+        expect(result.patient_email).to eq('melissa.gra@va.gov')
+        expect(result.proposed_times).to eq([{ date: '12/13/2022', time: 'AM' }])
+        expect(result.comment).to eq('My leg!')
+        expect(result.reason).to eq('Routine Follow-up')
       end
     end
   end

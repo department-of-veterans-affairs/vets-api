@@ -501,12 +501,17 @@ en:
         <<: *external_defaults
         code: "MEDICALRECORDS_401"
         detail: "Authentication failed on the upstream server"
-        status: 401
+        status: 400
       MEDICALRECORDS_403:
         <<: *external_defaults
         code: "MEDICALRECORDS_403"
         detail: "This user is forbidden from performing requests on the upstream server"
         status: 403
+      MEDICALRECORDS_404:
+        <<: *external_defaults
+        code: "MEDICALRECORDS_404"
+        detail: "The resource could not be found"
+        status: 404
       HCA422:
         <<: *external_defaults
         code: 'HCA422'
@@ -762,6 +767,18 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'SEARCH_503'
+        detail: 'Search.gov service is currently unavailable'
+        status: 503
+      SEARCH_504:
+        <<: *external_defaults
+        title: Gateway Timeout
+        code: 'SEARCH_504'
+        detail: 'Did not receive a timely response from Search.gov'
+        status: 504
       SEARCH_TYPEAHEAD_400:
         <<: *external_defaults
         title: Bad Request

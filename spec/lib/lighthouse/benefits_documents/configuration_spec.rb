@@ -47,22 +47,5 @@ RSpec.describe BenefitsDocuments::Configuration do
         end
       end
     end
-
-    context 'when file is crt' do
-      let(:document_data) do
-        { file_number: '796378881',
-          claim_id: '600423040',
-          tracked_item_id: nil,
-          document_type: 'L023',
-          file_name: 'idme_cert.crt' }
-      end
-      let(:file_body) { File.read(fixture_file_upload('idme_cert.crt')) }
-
-      it 'raises bad request error' do
-        BenefitsDocuments::Configuration.instance.post(file_body, document_data)
-      rescue => e
-        expect(e.errors).to eq('Invalid claim document upload file type: x-x509-ca-cert')
-      end
-    end
   end
 end

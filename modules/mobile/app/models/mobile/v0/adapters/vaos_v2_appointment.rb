@@ -13,17 +13,13 @@ module Mobile
           va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
         }.freeze
 
-        HIDDEN_STATUS = %w[
-          noshow
-          pending
-        ].freeze
-
         STATUSES = {
           booked: 'BOOKED',
           fulfilled: 'BOOKED',
           arrived: 'BOOKED',
           cancelled: 'CANCELLED',
-          hidden: 'HIDDEN',
+          noshow: 'HIDDEN',
+          pending: 'HIDDEN',
           proposed: 'SUBMITTED'
         }.freeze
 
@@ -190,9 +186,13 @@ module Mobile
         end
 
         def cancel_id
-          return nil unless appointment[:cancellable]
+          return nil unless cancellable?
 
           appointment[:id]
+        end
+
+        def cancellable?
+          appointment[:cancellable] && appointment[:kind] != 'telehealth'
         end
 
         def type_of_care(service_type)
@@ -210,8 +210,9 @@ module Mobile
                                 vista_status: appointment.dig(:extension, :vista_status),
                                 facility_id:,
                                 clinic: appointment[:clinic])
+              return CANCELLATION_REASON[:prov]
             end
-            return CANCELLATION_REASON[:prov]
+            return nil
           end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)
@@ -245,8 +246,6 @@ module Mobile
         end
 
         def status
-          return STATUSES[:hidden] if HIDDEN_STATUS.include?(appointment[:status])
-
           STATUSES[appointment[:status].to_sym]
         end
 
@@ -481,10 +480,16 @@ module Mobile
         end
 
         def embedded_data_match(key)
-          match = appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
+          camelized_key = key.gsub(' ', '_').camelize(:lower)
+          match = reason_code_match(key) || reason_code_match(camelized_key)
+
           return nil unless match
 
           match[2].strip.presence
+        end
+
+        def reason_code_match(key)
+          appointment.dig(:reason_code, :text)&.match(/(^|\|)#{key}:?(.*?)(\||$)/)
         end
 
         def time_to_datetime(time)

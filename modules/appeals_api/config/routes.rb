@@ -151,6 +151,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#hlr'
 
       namespace :forms do
+        # NOTE: The index route will remain disabled until questions around claimant vs. veteran privacy are resolved
         resources '200996', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
@@ -178,7 +179,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#sc'
 
       namespace :forms do
-        # N.B. The index action may be enabled after the launch of v0:
+        # NOTE: The index route will remain disabled until questions around claimant vs. veteran privacy are resolved
         resources '200995', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
@@ -215,7 +216,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#ai'
 
       namespace :schemas, controller: appealable_issues_controller_path do
-        get 'appealable-issues', action: :schema
+        get 'params', action: :schema
       end
 
       resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
@@ -236,7 +237,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#la'
 
       namespace :schemas, controller: controller_path do
-        get 'headers', action: :schema
+        get 'params', action: :schema
       end
 
       resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'

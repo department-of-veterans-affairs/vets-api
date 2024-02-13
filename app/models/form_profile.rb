@@ -4,7 +4,6 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
-require 'hca/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -34,12 +33,9 @@ class FormMilitaryInformation
   attribute :discharge_type, String
   attribute :post_nov111998_combat, Boolean
   attribute :sw_asia_combat, Boolean
-  attribute :compensable_va_service_connected, Boolean
-  attribute :is_va_service_connected, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
-  attribute :va_compensation_type, String
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
@@ -195,70 +191,27 @@ class FormProfile
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
-    mappings = self.class.mappings_for_form(form_id)
-
     form = form_id == '1010EZ' ? '1010ez' : form_id
-    form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
+    if FormProfile.prefill_enabled_forms.include?(form)
+      mappings = self.class.mappings_for_form(form_id)
 
-    { form_data:, metadata: }
-  end
+      form_data = generate_prefill(mappings)
 
-  def initialize_military_information_vaprofile
-    military_information_data = {}
-    military_information = HCA::MilitaryInformation.new(user)
-
-    HCA::MilitaryInformation::PREFILL_METHODS.each do |attr|
-      military_information_data[attr] = military_information.public_send(attr)
-    end
-
-    military_information_data
-  rescue => e
-    if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
-
-      {}
+      { form_data:, metadata: }
     else
-      raise e
+      { metadata: }
     end
   end
 
-  # When military_information_vaprofile Flipper is removed, this method will be shorter.
-  # rubocop:disable Metrics/MethodLength
   def initialize_military_information
     return {} unless user.authorize :va_profile, :access?
 
-    if Flipper.enabled?(:military_information_vaprofile)
-      military_information_data = {}
-      military_information_data.merge!(initialize_va_profile_prefill_military_information)
-      military_information_data[:vic_verified] = user.can_access_id_card?
+    military_information_data = {}
+    military_information_data.merge!(initialize_va_profile_prefill_military_information)
+    military_information_data[:vic_verified] = user.can_access_id_card?
 
-    else
-      military_information = user.military_information
-      military_information_data = {}
-
-      military_information_data.merge!(initialize_military_information_vaprofile)
-
-      military_information_data[:vic_verified] = user.can_access_id_card?
-
-      begin
-        EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
-          if military_information_data[attr].nil?
-            military_information_data[attr] = military_information.public_send(attr)
-          end
-        end
-      rescue => e
-        if Rails.env.production?
-          # fail silently if emis is down
-          log_exception_to_sentry(e, {}, external_service: :emis)
-        else
-          raise e
-        end
-      end
-
-    end
     FormMilitaryInformation.new(military_information_data)
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 

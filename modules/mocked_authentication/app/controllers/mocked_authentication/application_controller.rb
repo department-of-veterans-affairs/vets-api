@@ -2,5 +2,7 @@
 
 module MockedAuthentication
   class ApplicationController < ActionController::Base
+    include Traceable
+    service_tag 'mock-authentication'
   end
 end

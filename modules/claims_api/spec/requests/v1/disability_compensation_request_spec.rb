@@ -457,7 +457,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                 'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
                 'icn' => '1013062086V794840'
               }
-              allow_any_instance_of(Token).to receive(:payload).and_return(jwt_payload)
+              allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:payload).and_return(jwt_payload)
 
               post path, params: data, headers: headers.merge(auth_header)
               token = JSON.parse(response.body)['data']['attributes']['token']
@@ -2852,6 +2852,32 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    it 'support doc fails, should retry' do
+      mock_acg(scopes) do |auth_header|
+        body = {
+          messages: [
+            { key: '',
+              severity: 'ERROR',
+              text: 'Error calling external service to upload claim document.' }
+          ]
+        }
+
+        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        allow_any_instance_of(ClaimsApi::BD).to(
+          receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       '', {}, 500, body
+                                     ))
+        )
+        count = auto_claim.supporting_documents.count
+        post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
+             params: base64_params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(200)
+        auto_claim.reload
+        expect(auto_claim.supporting_documents.count).to eq(count + 2)
+      end
+    end
+
     context 'when a claim is already established' do
       let(:auto_claim) { create(:auto_established_claim, :status_established) }
 
@@ -2861,6 +2887,47 @@ RSpec.describe 'Disability Claims ', type: :request do
           put("/services/claims/v1/forms/526/#{auto_claim.id}",
               params: binary_params, headers: headers.merge(auth_header))
           expect(response.status).to eq(404)
+        end
+      end
+    end
+  end
+
+  describe 'POST #submit_form_526 using md5 lookup' do
+    let(:claim_date) { (Time.zone.today - 1.day).to_s }
+    let(:auto_cest_pdf_generation_disabled) { false }
+    let(:data) do
+      temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+      temp = JSON.parse(temp)
+      temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
+      temp['data']['attributes']['claimDate'] = claim_date
+      temp['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
+
+      temp.to_json
+    end
+    let(:path) { '/services/claims/v1/forms/526' }
+
+    it 'returns existing claim if duplicate submit occurs by using the md5 lookup' do
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claims') do
+          VCR.use_cassette('brd/countries') do
+            json = JSON.parse(data)
+            post path, params: json.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(200)
+            first_submit_parsed = JSON.parse(response.body)
+            @original_id = first_submit_parsed['data']['id']
+          end
+        end
+      end
+      mock_acg(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claims') do
+          VCR.use_cassette('brd/countries') do
+            json = JSON.parse(data)
+            post path, params: json.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(200)
+            duplicate_submit_parsed = JSON.parse(response.body)
+            duplicate_id = duplicate_submit_parsed['data']['id']
+            expect(@original_id).to eq(duplicate_id)
+          end
         end
       end
     end

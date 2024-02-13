@@ -42,6 +42,7 @@ class StatsdMiddleware
     5490-edu-benefits
     5495-edu-benefits
     686C-674
+    995-supplemental-claim
     ask-a-question
     auth
     beta-enrollment
@@ -55,8 +56,8 @@ class StatsdMiddleware
     covid19screen
     dashboard
     dependents-view-dependents
-    disability-my-rated-disabilities
     discharge-upgrade-instructions
+    ezr
     facilities
     feedback-tool
     gi
@@ -77,6 +78,7 @@ class StatsdMiddleware
     public-outreach-materials
     questionnaire
     questionnaire-list
+    rated-disabilities
     request-debt-help-form-5655
     resources-and-support
     search

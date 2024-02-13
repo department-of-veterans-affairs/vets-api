@@ -153,7 +153,7 @@ RSpec.describe 'V2::Demographics', type: :request do
         }
       end
 
-      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:faraday_response) { Faraday::Response.new(response_body: resp, status: 200) }
       let(:hsh) { { 'data' => faraday_response.body, 'status' => faraday_response.status } }
 
       it 'returns valid response' do

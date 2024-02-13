@@ -36,6 +36,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Email a decision reviews stats report for the past month to configured recipients first of the month
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
+  mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
+  # Update static data cache
+  mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
 
   # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
 
@@ -59,9 +63,6 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clear out EVSS disability claims that have not been updated in 24 hours
   mgr.register('20 2 * * *', 'DeleteOldPiiLogsJob')
   # Clear out old personal information logs
-  mgr.register('30 2 * * *', 'CentralMail::DeleteOldClaims')
-  # Clear out central mail claims older than 2 months
-
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
 
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
@@ -155,5 +156,8 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
   mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+
+  # Updates veteran representatives address attributes (including lat, long, location, address fields, email address)
+  mgr.register('0 3 * * *', 'RepAddresses::QueueAddressUpdates')
 }
 # rubocop:enable Metrics/BlockLength

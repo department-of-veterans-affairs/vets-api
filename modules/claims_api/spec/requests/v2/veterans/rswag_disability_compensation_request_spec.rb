@@ -6,13 +6,13 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
-describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
+describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
                                    vcr: 'claims_api/disability_comp' do
   let(:scopes) { %w[system/claim.read system/claim.write] }
 
   path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'post526Claim'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -58,15 +58,25 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       let(:scopes) { %w[system/claim.read system/claim.write] }
 
-      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
+      parameter name: :disability_comp_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
+
+      parameter in: :body, examples: {
+        'Minimum Required Attributes' => {
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                            'disability_compensation', 'valid_526_minimum.json').read)
+        },
+        'Maximum Attributes' => {
+          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                            'disability_compensation', 'form_526_json_api.json').read)
+
+        }
+      }
 
       describe 'Getting a successful response' do
-        response '202', 'Successful response with disability' do
-          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
-
+        response '202', 'Successful response' do
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
@@ -76,22 +86,19 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
               anticipated_separation_date
             temp['data']['attributes'] = attributes
             temp.to_json
-
             temp
           end
+
+          let(:disability_comp_request) do
+            data
+          end
+
+          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
 
           before do |example|
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
           end
 
           it 'returns a valid 202 response' do |example|
@@ -103,13 +110,17 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting an unauthorized reponse' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                    'disability_compensation', 'form_526_json_api.json').read
             temp = JSON.parse(temp)
             temp
+          end
+
+          let(:disability_comp_request) do
+            data
           end
 
           before do |example|
@@ -133,8 +144,8 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       describe 'Getting an unprocessable entity response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api',
-                                            'errors', 'default_with_source.json').read)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default_with_source.json').read)
           # Build the dropdown for examples
           def append_example_metadata(example, response)
             example.metadata[:response][:content] = {
@@ -157,6 +168,10 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
           context 'Violates JSON Schema' do
             let(:data) { { data: { attributes: nil } } }
 
+            let(:disability_comp_request) do
+              data
+            end
+
             before do |example|
               make_request(example)
             end
@@ -173,6 +188,10 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
           context 'Not a JSON Object' do
             let(:data) do
               'This is not valid JSON'
+            end
+
+            let(:disability_comp_request) do
+              data
             end
 
             before do |example|
@@ -194,7 +213,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
   path '/veterans/{veteranId}/526/validate' do
     post 'Validates a 526 claim form submission.' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'post526ClaimValidate'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -218,21 +237,102 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
 
       describe 'Getting a successful response' do
-        response '200', '526 Response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+        response '200', 'Successful response with disability' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                            'disability', 'validate.json').read)
+          let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+            attributes = temp['data']['attributes']
+            attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+              anticipated_separation_date
+            temp['data']['attributes'] = attributes
+            temp.to_json
+            temp
+          end
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default.json').read)
+
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+          let(:Authorization) { nil }
+
+          before do |example|
+            mock_acg(scopes) do
+              allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 422 response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'disability_compensation', 'default_with_source.json').read)
+          let(:data) { { data: { attributes: nil } } }
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 422 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
@@ -241,7 +341,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
 
   path '/veterans/{veteranId}/526/{id}/attachments' do
     post 'Upload documents supporting a 526 claim' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'upload526Attachments'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -332,7 +432,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -376,7 +476,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'default.json').read)
+                                            'disability_compensation', 'default.json').read)
 
           let(:scopes) { %w[claim.write] }
           let(:attachment1) do
@@ -411,9 +511,9 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
     end
   end
 
-  path '/veterans/{veteranId}/526/generatePDF' do
+  path '/veterans/{veteranId}/526/generatePDF', production: false do
     post 'Returns filled out 526EZ form as PDF' do
-      tags 'Disability'
+      tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
@@ -434,12 +534,12 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       let(:Authorization) { 'Bearer token' }
       let(:data) do
         temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                               'disability_compensation', 'form_526_json_api.json').read
+                               'disability_compensation', 'form_526_generate_pdf_json_api.json').read
         temp = JSON.parse(temp)
 
         temp
       end
-      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation_generate_pdf]
       pdf_description = <<~VERBIAGE
         Returns a filled out 526EZ form for a disability compensation claim (21-526EZ).
 
@@ -450,8 +550,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
           before do |example|
-            stub_poa_verification
-
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -460,7 +558,7 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
           after do |example|
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
+                example: 'No example available'
               }
             }
           end
@@ -476,8 +574,6 @@ describe 'DisabilityCompensation', production: false, swagger_doc: Rswag::TextHe
           let(:Authorization) { nil }
 
           before do |example|
-            stub_poa_verification
-
             mock_acg(scopes) do
               allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)
