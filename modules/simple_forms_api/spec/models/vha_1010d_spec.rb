@@ -42,7 +42,8 @@ RSpec.describe SimpleFormsApi::VHA1010d do
     it 'calls CombinePDF.new' do
       # Stub the CombinePDF.new method to return a double that does not perform any actions
       allow(CombinePDF).to receive(:new).and_return(double('combined_pdf', save: nil))
-      puts CombinePDF.new
+      combined_pdf = CombinePDF.new
+      p combined_pdf  # Output to console using `p` for inspection
 
       # Call the method under test
       vha1010d.handle_attachments(file_path)
