@@ -53,7 +53,7 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
     context 'when an exception is raised' do
       before do
         allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_raise(StandardError,
-                                                                                              'test error')
+                                                                                                 'test error')
         allow_any_instance_of(described_class).to receive(:log_error)
       end
 
