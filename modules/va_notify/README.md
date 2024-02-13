@@ -59,4 +59,21 @@ This class defaults to using the va.gov service's api key but you can provide yo
     )
 ```
 
+
+### API key details
+
+Api keys need to be structured using the following format:
+`NAME_OF_API_KEY-YOUR_SERVICE_UUID-API_KEY`
+
+- `NAME_OF_API_KEY` - VANotify's internal name for your api key (will be provided with your API key)
+- `YOUR_SERVICE_ID` - The UUID corresponding to your service
+- `API_KEY` - Actual API key
+
+Example for a service with the following attributes:
+- Name of Api key: `foo-bar-normal-key`
+- Service id: `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`
+- Api key: `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
+
+Expected format: `foo-bar-normal-key-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
+
 Please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) if you have any questions.
