@@ -29,7 +29,10 @@ module V0
     def log_length_discrepancy(difference)
       message = "Discrepancy of #{difference} disability ratings"
 
-      ::Rails.logger.info(message, { message_type: 'lh.rated_disabilities.length_discrepancy' })
+      ::Rails.logger.info(message, {
+                            message_type: 'lh.rated_disabilities.length_discrepancy',
+                            revision: 2
+                          })
     end
 
     # EVSS
@@ -53,6 +56,7 @@ module V0
       # We only want active ratings
       if response.dig('data', 'attributes', 'individual_ratings')
         reject_deferred_ratings!(response['data']['attributes']['individual_ratings'])
+        reject_inactive_ratings!(response['data']['attributes']['individual_ratings'])
       end
 
       response
@@ -60,6 +64,14 @@ module V0
 
     def reject_deferred_ratings!(ratings)
       ratings.reject! { |rating| deferred?(rating) }
+    end
+
+    def reject_inactive_ratings!(ratings)
+      ratings.select! { |rating| active?(rating) }
+    end
+
+    def active?(rating)
+      rating['rating_end_date'].nil?
     end
 
     def deferred?(rating)
