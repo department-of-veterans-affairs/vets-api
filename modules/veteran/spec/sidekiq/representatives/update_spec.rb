@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepAddresses::UpdateAddresses do
+RSpec.describe Representatives::Update do
   describe '#perform' do
     let(:json_data) do
       { type:,
@@ -73,7 +73,7 @@ RSpec.describe RepAddresses::UpdateAddresses do
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "UpdateAddresses error: unexpected token at 'invalid json'", :error
+          "Update error: unexpected token at 'invalid json'", :error
         )
 
         subject.perform(invalid_json_data)
@@ -150,7 +150,7 @@ RSpec.describe RepAddresses::UpdateAddresses do
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'UpdateAddresses record not found for representative with id: 1234', :error
+            'Update record not found for representative with id: 1234', :error
           )
 
           subject.perform(json_data)
