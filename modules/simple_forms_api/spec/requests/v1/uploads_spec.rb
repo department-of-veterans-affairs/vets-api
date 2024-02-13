@@ -309,15 +309,15 @@ RSpec.describe 'Forms uploader', type: :request do
   end
 
   describe '#submit_supporting_documents' do
-    it 'renders the attachment as json for multiple form IDs' do
+    it 'renders the attachment as json' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
       file = fixture_file_upload('doctors-note.gif')
 
       # Define data for both form IDs
       data_sets = [
-        { form_id: '10-10D', file: file },
-        { form_id: '40-0247', file: file }
+        { form_id: '10-10D', file: },
+        { form_id: '40-0247', file: }
       ]
 
       data_sets.each do |data|
