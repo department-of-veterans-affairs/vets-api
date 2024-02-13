@@ -1,5 +1,5 @@
 ARG RELEASE=bullseye
-FROM ruby:3.2.2-slim-${RELEASE} as rubyimg
+FROM ruby:3.2.3-slim-${RELEASE} as rubyimg
 
 # XXX: using stretch here for pdftk dep, which is not availible after
 #      stretch (or in alpine) and is switched automatically to pdftk-java in buster
