@@ -2,6 +2,9 @@
 
 module SchemaContract
   class Validator
+
+    # add class for outputting error. will make testing cleaner
+
     def initialize(record_id)
       @record_id = record_id
     end
@@ -22,11 +25,11 @@ module SchemaContract
     private
 
     def record
-      @record ||= SchemaContract.find(id: @record_id)
+      @record ||= SchemaContractTest.find(id: @record_id)
     end
 
     def schema_file
-      "#{Settings.schema_contract.appointments_index.path}_#{@test_name}.json"
+      join(Settings.schema_contract.appointments_index.path, "#{@test_name}.json")
     end
 
     def parsed_response

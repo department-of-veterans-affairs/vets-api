@@ -1,6 +1,6 @@
-class CreateSchemaContracts < ActiveRecord::Migration[6.1]
+class CreateSchemaContractTests < ActiveRecord::Migration[6.1]
   def change
-    create_table :schema_contracts do |t|
+    create_table :schema_contract_results do |t|
       t.string :name, null: false
       t.string :user_uuid
       t.jsonb :response

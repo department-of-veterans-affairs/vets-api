@@ -4,9 +4,9 @@ module SchemaContract
   class Runner
     def self.run(user:, response:, test_name:)
       if response.success? && Flipper.enabled?("schema_contract_#{test_name}")
-        return if SchemaContract.where(name: test_name, created_at: Time.zone.today.all_day).any?
+        return if SchemaContractTest.where(name: test_name, created_at: Time.zone.today.all_day).any?
 
-        record = SchemaContract.create(
+        record = SchemaContractTest.create(
           name: test_name, last_user_uuid: user.uuid, last_response: response.to_json,
           status: 'initiated'
         )
