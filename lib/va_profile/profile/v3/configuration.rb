@@ -35,6 +35,8 @@ module VAProfile
           connection.post(path, body)
         end
 
+        alias submit post
+
         ##
         # Creates a Faraday connection with parsing json and breakers functionality.
         #
@@ -46,6 +48,7 @@ module VAProfile
             faraday.request :json
 
             faraday.response :betamocks if use_mocks?
+            faraday.response :snakecase, symbolize: false
             faraday.response :json, content_type: /\bjson/
 
             faraday.adapter Faraday.default_adapter

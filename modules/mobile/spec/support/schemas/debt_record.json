@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["id", "type", "attributes"],
+  "properties": {
+    "id": { "type": "string"},
+    "type": { "enum": ["debts"] },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "fileNumber": {
+          "type": "string"
+        },
+        "payeeNumber": {
+          "type": "string"
+        },
+        "personEntitled": {
+          "type": ["string", "null"]
+        },
+        "deductionCode": {
+          "type": "string"
+        },
+        "benefitType": {
+          "type": "string"
+        },
+        "diaryCode": {
+          "type": "string"
+        },
+        "diaryCodeDescription": {
+          "type": "string"
+        },
+        "amountOverpaid": {
+          "type": "number"
+        },
+        "amountWithheld": {
+          "type": "number"
+        },
+        "originalAr": {
+          "type": "number"
+        },
+        "currentAr": {
+          "type": "number"
+        },
+        "debtHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string"
+              },
+              "letterCode": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

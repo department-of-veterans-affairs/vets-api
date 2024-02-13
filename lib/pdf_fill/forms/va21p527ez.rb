@@ -1502,7 +1502,7 @@ module PdfFill
             custodian_addresses[custodian_key] = build_custodian_hash_from_dependent(dependent)
           else
             custodian_addresses[custodian_key]['dependentsWithCustodianOverflow'] +=
-              ", #{dependent['fullName'].values.join(' ')}"
+              ", #{dependent['fullName']&.values&.join(' ')}"
           end
         end
         if custodian_addresses.any?
@@ -1520,7 +1520,7 @@ module PdfFill
                  })
           .merge({
                    'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
-                   'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
+                   'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
                  })
       end
 

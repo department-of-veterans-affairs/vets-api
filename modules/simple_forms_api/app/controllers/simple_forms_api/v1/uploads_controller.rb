@@ -53,18 +53,30 @@ module SimpleFormsApi
         end
       end
 
+      def get_intents_to_file
+        intent_service = SimpleFormsApi::IntentToFile.new(icn)
+        existing_intents = intent_service.existing_intents
+
+        render json: {
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
+        }
+      end
+
       def authenticate
         super
       rescue Common::Exceptions::Unauthorized
         Rails.logger.info(
-          "Simple forms api - unauthenticated user submitting form: #{params[:form_number]}"
+          'Simple forms api - unauthenticated user submitting form',
+          { form_number: params[:form_number] }
         )
       end
 
       private
 
       def handle_210966_authenticated
-        intent_service = SimpleFormsApi::IntentToFile.new(params, icn)
+        intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
 
@@ -99,7 +111,10 @@ module SimpleFormsApi
           ).send
         end
 
-        confirmation_number = defined?(confirmation_number) ? confirmation_number : nil
+        Rails.logger.info(
+          'Simple forms api - sent to benefits intake',
+          { form_number: params[:form_number], status:, uuid: confirmation_number }
+        )
 
         render json: get_json(confirmation_number, form_id), status:, error_message:
       end
@@ -153,8 +168,8 @@ module SimpleFormsApi
 
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
-          "Simple forms api - preparing to upload PDF to benefits intake:
-            location: #{uuid_and_location[:location]}, uuid: #{uuid_and_location[:uuid]}"
+          'Simple forms api - preparing to upload PDF to benefits intake',
+          { location: uuid_and_location[:location], uuid: uuid_and_location[:uuid] }
         )
         response = lighthouse_service.upload_doc(
           upload_url: uuid_and_location[:location],
