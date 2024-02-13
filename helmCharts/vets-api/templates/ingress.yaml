@@ -1,0 +1,81 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vets-api-service-routing
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Values.namespace }}-vets-header@kubernetescrd
+spec:
+  rules:
+    - host: "{{ .Values.domainName }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vets-api-service
+                port:
+                  name: web
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vets-api-service-http-routing
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Values.namespace }}-vets-redirect@kubernetescrd
+spec:
+  rules:
+    - host: "{{ .Values.domainName }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vets-api-service
+                port:
+                  name: web
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: vets-redirect
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: vets-header
+spec:
+  headers:
+    accessControlAllowMethods:
+      - "GET"
+      - "OPTIONS"
+      - "PUT"
+      - "HEAD"
+      - "POST"
+      - "PATCH"
+      - "DELETE"
+    accessControlExposeHeaders:
+      - "X-RateLimit-Limit"
+      - "X-RateLimit-Remaining"
+      - "X-RateLimit-Reset"
+      - "X-Session-Expiration"
+      - "X-CSRF-Token"
+      - "X-Request-Id"
+    accessControlAllowHeaders:
+      - "x-csrf-token"
+      - "source-app-name"
+      - "x-key-inflection"
+    accessControlAllowOriginList:
+      - "https://{{ .Values.assetsUrl }}"
+      - "https://{{ .Values.webUrl }}"
+    accessControlMaxAge: 7200
+    addVaryHeader: true
+    accessControlAllowCredentials: true
