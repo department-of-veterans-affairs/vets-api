@@ -923,7 +923,7 @@ lib/statsd_middleware.rb @department-of-veterans-affairs/va-api-engineers @depar
 lib/string_helpers.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/tasks @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/terms_of_use/exceptions.rb @department-of-veterans-affairs/octo-identity
-lib/token_validation @department-of-veterans-affairs/octo-identity
+lib/token_validation @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/user_profile_attribute_service.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/va_profile @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/vbs @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -1377,7 +1377,7 @@ spec/lib/slack/service_spec.rb @department-of-veterans-affairs/va-api-engineers 
 spec/lib/sm @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/string_helpers_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/tasks/support/schema_camelizer_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/token_validation @department-of-veterans-affairs/octo-identity
+spec/lib/token_validation @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/user_profile_attribute_service_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/vbs @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -1893,7 +1893,7 @@ spec/support/vcr_cassettes/slack/slack_bot_notify.yml @department-of-veterans-af
 spec/support/vcr_cassettes/sm_client @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/spec/support @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/staccato @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/token_validation @department-of-veterans-affairs/octo-identity
+spec/support/vcr_cassettes/token_validation @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/spupport/vcr_cassettes/user/get_facilities_empty.yml @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
