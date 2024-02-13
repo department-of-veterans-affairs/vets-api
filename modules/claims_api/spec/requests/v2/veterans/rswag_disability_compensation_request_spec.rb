@@ -517,8 +517,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       tags 'Disability Compensation Claims'
       operationId 'post526Pdf'
       security [
-        { productionOauth: ['system/claim.read', 'system/claim.write', 'system/526-pdf.override'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write', 'system/526-pdf.override'] },
+        { productionOauth: ['system/526-pdf.override'] },
+        { sandboxOauth: ['system/526-pdf.override'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -551,7 +551,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       describe 'Getting a successful response' do
         response '200', 'post pdf response' do
           before do |example|
-            mock_ccg(generate_pdf_minimum_validations_scopes) do
+            mock_ccg_for_fine_grained_scope(generate_pdf_minimum_validations_scopes) do
               submit_request(example.metadata)
             end
           end
@@ -575,7 +575,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           let(:Authorization) { nil }
 
           before do |example|
-            mock_acg(generate_pdf_minimum_validations_scopes) do
+            mock_ccg_for_fine_grained_scope(generate_pdf_minimum_validations_scopes) do
               allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)
             end
