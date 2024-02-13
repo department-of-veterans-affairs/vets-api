@@ -81,7 +81,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
           zipCode: '92264'
         },
@@ -99,7 +99,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         address: {
           addressLine1: '2688 S Camino Real',
           city: 'Palm Springs',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
           zipCode: '92264'
         },
@@ -114,7 +114,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
           zipCode: '92264'
         }

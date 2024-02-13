@@ -157,6 +157,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 address: {
                   addressLine1: '123',
                   city: 'city',
+                  stateCode: 'CA',
                   country: 'US',
                   zipCode: '12345'
                 }
@@ -366,6 +367,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 address: {
                   addressLine1: '123',
                   city: 'city',
+                  stateCode: 'CA',
                   country: 'US',
                   zipCode: '12345'
                 }

@@ -51,7 +51,7 @@ describe ClaimsApi::PoaPdfConstructor::Organization do
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
           zipCode: '92264'
         },
@@ -64,7 +64,7 @@ describe ClaimsApi::PoaPdfConstructor::Organization do
         address: {
           addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
           zipCode: '92264'
         }

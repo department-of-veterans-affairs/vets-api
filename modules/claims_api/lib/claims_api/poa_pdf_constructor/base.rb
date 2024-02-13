@@ -13,7 +13,7 @@ module ClaimsApi
       end
 
       def construct(data, id: SecureRandom.uuid)
-        set_version(data)
+        current_version(data)
         sign_pdf(data['signatures'])
         fill_pdf(data)
         combine_pdf(id, @page1_path, @page2_path, @page3_path, @page4_path)
@@ -82,7 +82,7 @@ module ClaimsApi
       end
 
       # v1 and v2 have different values on the form
-      def set_version(data)
+      def current_version(data)
         @version = data.dig('veteran', 'address', 'addressLine1').present? ? 'v2' : 'v1'
       end
 
@@ -99,26 +99,30 @@ module ClaimsApi
       def stringify_address(address)
         return if address.nil?
 
-        # v2 or v1 ?
         street_address = version_v2? ? address['addressLine1'] : address['numberAndStreet']
+        state = version_v2? ? address['stateCode'] : address['state']
         zip_code = version_v2? ? address['zipCode'] : address['zipFirstFive']
 
-        "#{street_address}, #{address['city']} #{address['state']} #{zip_code}"
+        "#{street_address}, #{address['city']} #{state} #{zip_code}"
       end
 
-      def get_street_address(data, filer)
+      def retrieve_street_address(data, filer = 'veteran')
         version_v2? ? data.dig(filer, 'address', 'addressLine1') : data.dig(filer, 'address', 'numberAndStreet')
       end
 
-      def get_unit_or_apartment(data, filer)
+      def retrieve_unit_or_apartment(data, filer = 'veteran')
         version_v2? ? data.dig(filer, 'address', 'addressLine2') : data.dig(filer, 'address', 'aptUnitNumber')
       end
 
-      def get_zip_code_first_five(data, filer)
+      def retrieve_state(data, filer = 'veteran')
+        version_v2? ? data.dig(filer, 'address', 'stateCode') : data.dig(filer, 'address', 'state')
+      end
+
+      def retrieve_zip_code_first_five(data, filer = 'veteran')
         version_v2? ? data.dig(filer, 'address', 'zipCode') : data.dig(filer, 'address', 'zipFirstFive')
       end
 
-      def get_zip_code_last_four(data, filer)
+      def retrieve_zip_code_last_four(data, filer = 'veteran')
         version_v2? ? data.dig(filer, 'address', 'zipCodeSuffix') : data.dig(filer, 'address', 'zipLastFour')
       end
 

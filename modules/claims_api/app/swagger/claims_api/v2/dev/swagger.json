@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "afe4b3ba-84e3-49e4-a63c-c561b332daa7",
+                    "id": "f52aee8e-de78-4b32-817a-37a6d562fb6e",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7806,8 +7806,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-02-08",
-                      "expirationDate": "2025-02-08",
+                      "creationDate": "2024-02-13",
+                      "expirationDate": "2025-02-13",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8625,7 +8625,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7cb976a5-3774-4461-95d2-b3ad66e829e3",
+                    "id": "deab622b-ee92-4f2b-ba15-f6cf3e734cd4",
                     "type": "individual",
                     "attributes": {
                       "code": "083",
@@ -8947,7 +8947,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -9070,7 +9070,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -9207,7 +9207,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -9357,7 +9357,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fb0691a7-067e-4b09-b1de-2bec93a2278b",
+                    "id": "c05106d2-79c8-44b8-a5a0-5cc62eab0dfd",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -9656,7 +9656,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -9797,7 +9797,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -9929,7 +9929,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -10391,7 +10391,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -10514,7 +10514,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -10651,7 +10651,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -11091,7 +11091,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -11232,7 +11232,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -11364,7 +11364,7 @@
                                     "example": "Portland",
                                     "maxLength": 18
                                   },
-                                  "state": {
+                                  "stateCode": {
                                     "description": "State for the address.",
                                     "type": "string",
                                     "example": "OR",
@@ -11523,11 +11523,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3479225d-e0b9-46ac-a3b1-65ae8fbb1cae",
+                    "id": "dc340c89-03ea-4aa0-85fb-7d9d647544ac",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "status": "submitted",
-                      "dateRequestAccepted": "2024-02-08",
+                      "dateRequestAccepted": "2024-02-13",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

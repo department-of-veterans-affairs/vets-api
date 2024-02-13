@@ -67,7 +67,7 @@
               "example": "Portland",
               "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
               "example": "OR",
@@ -182,7 +182,7 @@
               "example": "Portland",
               "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
               "example": "OR",
@@ -311,7 +311,7 @@
               "example": "Portland",
               "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
               "example": "OR",
