@@ -313,16 +313,23 @@ RSpec.describe 'Forms uploader', type: :request do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
       file = fixture_file_upload('doctors-note.gif')
-      data = { form_id: '40-0247', file: }
 
-      expect do
-        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-      end.to change(PersistentAttachment, :count).by(1)
+      # Define data for both form IDs
+      data_sets = [
+        { form_id: '10-10D', file: },
+        { form_id: '40-0247', file: }
+      ]
 
-      expect(response).to have_http_status(:ok)
-      resp = JSON.parse(response.body)
-      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-      expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      data_sets.each do |data|
+        expect do
+          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
     end
   end
 
