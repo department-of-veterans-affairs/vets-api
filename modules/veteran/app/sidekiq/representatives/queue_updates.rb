@@ -3,8 +3,8 @@
 require 'sidekiq'
 require 'sentry_logging'
 
-module RepAddresses
-  class QueueAddressUpdates
+module Representatives
+  class QueueUpdates
     include Sidekiq::Job
     include SentryLogging
 
@@ -14,7 +14,7 @@ module RepAddresses
       file_content = fetch_file_content
       return unless file_content
 
-      processed_data = RepAddresses::XlsxFileProcessor.new(file_content).process
+      processed_data = Representatives::XlsxFileProcessor.new(file_content).process
       queue_address_updates(processed_data)
     rescue => e
       log_error("Error in file fetching process: #{e.message}")
@@ -23,11 +23,11 @@ module RepAddresses
     private
 
     def fetch_file_content
-      RepAddresses::XlsxFileFetcher.new.fetch
+      Representatives::XlsxFileFetcher.new.fetch
     end
 
     def queue_address_updates(data)
-      RepAddresses::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
+      Representatives::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
         next if data[sheet].blank?
 
         batch = Sidekiq::Batch.new
@@ -36,7 +36,7 @@ module RepAddresses
         batch.jobs do
           data[sheet].each_slice(BATCH_SIZE) do |rows|
             rows.each do |row|
-              RepAddresses::UpdateAddresses.perform_async(row)
+              Representatives::Update.perform_async(row)
             end
           end
         end
@@ -44,7 +44,7 @@ module RepAddresses
     end
 
     def log_error(message)
-      log_message_to_sentry("QueueAddressUpdates error: #{message}", :error)
+      log_message_to_sentry("QueueUpdates error: #{message}", :error)
     end
   end
 end
