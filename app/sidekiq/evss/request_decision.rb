@@ -3,11 +3,8 @@
 class EVSS::RequestDecision
   include Sidekiq::Job
 
-  # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
-  # Set minimum retry time to ~1 hour
-  sidekiq_retry_in do |count, _exception|
-    rand(3600..3660) if count < 9
+  sidekiq_retries_exhausted do |job, ex|
+    Sidekiq.logger.warn "Exhausted retries! Failed #{job['class']} with #{job['args']}: #{job['error_message']}"
   end
 
   def perform(auth_headers, evss_id)
@@ -21,11 +18,8 @@ end
 class EVSSClaim::RequestDecision
   include Sidekiq::Job
 
-  # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
-  # Set minimum retry time to ~1 hour
-  sidekiq_retry_in do |count, _exception|
-    rand(3600..3660) if count < 9
+  sidekiq_retries_exhausted do |job, ex|
+    Sidekiq.logger.warn "Exhausted retries! Failed #{job['class']} with #{job['args']}: #{job['error_message']}"
   end
 
   def perform(auth_headers, evss_id)
