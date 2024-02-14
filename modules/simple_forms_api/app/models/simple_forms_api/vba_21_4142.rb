@@ -28,8 +28,19 @@ module SimpleFormsApi
       }
     end
 
+    def submission_date_config
+      {
+        should_stamp_date?: true,
+        page_number: 0,
+        title_coords: [440, 710],
+        text_coords: [440, 690]
+      }
+    end
+
     def track_user_identity
-      StatsD.increment("#{STATS_KEY}.#{data.dig('preparer_identification', 'relationship_to_veteran')}")
+      identity = data.dig('preparer_identification', 'relationship_to_veteran')
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 21-4142 submission user identity', identity:)
     end
 
     private

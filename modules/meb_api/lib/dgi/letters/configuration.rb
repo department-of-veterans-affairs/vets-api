@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dgi/configuration'
+require 'faraday/multipart'
 
 module MebApi
   module DGI

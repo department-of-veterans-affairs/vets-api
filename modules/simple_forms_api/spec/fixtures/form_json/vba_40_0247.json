@@ -29,14 +29,6 @@
   "applicant_email": "a@b.com",
   "certificates": "3",
   "additional_certificates": true,
-  "additional_address": {
-    "country": "USA",
-    "street": "124 Any St",
-    "street2": "432",
-    "city": "Anytown",
-    "state": "NY",
-    "postal_code": "12345"
-  },
   "additional_copies": "5",
   "statement_of_truth_signature": "Joe Applicant",
   "statement_of_truth_certified": true
