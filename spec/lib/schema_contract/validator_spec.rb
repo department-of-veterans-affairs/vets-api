@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lib/schema_contract/validator'
+require_relative '../../../lib/schema_contract/validator'
 
 describe SchemaContract::Validator do
   describe '#validate' do
@@ -42,11 +42,11 @@ describe SchemaContract::Validator do
       end
 
       it 'updates record' do
-        expect { subject.new(contract_test.id).validate }.not_to raise_error(SchemaContractValidationError)
+        expect { subject.new(contract_test.id).validate }.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
       end
 
       it 'does not log errors' do
-        expect { subject.new(contract_test.id).validate }.to change(contract_test.status).from('initiated').to('success')
+        expect { subject.new(contract_test.id).validate }.to change { contract_test.reload.status }.from('initiated').to('success')
       end
     end
 

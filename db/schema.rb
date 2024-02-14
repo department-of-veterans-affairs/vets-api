@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_15_141617) do
+ActiveRecord::Schema.define(version: 2024_02_01_185441) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -872,6 +872,16 @@ ActiveRecord::Schema.define(version: 2023_12_15_141617) do
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+  end
+
+  create_table "schema_contract_tests", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "user_uuid", null: false
+    t.jsonb "response", null: false
+    t.string "status"
+    t.string "error_details"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "service_account_configs", force: :cascade do |t|
