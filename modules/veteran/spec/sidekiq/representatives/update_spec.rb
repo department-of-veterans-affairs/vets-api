@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Representatives::Update do
-
   def create_representative # rubocop:disable Metrics/MethodLength
     create(:representative,
            representative_id: '123abc',
@@ -26,6 +25,33 @@ RSpec.describe Representatives::Update do
            email: 'email@example.com',
            location: 'POINT(-75 39)',
            phone_number: '111-111-1111')
+  end
+
+  def expect_updated_representative(representative, updates_phone_number:) # rubocop:disable Metrics/MethodLength
+    expect(representative.address_line1).to eq('37N 1st St')
+    expect(representative.address_line2).to be_nil
+    expect(representative.address_line3).to be_nil
+    expect(representative.address_type).to eq('Domestic')
+    expect(representative.city).to eq('Brooklyn')
+    expect(representative.country_code_iso3).to eq('USA')
+    expect(representative.country_name).to eq('United States')
+    expect(representative.county_name).to eq('Kings')
+    expect(representative.county_code).to eq('36047')
+    expect(representative.province).to eq('New York')
+    expect(representative.state_code).to eq('NY')
+    expect(representative.zip_code).to eq('11249')
+    expect(representative.zip_suffix).to eq('3939')
+    expect(representative.lat).to eq(40.717029)
+    expect(representative.long).to eq(-73.964956)
+    expect(representative.location.x).to eq(-73.964956)
+    expect(representative.location.y).to eq(40.717029)
+    expect(representative.email).to eq('test@example.com')
+
+    if updates_phone_number
+      expect(representative.phone_number).to eq('999-999-9999')
+    else
+      expect(representative.phone_number).to eq('111-111-1111')
+    end
   end
 
   describe '#perform' do
@@ -119,33 +145,8 @@ RSpec.describe Representatives::Update do
 
           representative.reload
 
-          expect(representative.address_line1).to eq('37N 1st St')
-          expect(representative.address_line2).to be_nil
-          expect(representative.address_line3).to be_nil
-          expect(representative.address_type).to eq('Domestic')
-          expect(representative.city).to eq('Brooklyn')
-          expect(representative.country_code_iso3).to eq('USA')
-          expect(representative.country_name).to eq('United States')
-          expect(representative.county_name).to eq('Kings')
-          expect(representative.county_code).to eq('36047')
-          expect(representative.province).to eq('New York')
-          expect(representative.state_code).to eq('NY')
-          expect(representative.zip_code).to eq('11249')
-          expect(representative.zip_suffix).to eq('3939')
-          expect(representative.lat).to eq(40.717029)
-          expect(representative.long).to eq(-73.964956)
-          expect(representative.location.x).to eq(-73.964956)
-          expect(representative.location.y).to eq(40.717029)
-          expect(representative.email).to eq('test@example.com')
+          expect_updated_representative(representative, updates_phone_number: true)
         end
-      end
-
-      it 'updates the phone number' do
-        subject.perform(json_data)
-
-        representative.reload
-
-        expect(representative.phone_number).to eq('999-999-9999')
       end
 
       context 'when address is not valid' do
@@ -186,32 +187,7 @@ RSpec.describe Representatives::Update do
 
           representative.reload
 
-          expect(representative.address_line1).to eq('37N 1st St')
-          expect(representative.address_line2).to be_nil
-          expect(representative.address_line3).to be_nil
-          expect(representative.address_type).to eq('Domestic')
-          expect(representative.city).to eq('Brooklyn')
-          expect(representative.country_code_iso3).to eq('USA')
-          expect(representative.country_name).to eq('United States')
-          expect(representative.county_name).to eq('Kings')
-          expect(representative.county_code).to eq('36047')
-          expect(representative.province).to eq('New York')
-          expect(representative.state_code).to eq('NY')
-          expect(representative.zip_code).to eq('11249')
-          expect(representative.zip_suffix).to eq('3939')
-          expect(representative.lat).to eq(40.717029)
-          expect(representative.long).to eq(-73.964956)
-          expect(representative.location.x).to eq(-73.964956)
-          expect(representative.location.y).to eq(40.717029)
-          expect(representative.email).to eq('test@example.com')
-        end
-
-        it 'does not update the phone number' do
-          subject.perform(json_data)
-
-          representative.reload
-
-          expect(representative.phone_number).to eq('111-111-1111')
+          expect_updated_representative(representative, updates_phone_number: false)
         end
       end
     end
@@ -229,32 +205,7 @@ RSpec.describe Representatives::Update do
 
           representative.reload
 
-          expect(representative.address_line1).to eq('37N 1st St')
-          expect(representative.address_line2).to be_nil
-          expect(representative.address_line3).to be_nil
-          expect(representative.address_type).to eq('Domestic')
-          expect(representative.city).to eq('Brooklyn')
-          expect(representative.country_code_iso3).to eq('USA')
-          expect(representative.country_name).to eq('United States')
-          expect(representative.county_name).to eq('Kings')
-          expect(representative.county_code).to eq('36047')
-          expect(representative.province).to eq('New York')
-          expect(representative.state_code).to eq('NY')
-          expect(representative.zip_code).to eq('11249')
-          expect(representative.zip_suffix).to eq('3939')
-          expect(representative.lat).to eq(40.717029)
-          expect(representative.long).to eq(-73.964956)
-          expect(representative.location.x).to eq(-73.964956)
-          expect(representative.location.y).to eq(40.717029)
-          expect(representative.email).to eq('test@example.com')
-        end
-
-        it 'does not update the phone number' do
-          subject.perform(json_data)
-
-          representative.reload
-
-          expect(representative.phone_number).to eq('111-111-1111')
+          expect_updated_representative(representative, updates_phone_number: false)
         end
       end
     end
