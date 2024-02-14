@@ -18,6 +18,7 @@ module VAOS
       AVS_APPT_TEST_ID = '192308'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
+      CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
@@ -28,6 +29,9 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
           response.body[:data].each do |appt|
+            # for Lovell appointments set cancellable to false per GH#75512
+            set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
+
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
@@ -54,6 +58,11 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
+
+          # for Lovell appointments set cancellable to false per GH#75512
+          if lovell_appointment?(response.body[:data]) && Flipper.enabled?(CANCEL_EXCLUSION, user)
+            set_cancellable_false(response.body[:data])
+          end
 
           # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
           set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
@@ -276,6 +285,12 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      def lovell_appointment?(appt)
+        return false unless appt.is_a?(Hash) && appt.key?(:location_id) && appt[:location_id].is_a?(String)
+
+        appt[:location_id].start_with?('556')
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system

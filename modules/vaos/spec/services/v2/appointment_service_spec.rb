@@ -1046,4 +1046,27 @@ describe VAOS::V2::AppointmentsService do
       end
     end
   end
+
+  describe 'lovell_appointment?' do
+    it 'returns false if the argument is not a hash' do
+      expect(subject.send(:lovell_appointment?, 'not a hash')).to eq(false)
+      expect(subject.send(:lovell_appointment?, 123)).to eq(false)
+    end
+
+    it 'returns false if the hash has no :location_id key' do
+      expect(subject.send(:lovell_appointment?, { id: '123' })).to eq(false)
+    end
+
+    it 'returns false if :location_id value is not a string' do
+      expect(subject.send(:lovell_appointment?, { location_id: 456 })).to eq(false)
+    end
+
+    it 'returns false if :location_id does not start with 556' do
+      expect(subject.send(:lovell_appointment?, { location_id: '123ABC' })).to eq(false)
+    end
+
+    it 'returns true if :location_id is a string that starts with 556' do
+      expect(subject.send(:lovell_appointment?, { location_id: '556GA' })).to eq(true)
+    end
+  end
 end
