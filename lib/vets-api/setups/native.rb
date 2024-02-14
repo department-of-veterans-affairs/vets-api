@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require 'pry'
 require 'fileutils'
 
 module VetsApi

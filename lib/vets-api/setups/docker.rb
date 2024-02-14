@@ -2,7 +2,6 @@
 
 require 'yaml'
 require 'rake'
-require 'parallel_tests'
 require 'fileutils'
 
 module VetsApi

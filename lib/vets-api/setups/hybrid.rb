@@ -25,7 +25,9 @@ module VetsApi
       private
 
       def install_bundler
-        puts "Bundler installed (#{bundler_version})" if `gem install bundler -v #{bundler_version}`
+        print "Installing bundler gem v#{bundler_version}..."
+        `gem install bundler -v #{bundler_version}`
+        puts 'Done'
       end
 
       def bundler_version
@@ -39,19 +41,9 @@ module VetsApi
       end
 
       def install_gems
-        puts 'Gems installed' if `bundle install`
-      end
-
-      def setup_db
-        puts 'Setting up database...'
-        `bundle exec rails db:setup`
-        puts 'Setting up database...Done'
-      end
-
-      def setup_parallel_spec
-        puts 'Setting up parallel_test...'
-        system('RAILS_ENV=test bundle exec rake parallel:setup')
-        puts 'Setting up parallel_test...Done'
+        print 'Installing all gems...'
+        `bundle install`
+        puts 'Done'
       end
 
       def configuring_clamav_antivirus
@@ -118,6 +110,25 @@ module VetsApi
           puts 'Done'
         end
       end
+
+      def docker_build
+        puts 'Building Docker Image(s) for This may take a while...'
+        system('docker-compose -f docker-compose-deps.yml build')
+        puts 'Building Docker Image(s)...Done'
+      end
+
+      def setup_db
+        puts 'Setting up database...'
+        `bundle exec rails db:setup`
+        puts 'Setting up database...Done'
+      end
+
+      def setup_parallel_spec
+        puts 'Setting up parallel_test...'
+        system("RAILS_ENV=test bundle exec rake parallel:setup")
+        puts 'Setting up parallel_test...Done'
+      end
+
     end
   end
 end

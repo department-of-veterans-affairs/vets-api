@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 require_relative '../lib/vets-api/commands/setup'
-require_relative '../config/boot'
 require 'rake'
 
 option = ARGV.first
