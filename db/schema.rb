@@ -338,6 +338,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_14_212613) do
     t.string "access_token_attributes", default: [], array: true
     t.text "terms_of_use_url"
     t.text "enforced_terms"
+    t.boolean "shared_sessions", default: false, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
