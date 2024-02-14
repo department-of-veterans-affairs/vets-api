@@ -45,7 +45,7 @@ module ClaimsApi
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log(
         '526',
-        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting doc'} doc to BD",
+        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
         claim_id: claim.id, request_id:
       )
       res
