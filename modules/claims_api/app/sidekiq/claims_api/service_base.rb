@@ -70,6 +70,14 @@ module ClaimsApi
       error_message.dig(:messages, 0, :text) || error_message
     end
 
+    def get_error_status_code(error)
+      if error.respond_to? :status_code
+        error.status_code
+      else
+        "No status code for error: #{error}"
+      end
+    end
+
     def get_original_status_code(error)
       if error.respond_to? :original_status
         error.original_status
