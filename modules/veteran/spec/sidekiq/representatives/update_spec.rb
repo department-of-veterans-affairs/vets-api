@@ -132,20 +132,19 @@ RSpec.describe Representatives::Update do
       end
     end
 
-    context 'when processing a representative' do
+    shared_examples 'an updater of representative information' do |type, updates_phone_number|
       let(:id) { '123abc' }
-      let(:type) { 'Representatives' }
+      let(:type) { type }
       let!(:representative) do
         create_representative
       end
 
       context 'when address is valid' do
-        it 'updates the address record for a representative' do
+        it 'updates the address and contact information' do
           subject.perform(json_data)
 
           representative.reload
-
-          expect_updated_representative(representative, updates_phone_number: true)
+          expect_updated_representative(representative, updates_phone_number:)
         end
       end
 
@@ -156,17 +155,16 @@ RSpec.describe Representatives::Update do
           subject.perform(json_data)
 
           representative.reload
-
           expect(representative.address_line1).to eq('123 East Main St')
         end
       end
 
-      context 'when the representative can not be found' do
-        let(:id) { '1234' }
+      context 'when the representative cannot be found' do
+        let(:id) { 'not_found' }
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'Update record not found for representative with id: 1234', :error
+            'Update record not found for representative with id: not_found', :error
           )
 
           subject.perform(json_data)
@@ -174,40 +172,16 @@ RSpec.describe Representatives::Update do
       end
     end
 
+    context 'when processing a representative' do
+      include_examples 'an updater of representative information', 'Representatives', true
+    end
+
     context 'when processing an attorney' do
-      let(:id) { '123abc' }
-      let(:type) { 'Attorneys' }
-      let!(:representative) do
-        create_representative
-      end
-
-      context 'when address is valid' do
-        it 'updates the address record for a representative' do
-          subject.perform(json_data)
-
-          representative.reload
-
-          expect_updated_representative(representative, updates_phone_number: false)
-        end
-      end
+      include_examples 'an updater of representative information', 'Attorneys', false
     end
 
     context 'when processing a claims agent' do
-      let(:id) { '123abc' }
-      let(:type) { 'Agents' }
-      let!(:representative) do
-        create_representative
-      end
-
-      context 'when address is valid' do
-        it 'updates the address record for a representative' do
-          subject.perform(json_data)
-
-          representative.reload
-
-          expect_updated_representative(representative, updates_phone_number: false)
-        end
-      end
+      include_examples 'an updater of representative information', 'Agents', false
     end
   end
 end
