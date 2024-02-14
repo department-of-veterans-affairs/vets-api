@@ -3,7 +3,7 @@
 require 'octokit'
 require 'sentry_logging'
 
-module RepAddresses
+module Representatives
   # Class responsible for fetching the XLSX file containing representative organization addresses
   # from a specified GitHub repository.
   class XlsxFileFetcher
