@@ -20,7 +20,8 @@ RSpec.describe Representatives::Update do
           country_code_iso3: 'abc'
         },
         id:,
-        email_address: 'test@example.com' }.to_json
+        email_address: 'test@example.com',
+        phone_number: '999-999-9999' }.to_json
     end
     let(:api_response) do
       {
@@ -82,7 +83,7 @@ RSpec.describe Representatives::Update do
 
     context 'when processing a representative' do
       let(:id) { '123abc' }
-      let(:type) { 'representative' }
+      let(:type) { 'Representatives' }
       let!(:representative) do
         create(:representative,
                representative_id: '123abc',
@@ -103,7 +104,8 @@ RSpec.describe Representatives::Update do
                lat: '39',
                long: '-75',
                email: 'email@example.com',
-               location: 'POINT(-75 39)')
+               location: 'POINT(-75 39)',
+               phone_number: '111-111-1111')
       end
 
       context 'when address is valid' do
