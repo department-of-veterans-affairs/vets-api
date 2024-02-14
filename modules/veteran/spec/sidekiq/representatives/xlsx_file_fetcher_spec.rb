@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepAddresses::XlsxFileFetcher do
+RSpec.describe Representatives::XlsxFileFetcher do
   describe '#fetch' do
     let(:octokit_client) { instance_double(Octokit::Client) }
     let(:github_access_token) { 'test_token' }
