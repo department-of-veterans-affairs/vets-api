@@ -61,21 +61,9 @@ features:
   cerner_transition_556_t5:
     actor_type: user
     description: This will control the content that will be in effect 5 days prior to transition.
-  cerner_override_463:
-    actor_type: user
-    description: This will show the Cerner facility 463 as `isCerner`.
-  cerner_override_531:
-    actor_type: user
-    description: This will show the Cerner facility 531 as `isCerner`.
-  cerner_override_648:
-    actor_type: user
-    description: This will show the Cerner facility 648 as `isCerner`.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
-  cerner_override_663:
-    actor_type: user
-    description: This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: This will show the Cerner facility 668 as `isCerner`.
