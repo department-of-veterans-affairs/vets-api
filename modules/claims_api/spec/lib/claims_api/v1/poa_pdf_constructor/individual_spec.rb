@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/poa_pdf_constructor/individual'
-require_relative '../../../support/pdf_matcher'
+require 'claims_api/v1/poa_pdf_constructor/individual'
+require_relative '../../../../support/pdf_matcher'
 
-describe ClaimsApi::PoaPdfConstructor::Individual do
+describe ClaimsApi::V1::PoaPdfConstructor::Individual do
   let(:temp) { create(:power_of_attorney, :with_full_headers) }
 
   before do
@@ -58,7 +58,7 @@ describe ClaimsApi::PoaPdfConstructor::Individual do
       }
     )
 
-    constructor = ClaimsApi::PoaPdfConstructor::Individual.new
+    constructor = ClaimsApi::V1::PoaPdfConstructor::Individual.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A', 'signed_filled_final.pdf')
     generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
