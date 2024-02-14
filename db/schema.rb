@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1235,6 +1235,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_184756) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.string "phone_number"
     t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
     t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
