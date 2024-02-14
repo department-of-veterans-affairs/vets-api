@@ -787,8 +787,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
   create_table "nod_notifications", force: :cascade do |t|
     t.text "payload_ciphertext"
     t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "oauth_sessions", force: :cascade do |t|
