@@ -288,7 +288,7 @@ module VAOS
       end
 
       def lovell_appointment?(appt)
-        return false unless appt.is_a?(Hash) && appt.key?(:location_id) && appt[:location_id].is_a?(String)
+        return false if appt.nil? || appt[:location_id].nil?
 
         appt[:location_id].start_with?('556')
       end

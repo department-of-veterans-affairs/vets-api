@@ -1048,25 +1048,23 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe 'lovell_appointment?' do
-    it 'returns false if the argument is not a hash' do
-      expect(subject.send(:lovell_appointment?, 'not a hash')).to eq(false)
-      expect(subject.send(:lovell_appointment?, 123)).to eq(false)
+    it 'returns false when the appointment is nil' do
+      expect(subject.send(:lovell_appointment?, nil)).to eq(false)
     end
 
-    it 'returns false if the hash has no :location_id key' do
-      expect(subject.send(:lovell_appointment?, { id: '123' })).to eq(false)
+    it 'returns false when the appointment location id is missing' do
+      appointment = { id: '123456' }
+      expect(subject.send(:lovell_appointment?, appointment)).to eq(false)
     end
 
-    it 'returns false if :location_id value is not a string' do
-      expect(subject.send(:lovell_appointment?, { location_id: 456 })).to eq(false)
+    it 'returns true if the appointment is a Lovell appointment' do
+      appointment = { location_id: '556', id: '123456' }
+      expect(subject.send(:lovell_appointment?, appointment)).to eq(true)
     end
 
-    it 'returns false if :location_id does not start with 556' do
-      expect(subject.send(:lovell_appointment?, { location_id: '123ABC' })).to eq(false)
-    end
-
-    it 'returns true if :location_id is a string that starts with 556' do
-      expect(subject.send(:lovell_appointment?, { location_id: '556GA' })).to eq(true)
+    it 'returns false if the appointment is not a Lovell appointment' do
+      appointment = { location_id: '983', id: '123456' }
+      expect(subject.send(:lovell_appointment?, appointment)).to eq(false)
     end
   end
 end
