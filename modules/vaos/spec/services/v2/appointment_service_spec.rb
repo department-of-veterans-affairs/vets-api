@@ -1046,4 +1046,25 @@ describe VAOS::V2::AppointmentsService do
       end
     end
   end
+
+  describe 'lovell_appointment?' do
+    it 'returns false when the appointment is nil' do
+      expect(subject.send(:lovell_appointment?, nil)).to eq(false)
+    end
+
+    it 'returns false when the appointment location id is missing' do
+      appointment = { id: '123456' }
+      expect(subject.send(:lovell_appointment?, appointment)).to eq(false)
+    end
+
+    it 'returns true if the appointment is a Lovell appointment' do
+      appointment = { location_id: '556', id: '123456' }
+      expect(subject.send(:lovell_appointment?, appointment)).to eq(true)
+    end
+
+    it 'returns false if the appointment is not a Lovell appointment' do
+      appointment = { location_id: '983', id: '123456' }
+      expect(subject.send(:lovell_appointment?, appointment)).to eq(false)
+    end
+  end
 end
