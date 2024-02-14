@@ -11,7 +11,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            redirect_uri:,
            logout_redirect_uri:,
            access_token_duration:,
-           access_token_audience:,
            refresh_token_duration:,
            certificates:,
            access_token_attributes:,
@@ -25,7 +24,6 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:redirect_uri) { 'some-redirect-uri' }
   let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
-  let(:access_token_audience) { 'some-access-token-audience' }
   let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:access_token_attributes) { [] }
   let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }

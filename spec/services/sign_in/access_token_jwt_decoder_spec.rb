@@ -52,7 +52,7 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
       let(:jwt_payload) do
         {
           iss: SignIn::Constants::AccessToken::ISSUER,
-          aud: client_config.access_token_audience,
+          aud: [client_config.client_id],
           client_id:,
           jti: SecureRandom.hex,
           sub: access_token.user_uuid,

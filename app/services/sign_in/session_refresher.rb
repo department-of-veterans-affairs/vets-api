@@ -117,7 +117,7 @@ module SignIn
     end
 
     def audience
-      @audience ||= client_config.access_token_audience
+      @audience ||= client_config.client_id
     end
 
     def client_config
