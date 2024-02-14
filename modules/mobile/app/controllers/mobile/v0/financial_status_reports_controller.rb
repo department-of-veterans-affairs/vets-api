@@ -19,7 +19,7 @@ module Mobile
       private
 
       def service
-        DebtsApi::V0::FinancialStatusReportService.new(@current_user)
+        @service ||= DebtsApi::V0::FinancialStatusReportService.new(@current_user)
       end
     end
   end

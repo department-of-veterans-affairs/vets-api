@@ -7,8 +7,8 @@ require_relative '../../../debts_api/lib/debts_api/v0/financial_status_report_se
 RSpec.describe 'financial-status-reports', type: :request do
   let!(:user) { sis_user }
 
-  describe 'GET /mobile/v0/financial-status-reports/download' do
-    context 'with a existing file' do
+  describe 'POST /mobile/v0/financial-status-reports/download' do
+    context 'with an existing file' do
       let(:content) { File.read('modules/debts_api/spec/fixtures/5655.pdf').force_encoding('ASCII-8BIT') }
 
       before do
