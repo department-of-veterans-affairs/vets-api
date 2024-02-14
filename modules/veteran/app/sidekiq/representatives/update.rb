@@ -5,10 +5,10 @@ require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 
-module RepAddresses
+module Representatives
   # A Sidekiq job class for updating address records. It processes JSON data for address updates,
   # validates the address, and then updates the address record if valid.
-  class UpdateAddresses
+  class Update
     include Sidekiq::Job
     include SentryLogging
 
@@ -70,7 +70,7 @@ module RepAddresses
 
       if record.nil?
         log_message_to_sentry(
-          "UpdateAddresses record not found for representative with id: #{data['id']}",
+          "Update record not found for representative with id: #{data['id']}",
           :error
         )
       else
@@ -89,6 +89,7 @@ module RepAddresses
       record_attributes = build_record_attributes(address, geocode, meta)
                           .merge({ raw_address: data['request_address'].to_json })
       record_attributes[:email] = data['email_address']
+      record_attributes[:phone_number] = data['phone_number'] if data['type'] == 'Representatives'
       record.update(record_attributes)
     end
 
@@ -121,7 +122,7 @@ module RepAddresses
     # Logs an error to Sentry.
     # @param error [Exception] The error object to be logged.
     def log_error(error)
-      log_message_to_sentry("UpdateAddresses error: #{error.message}", :error)
+      log_message_to_sentry("Update error: #{error.message}", :error)
     end
   end
 end
