@@ -1,0 +1,1 @@
+docker-compose run web bash -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"

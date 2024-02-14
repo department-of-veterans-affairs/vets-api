@@ -1,1 +1,41 @@
-docker-compose run --rm --service-ports -e RAILS_ENV=test web bash -c "bin/rspec $@"
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/vets-api/commands/test'
+require 'rake'
+
+VALID_OPTIONS = ['--no-parallel', '--coverage', '--only-failures']
+if ARGV.include?('--help') || ARGV.include?('-h')
+  puts <<~HELP
+    Usage:
+      bin/test [options] [files|folders]
+
+    Options:
+      --help, -h            Display help message for 'setup'
+      --ci                  Run the tests exactly like the CI (requires docker)
+      --no-parallel         Run the tests in parallel
+      --coverage            Include test coverage report
+      --only-failures       Only output failures
+
+    Examples:
+      bin/test spec modules
+      bin/test --no-parallel spec/models/account_spec.rb
+      bin/test spec/models/account_spec.rb
+      bin/test --no-parallel --only-failures spec/models/account_spec.rb
+      bin/test --CI
+
+    Defaults:
+      - Only run tests in './spec' folder
+      - Run in parallel
+      - No coverage
+      - Output STDOUT, pending, and failures
+  HELP
+elsif ARGV.include?('--ci')
+  puts "WARNING: --ci ignores all other options and values"
+  system('bin/test_ci')
+else
+  puts ARGV
+  # VetsApi::Commands::Test.run(ARGV)
+# else
+#   puts "Invalid option \"#{option || "NULL"}\". Use \"--help\" for usage information."
+end

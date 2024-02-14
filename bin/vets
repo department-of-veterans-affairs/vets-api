@@ -6,8 +6,10 @@ puts <<~HELP
     vets           Show available binstubs
     info           Display version related informtation
     setup          Create the developer environment
+    test           Runs test(s) in spec folder(s)
 
   Examples:
     bin/setup --docker
+    bin/test --CI
 
 HELP
