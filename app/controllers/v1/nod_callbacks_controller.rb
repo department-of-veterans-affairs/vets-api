@@ -14,7 +14,7 @@ module V1
     skip_after_action :set_csrf_header, only: [:create]
     before_action :authenticate_header, only: [:create]
 
-    STATUSES_TO_PERSIST = %w[permanent-failure technical-failure preferences-declined].freeze
+    STATUSES_TO_IGNORE = %w[sent delivered temporary-failure].freeze
 
     def create
       return render json: nil, status: :not_found unless Flipper.enabled? :nod_callbacks_endpoint
@@ -31,11 +31,11 @@ module V1
 
       # save encrypted request body in database table for non-successful notifications
       payload_status = payload['status']&.downcase
-      if STATUSES_TO_PERSIST.include? payload_status
+      if STATUSES_TO_IGNORE.exclude? payload_status
         begin
           NodNotification.create!(payload:)
-        rescue ActiveRecord::RecordInvalid
-          log_formatted(**log_params.merge(is_success: false))
+        rescue ActiveRecord::RecordInvalid => e
+          log_formatted(**log_params.merge({ is_success: false, params: { exception_message: e.message } }))
           return render json: { message: 'failed' }
         end
       end
