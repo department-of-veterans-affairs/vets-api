@@ -1691,4 +1691,4 @@ schema_contract:
   appointments_index:
     path: 'modules/vaos/app/schemas/'
   test_index:
-    path: 'spec/fixtures/schema_contract/test.json'
+    path: 'spec/fixtures/schema_contract/test_schema.json'

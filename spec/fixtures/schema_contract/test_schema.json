@@ -15,10 +15,7 @@
           "identifier",
           "kind",
           "status",
-          "location_id",
-          "clinic",
           "start",
-          "cancellable",
           "extension"
         ],
         "additionalProperties": false,
@@ -36,7 +33,6 @@
           },
           "kind": { "type": ["string", "null"] },
           "status": { "type": ["string", "null"] },
-          "service_type": { "type": "string" },
           "patient_icn": { "type": "string" },
           "location_id": { "type": ["string", "null"] },
           "clinic": { "type": "string" },
@@ -117,17 +113,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "errors"
-        ],
         "properties": {
           "errors": {
             "type":"array",
             "items": {
               "type": "object",
               "properties": {
-                "system": { "type": "string" },
-                "value": { "type": "string" }
+                "detail": { "type": "string" }
               }
             }
           }
