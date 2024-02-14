@@ -35,7 +35,7 @@ module V1
         begin
           NodNotification.create!(payload:)
         rescue ActiveRecord::RecordInvalid => e
-          log_formatted(**log_params.merge({ is_success: false, params: { exception_message: e.message } }))
+          log_formatted(**log_params.merge(is_success: false), params: { exception_message: e.message })
           return render json: { message: 'failed' }
         end
       end
