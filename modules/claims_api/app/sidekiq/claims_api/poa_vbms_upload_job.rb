@@ -1,23 +1,11 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'claims_api/vbms_uploader'
 require 'claims_api/poa_vbms_sidekiq'
-require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class PoaVBMSUploadJob
-    include Sidekiq::Job
+  class PoaVBMSUploadJob < ClaimsApi::ServiceBase
     include ClaimsApi::PoaVbmsSidekiq
-
-    sidekiq_retries_exhausted do |message|
-      ClaimsApi::Logger.log(
-        'claims_api_retries_exhausted',
-        poa_id: message['args'].first,
-        detail: "Job retries exhausted for #{message['class']}",
-        error: message['error_message']
-      )
-    end
 
     # Uploads a 21-22 or 21-22a form for a given POA request to VBMS.
     # If successfully uploaded, it queues a job to update the POA code in BGS, as well.
