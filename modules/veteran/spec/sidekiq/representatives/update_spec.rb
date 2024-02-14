@@ -3,6 +3,31 @@
 require 'rails_helper'
 
 RSpec.describe Representatives::Update do
+
+  def create_representative # rubocop:disable Metrics/MethodLength
+    create(:representative,
+           representative_id: '123abc',
+           first_name: 'Bob',
+           last_name: 'Law',
+           address_line1: '123 East Main St',
+           address_line2: 'Suite 1',
+           address_line3: 'Address Line 3',
+           address_type: 'DOMESTIC',
+           city: 'My City',
+           country_name: 'United States of America',
+           country_code_iso3: 'USA',
+           province: 'A Province',
+           international_postal_code: '12345',
+           state_code: 'ZZ',
+           zip_code: '12345',
+           zip_suffix: '6789',
+           lat: '39',
+           long: '-75',
+           email: 'email@example.com',
+           location: 'POINT(-75 39)',
+           phone_number: '111-111-1111')
+  end
+
   describe '#perform' do
     let(:json_data) do
       { type:,
@@ -85,27 +110,7 @@ RSpec.describe Representatives::Update do
       let(:id) { '123abc' }
       let(:type) { 'Representatives' }
       let!(:representative) do
-        create(:representative,
-               representative_id: '123abc',
-               first_name: 'Bob',
-               last_name: 'Law',
-               address_line1: '123 East Main St',
-               address_line2: 'Suite 1',
-               address_line3: 'Address Line 3',
-               address_type: 'DOMESTIC',
-               city: 'My City',
-               country_name: 'United States of America',
-               country_code_iso3: 'USA',
-               province: 'A Province',
-               international_postal_code: '12345',
-               state_code: 'ZZ',
-               zip_code: '12345',
-               zip_suffix: '6789',
-               lat: '39',
-               long: '-75',
-               email: 'email@example.com',
-               location: 'POINT(-75 39)',
-               phone_number: '111-111-1111')
+        create_representative
       end
 
       context 'when address is valid' do
@@ -172,27 +177,7 @@ RSpec.describe Representatives::Update do
       let(:id) { '123abc' }
       let(:type) { 'Attorneys' }
       let!(:representative) do
-        create(:representative,
-               representative_id: '123abc',
-               first_name: 'Bob',
-               last_name: 'Law',
-               address_line1: '123 East Main St',
-               address_line2: 'Suite 1',
-               address_line3: 'Address Line 3',
-               address_type: 'DOMESTIC',
-               city: 'My City',
-               country_name: 'United States of America',
-               country_code_iso3: 'USA',
-               province: 'A Province',
-               international_postal_code: '12345',
-               state_code: 'ZZ',
-               zip_code: '12345',
-               zip_suffix: '6789',
-               lat: '39',
-               long: '-75',
-               email: 'email@example.com',
-               location: 'POINT(-75 39)',
-               phone_number: '111-111-1111')
+        create_representative
       end
 
       context 'when address is valid' do
@@ -235,27 +220,7 @@ RSpec.describe Representatives::Update do
       let(:id) { '123abc' }
       let(:type) { 'Agents' }
       let!(:representative) do
-        create(:representative,
-               representative_id: '123abc',
-               first_name: 'Bob',
-               last_name: 'Law',
-               address_line1: '123 East Main St',
-               address_line2: 'Suite 1',
-               address_line3: 'Address Line 3',
-               address_type: 'DOMESTIC',
-               city: 'My City',
-               country_name: 'United States of America',
-               country_code_iso3: 'USA',
-               province: 'A Province',
-               international_postal_code: '12345',
-               state_code: 'ZZ',
-               zip_code: '12345',
-               zip_suffix: '6789',
-               lat: '39',
-               long: '-75',
-               email: 'email@example.com',
-               location: 'POINT(-75 39)',
-               phone_number: '111-111-1111')
+        create_representative
       end
 
       context 'when address is valid' do
