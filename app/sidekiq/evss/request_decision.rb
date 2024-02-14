@@ -3,7 +3,7 @@
 class EVSS::RequestDecision
   include Sidekiq::Job
 
-  sidekiq_retries_exhausted do |job, ex|
+  sidekiq_retries_exhausted do |job, _ex|
     Sidekiq.logger.warn "Exhausted retries! Failed #{job['class']} with #{job['args']}: #{job['error_message']}"
   end
 
@@ -18,7 +18,7 @@ end
 class EVSSClaim::RequestDecision
   include Sidekiq::Job
 
-  sidekiq_retries_exhausted do |job, ex|
+  sidekiq_retries_exhausted do |job, _ex|
     Sidekiq.logger.warn "Exhausted retries! Failed #{job['class']} with #{job['args']}: #{job['error_message']}"
   end
 
