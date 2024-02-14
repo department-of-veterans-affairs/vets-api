@@ -244,10 +244,10 @@
         "middle": "Sawyer",
         "last": "Doe"
       },
-      "childDateOfBirth": "1992-04-01"
+      "childDateOfBirth": "2010-04-01"
     },
     {
-      "childInHousehold": false,
+      "childInHousehold": true,
       "childAddress": {
         "street": "123 8th st",
         "city": "Hadley",
@@ -255,22 +255,17 @@
         "state": "ME",
         "postalCode": "01050"
       },
-      "personWhoLivesWithChild": {
-        "first": "Joe",
-        "middle": "Middle",
-        "last": "Smith"
-      },
       "monthlyPayment": 3300,
       "childPlaceOfBirth": "Portland, ME",
       "childSocialSecurityNumber": "122222222",
-      "childRelationship": "adopted",
+      "childRelationship": "ADOPTED",
       "previouslyMarried": false,
       "fullName": {
         "first": "Sam",
         "middle": "Jason",
         "last": "Doe"
       },
-      "childDateOfBirth": "1992-06-29"
+      "childDateOfBirth": "2020-06-29"
     }
   ],
   "totalNetWorth": false,
