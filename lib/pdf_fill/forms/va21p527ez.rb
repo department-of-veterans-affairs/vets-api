@@ -769,7 +769,7 @@ module PdfFill
           },
           'fullNameOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S NAME'
+            question_text: '(1) CHILD\'S NAME'
           },
           'childDateOfBirth' => {
             'month' => {
@@ -784,7 +784,7 @@ module PdfFill
           },
           'childDateOfBirthOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S DATE OF BIRTH'
+            question_text: '(2) CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
             'first' => {
@@ -799,12 +799,12 @@ module PdfFill
           },
           'childSocialSecurityNumberOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S SOCIAL SECURITY NUMBER'
+            question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
             question_num: 8.1,
-            question_text: 'CHILD\'S PLACE OF BIRTH',
+            question_text: '(3) CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'childRelationship' => {
@@ -832,7 +832,7 @@ module PdfFill
           },
           'childStatusOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S STATUS'
+            question_text: '(5) CHILD\'S STATUS'
           },
           'monthlyPayment' => {
             'part_two' => {
@@ -847,7 +847,7 @@ module PdfFill
           },
           'monthlyPaymentOverflow' => {
             question_num: 8.1,
-            question_text: 'Amount of Contribution For Child'
+            question_text: '(6) Amount of Contribution For Child'
           }
         },
         # 8q
@@ -1488,7 +1488,7 @@ module PdfFill
             custodian_addresses[custodian_key] = build_custodian_hash_from_dependent(dependent)
           else
             custodian_addresses[custodian_key]['dependentsWithCustodianOverflow'] +=
-              ", #{dependent['fullName'].values.join(' ')}"
+              ", #{dependent['fullName']&.values&.join(' ')}"
           end
         end
         if custodian_addresses.any?
@@ -1506,7 +1506,7 @@ module PdfFill
                  })
           .merge({
                    'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
-                   'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
+                   'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
                  })
       end
 

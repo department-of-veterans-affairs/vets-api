@@ -100,7 +100,11 @@ module EVSS
       end
 
       def form4142
-        @form4142 ||= @submission.form[Form526Submission::FORM_4142]
+        @form4142 ||= set_signature_date(@submission.form[Form526Submission::FORM_4142])
+      end
+
+      def set_signature_date(incoming_data)
+        incoming_data.merge({ signatureDate: received_date })
       end
     end
   end

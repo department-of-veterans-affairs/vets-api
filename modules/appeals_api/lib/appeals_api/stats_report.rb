@@ -4,8 +4,20 @@ module AppealsApi
   class StatsReport
     DATE_FORMAT = '%b%e, %Y'
 
+    # [from, to] pairs to report transition times
     STATUS_TRANSITION_PAIRS = [
-      %w[processing submitted], %w[submitted complete], %w[processing success], %w[error success]
+      %w[submitting submitted],
+      %w[submitting error],
+
+      %w[submitted processing],
+      %w[submitted success],
+      %w[submitted complete],
+      %w[submitted error],
+
+      %w[processing success],
+      %w[processing complete],
+
+      %w[success complete]
     ].freeze
 
     STALLED_RECORD_MONTHS = (3..6)
@@ -69,11 +81,12 @@ module AppealsApi
             status_update_time: date_from..date_to
           ).order(:statusable_id).select('distinct on (statusable_id) *')
 
-          previous_records = AppealsApi::StatusUpdate.where(
-            to: status_from,
-            statusable_id: records.pluck(:statusable_id),
-            statusable_type:
-          ).where.not(from: status_from).order(:statusable_id).select('distinct on (statusable_id) *')
+          previous_records = AppealsApi::StatusUpdate.where(to: status_from,
+                                                            statusable_id: records.pluck(:statusable_id),
+                                                            statusable_type:)
+          previous_records = previous_records.where.not(from: status_from)
+          previous_records = previous_records.order(:statusable_id, :status_update_time)
+                                             .select('distinct on (statusable_id) *')
 
           # filter out records with no matching previous record
           records = records.where(statusable_id: previous_records.pluck(:statusable_id))
@@ -102,11 +115,11 @@ module AppealsApi
     def timespan_in_words(seconds)
       return '(none)' if seconds.nil?
 
-      minutes, = seconds.divmod(60)
+      minutes, remaining_seconds = seconds.divmod(60)
       hours, minutes = minutes.divmod(60)
       days, hours = hours.divmod(24)
 
-      "#{days}d #{hours}h #{minutes}m"
+      "#{days}d #{hours}h #{minutes}m #{remaining_seconds.round}s"
     end
 
     def formatted_timespan_stats(appeal_class)

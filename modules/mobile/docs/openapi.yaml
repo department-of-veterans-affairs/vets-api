@@ -1343,6 +1343,41 @@ paths:
       security:
         - Bearer: []
       summary: /v0/debts
+  /v0/debts/{id}:
+    get:
+      description: Returns a users debt by id.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Debt.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/debts/{id}
   /v0/dependents:
     get:
       description: Returns a list of user's dependents. Dependent SSN is also available but is removed to limit PII exposure.

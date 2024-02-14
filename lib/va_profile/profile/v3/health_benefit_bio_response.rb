@@ -6,26 +6,21 @@ require 'va_profile/models/message'
 
 module VAProfile::Profile::V3
   class HealthBenefitBioResponse < VAProfile::Response
-    attribute :associated_persons, Array[VAProfile::Models::AssociatedPerson]
+    attr_reader :body
+
+    attribute :contacts, Array[VAProfile::Models::AssociatedPerson]
     attribute :messages, Array[VAProfile::Models::Message]
 
-    def initialize(status_code, data)
-      super(status_code)
-      self.associated_persons = data[:associated_persons]
-      self.messages = data[:messages]
+    def initialize(response)
+      @body = response.body
+      contacts = body.dig('profile', 'health_benefit', 'associated_persons')
+                     &.sort_by { |p| VAProfile::Models::AssociatedPerson::CONTACT_TYPES.index(p['contact_type']) }
+      messages = body['messages']
+      super(response.status, { contacts:, messages: })
     end
 
-    class << self
-      def from(response)
-        associated_persons = response
-                             .body
-                             .dig('profile', 'healthBenefit', 'associatedPersons')
-                             &.map { |p| VAProfile::Models::AssociatedPerson.build_from(p) }
-        messages = response
-                   .body['messages']
-                   &.map { |m| VAProfile::Models::Message.build_from(m) }
-        new(response.status, { associated_persons:, messages: })
-      end
+    def metadata
+      { status:, messages: }
     end
   end
 end
