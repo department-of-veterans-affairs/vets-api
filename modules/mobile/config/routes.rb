@@ -37,6 +37,7 @@ Mobile::Engine.routes.draw do
     get '/disability-rating', to: 'disability_rating#index'
     get '/facilities-info', to: 'facilities_info#index'
     get '/facilities-info/:sort', to: 'facilities_info#schedulable'
+    post '/financial-status-reports/download', to: 'financial_status_reports#download'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/locations/:id', to: 'locations#show'
     scope :health do
