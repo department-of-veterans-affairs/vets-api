@@ -59,6 +59,7 @@ class SimpleCovHelper
 
   def self.add_modules
     # Modules
+    add_group 'AccreditedRepresentativesApi', 'modules/accredited_representatives_api/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
