@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 
-RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
+RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
   subject { described_class }
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
@@ -76,8 +76,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
       it 'generates the pdf to match example' do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::PoaPdfConstructor::Individual).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
+        expect(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:new).and_call_original
+        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
         subject.new.perform(power_of_attorney.id)
       end
 
@@ -106,8 +106,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
       it 'generates the pdf to match example' do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::PoaPdfConstructor::Organization).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
+        expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
+        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
         subject.new.perform(power_of_attorney.id)
       end
 
@@ -143,7 +143,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
       end
 
       it 'sets the status and store the error' do
-        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct)
+        expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct)
           .and_raise(ClaimsApi::StampSignatureError)
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
