@@ -3,7 +3,6 @@
 module SchemaContract
   class Validator
 
-
     class SchemaContractValidationError < StandardError; end
 
     def initialize(record_id)
@@ -15,11 +14,14 @@ module SchemaContract
       if errors.any?
         @result = 'schema_errors_found'
         error_message = 'Schema discrepancy found'
+        record.update(error_details: errors)
         raise SchemaContractValidationError, error_message
         # Rails.logger.error(error_message, schema_file: @schema, response: @response, details:)
       else
         @result = 'success'
       end
+    rescue => e
+      nil
     ensure
       # might need to tighten this up to avoid re-fetching the record if for some reason it's nil
       record&.update(status: @result) if defined?(@record)

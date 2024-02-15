@@ -51,7 +51,35 @@ describe SchemaContract::Validator do
     end
 
     describe 'when response does not match schema' do
-      # test various error types
+      let(:response) do
+        {
+          data: [
+            {
+              kind: nil,
+              status: 'groovy',
+              start: 'replace with date string',
+              extension: {
+                cc_location: {
+                  address: {
+                    street: '1 Main St.',
+                    city: 'NYC',
+                    state: 'NY',
+                    zip: '00001'
+                  }
+                }
+              }
+            }
+          ],
+          meta: [{}]
+        }
+      end
+
+      it 'records errors' do
+        expect { SchemaContract::Validator.new(contract_test.id).validate }.to change { contract_test.reload.status }.from('initiated').to('schema_errors_found')
+
+        errors = JSON.parse(contract_test.error_details)
+        expect(errors.first).to match(%r{The property '#/data/0' did not contain a required property of 'id' in schema .+})
+      end
     end
 
     context 'when schema contract does not exist in db' do
