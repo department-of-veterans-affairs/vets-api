@@ -16,8 +16,13 @@ unless Rails.env.test?
       CheckIn::V2::SessionsController.statsd_count_success method, lambda { |object, _args|
         "api.#{metric_prefix(object.request.headers, object.request.params)}.v2.sessions.#{method}.count"
       }
-      CheckIn::V2::PatientCheckInsController.statsd_measure method, "api.check_in.v2.checkins.#{method}.measure"
-      CheckIn::V2::PatientCheckInsController.statsd_count_success method, "api.check_in.v2.checkins.#{method}.count"
+      CheckIn::V2::PatientCheckInsController.statsd_measure method, lambda { |object, _args|
+        "api.#{metric_prefix(object.request.headers, object.request.params)}.v2.checkins.#{method}.measure"
+      }
+      CheckIn::V2::PatientCheckInsController.statsd_count_success method, lambda { |object, _args|
+        "api.#{metric_prefix(object.request.headers, object.request.params)}.v2.checkins.#{method}.count"
+      }
+
       CheckIn::V2::PreCheckInsController.statsd_measure method, "api.check_in.v2.pre_checkins.#{method}.measure"
       CheckIn::V2::PreCheckInsController.statsd_count_success method, "api.check_in.v2.pre_checkins.#{method}.count"
     end
@@ -53,17 +58,15 @@ unless Rails.env.test?
 
   private
 
-  def check_in_type(params)
-    check_in_param = params[:checkInType]
-    check_in_param = params.dig(:session, :check_in_type) if check_in_param.nil?
-    check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
-  end
-
   def metric_prefix(headers, params)
-    check_in_param = params[:checkInType] || params.dig(:session, :check_in_type)
+    if params[:facility_type]&.downcase == 'oh'
+      prefix = params[:facility_type].downcase
+    else
+      check_in_param = params[:checkInType] || params.dig(:session, :check_in_type)
 
-    prefix = check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
-    prefix += '.synthetic' if headers.key?('Sec-Datadog')
+      prefix = check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
+      prefix += '.synthetic' if headers.key?('Sec-Datadog')
+    end
     prefix
   end
 end
