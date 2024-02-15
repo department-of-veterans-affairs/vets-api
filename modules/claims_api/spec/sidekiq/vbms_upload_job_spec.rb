@@ -182,7 +182,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     end
   end
 
-  describe 'when an errored claim has exhausted its retries' do
+  describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       poa = create_poa
       error_msg = 'An error occurred for the POA VBMS Upload Job'

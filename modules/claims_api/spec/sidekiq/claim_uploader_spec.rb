@@ -173,7 +173,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     end
   end
 
-  describe 'when an errored claim has exhausted its retries' do
+  describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred from the Claim Uploader Job'
       msg = { 'args' => [auto_claim.id],

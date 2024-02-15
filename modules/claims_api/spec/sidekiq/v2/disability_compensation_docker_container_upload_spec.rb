@@ -209,18 +209,19 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     end
   end
 
-  describe 'when an errored claim has exhausted its retries' do
+  describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Docker Container Upload Job'
       msg = { 'args' => [claim.id],
               'class' => subject,
-              'error_message' => 'An error occurred from the Docker Container Upload Job' }
+              'error_message' => error_msg }
 
       described_class.within_sidekiq_retries_exhausted_block(msg) do
         expect(ClaimsApi::Logger).to receive(:log).with(
           'claims_api_retries_exhausted',
           record_id: claim.id,
           detail: "Job retries exhausted for #{subject}",
-          error: 'An error occurred from the Docker Container Upload Job'
+          error: error_msg
         )
       end
     end

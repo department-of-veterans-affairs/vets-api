@@ -64,7 +64,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     end
   end
 
-  context 'when an errored claim has exhausted its retries' do
+  context 'when an errored job has exhausted its retries' do
     let(:allow_poa_c_add) { 'Y' }
     let(:consent_address_change) { true }
 

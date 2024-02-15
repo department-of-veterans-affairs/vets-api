@@ -77,7 +77,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     end
   end
 
-  describe 'when an errored claim has exhausted its retries' do
+  describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred from the BD Uploader Job'
       msg = { 'args' => [claim.id],

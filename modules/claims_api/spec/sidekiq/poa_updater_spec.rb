@@ -81,7 +81,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     end
   end
 
-  context 'when an errored claim has exhausted its retries' do
+  context 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       poa = create_poa
       error_msg = 'An error occurred in the POA Updater Job'

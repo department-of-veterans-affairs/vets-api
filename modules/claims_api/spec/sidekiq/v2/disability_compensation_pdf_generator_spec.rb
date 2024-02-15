@@ -97,7 +97,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     end
   end
 
-  describe 'when an errored claim has exhausted its retries' do
+  describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred from the PDF Generator Job'
       msg = { 'args' => [claim.id, ''],

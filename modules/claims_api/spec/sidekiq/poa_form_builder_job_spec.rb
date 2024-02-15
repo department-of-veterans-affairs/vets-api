@@ -153,7 +153,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
     end
   end
 
-  context 'when an errored claim has exhausted its retries' do
+  context 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred for the POA Form Builder Job'
       msg = { 'args' => [power_of_attorney.id, 'value here'],
