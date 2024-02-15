@@ -1,23 +1,7 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sentry_logging'
-require 'claims_api/claim_logger'
-
 module ClaimsApi
   class FlashUpdater < UpdaterService
-    include Sidekiq::Job
-    include SentryLogging
-
-    sidekiq_retries_exhausted do |message|
-      ClaimsApi::Logger.log(
-        'claims_api_retries_exhausted',
-        claim_id: message['args'].last,
-        detail: "Job retries exhausted for #{message['class']}",
-        error: message['error_message']
-      )
-    end
-
     def perform(flashes, auto_claim_id)
       user = bgs_headers(auto_claim_id)
       service = bgs_service(user).claimant
