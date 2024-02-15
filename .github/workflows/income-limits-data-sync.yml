@@ -2,7 +2,7 @@ name: Income Limits Data Sync
 on:
   workflow_dispatch: null
   schedule:
-    - cron: "35 0 1 * *"
+    - cron: "35 0 28 * *"
 env:
   BUCKET_NAME: "sitewide-public-websites-income-limits-data"
   AWS_REGION: "us-gov-west-1"
@@ -100,4 +100,4 @@ jobs:
 
       - name: Copy files to the S3 bucket
         run: |
-          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }}
+          aws s3 sync ${{ env.TEMP_FOLDER }} s3://${{ env.BUCKET_NAME }} --acl public-read
