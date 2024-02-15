@@ -89,7 +89,7 @@ module Representatives
       record_attributes = build_record_attributes(address, geocode, meta)
                           .merge({ raw_address: data['request_address'].to_json })
       record_attributes[:email] = data['email_address']
-      record_attributes[:phone_number] = data['phone_number'] if data['type'] == 'Representatives'
+      record_attributes[:phone_number] = data['phone_number']
       record.update(record_attributes)
     end
 
