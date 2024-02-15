@@ -3,52 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Representatives::Update do
-  def create_representative # rubocop:disable Metrics/MethodLength
-    create(:representative,
-           representative_id: '123abc',
-           first_name: 'Bob',
-           last_name: 'Law',
-           address_line1: '123 East Main St',
-           address_line2: 'Suite 1',
-           address_line3: 'Address Line 3',
-           address_type: 'DOMESTIC',
-           city: 'My City',
-           country_name: 'United States of America',
-           country_code_iso3: 'USA',
-           province: 'A Province',
-           international_postal_code: '12345',
-           state_code: 'ZZ',
-           zip_code: '12345',
-           zip_suffix: '6789',
-           lat: '39',
-           long: '-75',
-           email: 'email@example.com',
-           location: 'POINT(-75 39)',
-           phone_number: '111-111-1111')
-  end
-
-  def expect_updated_representative(representative)
-    expect(representative.address_line1).to eq('37N 1st St')
-    expect(representative.address_line2).to be_nil
-    expect(representative.address_line3).to be_nil
-    expect(representative.address_type).to eq('Domestic')
-    expect(representative.city).to eq('Brooklyn')
-    expect(representative.country_code_iso3).to eq('USA')
-    expect(representative.country_name).to eq('United States')
-    expect(representative.county_name).to eq('Kings')
-    expect(representative.county_code).to eq('36047')
-    expect(representative.province).to eq('New York')
-    expect(representative.state_code).to eq('NY')
-    expect(representative.zip_code).to eq('11249')
-    expect(representative.zip_suffix).to eq('3939')
-    expect(representative.lat).to eq(40.717029)
-    expect(representative.long).to eq(-73.964956)
-    expect(representative.location.x).to eq(-73.964956)
-    expect(representative.location.y).to eq(40.717029)
-    expect(representative.email).to eq('test@example.com')
-    expect(representative.phone_number).to eq('999-999-9999')
-  end
-
   describe '#perform' do
     let(:json_data) do
       { request_address: {
@@ -126,10 +80,30 @@ RSpec.describe Representatives::Update do
       end
     end
 
-    shared_examples 'an updater of representative information' do
+    context 'when updating a representative' do
       let(:id) { '123abc' }
       let!(:representative) do
-        create_representative
+        create(:representative,
+               representative_id: '123abc',
+               first_name: 'Bob',
+               last_name: 'Law',
+               address_line1: '123 East Main St',
+               address_line2: 'Suite 1',
+               address_line3: 'Address Line 3',
+               address_type: 'DOMESTIC',
+               city: 'My City',
+               country_name: 'United States of America',
+               country_code_iso3: 'USA',
+               province: 'A Province',
+               international_postal_code: '12345',
+               state_code: 'ZZ',
+               zip_code: '12345',
+               zip_suffix: '6789',
+               lat: '39',
+               long: '-75',
+               email: 'email@example.com',
+               location: 'POINT(-75 39)',
+               phone_number: '111-111-1111')
       end
 
       context 'when address is valid' do
@@ -137,7 +111,26 @@ RSpec.describe Representatives::Update do
           subject.perform(json_data)
 
           representative.reload
-          expect_updated_representative(representative)
+
+          expect(representative.address_line1).to eq('37N 1st St')
+          expect(representative.address_line2).to be_nil
+          expect(representative.address_line3).to be_nil
+          expect(representative.address_type).to eq('Domestic')
+          expect(representative.city).to eq('Brooklyn')
+          expect(representative.country_code_iso3).to eq('USA')
+          expect(representative.country_name).to eq('United States')
+          expect(representative.county_name).to eq('Kings')
+          expect(representative.county_code).to eq('36047')
+          expect(representative.province).to eq('New York')
+          expect(representative.state_code).to eq('NY')
+          expect(representative.zip_code).to eq('11249')
+          expect(representative.zip_suffix).to eq('3939')
+          expect(representative.lat).to eq(40.717029)
+          expect(representative.long).to eq(-73.964956)
+          expect(representative.location.x).to eq(-73.964956)
+          expect(representative.location.y).to eq(40.717029)
+          expect(representative.email).to eq('test@example.com')
+          expect(representative.phone_number).to eq('999-999-9999')
         end
       end
 
@@ -163,18 +156,6 @@ RSpec.describe Representatives::Update do
           subject.perform(json_data)
         end
       end
-    end
-
-    context 'when processing a representative' do
-      include_examples 'an updater of representative information'
-    end
-
-    context 'when processing an attorney' do
-      include_examples 'an updater of representative information'
-    end
-
-    context 'when processing a claims agent' do
-      include_examples 'an updater of representative information'
     end
   end
 end
