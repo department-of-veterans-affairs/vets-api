@@ -47,11 +47,12 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
-                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
+      Rails.logger.warn("BGS::SubmitForm674Job received error, #{filter ? 'skipping' : 'retrying'}...",
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
-      raise
+      raise unless filter
     end
 
     def self.generate_user_struct(encrypted_user_struct, vet_info)

@@ -101,5 +101,23 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
     end
+
+    it 'filters based on error cause' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(client_stub).to receive(:submit) { raise_nested_err }
+
+      expect do
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      end.not_to raise_error
+    end
   end
+end
+
+def raise_nested_err
+  raise BGS::SubmitForm674Job::Invalid674Claim, 'A very specific error occurred: insertBenefitClaim: Invalid zipcode.'
+rescue
+  raise BGS::SubmitForm674Job::Invalid674Claim, 'A Generic Error Occurred'
 end
