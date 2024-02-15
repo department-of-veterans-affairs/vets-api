@@ -66,7 +66,6 @@ module Representatives
       zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
 
       {
-        type: sheet_name,
         id: row[column_map['Number']],
         email_address: get_value(row, column_map, email_address_column_name(sheet_name)),
         phone_number: get_value(row, column_map, 'WorkNumber'),
