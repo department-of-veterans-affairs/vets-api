@@ -1688,7 +1688,5 @@ xlsx_file_fetcher:
   github_access_token: ~
 
 schema_contract:
-  appointments_index:
-    path: 'modules/vaos/app/schemas/'
-  test_index:
-    path: 'spec/fixtures/schema_contract/test_schema.json'
+  appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
+  test_index: 'spec/fixtures/schema_contract/test_schema.json'

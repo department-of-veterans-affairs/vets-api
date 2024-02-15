@@ -11,7 +11,7 @@ module SchemaContract
     end
 
     def validate
-      errors = JSON::Validator.fully_validate(parsed_schema, parsed_response)
+      errors = JSON::Validator.fully_validate(parsed_schema, record.response)
       if errors.any?
         @result = 'schema_errors_found'
         error_message = 'Schema discrepancy found'
@@ -28,21 +28,11 @@ module SchemaContract
     private
 
     def record
-      @record ||= SchemaContractTest.find(id: @record_id)
+      @record ||= SchemaContractTest.find(@record_id)
     end
 
     def schema_file
-      join(Settings.schema_contract.appointments_index.path, "#{@test_name}.json")
-    end
-
-    def parsed_response
-      # this is probably no longer necessary
-      JSON.parse(record.response)
-    rescue JSON::ParserError => e
-      @result = 'invalid_response'
-      error_message = 'Schema validator received invalid JSON response'
-      raise SchemaContractValidationError, error_message
-      # Rails.logger.error(error_message, response: record.response, details: e)
+      Rails.root.join(Settings.schema_contract[record.name])
     end
 
     def parsed_schema

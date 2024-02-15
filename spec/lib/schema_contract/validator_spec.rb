@@ -10,7 +10,7 @@ describe SchemaContract::Validator do
     let(:test_data) { File.read(Rails.root.join(fixture)) }
 
     # make a factory
-    let(:contract_test) { SchemaContractTest.create(name: 'test', user_uuid: '1234', response:, status: 'initiated') }
+    let(:contract_test) { SchemaContractTest.create(name: 'test_index', user_uuid: '1234', response:, status: 'initiated') }
 
     context 'when response matches schema' do
       let(:response) do
@@ -42,11 +42,11 @@ describe SchemaContract::Validator do
       end
 
       it 'updates record' do
-        expect { subject.new(contract_test.id).validate }.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        expect { SchemaContract::Validator.new(contract_test.id).validate }.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
       end
 
       it 'does not log errors' do
-        expect { subject.new(contract_test.id).validate }.to change { contract_test.reload.status }.from('initiated').to('success')
+        expect { SchemaContract::Validator.new(contract_test.id).validate }.to change { contract_test.reload.status }.from('initiated').to('success')
       end
     end
 
