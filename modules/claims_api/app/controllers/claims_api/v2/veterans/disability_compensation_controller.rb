@@ -29,7 +29,7 @@ module ClaimsApi
         end
 
         def submit
-          claims_v2_logging('526-v2-test', detail: 'logging test. logging ssn: 123456789')
+          claims_v2_logging('526-v2-test', detail: 'logging test. logging ssn: 123456789. aws_secret: 35345etfdf')
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
