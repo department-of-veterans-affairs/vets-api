@@ -13,7 +13,8 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_21_0845.json',
     'vba_40_0247.json',
     'vba_21_0966.json',
-    'vba_20_10206.json'
+    'vba_20_10206.json',
+    'vba_40_10007.json'
   ]
 
   ivc_forms = [
@@ -340,7 +341,8 @@ RSpec.describe 'Forms uploader', type: :request do
       # Define data for both form IDs
       data_sets = [
         { form_id: '10-10D', file: },
-        { form_id: '40-0247', file: }
+        { form_id: '40-0247', file: },
+        { form_id: '40-10007', file: }
       ]
 
       data_sets.each do |data|
