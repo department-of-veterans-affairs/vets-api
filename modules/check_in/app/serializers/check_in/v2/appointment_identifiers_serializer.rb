@@ -31,6 +31,14 @@ module CheckIn
       attribute :patientCellPhone do |object|
         object.payload[:patientCellPhone]
       end
+
+      attribute :facilityType do |object|
+        object.payload[:facilityType]
+      end
+
+      attribute :edipi do |object|
+        object.payload.dig(:appointments, 0, :edipi)
+      end
     end
   end
 end
