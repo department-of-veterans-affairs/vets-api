@@ -14,20 +14,33 @@ module V1
     skip_after_action :set_csrf_header, only: [:create]
     before_action :authenticate_header, only: [:create]
 
+    STATUSES_TO_IGNORE = %w[sent delivered temporary-failure].freeze
+
     def create
       return render json: nil, status: :not_found unless Flipper.enabled? :nod_callbacks_endpoint
+
+      payload = JSON.parse(request.body.string)
 
       log_params = {
         key: :callbacks,
         form_id: '10182',
         user_uuid: nil,
         upstream_system: 'VANotify',
-        body: JSON.parse(request.body.string)
+        body: payload.merge('to' => '<FILTERED>') # scrub PII from logs
       }
+
+      # save encrypted request body in database table for non-successful notifications
+      payload_status = payload['status']&.downcase
+      if STATUSES_TO_IGNORE.exclude? payload_status
+        begin
+          NodNotification.create!(payload:)
+        rescue ActiveRecord::RecordInvalid => e
+          log_formatted(**log_params.merge(is_success: false), params: { exception_message: e.message })
+          return render json: { message: 'failed' }
+        end
+      end
+
       log_formatted(**log_params.merge(is_success: true))
-
-      # TODO: save encrypted request body in database table for non-successful notifications
-
       render json: { message: 'success' }
     end
 
