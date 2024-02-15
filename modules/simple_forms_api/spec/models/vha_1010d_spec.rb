@@ -7,11 +7,10 @@ require 'rails_helper'
 RSpec.describe SimpleFormsApi::VHA1010d do
   let(:data) do
     {
-      'veteran' => {
-        'full_name' => { 'first' => 'John', 'last' => 'Doe' },
-        'va_claim_number' => '123456789',
-        'address' => { 'postal_code' => '12345' }
-      },
+      'VeteransFirstName' => 'John',
+      'VeteransLastName' => 'Doe',
+      'VAFileNumber' => '123456789',
+      'VeteransZipCode' => '12345',
       'form_number' => 'VHA1010d',
       'veteran_supporting_documents' => [
         { 'confirmation_code' => 'abc123' },
