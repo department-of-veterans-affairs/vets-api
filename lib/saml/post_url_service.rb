@@ -34,8 +34,8 @@ module SAML
       @query_params = {}
       @tracker = initialize_tracker(params)
 
-      Raven.extra_context(params:)
-      Raven.user_context(session:, user:)
+      Sentry.set_extras(params:)
+      Sentry.set_user(session:, user:)
     end
 
     def login_redirect_url(auth: 'success', code: nil, request_id: nil)
@@ -64,7 +64,8 @@ module SAML
 
     def terms_of_use_redirect_url
       application = @tracker&.payload_attr(:application) || 'vaweb'
-      if TERMS_OF_USE_ENABLED_CLIENTS.include?(application)
+      if enabled_tou_clients.include?(application)
+        Rails.logger.info('Redirecting to /terms-of-use', type: :ssoe)
         add_query(terms_of_use_url, { redirect_url: login_redirect_url })
       else
         login_redirect_url
@@ -110,6 +111,14 @@ module SAML
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
       login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
+    end
+
+    def enabled_tou_clients
+      if Settings.vsp_environment == 'production'
+        TERMS_OF_USE_ENABLED_CLIENTS
+      else
+        TERMS_OF_USE_ENABLED_CLIENTS_LOWERS
+      end
     end
   end
 end

@@ -35,6 +35,12 @@ module SimpleFormsApi
       end
     end
 
+    def submission_date_config
+      { should_stamp_date?: false }
+    end
+
+    def track_user_identity; end
+
     private
 
     def get_attachments

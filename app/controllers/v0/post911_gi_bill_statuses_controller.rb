@@ -47,8 +47,11 @@ module V0
         # 403
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
       else
-        # 500
-        raise Common::Exceptions::InternalServerError
+        error_message = 'An unknown error occurred. ' \
+                        "Response error type: #{response.error_type}, " \
+                        "status: #{response.status}, body: #{response.body}"
+        standard_error = StandardError.new(error_message)
+        raise Common::Exceptions::InternalServerError, standard_error
       end
     end
 

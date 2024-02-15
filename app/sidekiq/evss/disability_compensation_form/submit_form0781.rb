@@ -98,6 +98,7 @@ module EVSS
       def get_docs(submission_id, uuid)
         @submission_id = submission_id
         @uuid = uuid
+        @submission = Form526Submission.find_by(id: submission_id)
 
         file_type_and_file_objs = []
         { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
@@ -123,7 +124,7 @@ module EVSS
       def perform(submission_id)
         @submission_id = submission_id
 
-        Raven.tags_context(source: '526EZ-all-claims')
+        Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
 
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
@@ -157,8 +158,11 @@ module EVSS
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "VA.gov Submission" at the top of each page
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
+        submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
+        form_content = form_content.merge({ 'signatureDate' => submission_date })
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
-        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
+        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
+                                                                   timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,

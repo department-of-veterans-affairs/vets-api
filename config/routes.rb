@@ -73,6 +73,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :letters_discrepancy, only: [:index]
+
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
@@ -153,6 +155,9 @@ Rails.application.routes.draw do
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
+    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
+    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
+
     resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
@@ -169,6 +174,8 @@ Rails.application.routes.draw do
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
       get 'claim/:id', to: 'virtual_agent_claim#show'
+      get 'claims', to: 'virtual_agent_claim_status#index'
+      get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
     resources :virtual_agent_claim, only: %i[index]
@@ -299,6 +306,7 @@ Rails.application.routes.draw do
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
+      resource :military_occupations, only: :show
 
       # Lighthouse
       namespace :direct_deposits do
@@ -339,6 +347,10 @@ Rails.application.routes.draw do
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
     end
+
+    get '/account_controls/credential_index', to: 'account_controls#credential_index'
+    post '/account_controls/credential_lock', to: 'account_controls#credential_lock'
+    post '/account_controls/credential_unlock', to: 'account_controls#credential_unlock'
 
     resources :search, only: :index
     resources :search_typeahead, only: :index
@@ -430,6 +442,10 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+
+    scope format: false do
+      resources :nod_callbacks, only: [:create]
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -483,8 +499,7 @@ Rails.application.routes.draw do
   get '/flipper/features/logout', to: 'flipper#logout'
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
 
-  if Rails.env.production?
-    require 'coverband'
+  unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
 

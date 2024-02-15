@@ -3,11 +3,11 @@
 module VAOS
   module Middleware
     module Response
-      class Errors < Faraday::Response::Middleware
+      class Errors < Faraday::Middleware
         def on_complete(env)
           return if env.success?
 
-          Raven.extra_context(vamf_status: env.status, vamf_body: env.response_body, vamf_url: env.url)
+          Sentry.set_extras(vamf_status: env.status, vamf_body: env.response_body, vamf_url: env.url)
           raise VAOS::Exceptions::BackendServiceException, env
         end
       end

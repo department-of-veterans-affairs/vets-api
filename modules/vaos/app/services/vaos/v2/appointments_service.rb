@@ -15,12 +15,12 @@ module VAOS
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
+      AVS_APPT_TEST_ID = '192308'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
+      CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
-        Rails.logger.info("VAOS: missing ICN, request_id: #{RequestStore.store['request_id']}") if user.icn.blank?
-
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
@@ -29,6 +29,9 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
           response.body[:data].each do |appt|
+            # for Lovell appointments set cancellable to false per GH#75512
+            set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
+
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
@@ -51,12 +54,15 @@ module VAOS
       end
 
       def get_appointment(appointment_id)
-        Rails.logger.info("VAOS: missing ICN, request_id: #{RequestStore.store['request_id']}") if user.icn.blank?
-
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
+
+          # for Lovell appointments set cancellable to false per GH#75512
+          if lovell_appointment?(response.body[:data]) && Flipper.enabled?(CANCEL_EXCLUSION, user)
+            set_cancellable_false(response.body[:data])
+          end
 
           # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
           set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
@@ -232,8 +238,13 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        avs_link = get_avs_link(appt)
-        appt[:avs_path] = avs_link
+        # Testing AVS error message using the below id - remove after testing is complete
+        if appt[:id] == AVS_APPT_TEST_ID
+          appt[:avs_path] = AVS_ERROR_MESSAGE
+        else
+          avs_link = get_avs_link(appt)
+          appt[:avs_path] = avs_link
+        end
       rescue => e
         err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
         Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
@@ -274,6 +285,12 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      def lovell_appointment?(appt)
+        return false if appt.nil? || appt[:location_id].nil?
+
+        appt[:location_id].start_with?('556')
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
@@ -535,7 +552,7 @@ module VAOS
         end
 
         {
-          failures: (response.body[:failures] || []) # VAMF drops null valued keys; ensure we always return empty array
+          failures: response.body[:failures] || [] # VAMF drops null valued keys; ensure we always return empty array
         }
       end
 
