@@ -27,7 +27,7 @@ RSpec.describe Representatives::Update do
            phone_number: '111-111-1111')
   end
 
-  def expect_updated_representative(representative, updates_phone_number:) # rubocop:disable Metrics/MethodLength
+  def expect_updated_representative(representative)
     expect(representative.address_line1).to eq('37N 1st St')
     expect(representative.address_line2).to be_nil
     expect(representative.address_line3).to be_nil
@@ -46,18 +46,12 @@ RSpec.describe Representatives::Update do
     expect(representative.location.x).to eq(-73.964956)
     expect(representative.location.y).to eq(40.717029)
     expect(representative.email).to eq('test@example.com')
-
-    if updates_phone_number
-      expect(representative.phone_number).to eq('999-999-9999')
-    else
-      expect(representative.phone_number).to eq('111-111-1111')
-    end
+    expect(representative.phone_number).to eq('999-999-9999')
   end
 
   describe '#perform' do
     let(:json_data) do
-      { type:,
-        request_address: {
+      { request_address: {
           address_pou: 'abc',
           address_line1: 'abc',
           address_line2: 'abc',
@@ -132,9 +126,8 @@ RSpec.describe Representatives::Update do
       end
     end
 
-    shared_examples 'an updater of representative information' do |type, updates_phone_number|
+    shared_examples 'an updater of representative information' do
       let(:id) { '123abc' }
-      let(:type) { type }
       let!(:representative) do
         create_representative
       end
@@ -144,7 +137,7 @@ RSpec.describe Representatives::Update do
           subject.perform(json_data)
 
           representative.reload
-          expect_updated_representative(representative, updates_phone_number:)
+          expect_updated_representative(representative)
         end
       end
 
@@ -173,15 +166,15 @@ RSpec.describe Representatives::Update do
     end
 
     context 'when processing a representative' do
-      include_examples 'an updater of representative information', 'Representatives', true
+      include_examples 'an updater of representative information'
     end
 
     context 'when processing an attorney' do
-      include_examples 'an updater of representative information', 'Attorneys', false
+      include_examples 'an updater of representative information'
     end
 
     context 'when processing a claims agent' do
-      include_examples 'an updater of representative information', 'Agents', false
+      include_examples 'an updater of representative information'
     end
   end
 end
