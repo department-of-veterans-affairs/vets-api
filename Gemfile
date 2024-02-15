@@ -62,8 +62,12 @@ gem 'dogstatsd-ruby', '5.6.1'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
-gem 'faraday', '~> 1.10'
-gem 'faraday_middleware'
+gem 'faraday', '~> 2.9'
+gem 'faraday-follow_redirects'
+gem 'faraday-httpclient'
+gem 'faraday-multipart'
+gem 'faraday-retry'
+gem 'faraday-typhoeus'
 gem 'fastimage'
 gem 'fhir_client', git: 'https://github.com/adhocteam/fhir_client.git', tag: 'v6.0.1'
 gem 'fitbit_api'
@@ -143,7 +147,6 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
-gem 'typhoeus'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
@@ -169,7 +172,7 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
   gem 'fakeredis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'

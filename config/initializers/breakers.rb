@@ -7,7 +7,6 @@ require 'central_mail/configuration'
 require 'debt_management_center/debts_configuration'
 require 'decision_review/configuration'
 require 'emis/military_information_configuration'
-require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
@@ -31,8 +30,13 @@ require 'sm/configuration'
 require 'search/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
+require 'va_profile/address_validation/configuration'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/communication/configuration'
+require 'va_profile/demographics/configuration'
+require 'va_profile/health_benefit/configuration'
+require 'va_profile/military_personnel/configuration'
+require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
 
@@ -49,7 +53,6 @@ Rails.application.reloader.to_prepare do
     Rx::Configuration.instance.breakers_service,
     BB::Configuration.instance.breakers_service,
     EMIS::MilitaryInformationConfiguration.instance.breakers_service,
-    EMIS::PaymentConfiguration.instance.breakers_service,
     EMIS::VeteranStatusConfiguration.instance.breakers_service,
     EVSS::ClaimsService.breakers_service,
     EVSS::CommonService.breakers_service,
@@ -69,8 +72,13 @@ Rails.application.reloader.to_prepare do
     MPI::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
+    VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
+    VAProfile::Demographics::Configuration.instance.breakers_service,
+    VAProfile::HealthBenefit::Configuration.instance.breakers_service,
+    VAProfile::MilitaryPersonnel::Configuration.instance.breakers_service,
+    VAProfile::VeteranStatus::Configuration.instance.breakers_service,
     Search::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,

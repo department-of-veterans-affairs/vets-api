@@ -14,7 +14,9 @@ describe Avs::V0::AfterVisitSummary, type: :model do
             'icn' => '1234567890V123456',
             'smokingStatus' => 'Current smoker'
           },
-          'header' => { 'stationNo' => '500', 'timeZone' => 'US/Pacific' },
+          'header' => {
+            'pageHeader' => "\u003cdiv style\u003d\"float:right;margin:0 0 5px 20px;\"\u003e\u003cimg src\u003d\"/avs/artwork/Dept_of_VA_Affairs-greyscale.png\" width\u003d\"205\" height\u003d\"42\" alt\u003d\"Department of Veterans Affairs\"\u003e\u003c/div\u003e\u003cdiv style\u003d\"font-size:1.8em;font-weight:bold;\"\u003eAfter Visit Summary\u003c/div\u003e\u003cdiv style\u003d\"font-size:0.9em;font-weight:bold;\"\u003ePatient,Test\u003c/div\u003e\u003cdiv style\u003d\"font-size:0.9em;\"\u003eDOB: 01/01/1950 (74y)\u003c/div\u003e\u003cdiv style\u003d\"font-size:0.9em;\"\u003eVisit date: February 07, 2024\u003c/div\u003e\u003cdiv style\u003d\"font-size:0.9em;\"\u003eDate generated: February 08, 2024 11:06\u003c/div\u003e\u003cdiv style\u003d\"font-size:0.9em;\"\u003eVEHU DIVISION\u003c/div\u003e", 'stationNo' => '500', 'timeZone' => 'US/Pacific' # rubocop:disable Layout/LineLength
+          },
           'discreteData' => {
             temp: [
               {
@@ -51,6 +53,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           icn: '1234567890V123456',
           meta: {
             generated_date: '2020-01-01T00:00:00Z',
+            page_header: "After Visit Summary\nPatient,Test\nDOB: 01/01/1950 (74y)\nVisit date: February 07, 2024\nDate generated: February 08, 2024 11:06\nVEHU DIVISION", # rubocop:disable Layout/LineLength
             station_no: '500',
             time_zone: 'US/Pacific'
           },
@@ -64,6 +67,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           diagnoses: [],
           vitals: [],
           orders: [],
+          procedures: [],
           immunizations: [],
           appointments: [],
           patient_instructions: nil,
@@ -74,10 +78,12 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team_members: [],
           problems: [],
           clinical_reminders: [],
+          clinical_services: [],
           allergies_reactions: nil,
           clinic_medications: [],
           va_medications: [],
           nonva_medications: [],
+          med_changes_summary: [],
           lab_results: [],
           radiology_reports1_yr: nil,
           more_help_and_information: nil,
@@ -105,6 +111,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           icn: '1234567890V123456',
           meta: {
             generated_date: '2020-01-01T00:00:00Z',
+            page_header: nil,
             station_no: '500',
             time_zone: 'US/Pacific'
           },
@@ -118,6 +125,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           diagnoses: [],
           vitals: [],
           orders: [],
+          procedures: [],
           immunizations: [],
           appointments: [],
           patient_instructions: nil,
@@ -128,10 +136,12 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           primary_care_team_members: [],
           problems: [],
           clinical_reminders: [],
+          clinical_services: [],
           allergies_reactions: nil,
           clinic_medications: [],
           va_medications: [],
           nonva_medications: [],
+          med_changes_summary: [],
           lab_results: [],
           radiology_reports1_yr: nil,
           more_help_and_information: nil,

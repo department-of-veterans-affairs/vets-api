@@ -3876,12 +3876,12 @@ RSpec.describe 'Disability Claims', type: :request do
     end
   end
 
-  describe 'POST #generatePDF', vcr: 'claims_api/disability_comp' do
+  describe 'POST #generatePDF/minimum-validations', vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
-      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
-                             'form_526_json_api.json').read
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                             'disability_compensation', 'form_526_generate_pdf_json_api.json').read
       temp = JSON.parse(temp)
       attributes = temp['data']['attributes']
       attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
@@ -3890,22 +3890,31 @@ RSpec.describe 'Disability Claims', type: :request do
       temp.to_json
     end
 
-    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', 'generate_pdf_526.json').read }
     let(:veteran_id) { '1012832025V743496' }
-    let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF" }
+    let(:generate_pdf_scopes) { %w[system/526-pdf.override] }
+    let(:invalid_scopes) { %w[claim.write claim.read] }
+    let(:generate_pdf_path) { "/services/claims/v2/veterans/#{veteran_id}/526/generatePDF/minimum-validations" }
 
     context 'submission to generatePDF' do
       it 'returns a 200 response when successful' do
-        mock_ccg(scopes) do |auth_header|
+        mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
           post generate_pdf_path, params: data, headers: auth_header
           expect(response.header['Content-Disposition']).to include('filename')
           expect(response).to have_http_status(:ok)
         end
       end
 
+      it 'returns a 401 unauthorized with incorrect scopes' do
+        mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+          post generate_pdf_path, params: data, headers: auth_header
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+
       context 'when invalid JSON is submitted' do
         it 'returns a 422 response' do
-          mock_ccg(scopes) do |auth_header|
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
             post generate_pdf_path, params: {}, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
           end
@@ -3918,7 +3927,7 @@ RSpec.describe 'Disability Claims', type: :request do
             .to receive(:generate_526_pdf)
             .and_return({})
 
-          mock_ccg(scopes) do |auth_header|
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
           end
@@ -3929,7 +3938,7 @@ RSpec.describe 'Disability Claims', type: :request do
             .to receive(:generate_526_pdf)
             .and_return(nil)
 
-          mock_ccg(scopes) do |auth_header|
+          mock_ccg_for_fine_grained_scope(generate_pdf_scopes) do |auth_header|
             post generate_pdf_path, params: data, headers: auth_header
             expect(response).to have_http_status(:unprocessable_entity)
           end

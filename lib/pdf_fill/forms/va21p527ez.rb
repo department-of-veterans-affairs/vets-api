@@ -785,7 +785,7 @@ module PdfFill
           },
           'fullNameOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S NAME'
+            question_text: '(1) CHILD\'S NAME'
           },
           'childDateOfBirth' => {
             'month' => {
@@ -800,7 +800,7 @@ module PdfFill
           },
           'childDateOfBirthOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S DATE OF BIRTH'
+            question_text: '(2) CHILD\'S DATE OF BIRTH'
           },
           'childSocialSecurityNumber' => {
             'first' => {
@@ -815,12 +815,12 @@ module PdfFill
           },
           'childSocialSecurityNumberOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S SOCIAL SECURITY NUMBER'
+            question_text: '(4) CHILD\'S SOCIAL SECURITY NUMBER'
           },
           'childPlaceOfBirth' => {
             limit: 60,
             question_num: 8.1,
-            question_text: 'CHILD\'S PLACE OF BIRTH',
+            question_text: '(3) CHILD\'S PLACE OF BIRTH',
             key: "Dependent_Children.Place_Of_Birth_City_And_State_Or_Country[#{ITERATOR}]"
           },
           'childRelationship' => {
@@ -848,7 +848,7 @@ module PdfFill
           },
           'childStatusOverflow' => {
             question_num: 8.1,
-            question_text: 'CHILD\'S STATUS'
+            question_text: '(5) CHILD\'S STATUS'
           },
           'monthlyPayment' => {
             'part_two' => {
@@ -863,7 +863,7 @@ module PdfFill
           },
           'monthlyPaymentOverflow' => {
             question_num: 8.1,
-            question_text: 'Amount of Contribution For Child'
+            question_text: '(6) Amount of Contribution For Child'
           }
         },
         # 8q
@@ -1400,7 +1400,7 @@ module PdfFill
         @form_data['previousEmployers'] = @form_data['previousEmployers']&.map do |pe|
           pe.merge({
                      'jobDate' => split_date(pe['jobDate']),
-                     'jobDateOverflow' => pe['jobDate']
+                     'jobDateOverflow' => to_date_string(pe['jobDate'])
                    })
         end
 
@@ -1413,9 +1413,8 @@ module PdfFill
         @form_data['currentMarriage'] = get_current_marriage(@form_data['marriages'])
         @form_data['spouseDateOfBirth'] = split_date(@form_data['spouseDateOfBirth'])
         @form_data['spouseSocialSecurityNumber'] = split_ssn(@form_data['spouseSocialSecurityNumber'])
-        if (@form_data['maritalStatus']).zero?
-          @form_data['spouseIsVeteran'] =
-            to_radio_yes_no(@form_data['spouseIsVeteran'])
+        if @form_data['maritalStatus'] != 2
+          @form_data['spouseIsVeteran'] = to_radio_yes_no(@form_data['spouseIsVeteran'])
         end
         @form_data['spouseAddress'] ||= {}
         @form_data['spouseAddress']['postalCode'] = split_postal_code(@form_data['spouseAddress'])
@@ -1507,7 +1506,7 @@ module PdfFill
             custodian_addresses[custodian_key] = build_custodian_hash_from_dependent(dependent)
           else
             custodian_addresses[custodian_key]['dependentsWithCustodianOverflow'] +=
-              ", #{dependent['fullName'].values.join(' ')}"
+              ", #{dependent['fullName']&.values&.join(' ')}"
           end
         end
         if custodian_addresses.any?
@@ -1525,7 +1524,7 @@ module PdfFill
                  })
           .merge({
                    'custodianAddressOverflow' => build_address_string(dependent['childAddress']),
-                   'dependentsWithCustodianOverflow' => dependent['fullName'].values.join(' ')
+                   'dependentsWithCustodianOverflow' => dependent['fullName']&.values&.join(' ')
                  })
       end
 
@@ -1563,7 +1562,7 @@ module PdfFill
           .merge({
                    'fullNameOverflow' => dependent['fullName']&.values&.join(' '),
                    'childDateOfBirth' => split_date(dependent['childDateOfBirth']),
-                   'childDateOfBirthOverflow' => dependent['childDateOfBirth'],
+                   'childDateOfBirthOverflow' => to_date_string(dependent['childDateOfBirth']),
                    'childSocialSecurityNumber' => split_ssn(dependent['childSocialSecurityNumber']),
                    'childSocialSecurityNumberOverflow' => dependent['childSocialSecurityNumber'],
                    'childRelationship' => {
@@ -1663,7 +1662,7 @@ module PdfFill
                                   'recipients' => RECIPIENTS[medical_expense['recipients']],
                                   'recipientsOverflow' => medical_expense['recipients']&.humanize,
                                   'paymentDate' => split_date(medical_expense['paymentDate']),
-                                  'paymentDateOverflow' => medical_expense['paymentDate'],
+                                  'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
                                   'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
                                   'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
                                   'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
@@ -1694,8 +1693,15 @@ module PdfFill
         @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
       end
 
+      def to_date_string(date)
+        date_hash = split_date(date)
+        return unless date_hash
+
+        "#{date_hash['month']}-#{date_hash['day']}-#{date_hash['year']}"
+      end
+
       def build_date_range_string(date_range)
-        "#{date_range['from']} - #{date_range['to'] || 'No End Date'}"
+        "#{to_date_string(date_range['from'])} - #{to_date_string(date_range['to']) || 'No End Date'}"
       end
 
       def split_currency_amount(amount)

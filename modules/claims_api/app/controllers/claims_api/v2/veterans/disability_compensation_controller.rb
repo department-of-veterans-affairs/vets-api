@@ -22,11 +22,11 @@ module ClaimsApi
         FORM_NUMBER = '526'
 
         skip_before_action :validate_json_format, only: [:attachments]
-        # Custom validations for 526 submission, we must check this first
-        before_action :custom_validation, :file_number_check, only: %i[submit validate]
-        before_action :validate_json_schema, only: %i[submit validate generate_pdf]
-        # If all we have are custom validation errors we raise them here, after validating JSON above
-        before_action :check_for_custom_validation_errors, only: %i[submit validate]
+        before_action :shared_validation, :file_number_check, only: %i[submit validate]
+
+        before_action only: %i[generate_pdf] do
+          permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
+        end
 
         def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -81,6 +81,8 @@ module ClaimsApi
 
         # Returns filled out 526EZ form as PDF
         def generate_pdf # rubocop:disable Metrics/MethodLength
+          validate_json_schema('GENERATE_PDF_526')
+
           mapped_claim = generate_pdf_mapper_service(
             form_attributes,
             get_pdf_data_wrapper,
@@ -149,11 +151,12 @@ module ClaimsApi
           veteran_flashes
         end
 
-        def custom_validation
+        def shared_validation
+          # Custom validations for 526 submission, we must check this first
           @disability_compensation_validation_errors = validate_form_526_submission_values!(target_veteran)
-        end
-
-        def check_for_custom_validation_errors
+          # JSON validations for 526 submission, will combine with previously captured errors and raise
+          validate_json_schema
+          # if we get here there were only validations file errors
           if @disability_compensation_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
                   @disability_compensation_validation_errors
