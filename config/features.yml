@@ -61,21 +61,9 @@ features:
   cerner_transition_556_t5:
     actor_type: user
     description: This will control the content that will be in effect 5 days prior to transition.
-  cerner_override_463:
-    actor_type: user
-    description: This will show the Cerner facility 463 as `isCerner`.
-  cerner_override_531:
-    actor_type: user
-    description: This will show the Cerner facility 531 as `isCerner`.
-  cerner_override_648:
-    actor_type: user
-    description: This will show the Cerner facility 648 as `isCerner`.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
-  cerner_override_663:
-    actor_type: user
-    description: This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: This will show the Cerner facility 668 as `isCerner`.
@@ -661,9 +649,17 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_display_conditions:
+    actor_type: user
+    description: Show/hide content related to Health Conditions in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_domains:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_labs_and_tests:
+    actor_type: user
+    description: Show/hide content related to Labs & Tests in Medical Records
     enable_in_development: true
   mhv_medical_records_display_notes:
     actor_type: user
@@ -676,6 +672,10 @@ features:
   mhv_medical_records_display_vaccines:
     actor_type: user
     description: Show/hide content related to Vaccines in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_vitals:
+    actor_type: user
+    description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
