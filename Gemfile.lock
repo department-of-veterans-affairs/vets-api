@@ -792,7 +792,7 @@ GEM
       uber (< 0.2.0)
     request_store (1.6.0)
       rack (>= 1.4)
-    restforce (7.2.0)
+    restforce (7.3.0)
       faraday (>= 1.1.0, < 2.10.0)
       faraday-follow_redirects (<= 0.3.0, < 1.0.0)
       faraday-multipart (>= 1.0.0, < 2.0.0)
