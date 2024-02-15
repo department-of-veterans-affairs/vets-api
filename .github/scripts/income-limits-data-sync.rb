@@ -11,11 +11,11 @@ db_connection_string = "//#{db_host}:#{db_port}/#{db_sid}"
 
 # Define csv files hash with table names as the index.
 files = {
-  "sdsadm.std_zipcode": "std_zipcode_temp.csv",
-  "sdsadm.std_state": "std_state_temp.csv",
-  "sdsadm.std_incomethreshold": "std_incomethreshold_temp.csv",
-  "sdsadm.std_gmtthresholds": "std_gmtthresholds_temp.csv",
-  "sdsadm.std_county": "std_county_temp.csv",
+  "sdsadm.std_zipcode": "std_zipcode.csv",
+  "sdsadm.std_state": "std_state.csv",
+  "sdsadm.std_incomethreshold": "std_incomethreshold.csv",
+  "sdsadm.std_gmtthresholds": "std_gmtthresholds.csv",
+  "sdsadm.std_county": "std_county.csv",
 }
 
 # Define temp directory
