@@ -34,30 +34,19 @@ module SimpleFormsApi
         combined_pdf.save file_path
       end
     end
+    
     def service(num, field, date)
       service_records = data.dig("application", "veteran", "service_records")
-      if service_records
-        if date
-          return service_records[num][field][date]
-        else
-          return service_records[num][field] 
-        end
-      else
-        return ''
-      end
-    end
-
-    def service_branch(num, field, date)
-      service_records = data.dig("application", "veteran", "service_records")
-      if service_records
-        if date
-          return service_records[num][field][date]
-        else
-          return service_records[num][field] 
-        end
-      else
-        return ''
-      end
+     
+      return '' if service_records.nil? || service_records[num].nil?
+    
+      value = if date
+                service_records[num][field]&.[](date)
+              else
+                service_records[num][field]
+              end
+    
+      value.to_s # Convert nil to an empty string
     end
     
     def track_user_identity; end

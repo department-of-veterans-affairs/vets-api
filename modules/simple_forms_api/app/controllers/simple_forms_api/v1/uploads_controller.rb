@@ -36,8 +36,7 @@ module SimpleFormsApi
 
         if form_is210966 && icn && first_party?
           handle_210966_authenticated
-        else
-          byebug
+        else        
           submit_form_to_central_mail
         end
       rescue => e
