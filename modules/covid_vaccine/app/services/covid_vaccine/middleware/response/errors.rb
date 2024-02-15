@@ -5,7 +5,7 @@ require 'common/exceptions'
 module CovidVaccine
   module Middleware
     module Response
-      class Errors < Faraday::Response::Middleware
+      class Errors < Faraday::Middleware
         def on_complete(env)
           return if env.success?
 

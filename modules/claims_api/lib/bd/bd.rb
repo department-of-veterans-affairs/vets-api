@@ -43,7 +43,11 @@ module ClaimsApi
       body = generate_upload_body(claim:, doc_type:, pdf_path:, file_number:)
       res = client.post('documents', body)&.body&.deep_symbolize_keys
       request_id = res&.dig(:data, :requestId)
-      ClaimsApi::Logger.log('526', detail: 'Successfully uploaded doc to BD', claim_id: claim.id, request_id:)
+      ClaimsApi::Logger.log(
+        '526',
+        detail: "Successfully uploaded #{doc_type == 'L122' ? 'claim' : 'supporting'} doc to BD",
+        claim_id: claim.id, request_id:
+      )
       res
     end
 
