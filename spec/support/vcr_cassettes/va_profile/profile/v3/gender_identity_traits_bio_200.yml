@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005123832%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"genderIdentityTraits"}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.9.0
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-620804675", dtSInfo;desc="0"
+      - dtRpid;desc="217549581", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 5474be78-a483-422d-b5a0-cdf49114fd64
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 14 Feb 2024 15:37:29 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '385'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"profile":{"genderIdentityTraits":{"sexualOrientation":[{"sexualOrientationCode":"STH","sexualOrientationName":"Straight
+        or heterosexual"},{"sexualOrientationCode":"LGH","sexualOrientationName":"Lesbian,
+        gay or homosexual"}],"pronoun":[{"pronounCode":"ZIR","pronounName":"Ze/zir/zirs"},{"pronounCode":"PTN","pronounName":"Patient
+        Name"}],"preferredName":{"preferredName":"MRROBOT"}}}}'
+  recorded_at: Wed, 14 Feb 2024 15:37:29 GMT
+recorded_with: VCR 6.2.0

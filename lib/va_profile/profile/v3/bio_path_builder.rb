@@ -5,7 +5,7 @@ module VAProfile
     module V3
       class BioPathBuilder
         BIO_PATHS = {
-          demographics: 'demographics',
+          gender_identity_traits: 'genderIdentityTraits',
           military_admin_decisions: 'militaryPerson.adminDecisions',
           military_admin_eposides: 'militaryPerson.adminEpisodes',
           military_dental_indicators: 'militaryPerson.dentalIndicators',
