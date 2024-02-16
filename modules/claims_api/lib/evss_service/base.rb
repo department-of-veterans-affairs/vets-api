@@ -27,7 +27,7 @@ module ClaimsApi
 
           resp # return is for v1 Sidekiq worker
         rescue => e
-          error_handler(e, claim)
+          error_handler(e, claim, 'submit')
         end
       end
 
@@ -43,7 +43,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          formatted_err = error_handler(e, claim) # for v1 controller reporting
+          formatted_err = error_handler(e, claim, 'validate') # for v1 controller reporting
           raise formatted_err
         end
       end
@@ -86,15 +86,6 @@ module ClaimsApi
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
-      def handle_error(e)
-        # if orignal_body we have a Docker Container error
-        if e.respond_to?(:original_body)
-          errors = format_docker_container_error_for_v1(e.original_body[:messages])
-          e.original_body[:messages] = errors
-        end
-        e
-      end
-
       # v1/disability_compenstaion_controller expects different values then the docker container provides
       def format_docker_container_error_for_v1(errors)
         errors.each do |err|
@@ -108,32 +99,28 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def error_handler(error, claim)
-        log_info = {}
-        handle_faraday_failure(error, log_info, claim)
-        handle_bad_request(error, log_info, claim)
-        handle_parsing_error(error, log_info, claim)
-        handle_client_errors(error, log_info, claim)
+      def error_handler(error, claim, method)
+        handle_faraday_failure(error, claim, method)
+        handle_bad_request(error, claim, method)
+        handle_parsing_error(error, claim, method)
+        handle_client_errors(error, claim, method)
         raise error
       end
 
-      def handle_faraday_failure(error, log_info, claim)
+      def handle_faraday_failure(error, claim, method)
         if error.is_a?(Faraday::ConnectionFailed)
-          log_info['class'] = error.class if error.respond_to?(:class)
-          log_info['status'] = error.response_status if error.respond_to?(:response_status)
-          log_info['message'] = error.detailed_message if error.respond_to?(:detailed_message)
-          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+          status = get_status_code(error)
+          log_info = get_log_info(error, status)
+          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
           raise ::Common::Exceptions::ServiceUnavailable
         end
       end
 
-      def handle_client_errors(error, log_info, claim)
-        status = error.status if error.respond_to?(:status)
-        if ::Common::Client::Errors::ClientError
-          log_info['class'] = error.class if error.respond_to?(:class)
-          log_info['status'] = status
-          log_info['message'] = error.message.presence || error.detailed_message
-          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+      def handle_client_errors(error, claim, method)
+        if ::Common::Client::Errors::ClientError || StandardError
+          status = get_status_code(error)
+          log_info = get_log_info(error, status)
+          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
 
           raise ::Common::Exceptions::Forbidden if status == 403
           raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
@@ -142,28 +129,45 @@ module ClaimsApi
         end
       end
 
-      def handle_parsing_error(error, log_info, claim)
+      def handle_parsing_error(error, claim, method)
         if error.is_a?(Faraday::ParsingError)
-          log_info['class'] = error.class if error.respond_to?(:class)
-          status = error.response_status if error.respond_to?(:response_status)
-          log_info['status'] = status
-          log_info['message'] = error.detailed_message if error.respond_to?(:detailed_message)
-          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+          status = get_status_code(error)
+          log_info = get_log_info(error, status)
+          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
+
           raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
           raise ::Common::Exceptions::InternalServerError if status == 500
         end
       end
 
-      def handle_bad_request(error, log_info, claim)
-        status = error.status_code if error.respond_to?(:status_code)
+      def handle_bad_request(error, claim, method)
         if error.is_a?(::Common::Exceptions::BadRequest) && status != 403
-          log_info['message'] = error.message.presence || error.detailed_message
-          log_info['class'] = error.class if error.respond_to?(:class)
-          log_info['status'] = status
-          log_outcome_for_claims_api('submit', 'error', log_info, claim)
+          status = get_status_code(error)
+          log_info = get_log_info(error, status)
+          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
 
           raise ::Common::Exceptions::ServiceUnavailable
         end
+      end
+
+      def get_status_code(error)
+        case error
+        when error.respond_to?(:status)
+          error.status
+        when error.respond_to?(:response_status)
+          error.response_status
+        when error.respond_to?(:status_code)
+          error.status_code
+        end
+      end
+
+      def get_log_info(error, status)
+        log_info = {}
+        message = error.respond_to?(:detailed_message) ? error.detailed_message : error.message
+        log_info['class'] = error.class if error.respond_to?(:class)
+        log_info['status'] = status
+        log_info['message'] = message
+        log_info
       end
     end
   end

@@ -995,8 +995,9 @@ RSpec.describe 'Disability Claims ', type: :request do
               VCR.use_cassette('bgs/claims/claims') do
                 VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
                   post path, params: data, headers: headers.merge(auth_header)
-                  parsed['errors'][0]['title'] = 'Bad request'
-                  expect(parsed['errors'].size).to eq(2)
+                  parsed = JSON.parse(response.body)
+                  expect(parsed['errors'][0]['title']).to eq('Bad request')
+                  expect(parsed['errors'].size).to eq(1)
                 end
               end
             end
