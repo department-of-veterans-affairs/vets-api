@@ -28,7 +28,10 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   describe 'GET #index' do
     let(:index_path) { '/ask_va_api/v0/static_data?name=irish_country' }
     let(:expected_response) { 'pong' }
-    let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
+    let(:authorized_user) do
+      build(:user, :accountable_with_sec_id,
+            icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'])
+    end
 
     before do
       sign_in(authorized_user)
