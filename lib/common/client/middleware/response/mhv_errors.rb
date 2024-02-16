@@ -7,7 +7,7 @@ module Common
         ##
         # Faraday response middleware that checks the MHV service response for errors
         #
-        class MHVErrors < Faraday::Response::Middleware
+        class MHVErrors < Faraday::Middleware
           ##
           # Checks the response for errors
           #

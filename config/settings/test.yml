@@ -402,3 +402,6 @@ ask_va:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
+
+nod_vanotify_status_callback:
+  bearer_token: bearer_token_secret

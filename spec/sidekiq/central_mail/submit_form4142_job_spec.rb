@@ -56,9 +56,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
 
       it 'uses proper submission creation date for the received date' do
-        received_date = metadata_hash['receiveDt'].to_date
-        # TODO: update this expectation to use time once we know what timezone to use
-        expect(submission.created_at.to_date).to eq(received_date)
+        received_date = metadata_hash['receiveDt']
+        # Form4142Processor should use Central Time Zone
+        # See https://dsva.slack.com/archives/C053U7BUT27/p1706808933985779?thread_ts=1706727152.783229&cid=C053U7BUT27
+        expect(
+          submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S')
+        ).to eq(received_date)
       end
 
       it 'corrects for invalid characters in generated metadata' do

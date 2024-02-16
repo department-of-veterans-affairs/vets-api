@@ -115,13 +115,12 @@ module ClaimsApi
           validate_documents_content_type
           validate_documents_page_size
 
+          claims_v1_logging('526_attachments',
+                            message: "/attachments called with
+                            #{documents.length} #{'attachment'.pluralize(documents.length)}")
+
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          unless claim
-            claims_v1_logging('526_attachments',
-                              message: "/attachments called with
-                              #{documents.length} #{'attachment'.pluralize(documents.length)}")
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-          end
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
@@ -185,10 +184,9 @@ module ClaimsApi
                ::Faraday::TimeoutError,
                Faraday::ParsingError,
                Breakers::OutageException => e
-          req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
-          PersonalInformationLog.create(
-            error_class: "validate_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
-          )
+          claims_v1_logging('validate_form_526',
+                            message: "rescuing in validate_form_526, claim_id: #{auto_claim.id}" \
+                                     "#{e.class.name}, error: #{e.try(:as_json) || e}")
           raise e
         end
         # rubocop:enable Metrics/MethodLength

@@ -27,7 +27,12 @@ RSpec.shared_examples 'a representative serializer' do |serializer_class|
        lat
        long
        user_types].each do |attr|
-      expect(attributes[attr]).to eq(representative.public_send(attr))
+      if attr == 'phone'
+        public_send_method = serializer_class == Veteran::Accreditation::VSORepresentativeSerializer ? 'phone_number' : 'phone' # rubocop:disable Layout/LineLength
+        expect(attributes[attr]).to eq(representative.public_send(public_send_method))
+      else
+        expect(attributes[attr]).to eq(representative.public_send(attr))
+      end
     end
   end
 

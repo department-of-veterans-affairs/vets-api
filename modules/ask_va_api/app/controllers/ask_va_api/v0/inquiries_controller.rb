@@ -36,6 +36,10 @@ module AskVAApi
         render json: get_attachment.payload, status: get_attachment.status
       end
 
+      def profile
+        render json: get_profile.payload, status: get_profile.status
+      end
+
       private
 
       def inquiry_params
@@ -61,6 +65,12 @@ module AskVAApi
         raise InvalidAttachmentError if att.blank?
 
         Result.new(payload: Attachments::Serializer.new(att).serializable_hash, status: :ok)
+      end
+
+      def get_profile
+        profile = Profile::Retriever.new(icn: current_user.icn, user_mock_data: params[:user_mock_data]).call
+
+        Result.new(payload: Profile::Serializer.new(profile).serializable_hash, status: :ok)
       end
 
       def mock_service

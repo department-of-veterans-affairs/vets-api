@@ -614,7 +614,7 @@ RSpec.describe SAML::PostURLService do
             let(:expected_log_payload) { { type: :ssoe } }
 
             context 'when tracker application is within TERMS_OF_USE_ENABLED_CLIENTS' do
-              let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
+              let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS_LOWERS.first }
 
               context 'and authentication is occuring on a review instance' do
                 let(:review_instance_slug) { 'some-review-instance-slug' }

@@ -27,6 +27,8 @@ RSpec.describe 'OtherAccreditedRepresentativesController', type: :request do
     create(:representative, representative_id: '567', poa_codes: ['A12'], user_types: %w[attorney claim_agents],
                             long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
                             first_name: 'Adriane', last_name: 'Crona') # ~57 miles from Washington, D.C.
+    create(:representative, representative_id: '935', poa_codes: ['A12'], user_types: %w[attorney claim_agents],
+                            first_name: 'No', last_name: 'Location') # no location
   end
 
   include_examples 'base_accredited_representatives_controller_shared_examples',

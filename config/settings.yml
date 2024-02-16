@@ -1544,7 +1544,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience/merge
+  ep_merge_path: employee-experience-ep-merge-app/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1632,6 +1632,14 @@ forms_api_benefits_intake:
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
 
 form1095_b:
+  s3:
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    bucket: "bucket"
+    enabled: true
+    region: "region"
+
+ivc_forms:
   s3:
     aws_access_key_id: ~
     aws_secret_access_key: ~

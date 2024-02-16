@@ -58,4 +58,34 @@ describe PdfFill::Forms::Va21p527ez do
                                                                                 })
     end
   end
+
+  describe '#expand_dependent_children' do
+    it 'handles partially removed dependents' do
+      form_data = {
+        'dependents' => [
+          {
+            'childAddress' => {
+              'country' => 'US',
+              'city' => 'Cityville',
+              'street' => '100 Main St',
+              'state' => 'PA',
+              'postalCode' => '11111'
+            },
+            'personWhoLivesWithChild' => {
+              'last' => 'John',
+              'first' => 'Smith'
+            },
+            'monthlyPayment' => 1200
+          }
+        ]
+      }
+      form = described_class.new(form_data)
+      form.expand_dependent_children
+      updated_data = form.instance_variable_get('@form_data')
+      expect(updated_data['dependents'].length).to eq(1)
+      expect(updated_data['custodians'].length).to eq(1)
+      expect(updated_data['dependentChildrenInHousehold']).to eq('0')
+      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(0)
+    end
+  end
 end

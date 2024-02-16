@@ -17,16 +17,6 @@ module EMIS
       # (see EMIS::Responses::GetCombatPayResponse#item_schema)
       def item_schema
         {
-          'veteranStatus' => {
-            rename: 'veteran_status',
-            model_class: EMIS::Models::VeteranStatus,
-            schema: {
-              'title38StatusCode' => {},
-              'post911DeploymentIndicator' => {},
-              'post911CombatIndicator' => {},
-              'pre911DeploymentIndicator' => {}
-            }
-          },
           'dentalIndicator' => {
             model_class: EMIS::Models::DentalIndicator,
             schema: {

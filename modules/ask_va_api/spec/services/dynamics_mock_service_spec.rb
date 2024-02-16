@@ -37,7 +37,7 @@ RSpec.describe DynamicsMockService do
     context 'when the file contains valid JSON content' do
       let(:expected_result) do
         {
-          icn: '1008709396V637156',
+          icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'],
           id: '1',
           inquiryNumber: 'A-1',
           inquiryStatus: 'In Progress',
@@ -75,7 +75,10 @@ RSpec.describe DynamicsMockService do
       end
 
       context 'with icn payload' do
-        let(:payload) { { icn: '1008709396V637156' } }
+        let(:test_users) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users'] }
+        let(:icn) do
+          test_users['test_user_228_icn']
+        end
 
         it 'filters data based on icn and excludes attachments' do
           expect(service.call(endpoint:, payload:).first).to eq(expected_result)

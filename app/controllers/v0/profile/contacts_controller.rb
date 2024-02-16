@@ -13,7 +13,9 @@ module V0
       def index
         response = service.get_health_benefit_bio
         render(
-          json: response.associated_persons,
+          status: response.status,
+          json: response.contacts,
+          serializer: CollectionSerializer,
           each_serializer: ContactSerializer
         )
       end

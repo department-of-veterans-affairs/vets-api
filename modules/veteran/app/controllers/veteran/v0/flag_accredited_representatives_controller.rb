@@ -4,6 +4,7 @@ module Veteran
   module V0
     class FlagAccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
+      skip_before_action :verify_authenticity_token
       skip_before_action :authenticate
       before_action :feature_enabled
 
@@ -43,7 +44,7 @@ module Veteran
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:flag_a_representative)
+        routing_error unless Flipper.enabled?(:find_a_representative_flag_results_enabled)
       end
     end
   end

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe AskVAApi::Inquiries::Serializer do
   let(:info) do
     {
-      icn: '1008709396V637156',
+      icn: YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'],
       id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
       inquiryNumber: 'A-123456',
       inquiryStatus: 'In Progress',

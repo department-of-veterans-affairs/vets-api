@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'faraday/multipart'
+
 module CentralMail
   class Configuration < Common::Client::Configuration::REST
     def base_path
