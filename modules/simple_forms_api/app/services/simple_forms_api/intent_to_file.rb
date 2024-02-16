@@ -71,7 +71,6 @@ module SimpleFormsApi
           intent_type: type,
           form_number: params[:form_number],
           error: e,
-          icn:
         }
       )
       nil
