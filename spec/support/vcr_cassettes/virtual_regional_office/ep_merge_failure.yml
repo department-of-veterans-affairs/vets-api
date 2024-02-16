@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8120/employee-experience/merge
+    uri: http://localhost:8120/employee-experience-ep-merge-app/merge
     body:
       encoding: UTF-8
       string: '{"pending_claim_id":12345,"ep400_claim_id":12346}'

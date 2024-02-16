@@ -26,12 +26,8 @@ module ClaimsApi
 
         def submit2122
           shared_form_validation('2122')
-          poa_code = parse_and_validate_poa_code('2122')
-          unless poa_code_in_organization?(poa_code)
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'POA Code must belong to an organization.'
-            )
-          end
+          poa_code = get_poa_code('2122')
+          validate_org_poa_code!(poa_code)
 
           submit_power_of_attorney(poa_code, '2122')
         end
@@ -45,10 +41,8 @@ module ClaimsApi
         end
 
         def validate2122
-          target_veteran
-          validate_json_schema
-
-          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          shared_form_validation('2122')
+          poa_code = get_poa_code('2122')
           validate_org_poa_code!(poa_code)
 
           render json: validation_success('21-22')
@@ -70,7 +64,7 @@ module ClaimsApi
             )
           end
 
-          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer, key_transform: :camel_lower
         end
 
         private
@@ -92,7 +86,7 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+          ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),

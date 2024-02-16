@@ -6,7 +6,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
-  let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '1008709396V637156') }
+  let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
+  let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
   end
@@ -265,6 +266,52 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       it 'responds with 500' do
         expect(response).to have_http_status(:internal_server_error)
       end
+    end
+  end
+
+  describe 'GET /profile' do
+    context 'when a user is signed in' do
+      before do
+        sign_in(authorized_user)
+        get '/ask_va_api/v0/profile', params: { user_mock_data: true }
+      end
+
+      it 'response with 200' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when an error occur' do
+      before do
+        allow_any_instance_of(Crm::Service).to receive(:call).and_raise(ErrorHandler::ServiceError)
+        sign_in(authorized_user)
+        get '/ask_va_api/v0/profile'
+      end
+
+      it {
+        expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError: ErrorHandler::ServiceError')
+      }
+    end
+
+    context 'when user is not signed in' do
+      before do
+        get '/ask_va_api/v0/profile'
+      end
+
+      it { expect(response).to have_http_status(:unauthorized) }
+    end
+
+    context 'when a user does not have a profile' do
+      let(:icn) { '1013694290V263188' }
+      let(:profile_user) { build(:user, :accountable_with_sec_id, icn:) }
+
+      before do
+        sign_in(profile_user)
+        get '/ask_va_api/v0/profile', params: { user_mock_data: true }
+      end
+
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'AskVAApi::Profile::InvalidInquiryError: No Contact found'
     end
   end
 end

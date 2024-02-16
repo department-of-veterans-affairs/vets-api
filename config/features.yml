@@ -33,6 +33,9 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
+  caregiver_browser_monitoring_enabled:
+    actor_type: user
+    description: Enables Datadog Real Time User Monitoring
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -52,30 +55,15 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  cerner_allow_partial_facilities:
-    actor_type: user
-    description: This will allow cerner facilities to be set to partially cerner or all cerner.
   cerner_transition_556_t30:
     actor_type: user
     description: This will control the content that will be in effect 30 days prior to transition.
   cerner_transition_556_t5:
     actor_type: user
     description: This will control the content that will be in effect 5 days prior to transition.
-  cerner_override_463:
-    actor_type: user
-    description: This will show the Cerner facility 463 as `isCerner`.
-  cerner_override_531:
-    actor_type: user
-    description: This will show the Cerner facility 531 as `isCerner`.
-  cerner_override_648:
-    actor_type: user
-    description: This will show the Cerner facility 648 as `isCerner`.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
-  cerner_override_663:
-    actor_type: user
-    description: This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: This will show the Cerner facility 668 as `isCerner`.
@@ -131,6 +119,10 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
+    enable_in_development: true
+  check_in_experience_cerner_travel_claims_enabled:
+    actor_type: user
+    description: Enables travel claims filing for Oracle Health (Cerner) sites
     enable_in_development: true
   check_in_experience_travel_logic:
     actor_type: user
@@ -449,19 +441,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enabled:
     actor_type: user
-    description: Enables frontend of Find a Representative
-    enable_in_development: true
-  find_a_representative_enable_api:
-    actor_type: user
-    description: Enables the Find a Rep search endpoint
+    description: Enables Find a Representative tool
     enable_in_development: true
   find_a_representative_enable_frontend:
     actor_type: user
-    description: Enables frontend of Find a Representative
+    description: Enables Find a Representative frontend
     enable_in_development: true
-  flag_a_representative:
+  find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flag a rep for Find a Rep
     enable_in_development: true
@@ -499,6 +487,10 @@ features:
   form21_10210_confirmation_email:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form20_10206_confirmation_email:
+    actor_type: user
+    description: Enables form 20-10206 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_0845_confirmation_email:
     actor_type: user
@@ -645,6 +637,10 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Phase 1 on VA.gov
     enable_in_development: true
+  mhv_secure_messaging_cerner_pilot:
+    actor_type: user
+    description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_blocked_triage_group_1_0:
     actor_type: user
     description: Enables/disables Secure Messaging Blocked Triage Group functionality on VA.gov
@@ -653,9 +649,17 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_display_conditions:
+    actor_type: user
+    description: Show/hide content related to Health Conditions in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_domains:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_labs_and_tests:
+    actor_type: user
+    description: Show/hide content related to Labs & Tests in Medical Records
     enable_in_development: true
   mhv_medical_records_display_notes:
     actor_type: user
@@ -668,6 +672,10 @@ features:
   mhv_medical_records_display_vaccines:
     actor_type: user
     description: Show/hide content related to Vaccines in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_vitals:
+    actor_type: user
+    description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
@@ -736,10 +744,6 @@ features:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
     enable_in_development: true
-  post_911_gibill_statuses_new_error_handling:
-    actor_type: user
-    description: When enabled, create a StandardError to catch unknown errors VA-IIR-285
-    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -783,10 +787,6 @@ features:
     description: Show/Hide the proof of veteran status page and links
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
-    enable_in_development: true
-    actor_type: user
-  profile_use_field_editing_page:
-    description: Use a single page route in Profile for editing or adding a field value
     enable_in_development: true
     actor_type: user
   profile_use_hub_page:
@@ -908,10 +908,6 @@ features:
     actor_type: user
     description: Enables the internationalization features for forms
     enable_in_development: true
-  show_header_v2:
-    action_type: user
-    description: Enables the new header
-    enable_in_development: true
   show_dgi_direct_deposit_1990EZ:
     actor_type: user
     description: Displays prefill enabled direct deposit component on 1990EZ form.
@@ -975,9 +971,6 @@ features:
   show_new_secure_messaging_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
-  show_new_view_test_lab_results_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
@@ -1002,6 +995,14 @@ features:
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
+    enable_in_development: true
+  va_online_scheduling_booking_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
+    enable_in_development: true
+  va_online_scheduling_cancellation_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
     enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
@@ -1192,9 +1193,6 @@ features:
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
-  form526_backup_submission_force_offramp:
-    actor_type: user
-    description: If enabled add the "forceOfframp" flag to backup 526 submission metadata
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
@@ -1248,6 +1246,10 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  nod_callbacks_endpoint:
+    actor_type: user
+    description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
