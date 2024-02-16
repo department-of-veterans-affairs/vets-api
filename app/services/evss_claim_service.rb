@@ -41,7 +41,7 @@ class EVSSClaimService
   def request_decision(claim)
     # Workaround for non-Veteran users
     headers = auth_headers.clone
-    headers_supplemented = supplement_auth_headers(headers)
+    headers_supplemented = supplement_auth_headers(claim.evss_id, headers)
 
     job_id = EVSS::RequestDecision.perform_async(headers, claim.evss_id)
 
@@ -78,8 +78,8 @@ class EVSSClaimService
   private
 
   def bgs_service
-    @bgs ||= BGS::Services.new(external_uid: @current_user.icn,
-                               external_key:)
+    @bgs ||= BGS::Services.new(external_uid: @user.participant_id,
+                               external_key: @user.participant_id)
   end
 
   def get_claim(claim_id)
