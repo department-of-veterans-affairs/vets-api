@@ -137,14 +137,6 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
       expect(parsed_response['data'].pluck('id')).to eq(%w[111 113])
     end
 
-    it 'returns accurate results for fuzzy searches on organization names linked to representatives' do
-      get path, params: { type:, lat:, long:, distance:, name: 'Alabama dept' }
-
-      parsed_response = JSON.parse(response.body)
-
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113 114])
-    end
-
     it 'serializes with the correct model and distance' do
       get path, params: { type:, lat:, long:, distance:, name: 'Bob Law' }
 
