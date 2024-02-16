@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_14_212613) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -327,7 +327,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
     t.boolean "anti_csrf", null: false
     t.text "redirect_uri", null: false
     t.interval "access_token_duration", null: false
-    t.string "access_token_audience", null: false
+    t.string "access_token_audience"
     t.interval "refresh_token_duration", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
