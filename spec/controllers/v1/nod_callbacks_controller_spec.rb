@@ -3,12 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe V1::NodCallbacksController, type: :controller do
+  let(:status) { 'delivered' }
   let(:params) do
     {
       id: '6ba01111-f3ee-4a40-9d04-234asdfb6abab9c',
       reference: nil,
       to: 'test@test.com',
-      status: 'delivered',
+      status:,
       created_at: '2023-01-10T00:04:25.273410Z',
       completed_at: '2023-01-10T00:05:33.255911Z',
       sent_at: '2023-01-10T00:04:25.775363Z',
@@ -21,16 +22,50 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
   describe '#create' do
     before do
       request.headers['Authorization'] = "Bearer #{Settings.nod_vanotify_status_callback.bearer_token}"
+      Flipper.enable(:nod_callbacks_endpoint)
+      allow(NodNotification).to receive(:create!)
     end
 
     context 'with payload' do
-      it 'returns success' do
-        post(:create, params:, as: :json)
+      context 'if status is delivered' do
+        it 'returns success and does not save a record of the payload' do
+          post(:create, params:, as: :json)
 
-        expect(response).to have_http_status(:ok)
+          expect(NodNotification).not_to receive(:create!)
 
-        res = JSON.parse(response.body)
-        expect(res['message']).to eq 'success'
+          expect(response).to have_http_status(:ok)
+
+          res = JSON.parse(response.body)
+          expect(res['message']).to eq 'success'
+        end
+      end
+
+      context 'if status is a failure that will not retry' do
+        let(:status) { 'permanent-failure' }
+
+        it 'returns success' do
+          post(:create, params:, as: :json)
+
+          expect(response).to have_http_status(:ok)
+
+          res = JSON.parse(response.body)
+          expect(res['message']).to eq 'success'
+        end
+
+        context 'and the record failed to save' do
+          before do
+            allow(NodNotification).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
+          end
+
+          it 'returns failed' do
+            post(:create, params:, as: :json)
+
+            expect(response).to have_http_status(:ok)
+
+            res = JSON.parse(response.body)
+            expect(res['message']).to eq 'failed'
+          end
+        end
       end
     end
   end

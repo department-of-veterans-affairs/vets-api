@@ -6,6 +6,10 @@ module Veteran
       attribute :organization_names
 
       delegate :organization_names, to: :object
+
+      def phone
+        object.phone_number
+      end
     end
   end
 end
