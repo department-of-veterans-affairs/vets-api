@@ -6,7 +6,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
-  let(:icn) { '1008709396V637156' }
+  let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
