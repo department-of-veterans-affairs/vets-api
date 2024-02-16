@@ -37,7 +37,7 @@ module CheckIn
       end
 
       attribute :edipi do |object|
-        object.payload.dig(:appointments, 0, :edipi)
+        object.payload[:appointments].first[:edipi]
       end
     end
   end
