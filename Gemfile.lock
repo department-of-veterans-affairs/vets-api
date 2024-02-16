@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d11fa23200e236042ffab9230fa0f62f20054b09
+  revision: 39dd490a3031bbb28ec30acdb1efa131122a77c8
   branch: master
   specs:
-    vets_json_schema (20.35.1)
+    vets_json_schema (20.36.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -128,16 +128,6 @@ PATH
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
     vye (0.1.0)
-
-GEM
-  remote: https://enterprise.contribsys.com/
-  specs:
-    sidekiq-ent (2.5.3)
-      einhorn (>= 0.7.4)
-      sidekiq (>= 6.5.0, < 7)
-      sidekiq-pro (>= 5.5.0, < 6)
-    sidekiq-pro (5.5.8)
-      sidekiq (~> 6.0, >= 6.5.6)
 
 GEM
   remote: https://rubygems.org/
@@ -395,7 +385,6 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
@@ -1201,8 +1190,6 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sidekiq_alive
   simple_forms_api!
   simplecov
