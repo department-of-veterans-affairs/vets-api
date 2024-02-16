@@ -17,44 +17,56 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     before do
       Flipper.enable(:find_a_representative_enabled)
       # Create representatives
-      create(:representative, representative_id: '111', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
-                              long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
-                              first_name: 'Bob', last_name: 'Law') # ~25 miles from Washington, D.C.
-
+      # ~6 miles from Washington, D.C.
       create(:representative, representative_id: '112', poa_codes: ['A13'], user_types: ['claim_agents'],
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
-                              first_name: 'Bobby', last_name: 'Low') # ~6 miles from Washington, D.C.
+                              first_name: 'Bobby', last_name: 'Low')
 
+      # ~6 miles from Washington, D.C.
       create(:representative, representative_id: '113', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'], # rubocop:disable Layout/LineLength
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
-                              first_name: 'Bobbie', last_name: 'Lew') # ~6 miles from Washington, D.C.
+                              first_name: 'Bobbie', last_name: 'Lew')
 
+      # ~25 miles from Washington, D.C.
+      create(:representative, representative_id: '111', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
+                              long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
+                              first_name: 'Bob', last_name: 'Law')
+
+      # ~35 miles from Washington, D.C.
       create(:representative, representative_id: '114', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
                               long: -76.609383, lat: 39.299236, location: 'POINT(-76.609383 39.299236)',
-                              first_name: 'Robert', last_name: 'Lanyard') # ~35 miles from Washington, D.C.
+                              first_name: 'Robert', last_name: 'Lanyard')
 
+      # ~47 miles from Washington, D.C.
       create(:representative, representative_id: '115', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
                               long: -77.466316, lat: 38.309875, location: 'POINT(-77.466316 38.309875)',
-                              first_name: 'Gerard', last_name: 'Ortiz') # ~47 miles from Washington, D.C.
+                              first_name: 'Gerard', last_name: 'Ortiz')
 
+      # ~57 miles from Washington, D.C.
       create(:representative, representative_id: '116', poa_codes: ['A13'], user_types: ['veteran_service_officer'],
                               long: -76.3483, lat: 39.5359, location: 'POINT(-76.3483 39.5359)',
-                              first_name: 'Adriane', last_name: 'Crona') # ~57 miles from Washington, D.C.
+                              first_name: 'Adriane', last_name: 'Crona')
+
+      # no location
       create(:representative, representative_id: '117', poa_codes: ['A12'], user_types: ['veteran_service_officer'],
-                              first_name: 'No', last_name: 'Location') # no location
+                              first_name: 'No', last_name: 'Location')
 
       # Create organizations
+      # ~6 miles from Washington, D.C.
       create(:organization, poa: 'A10', long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
-                            name: 'Bob Law') # ~6 miles from Washington, D.C.
+                            name: 'Bob Law')
 
+      # ~25 miles from Washington, D.C.
       create(:organization, poa: 'A11', long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
-                            name: 'Missouri Veterans Commission') # ~25 miles from Washington, D.C.
+                            name: 'Missouri Veterans Commission')
 
+      # ~35 miles from Washington, D.C.
       create(:organization, poa: 'A12', long: -76.609383, lat: 39.299236, location: 'POINT(-76.609383 39.299236)',
-                            name: 'Alabama Department of Veterans Affairs') # ~35 miles from Washington, D.C.
+                            name: 'Alabama Department of Veterans Affairs')
 
+      # ~47 miles from Washington, D.C.
       create(:organization, poa: 'A13', long: -77.466316, lat: 38.309875, location: 'POINT(-77.466316 38.309875)',
-                            name: 'Washington Department of Veterans Affairs') # ~47 miles from Washington, D.C.
+                            name: 'Washington Department of Veterans Affairs')
     end
 
     context 'distance' do
