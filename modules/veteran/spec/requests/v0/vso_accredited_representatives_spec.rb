@@ -18,16 +18,16 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
       Flipper.enable(:find_a_representative_enabled)
       # Create representatives
       create(:representative, representative_id: '111', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
-                              long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
-                              first_name: 'Bob', last_name: 'Law') # ~6 miles from Washington, D.C.
+                              long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
+                              first_name: 'Bob', last_name: 'Law') # ~25 miles from Washington, D.C.
 
       create(:representative, representative_id: '112', poa_codes: ['A13'], user_types: ['claim_agents'],
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
                               first_name: 'Bobby', last_name: 'Low') # ~6 miles from Washington, D.C.
 
       create(:representative, representative_id: '113', poa_codes: %w[A11 A12 A13], user_types: ['veteran_service_officer'], # rubocop:disable Layout/LineLength
-                              long: -77.436649, lat: 39.101481, location: 'POINT(-77.436649 39.101481)',
-                              first_name: 'Bobbie', last_name: 'Lew') # ~25 miles from Washington, D.C.
+                              long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
+                              first_name: 'Bobbie', last_name: 'Lew') # ~6 miles from Washington, D.C.
 
       create(:representative, representative_id: '114', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
                               long: -76.609383, lat: 39.299236, location: 'POINT(-76.609383 39.299236)',
@@ -143,7 +143,19 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
       parsed_response = JSON.parse(response.body)
 
       expect(parsed_response['data'][0]['attributes']['full_name']).to eq('Bob Law')
-      expect(parsed_response['data'][0]['attributes']['distance']).to be_within(0.05).of(6.0292)
+      expect(parsed_response['data'][0]['attributes']['distance']).to be_within(0.05).of(25.35)
+    end
+
+    it 'returns the correct results, with the first result being an exact match even though it is further away' do
+      name = 'Bob Law'
+      get path, params: { type:, lat:, long:, distance:, name: }
+
+      parsed_response = JSON.parse(response.body)
+      result0_distance = parsed_response['data'][0]['attributes']['distance']
+      result1_distance = parsed_response['data'][1]['attributes']['distance']
+
+      expect(parsed_response['data'][0]['attributes']['full_name']).to eq(name)
+      expect(result0_distance).to be > result1_distance
     end
 
     it 'paginates' do

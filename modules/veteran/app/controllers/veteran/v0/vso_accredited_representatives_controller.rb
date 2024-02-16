@@ -24,13 +24,36 @@ module Veteran
         search_params[:name] ? find_with_name_similar_to(query) : query
       end
 
+      # def find_with_name_similar_to(query)
+      #   search_phrase = search_params[:name]
+      #   fuzzy_search_threshold = Veteran::Service::Constants::FUZZY_SEARCH_THRESHOLD
+
+      #   wrapped_query = Veteran::Service::Representative.from("(#{query.to_sql}) as veteran_representatives")
+      #   wrapped_query.where('word_similarity(?, veteran_representatives.full_name) >= ?', search_phrase,
+      #                       fuzzy_search_threshold)
+      #   wrapped_query.order(Arel.sql("word_similarity(veteran_representatives.full_name, #{ActiveRecord::Base.connection.quote(search_phrase)}) DESC")) # rubocop:disable Layout/LineLength
+      # end
+
       def find_with_name_similar_to(query)
         search_phrase = search_params[:name]
         fuzzy_search_threshold = Veteran::Service::Constants::FUZZY_SEARCH_THRESHOLD
 
         wrapped_query = Veteran::Service::Representative.from("(#{query.to_sql}) as veteran_representatives")
-        wrapped_query.where('word_similarity(?, veteran_representatives.full_name) >= ?', search_phrase,
-                            fuzzy_search_threshold)
+        # Assuming word_similarity is a function that exists and is properly secured in your DB schema
+        # Filter by similarity threshold
+        similarity_filter = wrapped_query.where('word_similarity(?, veteran_representatives.full_name) >= ?',
+                                                search_phrase, fuzzy_search_threshold)
+
+        # Safely construct an ORDER BY clause with word_similarity
+        # This uses a safer approach to include the search_phrase directly in the SQL string
+        order_sql = ActiveRecord::Base.send(:sanitize_sql_array,
+                                            ['word_similarity(veteran_representatives.full_name, ?) DESC',
+                                             search_phrase])
+
+        # Apply ordering
+        similarity_filter.order(Arel.sql(order_sql))
+
+        # This is where the query gets executed
       end
 
       def verify_type
