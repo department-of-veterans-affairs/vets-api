@@ -38,7 +38,7 @@ module VBADocuments
 
     def validate_metadata(metadata_input, consumer_id, upload_guid, submission_version:)
       metadata = JSON.parse(metadata_input)
-      raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid metadata JSON') unless metadata.is_a?(Hash)
+      raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
 
       # check for extra metadata accounting for consumer specific permitted keys
       validate_consumer_extra_metadata(metadata, consumer_id, upload_guid)
