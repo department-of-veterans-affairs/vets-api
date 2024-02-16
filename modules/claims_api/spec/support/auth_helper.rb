@@ -19,3 +19,10 @@ def mock_ccg(_scopes)
     yield(auth_header)
   end
 end
+
+def mock_ccg_for_fine_grained_scope(scope_names)
+  VCR.use_cassette('token_validation/v3/shows_token_is_valid_with_fine_grained_scope', erb: { scopes: scope_names }) do
+    auth_header = { authorization: 'Bearer token' }
+    yield(auth_header)
+  end
+end

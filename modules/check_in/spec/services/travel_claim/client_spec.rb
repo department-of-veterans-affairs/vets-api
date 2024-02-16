@@ -188,6 +188,106 @@ describe TravelClaim::Client do
     end
   end
 
+  describe '#submit_claim_v2' do
+    let(:token) { 'test-token' }
+    let(:patient_identifier) { '123ABC456' }
+    let(:patient_identifier_type) { 'edipi' }
+    let(:appointment_date) { '2022-09-01' }
+    let(:opts) { { patient_identifier:, patient_identifier_type:, appointment_date: } }
+
+    context 'when claims service returns success response' do
+      let(:claim_response) do
+        {
+          value: {
+            claimNumber: 'TC202207000011666'
+          },
+          statusCode: 200
+        }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(claim_response)
+      end
+
+      it 'returns claims number' do
+        expect(subject.submit_claim_v2(token, opts)).to eq(claim_response)
+      end
+    end
+
+    context 'when claims service returns a 500 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Internal server error' }, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when claims service returns a 400 error response' do
+      let(:resp) do
+        Faraday::Response.new(
+          body: { error: { currentDate: '[07/29/2022 01:05:41 PM]',
+                           message: '07/29/2022 : There were multiple appointments for that date' } }, status: 400
+        )
+      end
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when claims service returns a 401 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Unauthorized' }, status: 401) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+
+    context 'when claims service returns a 404 error response' do
+      let(:resp) { Faraday::Response.new(body: { error: 'Not Found' }, status: 404) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_raise(exception)
+      end
+
+      it 'logs message and raises exception' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry)
+
+        response = subject.submit_claim_v2(token, opts)
+        expect(response.status).to eq(resp.status)
+        expect(response.body).to eq(resp.body)
+      end
+    end
+  end
+
   describe '#claims_default_header' do
     context 'when environment is non-prod' do
       let(:resp_headers) do
