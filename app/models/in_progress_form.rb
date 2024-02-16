@@ -39,7 +39,7 @@ class InProgressForm < ApplicationRecord
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
   before_save :serialize_form_data
-  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ].include?(form.form_id) }
+  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 5655].include?(form.form_id) }
   before_save :set_expires_at, unless: :skip_exipry_update
   after_save :log_hca_email_diff
 
