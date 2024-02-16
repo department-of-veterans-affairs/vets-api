@@ -2,11 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe RepAddresses::UpdateAddresses do
+RSpec.describe Representatives::Update do
   describe '#perform' do
     let(:json_data) do
-      { type:,
-        request_address: {
+      { request_address: {
           address_pou: 'abc',
           address_line1: 'abc',
           address_line2: 'abc',
@@ -20,7 +19,8 @@ RSpec.describe RepAddresses::UpdateAddresses do
           country_code_iso3: 'abc'
         },
         id:,
-        email_address: 'test@example.com' }.to_json
+        email_address: 'test@example.com',
+        phone_number: '999-999-9999' }.to_json
     end
     let(:api_response) do
       {
@@ -73,16 +73,15 @@ RSpec.describe RepAddresses::UpdateAddresses do
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "UpdateAddresses error: unexpected token at 'invalid json'", :error
+          "Update error: unexpected token at 'invalid json'", :error
         )
 
         subject.perform(invalid_json_data)
       end
     end
 
-    context 'when processing a representative' do
+    context 'when updating a representative' do
       let(:id) { '123abc' }
-      let(:type) { 'representative' }
       let!(:representative) do
         create(:representative,
                representative_id: '123abc',
@@ -103,11 +102,12 @@ RSpec.describe RepAddresses::UpdateAddresses do
                lat: '39',
                long: '-75',
                email: 'email@example.com',
-               location: 'POINT(-75 39)')
+               location: 'POINT(-75 39)',
+               phone_number: '111-111-1111')
       end
 
       context 'when address is valid' do
-        it 'updates the address record for a representative' do
+        it 'updates the address and contact information' do
           subject.perform(json_data)
 
           representative.reload
@@ -130,6 +130,7 @@ RSpec.describe RepAddresses::UpdateAddresses do
           expect(representative.location.x).to eq(-73.964956)
           expect(representative.location.y).to eq(40.717029)
           expect(representative.email).to eq('test@example.com')
+          expect(representative.phone_number).to eq('999-999-9999')
         end
       end
 
@@ -140,17 +141,16 @@ RSpec.describe RepAddresses::UpdateAddresses do
           subject.perform(json_data)
 
           representative.reload
-
           expect(representative.address_line1).to eq('123 East Main St')
         end
       end
 
-      context 'when the representative can not be found' do
-        let(:id) { '1234' }
+      context 'when the representative cannot be found' do
+        let(:id) { 'not_found' }
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'UpdateAddresses record not found for representative with id: 1234', :error
+            'Update record not found for representative with id: not_found', :error
           )
 
           subject.perform(json_data)

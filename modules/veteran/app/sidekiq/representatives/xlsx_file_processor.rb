@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RepAddresses
+module Representatives
   class XlsxFileProcessor
     include SentryLogging
 
@@ -68,6 +68,7 @@ module RepAddresses
       {
         id: row[column_map['Number']],
         email_address: get_value(row, column_map, email_address_column_name(sheet_name)),
+        phone_number: get_value(row, column_map, 'WorkNumber'),
         request_address: {
           address_pou: 'RESIDENCE/CHOICE',
           address_line1: get_value(row, column_map, 'WorkAddress1'),
