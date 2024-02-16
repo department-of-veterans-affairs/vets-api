@@ -11,7 +11,7 @@ class AppealSubmission < ApplicationRecord
 
   has_many :appeal_submission_uploads, dependent: :destroy
 
-  def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil)
+  def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil, version_number: 'v1')
     ActiveRecord::Base.transaction do
       raise 'Must pass in a version of the DecisionReview Service' if decision_review_service.nil?
 
@@ -32,8 +32,6 @@ class AppealSubmission < ApplicationRecord
       InProgressForm.form_for_user('10182',
                                    current_user)&.destroy!
 
-
-      version_number = decision_review_service.is_a?(DecisionReviewV1::Service) ? 'v2' : 'v1'
       appeal_submission.enqueue_uploads(uploads_arr, current_user, version_number)
       nod_response_body
     end
