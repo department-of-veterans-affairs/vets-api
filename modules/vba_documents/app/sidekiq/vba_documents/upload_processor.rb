@@ -90,7 +90,8 @@ module VBADocuments
         brt = Benchmark.realtime do
           # Validations
           validate_parts(@upload, parts)
-          validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
+          validate_metadata(parts[META_PART_NAME], @upload.consumer_id, @upload.guid,
+                            submission_version: @upload.metadata['version'].to_i)
           metadata = perfect_metadata(@upload, parts, timestamp)
 
           pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options
