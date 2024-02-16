@@ -3,6 +3,37 @@
 require 'rails_helper'
 
 RSpec.describe LighthouseDocumentUpload do
+  # Example payload from Lighthouse Benefts Documents API /upload/status endpoint
+  # https://dev-developer.va.gov/explore/api/benefits-documents/docs?version=current
+  let(:lighthouse_status_response) do
+    {
+      data: {
+        statuses: [
+          {
+            requestId: '600000001',
+            time: {
+              startTime: '1502199000',
+              endTime: '1502199000'
+            },
+            status: 'IN_PROGRESS',
+            steps: [
+              {
+                name: 'BENEFITS_GATEWAY_SERVICE',
+                nextStepName: 'BENEFITS_GATEWAY_SERVICE',
+                description: 'string',
+                status: 'NOT_STARTED'
+              }
+            ],
+            error: {
+              detail: 'string',
+              step: 'BENEFITS_GATEWAY_SERVICE'
+            }
+          }
+        ]
+      }
+    }
+  end
+
   it 'is created with an initial aasm status of pending_vbms_submission' do
     expect(build(:lighthouse_document_upload).aasm_state).to eq('pending_vbms_submission')
   end
@@ -53,27 +84,35 @@ RSpec.describe LighthouseDocumentUpload do
 
       it 'transitions to a pending_bgs_submission state' do
         expect(lighthouse_document_upload)
-          .to transition_from(:pending_vbms_submission).to(:pending_bgs_submission).on_event(:vbms_submission_complete)
+          .to transition_from(:pending_vbms_submission).to(:pending_bgs_submission).on_event(
+            :vbms_submission_complete, lighthouse_status_response
+          )
       end
 
       it 'transitions to a complete state' do
         expect(lighthouse_document_upload)
-          .to transition_from(:pending_bgs_submission).to(:complete).on_event(:bgs_submission_complete)
+          .to transition_from(:pending_bgs_submission).to(:complete).on_event(
+            :bgs_submission_complete, lighthouse_status_response
+          )
       end
 
       it 'transitions to a failed_vbms_submission state' do
         expect(lighthouse_document_upload)
-          .to transition_from(:pending_vbms_submission).to(:failed_vbms_submission).on_event(:vbms_submission_failed)
+          .to transition_from(:pending_vbms_submission).to(:failed_vbms_submission).on_event(
+            :vbms_submission_failed, lighthouse_status_response
+          )
       end
 
       it 'transitions to a failed_bgs_submission state' do
         expect(lighthouse_document_upload)
-          .to transition_from(:pending_bgs_submission).to(:failed_bgs_submission).on_event(:bgs_submission_failed)
+          .to transition_from(:pending_bgs_submission).to(:failed_bgs_submission).on_event(
+            :bgs_submission_failed, lighthouse_status_response
+          )
       end
 
       it 'cannot transiton from pending_vbms_submission to complete' do
         upload = create(:lighthouse_document_upload, aasm_state: 'pending_vbms_submission', form_attachment_id: nil)
-        expect { upload.bgs_submission_complete }.to raise_error(AASM::InvalidTransition)
+        expect { upload.bgs_submission_complete(lighthouse_status_response) }.to raise_error(AASM::InvalidTransition)
       end
 
       context 'when the upload transitions to an intermediate state' do
@@ -81,12 +120,16 @@ RSpec.describe LighthouseDocumentUpload do
           upload = create(
             :lighthouse_document_upload, aasm_state: 'pending_vbms_submission', lighthouse_processing_ended_at: nil
           )
-          expect { upload.vbms_submission_complete }.not_to raise_error(AASM::InvalidTransition)
+          expect do
+            upload.vbms_submission_complete(lighthouse_status_response)
+          end.not_to raise_error(AASM::InvalidTransition)
         end
 
         it 'can transition without an error_message value' do
           upload = create(:lighthouse_document_upload, aasm_state: 'pending_vbms_submission', error_message: nil)
-          expect { upload.pending_bgs_submission }.not_to raise_error(AASM::InvalidTransition)
+          expect do
+            upload.pending_bgs_submission(lighthouse_status_response)
+          end.not_to raise_error(AASM::InvalidTransition)
         end
       end
 
@@ -95,7 +138,7 @@ RSpec.describe LighthouseDocumentUpload do
           upload = create(
             :lighthouse_document_upload, aasm_state: 'pending_bgs_submission', lighthouse_processing_ended_at: nil
           )
-          expect { upload.bgs_submission_complete }.to raise_error(AASM::InvalidTransition)
+          expect { upload.bgs_submission_complete(lighthouse_status_response) }.to raise_error(AASM::InvalidTransition)
         end
       end
 
@@ -103,16 +146,41 @@ RSpec.describe LighthouseDocumentUpload do
         context 'when the failure happened in the upload to VBMS' do
           it 'cannot transition without an error_message value' do
             upload = create(:lighthouse_document_upload, aasm_state: 'pending_vbms_submission', error_message: nil)
-            expect { upload.vbms_submission_failed }.to raise_error(AASM::InvalidTransition)
+            expect { upload.vbms_submission_failed(lighthouse_status_response) }.to raise_error(AASM::InvalidTransition)
           end
         end
 
         context 'when the failure happened in the upload to BGS' do
           it 'cannot transition without an error_message value' do
             upload = create(:lighthouse_document_upload, aasm_state: 'pending_bgs_submission', error_message: nil)
-            expect { upload.bgs_submission_failed }.to raise_error(AASM::InvalidTransition)
+            expect { upload.bgs_submission_failed(lighthouse_status_response) }.to raise_error(AASM::InvalidTransition)
           end
         end
+      end
+    end
+
+    describe '#log_status_change' do
+      let(:lighthouse_document_upload) { create(:lighthouse_document_upload) }
+
+      it 'logs metadata on the transition when the upload transitions state' do
+        transitioned_at = Time.zone.now
+        Timecop.freeze(transitioned_at)
+
+        expect(Rails.logger).to receive(:info).with(
+          {
+            form526_submission_id: lighthouse_document_upload.form526_submission_id,
+            lighthouse_document_upload_id: lighthouse_document_upload.id,
+            lighthouse_document_request_id: lighthouse_document_upload.lighthouse_document_request_id,
+            error_message: lighthouse_document_upload.error_message,
+            from_state: :pending_vbms_submission,
+            to_state: :pending_bgs_submission,
+            event: :vbms_submission_complete,
+            transitioned_at:,
+            lighthouse_status_response:
+          }
+        )
+
+        lighthouse_document_upload.vbms_submission_complete(lighthouse_status_response)
       end
     end
   end

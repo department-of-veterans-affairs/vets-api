@@ -22,6 +22,8 @@ class LighthouseDocumentUpload < ApplicationRecord
   validates :form_attachment, presence: true, if: :veteran_upload?
 
   aasm do
+    after_all_transitions :log_status_change
+
     state :pending_vbms_submission, initial: true
     state :failed_vbms_submission, :pending_bgs_submission, :failed_bgs_submission, :complete
 
@@ -54,5 +56,22 @@ class LighthouseDocumentUpload < ApplicationRecord
 
   def error_message_saved?
     error_message != nil
+  end
+
+  # These status logs drive DataDog alert monitors
+  def log_status_change(lighthouse_status_response)
+    Rails.logger.info(
+      {
+        lighthouse_document_upload_id: id,
+        form526_submission_id:,
+        lighthouse_document_request_id:,
+        error_message:,
+        lighthouse_status_response:,
+        from_state: aasm.from_state,
+        to_state: aasm.to_state,
+        event: aasm.current_event,
+        transitioned_at: Time.zone.now
+      }
+    )
   end
 end

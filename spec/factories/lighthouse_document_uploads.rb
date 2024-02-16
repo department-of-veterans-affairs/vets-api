@@ -7,7 +7,7 @@ FactoryBot.define do
     lighthouse_document_request_id { Faker::Internet.uuid }
     aasm_state { 'pending_vbms_submission' }
     document_type { 'BDD Instructions' }
-    error_message { Faker::Json }
+    error_message { 'Something Broke' }
     lighthouse_processing_ended_at { Faker::Date.backward }
   end
 end
