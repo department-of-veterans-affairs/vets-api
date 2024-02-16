@@ -81,11 +81,11 @@ module SimpleFormsApi
     def form20_10206_contact_info(form_data)
       # email address not required and omitted
       if form_data['email_address'] == ''
-        [@current_user.email, @form_data.dig('full_name', 'first')]
+        [@current_user.email, form_data.dig('full_name', 'first')]
 
       # email address not required and optionally entered
       else
-        [@form_data['email_address'], @form_data.dig('full_name', 'first')]
+        [form_data['email_address'], form_data.dig('full_name', 'first')]
       end
     end
 
