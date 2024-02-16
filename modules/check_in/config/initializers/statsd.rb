@@ -61,8 +61,10 @@ unless Rails.env.test?
 
   def metric_prefix(headers, params)
     check_in_param = params[:checkInType] || params.dig(:session, :check_in_type)
+    facility_type_param = params[:facilityType] || params.dig(:session, :facility_type)
 
     prefix = check_in_param == 'preCheckIn' ? 'pre_check_in' : 'check_in'
+    prefix = facility_type_param unless facility_type_param.nil?
     prefix += '.synthetic' if headers.key?('Sec-Datadog')
     prefix
   end
