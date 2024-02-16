@@ -4,6 +4,7 @@ require 'zip'
 require 'common/exceptions'
 require 'vba_documents/payload_manager'
 require 'vba_documents/upload_validator'
+require 'vba_documents/pdf_inspector'
 require './lib/webhooks/utilities'
 
 module VBADocuments
@@ -96,7 +97,8 @@ module VBADocuments
 
           # Validations
           validate_parts(upload_model, parts)
-          validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i)
+          validate_metadata(parts[META_PART_NAME], upload_model.consumer_id, upload_model.guid,
+                            submission_version: upload_model.metadata['version'].to_i)
           validate_documents(parts)
 
           perfect_metadata(upload_model, parts, Time.zone.now)
