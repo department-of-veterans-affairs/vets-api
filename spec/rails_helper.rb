@@ -77,7 +77,6 @@ VCR.configure do |c|
   c.before_record(:force_utf8) do |interaction|
     interaction.response.body.force_encoding('UTF-8')
   end
-  c.allow_http_connections_when_no_cassette = false
 end
 
 ActiveRecord::Migration.maintain_test_schema!
