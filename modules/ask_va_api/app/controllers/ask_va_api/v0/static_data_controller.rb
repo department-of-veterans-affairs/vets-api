@@ -3,12 +3,12 @@
 module AskVAApi
   module V0
     class StaticDataController < ApplicationController
-      skip_before_action :authenticate, except: %i[index]
+      skip_before_action :authenticate
       around_action :handle_exceptions, except: %i[index]
 
       def index
         service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'profile', payload: { secid: current_user.sec_id })
+        data = service.call(endpoint: 'annoucements')
         render json: data.to_json, status: :ok
       end
 
