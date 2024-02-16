@@ -70,6 +70,25 @@ module TravelClaim
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
+    def submit_claim_v2(token, opts)
+      patient_identifier_type = opts.fetch(:patient_identifier_type, 'icn')
+
+      connection(server_url: claims_url).post("/#{claims_base_path}/api/ClaimIngest/submitclaim") do |req|
+        req.options.timeout = 120
+        req.headers = claims_default_header.merge('Authorization' => "Bearer #{token}")
+        req.body = claims_data.merge({
+                                       ClaimantID: opts[:patient_identifier],
+                                       ClaimantIDType: patient_identifier_type,
+                                       Appointment: { AppointmentDateTime: opts[:appointment_date] }
+                                     }).to_json
+      end
+    rescue => e
+      log_message_to_sentry(e.original_body, :error,
+                            { uuid: check_in.uuid },
+                            { external_service: service_name, team: 'check-in' })
+      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
+    end
+
     private
 
     ##
