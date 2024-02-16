@@ -61,7 +61,7 @@ class EVSSClaimService
 
     # Workaround for non-Veteran users
     headers = auth_headers.clone
-    headers_supplemented = supplement_auth_headers(headers)
+    headers_supplemented = supplement_auth_headers(evss_claim_document.evss_claim_id, headers)
 
     job_id = EVSS::DocumentUpload.perform_async(headers, @user.uuid, evss_claim_document.to_serializable_hash)
 
@@ -77,6 +77,17 @@ class EVSSClaimService
 
   private
 
+  def bgs_service
+    @bgs ||= BGS::Services.new(external_uid: @current_user.icn,
+                               external_key:)
+  end
+
+  def get_claim(claim_id)
+    bgs_service.ebenefits_benefit_claims_status.find_benefit_claim_details_by_benefit_claim_id(
+      benefit_claim_id: claim_id
+    )
+  end
+
   def client
     @client ||= EVSS::ClaimsService.new(auth_headers)
   end
@@ -85,11 +96,19 @@ class EVSSClaimService
     @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
   end
 
-  def supplement_auth_headers(headers)
-    # Assuming this header has a value of "", set it to the users SSN.
-    # 'va_eauth_pnid' should already be set to their SSN, so use that
+  def supplement_auth_headers(claim_id, headers)
+    # Assuming this header has a value of "", we want to get the Veteran
+    # associated with the claims' file number. We can get this by fetching
+    # the claim details from BGS and looking at the Participant ID of the
+    # Veteran and then calling BGS again to get the Veterans' details via
+    # said Participant ID
     blank_header = headers['va_eauth_birlsfilenumber'].blank?
-    headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid'] if blank_header
+    if blank_header
+      claim = get_claim(claim_id)
+      veteran_participant_id = claim[:benefit_claim_details_dto][:ptcpnt_vet_id]
+      person = bgs_service.people.find_person_by_ptcpnt_id(veteran_participant_id)
+      headers['va_eauth_birlsfilenumber'] = person[:file_nbr]
+    end
 
     blank_header
   end
