@@ -89,11 +89,11 @@ describe VAProfile::Profile::V3::Service do
     context '200 response' do
       let(:edipi) { '1005123832' }
 
-      it 'returns gender identity traits for a user' do
-        VCR.use_cassette('va_profile/profile/v3/gender_identity_traits_bio_200.yml') do
+      it 'returns the preferred name for a user' do
+        VCR.use_cassette('va_profile/profile/v3/gender_identity_traits_bio_200') do
           response = subject.get_gender_identity_traits
-          expect(response).to eq(200)
-          expect(response.gender_identity_traits).not_to be_nil
+          expect(response.status).to eq(200)
+          expect(response.preferred_name).not_to be_nil
         end
       end
     end

@@ -2,6 +2,7 @@
 
 require_relative 'bio_path_builder'
 require_relative 'configuration'
+require_relative 'gender_identity_traits_bio_response'
 require_relative 'health_benefit_bio_response'
 require_relative 'military_occupation_response'
 
@@ -26,9 +27,8 @@ module VAProfile
         def get_gender_identity_traits
           params = VAProfile::Profile::V3::BioPathBuilder.new(:gender_identity_traits).params
           path = path(user.edipi)
-          binding.pry
           response = perform(:post, path, params)
-          VAProfile::Profile::V3::HealthBenefitBioResponse.new(response)
+          VAProfile::Profile::V3::GenderIdentityTraitsBioResponse.new(response)
         end
 
         def get_health_benefit_bio
