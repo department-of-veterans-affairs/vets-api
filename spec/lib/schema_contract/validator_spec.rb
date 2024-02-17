@@ -109,12 +109,20 @@ describe SchemaContract::Validator do
 
     end
 
+    context 'when unpermitted nested property is included' do
 
+    end
 
     context 'when schema contract does not exist in db' do
+      it 'raises not found' do
+        expect{ SchemaContract::Validator.new('1').validate }.to raise_error(ActiveRecord::RecordNotFound)
+      end
     end
 
     context 'when schema file does not exist' do
+      it 'raises error' do
+        # expect{ SchemaContract::Validator.new('1').validate }.to raise_error(Errno::ENOENT)
+      end
     end
 
     context 'when schema file is invalid' do
