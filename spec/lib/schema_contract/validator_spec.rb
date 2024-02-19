@@ -84,9 +84,8 @@ describe SchemaContract::Validator do
           SchemaContract::Validator.new(contract_test.id).validate
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
         expect(contract_test.reload.status).to eq('schema_errors_found')
-        expect(contract_test.error_details).to eq("[\"The property '#/data/0' contains additional properties [\\\"extra\\\"] outside of the schema when none are allowed in schema a01434d1-fb8a-5152-83c6-0bd39bab80d9\"]")
-        # expect(contract_test.error_details).to \
-        # match(/\[\\"The property '#\/data\/0' contains additional properties \[\\\\\\"extra\\\\\\"\] outside of the schema when none are allowed in schema #{uuid_regex}\\"\]$/)
+        expect(contract_test.error_details).to \
+          match(%r{^\["The property '#/data/0' contains additional properties \[\\"extra\\"\] outside of the schema when none are allowed in schema #{uuid_regex}"\]$})
       end
     end
 
