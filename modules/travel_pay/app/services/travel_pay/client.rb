@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TravelPay
   class Client
     ##
@@ -24,7 +26,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      connection(server_url: btsss_url).post("/api/v1/Auth/access-token") do |req|
+      connection(server_url: btsss_url).post('/api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.body = { authJwt: vagov_token }
@@ -40,7 +42,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      connection(server_url: btsss_url).get("/api/v1/Sample/ping") do |req|
+      connection(server_url: btsss_url).get('/api/v1/Sample/ping') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
       end
@@ -59,7 +61,7 @@ module TravelPay
     end
 
     ##
-    # Create a Faraday connection object 
+    # Create a Faraday connection object
     # @return [Faraday::Connection]
     #
     def connection(server_url:)
@@ -76,11 +78,10 @@ module TravelPay
     end
 
     ##
-    # Syntactic sugar for determining if the client should use 
+    # Syntactic sugar for determining if the client should use
     # fake api responses or actually connect to the BTSSS API
     def use_fakes?
-      Settings.useFakes 
+      Settings.useFakes
     end
   end
 end
-

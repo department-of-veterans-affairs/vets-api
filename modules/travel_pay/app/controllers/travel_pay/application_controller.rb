@@ -10,13 +10,13 @@ module TravelPay
 
     before_action :authenticate
 
-    ## 
+    ##
     # This before_action is feature flag driven and should be retired
-    # 
+    #
     # Flag name: travel_pay_power_switch
     # Intent:    allow env-specific request blocking
     #
-    # Retirement conditions: 
+    # Retirement conditions:
     # * Feature is in production
     # * Finer-grained feature flags exist as needed
     #
