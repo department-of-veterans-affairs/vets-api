@@ -1670,6 +1670,12 @@ brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
 
+
+travel_pay:
+  auth_url: https://login.microsoftonline.us
+  tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+  service_name: BTSSS-API
+
 xlsx_file_fetcher:
   github_access_token: ~
 
