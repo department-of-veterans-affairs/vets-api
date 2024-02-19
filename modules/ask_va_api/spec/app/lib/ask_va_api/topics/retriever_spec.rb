@@ -7,7 +7,7 @@ RSpec.describe AskVAApi::Topics::Retriever do
     described_class.new(category_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
   end
 
-  let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
+  let(:parsed_data) { { Topics: [{ Id: 1, Name: 'Category 1', ParentId: nil }] } }
   let(:cache_data_service) { instance_double(Crm::CacheData) }
   let(:entity_class) { AskVAApi::Topics::Entity }
   let(:user_mock_data) { true }
