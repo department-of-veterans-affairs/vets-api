@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe AskVAApi::Optionset::Serializer do
   let(:info) do
     {
-      id: 722_310_000,
-      name: 'Air Force'
+      Id: 722_310_000,
+      Name: 'Air Force'
     }
   end
   let(:optionset) { AskVAApi::Optionset::Entity.new(info) }
@@ -15,7 +15,7 @@ RSpec.describe AskVAApi::Optionset::Serializer do
     { data: { id: '722310000',
               type: :optionsets,
               attributes: {
-                name: info[:name]
+                name: info[:Name]
               } } }
   end
 
