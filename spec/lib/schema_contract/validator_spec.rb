@@ -6,7 +6,6 @@ require_relative '../../../lib/schema_contract/validator'
 describe SchemaContract::Validator do
   describe '#validate' do
     let(:fixture) { 'spec/fixtures/schema_contract/test_schema.json' }
-    # let(:data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
     let(:test_data) { Rails.root.join(fixture).read }
 
     # make a factory
@@ -67,7 +66,8 @@ describe SchemaContract::Validator do
       it 'records errors' do
         expect do
           SchemaContract::Validator.new(contract_test.id).validate
-        end.to change { contract_test.reload.status }.from('initiated').to('schema_errors_found')
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        expect(contract_test.reload.status).to eq('schema_errors_found')
         expect(contract_test.error_details).to \
           match(%r{^\["The property '#/data/0' did not contain a required property of 'id' in schema #{uuid_regex}"\]$})
       end
@@ -75,18 +75,18 @@ describe SchemaContract::Validator do
 
     context 'when response contains unpermitted properties' do
       let(:response) do
-        matching_response[:data][0][:that_little_guy_over_there] = "Don't worry about that little guy."
+        matching_response[:data][0][:extra] = ':D'
         matching_response
       end
 
       it 'records errors' do
         expect do
           SchemaContract::Validator.new(contract_test.id).validate
-        end.to change { contract_test.reload.status }.from('initiated').to('schema_errors_found')
-
-        expect(contract_test.error_details). to eq("[\"The property '#/data/0' contains additional properties [\\\"that_little_guy_over_there\\\"] outside of the schema when none are allowed in schema a406724b-1490-5b39-aecf-23c8dad09921\"]")
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        expect(contract_test.reload.status).to eq('schema_errors_found')
+        expect(contract_test.error_details).to eq("[\"The property '#/data/0' contains additional properties [\\\"extra\\\"] outside of the schema when none are allowed in schema a01434d1-fb8a-5152-83c6-0bd39bab80d9\"]")
         # expect(contract_test.error_details).to \
-        # match(/\[\\"The property '#\/data\/0' contains additional properties \[\\\\\\"that_little_guy_over_there\\\\\\"\] outside of the schema when none are allowed in schema #{uuid_regex}\\"\]$/)
+        # match(/\[\\"The property '#\/data\/0' contains additional properties \[\\\\\\"extra\\\\\\"\] outside of the schema when none are allowed in schema #{uuid_regex}\\"\]$/)
       end
     end
 
@@ -99,29 +99,64 @@ describe SchemaContract::Validator do
       it 'records errors' do
         expect do
           SchemaContract::Validator.new(contract_test.id).validate
-        end.to change { contract_test.reload.status }.from('initiated').to('schema_errors_found')
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        expect(contract_test.reload.status).to eq('schema_errors_found')
 
-        expect(contract_test.error_details). to eq("[\"The property '#/data/0/id' of type integer did not match the following type: string in schema a406724b-1490-5b39-aecf-23c8dad09921\"]")
+        expect(contract_test.error_details).to \
+          match(%r{^\["The property '#/data/0/id' of type integer did not match the following type: string in schema #{uuid_regex}"\]$})
+      end
+    end
+
+    context 'when response contains disallowed null value' do
+      let(:response) do
+        matching_response[:data][0][:id] = nil
+        matching_response
+      end
+
+      it 'records errors' do
+        expect do
+          SchemaContract::Validator.new(contract_test.id).validate
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        expect(contract_test.reload.status).to eq('schema_errors_found')
+
+        expect(contract_test.error_details).to \
+          match(%r{^\["The property '#/data/0/id' of type null did not match the following type: string in schema #{uuid_regex}"\]$})
       end
     end
 
     context 'when required nested property is omitted' do
+      let(:response) do
+        matching_response[:data][0][:extension].delete(:cc_location)
+        matching_response
+      end
 
+      it 'records errors' do
+        expect do
+          SchemaContract::Validator.new(contract_test.id).validate
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        expect(contract_test.reload.status).to eq('schema_errors_found')
+
+        expect(contract_test.error_details).to \
+          match(%r{^\["The property '#/data/0/extension' did not contain a required property of 'cc_location' in schema #{uuid_regex}"\]$})
+      end
     end
 
     context 'when unpermitted nested property is included' do
-
     end
 
     context 'when schema contract does not exist in db' do
       it 'raises not found' do
-        expect{ SchemaContract::Validator.new('1').validate }.to raise_error(ActiveRecord::RecordNotFound)
+        expect do
+          SchemaContract::Validator.new('1').validate
+        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContractTest with 'id'=1")
       end
     end
 
     context 'when schema file does not exist' do
       it 'raises error' do
-        # expect{ SchemaContract::Validator.new('1').validate }.to raise_error(Errno::ENOENT)
+        expect do
+          SchemaContract::Validator.new('1').validate
+        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContractTest with 'id'=1")
       end
     end
 

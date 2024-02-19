@@ -95,6 +95,9 @@
           },
           "extension": {
             "type": "object",
+            "required": [
+              "cc_location"
+            ],
             "properties": {
               "cc_location": {
                 "type": "object",
