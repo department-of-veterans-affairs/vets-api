@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_14_212613) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -327,7 +327,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
     t.boolean "anti_csrf", null: false
     t.text "redirect_uri", null: false
     t.interval "access_token_duration", null: false
-    t.string "access_token_audience", null: false
+    t.string "access_token_audience"
     t.interval "refresh_token_duration", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -530,12 +530,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_13_195759) do
     t.string "representative_id", null: false
     t.string "flag_type", null: false
     t.text "flagged_value", null: false
-    t.boolean "flagged_value_updated", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_unique_constraint_fields", unique: true
-    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
