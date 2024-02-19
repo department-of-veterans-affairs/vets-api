@@ -1283,3 +1283,9 @@ features:
   yellow_ribbon_search_enhancement:
     actor_type: user
     description: Enable changes to Find a Yellow Ribbon school search functionality
+  travel_pay_power_switch:
+    actor_type: user
+    description: >-
+      Main switch for the Travel Pay feature on VA.gov using the new BTSSS (travel pay) API.
+      Enabled - Requests are handled as normal.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
