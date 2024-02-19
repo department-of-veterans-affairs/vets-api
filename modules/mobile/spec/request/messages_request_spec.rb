@@ -175,14 +175,14 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       let(:thread_id) { 573_059 }
 
       it 'responds to GET #thread' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
+        VCR.use_cassette('mobile/messages/v0_gets_a_message_thread') do
           get "/mobile/v0/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
         end
-
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('messages_thread')
-        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(2)
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(1)
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'unread')).to eq(1)
       end
     end
 

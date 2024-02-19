@@ -3,7 +3,7 @@
 require 'common/exceptions'
 
 module EVSS
-  class ErrorMiddleware < Faraday::Response::Middleware
+  class ErrorMiddleware < Faraday::Middleware
     class EVSSError < StandardError
       attr_reader :details, :body
 

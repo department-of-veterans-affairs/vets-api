@@ -3,13 +3,18 @@
 module AskVAApi
   module V0
     class StaticDataController < ApplicationController
-      skip_before_action :authenticate, except: %i[index]
+      skip_before_action :authenticate
       around_action :handle_exceptions, except: %i[index]
 
       def index
         service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'profile', payload: { secid: current_user.sec_id })
+        data = service.call(endpoint: params[:endpoint])
         render json: data.to_json, status: :ok
+      end
+
+      def announcements
+        get_resource('announcements', user_mock_data: params[:user_mock_data])
+        render_result(@announcements)
       end
 
       def categories
