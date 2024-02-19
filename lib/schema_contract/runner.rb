@@ -13,6 +13,10 @@ module SchemaContract
 
         UpstreamSchemaValidationJob.perform_async(record.id)
       end
+    rescue => e
+      # blanket rescue to avoid this code blocking execution
+      message = { user:, response:, test_name:, error_details: e}
+      Rails.logger.error('Error creating schema contract job', message)
     end
   end
 end

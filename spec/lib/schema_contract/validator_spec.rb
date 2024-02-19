@@ -21,9 +21,6 @@ describe SchemaContract::Validator do
               system: 'VA',
               value: 'medicine'
             }],
-            kind: nil,
-            status: 'groovy',
-            start: 'replace with date string',
             extension: {
               cc_location: {
                 address: {
@@ -52,8 +49,8 @@ describe SchemaContract::Validator do
 
       it 'does not log errors' do
         expect { SchemaContract::Validator.new(contract_record.id).validate }.to change {
-                                                                                 contract_record.reload.status
-                                                                               }.from('initiated').to('success')
+                                                                                   contract_record.reload.status
+                                                                                 }.from('initiated').to('success')
       end
     end
 
@@ -85,7 +82,8 @@ describe SchemaContract::Validator do
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
         expect(contract_record.reload.status).to eq('schema_errors_found')
         expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0' contains additional properties \[\\"extra\\"\] outside of the schema when none are allowed in schema #{uuid_regex}"\]$})
+          match(%r{^\["The property '#/data/0' contains additional properties \[\\"extra\\"\] outside of the schema \
+when none are allowed in schema #{uuid_regex}"\]$})
       end
     end
 
@@ -152,12 +150,14 @@ describe SchemaContract::Validator do
     end
 
     context 'when schema file does not exist' do
-      let(:contract_record) { SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response, status: 'initiated') }
+      let(:contract_record) do
+        SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response, status: 'initiated')
+      end
 
       it 'raises error' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, "No schema file not_real found.")
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, 'No schema file not_real found.')
       end
     end
 
