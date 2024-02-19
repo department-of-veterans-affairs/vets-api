@@ -28,13 +28,13 @@ module AskVAApi
       def fetch_data
         if user_mock_data
           data = File.read("modules/ask_va_api/config/locales/get_#{name}_mock_data.json")
-          JSON.parse(data, symbolize_names: true)[:data]
+          JSON.parse(data, symbolize_names: true)[:Data]
         else
           Crm::CacheData.new.call(
             endpoint: 'optionset',
             cache_key: name,
             payload: { name: "iris_#{name}" }
-          )[:data]
+          )[:Data]
         end
       end
     end
