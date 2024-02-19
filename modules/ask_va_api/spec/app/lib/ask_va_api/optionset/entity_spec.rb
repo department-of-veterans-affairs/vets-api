@@ -7,15 +7,15 @@ RSpec.describe AskVAApi::Optionset::Entity do
 
   let(:info) do
     {
-      id: 722_310_182,
-      name: 'Uganda'
+      Id: 722_310_182,
+      Name: 'Uganda'
     }
   end
   let(:topic) { creator.new(info) }
 
   it 'creates an topic' do
     expect(topic).to have_attributes({
-                                       name: info[:name]
+                                       name: info[:Name]
                                      })
   end
 end
