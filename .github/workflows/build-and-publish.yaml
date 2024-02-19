@@ -16,7 +16,7 @@ jobs:
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
       - name: Git Version
         id: version
-        uses: codacy/git-version@2.7.1
+        uses: codacy/git-version@2.8.0
         with:
           release-branch: master
       - name: Echo the version
