@@ -117,7 +117,7 @@ module Organizations
         serialized_poa = serialize_poa(org[:poa])
         { poa: serialized_poa, name: org[:name] }
       rescue => e
-        # Since SentryLogging is designed with instance methods for logging (e.g., log_message_to_sentry),
+        # Since SentryLogging is designed for instance methods, not class methods,
         # and we need to invoke these methods within a class method context, we instantiate a dummy_logger.
         # This dummy object includes SentryLogging, allowing us to use its logging capabilities without altering
         # the original module's design. This approach enables class-level logging by leveraging the module's
