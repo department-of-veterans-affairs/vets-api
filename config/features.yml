@@ -971,9 +971,6 @@ features:
   show_new_schedule_view_appointments_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
-  show_new_secure_messaging_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
