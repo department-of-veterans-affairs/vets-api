@@ -19,6 +19,7 @@ module MedicalRecords
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
     DISCHARGE_SUMMARY = '18842-5' # Discharge summary
+    CONSULT_RESULT = '11488-4' # Consultation note
 
     # LOINC codes for vitals
     BLOOD_PRESSURE = '85354-9' # Blood Pressure
@@ -125,7 +126,7 @@ module MedicalRecords
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
+      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
                            {
                              search: { parameters: { patient: patient_fhir_id, type: loinc_codes } },
@@ -141,7 +142,7 @@ module MedicalRecords
                      end
 
         case loinc_code
-        when PHYSICIAN_PROCEDURE_NOTE
+        when PHYSICIAN_PROCEDURE_NOTE, CONSULT_RESULT
           resource.date
         when DISCHARGE_SUMMARY
           resource.context&.period&.end

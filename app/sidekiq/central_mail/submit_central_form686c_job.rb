@@ -35,8 +35,7 @@ module CentralMail
       claim.add_veteran_info(vet_info)
 
       get_files_from_claim
-      use_lighthouse = Flipper.enabled?(:dependents_central_submission_lighthouse)
-      result = use_lighthouse ? upload_to_lh : CentralMail::Service.new.upload(create_request_body)
+      result = upload_to_lh
       check_success(result, saved_claim_id, user_struct)
     rescue => e
       # if we fail, update the associated central mail record to failed and send the user the failure email
@@ -93,33 +92,18 @@ module CentralMail
       attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
 
-    # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
     def check_success(response, saved_claim_id, user_struct)
-      if Flipper.enabled?(:dependents_central_submission_lighthouse)
-        if response.success?
-          Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
-                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
-          update_submission('success')
-          send_confirmation_email(OpenStruct.new(user_struct))
-        else
-          Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
-                            { response: response['message'].presence || response['errors'] })
-          raise CentralMailResponseError
-        end
-      elsif response.success?
+      if response.success?
         Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
-                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
-                            centralmail_uuid: extract_uuid_from_central_mail_message(response) })
+                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
         update_submission('success')
         send_confirmation_email(OpenStruct.new(user_struct))
       else
         Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
-                          { response: response.body })
+                          { response: response['message'].presence || response['errors'] })
         raise CentralMailResponseError
       end
     end
-
-    # rubocop:enable Metrics/MethodLength
 
     def create_request_body
       body = {
