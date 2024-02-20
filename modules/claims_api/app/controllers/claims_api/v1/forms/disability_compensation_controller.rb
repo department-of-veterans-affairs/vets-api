@@ -115,13 +115,12 @@ module ClaimsApi
           validate_documents_content_type
           validate_documents_page_size
 
+          claims_v1_logging('526_attachments',
+                            message: "/attachments called with
+                            #{documents.length} #{'attachment'.pluralize(documents.length)}")
+
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          unless claim
-            claims_v1_logging('526_attachments',
-                              message: "/attachments called with
-                              #{documents.length} #{'attachment'.pluralize(documents.length)}")
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-          end
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
