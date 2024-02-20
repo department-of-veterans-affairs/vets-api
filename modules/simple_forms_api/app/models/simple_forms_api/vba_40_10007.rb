@@ -12,13 +12,13 @@ module SimpleFormsApi
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('application', 'applicant', 'name', 'first'),
-        'veteranLastName' => @data.dig('application', 'applicant', 'name', 'last'),
-        'fileNumber' =>  @data.dig('application', 'veteran', 'ssn'),
-        'zipCode' => @data.dig('application', 'applicant', 'mailing_address', 'postal_code'),
+        'veteranFirstName' => @data.dig('application', 'claimant', 'name', 'first'),
+        'veteranLastName' => @data.dig('application', 'claimant', 'name', 'last'),
+        'fileNumber' => @data.dig('application', 'claimant', 'ssn')&.gsub('-', ''),
+        'zipCode' => @data.dig('application', 'claimant', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'NCA'
       }
     end
     def handle_attachments(file_path)
@@ -29,8 +29,7 @@ module SimpleFormsApi
         attachments.each do |attachment|
           combined_pdf << CombinePDF.load(attachment)
         end
-
-
+            
         combined_pdf.save file_path
       end
     end
@@ -52,12 +51,7 @@ module SimpleFormsApi
     def track_user_identity; end
 
     def submission_date_config
-      {
-        should_stamp_date?: true,
-        page_number: 1,
-        title_coords: [440, 690],
-        text_coords: [440, 670]
-      }
+      { should_stamp_date?: false }
     end
 
     private
@@ -66,6 +60,7 @@ module SimpleFormsApi
       attachments = []
 
       supporting_documents = @data['preneed_attachments']
+
       if supporting_documents
         confirmation_codes = []
         supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
