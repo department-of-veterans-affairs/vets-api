@@ -5,7 +5,7 @@ require 'pdf_generator_service/pdf_client'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationPdfGenerator < DisabilityCompensationClaimServiceBase
+    class DisabilityCompensationPdfGenerator < ClaimsApi::ServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
       LOG_TAG = '526_v2_PDF_Generator_job'
 

@@ -1,18 +1,7 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sentry_logging'
-
 module ClaimsApi
   class SpecialIssueUpdater < UpdaterService
-    include Sidekiq::Job
-    include SentryLogging
-
-    sidekiq_retries_exhausted do |message|
-      log_exception_to_claim_record(message['args'].last, { text: 'Job retries exhausted' })
-      log_exception_to_sentry(StandardError.new("Failed to apply special issues to contention: #{message}"))
-    end
-
     # Update special issues for a single contention/disability
     #
     # @param user [OpenStruct] Veteran to attach special issues to
