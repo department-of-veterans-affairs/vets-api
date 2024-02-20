@@ -69,7 +69,7 @@ module SimpleFormsApi
                           when 'vba_20_10206'
                             return unless Flipper.enabled?(:form20_10206_confirmation_email)
 
-                            [@form_data['email_address'], @form_data.dig('full_name', 'first')]
+                            form20_10206_contact_info(@form_data)
                           else
                             [nil, nil]
                           end
@@ -77,6 +77,17 @@ module SimpleFormsApi
       [email, first_name]
     end
     # rubocop:enable Metrics/MethodLength
+
+    def form20_10206_contact_info(form_data)
+      # email address not required and omitted
+      if form_data['email_address'] == ''
+        [@current_user.email, form_data.dig('full_name', 'first')]
+
+      # email address not required and optionally entered
+      else
+        [form_data['email_address'], form_data.dig('full_name', 'first')]
+      end
+    end
 
     def form21_0845_contact_info(form_data)
       # (vet && signed in)
