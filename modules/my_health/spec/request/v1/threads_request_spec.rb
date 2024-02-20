@@ -104,7 +104,6 @@ RSpec.describe 'Threads Integration', type: :request do
           patch "/my_health/v1/messaging/threads/#{thread_id}/move?folder_id=0"
         end
 
-        puts response
         expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
       end
