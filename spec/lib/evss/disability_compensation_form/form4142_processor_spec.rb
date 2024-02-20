@@ -26,7 +26,7 @@ describe EVSS::DisabilityCompensationForm::Form4142Processor do
   let(:jid) { '123456789' }
   let(:processor) { described_class.new(submission, jid) }
   let(:received_date) { submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
-  let(:form4142) { JSON.parse(form_json)['form4142'].merge({ signatureDate: received_date }) }
+  let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
 
   describe '#initialize' do
     it 'initializes with submission and jid' do

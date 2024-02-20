@@ -1,31 +1,31 @@
 {
-  "data": [
+  "Data": [
       {
-          "id": 722310000,
-          "name": "Compliment"
+          "Id": 722310000,
+          "Name": "Compliment"
       },
       {
-          "id": 722310001,
-          "name": "Question"
+          "Id": 722310001,
+          "Name": "Question"
       },
       {
-          "id": 722310002,
-          "name": "Service Complaint"
+          "Id": 722310002,
+          "Name": "Service Complaint"
       },
       {
-          "id": 722310006,
-          "name": "Suggestion"
+          "Id": 722310006,
+          "Name": "Suggestion"
       },
       {
-          "id": 722310003,
-          "name": "Town Hall"
+          "Id": 722310003,
+          "Name": "Town Hall"
       },
       {
-          "id": 722310004,
-          "name": "Other"
+          "Id": 722310004,
+          "Name": "Other"
       }
   ],
-  "message": "",
+  "Message": "",
   "ExceptionOccurred": false,
   "ExceptionMessage": "",
   "MessageId": "b11df40b-f660-4de0-84af-787adfc3297a"

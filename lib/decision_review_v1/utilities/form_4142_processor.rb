@@ -86,7 +86,7 @@ module DecisionReviewV1
       end
 
       def set_signature_date(incoming_data)
-        incoming_data.merge({ signatureDate: received_date })
+        incoming_data.merge({ 'signatureDate' => received_date })
       end
     end
   end
