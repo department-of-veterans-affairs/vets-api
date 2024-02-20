@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'bgs'
 require 'bgs_service/benefit_claim_service'
 require 'bgs_service/claim_management_service'
-require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class EwsUpdater
-    include Sidekiq::Job
+  class EwsUpdater < ClaimsApi::ServiceBase
     FILE_5103 = 'Y'
     OMITTED_FIELDS = %w[contentions dvlpmt_items letters name status_messages station_profile stn_suspns_prfil].freeze
 

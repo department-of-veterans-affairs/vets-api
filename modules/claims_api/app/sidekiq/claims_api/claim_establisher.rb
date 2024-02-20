@@ -1,19 +1,11 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sidekiq/monitored_worker'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
-require 'evss_service/base' # docker container
-require 'sentry_logging'
-require 'claims_api/claim_logger'
+require 'evss_service/base'
 
 module ClaimsApi
-  class ClaimEstablisher
-    include Sidekiq::Job
-    include SentryLogging
-    include Sidekiq::MonitoredWorker
-
+  class ClaimEstablisher < ClaimsApi::ServiceBase
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
