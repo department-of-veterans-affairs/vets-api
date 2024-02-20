@@ -39,9 +39,6 @@ unless Rails.env.test?
       "api.#{metric_prefix(object.request.headers, object.request.params)}.v0.travel_claims.create.count"
     }
 
-    # CheckIn::V0::TravelClaimsController.statsd_measure :create, 'api.check_in.v0.travel_claims.create.measure'
-    # CheckIn::V0::TravelClaimsController.statsd_count_success :create, 'api.check_in.v0.travel_claims.create.count'
-
     # Measure the count/duration of GET/POST calls for services
     V2::Lorota::Client.extend(StatsD::Instrument)
     %i[token data].each do |method|
