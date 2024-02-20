@@ -136,7 +136,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #Topics' do
     let(:category) do
-      AskVAApi::Categories::Entity.new({ id: '60524deb-d864-eb11-bb24-000d3a579c45' })
+      AskVAApi::Categories::Entity.new({ Id: '60524deb-d864-eb11-bb24-000d3a579c45' })
     end
     let(:expected_response) do
       {
@@ -181,7 +181,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #SubTopics' do
     let(:topic) do
-      AskVAApi::Topics::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
+      AskVAApi::Topics::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
     end
     let(:expected_response) do
       {
@@ -226,7 +226,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #optionset' do
     let(:optionset) do
-      AskVAApi::Optionset::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
+      AskVAApi::Optionset::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
     end
     let(:expected_response) do
       {
