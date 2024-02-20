@@ -1,91 +1,91 @@
 {
-  "data": [
+  "Data": [
       {
-          "id": 722310007,
-          "name": "Child"
+          "Id": 722310007,
+          "Name": "Child"
       },
       {
-          "id": 722310008,
-          "name": "Guardian"
+          "Id": 722310008,
+          "Name": "Guardian"
       },
       {
-          "id": 722310005,
-          "name": "Parent"
+          "Id": 722310005,
+          "Name": "Parent"
       },
       {
-          "id": 722310012,
-          "name": "Sibling"
+          "Id": 722310012,
+          "Name": "Sibling"
       },
       {
-          "id": 722310015,
-          "name": "Spouse/Surviving Spouse"
+          "Id": 722310015,
+          "Name": "Spouse/Surviving Spouse"
       },
       {
-          "id": 722310004,
-          "name": "Ex-spouse"
+          "Id": 722310004,
+          "Name": "Ex-spouse"
       },
       {
-          "id": 722310010,
-          "name": "GI Bill Beneficiary"
+          "Id": 722310010,
+          "Name": "GI Bill Beneficiary"
       },
       {
-          "id": 722310018,
-          "name": "Other (Personal)"
+          "Id": 722310018,
+          "Name": "Other (Personal)"
       },
       {
-          "id": 722310000,
-          "name": "Attorney"
+          "Id": 722310000,
+          "Name": "Attorney"
       },
       {
-          "id": 722310001,
-          "name": "Authorized 3rd Party"
+          "Id": 722310001,
+          "Name": "Authorized 3rd Party"
       },
       {
-          "id": 722310020,
-          "name": "Fiduciary"
+          "Id": 722310020,
+          "Name": "Fiduciary"
       },
       {
-          "id": 722310006,
-          "name": "Funeral Director"
+          "Id": 722310006,
+          "Name": "Funeral Director"
       },
       {
-          "id": 722310016,
-          "name": "OJT/Apprenticeship Supervisor"
+          "Id": 722310016,
+          "Name": "OJT/Apprenticeship Supervisor"
       },
       {
-          "id": 722310013,
-          "name": "School Certifying Official"
+          "Id": 722310013,
+          "Name": "School Certifying Official"
       },
       {
-          "id": 722310019,
-          "name": "VA Employee"
+          "Id": 722310019,
+          "Name": "VA Employee"
       },
       {
-          "id": 722310017,
-          "name": "VSO"
+          "Id": 722310017,
+          "Name": "VSO"
       },
       {
-          "id": 722310014,
-          "name": "Work Study Site Supervisor"
+          "Id": 722310014,
+          "Name": "Work Study Site Supervisor"
       },
       {
-          "id": 722310011,
-          "name": "Other (Business)"
+          "Id": 722310011,
+          "Name": "Other (Business)"
       },
       {
-          "id": 722310002,
-          "name": "School Official (DO NOT USE)"
+          "Id": 722310002,
+          "Name": "School Official (DO NOT USE)"
       },
       {
-          "id": 722310009,
-          "name": "Helpless Child"
+          "Id": 722310009,
+          "Name": "Helpless Child"
       },
       {
-          "id": 722310003,
-          "name": "Dependent Child"
+          "Id": 722310003,
+          "Name": "Dependent Child"
       }
   ],
-  "message": "",
+  "Message": "",
   "ExceptionOccurred": false,
   "ExceptionMessage": "",
   "MessageId": "9c2a7bd5-03b1-48d0-87e0-b686ad982a83"

@@ -24,14 +24,14 @@ module AskVAApi
           before do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
             allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
-            allow(cache_data_service).to receive(:call).and_return({ data: [{ id: 722_310_000,
-                                                                              name: 'Air Force' }] })
+            allow(cache_data_service).to receive(:call).and_return({ Data: [{ Id: 722_310_000,
+                                                                              Name: 'Air Force' }] })
           end
 
           it 'calls on Crm::CacheData' do
             expect(retriever.call).to all(be_a(entity_class))
 
-            expect(cache_data_service).to have_received(:call).with(endpoint: 'optionset', cache_key: name,
+            expect(cache_data_service).to have_received(:call).with(endpoint: 'OptionSet', cache_key: name,
                                                                     payload: { name: 'iris_branchofservice' })
           end
         end
