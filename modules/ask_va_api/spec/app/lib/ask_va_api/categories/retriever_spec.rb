@@ -5,7 +5,7 @@ require 'rails_helper'
 module AskVAApi
   module Categories
     RSpec.describe Retriever do
-      let(:parsed_data) { { Topics: [{ id: 1, name: 'Category 1', parentId: nil }] } }
+      let(:parsed_data) { { Topics: [{ Id: 1, Name: 'Category 1', ParentId: nil }] } }
       let(:static_data_service) { instance_double(Crm::CacheData) }
       let(:entity_class) { AskVAApi::Categories::Entity }
 

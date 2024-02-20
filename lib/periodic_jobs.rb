@@ -159,5 +159,8 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+
+  # Updates veteran service organization names
+  mgr.register('0 5 * * *', 'Organizations::UpdateNames')
 }
 # rubocop:enable Metrics/BlockLength
