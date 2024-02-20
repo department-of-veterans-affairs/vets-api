@@ -95,7 +95,7 @@ module SimpleFormsApi
         file_path, metadata = get_file_path_and_metadata(parsed_form_data)
 
         if IVC_FORM_NUMBER_MAP.value?(form_id)
-          status, error_message = upload_pdf_to_ivc_s3(form_id, file_path)
+          status, error_message = handle_ivc_uploads(form_id, metadata, file_path)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
@@ -112,6 +112,28 @@ module SimpleFormsApi
         end
 
         render json: get_json(confirmation_number || nil, form_id, error_message || nil), status:
+      end
+
+      def handle_ivc_uploads(form_id, metadata, pdf_file_path)
+        meta_file_name = "#{form_id}_metadata-tmp.json"
+        pdf_file_name = "#{form_id}.pdf"
+        meta_file_path = "tmp/#{meta_file_name}"
+
+        pdf_upload_status, pdf_upload_error_message = upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+
+        if pdf_upload_status == 200
+          File.write(meta_file_path, metadata)
+          meta_upload_status, meta_upload_error_message = upload_to_ivc_s3(meta_file_name, meta_file_path)
+
+          if meta_upload_status == 200
+            FileUtils.rm_f(meta_file_path)
+            [meta_upload_status, nil]
+          else
+            [meta_upload_status, meta_upload_error_message]
+          end
+        else
+          [meta_upload_status, pdf_upload_error_message]
+        end
       end
 
       def get_file_path_and_metadata(parsed_form_data)
@@ -143,14 +165,14 @@ module SimpleFormsApi
         }
       end
 
-      def upload_pdf_to_ivc_s3(form_id, file_path)
-        case ivc_s3_client.upload_file("#{form_id}.pdf", file_path)
+      def upload_to_ivc_s3(file_name, file_path)
+        case ivc_s3_client.upload_file(file_name, file_path)
         in { success: true }
-          [:ok]
+          [200]
         in { success: false, error_message: error_message }
-          [:bad_request, error_message]
+          [400, error_message]
         else
-          [:internal_server_error, 'Unexpected response from S3 upload']
+          [500, 'Unexpected response from S3 upload']
         end
       end
 
