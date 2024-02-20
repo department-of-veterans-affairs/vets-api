@@ -24,7 +24,7 @@ RSpec.describe AskVAApi::Topics::Retriever do
 
       before do
         allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
-        allow(cache_data_service).to receive(:call).with(endpoint: 'topics',
+        allow(cache_data_service).to receive(:call).with(endpoint: 'Topics',
                                                          cache_key: 'categories_topics_subtopics')
                                                    .and_return(parsed_data)
       end
@@ -35,7 +35,7 @@ RSpec.describe AskVAApi::Topics::Retriever do
 
       context 'when an error occurs during data retrieval' do
         before do
-          allow(cache_data_service).to receive(:call).with(endpoint: 'topics',
+          allow(cache_data_service).to receive(:call).with(endpoint: 'Topics',
                                                            cache_key: 'categories_topics_subtopics')
                                                      .and_raise(StandardError)
           allow(ErrorHandler).to receive(:handle_service_error)
@@ -49,7 +49,7 @@ RSpec.describe AskVAApi::Topics::Retriever do
 
       context 'when JSON parsing fails' do
         before do
-          allow(cache_data_service).to receive(:call).with(endpoint: 'topics',
+          allow(cache_data_service).to receive(:call).with(endpoint: 'Topics',
                                                            cache_key: 'categories_topics_subtopics')
                                                      .and_return('invalid json')
           allow(ErrorHandler).to receive(:handle_service_error).and_raise(ErrorHandler::ServiceError,

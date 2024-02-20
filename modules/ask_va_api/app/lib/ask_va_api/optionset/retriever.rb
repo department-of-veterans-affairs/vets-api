@@ -31,7 +31,7 @@ module AskVAApi
           JSON.parse(data, symbolize_names: true)[:Data]
         else
           Crm::CacheData.new.call(
-            endpoint: 'optionset',
+            endpoint: 'OptionSet',
             cache_key: name,
             payload: { name: "iris_#{name}" }
           )[:Data]
