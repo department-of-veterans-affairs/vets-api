@@ -46,6 +46,10 @@ describe SchemaContract::Runner do
 
     context 'when an error is encountered' do
       it 'logs but does not raise the error' do
+        allow(SchemaContractTest).to receive(:create).and_raise(ActiveModel::UnknownAttributeError)
+
+        expect(Rails.logger).to receive(:error, 'Error creating schema contract job')
+        SchemaContract::Runner.run(user:, response:, test_name: 'test_index')
       end
     end
   end
