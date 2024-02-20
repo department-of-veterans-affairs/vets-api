@@ -47,7 +47,7 @@ RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :re
           representative_id: '1',
           flags: [
             { flag_type: 'email', flagged_value: 'example1@email.com' },
-            { flag_type: 'phone', flagged_value: '1234567890' }
+            { flag_type: 'phone_number', flagged_value: '1234567890' }
           ]
         }
       end
@@ -69,7 +69,7 @@ RSpec.describe 'FlagAccreditedRepresentativesController', csrf: false, type: :re
         expect(json_response_data).to be_an(Array)
         expect(json_response_data.length).to eq(2)
         expect(json_response_data[0]['attributes']['flag_type']).to eq('email')
-        expect(json_response_data[1]['attributes']['flag_type']).to eq('phone')
+        expect(json_response_data[1]['attributes']['flag_type']).to eq('phone_number')
       end
     end
 
