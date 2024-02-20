@@ -65,7 +65,7 @@ module V0
     end
 
     def filter_ratings_by_decision!(ratings)
-      ratings.select! { |rating| DECISION_ALLOWLIST.include?(rating) }
+      ratings.select! { |rating| DECISION_ALLOWLIST.include?(rating[:decision]) }
     end
 
     def reject_inactive_ratings!(ratings)
