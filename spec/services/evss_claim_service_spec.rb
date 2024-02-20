@@ -39,9 +39,17 @@ RSpec.describe EVSSClaimService do
     # Overriding global user / service values
     let(:user) { FactoryBot.create(:evss_user, birls_id: nil) }
     let(:service) { described_class.new(user) }
+    # rubocop:disable Style/HashSyntax
+    let(:claim) { { :benefit_claim_details_dto => { :ptcpnt_vet_id => '234567891' } } }
+    let(:person) { { :file_nbr => '123456789' } }
+    # rubocop:enable Style/HashSyntax
+    let(:claim_service) { BGS::EbenefitsBenefitClaimsStatus }
+    let(:people_service) { BGS::PersonWebService }
 
     before do
       allow(Rails.logger).to receive(:info)
+      allow_any_instance_of(claim_service).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim)
+      allow_any_instance_of(people_service).to receive(:find_person_by_ptcpnt_id).and_return(person)
     end
 
     describe '#request_decision' do
@@ -54,7 +62,7 @@ RSpec.describe EVSSClaimService do
         job_args = job['args'][0]
 
         header = job_args['va_eauth_birlsfilenumber']
-        expect(header).to eq(user.ssn)
+        expect(header).to eq('123456789')
 
         expect(Rails.logger)
           .to have_received(:info)
@@ -91,7 +99,7 @@ RSpec.describe EVSSClaimService do
         job_args = job['args'][0]
 
         header = job_args['va_eauth_birlsfilenumber']
-        expect(header).to eq(user.ssn)
+        expect(header).to eq('123456789')
 
         expect(Rails.logger)
           .to have_received(:info)
