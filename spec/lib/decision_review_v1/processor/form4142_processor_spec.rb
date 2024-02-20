@@ -22,7 +22,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
   let(:processor) { described_class.new(form_data: submission.form['form4142'], submission_id: submission.id) }
   let(:received_date) { submission.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S') }
-  let(:form4142) { JSON.parse(form_json)['form4142'].merge({ signatureDate: received_date }) }
+  let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
 
   describe '#initialize' do
     it 'initializes with submission and jid' do

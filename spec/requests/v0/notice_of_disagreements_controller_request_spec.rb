@@ -35,10 +35,12 @@ RSpec.describe V0::NoticeOfDisagreementsController do
                                                       http: {
                                                         status_code: 200,
                                                         body: '[Redacted]'
-                                                      }
+                                                      },
+                                                      version_number: 'v1'
                                                     })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
+        expect(StatsD).to receive(:increment).with('nod_evidence_upload.v1.queued')
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         subject
         expect(response).to be_successful
@@ -75,7 +77,8 @@ RSpec.describe V0::NoticeOfDisagreementsController do
                                                        http: {
                                                          status_code: 422,
                                                          body: anything
-                                                       }
+                                                       },
+                                                       version_number: 'v1'
                                                      })
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
