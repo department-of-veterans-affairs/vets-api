@@ -50,6 +50,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'version.rb'
 
     # Modules
+    add_group 'AccreditedRepresentatives', 'modules/accredited_representatives/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'
