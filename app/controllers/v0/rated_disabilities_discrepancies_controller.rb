@@ -65,7 +65,7 @@ module V0
     end
 
     def filter_ratings_by_decision!(ratings)
-      ratings.select! { |rating| DECISION_ALLOWLIST.include?(rating[:decision]) }
+      ratings.select! { |rating| DECISION_ALLOWLIST.include?(rating['decision']) }
     end
 
     def reject_inactive_ratings!(ratings)
@@ -74,10 +74,6 @@ module V0
 
     def active?(rating)
       rating['rating_end_date'].nil?
-    end
-
-    def deferred?(rating)
-      rating['decision'] == 'Deferred'
     end
 
     def service
