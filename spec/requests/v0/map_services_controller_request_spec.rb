@@ -10,7 +10,6 @@ RSpec.describe V0::MapServicesController, type: :request do
 
     context 'when MAP STS client is not configured for use by the service account' do
       let(:application) { 'foobar' }
-      let(:expected_error_message) { '[MAP][SecurityToken][Service] token failed, application mismatch detected' }
 
       include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/map_services/foobar/token'], { user_attributes: { icn: 42 } }
 
@@ -35,9 +34,6 @@ RSpec.describe V0::MapServicesController, type: :request do
 
       context 'when service account access token does not have a user_attributes claim with ICN' do
         include_context 'with service account authentication', 'chatbot', ['http://www.example.com/v0/map_services/chatbot/token']
-        let(:expected_error_message) do
-          '[MAP][SecurityToken][Service] token failed, ICN not present in service account access token'
-        end
 
         it 'responds with error details in response body' do
           call_endpoint
@@ -60,10 +56,6 @@ RSpec.describe V0::MapServicesController, type: :request do
 
         context 'when MAP STS client raises a client error',
                 vcr: { cassette_name: 'map/security_token_service_401_response' } do
-          let(:expected_error_message) do
-            '[MAP][SecurityToken][Service] token failed, client error, status: 401, ' \
-              "application: #{application}, icn: 42, context: {:error=>\"invalid_client\"}"
-          end
 
           it 'responds with error details in response body' do
             call_endpoint
