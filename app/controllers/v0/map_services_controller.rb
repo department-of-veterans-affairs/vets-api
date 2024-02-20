@@ -8,20 +8,15 @@ module V0
     # POST /v0/map_services/:application/token
     def token
       icn = @service_account_access_token.user_attributes['icn']
-      raise MAP::SecurityToken::Errors::MissingICNError unless icn
-
+\
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)
 
       render json: result, status: :ok
-    rescue Common::Client::Errors::ClientError => e
-      Rails.logger.error(e.message)
+    rescue Common::Client::Errors::ClientError
       render json: sts_client_error, status: :bad_gateway
-    rescue MAP::SecurityToken::Errors::ApplicationMismatchError => e
-      Rails.logger.error(e.message, application: params[:application], icn:)
+    rescue MAP::SecurityToken::Errors::ApplicationMismatchError
       render json: application_mismatch_error, status: :bad_request
     rescue MAP::SecurityToken::Errors::MissingICNError
-      Rails.logger.error('[MAP][SecurityToken][Service] token failed, ICN not present in service account access token',
-                         application: params[:application])
       render json: missing_icn_error, status: :bad_request
     end
 

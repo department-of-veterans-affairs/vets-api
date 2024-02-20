@@ -28,11 +28,6 @@ RSpec.describe V0::MapServicesController, type: :request do
         call_endpoint
         expect(response).to have_http_status(:bad_request)
       end
-
-      it 'logs an error message' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message, application:, icn: 42)
-        call_endpoint
-      end
     end
 
     context 'when MAP STS client is configured for use by the service account' do
@@ -57,11 +52,6 @@ RSpec.describe V0::MapServicesController, type: :request do
         it 'returns HTTP status bad_request' do
           call_endpoint
           expect(response).to have_http_status(:bad_request)
-        end
-
-        it 'logs an error message' do
-          expect(Rails.logger).to receive(:error).with(expected_error_message, application:)
-          call_endpoint
         end
       end
 
@@ -88,11 +78,6 @@ RSpec.describe V0::MapServicesController, type: :request do
           it 'returns HTTP status bad_gateway' do
             call_endpoint
             expect(response).to have_http_status(:bad_gateway)
-          end
-
-          it 'logs an error message' do
-            expect(Rails.logger).to receive(:error).with(expected_error_message)
-            call_endpoint
           end
         end
 
