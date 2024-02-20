@@ -49,6 +49,47 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
   end
 
+  describe 'GET #announcements' do
+    let(:announcements_path) { '/ask_va_api/v0/announcements' }
+    let(:expected_hash) do
+      {
+        'id' => nil,
+        'type' => 'announcements',
+        'attributes' => {
+          'text' => 'Test',
+          'start_date' => '8/18/2024 1:00:00 PM',
+          'end_date' => '8/18/2024 1:00:00 PM',
+          'is_portal' => false
+        }
+      }
+    end
+
+    context 'when successful' do
+      before do
+        get announcements_path, params: { user_mock_data: true }
+      end
+
+      it 'returns announcements data' do
+        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_hash))
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when an error occurs' do
+      let(:error_message) { 'service error' }
+
+      before do
+        allow_any_instance_of(Crm::Service)
+          .to receive(:call)
+          .and_raise(StandardError)
+        get announcements_path
+      end
+
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'StandardError: StandardError'
+    end
+  end
+
   describe 'GET #categories' do
     let(:categories_path) { '/ask_va_api/v0/categories' }
     let(:expected_hash) do
@@ -95,7 +136,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #Topics' do
     let(:category) do
-      AskVAApi::Categories::Entity.new({ id: '60524deb-d864-eb11-bb24-000d3a579c45' })
+      AskVAApi::Categories::Entity.new({ Id: '60524deb-d864-eb11-bb24-000d3a579c45' })
     end
     let(:expected_response) do
       {
@@ -140,7 +181,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #SubTopics' do
     let(:topic) do
-      AskVAApi::Topics::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
+      AskVAApi::Topics::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
     end
     let(:expected_response) do
       {
@@ -185,7 +226,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
   describe 'GET #optionset' do
     let(:optionset) do
-      AskVAApi::Optionset::Entity.new({ id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
+      AskVAApi::Optionset::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
     end
     let(:expected_response) do
       {
