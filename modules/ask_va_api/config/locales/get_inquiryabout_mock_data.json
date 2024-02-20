@@ -1,23 +1,23 @@
 {
-  "data": [
+  "Data": [
       {
-          "id": 722310003,
-          "name": "A general question"
+          "Id": 722310003,
+          "Name": "A general question"
       },
       {
-          "id": 722310000,
-          "name": "About Me, the Veteran"
+          "Id": 722310000,
+          "Name": "About Me, the Veteran"
       },
       {
-          "id": 722310002,
-          "name": "For the dependent of a Veteran"
+          "Id": 722310002,
+          "Name": "For the dependent of a Veteran"
       },
       {
-          "id": 722310001,
-          "name": "On behalf of a Veteran"
+          "Id": 722310001,
+          "Name": "On behalf of a Veteran"
       }
   ],
-  "message": "",
+  "Message": "",
   "ExceptionOccurred": false,
   "ExceptionMessage": "",
   "MessageId": "afb000d0-6ae1-4af4-9487-33a6de149d0f"
