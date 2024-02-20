@@ -77,7 +77,7 @@ describe MAP::SecurityToken::Service do
     context 'when input application is arbitrary' do
       let(:application) { :some_application }
       let(:expected_error) { MAP::SecurityToken::Errors::ApplicationMismatchError }
-      let(:expected_error_message) { "#{log_prefix} application mismatch detected" }
+      let(:expected_error_message) { "#{log_prefix} token failed, application mismatch detected" }
 
       it 'raises an application mismatch error' do
         expect { subject }.to raise_exception(expected_error, expected_error_message)

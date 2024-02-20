@@ -51,7 +51,7 @@ module MAP
         when :appointments
           config.appointments_client_id
         else
-          raise Errors::ApplicationMismatchError, "#{config.logging_prefix} application mismatch detected"
+          raise Errors::ApplicationMismatchError, "#{config.logging_prefix} token failed, application mismatch detected"
         end
       end
 

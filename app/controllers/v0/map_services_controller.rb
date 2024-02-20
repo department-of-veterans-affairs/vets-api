@@ -7,18 +7,22 @@ module V0
     service_tag 'identity'
     # POST /v0/map_services/:application/token
     def token
-      unless (icn = @service_account_access_token.user_attributes['icn'])
-        raise MAP::SecurityToken::Errors::MissingICNError
-      end
+      icn = @service_account_access_token.user_attributes['icn']
+      Rails.logger.info("[MAP][SecurityToken][Service] token request", application: params[:application], icn: icn)
+      raise MAP::SecurityToken::Errors::MissingICNError unless icn
 
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)
 
       render json: result, status: :ok
-    rescue Common::Client::Errors::ClientError
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error(e.message)
       render json: sts_client_error, status: :bad_gateway
-    rescue MAP::SecurityToken::Errors::ApplicationMismatchError
+    rescue MAP::SecurityToken::Errors::ApplicationMismatchError => e
+      Rails.logger.error(e.message, application: params[:application], icn: icn)
       render json: application_mismatch_error, status: :bad_request
     rescue MAP::SecurityToken::Errors::MissingICNError
+      Rails.logger.error("[MAP][SecurityToken][Service] token failed, ICN not present in service account access token",
+                         application: params[:application])
       render json: missing_icn_error, status: :bad_request
     end
 
