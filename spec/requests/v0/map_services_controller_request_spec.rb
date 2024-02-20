@@ -40,7 +40,9 @@ RSpec.describe V0::MapServicesController, type: :request do
 
       context 'when service account access token does not have a user_attributes claim with ICN' do
         include_context 'with service account authentication', 'chatbot', ['http://www.example.com/v0/map_services/chatbot/token']
-        let(:expected_error_message) { '[MAP][SecurityToken][Service] token failed, ICN not present in service account access token' }
+        let(:expected_error_message) do
+          '[MAP][SecurityToken][Service] token failed, ICN not present in service account access token'
+        end
 
         it 'responds with error details in response body' do
           call_endpoint
@@ -68,7 +70,11 @@ RSpec.describe V0::MapServicesController, type: :request do
 
         context 'when MAP STS client raises a client error',
                 vcr: { cassette_name: 'map/security_token_service_401_response' } do
-          let(:expected_error_message) { '[MAP][SecurityToken][Service] token failed, client error, status: 401, application: chatbot, icn: 42, context: {:error=>"invalid_client"}'}
+          let(:expected_error_message) do
+            '[MAP][SecurityToken][Service] token failed, client error, status: 401, ' \
+              "application: #{application}, icn: 42, context: {:error=>\"invalid_client\"}"
+          end
+
           it 'responds with error details in response body' do
             call_endpoint
             expect(JSON.parse(response.body)).to eq(
@@ -83,7 +89,6 @@ RSpec.describe V0::MapServicesController, type: :request do
             call_endpoint
             expect(response).to have_http_status(:bad_gateway)
           end
-
 
           it 'logs an error message' do
             expect(Rails.logger).to receive(:error).with(expected_error_message)

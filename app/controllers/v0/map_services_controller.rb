@@ -17,10 +17,10 @@ module V0
       Rails.logger.error(e.message)
       render json: sts_client_error, status: :bad_gateway
     rescue MAP::SecurityToken::Errors::ApplicationMismatchError => e
-      Rails.logger.error(e.message, application: params[:application], icn: icn)
+      Rails.logger.error(e.message, application: params[:application], icn:)
       render json: application_mismatch_error, status: :bad_request
     rescue MAP::SecurityToken::Errors::MissingICNError
-      Rails.logger.error("[MAP][SecurityToken][Service] token failed, ICN not present in service account access token",
+      Rails.logger.error('[MAP][SecurityToken][Service] token failed, ICN not present in service account access token',
                          application: params[:application])
       render json: missing_icn_error, status: :bad_request
     end
