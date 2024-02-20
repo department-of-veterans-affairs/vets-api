@@ -35,7 +35,8 @@ module ClaimsApi
     # @return success or failure
     def upload(claim:, pdf_path:, doc_type: 'L122', file_number: nil)
       unless File.exist? pdf_path
-        ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist", claim_id: claim.id)
+        ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist",
+                                                    claim_id: claim&.id)
         raise Errno::ENOENT, pdf_path
       end
 
@@ -50,7 +51,6 @@ module ClaimsApi
       )
       res
     rescue => e
-      byebug
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/upload failure for claimId #{claim&.id}, #{e.message}")
       raise e
