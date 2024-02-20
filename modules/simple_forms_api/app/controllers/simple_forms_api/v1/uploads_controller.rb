@@ -115,7 +115,7 @@ module SimpleFormsApi
       end
 
       def handle_ivc_uploads(form_id, metadata, pdf_file_path)
-        meta_file_name = "#{form_id}_metadata-tmp.json"
+        meta_file_name = "#{form_id}_metadata.json"
         pdf_file_name = "#{form_id}.pdf"
         meta_file_path = "tmp/#{meta_file_name}"
 
