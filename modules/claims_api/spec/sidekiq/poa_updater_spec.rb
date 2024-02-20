@@ -81,6 +81,25 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     end
   end
 
+  context 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      poa = create_poa
+      error_msg = 'An error occurred in the POA Updater Job'
+      msg = { 'args' => [poa.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: poa.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
+    end
+  end
+
   private
 
   def create_poa
