@@ -2,7 +2,7 @@ ssn
 secret
 password
 security
-'private key'
+private key
 id
 login
 ssn
@@ -13,30 +13,26 @@ Email
 Address
 Social 
 security
-Drivers
-license
+Drivers license
 Passport
-Alien
-registration
-Financial
-information
+Alien registration
+Financial information
 Biometric
 DNA
-Citizenship
-documentation
+Citizenship documentation
 Medical
 Ethnic
 affiliation
 identification
-Sexual
-orientation
+Sexual orientation
 Account
 passwords
-birth
+birthdate
 Criminal
 history
-Mothers
-maiden
-Credit
-card
+Mother's maiden name
+Mother's maiden
+Mother
+father
+Credit card
 icn

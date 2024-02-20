@@ -12,13 +12,20 @@ RSpec.configure do |config|
     `truncate -s 0 log/test.log`
   end
   config.after(:suite) do
-    results = `fgrep -f modules/claims_api/spec/support/pii_key_words.txt log/test.log`
+    results = []
+    File.readlines('log/test.log', chomp: true).each_with_index do |context, index|
+      File.readlines('modules/claims_api/spec/support/pii_key_words.txt', chomp: true).each do |phrase|
+        results << { line: index, phrase:, context: } if context.to_s.downcase.include?(phrase.downcase)
+      end
+    end
+
+    # results = `fgrep -f modules/claims_api/spec/support/pii_key_words.txt log/test.log`
     if results.present?
       puts ''
       puts '======================================='
       puts 'Start check for PII in test log'
       puts '======================================='
-      puts results
+      puts results.uniq!
       puts '======================================='
       puts 'End check for PII in test log'
       puts '======================================='
