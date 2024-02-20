@@ -28,21 +28,15 @@ describe MAP::SecurityToken::Service do
         let(:expected_message) { "#{log_prefix} token failed, client error" }
         let(:expected_error_response) do
           "#{expected_message}, status: #{expected_error_status}, application: #{application}, " \
-          "icn: #{icn}, context: #{context}"
+            "icn: #{icn}, context: #{context}"
         end
         let(:expected_error) { Common::Client::Errors::ClientError }
         let(:expected_log_values) { { status: expected_error_status, application:, icn:, context: } }
 
-        it 'raises a client error with expected message' do
-          VCR.use_cassette('map/security_token_service_401_response') do
-            expect { subject }.to raise_error(expected_error, expected_error_response)
-          end
-        end
-
-        it 'creates an error log with expected log message' do
+        it 'raises a client error with expected message and creates a log' do
           VCR.use_cassette('map/security_token_service_401_response') do
             expect(Rails.logger).to receive(:error).with(expected_message, expected_log_values)
-            expect { subject }.to raise_error
+            expect { subject }.to raise_error(expected_error, expected_error_response)
           end
         end
       end
@@ -52,8 +46,8 @@ describe MAP::SecurityToken::Service do
 
         it 'logs a token success message',
            vcr: { cassette_name: 'map/security_token_service_200_response' } do
-            expect(Rails.logger).to receive(:info).once.and_call_original
-            expect(Rails.logger).to receive(:info).with(expected_log_message)
+          expect(Rails.logger).to receive(:info).once.and_call_original
+          expect(Rails.logger).to receive(:info).with(expected_log_message)
           subject
         end
 
@@ -99,13 +93,9 @@ describe MAP::SecurityToken::Service do
       let(:expected_error_message) { "#{log_prefix} token failed, application mismatch detected" }
       let(:expected_log_values) { { application:, icn: } }
 
-      it 'raises an application mismatch error' do
-        expect { subject }.to raise_exception(expected_error, expected_error_message)
-      end
-
-      it 'creates an error log with expected log message' do
+      it 'raises an application mismatch error and creates a log' do
         expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-        expect { subject }.to raise_exception
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
       end
     end
 
@@ -115,13 +105,9 @@ describe MAP::SecurityToken::Service do
       let(:expected_error_message) { "#{log_prefix} token failed, ICN not present in access token" }
       let(:expected_log_values) { { application: } }
 
-      it 'raises a missing ICN error' do
-        expect { subject }.to raise_exception(expected_error, expected_error_message)
-      end
-
-      it 'creates an error log with expected log message' do
+      it 'raises a missing ICN error and creates a log' do
         expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-        expect { subject }.to raise_exception
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
       end
     end
   end

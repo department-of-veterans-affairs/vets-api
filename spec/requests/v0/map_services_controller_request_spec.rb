@@ -56,7 +56,6 @@ RSpec.describe V0::MapServicesController, type: :request do
 
         context 'when MAP STS client raises a client error',
                 vcr: { cassette_name: 'map/security_token_service_401_response' } do
-
           it 'responds with error details in response body' do
             call_endpoint
             expect(JSON.parse(response.body)).to eq(

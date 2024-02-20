@@ -14,8 +14,9 @@ module MAP
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
+        sts_token = parse_response(response, application, icn)
         Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
-        parse_response(response, application, icn)
+        sts_token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
       rescue Errors::ApplicationMismatchError => e
@@ -68,7 +69,7 @@ module MAP
 
       def token_params(application, icn)
         unless icn
-          raise Errors::MissingICNError, "#{config.logging_prefix} token failed, ICN not present in access token" 
+          raise Errors::MissingICNError, "#{config.logging_prefix} token failed, ICN not present in access token"
         end
 
         client_id = client_id_from_application(application)
