@@ -30,10 +30,12 @@ describe MAP::SecurityToken::Service do
       end
 
       context 'and response is successful' do
+        let(:expected_request_message) { "#{log_prefix} token request, application: #{application}, icn: #{icn}" }
         let(:expected_log_message) { "#{log_prefix} token success, application: #{application}, icn: #{icn}" }
 
         it 'logs a token success message',
            vcr: { cassette_name: 'map/security_token_service_200_response' } do
+          expect(Rails.logger).to receive(:info).ordered.with(expected_request_message)
           expect(Rails.logger).to receive(:info).with(expected_log_message)
           subject
         end

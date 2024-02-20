@@ -8,7 +8,6 @@ module V0
     # POST /v0/map_services/:application/token
     def token
       icn = @service_account_access_token.user_attributes['icn']
-      Rails.logger.info("[MAP][SecurityToken][Service] token request", application: params[:application], icn: icn)
       raise MAP::SecurityToken::Errors::MissingICNError unless icn
 
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)

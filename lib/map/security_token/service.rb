@@ -9,6 +9,7 @@ module MAP
       configuration Configuration
 
       def token(application:, icn:)
+        Rails.logger.info("#{config.logging_prefix} token request, application: #{application}, icn: #{icn}")
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
