@@ -24,7 +24,7 @@ module ClaimsApi
         uploader = claim_object.uploader
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
         file_body = uploader.read
-        ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
+        ClaimsApi::Logger.log('claim_uploader', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd
           bd_upload_body(auto_claim:, file_body:, doc_type:)
         else
