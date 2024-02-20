@@ -12,6 +12,12 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
+    if Rails.env.production?
+      rate_limit name: 'rep_update_rate_limit_production', limit: 60, period: 60
+    else
+      rate_limit name: 'rep_update_rate_limit_default', limit: 30, period: 60
+    end
+
     # Performs the job of parsing JSON data, validating the address, and updating the record.
     # @param json_data [String] JSON string containing address data.
     def perform(json_data)
