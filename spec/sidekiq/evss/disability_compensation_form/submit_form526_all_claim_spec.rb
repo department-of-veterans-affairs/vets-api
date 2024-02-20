@@ -150,20 +150,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
             expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_count', 1)
             expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_age', 365)
-            submission.reload
-            expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
           end
 
           context 'when EP400 merge API call is enabled' do
-            before { Flipper.enable(:disability_526_ep_merge_api) }
-            after { Flipper.disable(:disability_526_ep_merge_api) }
+            before do
+              Flipper.enable(:disability_526_ep_merge_api, user)
+              allow(Flipper).to receive(:enabled?).and_call_original
+            end
 
-            it 'adds the EP400 special issue to the submission' do
+            it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
               subject.perform_async(submission.id)
               VCR.use_cassette('virtual_regional_office/contention_classification') do
                 described_class.drain
               end
-              expect(submission.reload.disabilities.first).to include('specialIssues' => ['EP400 Merge Project'])
+              submission.reload
+              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
+              expect(submission.disabilities.first).to include('specialIssues' => ['EP400 Merge Project'])
+              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, User).once
             end
           end
 
@@ -177,6 +180,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               end
               submission.reload
               expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
+            end
+          end
+
+          context 'when EP400 merge API call is disabled' do
+            before { Flipper.disable(:disability_526_ep_merge_api) }
+
+            it 'does not record any eligible claim ID or add an EP400 special issue to the submission' do
+              subject.perform_async(submission.id)
+              VCR.use_cassette('virtual_regional_office/contention_classification') do
+                described_class.drain
+              end
+              submission.reload
+              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
+              expect(submission.disabilities.first['specialIssues']).to be_nil
             end
           end
         end

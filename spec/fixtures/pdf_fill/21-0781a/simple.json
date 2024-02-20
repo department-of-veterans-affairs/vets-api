@@ -11,5 +11,6 @@
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
-  "otherInformation": ["Lorem ipsum dolor sit amet."]
+  "otherInformation": ["Lorem ipsum dolor sit amet."],
+  "signatureDate": "2016-01-31"
 }

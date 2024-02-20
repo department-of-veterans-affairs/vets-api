@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.4.349/dd681e7d6dea41ad8b80f8d39284ef29%5EPN%5E200VIDM%5EUSDVA
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"healthBenefit"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1211595695", dtSInfo;desc="0"
+      - dtRpid;desc="756953042", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - c319d9c5-42c4-4a41-baf3-574ffc233bc9
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Tue, 06 Feb 2024 21:25:45 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3712'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"profile":{"healthBenefit":{"identity":{"sensitivityInformation":{"sensitivityFlag":false}},"associatedPersons":[{"contactType":"Other
+        emergency contact","givenName":"DEBORAH","familyName":"WILLIAMS","relationship":"UNRELATED
+        FRIEND","addressLine1":"2645 TEST WAY","addressLine2":"UNIT 192","city":"CLEARWATER","state":"FL","county":"PINELLAS","zipCode":"33760","country":"USA","primaryPhone":"(927)737-7486"},{"contactType":"Other
+        Next of Kin","givenName":"MARY","middleName":"JESSICA","familyName":"BISHOP","relationship":"DAUGHTER","addressLine1":"748
+        TEST ST","addressLine2":"APT 394","addressLine3":"UNIT 2","city":"ALBUQUERQUE","state":"NM","county":"BERNALILLO","zipCode":"87109","country":"USA","primaryPhone":"(274)294-3384"},{"contactType":"Emergency
+        Contact","givenName":"ETHAN","middleName":"JEREMY","familyName":"BISHOP","relationship":"BROTHER","addressLine1":"9758
+        TEST AVE","city":"ALBUQUERQUE","state":"NM","county":"BERNALILLO","zipCode":"87109","country":"USA","primaryPhone":"(439)573-8274"},{"contactType":"Primary
+        Next of Kin","givenName":"JAMES","middleName":"DANIEL","familyName":"BISHOP","relationship":"SON","addressLine1":"823
+        SE 2ND ST","addressLine2":"BLDG 2","addressLine3":"UNIT 163","city":"GUADALAJARA","state":"JAL.","postalCode":"44100","country":"MEX","primaryPhone":"(254)394-1938"}],"healthCareEligibilityFactors":{"eligibilityStatus":"VERIFIED","veteran":true,"enrollmentDate":"2023-11-21T19:24:21Z","enrollmentPriorityGroup":"Group
+        2","enrollmentEffectiveDate":"2023-12-08T17:06:35Z","incomeYear":2022,"eligibleForMedicaid":{"eligibleForMedicaid":false,"medicaidLastModifiedDate":"2023-12-29T20:36:09Z"},"clinicalDecisions":{"militarySexualTrauma":{"militarySexualTraumaStatus":"Unknown,
+        Not Screened"},"spinalCordInjury":{"spinalCordInjuryType":"NOT APPLICABLE"}}},"healthCareCoverages":[{"insuredRelationship":"Veteran","companyName":"Blue
+        Cross Blue Shield","groupNumber":"GRP1234","policyHolderName":"Fred Payne","lastEditedDate":"2023-12-29T20:36:09Z"},{"insuredRelationship":"Veteran","companyName":"Aetna","policyHolderName":"Fred
+        Payne","policyNumber":"2842124t9sTd","lastEditedDate":"2023-12-29T20:36:09Z"},{"insuredRelationship":"Veteran","companyName":"Medicare","groupName":"Part
+        A","groupNumber":"Part A","enrolledInPartA":true,"partAEffectiveDate":"20200910","policyHolderName":"BISHOP,
+        ERIC","policyNumber":"Z2F4C6E8E12","lastEditedDate":"2023-11-21T19:37:55Z"}],"veteranMedicalBenefitPlans":[{"veteranMedicalBenefitPlanName":"Veteran
+        Plan CCP Basic","veteranMedicalBenefitPlanEffectiveDate":"2023-11-21T19:24:21Z","veteranMedicalBenefitPlanCopayEffectiveDate":"2023-11-21T19:24:21Z"},{"veteranMedicalBenefitPlanName":"Clinical
+        Evaluation","veteranMedicalBenefitPlanEffectiveDate":"2023-11-21T19:24:21Z","veteranMedicalBenefitPlanCopayEffectiveDate":"2023-11-21T19:24:21Z"},{"veteranMedicalBenefitPlanName":"Veteran
+        Full Med Benefits Tx Copay Exmt and Rx Copay Req","veteranMedicalBenefitPlanEffectiveDate":"2023-11-21T19:38:03Z","veteranMedicalBenefitPlanCopayEffectiveDate":"2023-11-21T19:38:03Z"}],"healthCare":{"appointmentRequestResponse":false,"appointmentRequestChangeDate":"2023-10-30T21:11:13Z","originalAppointmentRequestChangeDate":"2023-10-30T21:11:13Z","originalAppointmentRequestResponse":false,"visitSummaries":[{"incomeYear":2022,"visitSummaries":[{"hospitalInpatientDays":0,"hospitalOutpatientDays":0,"facilityVisited":"668
+        - MANN-GRANDSTAFF VAMC"},{"hospitalInpatientDays":0,"hospitalOutpatientDays":0,"facilityVisited":"583
+        - RICHARD L. ROUDEBUSH VAMC"},{"hospitalInpatientDays":0,"hospitalOutpatientDays":0,"facilityVisited":"570
+        - FRESNO VA MEDICAL CENTER"}]}],"preferredFacilities":[{"preferredFacility":"589
+        - KANSAS CITY VAMC"}]}}}}'
+  recorded_at: Tue, 06 Feb 2024 21:25:45 GMT
+recorded_with: VCR 6.2.0

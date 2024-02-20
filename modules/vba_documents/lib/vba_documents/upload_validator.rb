@@ -31,7 +31,7 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'Incorrect content-type for document part')
       end
-      regex = /^#{META_PART_NAME}|#{DOC_PART_NAME}|attachment\d+$/
+      regex = /\A#{META_PART_NAME}|#{DOC_PART_NAME}|attachment\d+\z/
       invalid_parts = parts.keys.reject { |key| regex.match?(key) }
       log_invalid_parts(model, invalid_parts) if invalid_parts.any?
     end

@@ -25,42 +25,46 @@ module ClaimsApi
         end
 
         def submit2122
-          poa_code = parse_and_validate_poa_code('2122')
-          unless poa_code_in_organization?(poa_code)
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-              detail: 'POA Code must belong to an organization.'
-            )
-          end
+          shared_form_validation('2122')
+          poa_code = get_poa_code('2122')
+          validate_org_poa_code!(poa_code)
 
           submit_power_of_attorney(poa_code, '2122')
         end
 
-        def validate2122
-          target_veteran
-          validate_json_schema
+        def submit2122a
+          shared_form_validation('2122A')
+          poa_code = get_poa_code('2122A')
+          validate_individual_poa_code!(poa_code)
 
-          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          submit_power_of_attorney(poa_code, '2122A')
+        end
+
+        def validate2122
+          shared_form_validation('2122')
+          poa_code = get_poa_code('2122')
           validate_org_poa_code!(poa_code)
 
           render json: validation_success('21-22')
         end
 
         def validate2122a
-          target_veteran
-          validate_json_schema('2122a'.upcase)
-
-          poa_code = form_attributes.dig('representative', 'poaCode')
+          shared_form_validation('2122A')
+          poa_code = get_poa_code('2122A')
           validate_individual_poa_code!(poa_code)
 
           render json: validation_success('21-22a')
         end
 
-        def submit2122a
-          poa_code = get_poa_code('2122a')
-          shared_form_validation('2122a')
-          validate_individual_poa_code!(poa_code)
+        def status
+          poa = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          unless poa
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney with id: #{params[:id]}"
+            )
+          end
 
-          submit_power_of_attorney(poa_code, '2122A')
+          render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer, key_transform: :camel_lower
         end
 
         private
@@ -82,7 +86,7 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+          ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
@@ -178,6 +182,7 @@ module ClaimsApi
 
         def parse_and_validate_poa_code(form_number)
           poa_code = get_poa_code(form_number)
+          validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if user_is_representative?
 
           poa_code

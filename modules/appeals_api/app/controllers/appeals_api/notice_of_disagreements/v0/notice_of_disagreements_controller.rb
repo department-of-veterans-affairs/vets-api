@@ -15,7 +15,7 @@ module AppealsApi::NoticeOfDisagreements::V0
     skip_before_action :authenticate
     before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_json_schema, only: %i[create validate]
-    before_action :validate_icn_parameter, only: %i[download]
+    before_action :validate_icn_parameter!, only: %i[download]
 
     API_VERSION = 'V0'
     FORM_NUMBER = '10182'
@@ -42,6 +42,8 @@ module AppealsApi::NoticeOfDisagreements::V0
 
     def show
       nod = AppealsApi::NoticeOfDisagreement.find(params[:id])
+      validate_token_icn_access!(nod.veteran_icn)
+
       nod = with_status_simulation(nod) if status_requested_and_allowed?
 
       render_notice_of_disagreement(nod)
@@ -50,13 +52,16 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     def create
+      submitted_icn = @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      validate_token_icn_access!(submitted_icn)
+
       nod = AppealsApi::NoticeOfDisagreement.new(
         auth_headers: request_headers,
         form_data: @json_body,
         source: request_headers['X-Consumer-Username'].presence&.strip,
         board_review_option: @json_body.dig('data', 'attributes', 'boardReviewOption'),
         api_version: self.class::API_VERSION,
-        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+        veteran_icn: submitted_icn
       )
 
       return render_model_errors(nod) unless nod.validate
@@ -68,13 +73,10 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     def download
-      id = params[:id]
-      notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(id)
-
       render_appeal_pdf_download(
-        notice_of_disagreement,
-        "#{FORM_NUMBER}-notice-of-disagreement-#{id}.pdf",
-        params[:icn]
+        AppealsApi::NoticeOfDisagreement.find(params[:id]),
+        "#{FORM_NUMBER}-notice-of-disagreement-#{params[:id]}.pdf",
+        veteran_icn
       )
     rescue ActiveRecord::RecordNotFound
       render_notice_of_disagreement_not_found(params[:id])
@@ -96,18 +98,6 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     private
-
-    def validate_icn_parameter
-      detail = nil
-
-      if params[:icn].blank?
-        detail = "'icn' parameter is required"
-      elsif !ICN_REGEX.match?(params[:icn])
-        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
-      end
-
-      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
-    end
 
     def validate_json_schema
       validate_headers(request_headers)

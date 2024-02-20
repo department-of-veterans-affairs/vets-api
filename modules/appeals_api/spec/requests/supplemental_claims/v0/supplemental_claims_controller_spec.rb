@@ -6,6 +6,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type: :request do
   let(:parsed_response) { JSON.parse(response.body) }
   let(:default_data) { fixture_as_json 'supplemental_claims/v0/valid_200995_extra.json' }
+  let(:other_icn) { '1234567890V987654' }
 
   def base_path(path)
     "/services/appeals/supplemental-claims/v0/#{path}"
@@ -33,8 +34,8 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
   end
 
   describe '#show' do
-    let(:uuid) { create(:supplemental_claim_v0).id }
-    let(:path) { base_path "forms/200995/#{uuid}" }
+    let(:id) { create(:supplemental_claim_v0).id }
+    let(:path) { base_path "forms/200995/#{id}" }
 
     describe 'auth behavior' do
       it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
@@ -46,15 +47,24 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
 
     describe 'responses' do
       let(:body) { JSON.parse(response.body) }
+      let(:scopes) { %w[veteran/SupplementalClaims.read] }
 
       before do
-        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
+        with_openid_auth(scopes) do |auth_header|
           get(path, headers: auth_header)
         end
       end
 
       it 'returns only minimal data with no PII' do
         expect(body.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
+      end
+
+      context "with a veteran token where the token's ICN doesn't match the appeal's recorded ICN" do
+        let(:id) { create(:supplemental_claim_v0, veteran_icn: other_icn).id }
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end
@@ -77,10 +87,11 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
 
     describe 'responses' do
       let(:created_supplemental_claim) { AppealsApi::SupplementalClaim.find(json_body.dig('data', 'id')) }
+      let(:scopes) { %w[system/SupplementalClaims.write] }
       let(:json_body) { JSON.parse(response.body) }
 
       before do
-        with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+        with_openid_auth(scopes) do |auth_header|
           post(path, params:, headers: headers.merge(auth_header))
         end
       end
@@ -144,6 +155,18 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
           expect(response).to have_http_status(:bad_request)
         end
       end
+
+      context "with a veteran token where the token's ICN doesn't match the submitted ICN" do
+        let(:scopes) { %w[veteran/SupplementalClaims.write] }
+        let(:data) do
+          default_data['data']['attributes']['veteran']['icn'] = other_icn
+          default_data
+        end
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
     end
   end
 
@@ -176,6 +199,24 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
   end
 
   describe '#download' do
+    let(:sc) { create(:supplemental_claim_v0, status: 'submitted', api_version: 'V0', pdf_version: 'v3') }
+    let(:generated_path) { base_path "/forms/200995/#{sc.id}/download" }
+
     it_behaves_like 'watermarked pdf download endpoint', { factory: :supplemental_claim_v0 }
+
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: %w[veteran/SupplementalClaims.read]) do
+        def make_request(auth_header)
+          get(generated_path, headers: auth_header)
+        end
+      end
+    end
+
+    describe 'icn parameter' do
+      it_behaves_like 'GET endpoint with optional Veteran ICN parameter', {
+        scope_base: 'SupplementalClaims',
+        skip_ssn_lookup_tests: true
+      }
+    end
   end
 end

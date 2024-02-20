@@ -4,30 +4,25 @@ module Vye
   module Vye::V1
     class Vye::V1::VerificationsController < Vye::V1::ApplicationController
       include Pundit::Authorization
+
       service_tag 'vye'
 
       skip_before_action :authenticate, if: -> { ivr_key? }
 
       def create
-        authorize user_info, policy_class: Vye::UserInfoPolicy
+        authorize user_info, policy_class: UserInfoPolicy
 
-        user_info.awards.each do |award|
-          user_info.verifications.create!(create_params.merge(award:))
-        end
+        user_info.verifications.create!(source_ind:)
       end
 
       private
 
-      def create_params
-        params.permit(%i[
-                        change_flag rpo_code rpo_flag act_begin act_end source_ind
-                      ])
+      def source_ind
+        ivr_key? ? :phone : :web
       end
 
       def ivr_params
-        params.permit(%i[
-                        ivr_key ssn
-                      ])
+        params.permit(%i[ivr_key ssn])
       end
 
       def ivr_key?
@@ -37,7 +32,7 @@ module Vye
       def load_user_info
         case ivr_key?
         when true
-          @user_info = Vye::UserInfo.find_from_digested_ssn(ivr_params[:ssn])
+          @user_info = UserInfo.find_from_digested_ssn(ivr_params[:ssn])
         else
           super
         end

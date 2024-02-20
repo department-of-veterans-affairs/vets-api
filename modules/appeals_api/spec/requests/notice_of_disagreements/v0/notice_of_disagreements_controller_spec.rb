@@ -13,6 +13,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   let(:min_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_minimum.json' }
   let(:max_data) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_extra.json' }
   let(:parsed_response) { JSON.parse(response.body) }
+  let(:other_icn) { '1111111111V111111' }
 
   describe '#schema' do
     let(:path) { base_path 'schemas/10182' }
@@ -53,9 +54,10 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
 
     describe 'responses' do
       let(:created_notice_of_disagreement) { AppealsApi::NoticeOfDisagreement.find(parsed_response.dig('data', 'id')) }
+      let(:scopes) { %w[system/NoticeOfDisagreements.write] }
 
       before do
-        with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+        with_openid_auth(scopes) do |auth_header|
           post(path, params:, headers: headers.merge(auth_header))
         end
       end
@@ -154,12 +156,24 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
           end
         end
       end
+
+      context "with a veteran token where the token's ICN doesn't match the submitted ICN" do
+        let(:scopes) { %w[veteran/NoticeOfDisagreements.write] }
+        let(:data) do
+          default_data['data']['attributes']['veteran']['icn'] = other_icn
+          default_data
+        end
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
     end
   end
 
   describe '#show' do
-    let(:uuid) { create(:notice_of_disagreement_v0).id }
-    let(:path) { base_path "forms/10182/#{uuid}" }
+    let(:id) { create(:notice_of_disagreement_v0).id }
+    let(:path) { base_path "forms/10182/#{id}" }
 
     describe 'auth behavior' do
       it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
@@ -168,12 +182,22 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     end
 
     describe 'responses' do
+      let(:scopes) { %w[veteran/NoticeOfDisagreements.read] }
+
       before do
-        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) { |auth_header| get(path, headers: auth_header) }
+        with_openid_auth(scopes) { |auth_header| get(path, headers: auth_header) }
       end
 
       it 'returns only minimal data with no PII' do
         expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
+      end
+
+      context "with a veteran token where the token's ICN doesn't match the appeal's recorded ICN" do
+        let(:id) { create(:notice_of_disagreement_v0, veteran_icn: other_icn).id }
+
+        it 'returns a 403 Forbidden error' do
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end
@@ -219,9 +243,27 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   end
 
   describe '#download' do
+    let(:nod) { create(:notice_of_disagreement_v0, status: 'submitted', api_version: 'V0', pdf_version: 'v3') }
+    let(:generated_path) { base_path "forms/10182/#{nod.id}/download" }
+
     it_behaves_like 'watermarked pdf download endpoint', {
       expunged_attrs: { board_review_option: 'hearing' },
       factory: :notice_of_disagreement_v0
     }
+
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: %w[veteran/NoticeOfDisagreements.read]) do
+        def make_request(auth_header)
+          get(generated_path, headers: auth_header)
+        end
+      end
+    end
+
+    describe 'icn parameter' do
+      it_behaves_like 'GET endpoint with optional Veteran ICN parameter', {
+        scope_base: 'NoticeOfDisagreements',
+        skip_ssn_lookup_tests: true
+      }
+    end
   end
 end

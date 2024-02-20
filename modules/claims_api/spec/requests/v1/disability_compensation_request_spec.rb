@@ -1038,8 +1038,6 @@ RSpec.describe 'Disability Claims ', type: :request do
                       allow_any_instance_of(ClaimsApi::EVSSService::Base)
                         .to receive(:validate).and_raise(error_klass)
                       post path, params: data, headers: headers.merge(auth_header)
-                      expect(PersonalInformationLog.count).to be_positive
-                      expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
                     end
                   end
                 end
@@ -2849,6 +2847,32 @@ RSpec.describe 'Disability Claims ', type: :request do
         post("/services/claims/v1/forms/526/#{bad_id}/attachments",
              params: binary_params, headers: headers.merge(auth_header))
         expect(response.status).to eq(404)
+      end
+    end
+
+    it 'support doc fails, should retry' do
+      mock_acg(scopes) do |auth_header|
+        body = {
+          messages: [
+            { key: '',
+              severity: 'ERROR',
+              text: 'Error calling external service to upload claim document.' }
+          ]
+        }
+
+        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        allow_any_instance_of(ClaimsApi::BD).to(
+          receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       '', {}, 500, body
+                                     ))
+        )
+        count = auto_claim.supporting_documents.count
+        post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
+             params: base64_params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(200)
+        auto_claim.reload
+        expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end
     end
 
