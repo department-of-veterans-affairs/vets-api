@@ -9,6 +9,7 @@ module Representatives
   # A Sidekiq job class for updating address records. It processes JSON data for address updates,
   # validates the address, and then updates the address record if valid.
   class Update
+    include Sidekiq::Worker
     include Sidekiq::Job
     include SentryLogging
 
