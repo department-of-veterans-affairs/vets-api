@@ -1,21 +1,4 @@
 GIT
-  remote: https://github.com/adhocteam/fhir_client.git
-  revision: a9de7e0e5b532c069dddacd2c4756046f95812fc
-  tag: v6.0.1
-  specs:
-    fhir_client (6.0.0)
-      activesupport (>= 3)
-      addressable (>= 2.3)
-      fhir_dstu2_models (>= 1.1.1)
-      fhir_models (>= 4.2.1)
-      fhir_stu3_models (>= 3.1.1)
-      http (~> 5.1)
-      nokogiri (>= 1.10.4)
-      oauth2 (>= 1.1)
-      rack (>= 1.5)
-      tilt (>= 1.1)
-
-GIT
   remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
   revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
   tag: v4.0.0
@@ -70,6 +53,23 @@ GIT
       nori
       xmldsig (~> 0.3.1)
       xmlenc
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/fhir_client.git
+  revision: bf959bf2e67df5f146db64ffe1f6dc622145b50a
+  branch: rm-fix-security-issues
+  specs:
+    fhir_client (6.0.1)
+      activesupport (>= 3)
+      addressable (>= 2.3)
+      fhir_dstu2_models (>= 1.1.1)
+      fhir_models (>= 4.2.1)
+      fhir_stu3_models (>= 3.1.1)
+      http (~> 5.1)
+      nokogiri (>= 1.10.4)
+      oauth2 (>= 1.1)
+      rack (>= 1.5)
+      tilt (>= 1.1)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
