@@ -6,7 +6,7 @@ module BB
       ##
       # Middleware class responsible for customizing MHV BB response parsing
       #
-      class BBParser < Faraday::Response::Middleware
+      class BBParser < Faraday::Middleware
         ##
         # Override the Faraday #on_complete method to filter body through custom #parse
         # @param env [Faraday::Env] the request environment

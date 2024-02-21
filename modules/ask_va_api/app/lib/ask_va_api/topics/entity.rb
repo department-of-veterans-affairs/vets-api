@@ -13,14 +13,14 @@ module AskVAApi
                   :display_name
 
       def initialize(info)
-        @id = info[:id]
-        @name = info[:name]
-        @parent_id = info[:parentId]
-        @description = info[:description]
-        @requires_authentication = info[:requiresAuthentication]
-        @allow_attachments = info[:allowAttachments]
-        @rank_order = info[:rankOrder]
-        @display_name = info[:displayName]
+        @id = info[:Id]
+        @name = info[:Name]
+        @parent_id = info[:ParentId]
+        @description = info[:Description]
+        @requires_authentication = info[:RequiresAuthentication]
+        @allow_attachments = info[:AllowAttachments]
+        @rank_order = info[:RankOrder]
+        @display_name = info[:DisplayName]
       end
     end
   end

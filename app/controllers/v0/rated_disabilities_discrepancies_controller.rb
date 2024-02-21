@@ -9,6 +9,8 @@ module V0
     before_action { authorize :evss, :access? }
     before_action { authorize :lighthouse, :access? }
 
+    DECISION_ALLOWLIST = ['1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
+
     def show
       lh_response = get_lh_rated_disabilities
       evss_response = get_evss_rated_disabilities
@@ -29,7 +31,10 @@ module V0
     def log_length_discrepancy(difference)
       message = "Discrepancy of #{difference} disability ratings"
 
-      ::Rails.logger.info(message, { message_type: 'lh.rated_disabilities.length_discrepancy' })
+      ::Rails.logger.info(message, {
+                            message_type: 'lh.rated_disabilities.length_discrepancy',
+                            revision: 3
+                          })
     end
 
     # EVSS
@@ -52,13 +57,18 @@ module V0
 
       # We only want active ratings
       if response.dig('data', 'attributes', 'individual_ratings')
-        remove_inactive_ratings!(response['data']['attributes']['individual_ratings'])
+        filter_ratings_by_decision!(response['data']['attributes']['individual_ratings'])
+        reject_inactive_ratings!(response['data']['attributes']['individual_ratings'])
       end
 
       response
     end
 
-    def remove_inactive_ratings!(ratings)
+    def filter_ratings_by_decision!(ratings)
+      ratings.select! { |rating| DECISION_ALLOWLIST.include?(rating['decision']) }
+    end
+
+    def reject_inactive_ratings!(ratings)
       ratings.select! { |rating| active?(rating) }
     end
 

@@ -798,6 +798,7 @@ describe 'PowerOfAttorney',
 
   path '/veterans/{veteranId}/power-of-attorney/{id}', production: false do
     get 'Checks status of Power of Attorney appointment form submission' do
+      description 'Gets the Power of Attorney appointment request status (21-22/21-22a)'
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyStatus'
       security [
@@ -806,7 +807,6 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
@@ -818,31 +818,87 @@ describe 'PowerOfAttorney',
                 required: true,
                 type: :string,
                 example: '12e13134-7229-4e44-90ae-bcea2a4525fa',
-                description: 'Power of Attorney appointment request id'
+                description: 'The ID of the 21-22 submission'
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:id) { '17125d28-dcb4-4466-9927-cd163361b30b' }
       let(:Authorization) { 'Bearer token' }
-      pdf_description = <<~VERBIAGE
-        Gets the Power of Attorney appointment request status (21-22/21-22a)
-      VERBIAGE
-
-      description pdf_description
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
+      let(:poa) { create(:power_of_attorney) }
+      let(:id) { poa.id }
 
       describe 'Getting a successful response' do
-        response '200', 'Successful response' do
-          it 'returns a valid 200 response' do
-            one = 1
-            expect(one).to eq(1)
+        response '200', 'Valid request response' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
+                                                      'veterans', 'power_of_attorney', 'status.json')))
+
+          before do |example|
+            mock_ccg(scopes) do |auth_header|
+              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a valid 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          it 'returns a 401 response' do
-            one = 1
-            expect(one).to eq(1)
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
+
+          let(:Authorization) { nil }
+
+          before do |example|
+            submit_request(example.metadata)
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
+
+          let(:id) { -1 }
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end

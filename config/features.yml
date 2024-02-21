@@ -33,6 +33,9 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
+  caregiver_browser_monitoring_enabled:
+    actor_type: user
+    description: Enables Datadog Real Time User Monitoring
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -45,6 +48,9 @@ features:
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
+  hca_tera_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure questions for health care applicants.
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -52,30 +58,15 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  cerner_allow_partial_facilities:
-    actor_type: user
-    description: This will allow cerner facilities to be set to partially cerner or all cerner.
   cerner_transition_556_t30:
     actor_type: user
     description: This will control the content that will be in effect 30 days prior to transition.
   cerner_transition_556_t5:
     actor_type: user
     description: This will control the content that will be in effect 5 days prior to transition.
-  cerner_override_463:
-    actor_type: user
-    description: This will show the Cerner facility 463 as `isCerner`.
-  cerner_override_531:
-    actor_type: user
-    description: This will show the Cerner facility 531 as `isCerner`.
-  cerner_override_648:
-    actor_type: user
-    description: This will show the Cerner facility 648 as `isCerner`.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
-  cerner_override_663:
-    actor_type: user
-    description: This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: This will show the Cerner facility 668 as `isCerner`.
@@ -131,6 +122,10 @@ features:
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
+    enable_in_development: true
+  check_in_experience_cerner_travel_claims_enabled:
+    actor_type: user
+    description: Enables travel claims filing for Oracle Health (Cerner) sites
     enable_in_development: true
   check_in_experience_travel_logic:
     actor_type: user
@@ -449,19 +444,15 @@ features:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
-  find_a_representative:
+  find_a_representative_enabled:
     actor_type: user
-    description: Enables frontend of Find a Representative
-    enable_in_development: true
-  find_a_representative_enable_api:
-    actor_type: user
-    description: Enables the Find a Rep search endpoint
+    description: Enables Find a Representative tool
     enable_in_development: true
   find_a_representative_enable_frontend:
     actor_type: user
-    description: Enables frontend of Find a Representative
+    description: Enables Find a Representative frontend
     enable_in_development: true
-  flag_a_representative:
+  find_a_representative_flag_results_enabled:
     actor_type: user
     description: Enables flag a rep for Find a Rep
     enable_in_development: true
@@ -664,9 +655,17 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_display_conditions:
+    actor_type: user
+    description: Show/hide content related to Health Conditions in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_domains:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_labs_and_tests:
+    actor_type: user
+    description: Show/hide content related to Labs & Tests in Medical Records
     enable_in_development: true
   mhv_medical_records_display_notes:
     actor_type: user
@@ -679,6 +678,10 @@ features:
   mhv_medical_records_display_vaccines:
     actor_type: user
     description: Show/hide content related to Vaccines in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_vitals:
+    actor_type: user
+    description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
@@ -792,10 +795,6 @@ features:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
     actor_type: user
-  profile_use_field_editing_page:
-    description: Use a single page route in Profile for editing or adding a field value
-    enable_in_development: true
-    actor_type: user
   profile_use_hub_page:
     description: Use a hub style page as the root page for the profile application
     enable_in_development: true
@@ -871,10 +870,6 @@ features:
     actor_type: user
     description: Enables typeahead 2.0 functionality
     enable_in_development: true
-  sharable_link:
-    actor_type: user
-    description: Toggles the availability of sharable links to deep link to content
-    enable_in_development: true
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
@@ -914,10 +909,6 @@ features:
   show_form_i18n:
     actor_type: user
     description: Enables the internationalization features for forms
-    enable_in_development: true
-  show_header_v2:
-    action_type: user
-    description: Enables the new header
     enable_in_development: true
   show_dgi_direct_deposit_1990EZ:
     actor_type: user
@@ -970,21 +961,12 @@ features:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
     enable_in_development: true
-  show_new_get_medical_records_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
   show_new_refill_track_prescriptions_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
   show_new_schedule_view_appointments_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
-  show_new_secure_messaging_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
-  show_new_view_test_lab_results_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
@@ -1013,6 +995,10 @@ features:
   va_online_scheduling_booking_exclusion:
     actor_type: user
     description: Permits the exclusion of Lovell sites from being scheduled prior to Oracle Health cutover
+    enable_in_development: true
+  va_online_scheduling_cancellation_exclusion:
+    actor_type: user
+    description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
     enable_in_development: true
   va_online_scheduling_cancel:
     actor_type: user
@@ -1256,6 +1242,10 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  nod_callbacks_endpoint:
+    actor_type: user
+    description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
@@ -1275,6 +1265,10 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_form_v2:
+    actor_type: user
+    description: Enable Burial form v2 re-design
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
