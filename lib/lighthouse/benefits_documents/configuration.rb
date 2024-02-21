@@ -16,6 +16,7 @@ module BenefitsDocuments
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
     DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
+    DOCUMENTS_STATUS_PATH = 'services/benefits-documents/uploads/status'
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
 
     ##
@@ -92,6 +93,26 @@ module BenefitsDocuments
       file_mime_type = MimeMagic.by_path(document_data[:file_name]).type
       payload[:file] = Faraday::UploadIO.new(file, file_mime_type)
       payload
+    end
+
+    def get_documents_status(lighthouse_document_request_ids)
+      headers = { 'Authorization' => "Bearer #{
+        access_token(
+          lighthouse_client_id,
+          lighthouse_rsa_key_path,
+          options
+        )
+      }",
+      'Content-Type' => 'Content-Type: application/json' }
+
+
+      body = {
+        data: {
+          requestIds: lighthouse_document_request_ids
+        }
+      }
+
+      connection.post(DOCUMENTS_STATUS_PATH, body, headers)
     end
 
     ##
