@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../lib/schema_contract/validator'
+require_relative Rails.root.join('app/models/schema_contract/validator')
 
 describe SchemaContract::Validator do
   describe '#validate' do
@@ -10,7 +10,7 @@ describe SchemaContract::Validator do
 
     # make a factory
     let(:contract_record) do
-      SchemaContractTest.create(name: 'test_index', user_uuid: '1234', response:, status: 'initiated')
+      SchemaContract::SchemaContractTest.create(name: 'test_index', user_uuid: '1234', response:, status: 'initiated')
     end
     let(:matching_response) do
       {
@@ -145,13 +145,13 @@ when none are allowed in schema #{uuid_regex}"\]$})
       it 'raises not found' do
         expect do
           SchemaContract::Validator.new('1').validate
-        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContractTest with 'id'=1")
+        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContract::SchemaContractTest with 'id'=1")
       end
     end
 
     context 'when schema file does not exist' do
       let(:contract_record) do
-        SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response, status: 'initiated')
+        SchemaContract::SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response, status: 'initiated')
       end
 
       it 'raises error' do
