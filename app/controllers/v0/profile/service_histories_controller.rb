@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'emis/service'
 require 'va_profile/military_personnel/service'
 
 module V0

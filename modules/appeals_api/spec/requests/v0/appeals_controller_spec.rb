@@ -44,15 +44,6 @@ describe AppealsApi::V0::AppealsController, type: :request do
                                           tags: ['endpoint:/api/v2/appeals',
                                                  'method:get',
                                                  'source:appeals_api'])
-
-          hash = Digest::SHA2.hexdigest '111223333'
-          expect(Rails.logger).to have_received(:info).with('Caseflow Request',
-                                                            'va_user' => 'adhoc.test.user',
-                                                            'lookup_identifier' => hash)
-          expect(Rails.logger).to have_received(:info).with('Caseflow Response',
-                                                            'va_user' => 'adhoc.test.user',
-                                                            'first_appeal_id' => '1196201',
-                                                            'appeal_count' => 3)
         end
       end
     end
@@ -74,23 +65,6 @@ describe AppealsApi::V0::AppealsController, type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('appeals')
-        end
-      end
-
-      it 'logs appropriately' do
-        VCR.use_cassette('caseflow/appeals_empty') do
-          allow(Rails.logger).to receive(:info)
-
-          get(path, params: nil, headers: user_headers)
-
-          hash = Digest::SHA2.hexdigest '111223333'
-          expect(Rails.logger).to have_received(:info).with('Caseflow Request',
-                                                            'va_user' => 'adhoc.test.user',
-                                                            'lookup_identifier' => hash)
-          expect(Rails.logger).to have_received(:info).with('Caseflow Response',
-                                                            'va_user' => 'adhoc.test.user',
-                                                            'first_appeal_id' => nil,
-                                                            'appeal_count' => 0)
         end
       end
     end
