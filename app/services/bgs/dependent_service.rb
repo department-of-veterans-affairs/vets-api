@@ -112,8 +112,10 @@ module BGS
     end
 
     def external_key
-      @external_key ||= key = common_name.presence || email
-      key.first(Constants::EXTERNAL_KEY_MAX_LENGTH)
+      @external_key ||= begin
+        key = common_name.presence || email
+        key.first(Constants::EXTERNAL_KEY_MAX_LENGTH)
+      end
     end
 
     def get_form_hash_686c
