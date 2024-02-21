@@ -15,7 +15,8 @@ module ClaimsApi
       doc_type = claim_object.is_a?(ClaimsApi::SupportingDocument) ? 'L023' : 'L122'
 
       if auto_claim.evss_id.nil?
-        ClaimsApi::Logger.log('lighthouse_claim_uploader', detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
+        ClaimsApi::Logger.log('lighthouse_claim_uploader',
+                              detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
         self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers
