@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'evss/documents_service'
-require 'claims_api/claim_logger'
 require 'bd/bd'
 
 module ClaimsApi
