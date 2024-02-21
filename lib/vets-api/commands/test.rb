@@ -13,14 +13,15 @@ module VetsApi
           input_values = args.reject { |a| a.start_with?('--', '-') }
           @inputs =  input_values.empty? ? 'spec modules' : input_values.join(' ')
 
-          case File.read('.developer-environment')
+          case File.read('.developer-setup')
           when 'native', 'hybrid'
             test_native
           when 'docker'
             test_docker
           else
-            puts "Invalid option for .developer-environment"
+            puts "Invalid option for .developer-setup"
           end
+          puts "Results can be found at log/rspec.log" if @options.include?('--log')
         end
 
         private
@@ -31,16 +32,34 @@ module VetsApi
         end
 
         def test_docker
-         system("docker-compose run --rm --service-ports web bash -c \"#{rspec_command_builer}\"")
+          docker_rspec_command = "docker-compose run --rm --service-ports web bash -c \"#{rspec_command_builer}\""
+          puts "running: #{docker_rspec_command}"
+          system(docker_rspec_command)
         end
 
-        # Verbose rspec output is also uses
-        # RSPEC_VERBOSE_OUTPUT is used in spec/rails_helper.rb:194
         def rspec_command_builer
-          no_coverage = !@options.include?('--coverage')
-          verbose = @options.include?('--verbose')
-          verbose_out = verbose ? '' : '2> /dev/null'
-          "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=#{no_coverage} RSPEC_VERBOSE_OUTPUT=#{verbose} bundle exec parallel_rspec #{@inputs} #{verbose_out}".rstrip
+          "RAILS_ENV=test DISABLE_BOOTSNAP=true #{coverage} bundle exec #{test_command} #{@inputs} #{test_options}".strip.gsub(/\s+/, " ")
+        end
+
+        def coverage
+          !@options.include?('--coverage') ? " NOCOVERAGE=true" : ''
+        end
+
+        def parallel?
+          !@options.include?('--no-parallel')
+        end
+
+        def test_command
+          parallel? ? 'parallel_rspec' : 'rspec'
+        end
+
+        def test_options
+          return '' if log.empty?
+          parallel? ? "-o \"#{log}\"" : log
+        end
+
+        def log
+          @options.include?('--log') ? '--out log/rspec.log' : ''
         end
 
       end

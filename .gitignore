@@ -103,4 +103,4 @@ node_modules
 public
 
 # Ignore development setup (native, docker, hybrid)
-.developer-environment
+.developer-setup

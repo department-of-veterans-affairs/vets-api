@@ -4,7 +4,7 @@
 require_relative '../lib/vets-api/commands/test'
 require 'rake'
 
-VALID_OPTIONS = ['--no-parallel', '--coverage', '--verbose']
+VALID_OPTIONS = ['--no-parallel', '--coverage', '--log']
 
 invalid_options = ARGV.select { |o| o.start_with?('--', '-') && !VALID_OPTIONS.include?(o) }
 
@@ -18,24 +18,30 @@ if ARGV.include?('--help') || ARGV.include?('-h')
       --ci                  Run the tests exactly like the CI (requires docker)
       --no-parallel         Run the tests in parallel
       --coverage            Include test coverage report
-      --verbose             Output all logs including info and warning
+      --log                 Output pending/failures to log/rspec.log instead of STDOUT
 
     Examples:
       bin/test spec modules
       bin/test --no-parallel spec/models/account_spec.rb
       bin/test spec/models/account_spec.rb
-      bin/test --no-parallel --only-failures spec/models/account_spec.rb
-      bin/test --CI
+      bin/test --no-parallel --log spec/models/account_spec.rb
+      bin/test --ci
 
     Defaults:
       - Only run tests in './spec' folder
       - Run in parallel
-      - No coverage
-      - Output only pending and failures
+      - No coverage or log
+
+    Notes:
+      If you are running the full suite, it's recommended to run with `--log`
+      to more easily see the pending and failing examples
+
   HELP
 elsif ARGV.include?('--ci')
   puts "WARNING: --ci ignores all other options and inputs"
-  system('bin/test_ci')
+  ci_test_command = "docker-compose run web bash -c \"CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true \
+   bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'\""
+  system(ci_test_command)
 elsif invalid_options.empty?
   VetsApi::Commands::Test.run(ARGV)
 else

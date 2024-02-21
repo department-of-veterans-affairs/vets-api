@@ -9,7 +9,7 @@ module VetsApi
     class Docker
       # check for case where already done
       def run
-        puts "\nDocker Setup... "
+        puts "\nDocker Setup (This will take a while)... "
         configuring_clamav_antivirus
         docker_build
         setup_db

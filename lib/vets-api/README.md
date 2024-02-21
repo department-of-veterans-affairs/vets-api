@@ -13,7 +13,7 @@
 - help = list commands and options 
 - info = display version related information
 - setup = runs either native, docker setup or both
-  - would like to make a new file .developer-environment with native, docker, both to store their preference
+  - would like to make a new file .developer-setup with native, docker, both to store their preference
   - could use this with --hard flag to re-setup everything
 - status/diagnosis = identify potential configuration/setup issues acts as a checklist (such as docker, redis, rspec, settings, etc)
 - lint = runs the full suite of linters on the codebase.
