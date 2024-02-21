@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
@@ -111,7 +112,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
       expect do
         subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
-      end.not_to raise_error
+      end.to raise_error(Sidekiq::JobRetry::Skip)
     end
   end
 end

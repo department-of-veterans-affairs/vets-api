@@ -29,12 +29,8 @@ module BGS
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
-      @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
-
-      @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info)
-      @user_uuid = user_uuid
-      @saved_claim_id = saved_claim_id
+      instance_params(encrypted_vet_info, encrypted_user_struct_hash, user_uuid, saved_claim_id)
 
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       @in_progress_copy = in_progress_form_copy(in_progress_form)
@@ -52,7 +48,16 @@ module BGS
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
-      raise unless filter
+      raise Sidekiq::JobRetry::Skip if filter
+
+      raise
+    end
+
+    def instance_params(encrypted_vet_info, encrypted_user_struct_hash, user_uuid, saved_claim_id)
+      @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info)
+      @user_uuid = user_uuid
+      @saved_claim_id = saved_claim_id
     end
 
     def self.generate_user_struct(encrypted_user_struct, vet_info)
