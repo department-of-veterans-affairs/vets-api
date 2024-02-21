@@ -73,7 +73,7 @@
       "jobTitle": "Representative"
     }
   ],
-  "maritalStatus": "Separated",
+  "maritalStatus": "SEPARATED",
   "marriages": [
     {
       "spouseFullName": {
@@ -151,7 +151,7 @@
   "reasonForCurrentSeparation": "OTHER",
   "otherExplanation": "Personal reason thats too long to write an explanation for in this form field",
   "currentSpouseMonthlySupport": 2444,
-  "currentSpouseMaritalHistory": "Yes",
+  "currentSpouseMaritalHistory": "YES",
   "spouseMarriages": [
     {
       "dateOfMarriage": "1980-03-02",
@@ -200,7 +200,7 @@
       "monthlyPayment": 3444,
       "childPlaceOfBirth": "Tallahassee, FL",
       "childSocialSecurityNumber": "333224444",
-      "childRelationship": "biological",
+      "childRelationship": "BIOLOGICAL",
       "previouslyMarried": true,
       "married": true,
       "fullName": {
@@ -214,7 +214,7 @@
       "childInHousehold": true,
       "childPlaceOfBirth": "Troy, MT",
       "childSocialSecurityNumber": "333224444",
-      "childRelationship": "adopted",
+      "childRelationship": "ADOPTED",
       "previouslyMarried": false,
       "fullName": {
         "first": "Emily",
@@ -240,7 +240,7 @@
       "monthlyPayment": 2300,
       "childPlaceOfBirth": "Troy, MT",
       "childSocialSecurityNumber": "333224444",
-      "childRelationship": "biological",
+      "childRelationship": "BIOLOGICAL",
       "previouslyMarried": false,
       "fullName": {
         "first": "Bennedictimaximus",
@@ -281,7 +281,7 @@
       "paymentAmount": 1500
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "LA Care Provider",
       "careType": "CARE_FACILITY",
@@ -306,7 +306,7 @@
       "paymentAmount": 10000
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "Health Provider",
       "purpose": "Medical expenses",
@@ -323,7 +323,7 @@
       "paymentAmount": 500
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "Health Provider",
       "purpose": "Medical expenses",
@@ -340,7 +340,7 @@
       "paymentAmount": 200
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "Health Provider",
       "purpose": "Medical fee",
@@ -349,7 +349,7 @@
       "paymentAmount": 100
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Jack Doe",
       "provider": "Health Provider",
       "purpose": "Medical fee",
