@@ -48,6 +48,9 @@ features:
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
+  hca_tera_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure questions for health care applicants.
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
@@ -61,21 +64,9 @@ features:
   cerner_transition_556_t5:
     actor_type: user
     description: This will control the content that will be in effect 5 days prior to transition.
-  cerner_override_463:
-    actor_type: user
-    description: This will show the Cerner facility 463 as `isCerner`.
-  cerner_override_531:
-    actor_type: user
-    description: This will show the Cerner facility 531 as `isCerner`.
-  cerner_override_648:
-    actor_type: user
-    description: This will show the Cerner facility 648 as `isCerner`.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
-  cerner_override_663:
-    actor_type: user
-    description: This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: This will show the Cerner facility 668 as `isCerner`.
@@ -661,9 +652,17 @@ features:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
+  mhv_medical_records_display_conditions:
+    actor_type: user
+    description: Show/hide content related to Health Conditions in Medical Records
+    enable_in_development: true
   mhv_medical_records_display_domains:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_display_labs_and_tests:
+    actor_type: user
+    description: Show/hide content related to Labs & Tests in Medical Records
     enable_in_development: true
   mhv_medical_records_display_notes:
     actor_type: user
@@ -676,6 +675,10 @@ features:
   mhv_medical_records_display_vaccines:
     actor_type: user
     description: Show/hide content related to Vaccines in Medical Records
+    enable_in_development: true
+  mhv_medical_records_display_vitals:
+    actor_type: user
+    description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
@@ -971,9 +974,6 @@ features:
   show_new_secure_messaging_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
-  show_new_view_test_lab_results_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
@@ -1272,6 +1272,10 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_form_v2:
+    actor_type: user
+    description: Enable Burial form v2 re-design
+    enable_in_development: true
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
