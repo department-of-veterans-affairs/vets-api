@@ -7,7 +7,7 @@ module VAOS
         response = perform(:get, url(service_type), nil, headers)
 
         elig_data = extract_elig_data(response)
-        Rails.logger.info('VAOS CCEligibility details', elig_data) unless elig_data.values.all?(&:nil?)
+        Rails.logger.info('VAOS CCEligibility details', elig_data.to_json) unless elig_data.values.all?(&:nil?)
 
         {
           data: OpenStruct.new(response.body),
