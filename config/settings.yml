@@ -545,52 +545,6 @@ mvi:
   client_key_path: /fake/client/key/path
   pii_logging: false
 
-# Settings for eMIS
-# The certs used here can be obtained from the DevOps team. A different set is required for
-# each environment when connecting to the service.
-emis:
-  mock: true
-  host: https://vaausvrsapp81.aac.va.gov
-  veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url:
-    v1: /VIERSService/eMIS/v1/PaymentService
-    v2: /VIERSService/eMIS/v2/PaymentService
-  military_information_url:
-    v1: /VIERSService/eMIS/v1/MilitaryInformationService
-    v2: /VIERSService/eMIS/v2/MilitaryInformationService
-  client_cert_path: /fake/client/cert/path
-  client_key_path: /fake/client/key/path
-  soap_namespaces:
-    xmlns:xsd: http://www.w3.org/2001/XMLSchema
-    xmlns:xsi: http://www.w3.org/2001/XMLSchema-instance
-    xmlns:soap: http://www.w3.org/2003/05/soap-envelope
-    xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v1
-    xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
-    xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
-  military_information:
-    v1:
-      soap_namespaces:
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
-    v2:
-      soap_namespaces:
-        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
-  payment:
-    v1:
-      soap_namespaces:
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
-    v2:
-      soap_namespaces:
-        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
-  veteran_status:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
-
 caseflow:
   mock: true
   app_token: PUBLICDEMO123
