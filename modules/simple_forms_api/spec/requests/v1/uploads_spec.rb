@@ -189,7 +189,6 @@ RSpec.describe 'Forms uploader', type: :request do
             data = JSON.parse(fixture_path.read)
             attachment = double
             allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-            allow(CombinePDF).to receive(:load).and_return([])
 
             expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
 
@@ -212,9 +211,6 @@ RSpec.describe 'Forms uploader', type: :request do
             data = JSON.parse(fixture_path.read)
             attachment = double
             allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-            allow(CombinePDF).to receive(:load).and_return([])
-
-
             expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
             post '/simple_forms_api/v1/simple_forms', params: data
             expect(response).to have_http_status(:ok)
