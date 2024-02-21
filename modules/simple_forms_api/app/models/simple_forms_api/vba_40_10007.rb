@@ -21,6 +21,7 @@ module SimpleFormsApi
         'businessLine' => 'NCA'
       }
     end
+
     def handle_attachments(file_path)
       attachments = get_attachments
       if attachments.count.positive?
@@ -29,25 +30,25 @@ module SimpleFormsApi
         attachments.each do |attachment|
           combined_pdf << CombinePDF.load(attachment)
         end
-            
+
         combined_pdf.save file_path
       end
     end
-    
+
     def service(num, field, date)
-      service_records = data.dig("application", "veteran", "service_records")
-     
+      service_records = data.dig('application', 'veteran', 'service_records')
+
       return '' if service_records.nil? || service_records[num].nil?
-    
+
       value = if date
                 service_records[num][field]&.[](date)
               else
                 service_records[num][field]
               end
-    
+
       value.to_s # Convert nil to an empty string
     end
-    
+
     def track_user_identity; end
 
     def submission_date_config
