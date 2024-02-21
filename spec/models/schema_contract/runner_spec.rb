@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative Rails.root.join('app/models/schema_contract/runner')
+require_relative Rails.root.join('app', 'models', 'schema_contract', 'runner')
 
 describe SchemaContract::Runner do
   describe '.run' do
@@ -32,7 +32,7 @@ describe SchemaContract::Runner do
     context 'when no record exists for the current day' do
       before do
         SchemaContract::SchemaContractTest.create(name: 'test_index', user_uuid: '1234', response:, status: 'initiated',
-                                  created_at: Time.zone.yesterday.beginning_of_day)
+                                                  created_at: Time.zone.yesterday.beginning_of_day)
       end
 
       it 'creates one with provided details and enqueues a job' do

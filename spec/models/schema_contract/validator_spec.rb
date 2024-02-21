@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative Rails.root.join('app/models/schema_contract/validator')
+require_relative Rails.root.join('app', 'models', 'schema_contract', 'validator')
 
 describe SchemaContract::Validator do
   describe '#validate' do
@@ -151,7 +151,8 @@ when none are allowed in schema #{uuid_regex}"\]$})
 
     context 'when schema file does not exist' do
       let(:contract_record) do
-        SchemaContract::SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response, status: 'initiated')
+        SchemaContract::SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response,
+                                                  status: 'initiated')
       end
 
       it 'raises error' do
