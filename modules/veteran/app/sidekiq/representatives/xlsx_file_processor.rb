@@ -1,5 +1,64 @@
 # frozen_string_literal: true
 
+US_STATES_TERRITORIES = {
+  'AL' => true,
+  'AK' => true,
+  'AZ' => true,
+  'AR' => true,
+  'CA' => true,
+  'CO' => true,
+  'CT' => true,
+  'DE' => true,
+  'FL' => true,
+  'GA' => true,
+  'HI' => true,
+  'ID' => true,
+  'IL' => true,
+  'IN' => true,
+  'IA' => true,
+  'KS' => true,
+  'KY' => true,
+  'LA' => true,
+  'ME' => true,
+  'MD' => true,
+  'MA' => true,
+  'MI' => true,
+  'MN' => true,
+  'MS' => true,
+  'MO' => true,
+  'MT' => true,
+  'NE' => true,
+  'NV' => true,
+  'NH' => true,
+  'NJ' => true,
+  'NM' => true,
+  'NY' => true,
+  'NC' => true,
+  'ND' => true,
+  'OH' => true,
+  'OK' => true,
+  'OR' => true,
+  'PA' => true,
+  'RI' => true,
+  'SC' => true,
+  'SD' => true,
+  'TN' => true,
+  'TX' => true,
+  'UT' => true,
+  'VT' => true,
+  'VA' => true,
+  'WA' => true,
+  'WV' => true,
+  'WI' => true,
+  'WY' => true,
+  'AS' => true, # American Samoa
+  'DC' => true, # District of Columbia
+  'GU' => true, # Guam
+  'MP' => true, # Northern Mariana Islands
+  'PR' => true, # Puerto Rico
+  'VI' => true  # U.S. Virgin Islands
+}.freeze
+
 module Representatives
   class XlsxFileProcessor
     include SentryLogging
@@ -39,6 +98,10 @@ module Representatives
 
       xlsx.sheet(sheet_name).each_with_index do |row, index|
         next if index.zero? || row.length < column_map.length
+
+        state_code = get_value(row, column_map, 'WorkState')
+
+        next unless US_STATES_TERRITORIES[state_code]
 
         data << create_json_data(row, sheet_name, column_map)
       end
