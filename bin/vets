@@ -6,10 +6,16 @@ puts <<~HELP
     vets           Show available binstubs
     info           Display version related informtation
     setup          Create the developer environment
+<<<<<<< HEAD
     test           Runs test(s) in spec folder(s)
 
   Examples:
     bin/setup --docker
     bin/test --CI
+=======
+
+  Examples:
+    bin/setup --docker
+>>>>>>> sjc-k8s-binstubs-setups
 
 HELP
