@@ -962,9 +962,6 @@ features:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
     enable_in_development: true
-  show_new_get_medical_records_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
   show_new_refill_track_prescriptions_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
