@@ -81,7 +81,7 @@ module BGS
       )
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
-      submit_to_central_service(claim:, encrypted_vet_info:)
+      submit_to_central_service(claim:)
 
       raise e
     end
