@@ -98,16 +98,17 @@ class EVSSClaimService
 
   def supplement_auth_headers(claim_id, headers)
     # Assuming this header has a value of "", we want to get the Veteran
-    # associated with the claims' file number. We can get this by fetching
+    # associated with the claims' participant ID. We can get this by fetching
     # the claim details from BGS and looking at the Participant ID of the
-    # Veteran and then calling BGS again to get the Veterans' details via
-    # said Participant ID
+    # Veteran associated with the claim
     blank_header = headers['va_eauth_birlsfilenumber'].blank?
     if blank_header
       claim = get_claim(claim_id)
       veteran_participant_id = claim[:benefit_claim_details_dto][:ptcpnt_vet_id]
-      person = bgs_service.people.find_person_by_ptcpnt_id(veteran_participant_id)
-      headers['va_eauth_birlsfilenumber'] = person[:file_nbr]
+      headers['va_eauth_pid'] = veteran_participant_id
+      # va_eauth_pnid maps to the users SSN. Using this here so that the header
+      # has a value
+      headers['va_eauth_birlsfilenumber'] = headers['va_eauth_pnid']
     end
 
     blank_header
@@ -117,7 +118,8 @@ class EVSSClaimService
     ::Rails.logger.info('Supplementing EVSS headers', {
                           message_type: "evss.#{task}.no_birls_id",
                           claim_id:,
-                          job_id:
+                          job_id:,
+                          revision: 2
                         })
   end
 
