@@ -327,7 +327,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_14_212613) do
     t.boolean "anti_csrf", null: false
     t.text "redirect_uri", null: false
     t.interval "access_token_duration", null: false
-    t.string "access_token_audience"
+    t.string "access_token_audience", null: false
     t.interval "refresh_token_duration", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
