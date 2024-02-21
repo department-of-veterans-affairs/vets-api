@@ -6,7 +6,7 @@ module VAOS
       with_monitoring do
         response = perform(:get, url(service_type), nil, headers)
 
-        elig_data = elig_info(response)
+        elig_data = extract_elig_data(response)
         Rails.logger.info('VAOS CCEligibility details', elig_data) unless elig_data.values.all?(&:nil?)
 
         {
@@ -18,7 +18,7 @@ module VAOS
 
     private
 
-    def elig_info(response)
+    def extract_elig_data(response)
       icn = response.body.dig(:patient_request, :patient_icn)
       icn_digest = Digest::SHA256.hexdigest(icn) unless icn.nil?
       {
