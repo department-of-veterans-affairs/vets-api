@@ -6,13 +6,13 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
   describe 'validations' do
     context 'ip_address' do
       it 'is valid when ip_address is present' do
-        flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone',
+        flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone_number',
                                    flagged_value: '1234567890')
         expect(flag).to be_valid
       end
 
       it 'is not valid when ip_address is missing' do
-        flag = described_class.new(ip_address: nil, representative_id: '1', flag_type: 'phone',
+        flag = described_class.new(ip_address: nil, representative_id: '1', flag_type: 'phone_number',
                                    flagged_value: '1234567890')
         expect(flag).not_to be_valid
         expect(flag.errors[:ip_address]).to include("can't be blank")
@@ -21,13 +21,13 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
 
     context 'representative_id' do
       it 'is valid when representative_id is present' do
-        flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone',
+        flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone_number',
                                    flagged_value: '1234567890')
         expect(flag).to be_valid
       end
 
       it 'is not valid when representative_id is missing' do
-        flag = described_class.new(ip_address: '192.168.1.1', representative_id: nil, flag_type: 'phone',
+        flag = described_class.new(ip_address: '192.168.1.1', representative_id: nil, flag_type: 'phone_number',
                                    flagged_value: '1234567890')
         expect(flag).not_to be_valid
         expect(flag.errors[:representative_id]).to include("can't be blank")
@@ -36,7 +36,7 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
 
     context 'flag_type' do
       it 'is valid with a valid flag_type' do
-        %w[phone email address other].each do |flag_type|
+        %w[phone_number email address other].each do |flag_type|
           flag = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type:,
                                      flagged_value: "#{flag_type} value")
           expect(flag).to be_valid
@@ -76,7 +76,7 @@ RSpec.describe Veteran::FlaggedVeteranRepresentativeContactData, type: :model do
       end
 
       it 'is valid when changing only the flag_type while keeping ip_address and representative_id same' do
-        unique = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone',
+        unique = described_class.new(ip_address: '192.168.1.1', representative_id: '1', flag_type: 'phone_number',
                                      flagged_value: 'example@email.com')
         expect(unique).to be_valid
       end
