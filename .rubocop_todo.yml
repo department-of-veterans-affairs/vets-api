@@ -145,8 +145,6 @@ Layout/LineContinuationSpacing:
 Lint/AmbiguousOperatorPrecedence:
   Exclude:
     - 'app/controllers/facilities_controller.rb'
-    - 'app/models/emis_redis/military_information.rb'
-    - 'app/models/emis_redis/military_information_v2.rb'
     - 'app/models/facilities_query/bounding_box_query.rb'
     - 'app/models/user.rb'
     - 'app/sidekiq/education_form/create_daily_fiscal_year_to_date_report.rb'
@@ -206,7 +204,6 @@ Lint/ConstantDefinitionInBlock:
     - 'spec/controllers/application_controller_spec.rb'
     - 'spec/lib/carma/models/base_spec.rb'
     - 'spec/lib/common/client/base_spec.rb'
-    - 'spec/lib/common/client/concerns/log_as_warning_helpers_spec.rb'
     - 'spec/lib/common/client/concerns/monitoring_spec.rb'
     - 'spec/lib/common/client/configuration/base_spec.rb'
     - 'spec/lib/common/client/middleware/request/remove_cookies_spec.rb'
@@ -235,8 +232,6 @@ Lint/ConstantDefinitionInBlock:
 Lint/DuplicateBranch:
   Exclude:
     - 'app/controllers/v1/sessions_controller.rb'
-    - 'app/models/emis_redis/military_information.rb'
-    - 'app/models/emis_redis/military_information_v2.rb'
     - 'app/services/users/exception_handler.rb'
     - 'app/sidekiq/education_form/process10203_submissions.rb'
     - 'spec/controllers/v1/sessions_controller_spec.rb'
@@ -270,7 +265,6 @@ Lint/MissingSuper:
     - 'app/models/bgs_dependents/spouse.rb'
     - 'app/models/bgs_dependents/step_child.rb'
     - 'app/models/bgs_dependents/veteran.rb'
-    - 'app/models/emis_redis/veteran_status.rb'
     - 'app/sidekiq/evss/disability_compensation_form/form8940_document.rb'
     - 'lib/apps/client.rb'
     - 'lib/apps/responses/response.rb'
