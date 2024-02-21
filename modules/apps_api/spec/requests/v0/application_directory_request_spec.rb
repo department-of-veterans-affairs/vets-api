@@ -167,7 +167,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
     it '204s when given an empty category' do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/empty_category'
-        puts response.body
         expect(response).to have_http_status(:no_content)
       end
     end
