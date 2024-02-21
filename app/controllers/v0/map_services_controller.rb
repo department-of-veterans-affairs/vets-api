@@ -8,7 +8,6 @@ module V0
     # POST /v0/map_services/:application/token
     def token
       icn = @service_account_access_token.user_attributes['icn']
- \
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)
 
       render json: result, status: :ok
