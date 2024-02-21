@@ -14,7 +14,7 @@ module SchemaContract
       end
     rescue => e
       # blanket rescue to avoid this code blocking execution
-      message = { user:, response:, test_name:, error_details: e }
+      message = { user:, response:, test_name:, error_details: e.message }
       Rails.logger.error('Error creating schema contract job', message)
     end
   end
