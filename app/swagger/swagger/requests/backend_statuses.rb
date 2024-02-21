@@ -42,6 +42,25 @@ module Swagger
                                example: '2019-03-21T16:54:34.000Z'
                     end
                   end
+                  property :maintenance_windows do
+                    key :type, :array
+                    items do
+                      property :id, type: :integer, example: 1
+                      property :external_service, type: :string, example: 'idme'
+                      property :start_time,
+                               type: :string,
+                               description: 'The start time of the maintenance window',
+                               example: '2024-02-17T09:00:00.000Z'
+                      property :end_time,
+                               type: :string,
+                               description: 'The end time of the maintenance window',
+                               example: '2024-02-17T10:00:00.000Z'
+                      property :description,
+                               type: :string,
+                               description: 'The description of the maintenance window',
+                               example: 'ID.me will be down for maintenance'
+                    end
+                  end
                 end
               end
             end
