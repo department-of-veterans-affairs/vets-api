@@ -514,6 +514,10 @@ features:
   form_526_required_identifiers_in_user_object:
     actor_type: user
     description: includes a mapping of booleans in the profile section of a serialized user indicating which ids are nil for the user
+  form40_0247_confirmation_email:
+    actor_type: user
+    description: Enables form 40-0247 email submission confirmation (VaNotify)
+    enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)
