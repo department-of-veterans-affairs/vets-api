@@ -17,6 +17,19 @@ module HCA
 
     NO_RACE = '0000-0'
 
+    EXPOSURE_MAPPINGS = {
+      'exposureToAirPollutants' => 'Air Pollutants',
+      'exposureToChemicals' => 'Chemicals',
+      'exposureToContaminatedWater' => 'Contaminated Water at Camp Lejeune',
+      'exposureToRadiation' => 'Radiation',
+      'exposureToShad' => 'SHAD',
+      'exposureToOccupationalHazards' => 'Occupational Hazards',
+      'exposureToAsbestos' => 'Asbestos',
+      'exposureToMustardGas' => 'Mustard Gas',
+      'exposureToWarfareAgents' => 'Warfare Agents',
+      'exposureToOther' => 'Other'
+    }
+
     SIGI_CODES = {
       'M' => 'M',
       'F' => 'F',
@@ -530,11 +543,38 @@ module HCA
           'serviceConnectedIndicator' => veteran['vaCompensationType'] == 'highDisability'
         },
         'specialFactors' => {
-          'agentOrangeInd' => veteran['vietnamService'].present?,
+          'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
+          'gulfWarHazard' => {
+            'gulfWarHazardInd' => veteran['gulfWarService'].present?,
+            'fromDate' => Validations.date_of_birth(veteran['gulfWarStartDate']),
+            'toDate' => Validations.date_of_birth(veteran['gulfWarEndDate']),
+          },
+          'toxicExposure' => veteran_to_toxic_exposure(veteran),
+          'supportOperationsInd' => veteran['combatOperationService'].present?,
           'radiationExposureInd' => veteran['exposedToRadiation'].present?
         }
+      }
+    end
+
+    def veteran_to_toxic_exposure(veteran)
+
+      categories = []
+
+      EXPOSURE_MAPPINGS.each do |k, v|
+        if veteran[k].present?
+          categories << v
+        end
+      end
+
+      {
+        'exposureCategories' => {
+          'exposureCategory' => categories
+        },
+        'otherText' => veteran['otherToxicExposure'],
+        'fromDate' => Validations.date_of_birth(veteran['toxicExposureStartDate']),
+        'toDate' => Validations.date_of_birth(veteran['toxicExposureEndDate'])
       }
     end
 
