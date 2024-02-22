@@ -1083,7 +1083,6 @@ lighthouse:
     bucket: lighthouse_s3_bucket
     region: lighthouse_s3_region
 
-
 mail_automation:
   url: https://viccs-api-test.ibm-intelligent-automation.com
   endpoint: /mas/api/test/masInsertAndInitiateApcasClaimProcessing

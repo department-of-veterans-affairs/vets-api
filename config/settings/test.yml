@@ -410,6 +410,3 @@ ask_va:
 
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
-
-
-
