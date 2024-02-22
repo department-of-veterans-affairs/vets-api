@@ -14,7 +14,7 @@ module SimpleFormsApi
       {
         'veteranFirstName' => @data.dig('applicants', 'full_name', 'first'),
         'veteranLastName' => @data.dig('applicants', 'full_name', 'last'),
-        'fileNumber' =>  @data.dig('applicants', 'ssn_or_tin'),
+        'fileNumber' => @data.dig('applicants', 'ssn_or_tin'),
         'zipCode' => @data.dig('applicants', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
