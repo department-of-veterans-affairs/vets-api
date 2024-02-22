@@ -32,7 +32,7 @@ module Veteran
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
       def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil, poa_code: nil) # rubocop:disable Metrics/ParameterLists
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
-        reps = reps.where('ANY(poa_codes) = ?', poa_code) if poa_code
+        reps = reps.where('? = ANY(poa_codes)', poa_code) if poa_code
 
         reps.select do |rep|
           matching_ssn(rep, ssn) &&

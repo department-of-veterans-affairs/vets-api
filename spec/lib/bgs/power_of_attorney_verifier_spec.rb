@@ -201,8 +201,7 @@ describe BGS::PowerOfAttorneyVerifier do
       allow(Veteran::Service::Representative).to receive(:all_for_user).with(
         hash_including(
           first_name: identity.first_name,
-          last_name: identity.last_name,
-          middle_initial: 'B'
+          last_name: identity.last_name
         )
       ).and_return(
         OpenStruct.new(count: 2)
@@ -220,6 +219,14 @@ describe BGS::PowerOfAttorneyVerifier do
             first_name: identity.first_name,
             last_name: identity.last_name,
             middle_initial: 'B'
+          )
+        ).and_call_original
+
+        allow(Veteran::Service::Representative).to receive(:all_for_user).with(
+          hash_including(
+            first_name: identity.first_name,
+            last_name: identity.last_name,
+            poa_code: 'A1Q'
           )
         ).and_call_original
       end
@@ -249,7 +256,7 @@ describe BGS::PowerOfAttorneyVerifier do
             hash_including(
               first_name: identity.first_name,
               last_name: identity.last_name,
-              poa_code: 'B1Q'
+              poa_code: 'A1Q'
             )
           )
         end.not_to raise_error
@@ -314,7 +321,7 @@ describe BGS::PowerOfAttorneyVerifier do
           FactoryBot.create(
             :representative,
             representative_id: '1234',
-            poa_codes: ['B1Q'],
+            poa_codes: ['A1Q'],
             first_name: identity.first_name,
             last_name: identity.last_name,
             middle_initial: 'B'
@@ -322,7 +329,7 @@ describe BGS::PowerOfAttorneyVerifier do
           FactoryBot.create(
             :representative,
             representative_id: '5678',
-            poa_codes: ['B1Q'],
+            poa_codes: ['A1Q'],
             first_name: identity.first_name,
             last_name: identity.last_name,
             middle_initial: 'B'
