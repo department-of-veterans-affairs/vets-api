@@ -18,14 +18,8 @@ module BGS
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
                          { user_uuid:, saved_claim_id:, icn:, error: })
-      if Flipper.enabled?(:dependents_central_submission)
-        user ||= BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, vet_info)
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
-      else
-        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse # Temporary for flipper
-      end
+
+      BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
@@ -35,9 +29,7 @@ module BGS
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       @in_progress_copy = in_progress_form_copy(in_progress_form)
 
-      claim_data = normalize_names_and_addresses!(valid_claim_data)
-
-      BGS::Form674.new(user, claim).submit(claim_data)
+      submit_form
 
       send_confirmation_email
       in_progress_form&.destroy
@@ -48,7 +40,12 @@ module BGS
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
-      raise Sidekiq::JobRetry::Skip if filter
+
+      if filter
+        vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+        self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
+        raise Sidekiq::JobRetry::Skip
+      end
 
       raise
     end
@@ -81,16 +78,29 @@ module BGS
       )
     end
 
+    def self.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
+      if Flipper.enabled?(:dependents_central_submission)
+        user = generate_user_struct(encrypted_user_struct_hash, vet_info)
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      else
+        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse # Temporary for flipper
+      end
+    end
+
     private
 
-    def valid_claim_data
+    def submit_form
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
       claim.add_veteran_info(vet_info)
 
       raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
-      claim.formatted_674_data(vet_info)
+      claim_data = normalize_names_and_addresses!(claim.formatted_674_data(vet_info))
+
+      BGS::Form674.new(user, claim).submit(claim_data)
     end
 
     def send_confirmation_email
