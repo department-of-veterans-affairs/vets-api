@@ -225,6 +225,11 @@ lighthouse:
         client_id: abc123456
         rsa_key: path/to/key
       use_mocks: false
+  benefits_education:
+    host: https://sandbox-api.va.gov
+    access_token:
+      client_id: abc123456
+      rsa_key: path/to/key
 
 rrd:
   alerts:
@@ -405,3 +410,6 @@ ask_va:
 
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
+
+
+
