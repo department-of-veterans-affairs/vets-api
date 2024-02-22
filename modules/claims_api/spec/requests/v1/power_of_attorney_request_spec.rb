@@ -165,7 +165,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 signatures = { veteran: base64_signature, representative: base64_signature }
                 params['data']['attributes']['signatures'] = signatures
 
-                expect(ClaimsApi::PoaFormBuilderJob).to receive(:perform_async)
+                expect(ClaimsApi::V1::PoaFormBuilderJob).to receive(:perform_async)
 
                 post path, params: params.to_json, headers: headers.merge(auth_header)
               end
@@ -175,7 +175,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
           context 'when a request doesn\'t include signatures' do
             it 'Doesn\'t generate a 21-22 or 21-22a form to upload to VBMS' do
               mock_acg(scopes) do |auth_header|
-                expect(ClaimsApi::PoaFormBuilderJob).not_to receive(:perform_async)
+                expect(ClaimsApi::V1::PoaFormBuilderJob).not_to receive(:perform_async)
 
                 post path, params: data, headers: headers.merge(auth_header)
               end
