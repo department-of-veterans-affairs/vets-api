@@ -122,6 +122,18 @@ describe HCA::Service do
       end
     end
 
+    context 'submitting tera questions' do
+      it 'works' do
+        VCR.use_cassette(
+          'hca/tera',
+          record: :once
+        ) do
+          result = HCA::Service.new.submit_form(get_fixture('hca/tera'))
+          expect(result[:success]).to eq(true)
+        end
+      end
+    end
+
     context 'submitting short form' do
       it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
         VCR.use_cassette(
