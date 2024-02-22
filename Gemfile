@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.2'
+ruby '~> 3.2.3'
 
 # Modules
 path 'modules' do
@@ -69,7 +69,7 @@ gem 'faraday-multipart'
 gem 'faraday-retry'
 gem 'faraday-typhoeus'
 gem 'fastimage'
-gem 'fhir_client', git: 'https://github.com/adhocteam/fhir_client.git', tag: 'v6.0.1'
+gem 'fhir_client', git: 'https://github.com/department-of-veterans-affairs/fhir_client.git', tag: 'v6.0.0'
 gem 'fitbit_api'
 gem 'flipper'
 gem 'flipper-active_record'
