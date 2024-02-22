@@ -37,7 +37,7 @@ module BGS
     rescue => e
       handle_filtered_errors!(e:, icn:, encrypted_user_struct_hash:, encrypted_vet_info:)
 
-      Rails.logger.warn("BGS::SubmitForm674Job received error, retrying...",
+      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
@@ -48,8 +48,8 @@ module BGS
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
-      Rails.logger.warn("BGS::SubmitForm674Job received error, skipping retries...",
-        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
+      Rails.logger.warn('BGS::SubmitForm674Job received error, skipping retries...',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id)
