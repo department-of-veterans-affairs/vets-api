@@ -1,5 +1,5 @@
 = AccreditedRepresentatives
-TODO: Short description and motivation.
+The API that powers the Accredited Representative Portal.
 
 == Installation
 Ensure the following line is in the root project's Gemfile:

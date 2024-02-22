@@ -9,8 +9,8 @@ require 'accredited_representatives/version'
 Gem::Specification.new do |spec|
   spec.name        = 'accredited_representatives'
   spec.version     = AccreditedRepresentatives::VERSION
-  spec.authors     = ['Oren Mittman']
-  spec.email       = ['nihil2501@gmail.com']
+  spec.authors     = ['']
+  spec.email       = ['']
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
   spec.description = 'This module was auto-generated please update this description'
