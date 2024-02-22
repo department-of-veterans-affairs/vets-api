@@ -791,6 +791,29 @@
       :path: "/services/benefits-documents/v1/documents/search"
       :file_path: "/lighthouse/claims_api/benefits_documents/search/default"
 
+# Lighthouse Local BGS
+- :name: "Lighthouse Local BGS"
+  :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/PersonWebServiceBean/PersonWebService"
+      :file_path: "/lighthouse/local_bgs/person_web_service/find_poa_by_ptcpnt_id_wsdl"
+    - :method: :post
+      :path: "/PersonWebServiceBean/PersonWebService"
+      :file_path: "/lighthouse/local_bgs/person_web_service/find_poa_by_ptcpnt_id"
+    - :method: :get
+      :path: "/OrgWebServiceBean/OrgWebService"
+      :file_path: "/lighthouse/local_bgs/org_web_service/find_poa_history_by_ptcpnt_id_wsdl"
+    - :method: :post
+      :path: "/OrgWebServiceBean/OrgWebService"
+      :file_path: "/lighthouse/local_bgs/org_web_service/find_poa_history_by_ptcpnt_id"
+    - :method: :get
+      :path: "/ClaimantServiceBean/ClaimantWebService"
+      :file_path: "/lighthouse/local_bgs/claimant_web_service/find_poa_history_by_ptcpnt_id_wsdl"
+    - :method: :post
+      :path: "/ClaimantServiceBean/ClaimantWebService"
+      :file_path: "/lighthouse/local_bgs/claimant_web_service/find_poa_history_by_ptcpnt_id"
+
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_documents.host).host}:#{URI(Settings.lighthouse.benefits_documents.host).port}" %>

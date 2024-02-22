@@ -7,8 +7,9 @@ module Veteran
   class User < Base
     attr_accessor :power_of_attorney, :previous_power_of_attorney
 
-    def initialize(user)
+    def initialize(user, v2: false)
       @user = user
+      @v2 = v2 || false
 
       if current_poa_code.present?
         self.power_of_attorney = PowerOfAttorney.new(code: current_poa_code,
@@ -56,7 +57,8 @@ module Veteran
       external_key = "#{@user.first_name} #{@user.last_name}"
       @local_bgs_service ||= ClaimsApi::LocalBGS.new(
         external_uid: @user.mpi_icn,
-        external_key: external_key.presence || @user.mpi_icn
+        external_key: external_key.presence || @user.mpi_icn,
+        v2: @v2
       )
     end
   end

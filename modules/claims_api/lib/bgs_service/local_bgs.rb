@@ -14,7 +14,7 @@ module ClaimsApi
   class LocalBGS
     attr_accessor :external_uid, :external_key
 
-    def initialize(external_uid:, external_key:)
+    def initialize(external_uid:, external_key:, v2: false)
       @application = Settings.bgs.application
       @client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
       @client_station_id = Settings.bgs.client_station_id
@@ -27,6 +27,8 @@ module ClaimsApi
       @forward_proxy_url = Settings.bgs.url
       @ssl_verify_mode = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       @timeout = Settings.bgs.timeout || 120
+      @v2 = v2 || false
+      @use_mocks_for_v2 = Settings.claims_api.local_bgs.use_mocks_for_v2 || false
     end
 
     def self.breakers_service
@@ -254,6 +256,7 @@ module ClaimsApi
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
+          f.response :betamocks if @use_mocks_for_v2 && @v2
           f.adapter Faraday.default_adapter
         end
       end

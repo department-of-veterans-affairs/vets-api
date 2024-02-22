@@ -2,9 +2,10 @@
 
 module BGS
   class PowerOfAttorneyVerifier
-    def initialize(user)
+    def initialize(user, v2: false)
       @user = user
-      @veteran = Veteran::User.new(@user)
+      @v2 = v2 || false
+      @veteran = Veteran::User.new(@user, v2:)
     end
 
     def current_poa
