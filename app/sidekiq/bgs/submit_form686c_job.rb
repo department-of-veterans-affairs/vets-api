@@ -35,7 +35,7 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      handle_filtered_errors!(e)
+      handle_filtered_errors!(e:, icn:, encrypted_vet_info:)
 
       Rails.logger.warn("BGS::SubmitForm686cJob received error, retrying...",
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
@@ -44,7 +44,7 @@ module BGS
       raise
     end
     
-    def handle_filtered_errors!(e)
+    def handle_filtered_errors!(e:, icn:, encrypted_vet_info:)
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
