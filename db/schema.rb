@@ -546,7 +546,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_14_212613) do
   create_table "flipper_gates", force: :cascade do |t|
     t.string "feature_key", null: false
     t.string "key", null: false
-    t.string "value"
+    t.text "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
