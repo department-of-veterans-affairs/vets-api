@@ -16,16 +16,6 @@ GIT
       tilt (>= 1.1)
 
 GIT
-  remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
-  revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
-  tag: v4.0.0
-  specs:
-    govdelivery-tms (4.0.0)
-      activesupport (>= 5.2.4.3, < 8.0.0)
-      faraday
-      mime-types
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
   revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
   tag: v2.0.0.vsp
@@ -70,6 +60,16 @@ GIT
       nori
       xmldsig (~> 0.3.1)
       xmlenc
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
+  revision: d58cc59ae47e5f5f642b3603224f42f518f92f56
+  tag: v4.0.0
+  specs:
+    govdelivery-tms (4.0.0)
+      activesupport (>= 5.2.4.3, < 8.0.0)
+      faraday
+      mime-types
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
