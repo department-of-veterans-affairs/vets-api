@@ -557,8 +557,8 @@ module HCA
       {
         'gulfWarHazard' => {
           'gulfWarHazardInd' => veteran['gulfWarService'].present?,
-          'fromDate' => Validations.date_of_birth(veteran['gulfWarStartDate']),
-          'toDate' => Validations.date_of_birth(veteran['gulfWarEndDate']),
+          'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
+          'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate']),
         },
         'supportOperationsInd' => veteran['combatOperationService'].present?,
         'toxicExposure' => veteran_to_toxic_exposure(veteran)
@@ -579,8 +579,8 @@ module HCA
           'exposureCategory' => categories
         },
         'otherText' => veteran['otherToxicExposure'],
-        'fromDate' => Validations.date_of_birth(veteran['toxicExposureStartDate']),
-        'toDate' => Validations.date_of_birth(veteran['toxicExposureEndDate'])
+        'fromDate' => Validations.parse_short_date(veteran['toxicExposureStartDate']),
+        'toDate' => Validations.parse_short_date(veteran['toxicExposureEndDate'])
       }
     end
 
