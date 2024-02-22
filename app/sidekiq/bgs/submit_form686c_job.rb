@@ -9,7 +9,7 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    attr_reader :claim, :user, :in_progress_copy, :user_uuid, :saved_claim_id, :vet_info
+    attr_reader :claim, :user, :in_progress_copy, :user_uuid, :saved_claim_id, :vet_info, :icn
 
     sidekiq_options retry: 14
 
@@ -24,7 +24,7 @@ module BGS
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info)
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
-      instance_params(encrypted_vet_info, user_uuid, saved_claim_id)
+      instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
 
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       @in_progress_copy = in_progress_form_copy(in_progress_form)
@@ -35,7 +35,7 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      handle_filtered_errors!(e:, icn:, encrypted_vet_info:)
+      handle_filtered_errors!(e:, encrypted_vet_info:)
 
       Rails.logger.warn('BGS::SubmitForm686cJob received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
@@ -44,7 +44,7 @@ module BGS
       raise
     end
 
-    def handle_filtered_errors!(e:, icn:, encrypted_vet_info:)
+    def handle_filtered_errors!(e:, encrypted_vet_info:)
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
@@ -56,9 +56,10 @@ module BGS
       raise Sidekiq::JobRetry::Skip
     end
 
-    def instance_params(encrypted_vet_info, user_uuid, saved_claim_id)
+    def instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
+      @icn = icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
     end
