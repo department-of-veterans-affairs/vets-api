@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'common/client/configuration/rest'
 
 module BenefitsEducation
@@ -47,7 +49,7 @@ module BenefitsEducation
     # @return [Faraday::Response] response from GET request: A veteran's education benefits
     #
     def get(icn)
-      connection.get("", {:icn => icn}, { Authorization: "Bearer #{access_token}" })
+      connection.get('', { icn: }, { Authorization: "Bearer #{access_token}" })
     end
 
     ##
