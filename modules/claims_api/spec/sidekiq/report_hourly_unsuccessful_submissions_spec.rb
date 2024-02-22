@@ -8,6 +8,13 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
 
   describe '#perform' do
     context 'when no errored submissions exist' do
+      before do
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return([])
+        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return([])
+        allow(ClaimsApi::IntentToFile).to receive(:where).and_return([])
+        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return([])
+      end
+
       it 'does not call notify method' do
         # rubocop:disable RSpec/SubjectStub
         expect(subject).not_to receive(:notify)
