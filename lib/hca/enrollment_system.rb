@@ -546,20 +546,26 @@ module HCA
           'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
-          'gulfWarHazard' => {
-            'gulfWarHazardInd' => veteran['gulfWarService'].present?,
-            'fromDate' => Validations.date_of_birth(veteran['gulfWarStartDate']),
-            'toDate' => Validations.date_of_birth(veteran['gulfWarEndDate']),
-          },
-          'toxicExposure' => veteran_to_toxic_exposure(veteran),
-          'supportOperationsInd' => veteran['combatOperationService'].present?,
           'radiationExposureInd' => veteran['exposedToRadiation'].present?
-        }
+        }.merge(veteran_to_tera(veteran))
+      }
+    end
+
+    def veteran_to_tera(veteran)
+      return {} unless veteran['hasTeraResponse']
+
+      {
+        'gulfWarHazard' => {
+          'gulfWarHazardInd' => veteran['gulfWarService'].present?,
+          'fromDate' => Validations.date_of_birth(veteran['gulfWarStartDate']),
+          'toDate' => Validations.date_of_birth(veteran['gulfWarEndDate']),
+        },
+        'supportOperationsInd' => veteran['combatOperationService'].present?,
+        'toxicExposure' => veteran_to_toxic_exposure(veteran)
       }
     end
 
     def veteran_to_toxic_exposure(veteran)
-
       categories = []
 
       EXPOSURE_MAPPINGS.each do |k, v|
