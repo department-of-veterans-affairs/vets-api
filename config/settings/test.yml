@@ -227,6 +227,7 @@ lighthouse:
       use_mocks: false
   benefits_education:
     host: https://sandbox-api.va.gov
+    use_mocks: true
     access_token:
       client_id: abc123456
       rsa_key: path/to/key
