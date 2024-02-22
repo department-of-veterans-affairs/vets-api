@@ -43,8 +43,7 @@ module ClaimsApi
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('validate', 'error', detail, claim)
 
-          formatted_err = error_handler(e, claim, 'validate') # for v1 controller reporting
-          raise formatted_err
+          error_handler(e, claim, 'validate')
         end
       end
 
@@ -101,17 +100,18 @@ module ClaimsApi
 
       def error_handler(error, claim, method)
         handle_faraday_failure(error, claim, method)
-        handle_bad_request(error, claim, method)
-        handle_parsing_error(error, claim, method)
         handle_client_errors(error, claim, method)
         raise error
       end
 
       def handle_faraday_failure(error, claim, method)
-        if error.is_a?(Faraday::ConnectionFailed)
+        if error.is_a?(Faraday::ConnectionFailed) || error.is_a?(Faraday::ParsingError)
           status = get_status_code(error)
           log_info = get_log_info(error, status)
           log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
+          raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
+          raise ::Common::Exceptions::InternalServerError if status == 500
+
           raise ::Common::Exceptions::ServiceUnavailable
         end
       end
@@ -129,27 +129,6 @@ module ClaimsApi
         end
       end
 
-      def handle_parsing_error(error, claim, method)
-        if error.is_a?(Faraday::ParsingError)
-          status = get_status_code(error)
-          log_info = get_log_info(error, status)
-          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
-
-          raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
-          raise ::Common::Exceptions::InternalServerError if status == 500
-        end
-      end
-
-      def handle_bad_request(error, claim, method)
-        if error.is_a?(::Common::Exceptions::BadRequest) && status != 403
-          status = get_status_code(error)
-          log_info = get_log_info(error, status)
-          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
-
-          raise ::Common::Exceptions::ServiceUnavailable
-        end
-      end
-
       def get_status_code(error)
         case error
         when error.respond_to?(:status)
@@ -161,12 +140,22 @@ module ClaimsApi
         end
       end
 
+      def get_message(error)
+        case error
+        when error.respond_to?(:detailed_message)
+          error.detailed_message
+        when error.respond_to?(:message)
+          error.message
+        when error.respond_to?(:full_message)
+          error.full_message
+        end
+      end
+
       def get_log_info(error, status)
         log_info = {}
-        message = error.respond_to?(:detailed_message) ? error.detailed_message : error.message
         log_info['class'] = error.class if error.respond_to?(:class)
         log_info['status'] = status
-        log_info['message'] = message
+        log_info['message'] = get_message(error)
         log_info
       end
     end
