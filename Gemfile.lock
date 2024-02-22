@@ -1,21 +1,4 @@
 GIT
-  remote: https://github.com/adhocteam/fhir_client.git
-  revision: a9de7e0e5b532c069dddacd2c4756046f95812fc
-  tag: v6.0.1
-  specs:
-    fhir_client (6.0.0)
-      activesupport (>= 3)
-      addressable (>= 2.3)
-      fhir_dstu2_models (>= 1.1.1)
-      fhir_models (>= 4.2.1)
-      fhir_stu3_models (>= 3.1.1)
-      http (~> 5.1)
-      nokogiri (>= 1.10.4)
-      oauth2 (>= 1.1)
-      rack (>= 1.5)
-      tilt (>= 1.1)
-
-GIT
   remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
   revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
   tag: v4.0.0
@@ -72,6 +55,23 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/fhir_client.git
+  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
+  tag: v6.0.0
+  specs:
+    fhir_client (6.0.0)
+      activesupport (>= 3)
+      addressable (>= 2.3)
+      fhir_dstu2_models (>= 1.1.1)
+      fhir_models (>= 4.2.1)
+      fhir_stu3_models (>= 3.1.1)
+      http (~> 5.1)
+      nokogiri (>= 1.10.4)
+      oauth2 (>= 1.1)
+      rack (>= 1.5)
+      tilt (>= 1.1)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: d11fa23200e236042ffab9230fa0f62f20054b09
   branch: master
@@ -83,6 +83,7 @@ GIT
 PATH
   remote: modules
   specs:
+    accredited_representatives (0.1.0)
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -145,47 +146,47 @@ GEM
     Ascii85 (1.1.0)
     aasm (5.5.0)
       concurrent-ruby (~> 1.0)
-    actioncable (7.0.8)
-      actionpack (= 7.0.8)
-      activesupport (= 7.0.8)
+    actioncable (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       nio4r (~> 2.0)
       websocket-driver (>= 0.6.1)
-    actionmailbox (7.0.8)
-      actionpack (= 7.0.8)
-      activejob (= 7.0.8)
-      activerecord (= 7.0.8)
-      activestorage (= 7.0.8)
-      activesupport (= 7.0.8)
+    actionmailbox (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activestorage (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       mail (>= 2.7.1)
       net-imap
       net-pop
       net-smtp
-    actionmailer (7.0.8)
-      actionpack (= 7.0.8)
-      actionview (= 7.0.8)
-      activejob (= 7.0.8)
-      activesupport (= 7.0.8)
+    actionmailer (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      actionview (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       mail (~> 2.5, >= 2.5.4)
       net-imap
       net-pop
       net-smtp
       rails-dom-testing (~> 2.0)
-    actionpack (7.0.8)
-      actionview (= 7.0.8)
-      activesupport (= 7.0.8)
+    actionpack (7.0.8.1)
+      actionview (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       rack (~> 2.0, >= 2.2.4)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.2.0)
-    actiontext (7.0.8)
-      actionpack (= 7.0.8)
-      activerecord (= 7.0.8)
-      activestorage (= 7.0.8)
-      activesupport (= 7.0.8)
+    actiontext (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activestorage (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       globalid (>= 0.6.0)
       nokogiri (>= 1.8.5)
-    actionview (7.0.8)
-      activesupport (= 7.0.8)
+    actionview (7.0.8.1)
+      activesupport (= 7.0.8.1)
       builder (~> 3.1)
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
@@ -195,27 +196,27 @@ GEM
       activemodel (>= 4.1)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
-    activejob (7.0.8)
-      activesupport (= 7.0.8)
+    activejob (7.0.8.1)
+      activesupport (= 7.0.8.1)
       globalid (>= 0.3.6)
-    activemodel (7.0.8)
-      activesupport (= 7.0.8)
-    activerecord (7.0.8)
-      activemodel (= 7.0.8)
-      activesupport (= 7.0.8)
+    activemodel (7.0.8.1)
+      activesupport (= 7.0.8.1)
+    activerecord (7.0.8.1)
+      activemodel (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
     activerecord-import (1.5.1)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (8.0.3)
       activerecord (~> 7.0.0)
       rgeo-activerecord (~> 7.0.0)
-    activestorage (7.0.8)
-      actionpack (= 7.0.8)
-      activejob (= 7.0.8)
-      activerecord (= 7.0.8)
-      activesupport (= 7.0.8)
+    activestorage (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       marcel (~> 1.0)
       mini_mime (>= 1.1.0)
-    activesupport (7.0.8)
+    activesupport (7.0.8.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -624,7 +625,7 @@ GEM
     nenv (0.3.0)
     net-http (0.4.1)
       uri
-    net-imap (0.4.9.1)
+    net-imap (0.4.10)
       date
       net-protocol
     net-pop (0.1.2)
@@ -674,7 +675,7 @@ GEM
       activerecord (>= 6.1)
       request_store (~> 1.4)
     parallel (1.24.0)
-    parallel_tests (4.5.0)
+    parallel_tests (4.5.1)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -730,7 +731,7 @@ GEM
     raabro (1.4.0)
     racc (1.7.3)
     racc (1.7.3-java)
-    rack (2.2.8)
+    rack (2.2.8.1)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.1)
@@ -743,20 +744,20 @@ GEM
     rack-timeout (0.6.3)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
-    rails (7.0.8)
-      actioncable (= 7.0.8)
-      actionmailbox (= 7.0.8)
-      actionmailer (= 7.0.8)
-      actionpack (= 7.0.8)
-      actiontext (= 7.0.8)
-      actionview (= 7.0.8)
-      activejob (= 7.0.8)
-      activemodel (= 7.0.8)
-      activerecord (= 7.0.8)
-      activestorage (= 7.0.8)
-      activesupport (= 7.0.8)
+    rails (7.0.8.1)
+      actioncable (= 7.0.8.1)
+      actionmailbox (= 7.0.8.1)
+      actionmailer (= 7.0.8.1)
+      actionpack (= 7.0.8.1)
+      actiontext (= 7.0.8.1)
+      actionview (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activemodel (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activestorage (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       bundler (>= 1.15.0)
-      railties (= 7.0.8)
+      railties (= 7.0.8.1)
     rails-dom-testing (2.2.0)
       activesupport (>= 5.0.0)
       minitest
@@ -770,9 +771,9 @@ GEM
       rack
       railties (>= 5.1)
       semantic_logger (~> 4.13)
-    railties (7.0.8)
-      actionpack (= 7.0.8)
-      activesupport (= 7.0.8)
+    railties (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       method_source
       rake (>= 12.2)
       thor (~> 1.0)
@@ -1031,7 +1032,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.34)
-    zeitwerk (2.6.12)
+    zeitwerk (2.6.13)
 
 PLATFORMS
   java
@@ -1043,6 +1044,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
+  accredited_representatives!
   active_model_serializers
   activerecord-import
   activerecord-postgis-adapter
@@ -1236,7 +1238,7 @@ DEPENDENCIES
   yard
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 3.2.3p157
 
 BUNDLED WITH
    2.4.9
