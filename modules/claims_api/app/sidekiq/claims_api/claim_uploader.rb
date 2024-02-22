@@ -15,14 +15,15 @@ module ClaimsApi
       doc_type = claim_object.is_a?(ClaimsApi::SupportingDocument) ? 'L023' : 'L122'
 
       if auto_claim.evss_id.nil?
-        ClaimsApi::Logger.log('claims_uploader', detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
+        ClaimsApi::Logger.log('lighthouse_claim_uploader',
+                              detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
         self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
         file_body = uploader.read
-        ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
+        ClaimsApi::Logger.log('lighthouse_claim_uploader', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd
           bd_upload_body(auto_claim:, file_body:, doc_type:)
         else
@@ -49,7 +50,7 @@ module ClaimsApi
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError => e
       message = get_error_message(e)
-      ClaimsApi::Logger.log('benefits_documents',
+      ClaimsApi::Logger.log('lighthouse_claim_uploader',
                             retry: true,
                             detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       raise e
@@ -57,7 +58,7 @@ module ClaimsApi
     rescue ::Common::Exceptions::BackendServiceException => e
       message = get_error_message(e)
       if will_retry_status_code?(e)
-        ClaimsApi::Logger.log('benefits_documents',
+        ClaimsApi::Logger.log('lighthouse_claim_uploader',
                               retry: true,
                               detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
         raise e
@@ -74,7 +75,7 @@ module ClaimsApi
     # Permanent failures, don't retry
     rescue => e
       message = get_error_message(e)
-      ClaimsApi::Logger.log('benefits_documents',
+      ClaimsApi::Logger.log('lighthouse_claim_uploader',
                             retry: false,
                             detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       {}
