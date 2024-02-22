@@ -16,7 +16,6 @@ RSpec.configure do |config|
     File.readlines('log/test.log', chomp: true).each_with_index do |context, index|
       File.readlines('modules/claims_api/spec/support/pii_key_words.txt', chomp: true).each do |phrase|
         @results << { line: index, phrase:, context: } if context.to_s.downcase.include?(phrase.downcase)
-        debugger
       end
     end
 
