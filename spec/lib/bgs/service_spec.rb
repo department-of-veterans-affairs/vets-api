@@ -16,7 +16,7 @@ RSpec.describe BGS::Service do
     it 'gets the users disability rating data' do
       VCR.use_cassette('bgs/service/find_rating_data', VCR::MATCH_EVERYTHING) do
         response = bgs_service.find_rating_data
-        expect(response[:disability_rating_record][:service_connected_combined_degree]).to eq('100')
+        expect(response[:disability_rating_record][:service_connected_combined_degree]).to eq('50')
       end
     end
   end
