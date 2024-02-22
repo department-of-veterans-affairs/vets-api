@@ -36,7 +36,7 @@ module Representatives
         batch.jobs do
           data[sheet].each_slice(BATCH_SIZE) do |rows|
             rows.each do |row|
-              Representatives::Update.perform_async(row)
+              Representatives::Update.set(queue: 'low').perform_async(row)
             end
           end
         end
