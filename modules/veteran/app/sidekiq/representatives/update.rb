@@ -17,7 +17,7 @@ module Representatives
     REDIS_RATE_LIMIT_KEY = 'rep_update_rate_limit'
     RATE_LIMIT_PERIOD = 60 # seconds
     RATE_LIMIT_COUNT = 30
-  
+
     def perform(json_data)
       if rate_limited?
         Representatives::Update.perform_async(json_data)
@@ -26,9 +26,9 @@ module Representatives
           data = JSON.parse(json_data)
           validation_address = build_validation_address(data['request_address'])
           response = validate_address(validation_address)
-  
+
           return unless address_valid?(response)
-  
+
           update_address_record(data, response)
           increment_rate_limit
         rescue JSON::ParserError => e
@@ -36,15 +36,15 @@ module Representatives
         end
       end
     end
-  
+
     private
-  
+
     def rate_limited?
       redis = redis_instance
       count = redis.get(REDIS_RATE_LIMIT_KEY).to_i
       count >= RATE_LIMIT_COUNT
     end
-  
+
     def increment_rate_limit
       redis = redis_instance
 
@@ -55,8 +55,6 @@ module Representatives
         redis.set(REDIS_RATE_LIMIT_KEY, 1, ex: RATE_LIMIT_PERIOD)
       end
     end
-
-    private
 
     def redis_instance
       @redis ||= Redis.new(REDIS_OPTIONS)
