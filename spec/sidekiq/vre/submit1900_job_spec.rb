@@ -27,6 +27,11 @@ describe VRE::Submit1900Job do
     it 'calls claim.send_to_vre' do
       expect(claim).to receive(:send_to_vre).with(user)
     end
+
+    context 'using Benefits Intake API' do
+
+
+    end
   end
 
   describe 'raises an exception' do
