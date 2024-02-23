@@ -25,7 +25,7 @@ module Representatives
 
         update_record(rep_data, response)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Representative address validation failed: #{e.message}")
+        log_error("Error, representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}")
       rescue => e
         log_error("Error updating representative: #{e.message}")
       end
