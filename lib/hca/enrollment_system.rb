@@ -28,7 +28,7 @@ module HCA
       'exposureToMustardGas' => 'Mustard Gas',
       'exposureToWarfareAgents' => 'Warfare Agents',
       'exposureToOther' => 'Other'
-    }
+    }.freeze
 
     SIGI_CODES = {
       'M' => 'M',
@@ -546,7 +546,8 @@ module HCA
           'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
-          'radiationExposureInd' => veteran['exposedToRadiation'].present? || veteran['radiationCleanupEfforts'].present?
+          'radiationExposureInd' =>
+            veteran['exposedToRadiation'].present? || veteran['radiationCleanupEfforts'].present?
         }.merge(veteran_to_tera(veteran))
       }
     end
