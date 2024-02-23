@@ -35,11 +35,15 @@ module Representatives
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
 
-        batch.jobs do
-          data[sheet].each_slice(BATCH_SIZE) do |rows|
-            Representatives::UpdateBatch.perform_in(delay.minutes, rows)
-            delay += 1
+        begin
+          batch.jobs do
+            data[sheet].each_slice(BATCH_SIZE) do |rows|
+              Representatives::UpdateBatch.perform_in(delay.minutes, rows)
+              delay += 1
+            end
           end
+        rescue => e
+          log_error("Error queuing address updates: #{e.message}")
         end
       end
     end
