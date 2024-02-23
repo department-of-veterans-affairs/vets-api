@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4430/voa/voaSvc
+    uri: <%= Settings.hca.endpoint %>
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
