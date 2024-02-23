@@ -546,7 +546,7 @@ module HCA
           'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
-          'radiationExposureInd' => veteran['exposedToRadiation'].present?
+          'radiationExposureInd' => veteran['exposedToRadiation'].present? || veteran['radiationCleanupEfforts'].present?
         }.merge(veteran_to_tera(veteran))
       }
     end
