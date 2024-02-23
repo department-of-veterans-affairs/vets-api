@@ -15,11 +15,14 @@ RSpec.describe BenefitsEducation::Service do
     context '200' do
       describe '200 success' do
         it 'returns a 200 ok status' do
-          # in order to successfully (re)record this request, set
-          # `client_id` and `rsa_key` in config/settings/test.yml
+          # in order to successfully (re)record this request,
+          # - remove the existing 200_response.yml file,
+          # - set environment variables
+          #    LIGHTHOUSE_BENEFITS_EDUCATION_CLIENT_ID and
+          #    LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH
+          # - execute the test: `DISABLE_MOCKS=true rspec spec...`
           # these values are results of a request to get sandbox access:
           # https://developer.va.gov/explore/api/education-benefits
-          # NOTE: do not commit these changes to version control!
           VCR.use_cassette('lighthouse/benefits_education/200_response') do
             response = @service.get_gi_bill_status
             expect(response.body.keys).to include 'chapter33EducationInfo'
