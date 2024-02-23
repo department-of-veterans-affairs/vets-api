@@ -5,7 +5,7 @@
     "suffix": "Jr."
   },
   "mothersMaidenName": "Maiden",
-  "veteranSocialSecurityNumber": "321-11-1234",
+  "veteranSocialSecurityNumber": "321111234",
   "gender": "F",
   "vaCompensationType": "highDisability",
   "cityOfBirth": "Springfield",
@@ -52,6 +52,7 @@
   "campLejeune": true,
   "hasTeraResponse": true,
   "gulfWarService": true,
+  "isMedicaidEligible": false,
   "gulfWarStartDate": "1990-08-XX",
   "gulfWarEndDate": "1990-09-XX",
   "combatOperationService": true,
