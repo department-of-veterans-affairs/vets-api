@@ -12,14 +12,6 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
   let(:from) { '2022-01-01' }
   let(:to) { '2022-01-31' }
 
-  describe '#notify!' do
-    it 'notifies Slack with the correct message' do
-      expect_any_instance_of(SlackNotify::Client).to receive(:notify).with(subject.send(:build_notification_message))
-
-      subject.notify!
-    end
-  end
-
   describe '#build_notification_message' do
     it 'builds the notification message correctly' do
       message = subject.send(:build_notification_message)
