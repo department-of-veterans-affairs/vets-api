@@ -8,7 +8,7 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
-    BATCH_SIZE = 5000
+    BATCH_SIZE = 30
 
     def perform
       file_content = fetch_file_content
@@ -27,6 +27,8 @@ module Representatives
     end
 
     def queue_address_updates(data)
+      delay = 0
+
       Representatives::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
         next if data[sheet].blank?
 
@@ -35,9 +37,8 @@ module Representatives
 
         batch.jobs do
           data[sheet].each_slice(BATCH_SIZE) do |rows|
-            rows.each do |row|
-              Representatives::Update.perform_async(row)
-            end
+            Representatives::UpdateBatch.perform_in(delay.minutes, rows)
+            delay += 1
           end
         end
       end
