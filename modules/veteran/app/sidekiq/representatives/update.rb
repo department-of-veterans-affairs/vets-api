@@ -25,9 +25,9 @@ module Representatives
 
         update_record(rep_data, response)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Error, representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}")
+        log_error("Error: representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}")
       rescue => e
-        log_error("Error updating representative: #{e.message}")
+        log_error("Error: representative was not updated. Error message: #{e.message}")
       end
     rescue JSON::ParserError => e
       log_error(e)
@@ -127,9 +127,9 @@ module Representatives
     end
 
     # Logs an error to Sentry.
-    # @param error [Exception] The error object to be logged.
+    # @param error [Exception] The error string to be logged.
     def log_error(error)
-      log_message_to_sentry("Representatives::Update error: #{error.message}", :error)
+      log_message_to_sentry("Representatives::Update: #{error}", :error)
     end
   end
 end
