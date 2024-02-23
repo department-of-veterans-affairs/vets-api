@@ -24,6 +24,8 @@ module Representatives
         next unless address_valid?(response)
 
         update_record(rep_data, response)
+      rescue Common::Exceptions::BackendServiceException => e
+        log_error("Representative address validation failed: #{e.message}")
       rescue => e
         log_error("Error updating representative: #{e.message}")
       end
@@ -127,7 +129,7 @@ module Representatives
     # Logs an error to Sentry.
     # @param error [Exception] The error object to be logged.
     def log_error(error)
-      log_message_to_sentry("Update error: #{error.message}", :error)
+      log_message_to_sentry("Representatives::Update error: #{error.message}", :error)
     end
   end
 end
