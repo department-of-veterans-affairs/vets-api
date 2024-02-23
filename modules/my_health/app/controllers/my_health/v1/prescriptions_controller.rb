@@ -62,7 +62,7 @@ module MyHealth
       def list_refillable_prescriptions
         resource = collection_resource
         resource.data = resource.data.select do |item|
-          item.is_refillable || (item.refill_status == 'active' && item.refill_remaining == 0)
+          item.is_refillable || (item.refill_status == 'active' && item.refill_remaining&.zero?)
         end
         render json: resource.data,
                serializer: CollectionSerializer,

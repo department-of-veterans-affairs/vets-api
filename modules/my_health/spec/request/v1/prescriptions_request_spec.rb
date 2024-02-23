@@ -136,7 +136,7 @@ RSpec.describe 'prescriptions', type: :request do
         end
         response_data = JSON.parse(response.body)['data']
         response_data.each do |prescription|
-          if prescription['is_refillable'] || (prescription['refill_status'] == 'active' && prescription['refill_remaining'] == 0)
+          if prescription['is_refillable'] || (prescription['refill_status'] == 'active' && prescription['refill_remaining']&.zero?)
             expect(prescription).to be_included
           end
         end
