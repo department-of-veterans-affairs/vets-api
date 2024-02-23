@@ -555,8 +555,7 @@ module HCA
       return {} unless veteran['hasTeraResponse']
 
       {
-        'supportOperationsInd' => veteran['combatOperationService'].present?,
-        'toxicExposure' => veteran_to_toxic_exposure(veteran)
+        'supportOperationsInd' => veteran['combatOperationService'].present?
       }.merge(
         if veteran['gulfWarService'].present?
           {
@@ -569,7 +568,7 @@ module HCA
         else
           {}
         end
-      )
+      ).merge(veteran_to_toxic_exposure(veteran))
     end
 
     def veteran_to_toxic_exposure(veteran)
@@ -581,13 +580,17 @@ module HCA
         end
       end
 
+      return {} if categories.blank?
+
       {
-        'exposureCategories' => {
-          'exposureCategory' => categories
-        },
-        'otherText' => veteran['otherToxicExposure'],
-        'fromDate' => Validations.parse_short_date(veteran['toxicExposureStartDate']),
-        'toDate' => Validations.parse_short_date(veteran['toxicExposureEndDate'])
+        'toxicExposure' => {
+          'exposureCategories' => {
+            'exposureCategory' => categories
+          },
+          'otherText' => veteran['otherToxicExposure'],
+          'fromDate' => Validations.parse_short_date(veteran['toxicExposureStartDate']),
+          'toDate' => Validations.parse_short_date(veteran['toxicExposureEndDate'])
+        }
       }
     end
 

@@ -902,15 +902,7 @@ describe HCA::EnrollmentSystem do
             "envContaminantsInd" => false,
             "campLejeuneInd" => false,
             "radiationExposureInd" => false,
-             "supportOperationsInd" => true,
-             "toxicExposure" => {
-              "exposureCategories" => {
-                "exposureCategory" => []
-              },
-              "otherText" => nil,
-              "fromDate" => "",
-              "toDate" => ""
-            }
+             "supportOperationsInd" => true
           }
         }
       ],
