@@ -225,12 +225,12 @@ lighthouse:
         client_id: abc123456
         rsa_key: path/to/key
       use_mocks: false
-  benefits_education:
-    host: https://sandbox-api.va.gov
-    use_mocks: true
-    access_token:
-      client_id: abc123456
-      rsa_key: path/to/key
+  benefits_education: 
+      host: https://sandbox-api.va.gov
+      use_mocks: <% if ENV['DISABLE_MOCKS'] %>false<% else %>true<% end %>
+      access_token:
+        client_id: <% if ENV['DISABLE_MOCKS'] %><%= ENV['LIGHTHOUSE_BENEFITS_EDUCATION_CLIENT_ID'] || abc123456 %><% else %> abc123456 <% end %>
+        rsa_key: <% if ENV['DISABLE_MOCKS'] %><%= ENV['LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH'] || path/to/key %><% else %> path/to/key <% end %>
 
 rrd:
   alerts:
