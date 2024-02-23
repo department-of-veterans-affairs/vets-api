@@ -21,7 +21,7 @@ module PdfFill
 
       # rubocop:disable Layout/LineLength
       KEY = {
-        'veteranFullName' => {
+        'veteranFullName' => { # start veteran information
           'first' => {
             key: 'form1[0].#subform[82].VeteransFirstName[0]',
             limit: 12,
@@ -121,307 +121,402 @@ module PdfFill
             question_suffix: 'C',
             question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BURIAL (MM-DD-YYYY)'
           }
+        }, #end veteran information
+        'claimantFullName' => { #start claimant information
+          'first' => {
+            key: 'form1[0].#subform[82].ClaimantsFirstName[0]',
+            limit: 12,
+            question_num: 7,
+            question_text: "CLAIMANT'S FIRST NAME"
+          },
+          'middleInitial' => {
+            key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
+          },
+          'last' => {
+            key: 'form1[0].#subform[82].ClaimantsLastName[0]',
+            limit: 18,
+            question_num: 7,
+            question_text: "CLAIMANT'S LAST NAME"
+          }
         },
-        # 'burialAllowanceRequested' => {
-        #   'checkbox' => {
-        #     'nonService' => {
-        #       key: 'form1[0].#subform[37].Non-Service-ConnectedDeath[0]'
-        #     },
-        #     'service' => {
-        #       key: 'form1[0].#subform[37].Service-ConnectedDeath[0]'
-        #     },
-        #     'vaMC' => {
-        #       key: 'form1[0].#subform[37].UnclaimedRemains[0]'
-        #     }
-        #   }
-        # },
-        # 'signature' => {
-        #   key: 'form1[0].#subform[37].CLAIMANT_SIGNATURE[0]',
-        #   limit: 45,
-        #   question_num: 20,
-        #   question_text: 'SIGNATURE OF CLAIMANT',
-        #   question_suffix: 'A'
-        # },
-        # 'amountIncurred' => {
-        #   key: 'form1[0].#subform[37].COST_OF_BURIAL[0]',
-        #   question_num: 19,
-        #   dollar: true,
-        #   question_text: "EXPENSES INCURED FOR THE TRANSPORTATION OF THE VETERAN'S REMAINS FROM THE PLACE OF DEATH TO THE FINAL RESTING PLACE",
-        #   limit: 12
-        # },
-        # 'amountGovtContribution' => {
-        #   key: 'form1[0].#subform[37].AMOUNT[0]',
-        #   question_num: 18,
-        #   question_suffix: 'B',
-        #   dollar: true,
-        #   question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
-        #   limit: 10
-        # },
-        # 'placeOfRemains' => {
-        #   key: 'form1[0].#subform[37].PLACE_OF_DEATH[1]',
-        #   limit: 80,
-        #   question_num: 16,
-        #   question_text: "PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
-        # },
-        # 'hasGovtContributions' => {
-        #   key: 'form1[0].#subform[37].YES5[0]'
-        # },
-        # 'noGovtContributions' => {
-        #   key: 'form1[0].#subform[37].NO5[0]'
-        # },
-        # 'hasStateCemetery' => {
-        #   key: 'form1[0].#subform[37].YES4[2]'
-        # },
-        # 'noStateCemetery' => {
-        #   key: 'form1[0].#subform[37].NO4[2]'
-        # },
-        # 'hasFederalCemetery' => {
-        #   key: 'form1[0].#subform[37].YES4[0]'
-        # },
-        # 'noFederalCemetery' => {
-        #   key: 'form1[0].#subform[37].NO4[0]'
-        # },
-        # 'hasBenefitsUnclaimedRemains' => {
-        #   key: 'form1[0].#subform[37].YES4[4]'
-        # },
-        # 'noBenefitsUnclaimedRemains' => {
-        #   key: 'form1[0].#subform[37].NO4[4]'
-        # },
-        # 'hasPlotAllowance' => {
-        #   key: 'form1[0].#subform[37].YES4[1]'
-        # },
-        # 'noPlotAllowance' => {
-        #   key: 'form1[0].#subform[37].NO4[1]'
-        # },
-        # 'officialPosition' => {
-        #   key: 'officialPosition',
-        #   limit: 48,
-        #   question_num: 20,
-        #   question_suffix: 'B',
-        #   question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
-        # },
-        # 'hasBurialAllowance' => {
-        #   key: 'form1[0].#subform[37].YES4[3]'
-        # },
-        # 'noBurialAllowance' => {
-        #   key: 'form1[0].#subform[37].NO4[3]'
-        # },
-        # 'hasPreviouslyReceivedAllowance' => {
-        #   key: 'form1[0].#subform[37].YES2[0]'
-        # },
-        # 'noPreviouslyReceivedAllowance' => {
-        #   key: 'form1[0].#subform[37].NO2[0]'
-        # },
-        # 'locationOfDeath' => {
-        #   'checkbox' => {
-        #     'vaMedicalCenter' => {
-        #       key: 'form1[0].#subform[37].CheckBox1[1]'
-        #     },
-        #     'stateVeteransHome' => {
-        #       key: 'form1[0].#subform[37].CheckBox2[1]'
-        #     },
-        #     'nursingHome' => {
-        #       key: 'form1[0].#subform[37].CheckBox3[1]'
-        #     },
-        #     'other' => {
-        #       key: 'form1[0].#subform[37].CheckBox4[1]'
-        #     }
-        #   },
-        #   'other' => {
-        #     key: 'form1[0].#subform[37].OTHER_SPECIFY[1]',
-        #     question_num: 13,
-        #     question_suffix: 'B',
-        #     question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
-        #     limit: 50
-        #   }
-        # },
-        # 'burialCost' => {
-        #   key: 'form1[0].#subform[37].COST_OF_BURIAL[1]',
-        #   limit: 12,
-        #   question_num: 13,
-        #   question_suffix: 'A',
-        #   question_text: 'If VA Medical Center Death is checked, provide actual burial cost'
-        # },
-       
-        # 'previousNames' => {
-        #   key: 'form1[0].#subform[36].OTHER_NAME[0]',
-        #   question_num: 12,
-        #   question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
-        #   limit: 180
-        # },
-        
-        # 'placeOfDeath' => {
-        #   key: 'form1[0].#subform[36].PLACE_OF_DEATH[0]',
-        #   limit: 52,
-        #   question_num: 10,
-        #   question_suffix: 'B',
-        #   question_text: 'PLACE OF DEATH'
-        # },
-        # 'claimantEmail' => {
-        #   key: 'form1[0].#subform[36].PreferredE_MailAddress[0]',
-        #   limit: 31,
-        #   question_num: 7,
-        #   question_text: 'PREFERRED E-MAIL ADDRESS'
-        # },
-        # 'claimantFullName' => {
-        #   'first' => {
-        #     key: 'form1[0].#subform[36].ClaimantsFirstName[0]',
-        #     limit: 12,
-        #     question_num: 4,
-        #     question_text: "CLAIMANT'S FIRST NAME"
-        #   },
-        #   'middleInitial' => {
-        #     key: 'form1[0].#subform[36].ClaimantsMiddleInitial1[0]'
-        #   },
-        #   'last' => {
-        #     key: 'form1[0].#subform[36].ClaimantsLastName[0]',
-        #     limit: 18,
-        #     question_num: 4,
-        #     question_text: "CLAIMANT'S LAST NAME"
-        #   }
-        # },
-        # 'claimantAddress' => {
-        #   'street' => {
-        #     key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
-        #     limit: 30,
-        #     question_num: 5,
-        #     question_text: "CLAIMANT'S ADDRESS - STREET"
-        #   },
-        #   'street2' => {
-        #     key: 'form1[0].#subform[36].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
-        #     limit: 5,
-        #     question_num: 5,
-        #     question_text: "CLAIMANT'S ADDRESS - APT/UNIT NO."
-        #   },
-        #   'city' => {
-        #     key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]',
-        #     limit: 18,
-        #     question_num: 5,
-        #     question_text: "CLAIMANT'S ADDRESS - CITY"
-        #   },
-        #   'state' => {
-        #     key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]',
-        #     limit: 2,
-        #     question_num: 5,
-        #     question_text: "CLAIMANT'S ADDRESS - STATE"
-        #   },
-        #   'country' => {
-        #     key: 'form1[0].#subform[36].CurrentMailingAddress_Country[0]',
-        #     limit: 2,
-        #     question_num: 5,
-        #     question_text: "CLAIMANT'S ADDRESS - COUNTRY"
-        #   },
-        #   'postalCode' => {
-        #     'firstFive' => {
-        #       key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
-        #       limit: 5,
-        #       question_num: 5,
-        #       question_text: "CLAIMANT'S ADDRESS - POSTAL CODE - FIRST FIVE"
-        #     },
-        #     'lastFour' => {
-        #       key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
-        #       limit: 4,
-        #       question: 5,
-        #       question_text: "CLAIMANT's ADDRESS - POSTAL CODE - LAST FOUR"
-        #     }
-        #   }
-        # },
-        # 'relationship' => {
-        #   'checkbox' => {
-        #     'spouse' => {
-        #       key: 'form1[0].#subform[36].CheckBox1[0]'
-        #     },
-        #     'child' => {
-        #       key: 'form1[0].#subform[36].CheckBox2[0]'
-        #     },
-        #     'executor' => {
-        #       key: 'form1[0].#subform[36].CheckBox4[0]'
-        #     },
-        #     'other' => {
-        #       key: 'form1[0].#subform[36].CheckBox5[0]'
-        #     },
-        #     'parent' => {
-        #       key: 'form1[0].#subform[36].CheckBox3[0]'
-        #     }
-        #   },
-        #   'other' => {
-        #     limit: 58,
-        #     question_num: 8,
-        #     question_text: 'RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN',
-        #     key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
-        #   }
-        # },
-        # 'toursOfDuty' => {
-        #   limit: 3,
-        #   first_key: 'rank',
-        #   'dateRangeStart' => {
-        #     key: "toursOfDuty.dateRangeStart[#{ITERATOR}]",
-        #     question_num: 11,
-        #     question_suffix: 'A',
-        #     question_text: 'ENTERED SERVICE (date)',
-        #     format: 'date'
-        #   },
-        #   'placeOfEntry' => {
-        #     key: "toursOfDuty.placeOfEntry[#{ITERATOR}]",
-        #     limit: 14,
-        #     question_num: 11,
-        #     question_suffix: 'A',
-        #     question_text: 'ENTERED SERVICE (place)'
-        #   },
-        #   'serviceNumber' => {
-        #     key: "toursOfDuty.serviceNumber[#{ITERATOR}]",
-        #     limit: 12,
-        #     question_num: 11,
-        #     question_suffix: 'B',
-        #     question_text: 'SERVICE NUMBER'
-        #   },
-        #   'dateRangeEnd' => {
-        #     key: "toursOfDuty.dateRangeEnd[#{ITERATOR}]",
-        #     question_num: 11,
-        #     question_suffix: 'C',
-        #     question_text: 'SEPARATED FROM SERVICE (date)',
-        #     format: 'date'
-        #   },
-        #   'placeOfSeparation' => {
-        #     key: "toursOfDuty.placeOfSeparation[#{ITERATOR}]",
-        #     question_num: 11,
-        #     question_suffix: 'C',
-        #     question_text: 'SEPARATED FROM SERVICE (place)',
-        #     limit: 15
-        #   },
-        #   'rank' => {
-        #     key: "toursOfDuty.rank[#{ITERATOR}]",
-        #     question_num: 11,
-        #     question_suffix: 'D',
-        #     question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
-        #     limit: 31
-        #   }
-        # },
-        # 'placeOfBirth' => {
-        #   key: 'form1[0].#subform[36].PLACE_OF_BIRTH[0]',
-        #   limit: 71,
-        #   question_num: 9,
-        #   question_suffix: 'B',
-        #   question_text: 'PLACE OF BIRTH'
-        # },
-        
-        # 'claimantPhone' => {
-        #   'first' => {
-        #     key: 'form1[0].#subform[36].PreferredTelephoneNumber_AreaCode[0]'
-        #   },
-        #   'second' => {
-        #     key: 'form1[0].#subform[36].PreferredTelephoneNumber_FirstThreeNumbers[0]'
-        #   },
-        #   'third' => {
-        #     key: 'form1[0].#subform[36].PreferredTelephoneNumber_LastFourNumbers[0]'
-        #   }
-        # },
-        # 'firmNameAndAddr' => {
-        #   key: 'form1[0].#subform[37].FULL_NAME[0]',
-        #   limit: 90,
-        #   question_num: 21,
-        #   question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
-        # },
+        'claimantSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[82].Claimants_SocialSecurityNumber_FirstThreeNumbers[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[82].Claimants_SocialSecurityNumber_SecondTwoNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[82].Claimants_SocialSecurityNumber_LastFourNumbers[0]'
+          }
+        },
+        'claimantDateOfBirth' => {
+          'month' => {
+            key: 'form1[0].#subform[82].Claimants_DOBmonth[0]',
+            limit: 2,
+            question_num: 9,
+            question_suffix: 'A',
+            question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > CLAIMANT\'S DATE OF BIRTH (MM-DD-YYYY)'
+          },
+          'day' => {
+            key: 'form1[0].#subform[82].Claimants_DOBday[0]',
+            limit: 2,
+            question_num: 9,
+            question_suffix: 'B',
+            question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > CLAIMANT\'S DATE OF BIRTH (MM-DD-YYYY)'
+          },
+          'year' => {
+            key: 'form1[0].#subform[82].Claimants_DOByear[0]',
+            limit: 4,
+            question_num: 9,
+            question_suffix: 'C',
+            question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > CLAIMANT\'S DATE OF BIRTH (MM-DD-YYYY)'
+          }
+        },
+        'claimantAddress' => {
+          'street' => {
+            key: 'form1[0].#subform[82].CurrentMailingAddress_NumberAndStreet[0]',
+            limit: 30,
+            question_num: 10,
+            question_text: "CLAIMANT'S ADDRESS - STREET"
+          },
+          'street2' => {
+            key: 'form1[0].#subform[82].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            limit: 5,
+            question_num: 10,
+            question_text: "CLAIMANT'S ADDRESS - APT/UNIT NO."
+          },
+          'city' => {
+            key: 'form1[0].#subform[82].CurrentMailingAddress_City[0]',
+            limit: 18,
+            question_num: 10,
+            question_text: "CLAIMANT'S ADDRESS - CITY"
+          },
+          'state' => {
+            key: 'form1[0].#subform[82].CurrentMailingAddress_StateOrProvince[0]',
+            limit: 2,
+            question_num: 10,
+            question_text: "CLAIMANT'S ADDRESS - STATE"
+          },
+          'country' => {
+            key: 'form1[0].#subform[82].CurrentMailingAddress_Country[0]',
+            limit: 2,
+            question_num: 10,
+            question_text: "CLAIMANT'S ADDRESS - COUNTRY"
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
+              limit: 5,
+              question_num: 10,
+              question_text: "CLAIMANT'S ADDRESS - POSTAL CODE - FIRST FIVE"
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[82].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
+              limit: 4,
+              question: 10,
+              question_text: "CLAIMANT's ADDRESS - POSTAL CODE - LAST FOUR"
+            }
+          }
+        },
+        'claimantPhone' => {
+          'first' => {
+            key: 'form1[0].#subform[82].TelephoneNumber_AreaCode[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[82].TelephoneNumber_FirstThreeNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[82].TelephoneNumber_LastFourNumbers[0]'
+          }
+        },
+        'claimantEmail' => {
+          key: 'form1[0].#subform[82].E-Mail_Address[0]',
+          limit: 31,
+          question_num: 12,
+          question_text: 'E-MAIL ADDRESS'
+        },
+        'relationship' => {
+          'checkbox' => {
+            'spouse' => {
+              key: 'form1[0].#subform[82].CheckboxSpouse[0]'
+            },
+            'child' => {
+              key: 'form1[0].#subform[82].CheckboxChild[0]'
+            },
+            'parent' => {
+              key: 'form1[0].#subform[82].CheckboxParent[0]'
+            },
+            'executor' => {
+              key: 'form1[0].#subform[82].CheckboxExecutor[0]'
+            },
+            'funeralHome' => {
+              key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
+            },
+            'other' => {
+              key: 'form1[0].#subform[82].CheckboxOther[0]'
+            },
+          }
+        },
+        'toursOfDuty' => { #might need to break into three individual ones
+          limit: 3,
+          first_key: 'rank',
+          'dateRangeStart' => {
+            key: "form1[0].#subform[82].DATE_ENTERED_SERVICE[#{ITERATOR}]",
+            question_num: 14,
+            question_suffix: 'A',
+            question_text: 'ENTERED SERVICE (date)',
+            format: 'date'
+          },
+          'placeOfEntry' => {
+            key: "form1[0].#subform[82].PLACE[#{ITERATOR}]",
+            limit: 14,
+            question_num: 14,
+            question_suffix: 'A',
+            question_text: 'ENTERED SERVICE (place)'
+          },
+          'serviceNumber' => {
+            key: "form1[0].#subform[82].SERVICE_NUMBER[#{ITERATOR}]",
+            limit: 12,
+            question_num: 14,
+            question_suffix: 'B',
+            question_text: 'SERVICE NUMBER'
+          },
+          'dateRangeEnd' => {
+            key: "form1[0].#subform[82].DATE_SEPARATED_SERVICE[#{ITERATOR}]",
+            question_num: 14,
+            question_suffix: 'C',
+            question_text: 'SEPARATED FROM SERVICE (date)',
+            format: 'date'
+          },
+          'placeOfSeparation' => {
+            key: "form1[0].#subform[82].PLACE_SEPARATED[#{ITERATOR}]",
+            question_num: 14,
+            question_suffix: 'C',
+            question_text: 'SEPARATED FROM SERVICE (place)',
+            limit: 15
+          },
+          'rank' => {
+            key: "form1[0].#subform[82].GRADE_RANK_OR_RATING[#{ITERATOR}]",
+            question_num: 11,
+            question_suffix: 'D',
+            question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
+            limit: 31
+          }
+        },
+        'previousNames' => {
+          key: 'form1[0].#subform[82].OTHER_NAME_VETERAN_SERVED_UNDER[0]',
+          question_num: 15,
+          question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
+          limit: 180
+        },
+        'veteranSocialSecurityNumberPageTwo' => {
+          'first' => {
+            key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_FirstThreeNumbers[1]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_SecondTwoNumbers[1]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_LastFourNumbers[1]'
+          }
+        },
+        'placeOfBurial' => { #break into yes/nos
+          'checkbox' => {
+            'cemetery' => {
+              key: 'form1[0].#subform[83].#subform[84].RestingPlaceCemetery[5]'
+            },
+            'privateResidence' => {
+              key: 'form1[0].#subform[83].#subform[84].RestingPlacePrivateResidence[5]'
+            },
+            'mausoleum' => {
+              key: 'form1[0].#subform[83].#subform[84].RestingPlaceMausoleum[5]'
+            },
+            'other' => {
+              key: 'form1[0].#subform[83].#subform[84].RestingPlaceOther[5]'
+            },
+          },
+          'other' => {
+            limit: 58,
+            question_num: 16,
+            question_text: "PLACE OF BURIAL PLOT, INTERMENT SITE, OR FINAL RESTING PLACE OF DECEASED VETERAN'S REMAINS",
+            key: 'form1[0].#subform[83].#subform[84].PLACE_OF_DEATH[0]'
+          }
+        },
+        'hasFederalCemetery' => {
+          key: 'form1[0].#subform[37].FederalCemeteryYES[0]'
+        },
+        'noFederalCemetery' => {
+          key: 'form1[0].#subform[37].FederalCemeteryNO[0]'
+        },
+        'federalCemeteryName' => {
+          key: 'form1[0].#subform[37].FederalCemeteryName[0]'
+        },
+        'hasStateCemetery' => {
+          key: 'form1[0].#subform[37].HasStateCemetery[2]'
+        },
+        'hasTribalTrust' => {
+          key: 'form1[0].#subform[37].HasTribalTrust[2]'
+        },
+        'noStateCemetery' => {
+          key: 'form1[0].#subform[37].NoStateCemetery[2]'
+        },
+        'stateCemeteryOrTribalTrustName' => {
+          key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustName[2]'
+        },
+        'stateCemeteryOrTribalTrustZip' => {
+          key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustZip[2]'
+        },
+        'hasGovtContributions' => {
+          key: 'form1[0].#subform[37].GovContributionYES[0]'
+        },
+        'noGovtContributions' => {
+          key: 'form1[0].#subform[37].GovContributionNO[0]'
+        },
+        'amountGovtContributionFirst' => {
+          key: 'form1[0].#subform[37].FirstAmount[0]',
+          question_num: 19,
+          question_suffix: 'B',
+          dollar: true,
+          question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
+          limit: 2
+        },
+        'amountGovtContributionSecond' => {
+          key: 'form1[0].#subform[37].SecondAmount[0]',
+          question_num: 19,
+          question_suffix: 'B',
+          dollar: true,
+          question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
+          limit: 3
+        },
+        'amountGovtContributionThird' => {
+          key: 'form1[0].#subform[37].ThirdAmount[0]',
+          question_num: 19,
+          question_suffix: 'B',
+          dollar: true,
+          question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
+          limit: 2
+        },
+        'burialAllowanceRequested' => {
+          'checkbox' => {
+            'nonService' => {
+              key: 'form1[0].#subform[83].Non-Service-Connected[0]'
+            },
+            'service' => {
+              key: 'form1[0].#subform[83].Service-Connected[0]'
+            },
+            'unclaimed' => {
+              key: 'form1[0].#subform[83].UnclaimedRemains[0]'
+            }
+          }
+        },
+        'locationOfDeath' => {
+          'checkbox' => {
+            'nursingHomeOrResidenceNotPaid' => {
+              key: 'form1[0].#subform[83].NursingHomeOrResidenceNotPaid[1]'
+            },
+            'nursingHomeOrResidencePaid' => {
+              key: 'form1[0].#subform[83].NursingHomeOrResidencePaid[1]'
+            },
+            'vaMedicalCenter' => {
+              key: 'form1[0].#subform[83].VaMedicalCenter[1]'
+            },
+            'stateVeteransHome' => {
+              key: 'form1[0].#subform[83].StateVeteransHome[1]'
+            },
+            'other' => {
+              key: 'form1[0].#subform[83].DeathOccurredOther[1]'
+            }
+          },
+          'other' => {
+            key: 'form1[0].#subform[37].DeathOccurredOtherSpecify[1]',
+            question_num: 20,
+            question_suffix: 'B',
+            question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
+            limit: 50
+          }
+        },
+        'hasPreviouslyReceivedAllowance' => {
+          key: 'form1[0].#subform[83].PreviousAllowanceYes[0]'
+        },
+        'noPreviouslyReceivedAllowance' => {
+          key: 'form1[0].#subform[83].PreviousAllowanceNo[0]'
+        },
+        'responsibleForBurialCostYes' => {
+          key: 'form1[0].#subform[83].ResponsibleForBurialCostYes[0]'
+        },
+        'responsibleForBurialCostNo' => {
+          key: 'form1[0].#subform[83].ResponsibleForBurialCostNo[0]'
+        },
+        'certifyUnclaimedAndNotSufficientResourcesYes' => {
+          key: 'form1[0].#subform[83].certifyUnclaimedYes[0]'
+        },
+        'certifyUnclaimedAndNotSufficientResourcesNo' => {
+          key: 'form1[0].#subform[83].certifyUnclaimedNo[0]'
+        },
+        'responsibleForPlotIntermentCostYes' => {
+          key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostYes[0]'
+        },
+        'responsibleForPlotIntermentCostNo' => {
+          key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostNo[0]'
+        },
+        'responsibleForTransportationYes' => {
+          key: 'form1[0].#subform[83].ResponsibleForTransportationYes[0]'
+        },
+        'responsibleForTransportationNo' => {
+          key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
+        },
+        'responsibleForTransportationYes' => {
+          key: 'form1[0].#subform[83].ResponsibleForTransportationYes[0]'
+        },
+        'responsibleForTransportationNo' => {
+          key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
+        },
+        'wantClaimFDCProcessedYes' => {
+          key: 'form1[0].#subform[83].WantClaimFDCProcessedYes[0]'
+        },
+        'wantClaimFDCProcessedNo' => {
+          key: 'form1[0].#subform[83].WantClaimFDCProcessedNo[0]'
+        },
+        'claimantSignature' => {
+          key: 'form1[0].#subform[83].CLAIMANT_SIGNATURE[0]',
+          limit: 45,
+          question_num: 25,
+          question_text: 'SIGNATURE OF CLAIMANT',
+          question_suffix: 'A'
+        },
+        'claimantPrintedName' => {
+          key: 'form1[0].#subform[83].ClaimantPrintedName[0]',
+          limit: 45,
+          question_num: 25,
+          question_text: 'Printed Name of Claimant',
+          question_suffix: 'B'
+        },
+        'firmNameAndAddr' => {
+          key: 'form1[0].#subform[83].FirmNameAndAddress[0]',
+          limit: 90,
+          question_num: 26,
+          question_suffix: 'B'
+          question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
+        },
+        'officialPosition' => {
+          key: 'form1[0].#subform[83].OfficialPosition[0]',
+          limit: 90,
+          question_num: 26,
+          question_suffix: 'B'
+          question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
+        },
+        'veteranSocialSecurityNumberPageThree' => {
+          'first' => {
+            key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_FirstThreeNumbers[2]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_SecondTwoNumbers[2]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_LastFourNumbers[2]'
+          }
+        },
         
       }.freeze
       # rubocop:enable Layout/LineLength
