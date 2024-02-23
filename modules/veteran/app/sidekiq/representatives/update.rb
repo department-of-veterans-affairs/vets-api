@@ -16,18 +16,16 @@ module Representatives
     # @param json_data [String] JSON string containing address data.
     def perform(reps_json)
       reps_data = JSON.parse(reps_json)
-    
+
       reps_data.each do |rep_data|
-        begin
-          validation_address = build_validation_address(rep_data['request_address'])
-          response = validate_address(validation_address)
-    
-          next unless address_valid?(response)
-    
-          update_record(rep_data, response)
-        rescue => e
-          log_error("Error updating representative: #{e.message}")
-        end
+        validation_address = build_validation_address(rep_data['request_address'])
+        response = validate_address(validation_address)
+
+        next unless address_valid?(response)
+
+        update_record(rep_data, response)
+      rescue => e
+        log_error("Error updating representative: #{e.message}")
       end
     rescue JSON::ParserError => e
       log_error(e)
@@ -81,7 +79,7 @@ module Representatives
           :error
         )
       else
-        record_attributes = build_record_attributes(record, rep_data, api_response)
+        record_attributes = build_record_attributes(rep_data, api_response)
         record.update(record_attributes)
       end
     end
@@ -90,7 +88,7 @@ module Representatives
     # @param record [ActiveRecord::Base] The record to be updated.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def build_record_attributes(record, rep_data, api_response)
+    def build_record_attributes(rep_data, api_response)
       address = api_response['candidate_addresses'].first['address']
       geocode = api_response['candidate_addresses'].first['geocode']
       meta = api_response['candidate_addresses'].first['address_meta_data']
