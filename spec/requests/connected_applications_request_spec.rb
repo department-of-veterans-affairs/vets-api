@@ -29,7 +29,6 @@ RSpec.describe 'Connected Applications API endpoint' do
     it 'deletes all the grants by app' do
       VCR.use_cassette('lighthouse/auth/client_credentials/revoke_consent_204', allow_playback_repeats: true) do
         delete '/v0/profile/connected_applications/0oa2ey2m6kEL2897N2p7'
-        puts response.body
         expect(response).to have_http_status(:no_content)
       end
     end
