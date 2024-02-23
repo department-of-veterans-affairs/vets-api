@@ -35,12 +35,12 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
+      salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
       handle_filtered_errors!(e:, encrypted_vet_info:)
 
       Rails.logger.warn('BGS::SubmitForm686cJob received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
-      salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
       raise
     end
 
