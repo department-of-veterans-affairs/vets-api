@@ -15,13 +15,20 @@ module Representatives
     # Performs the job of parsing JSON data, validating the address, and updating the record.
     # @param json_data [String] JSON string containing address data.
     def perform(json_data)
-      data = JSON.parse(json_data)
-      validation_address = build_validation_address(data['request_address'])
-      response = validate_address(validation_address)
+      rows = JSON.parse(json_data)
 
-      return unless address_valid?(response)
-
-      update_address_record(data, response)
+      rows.each do |row|
+        begin
+          validation_address = build_validation_address(row['request_address'])
+          response = validate_address(validation_address)
+    
+          next unless address_valid?(response)
+    
+          update_record(row, response)
+        rescue => e
+          log_error("Error updating representative: #{e.message}")
+        end
+      end
     rescue JSON::ParserError => e
       log_error(e)
     end
@@ -64,7 +71,7 @@ module Representatives
     # If the record cannot be found, logs an error to Sentry.
     # @param data [Hash] Original data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def update_address_record(data, api_response)
+    def update_record(data, api_response)
       record =
         Veteran::Service::Representative.find_by(representative_id: data['id'])
 
@@ -74,7 +81,8 @@ module Representatives
           :error
         )
       else
-        update_record(record, data, api_response)
+        record_attributes = build_record_attributes(record, data, api_response)
+        record.update(record_attributes)
       end
     end
 
@@ -82,15 +90,15 @@ module Representatives
     # @param record [ActiveRecord::Base] The record to be updated.
     # @param data [Hash] Original data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def update_record(record, data, api_response)
+    def build_record_attributes(record, data, api_response)
       address = api_response['candidate_addresses'].first['address']
       geocode = api_response['candidate_addresses'].first['geocode']
       meta = api_response['candidate_addresses'].first['address_meta_data']
-      record_attributes = build_record_attributes(address, geocode, meta)
+      record_attributes = build_address_attributes(address, geocode, meta)
                           .merge({ raw_address: data['request_address'].to_json })
       record_attributes[:email] = data['email_address']
       record_attributes[:phone_number] = data['phone_number']
-      record.update(record_attributes)
+      record_attributes
     end
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
@@ -98,7 +106,7 @@ module Representatives
     # @param geocode [Hash] Geocode details from the validation response.
     # @param meta [Hash] Metadata about the address from the validation response.
     # @return [Hash] The attributes to update the record with.
-    def build_record_attributes(address, geocode, meta)
+    def build_address_attributes(address, geocode, meta)
       {
         address_type: meta['address_type'],
         address_line1: address['address_line1'],
