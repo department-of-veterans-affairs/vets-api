@@ -38,7 +38,7 @@ module Representatives
         begin
           batch.jobs do
             data[sheet].each_slice(BATCH_SIZE) do |rows|
-              Representatives::UpdateBatch.perform_in(delay.minutes, rows)
+              Representatives::Update.perform_in(delay.minutes, rows)
               delay += 1
             end
           end
