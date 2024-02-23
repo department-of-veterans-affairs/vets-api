@@ -1,31 +1,4 @@
 GIT
-  remote: https://github.com/adhocteam/fhir_client.git
-  revision: a9de7e0e5b532c069dddacd2c4756046f95812fc
-  tag: v6.0.1
-  specs:
-    fhir_client (6.0.0)
-      activesupport (>= 3)
-      addressable (>= 2.3)
-      fhir_dstu2_models (>= 1.1.1)
-      fhir_models (>= 4.2.1)
-      fhir_stu3_models (>= 3.1.1)
-      http (~> 5.1)
-      nokogiri (>= 1.10.4)
-      oauth2 (>= 1.1)
-      rack (>= 1.5)
-      tilt (>= 1.1)
-
-GIT
-  remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
-  revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
-  tag: v4.0.0
-  specs:
-    govdelivery-tms (4.0.0)
-      activesupport (>= 5.2.4.3, < 8.0.0)
-      faraday
-      mime-types
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
   revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
   tag: v2.0.0.vsp
@@ -72,6 +45,33 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/fhir_client.git
+  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
+  tag: v6.0.0
+  specs:
+    fhir_client (6.0.0)
+      activesupport (>= 3)
+      addressable (>= 2.3)
+      fhir_dstu2_models (>= 1.1.1)
+      fhir_models (>= 4.2.1)
+      fhir_stu3_models (>= 3.1.1)
+      http (~> 5.1)
+      nokogiri (>= 1.10.4)
+      oauth2 (>= 1.1)
+      rack (>= 1.5)
+      tilt (>= 1.1)
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
+  revision: d58cc59ae47e5f5f642b3603224f42f518f92f56
+  tag: v4.0.0
+  specs:
+    govdelivery-tms (4.0.0)
+      activesupport (>= 5.2.4.3, < 8.0.0)
+      faraday
+      mime-types
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: d11fa23200e236042ffab9230fa0f62f20054b09
   branch: master
@@ -83,6 +83,7 @@ GIT
 PATH
   remote: modules
   specs:
+    accredited_representatives (0.1.0)
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -500,7 +501,7 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (3.25.2)
+    google-protobuf (3.25.3)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -568,7 +569,8 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.7.1)
+    jwt (2.8.0)
+      base64
     kms_encrypted (1.5.1)
       activesupport (>= 6)
     kramdown (2.4.0)
@@ -1043,6 +1045,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
+  accredited_representatives!
   active_model_serializers
   activerecord-import
   activerecord-postgis-adapter
