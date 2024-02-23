@@ -123,10 +123,10 @@ describe HCA::Service do
     end
 
     context 'submitting tera questions' do
-      it 'works', run_at: 'Fri, 23 Feb 2024 15:23:55 GMT' do
+      it 'works' do
         VCR.use_cassette(
           'hca/tera',
-          VCR::MATCH_EVERYTHING.merge(erb: true)
+          record: :once
         ) do
           form = get_fixture('hca/tera')
           expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
