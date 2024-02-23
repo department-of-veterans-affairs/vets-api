@@ -8,7 +8,8 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
-    BATCH_SIZE = 30
+    PROD_BATCH_SIZE = 1000
+    OTHER_ENV_BATCH_SIZE = 30
 
     def perform
       file_content = fetch_file_content
@@ -34,10 +35,11 @@ module Representatives
 
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
+        batch_size = Settings.vsp_environment == 'production' ? PROD_BATCH_SIZE : OTHER_ENV_BATCH_SIZE
 
         begin
           batch.jobs do
-            data[sheet].each_slice(BATCH_SIZE) do |rows|
+            data[sheet].each_slice(batch_size) do |rows|
               Representatives::Update.perform_in(delay.minutes, rows)
               delay += 1
             end
