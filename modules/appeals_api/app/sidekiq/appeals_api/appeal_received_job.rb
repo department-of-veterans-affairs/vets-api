@@ -29,13 +29,11 @@ module AppealsApi
 
       vanotify_service.send_email(vanotify_args(appeal, date_submitted_str))
 
-      StatsD.increment(
-        STATSD_CLAIMANT_EMAIL_SENT,
-        tags: {
-          appeal_type: appeal.class.name.demodulize.scan(/\p{Upper}/).map(&:downcase).join,
-          claimant_type: appeal.claimant.signing_appellant? ? 'non-veteran' : 'veteran'
-        }
-      )
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT,
+                       tags: {
+                         appeal_type: appeal.class.name.demodulize.scan(/\p{Upper}/).map(&:downcase).join,
+                         claimant_type: appeal.claimant.signing_appellant? ? 'non-veteran' : 'veteran'
+                       })
     end
 
     def vanotify_args(appeal, date_submitted_str)
