@@ -25,7 +25,7 @@ module Representatives
 
         update_record(rep_data, response)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Error: representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}")
+        log_error("Error: representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}") # rubocop:disable Layout/LineLength
       rescue => e
         log_error("Error: representative was not updated. Error message: #{e.message}")
       end
