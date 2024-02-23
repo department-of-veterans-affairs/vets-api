@@ -1,17 +1,16 @@
 {
   "veteranFullName": {
-    "first": "FirstName",
-    "middle": "MiddleName",
-    "last": "LastName",
+    "first": "Joie",
+    "last": "Hintz",
     "suffix": "Jr."
   },
   "mothersMaidenName": "Maiden",
-  "veteranSocialSecurityNumber": "111-11-1235",
+  "veteranSocialSecurityNumber": "321-11-1234",
   "gender": "F",
   "vaCompensationType": "highDisability",
   "cityOfBirth": "Springfield",
   "stateOfBirth": "AK",
-  "veteranDateOfBirth": "1923-01-02",
+  "veteranDateOfBirth": "1933-01-02",
   "isEssentialAcaCoverage": false,
   "facilityState": "CT",
   "vaMedicalFacility": "987",
