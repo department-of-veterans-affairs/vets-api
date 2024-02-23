@@ -128,6 +128,8 @@ describe HCA::Service do
           'hca/tera',
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
+          # form = get_fixture('hca/tera')
+          # expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
           result = HCA::Service.new.submit_form(get_fixture('hca/tera'))
           expect(result[:success]).to eq(true)
         end
