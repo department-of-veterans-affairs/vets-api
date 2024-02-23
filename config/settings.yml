@@ -1020,7 +1020,6 @@ lighthouse:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
     use_mocks: false
   benefits_education:
-    timeout: 30
     host: https://sandbox-api.va.gov
     access_token:
       client_id: ~
