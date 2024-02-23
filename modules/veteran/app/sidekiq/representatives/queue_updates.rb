@@ -8,9 +8,6 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
-    PROD_SLICE_SIZE = 1000
-    OTHER_ENV_SLICE_SIZE = 30
-
     def perform
       file_content = fetch_file_content
       return unless file_content
@@ -35,7 +32,7 @@ module Representatives
 
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
-        slice_size = Settings.vsp_environment == 'production' ? PROD_SLICE_SIZE : OTHER_ENV_SLICE_SIZE
+        slice_size = Settings.vsp_environment == 'production' ? 1000 : 30
 
         begin
           batch.jobs do
