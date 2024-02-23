@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'redis'
 require 'sidekiq'
 require 'sentry_logging'
 require 'va_profile/models/validation_address'
@@ -13,52 +12,21 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
-    REDIS_OPTIONS = REDIS_CONFIG[:redis].to_h
-    REDIS_RATE_LIMIT_KEY = 'rep_update_rate_limit'
-    RATE_LIMIT_PERIOD = 60 # seconds
-    RATE_LIMIT_COUNT = 30
-
+    # Performs the job of parsing JSON data, validating the address, and updating the record.
+    # @param json_data [String] JSON string containing address data.
     def perform(json_data)
-      if rate_limited?
-        Representatives::Update.perform_async(json_data)
-      else
-        begin
-          data = JSON.parse(json_data)
-          validation_address = build_validation_address(data['request_address'])
-          response = validate_address(validation_address)
+      data = JSON.parse(json_data)
+      validation_address = build_validation_address(data['request_address'])
+      response = validate_address(validation_address)
 
-          return unless address_valid?(response)
+      return unless address_valid?(response)
 
-          update_address_record(data, response)
-          increment_rate_limit
-        rescue JSON::ParserError => e
-          log_error(e)
-        end
-      end
+      update_address_record(data, response)
+    rescue JSON::ParserError => e
+      log_error(e)
     end
 
     private
-
-    def rate_limited?
-      redis = redis_instance
-      count = redis.get(REDIS_RATE_LIMIT_KEY).to_i
-      count >= RATE_LIMIT_COUNT
-    end
-
-    def increment_rate_limit
-      redis = redis_instance
-
-      if redis.exists(REDIS_RATE_LIMIT_KEY)
-        redis.incr(REDIS_RATE_LIMIT_KEY)
-      else
-        # Expire the key after the rate limit period
-        redis.set(REDIS_RATE_LIMIT_KEY, 1, ex: RATE_LIMIT_PERIOD)
-      end
-    end
-
-    def redis_instance
-      @redis ||= Redis.new(REDIS_OPTIONS)
-    end
 
     # Builds a validation address object from the provided address data.
     # @param request_address [Hash] A hash containing address fields.
