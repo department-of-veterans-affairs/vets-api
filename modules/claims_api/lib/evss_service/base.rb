@@ -3,6 +3,7 @@
 require 'claims_api/v2/benefits_documents/service'
 require 'claims_api/claim_logger'
 require 'common/client/errors'
+require 'custom_error'
 
 module ClaimsApi
   ##
@@ -24,7 +25,6 @@ module ClaimsApi
         begin
           resp = client.post('submit', data)&.body&.deep_symbolize_keys
           log_outcome_for_claims_api('submit', 'success', resp, claim)
-
           resp # return is for v1 Sidekiq worker
         rescue => e
           error_handler(e, claim, 'submit')
@@ -98,65 +98,14 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def error_handler(error, claim, method)
-        handle_faraday_failure(error, claim, method)
-        handle_client_errors(error, claim, method)
-        raise error
+      def custom_error(error)
+        ClaimsApi::CustomError.new(error)
       end
 
-      def handle_faraday_failure(error, claim, method)
-        if error.is_a?(Faraday::ConnectionFailed) || error.is_a?(Faraday::ParsingError)
-          status = get_status_code(error)
-          log_info = get_log_info(error, status)
-          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
-          raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
-          raise ::Common::Exceptions::InternalServerError if status == 500
-
-          raise ::Common::Exceptions::ServiceUnavailable
-        end
-      end
-
-      def handle_client_errors(error, claim, method)
-        if ::Common::Client::Errors::ClientError || StandardError
-          status = get_status_code(error)
-          log_info = get_log_info(error, status)
-          log_outcome_for_claims_api("claims_api-526-#{method}", 'error', log_info, claim)
-
-          raise ::Common::Exceptions::Forbidden if status == 403
-          raise ::Common::Exceptions::BadRequest if [400, nil].include?(status)
-          raise ::Common::Exceptions::Authorization if status == 401
-          raise ::Common::Exceptions::ServiceError if status == 503
-        end
-      end
-
-      def get_status_code(error)
-        case error
-        when error.respond_to?(:status)
-          error.status
-        when error.respond_to?(:response_status)
-          error.response_status
-        when error.respond_to?(:status_code)
-          error.status_code
-        end
-      end
-
-      def get_message(error)
-        case error
-        when error.respond_to?(:detailed_message)
-          error.detailed_message
-        when error.respond_to?(:message)
-          error.message
-        when error.respond_to?(:full_message)
-          error.full_message
-        end
-      end
-
-      def get_log_info(error, status)
-        log_info = {}
-        log_info['class'] = error.class if error.respond_to?(:class)
-        log_info['status'] = status
-        log_info['message'] = get_message(error)
-        log_info
+      def error_handler(error, _claim, _method)
+        custom_error(error).build_error
+        # log_outcome_for_claims_api("claims_api-526-#{method}", 'error', error, claim)
+        # raise EVSS::DisabilityCompensationForm::ServiceException, error
       end
     end
   end
