@@ -4,6 +4,7 @@ require 'ddtrace'
 require 'simple_forms_api_submission/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'simple_forms_api_submission/s3'
+require 'combine_pdf'
 
 module SimpleFormsApi
   module V1
@@ -21,15 +22,14 @@ module SimpleFormsApi
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
-        '20-10206' => 'vba_20_10206',
-        '40-10007' => 'vba_40_10007'
+        '20-10206' => 'vba_20_10206'
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d'
       }.freeze
 
-      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847].freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -44,7 +44,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 10-10D 40-10007].include?(params[:form_id])
+        if %w[40-0247 10-10D].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -53,6 +53,14 @@ module SimpleFormsApi
           render json: attachment
         end
       end
+
+      # def split_pdf(file_path)
+      #   pdf = CombinePDF.load(file_path)
+      #   pdf.pages.each_with_index do |page, index|
+      #     CombinePDF.new << page
+      #              .save("page_#{index + 1}.pdf")  # + 1 for 1-based indexing
+      #   end
+      # end
 
       def get_intents_to_file
         intent_service = SimpleFormsApi::IntentToFile.new(icn)
@@ -74,6 +82,17 @@ module SimpleFormsApi
         )
       end
 
+      # def split_pdf(form_id)
+      #   pdf_file_name = "#{form_id}.pdf"
+      #   pdf = CombinePDF.load(pdf_file_name)
+      
+      #   pdf.pages.each_with_index do |page, index|
+      #     output = CombinePDF.new
+      #     output << page
+      #     output.save "#{form_id}_page_#{index + 1}.pdf"
+      #   end
+      # end
+
       private
 
       def handle_210966_authenticated
@@ -90,41 +109,53 @@ module SimpleFormsApi
         }
       end
 
-      def submit_form_to_central_mail
-        form_id = get_form_id
-        parsed_form_data = JSON.parse(params.to_json)
-        file_path, metadata = get_file_path_and_metadata(parsed_form_data)
+        def submit_form_to_central_mail
+          form_id = get_form_id
+          parsed_form_data = JSON.parse(params.to_json)
+          file_path, metadata = get_file_path_and_metadata(parsed_form_data)
+          tmpdir = Dir.tmpdir
 
-        if IVC_FORM_NUMBER_MAP.value?(form_id)
+          # Rest of the code...
+
+          #   if IVC_FORM_NUMBER_MAP.value?(form_id)
           status, error_message = handle_ivc_uploads(form_id, metadata, file_path)
-        else
-          status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+          pdf = CombinePDF.load(file_path)
+          pdf.pages.each_with_index do |page, index|
+            output_path = File.join(tmpdir, "page_#{index + 1}.pdf")
+            byebug
+            new_pdf = CombinePDF.new
+            new_pdf << page
+            new_pdf.save(output_path) # Save the modified page to the output path
+          end
+        #  else
+        #    status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+        #    split_pdf(file_path) # Split the PDF after the existing logic
+        
+      #       Rails.logger.info(
+      #         "Simple forms api - sent to benefits intake: #{params[:form_number]},
+      #           status: #{status}, uuid #{confirmation_number}"
+      #       )
+      # #    end
 
-          Rails.logger.info(
-            "Simple forms api - sent to benefits intake: #{params[:form_number]},
-              status: #{status}, uuid #{confirmation_number}"
-          )
+      #     if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
+      #       SimpleFormsApi::ConfirmationEmail.new(
+      #         form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
+      #       ).send
+      #    end
+
+          render json: get_json(confirmation_number || nil, form_id, error_message || nil), status:
         end
 
-        if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @current_user
-          ).send
-        end
+        def handle_ivc_uploads(form_id, metadata, pdf_file_path)
+          meta_file_name = "#{form_id}_metadata.json"
+          pdf_file_name = "#{form_id}.pdf"
+          meta_file_path = "tmp/#{meta_file_name}"
 
-        render json: get_json(confirmation_number || nil, form_id, error_message || nil), status:
-      end
+          pdf_upload_status, pdf_upload_error_message = upload_to_ivc_s3(pdf_file_name, pdf_file_path)
 
-      def handle_ivc_uploads(form_id, metadata, pdf_file_path)
-        meta_file_name = "#{form_id}_metadata.json"
-        pdf_file_name = "#{form_id}.pdf"
-        meta_file_path = "tmp/#{meta_file_name}"
-
-        pdf_upload_status, pdf_upload_error_message = upload_to_ivc_s3(pdf_file_name, pdf_file_path)
-
-        if pdf_upload_status == 200
-          File.write(meta_file_path, metadata)
-          meta_upload_status, meta_upload_error_message = upload_to_ivc_s3(meta_file_name, meta_file_path)
+          if pdf_upload_status == 200
+            File.write(meta_file_path, metadata)
+            meta_upload_status, meta_upload_error_message = upload_to_ivc_s3(meta_file_name, meta_file_path)
 
           if meta_upload_status == 200
             FileUtils.rm_f(meta_file_path)
@@ -151,7 +182,7 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
         case form_id
-        when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
+        when 'vba_40_0247', 'vha_10_10d'
           form.handle_attachments(file_path)
         end
 
