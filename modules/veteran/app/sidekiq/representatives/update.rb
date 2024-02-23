@@ -85,7 +85,6 @@ module Representatives
     end
 
     # Updates the given record with the new address and other relevant attributes.
-    # @param record [ActiveRecord::Base] The record to be updated.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def build_record_attributes(rep_data, api_response)
