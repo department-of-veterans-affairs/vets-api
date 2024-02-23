@@ -47,6 +47,29 @@ module MyHealth
         head :no_content
       end
 
+      def refill_prescriptions
+        ids = params[:ids]
+        begin
+          ids.each do |id|
+            client.post_refill_rx(id)
+          end
+        rescue
+          puts "Error refilling prescription: #{e.message}"
+        end
+        head :no_content
+      end
+
+      def list_refillable_prescriptions
+        resource = collection_resource
+        resource.data = resource.data.select do |item|
+          item.is_refillable || (item.refill_status == 'active' && item.refill_remaining == 0)
+        end
+        render json: resource.data,
+               serializer: CollectionSerializer,
+               each_serializer: PrescriptionDetailsSerializer,
+               meta: resource.metadata
+      end
+
       def get_prescription_image
         image_url = get_image_uri(params[:cmopNdcNumber])
         image_data = fetch_image(image_url)
