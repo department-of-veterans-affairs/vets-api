@@ -25,7 +25,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
-  describe '#index when "cst_include_ddl_boa_letters" feature flag is enabled' do
+  describe '#index when "cst_include_ddl_boa_letters" feature flag is enabled and "cst_include_ddl_5103_letters" is disabled' do
     before do
       Flipper.enable(:cst_include_ddl_boa_letters)
       Flipper.disable(:cst_include_ddl_5103_letters)
@@ -40,7 +40,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
-  describe '#index when "cst_include_ddl_5103_letters" feature flag is enabled' do
+  describe '#index when "cst_include_ddl_5103_letters" feature flag is enabled and "cst_include_ddl_boa_letters" is disabled' do
     before do
       Flipper.enable(:cst_include_ddl_5103_letters)
       Flipper.disable(:cst_include_ddl_boa_letters)

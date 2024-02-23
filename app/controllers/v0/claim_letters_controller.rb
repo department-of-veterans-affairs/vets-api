@@ -29,7 +29,6 @@ module V0
 
     # 27: Board Of Appeals Decision Letter
     # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
-    # 339: Rating Decision Letter
     # 65: Standard 5103 Notice
     # 68: 5103/DTA Letter
     def allowed_doctypes
