@@ -75,7 +75,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "Update error: unexpected token at 'invalid json'", :error
+          "Representatives::Update: unexpected token at 'invalid json'", :error
         )
 
         subject.perform(invalid_json_data)
