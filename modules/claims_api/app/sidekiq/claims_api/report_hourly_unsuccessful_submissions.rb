@@ -3,7 +3,7 @@
 module ClaimsApi
   class ReportHourlyUnsuccessfulSubmissions < ClaimsApi::ServiceBase
     def perform
-      return if !Rails.env.test? && !Rails.env.production?
+      return if skip_processing?
 
       @to = Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
       @from = 1.hour.ago.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
@@ -41,6 +41,10 @@ module ClaimsApi
 
     def errored_submissions_exist?
       [@errored_claims, @errored_poa, @errored_itf, @errored_ews].any? { |var| var.count.positive? }
+    end
+
+    def skip_processing?
+      !Rails.env.production?
     end
   end
 end
