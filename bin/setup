@@ -20,8 +20,8 @@ if ARGV.include?('--help') || ARGV.include?('-h')
       bin/setup --help      Show help message
       bin/setup --docker    Setup Docker developer environment
   HELP
-elsif option == "--native" || option == "--docker" || option == "--hybrid"
+elsif ['--native', '--docker', '--hybrid'].include?(option)
   VetsApi::Commands::Setup.run(ARGV)
 else
-  puts "Invalid option \"#{option || "NULL"}\". Use \"--help\" for usage information."
+  puts "Invalid option \"#{option || 'NULL'}\". Use \"--help\" for usage information."
 end

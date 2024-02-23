@@ -110,7 +110,6 @@ module VetsApi
           puts
         end
       end
-
     end
   end
 end

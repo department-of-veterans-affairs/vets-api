@@ -35,7 +35,7 @@ module VetsApi
         settings_path = 'config/settings.local.yml'
         settings_file = File.read(settings_path)
         settings = YAML.safe_load(settings_file, permitted_classes: [Symbol])
-        hybrid_keys = %w(database_url test_database_url redis)
+        hybrid_keys = %w[database_url test_database_url redis]
 
         hybrid_keys.each do |key|
           settings.delete(key) if settings.has_key?(key)
@@ -82,7 +82,7 @@ module VetsApi
 
       def configuring_clamav_antivirus
         print 'Configuring ClamAV...'
-        File.open("config/initializers/clamav.rb", "w") do |file|
+        File.open('config/initializers/clamav.rb', 'w') do |file|
           file.puts <<~CLAMD
             # frozen_string_literal: true
 
@@ -103,7 +103,7 @@ module VetsApi
 
       def install_pdftk
         if `pdftk --help`
-          puts "Skipping pdftk install (binary already installed)"
+          puts 'Skipping pdftk install (binary already installed)'
         else
           puts 'Installing pdftk...'
           `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
