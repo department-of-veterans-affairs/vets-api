@@ -562,7 +562,7 @@ module HCA
             'gulfWarHazard' => {
               'gulfWarHazardInd' => veteran['gulfWarService'].present?,
               'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
-              'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate']),
+              'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate'])
             }
           }
         else
@@ -575,9 +575,7 @@ module HCA
       categories = []
 
       EXPOSURE_MAPPINGS.each do |k, v|
-        if veteran[k].present?
-          categories << v
-        end
+        categories << v if veteran[k].present?
       end
 
       return {} if categories.blank?

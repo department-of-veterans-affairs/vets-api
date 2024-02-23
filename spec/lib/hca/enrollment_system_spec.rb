@@ -887,25 +887,25 @@ describe HCA::EnrollmentSystem do
       [
         {
           hasTeraResponse: true,
-          combatOperationService: true,
+          combatOperationService: true
         }.deep_stringify_keys,
         {
-          "eligibleForMedicaid" => false,
-          "noseThroatRadiumInfo" => {
-            "receivingTreatment" => false
+          'eligibleForMedicaid' => false,
+          'noseThroatRadiumInfo' => {
+            'receivingTreatment' => false
           },
-          "serviceConnectionAward" => {
-            "serviceConnectedIndicator" => false
+          'serviceConnectionAward' => {
+            'serviceConnectedIndicator' => false
           },
-           "specialFactors" => {
-            "agentOrangeInd" => false,
-            "envContaminantsInd" => false,
-            "campLejeuneInd" => false,
-            "radiationExposureInd" => false,
-             "supportOperationsInd" => true
+          'specialFactors' => {
+            'agentOrangeInd' => false,
+            'envContaminantsInd' => false,
+            'campLejeuneInd' => false,
+            'radiationExposureInd' => false,
+            'supportOperationsInd' => true
           }
         }
-      ],
+      ]
     ]
   )
 
