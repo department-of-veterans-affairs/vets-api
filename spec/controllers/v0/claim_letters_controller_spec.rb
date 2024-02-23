@@ -28,6 +28,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
   describe '#index when "cst_include_ddl_boa_letters" feature flag is enabled' do
     before do
       Flipper.enable(:cst_include_ddl_boa_letters)
+      Flipper.disable(:cst_include_ddl_5103_letters)
     end
 
     it 'lists correct documents' do
@@ -42,34 +43,22 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
   describe '#index when "cst_include_ddl_5103_letters" feature flag is enabled' do
     before do
       Flipper.enable(:cst_include_ddl_5103_letters)
-    end
-
-    it 'lists correct documents' do
-      get(:index)
-      letters = JSON.parse(response.body)
-      allowed_letters = letters.select { |d| d['doc_type'] == '184' || d['doc_type'] == '65' || d['doc_type'] == '68' }
-
-      expect(allowed_letters.length).to eql(letters.length)
-    end
-  end
-
-  describe '#index when "cst_include_ddl_boa_letters" feature flag is disabled' do
-    before do
       Flipper.disable(:cst_include_ddl_boa_letters)
     end
 
     it 'lists correct documents' do
       get(:index)
       letters = JSON.parse(response.body)
-      allowed_letters = letters.select { |d| d['doc_type'] == '184' }
+      allowed_letters = letters.select { |d| d['doc_type'] == '65' || d['doc_type'] == '68' || d['doc_type'] == '184' }
 
       expect(allowed_letters.length).to eql(letters.length)
     end
   end
 
-  describe '#index when "cst_include_ddl_5103_letters" feature flag is disabled' do
+  describe '#index when "cst_include_ddl_5103_letters" and "cst_include_ddl_boa_letters" feature flags are disabled' do
     before do
       Flipper.disable(:cst_include_ddl_5103_letters)
+      Flipper.disable(:cst_include_ddl_boa_letters)
     end
 
     it 'lists correct documents' do
