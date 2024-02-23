@@ -870,6 +870,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_0966_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        }
+      }
+    }
+  end
+
   let(:initialize_va_profile_prefill_military_information_expected) do
     expected_service_episodes_by_date = [
       {
@@ -1538,6 +1562,7 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
+          21-0966
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
