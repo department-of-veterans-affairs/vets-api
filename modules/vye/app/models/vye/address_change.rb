@@ -5,15 +5,14 @@ module Vye
     belongs_to :user_info
 
     ENCRYPTED_ATTRIBUTES = %i[
-      address1 address2 address3 address4 city state veteran_name zip_code
+      veteran_name address1 address2 address3 address4 city state zip_code
     ].freeze
 
     has_kms_key
     has_encrypted(*ENCRYPTED_ATTRIBUTES, key: :kms_key, **lockbox_options)
 
-    REQUIRED_ATTRIBUTES = [
-      *ENCRYPTED_ATTRIBUTES,
-      *%i[benefit_type rpo].freeze
+    REQUIRED_ATTRIBUTES = %i[
+      veteran_name address1 city state
     ].freeze
 
     validates(*REQUIRED_ATTRIBUTES, presence: true)
@@ -23,11 +22,11 @@ module Vye
     def self.todays_records
       created_today.each_with_object([]) do |record, result|
         result << {
-          rpo: record.rpo,
-          benefit_type: record.benefit_type,
+          rpo: record.user_info.rpo_code,
+          benefit_type: record.user_info.indicator,
           ssn: record.user_info.ssn,
           file_number: record.user_info.file_number,
-          veteran_name: record.veteran_name,
+          veteran_name: record.user_info.full_name,
           address1: record.address1,
           address2: record.address2,
           address3: record.address3,

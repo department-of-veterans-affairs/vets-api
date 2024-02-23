@@ -421,10 +421,6 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
-  find_forms_show_pdf_modal:
-    actor_type: user
-    description: Shows the PDF modal for the Find VA Forms page.
-    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -867,10 +863,6 @@ features:
     actor_type: user
     description: Enables typeahead 2.0 functionality
     enable_in_development: true
-  sharable_link:
-    actor_type: user
-    description: Toggles the availability of sharable links to deep link to content
-    enable_in_development: true
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
@@ -962,18 +954,12 @@ features:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
     enable_in_development: true
-  show_new_get_medical_records_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
   show_new_refill_track_prescriptions_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
   show_new_schedule_view_appointments_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
-  show_new_secure_messaging_page:
-    actor_type: user
-    description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
   show_updated_fry_dea_app:
     actor_type: user
     description: Show the new version of the Fry/DEA form.
