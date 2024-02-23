@@ -555,14 +555,21 @@ module HCA
       return {} unless veteran['hasTeraResponse']
 
       {
-        'gulfWarHazard' => {
-          'gulfWarHazardInd' => veteran['gulfWarService'].present?,
-          'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
-          'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate']),
-        },
         'supportOperationsInd' => veteran['combatOperationService'].present?,
         'toxicExposure' => veteran_to_toxic_exposure(veteran)
-      }
+      }.merge(
+        if veteran['gulfWarService'].present?
+          {
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => veteran['gulfWarService'].present?,
+              'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
+              'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate']),
+            }
+          }
+        else
+          {}
+        end
+      )
     end
 
     def veteran_to_toxic_exposure(veteran)
