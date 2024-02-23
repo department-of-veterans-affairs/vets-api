@@ -54,6 +54,18 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
     end
   end
 
+  describe 'schedule' do
+    sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
+    lines = File.readlines(sidekiq_file).grep(/ClaimsApi::ReportHourlyUnsuccessfulSubmissions/i)
+    schedule = lines.first.gsub("  mgr.register('", '').gsub("', 'ClaimsApi::ReportHourlyUnsuccessfulSubmissions')\n",
+                                                             '')
+    let(:parsed_schedule) { Fugit.do_parse(schedule) }
+
+    it 'is scheduled to run every hour on the hour' do
+      expect(parsed_schedule.minutes).to eq([0])
+    end
+  end
+
   describe 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred from the Report Hourly Unsuccessful Submissions Job'
