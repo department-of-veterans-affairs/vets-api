@@ -123,6 +123,13 @@ describe HCA::Service do
     end
 
     context 'submitting tera questions' do
+      it 'f' do
+        VCR.configure do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
+        result = HCA::Service.new.submit_form(get_fixture('hca/tera'))
+        binding.pry; fail
+      end
       it 'works', run_at: 'Fri, 23 Feb 2024 15:23:55 GMT' do
         VCR.use_cassette(
           'hca/tera',
