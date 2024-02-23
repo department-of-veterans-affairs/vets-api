@@ -56,7 +56,7 @@ module BGS
       raise Sidekiq::JobRetry::Skip
     end
 
-    def instance_params(encrypted_vet_info, encrypted_user_struct_hash, user_uuid, saved_claim_id)
+    def instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info)
       @icn = icn

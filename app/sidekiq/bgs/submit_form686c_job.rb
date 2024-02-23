@@ -29,7 +29,7 @@ module BGS
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       @in_progress_copy = in_progress_form_copy(in_progress_form)
 
-      submit_forms
+      submit_forms(encrypted_vet_info)
 
       send_confirmation_email
       in_progress_form&.destroy
@@ -94,7 +94,7 @@ module BGS
 
     private
 
-    def submit_forms
+    def submit_forms(encrypted_vet_info)
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
       claim.add_veteran_info(vet_info)
