@@ -29,7 +29,7 @@ class IdCardAttributes
 
   private
 
-  # Mapping from eMIS branch of service keys to value expected by VIC
+  # Mapping from VA Profile branch of service keys to value expected by VIC
   SERVICE_KEYS = {
     'F' => 'AF',   # Air Force
     'A' => 'ARMY', # Army
