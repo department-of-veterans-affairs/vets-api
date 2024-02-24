@@ -122,6 +122,27 @@ describe HCA::Service do
       end
     end
 
+    context 'submitting tera questions' do
+      it 'f' do
+        VCR.configure do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
+        result = HCA::Service.new.submit_form(get_fixture('hca/tera'))
+        binding.pry; fail
+      end
+      it 'works', run_at: 'Fri, 23 Feb 2024 15:23:55 GMT' do
+        VCR.use_cassette(
+          'hca/tera',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          # form = get_fixture('hca/tera')
+          # expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
+          result = HCA::Service.new.submit_form(get_fixture('hca/tera'))
+          expect(result[:success]).to eq(true)
+        end
+      end
+    end
+
     context 'submitting short form' do
       it 'works', run_at: 'Wed, 16 Mar 2022 20:01:14 GMT' do
         VCR.use_cassette(
