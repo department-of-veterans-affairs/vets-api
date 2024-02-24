@@ -47,6 +47,7 @@ class SavedClaim < ApplicationRecord
     files.find_each { |f| f.update(saved_claim_id: id) }
 
     CentralMail::SubmitSavedClaimJob.perform_async(id)
+
   end
 
   def submit_to_structured_data_services!

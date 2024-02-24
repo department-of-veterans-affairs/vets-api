@@ -39,6 +39,7 @@ module CentralMail
       @saved_claim_id = saved_claim_id
       log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
 
+      #flipper logic will be put here
       response = send_claim_to_central_mail(saved_claim_id)
 
       if response.success?
@@ -70,6 +71,34 @@ module CentralMail
       @attachment_paths.each { |p| File.delete(p) }
 
       response
+    end
+
+    def send_claim_to_benefits_intake(saved_claim_id)
+      @claim = SavedClaim.find(saved_claim_id)
+      @pdf_path = process_record(@claim)
+
+      @attachment_paths = @claim.persistent_attachments.map do |record|
+        process_record(record)
+      end
+
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+
+      metadata = generate_metadata
+      payload = {
+        upload_url: @lighthouse_service.location,
+        file: split_file_and_path(@form_path),
+        metadata: metadata.to_json,
+        attachments: @attachment_paths.map(&method(:split_file_and_path))
+      }
+
+      Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Upload', {
+        file: payload[:file],
+        attachments: payload[:attachments],
+        claim_id: @claim.id,
+        benefits_intake_uuid: @lighthouse_service.uuid,
+        confirmation_number: @claim.confirmation_number
+      })
+      response = @lighthouse_service.upload_doc(**payload)
     end
 
     def create_request_body
@@ -166,5 +195,24 @@ module CentralMail
       str = I18n.transliterate(str)
       @claim.respond_to?(:central_mail_submission) ? str.gsub(%r{[^A-Za-z'/ -]}, '') : str
     end
+
+    def generate_form_metadata_lh
+      form = @claim.parsed_form
+      veteran_full_name = form['veteranFullName']
+      address = form['claimantAddress'] || form['veteranAddress']
+
+      metadata = {
+        'veteranFirstName' => veteran_full_name['first'],
+        'veteranLastName' => veteran_full_name['last'],
+        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+        'docType' => @claim.form_id,
+        'businessLine' => PENSION_BUSINESSLINE,
+        'source' => PENSION_SOURCE
+      }
+
+      SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+    end
+
   end
 end
