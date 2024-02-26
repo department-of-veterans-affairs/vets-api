@@ -59,7 +59,7 @@ module ClaimsApi
                      else
                        organization_signatures(power_of_attorney)
                      end
-        # res.merge!({ 'text_signatures' => text_signatures(power_of_attorney, 'Bob', 'Law') })
+
         res.merge!({ 'text_signatures' => signatures })
         res
       end
