@@ -18,6 +18,16 @@ module AccreditedRepresentatives
       # It will be the dd-service property for your application here:
       #   https://github.com/department-of-veterans-affairs/vets-api/tree/master/datadog-service-catalog
       service_tag 'accredited-representatives'
+
+      before_action do
+        if !Flipper.enabled?(:representatives_portal_api)
+          # <duplicates-application-controller>
+          # Duplicates `#routing_error` in combination with the
+          # `ExceptionHandling` concern.
+          ex = Common::Exceptions::RoutingError.new(params[:path])
+          render json: { errors: ex.errors }, status: ex.status_code
+        end
+      end
     end
   end
 end
