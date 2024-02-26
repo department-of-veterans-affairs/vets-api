@@ -158,7 +158,7 @@ describe SimpleFormsApi::ConfirmationEmail do
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            user.email,
+            user.va_profile_email,
             'form40_0247_confirmation_email_template_id',
             {
               'first_name' => 'JOE',
