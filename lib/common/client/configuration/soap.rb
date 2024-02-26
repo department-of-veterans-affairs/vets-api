@@ -24,7 +24,7 @@ module Common
       #         conn.request :soap_headers
       #
       #         conn.response :soap_parser
-      #         conn.response :betamocks if Settings.emis.mock
+      #         conn.response :betamocks if Settings.my_service.mock
       #         conn.adapter Faraday.default_adapter
       #       end
       #     end
