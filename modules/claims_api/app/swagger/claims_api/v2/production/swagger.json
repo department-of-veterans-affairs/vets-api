@@ -5953,15 +5953,11 @@
         "security": [
           {
             "productionOauth": [
-              "system/claim.read",
-              "system/claim.write",
               "system/526-pdf.override"
             ]
           },
           {
             "sandboxOauth": [
-              "system/claim.read",
-              "system/claim.write",
               "system/526-pdf.override"
             ]
           },

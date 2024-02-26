@@ -9,14 +9,22 @@ module MAP
       configuration Configuration
 
       def token(application:, icn:)
+        Rails.logger.info("#{config.logging_prefix} token request, application: #{application}, icn: #{icn}")
         response = perform(:post,
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
+        sts_token = parse_response(response, application, icn)
         Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
-        parse_response(response, application, icn)
+        sts_token
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
+      rescue Errors::ApplicationMismatchError => e
+        Rails.logger.error(e.message, application:, icn:)
+        raise e
+      rescue Errors::MissingICNError => e
+        Rails.logger.error(e.message, application:)
+        raise e
       end
 
       private
@@ -25,8 +33,10 @@ module MAP
         status = e.status
         parse_body = e.body.present? ? JSON.parse(e.body) : {}
         context = { error: parse_body['error'] }
-        raise e, "#{config.logging_prefix} token failed, client error, status: #{status}," \
-                 " application: #{application}, icn: #{icn}, context: #{context}"
+        message = "#{config.logging_prefix} token failed, client error"
+
+        Rails.logger.error(message, status:, application:, icn:, context:)
+        raise e, "#{message}, status: #{status}, application: #{application}, icn: #{icn}, context: #{context}"
       end
 
       def parse_response(response, application, icn)
@@ -37,7 +47,9 @@ module MAP
           expiration: Time.zone.now + response_body['expires_in']
         }
       rescue => e
-        raise e, "#{config.logging_prefix} token failed, response unknown, application: #{application}, icn: #{icn}"
+        message = "#{config.logging_prefix} token failed, response unknown"
+        Rails.logger.error(message, application:, icn:)
+        raise e, "#{message}, application: #{application}, icn: #{icn}"
       end
 
       def client_id_from_application(application)
@@ -51,11 +63,15 @@ module MAP
         when :appointments
           config.appointments_client_id
         else
-          raise Errors::ApplicationMismatchError, "#{config.logging_prefix} application mismatch detected"
+          raise Errors::ApplicationMismatchError, "#{config.logging_prefix} token failed, application mismatch detected"
         end
       end
 
       def token_params(application, icn)
+        unless icn
+          raise Errors::MissingICNError, "#{config.logging_prefix} token failed, ICN not present in access token"
+        end
+
         client_id = client_id_from_application(application)
         URI.encode_www_form({ grant_type: config.grant_type,
                               client_id:,
