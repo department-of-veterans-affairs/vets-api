@@ -27,6 +27,7 @@ module SimpleFormsApi
       if attachments.count.positive?
         attachments.each do |attachment|
         end
+        combined_pdf.save file_path
       end
     end
 
