@@ -17,20 +17,20 @@ module MebApi
           params = ActionController::Parameters.new({ emails: email_params, phones: phone_params })
           with_monitoring do
             options = { timeout: 60 }
-            response = perform(:post, duplicates_end_point, camelize_keys_for_java_service(params).to_json, headers,
-                               options)
+            # response = perform(:post, duplicates_end_point, camelize_keys_for_java_service(params).to_json, headers,
+            #                    options)
 
-            # @NOTE: Mocked values is DGI is not wanted/needed
-            # response = {
-            #   body: {
-            #     email: [
-            #       { address: 'test@test.com', isDupe: 'false' }
-            #     ],
-            #     phone: [
-            #       { number: '8013090123', isDupe: 'false' }
-            #     ]
-            #   }
-            # }
+            # @NOTE: Mocked values if DGI is not wanted/needed
+            response = {
+              body: {
+                emails: [
+                  { address: 'test@test.com', dupe: true }
+                ],
+                phones: [
+                  { number: '8013090123', dupe: true }
+                ]
+              }
+            }
             MebApi::DGI::ContactInfo::Response.new(200, response)
           end
         end

@@ -11,8 +11,8 @@ module MebApi
 
         def initialize(status, response = nil)
           attributes = {
-            phone: response.body['phones'],
-            email: response.body['emails']
+            phone: response[:body][:phones],
+            email: response[:body][:emails]
           }
 
           super(status, attributes)
