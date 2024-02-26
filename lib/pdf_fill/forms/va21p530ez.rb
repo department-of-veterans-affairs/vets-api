@@ -496,14 +496,14 @@ module PdfFill
           key: 'form1[0].#subform[83].FirmNameAndAddress[0]',
           limit: 90,
           question_num: 26,
-          question_suffix: 'B'
+          question_suffix: 'B',
           question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
         },
         'officialPosition' => {
           key: 'form1[0].#subform[83].OfficialPosition[0]',
           limit: 90,
           question_num: 26,
-          question_suffix: 'B'
+          question_suffix: 'B',
           question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
         },
         'veteranSocialSecurityNumberPageThree' => {
