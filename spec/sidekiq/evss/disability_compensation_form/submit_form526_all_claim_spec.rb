@@ -165,7 +165,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               end
               submission.reload
               expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
-              expect(submission.disabilities.first).to include('specialIssues' => ['EP400 Merge Project'])
+              expect(submission.disabilities.first).to include('specialIssues' => ['RRD'])
               expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, User).once
             end
           end
