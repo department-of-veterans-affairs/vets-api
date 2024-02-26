@@ -25,12 +25,6 @@ describe AppealsApi::AppealReceivedJob, type: :job do
     }]
   end
 
-  describe 'appeal_template_id' do
-    it 'finds the ID of the correct VANotify template for the appeal' do
-      with_settings(*settings_args) { expect(job.appeal_template_id(appeal)).to equal(hlr_template_id) }
-    end
-  end
-
   describe 'perform' do
     let(:vanotify_client) { instance_double(VaNotify::Service) }
     let(:appeal_id) { appeal.id }
@@ -164,18 +158,17 @@ describe AppealsApi::AppealReceivedJob, type: :job do
     end
 
     describe 'errors' do
-      let(:expected_error) { nil }
+      let(:expected_log) { nil }
 
       before do
         allow(FeatureFlipper).to receive(:send_email?).and_return(true)
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_client)
-        expect do
-          with_settings(*settings_args) { job.perform(appeal_id, appeal_class_str, date_submitted_str) }
-        end.to raise_error expected_error
+        expect(Rails.logger).to receive(:error).once.with(expected_log)
+        with_settings(*settings_args) { job.perform(appeal_id, appeal_class_str, date_submitted_str) }
       end
 
       context 'appeal PII not available' do
-        let(:expected_error) { /Missing PII for #{appeal.class.name} #{appeal_id}/ }
+        let(:expected_log) { /#{appeal.class.name}.*#{appeal_id}/ }
         let(:appeal) do
           hlr = create(:higher_level_review_v2)
           hlr.update!(form_data: nil, auth_headers: nil)
@@ -188,8 +181,8 @@ describe AppealsApi::AppealReceivedJob, type: :job do
       end
 
       context 'appeal with given appeal_id not found' do
+        let(:expected_log) { /#{appeal_id}/ }
         let(:appeal_id) { SecureRandom.uuid }
-        let(:expected_error) { /find #{appeal_class_str}.*#{appeal_id}/ }
 
         it 'does not send email' do
           expect(vanotify_client).not_to receive(:send_email)
@@ -197,7 +190,7 @@ describe AppealsApi::AppealReceivedJob, type: :job do
       end
 
       context 'submitted_date_str with incorrect format' do
-        let(:expected_error) { /iso8601/ }
+        let(:expected_log) { /iso8601 format/ }
         let(:date_submitted_str) { 'not-a-date' }
 
         it 'does not send email' do
@@ -206,7 +199,7 @@ describe AppealsApi::AppealReceivedJob, type: :job do
       end
 
       context 'missing settings for VANotify templates' do
-        let(:expected_error) { /template.*#{hlr_template_name}/ }
+        let(:expected_log) { /template.*#{hlr_template_name}/ }
         let(:settings_args) { [Settings.vanotify.services.lighthouse.template_id, {}] }
 
         it 'does not send email' do
