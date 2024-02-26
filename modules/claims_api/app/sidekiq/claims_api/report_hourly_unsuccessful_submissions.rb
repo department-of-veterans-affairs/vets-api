@@ -2,15 +2,20 @@
 
 module ClaimsApi
   class ReportHourlyUnsuccessfulSubmissions < ClaimsApi::ServiceBase
+    sidekiq_options retry: 7
+
     def perform
       return if skip_processing?
 
-      @to = Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
-      @from = 1.hour.ago.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
-      @errored_claims = ClaimsApi::AutoEstablishedClaim.where(status: 'errored').pluck(:id).uniq
-      @errored_poa = ClaimsApi::PowerOfAttorney.where(status: 'errored').pluck(:id).uniq
-      @errored_itf = ClaimsApi::IntentToFile.where(status: 'errored').pluck(:id).uniq
-      @errored_ews = ClaimsApi::EvidenceWaiverSubmission.where(status: 'errored').pluck(:id).uniq
+      @search_to = Time.zone.now
+      @search_from = 1.hour.ago
+      @reporting_to = Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
+      @reporting_from = 1.hour.ago.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
+      @errored_claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, status: 'errored').pluck(:id).uniq
+      @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, status: 'errored').pluck(:id).uniq
+      @errored_itf = ClaimsApi::IntentToFile.where(created_at: @from..@to, status: 'errored').pluck(:id).uniq
+      @errored_ews = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to,
+                                                               status: 'errored').pluck(:id).uniq
 
       if errored_submissions_exist?
         notify(
@@ -18,8 +23,8 @@ module ClaimsApi
           @errored_poa,
           @errored_itf,
           @errored_ews,
-          @to,
-          @from
+          @reporting_to,
+          @reporting_from
         )
       end
     end
