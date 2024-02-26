@@ -8,8 +8,6 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
-    BATCH_SIZE = 5000
-
     def perform
       file_content = fetch_file_content
       return unless file_content
@@ -27,18 +25,25 @@ module Representatives
     end
 
     def queue_address_updates(data)
+      delay = 0
+
       Representatives::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
         next if data[sheet].blank?
 
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
+        slice_size = Settings.vsp_environment == 'production' ? 1000 : 30
 
-        batch.jobs do
-          data[sheet].each_slice(BATCH_SIZE) do |rows|
-            rows.each do |row|
-              Representatives::Update.perform_async(row)
+        begin
+          batch.jobs do
+            data[sheet].each_slice(slice_size) do |rows|
+              json_rows = rows.to_json
+              Representatives::Update.perform_in(delay.minutes, json_rows)
+              delay += 1
             end
           end
+        rescue => e
+          log_error("Error queuing address updates: #{e.message}")
         end
       end
     end
