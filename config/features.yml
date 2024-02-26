@@ -171,6 +171,10 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes Board of Appeals decision letters
     enable_in_development: true
+  cst_include_ddl_5103_letters:
+    actor_type: user
+    description: When enabled, the Download Decision Letters feature includes 5103 letters
+    enable_in_development: true
   cst_use_new_claim_cards:
     actor_type: user
     description: When enabled, claims status tool uses the new claim card designs
@@ -420,10 +424,6 @@ features:
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
-    enable_in_development: true
-  find_forms_show_pdf_modal:
-    actor_type: user
-    description: Shows the PDF modal for the Find VA Forms page.
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
