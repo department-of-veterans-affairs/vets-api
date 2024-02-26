@@ -24,13 +24,10 @@ module SimpleFormsApi
 
     def handle_attachments(file_path)
       attachments = get_attachments
-      begin
-        split_pdf = CombinePDF.split(file_path) # Split into multiple PDFs
-        # Access and process individual PDF pages
-        split_pdf.each_with_index do |page, index|
-          # Example: Save each page as a separate file
-          page.save("output_page_#{index + 1}.pdf")  
-          # ...or do any other processing on the 'page' object 
+        begin
+         split_pdf = CombinePDF.split(file_path) # Split into multiple PDFs
+         attachments.each_with_index do |page, index| # Access and process individual PDF pages
+         page.save("output_page_#{index + 1}.pdf")     # Example: Save each page as a separate file
         end
       rescue CombinePDF::ParsingError => e 
         puts "Error splitting PDF: #{e.message}"
