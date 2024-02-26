@@ -50,7 +50,7 @@ module Crm
     def prepare_payload(method, payload, params)
       case method
       when :get
-        params
+        params.merge(payload)
       when :post, :patch, :put
         payload.to_json
       end

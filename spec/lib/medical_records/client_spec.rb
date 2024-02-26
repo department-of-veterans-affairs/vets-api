@@ -446,9 +446,9 @@ describe MedicalRecords::Client do
   def extract_date(resource)
     case resource
     when FHIR::DiagnosticReport
-      resource.effectiveDateTime&.to_i || 0
+      resource.effectiveDateTime.to_i
     when FHIR::DocumentReference
-      resource.date&.to_i || 0
+      resource.date.to_i
     else
       0
     end

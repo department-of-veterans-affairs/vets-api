@@ -452,6 +452,32 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
+  describe '#remove_lovell_sites' do
+    context 'when facilities are blank' do
+      let(:facilities) { [] }
+
+      it 'returns an empty array' do
+        expect(subject.send(:remove_lovell_sites, facilities)).to eq([])
+      end
+    end
+
+    context 'when facilities are not blank' do
+      let(:facilities) { [{ id: '556' }, { id: '983' }, { id: '556GA' }] }
+
+      it 'returns an array without facilities starting with 556' do
+        expect(subject.send(:remove_lovell_sites, facilities)).to eq([{ id: '983' }])
+      end
+    end
+
+    context 'when facilities are all Lovell' do
+      let(:facilities) { [{ id: '556' }, { id: '556GA' }] }
+
+      it 'returns an empty array' do
+        expect(subject.send(:remove_lovell_sites, facilities)).to eq([])
+      end
+    end
+  end
+
   describe '#page_params' do
     context 'when per_page is positive' do
       context 'when per_page is positive' do

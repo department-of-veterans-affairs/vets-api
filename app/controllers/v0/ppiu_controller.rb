@@ -45,13 +45,13 @@ module V0
 
     def validate_pay_info
       unless pay_info.valid?
-        Raven.tags_context(validation: 'direct_deposit')
+        Sentry.set_tags(validation: 'direct_deposit')
         raise Common::Exceptions::ValidationErrors, pay_info
       end
     end
 
     def send_confirmation_email
-      VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :comp_pen)
+      VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'comp_and_pen')
     end
   end
 end

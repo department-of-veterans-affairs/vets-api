@@ -120,11 +120,12 @@ module Mobile
         list = filter_by_date(validated_params[:start_date], validated_params[:end_date], list)
         list = filter_by_completed(list) if params[:showCompleted].present?
         log_decision_letter_sent(list) if Flipper.enabled?(:mobile_claims_log_decision_letter_sent)
+        active_claim_count = active_claims_count(list)
         list, meta = paginate(list, validated_params)
 
         options = {
           meta: {
-            errors:, pagination: meta.dig(:meta, :pagination), active_claims_count: active_claims_count(list)
+            errors:, pagination: meta.dig(:meta, :pagination), active_claims_count: active_claim_count
           },
           links: meta[:links]
         }

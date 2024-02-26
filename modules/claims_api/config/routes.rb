@@ -44,15 +44,13 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/claims/:id/5103', to: 'evidence_waiver#submit'
       ## 2122 Forms
       get '/:veteranId/power-of-attorney', to: 'power_of_attorney#show'
-      post '/:veteranId/2122/validate', to: 'power_of_attorney#validate_2122'
-      post '/:veteranId/2122', to: 'power_of_attorney#submit_2122'
-      post '/:veteranId/2122a/validate', to: 'power_of_attorney#validate_2122a'
-      post '/:veteranId/2122a', to: 'power_of_attorney#submit_2122a'
+      post '/:veteranId/2122/validate', to: 'power_of_attorney#validate2122'
+      post '/:veteranId/2122', to: 'power_of_attorney#submit2122'
+      post '/:veteranId/2122a', to: 'power_of_attorney#submit2122a'
+      post '/:veteranId/2122a/validate', to: 'power_of_attorney#validate2122a'
       get '/:veteranId/power-of-attorney/:id', to: 'power_of_attorney#status'
-      put '/:veteranId/power-of-attorney:appoint-organization', to: 'power_of_attorney#appoint_organization',
-                                                                constraints: { 'appoint-organization': /:appoint-organization/ } # rubocop:disable Layout/LineLength
-      put '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',
-                                                              constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
+      post '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',
+                                                               constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
       ## 0966 Forms
       get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'
       post '/:veteranId/intent-to-file', to: 'intent_to_file#submit'
@@ -61,7 +59,7 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/526', to: 'disability_compensation#submit'
       post '/:veteranId/526/validate', to: 'disability_compensation#validate'
       post '/:veteranId/526/:id/attachments', to: 'disability_compensation#attachments'
-      post '/:veteranId/526/generatePDF', to: 'disability_compensation#generate_pdf'
+      post '/:veteranId/526/generatePDF/minimum-validations', to: 'disability_compensation#generate_pdf'
     end
   end
 

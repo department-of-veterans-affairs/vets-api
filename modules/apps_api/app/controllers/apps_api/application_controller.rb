@@ -12,7 +12,7 @@ module AppsApi
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'apps_api' }
-      Raven.tags_context(source: 'apps_api')
+      Sentry.set_tags(source: 'apps_api')
     end
   end
 end

@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
   before do
     Sidekiq::Job.clear_all
     stub_claims_api_auth_token
+    allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -73,6 +74,24 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
 
       claim.reload
       expect(claim.uploader.blank?).to eq(false)
+    end
+  end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the BD Uploader Job'
+      msg = { 'args' => [claim.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
     end
   end
 end

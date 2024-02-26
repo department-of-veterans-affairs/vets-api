@@ -59,7 +59,7 @@ module EVSS
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
-        Raven.tags_context(source: '526EZ-all-claims')
+        Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
         with_tracking('Form526 Cleanup', submission.saved_claim_id, submission.id) do
           InProgressForm.find_by(form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: submission.user_uuid)&.destroy

@@ -132,8 +132,11 @@ module Mobile
       def message_counts(resource)
         {
           message_counts: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
-            hash[:read] += 1 if obj[:read_receipt] || obj.read_receipt
-            hash[:unread] += 1 unless obj[:read_receipt] || obj.read_receipt
+            if obj[:read_receipt] || obj.try(:read_receipt)
+              hash[:read] += 1
+            else
+              hash[:unread] += 1
+            end
           end
         }
       end

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/error_details'
 
-RSpec.describe 'service_history', skip_emis: true do
+RSpec.describe 'service_history' do
   include SchemaMatchers
   include ErrorDetails
 

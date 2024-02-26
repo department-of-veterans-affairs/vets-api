@@ -15,7 +15,9 @@ module ClaimsApi
           permit_scopes %w[claim.read] if request.get?
         end
         before_action { permit_scopes %w[claim.write] if request.post? || request.put? }
-
+        before_action except: %i[status active] do
+          check_request_ssn_matches_mpi(request&.headers&.to_h) if header_request?
+        end
         FORM_NUMBER = '2122'
 
         # POST to change power of attorney for a Veteran.
@@ -54,7 +56,7 @@ module ClaimsApi
           if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
             # Autogenerate a 21-22 form from the request body and upload it to VBMS.
             # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-            ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
+            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id)
           end
 
           claims_v1_logging('poa_submit', message: "poa_submit complete, poa: #{power_of_attorney&.id}")
@@ -232,8 +234,21 @@ module ClaimsApi
           # rubocop:enable Rails/DynamicFindBy
         end
 
+        def check_request_ssn_matches_mpi(req_headers)
+          req_ssn = req_headers['HTTP_X_VA_SSN']
+          ssn = target_veteran.mpi.profile.ssn
+          unless ssn == req_ssn && ssn.present?
+            error_message = 'The SSN provided does not match Master Person Index (MPI). ' \
+                            'Please correct the SSN or submit an issue at ask.va.gov ' \
+                            'or call 1-800-MyVA411 (800-698-2411) for assistance.'
+            claims_v1_logging('poa_check_request_ssn_matches_mpi',
+                              message: 'Request SSN did not match the one found in MPI.')
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
+          end
+        end
+
         def check_file_number_exists!
-          ssn = target_veteran.ssn
+          ssn = target_veteran&.ssn
 
           begin
             response = find_by_ssn(ssn)

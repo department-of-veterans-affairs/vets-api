@@ -57,7 +57,7 @@ describe Common::Client::Middleware::Response::SOAPParser do
     end
 
     it 'logs the error to sentry' do
-      expect(Raven).to receive(:extra_context).with(
+      expect(Sentry).to receive(:set_extras).with(
         url: 'http://somewhere.gov',
         body: 'foo'
       )

@@ -120,7 +120,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :create do
       before do
-        expect(Raven).not_to receive(:tags_context).with(claim_guid: claim.guid)
+        expect(Sentry).not_to receive(:set_tags).with(claim_guid: claim.guid)
 
         expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
         expect(described_class::AUDITOR).to receive(:record).with(
@@ -132,7 +132,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     it_behaves_like '10-10CG request with missing param: form', :create do
       before do
-        expect(Raven).not_to receive(:tags_context).with(claim_guid: claim.guid)
+        expect(Sentry).not_to receive(:set_tags).with(claim_guid: claim.guid)
 
         expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
         expect(described_class::AUDITOR).to receive(:record).with(
@@ -150,7 +150,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
 
       before do
-        expect(Raven).not_to receive(:tags_context).with(claim_guid: claim.guid)
+        expect(Sentry).not_to receive(:set_tags).with(claim_guid: claim.guid)
 
         expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
         expect(described_class::AUDITOR).to receive(:record).with(

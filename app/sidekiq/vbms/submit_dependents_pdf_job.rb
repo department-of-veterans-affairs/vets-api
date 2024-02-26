@@ -15,7 +15,8 @@ module VBMS
     end
 
     # Generates PDF for 686c form and uploads to VBMS
-    def perform(saved_claim_id, va_file_number_with_payload, submittable_686_form, submittable_674_form)
+    def perform(saved_claim_id, encrypted_vet_info, submittable_686_form, submittable_674_form)
+      va_file_number_with_payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('VBMS::SubmitDependentsPdfJob running!', { saved_claim_id: })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)

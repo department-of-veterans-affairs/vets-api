@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'claims_api/cid_mapper'
 
 module ClaimsApi
-  class ReportMonthlySubmissions
-    include Sidekiq::Job
-
+  class ReportMonthlySubmissions < ClaimsApi::ServiceBase
     def perform
       return unless Settings.claims_api.report_enabled
 

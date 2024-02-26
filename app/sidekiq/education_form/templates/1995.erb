@@ -10,7 +10,11 @@ OMB Control #: 2900-0074
 
 
             REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
+<% if Settings.vsp_environment.eql?('production') -%>
       FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
+<% else -%>
+FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
+<% end -%>
                     -------------------------------------
 
                             APPLICANT INFORMATION
@@ -63,12 +67,12 @@ Date Entered   Date Separated     Service Component
 <%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
 <% end %>
 
-
+<% if Settings.vsp_environment.eql?('production') %>
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
 
 For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
-<% if Settings.vsp_environment.eql?('production') %>
+
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
 <% end %>
 <% if Settings.vsp_environment.eql?('production') -%>

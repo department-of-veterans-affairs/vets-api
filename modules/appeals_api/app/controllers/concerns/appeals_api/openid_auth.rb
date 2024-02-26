@@ -46,10 +46,6 @@ module AppealsApi
     end
 
     def validate_auth_token!
-      # Token validation can be skipped during local development by setting
-      # modules_appeals_api.enable_unsafe_mode = true in settings.local.yml
-      return if unsafe_mode?
-
       @token_validation_result = token_validation_client.validate_token!(
         audience: audience_url,
         scopes: DEFAULT_OAUTH_SCOPES[request.method.to_sym] + self.class::OAUTH_SCOPES[request.method.to_sym],

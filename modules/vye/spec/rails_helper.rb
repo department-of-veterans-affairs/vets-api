@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require 'support/factory_bot'
+require 'rails_helper'
+require_relative 'spec_helper'

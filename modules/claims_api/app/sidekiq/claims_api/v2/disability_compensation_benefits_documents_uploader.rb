@@ -5,7 +5,7 @@ require 'bd/bd'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationBenefitsDocumentsUploader < DisabilityCompensationClaimServiceBase
+    class DisabilityCompensationBenefitsDocumentsUploader < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Benefits_Documents_Uploader_job'
 
       def perform(claim_id)

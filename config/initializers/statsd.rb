@@ -4,7 +4,6 @@ StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
 
 require 'caseflow/service'
 require 'central_mail/service'
-require 'emis/service'
 require 'evss/service'
 require 'gibft/service'
 require 'iam_ssoe_oauth/session_manager'

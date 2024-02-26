@@ -12,6 +12,7 @@ AskVAApi::Engine.routes.draw do
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
     post '/upload_attachment', to: 'inquiries#upload_attachment'
+    get '/profile', to: 'inquiries#profile'
 
     # static_data
     get '/categories', to: 'static_data#categories'
@@ -19,7 +20,8 @@ AskVAApi::Engine.routes.draw do
     get '/topics/:topic_id/subtopics', to: 'static_data#subtopics'
     get '/zipcodes', to: 'static_data#zipcodes'
     get '/states', to: 'static_data#states'
-    get '/provinces', to: 'static_data#provinces'
+    get '/optionset', to: 'static_data#optionset'
+    get '/announcements', to: 'static_data#announcements'
 
     # address_validation
     post '/address_validation', to: 'address_validation#create'

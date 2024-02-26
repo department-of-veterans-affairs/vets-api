@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'appeals_api/form_schemas'
 
 # Allow use of DocHelpers outside of 'it' context
 RSpec.configure { |_config| include DocHelpers }
@@ -1234,17 +1235,12 @@ class AppealsApi::RswagConfig
     }
   end
 
+  # @return Hash<String,Hash> a map of shared schema names to shared schemas
   def shared_schemas
     # Keys are strings to override older, non-shared-schema definitions
-    {
-      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'address.json')))['properties']['address'],
-      'fileNumber' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'fileNumber.json')))['properties']['fileNumber'],
-      'icn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'icn.json')))['properties']['icn'],
-      'nonBlankString' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'nonBlankString.json')))['properties']['nonBlankString'],
-      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],
-      'ssn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'ssn.json')))['properties']['ssn'],
-      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'timezone.json')))['properties']['timezone']
-    }
+    AppealsApi::FormSchemas::ALL_SHARED_SCHEMA_TYPES.index_with do |name|
+      AppealsApi::FormSchemas.load_shared_schema(name, 'v0', strip_description: true)
+    end
   end
 
   def parse_create_schema(api_name, api_version, schema_file, return_raw: false)

@@ -7,7 +7,7 @@ RSpec.describe IncomeLimits::StdCountyImport, type: :worker do
   describe '#perform' do
     # rubocop:disable Layout/LineLength
     let(:csv_data) do
-      %(ID,NAME,COUNTYNUMBER,DESCRIPTION,STATE_ID,VERSION,CREATED,UPDATED,CREATEDBY,UPDATEDBY\n1,County A,123,Description A,456,1,2/19/2010 8:36:52.057269 AM,3/19/2010 8:36:52.057269 AM,John,Sam)
+      %(ID,NAME,COUNTYNUMBER,DESCRIPTION,STATE_ID,VERSION,CREATED,UPDATED,CREATEDBY,UPDATEDBY\n1,County A,123,Description A,456,1,2010-02-19 08:36:52 +0000,2010-03-19 08:36:52 +0000,John,Sam)
     end
     # rubocop:enable Layout/LineLength
 

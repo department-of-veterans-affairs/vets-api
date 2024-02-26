@@ -64,7 +64,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
       it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_icn }
-          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid SEC_ID')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid ICN')
       end
     end
 

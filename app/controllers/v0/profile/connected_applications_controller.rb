@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rest-client'
-
 module V0
   module Profile
     class ConnectedApplicationsController < ApplicationController
@@ -28,13 +26,15 @@ module V0
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
 
         begin
-          response = RestClient::Request.execute(method: :delete, url: url_with_params, headers:)
+          response = Faraday.delete(url_with_params, nil, headers)
 
-          if response.code == 204
+          if response.status == 204
             head :no_content
           else
             render json: { error: 'Something went wrong cannot revoke grants' }, status: :unprocessable_entity
           end
+        rescue
+          render json: { error: 'Something went wrong cannot revoke grants' }, status: :unprocessable_entity
         end
       end
 
@@ -49,9 +49,9 @@ module V0
         payload = { icn: }
         url_with_params = "#{grant_url}?#{URI.encode_www_form(payload)}"
         headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
-        response = RestClient::Request.execute(method: :get, url: url_with_params, headers:)
+        response = Faraday.get(url_with_params, {}, headers)
 
-        if response.code == 200
+        if response.status == 200
           parsed_response = JSON.parse(response.body)
           lhapps = parsed_response['apps']
           lhapps.each do |lh_app|
@@ -59,6 +59,8 @@ module V0
             (data ||= []) << app
           end
           { 'data' => data }
+        else
+          { data: [] }
         end
       rescue
         { data: [] }
@@ -72,18 +74,18 @@ module V0
         app['attributes']['title'] = lh_app['label']
         app['attributes']['logo'] = lh_app['href']
         app['attributes']['privacyUrl'] = ''
-        app['attributes']['grants'] = build_grants(lh_app)
+        app['attributes']['grants'] = build_grants(lh_app['grants'])
         app
       end
 
-      def build_grants(lh_app)
-        [
+      def build_grants(grants)
+        grants.map do |grant|
           {
-            title: lh_app['label'],
-            id: lh_app['clientId'],
-            created: lh_app['connectionDate']
+            title: grant['scopeTitle'],
+            id: '',
+            created: grant['connectionDate']
           }
-        ]
+        end
       end
 
       def connected_accounts_params

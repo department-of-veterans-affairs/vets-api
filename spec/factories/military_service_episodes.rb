@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :service_episode, class: 'EMIS::Models::MilitaryServiceEpisode' do
-    begin_date { '2001-09-01' }
-    end_date { '203-10-01' }
-    branch_of_service_code { 'F' }
-    discharge_character_of_service_code { 'A' }
-  end
-
   factory :prefill_service_episode, class: 'VAProfile::Prefill::MilitaryInformation' do
     begin_date { '2012-03-02' }
     branch_of_service { 'Army' }

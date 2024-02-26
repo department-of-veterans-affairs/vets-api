@@ -25,6 +25,7 @@ RSpec.describe 'VSORepresentativeSerializer' do
            long: '-75',
            poa_codes: ['A123'],
            phone: '222-222-2222',
+           phone_number: '333-333-3333',
            email: 'email@example.com')
   end
 

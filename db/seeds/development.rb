@@ -13,6 +13,7 @@ vaweb.update!(authentication: SignIn::Constants::Auth::COOKIE,
               logout_redirect_uri: 'http://localhost:3001',
               enforced_terms: SignIn::Constants::Auth::VA_TERMS,
               terms_of_use_url: 'http://localhost:3001/terms-of-use',
+              shared_sessions: true,
               refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for VA flagship mobile Sign in Service client
@@ -46,6 +47,7 @@ vamock.update!(authentication: SignIn::Constants::Auth::MOCK,
                access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
                access_token_audience: 'va.gov',
                logout_redirect_uri: 'http://localhost:3001',
+               shared_sessions: true,
                refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for example external client using cookie auth
@@ -57,6 +59,7 @@ sample_client_web.update!(authentication: SignIn::Constants::Auth::COOKIE,
                           access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
                           access_token_audience: 'sample_client',
                           logout_redirect_uri: 'http://localhost:4567',
+                          shared_sessions: true,
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for example external client using api auth
@@ -91,11 +94,13 @@ identity_dashboard_service_account_config =
 identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
                                                   description: 'VA Identity Dashboard API',
                                                   scopes: ['http://localhost:3000/sign_in/client_configs',
-                                                           'http://localhost:3000/v0/account-controls/csp-lock',
-                                                           'http://localhost:3000/v0/account-controls/csp-unlock'],
+                                                           'http://localhost:3000/v0/account_controls/credential_index',
+                                                           'http://localhost:3000/v0/account_controls/credential_lock',
+                                                           'http://localhost:3000/v0/account_controls/credential_unlock'],
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
-                                                  certificates: [vaid_certificate])
+                                                  certificates: [vaid_certificate],
+                                                  access_token_user_attributes: %w[icn type credential_id])
 
 # Create Service Account Config for Chatbot
 chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '88a6d94a3182fd63279ea5565f26bcb4')

@@ -147,7 +147,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         )
       end
 
-      it 'does not retry when form526.submit.noRetryError error gets retruned' do
+      it 'does not retry when form526.submit.noRetryError error gets returned' do
         body = {
           messages: [
             { key: 'form526.submit.noRetryError',
@@ -167,7 +167,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         end.not_to change(subject.jobs, :size)
       end
 
-      it 'does not retry when form526.InProcess error gets retruned' do
+      it 'does not retry when form526.InProcess error gets returned' do
         body = {
           messages: [
             { key: 'form526.InProcess',
@@ -185,6 +185,44 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect do
           service.perform(claim.id)
         end.not_to change(subject.jobs, :size)
+      end
+
+      it 'does retry when 5xx error gets returned' do
+        body = {
+          messages: [
+            { key: '',
+              severity: 'FATAL',
+              text: 'Error calling external service to establish the claim during submit.' }
+          ]
+        }
+        # Rubocop formatting
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                       '', {}, nil, body
+                                     ))
+        )
+
+        expect do
+          service.perform(claim.id)
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+  end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Docker Container Upload Job'
+      msg = { 'args' => [claim.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
       end
     end
   end

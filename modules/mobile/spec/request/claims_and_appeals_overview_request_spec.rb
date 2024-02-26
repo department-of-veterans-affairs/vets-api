@@ -277,6 +277,22 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         expect(active_claims_count).to eq(expected_count)
         expect(response.parsed_body.dig('meta', 'activeClaimsCount')).to eq(expected_count)
       end
+
+      it 'ignores pagination so that active claim count can be above 10' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/pagination_required_appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+          end
+        end
+
+        expect(response).to have_http_status(:ok)
+        expected_count = lighthouse_flag ? 12 : 11
+        active_claims_count = response.parsed_body['data'].count do |item|
+          item['attributes']['completed'] == false
+        end
+        expect(active_claims_count).to eq(expected_count)
+        expect(response.parsed_body.dig('meta', 'activeClaimsCount')).to eq(expected_count)
+      end
     end
 
     context 'when an internal error occurs getting claims' do

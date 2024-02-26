@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'claims_api/cid_mapper'
 
 module ClaimsApi
-  class ReportUnsuccessfulSubmissions
-    include Sidekiq::Job
-
+  class ReportUnsuccessfulSubmissions < ClaimsApi::ServiceBase
     def perform
       if Settings.claims_api.report_enabled
         @to = Time.zone.now

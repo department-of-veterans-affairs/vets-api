@@ -14,12 +14,12 @@ module BGS
     sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, error|
-      user_uuid, icn, saved_claim_id, vet_info = msg['args']
+      user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
                          { user_uuid:, saved_claim_id:, icn:, error: })
-      salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
-        user ||= generate_user_struct(vet_info['veteran_information'])
+        user ||= BGS::SubmitForm686cJob.generate_user_struct(vet_info)
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
                                                             KmsEncrypted::Box.new.encrypt(vet_info.to_json),
                                                             KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
@@ -28,11 +28,11 @@ module BGS
       end
     end
 
-    def perform(user_uuid, icn, saved_claim_id, vet_info)
+    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info)
+      @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
 
-      @vet_info = vet_info
-      @user = generate_user_struct
+      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 
@@ -44,19 +44,34 @@ module BGS
       BGS::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
-      user_struct_hash = user.to_h
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
 
       send_confirmation_email
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.warn('BGS::SubmitForm686cJob failed, retrying...',
+      Rails.logger.warn('BGS::SubmitForm686cJob received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message })
       log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
-      @icn = icn
-
+      salvage_save_in_progress_form(FORM_ID, user_uuid, @in_progress_copy) if @in_progress_copy.present?
       raise
+    end
+
+    def self.generate_user_struct(vet_info)
+      info = vet_info['veteran_information']
+      full_name = info['full_name']
+      OpenStruct.new(
+        first_name: full_name['first'],
+        last_name: full_name['last'],
+        middle_name: full_name['middle'],
+        ssn: info['ssn'],
+        email: info['email'],
+        va_profile_email: info['va_profile_email'],
+        participant_id: info['participant_id'],
+        icn: info['icn'],
+        uuid: info['uuid'],
+        common_name: info['common_name']
+      )
     end
 
     private
@@ -79,23 +94,6 @@ module BGS
         template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
-      )
-    end
-
-    def generate_user_struct
-      info = vet_info['veteran_information']
-      full_name = info['full_name']
-      OpenStruct.new(
-        first_name: full_name['first'],
-        last_name: full_name['last'],
-        middle_name: full_name['middle'],
-        ssn: info['ssn'],
-        email: info['email'],
-        va_profile_email: info['va_profile_email'],
-        participant_id: info['participant_id'],
-        icn: info['icn'],
-        uuid: info['uuid'],
-        common_name: info['common_name']
       )
     end
   end

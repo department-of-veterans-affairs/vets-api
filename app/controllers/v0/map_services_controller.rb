@@ -3,16 +3,11 @@
 require 'map/security_token/service'
 
 module V0
-  class MapServicesController < SignIn::ApplicationController
-    skip_before_action :authenticate
-    before_action :authenticate_service_account
-
+  class MapServicesController < SignIn::ServiceAccountApplicationController
+    service_tag 'identity'
     # POST /v0/map_services/:application/token
     def token
-      unless (icn = @service_account_access_token.user_attributes['icn'])
-        raise MAP::SecurityToken::Errors::MissingICNError
-      end
-
+      icn = @service_account_access_token.user_attributes['icn']
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)
 
       render json: result, status: :ok

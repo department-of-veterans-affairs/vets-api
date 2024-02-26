@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'faraday/multipart'
 require 'lighthouse/auth/client_credentials/jwt_generator'
 require 'lighthouse/auth/client_credentials/service'
 

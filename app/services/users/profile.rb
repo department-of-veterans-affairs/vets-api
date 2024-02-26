@@ -89,8 +89,8 @@ module Users
           appeals: AppealsPolicy.new(user).access?,
           ch33_bank_accounts: Ch33DdPolicy.new(user).access?,
           coe: CoePolicy.new(user).access?,
-          communication_preferences: (Vet360Policy.new(user).access? &&
-                                      CommunicationPreferencesPolicy.new(user).access?),
+          communication_preferences: Vet360Policy.new(user).access? &&
+            CommunicationPreferencesPolicy.new(user).access?,
           connected_apps: true,
           medical_copays: MedicalCopaysPolicy.new(user).access?,
           military_history: Vet360Policy.new(user).military_access?,
@@ -117,7 +117,7 @@ module Users
         text_permission: person.text_permission
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       nil
     end
 
@@ -148,7 +148,7 @@ module Users
         served_in_military: user.served_in_military?
       }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'EMIS').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       nil
     end
 

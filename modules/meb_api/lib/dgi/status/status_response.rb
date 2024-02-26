@@ -13,11 +13,11 @@ module MebApi
 
         def initialize(status, response = nil)
           attributes = {
-            claimant_id: response&.body&.fetch('claimant_id', ''),
-            claim_service_id: response&.body&.fetch('claim_service_id', ''),
-            claim_status: response&.body&.fetch('claim_status', ''),
-            confirmation_number: response&.body&.fetch('confirmation_number', ''),
-            received_date: response&.body&.fetch('received_date', '')
+            claimant_id: response&.body&.empty? ? '' : response&.body&.fetch('claimant_id', ''),
+            claim_service_id: response&.body&.empty? ? '' : response&.body&.fetch('claim_service_id', ''),
+            claim_status: response&.body&.empty? ? '' : response&.body&.fetch('claim_status', ''),
+            confirmation_number: response&.body&.empty? ? '' : response&.body&.fetch('confirmation_number', ''),
+            received_date: response&.body&.empty? ? '' : response&.body&.fetch('received_date', '')
           }
 
           super(status, attributes)

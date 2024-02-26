@@ -51,144 +51,89 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
     let(:success) { true }
     let(:path) { 'tmp/pdf_path' }
 
-    context 'with lighthouse flipper disabled' do
-      before do
-        Flipper.disable(:dependents_central_submission_lighthouse)
-        datestamp_double1 = double
-        datestamp_double2 = double
+    let(:lighthouse_mock) { double(:lighthouse_service) }
 
-        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-        expect(claim).to receive(:to_pdf).and_return('path1')
-        expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
-        expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
-        expect(datestamp_double2).to receive(:run).with(
-          text: 'FDC Reviewed - va.gov Submission',
-          x: 429,
-          y: 770,
-          text_only: true
-        ).and_return(path)
-        expect(Digest::SHA256).to receive(:file).with(path).and_return(
-          OpenStruct.new(hexdigest: 'hexdigest')
-        )
-        expect(PdfInfo::Metadata).to receive(:read).with(path).and_return(
-          OpenStruct.new(pages: 2)
-        )
-        expect(Faraday::UploadIO).to receive(:new).with(
-          path,
-          'application/pdf'
-        ).and_return('faraday1')
+    before do
+      expect(BenefitsIntakeService::Service).to receive(:new)
+        .with(with_upload_location: true)
+        .and_return(lighthouse_mock)
+      expect(lighthouse_mock).to receive(:uuid).and_return('uuid')
+      datestamp_double1 = double
+      datestamp_double2 = double
+      datestamp_double3 = double
+      timestamp = claim.created_at
 
-        # subject.to_faraday_upload(file_path)
+      expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+      expect(claim).to receive(:to_pdf).and_return('path1')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(datestamp_double2).to receive(:run).with(
+        text: 'FDC Reviewed - va.gov Submission',
+        x: 400,
+        y: 770,
+        text_only: true
+      ).and_return('path3')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(datestamp_double3).to receive(:run).with(
+        text: 'Application Submitted on va.gov',
+        x: 400,
+        y: 675,
+        text_only: true,
+        timestamp:,
+        page_number: 6,
+        template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
+        multistamp: true
+      ).and_return(path)
 
-        body = 'Request was received successfully  [uuid: 0e95811d-55a9-4fb9-bc39-045e27b2c106]'
-        expect_any_instance_of(CentralMail::Service).to receive(:upload).with(
-          'metadata' => instance_of(String),
-          'document' => 'faraday1'
-        ).and_return(OpenStruct.new(success?: success, body:))
+      data = JSON.parse('{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload"}')
+      expect(lighthouse_mock).to receive(:upload_form).with(
+        main_document: { file: path, file_name: 'pdf_path' },
+        attachments: [],
+        form_metadata: hash_including(file_number: '796104437')
+      ).and_return(OpenStruct.new(success?: success, data:))
 
-        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
-      end
+      expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
 
-      context 'with an response error' do
-        let(:success) { false }
+      expect(FormSubmission).to receive(:create).with(
+        form_type: '686C-674',
+        benefits_intake_uuid: 'uuid',
+        saved_claim: claim,
+        user_account: nil
+      ).and_return(FormSubmission.new)
+      expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission))
+    end
 
-        it 'raises CentralMailResponseError and updates submission to failed' do
-          mailer_double = double('Mail::Message')
-          allow(mailer_double).to receive(:deliver_now)
-          expect(claim).to receive(:submittable_686?).and_return(true)
-          expect(claim).to receive(:submittable_674?).and_return(false)
-          expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
-                                                          mailer_double
-                                                        }
-          expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
+    context 'with an response error' do
+      let(:success) { false }
 
-          expect(central_mail_submission.reload.state).to eq('failed')
-        end
-      end
-
-      it 'submits the saved claim and updates submission to success' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'MARK'
-          }
-        )
-        expect(claim).to receive(:submittable_686?).and_return(true)
+      it 'raises CentralMailResponseError and updates submission to failed' do
+        mailer_double = double('Mail::Message')
+        allow(mailer_double).to receive(:deliver_now)
+        expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
-        subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
-        expect(central_mail_submission.reload.state).to eq('success')
+        expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
+                                                        mailer_double
+                                                      }
+        expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
+
+        expect(central_mail_submission.reload.state).to eq('failed')
       end
     end
 
-    context 'with lighthouse flipper enabled' do
-      let(:lighthouse_mock) { double(:lighthouse_service) }
-
-      before do
-        Flipper.enable(:dependents_central_submission_lighthouse)
-        expect(BenefitsIntakeService::Service).to receive(:new)
-          .with(with_upload_location: true)
-          .and_return(lighthouse_mock)
-        expect(lighthouse_mock).to receive(:uuid).and_return('uuid')
-
-        datestamp_double1 = double
-        datestamp_double2 = double
-
-        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-        expect(claim).to receive(:to_pdf).and_return('path1')
-        expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
-        expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
-        expect(datestamp_double2).to receive(:run).with(
-          text: 'FDC Reviewed - va.gov Submission',
-          x: 429,
-          y: 770,
-          text_only: true
-        ).and_return(path)
-
-        data = JSON.parse('{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload"}')
-        expect(lighthouse_mock).to receive(:upload_form).with(
-          main_document: { file: path, file_name: 'pdf_path' },
-          attachments: [],
-          form_metadata: hash_including(file_number: '796104437')
-        ).and_return(OpenStruct.new(success?: success, data:))
-
-        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
-      end
-
-      context 'with an response error' do
-        let(:success) { false }
-
-        it 'raises CentralMailResponseError and updates submission to failed' do
-          mailer_double = double('Mail::Message')
-          allow(mailer_double).to receive(:deliver_now)
-          expect(claim).to receive(:submittable_686?).and_return(true)
-          expect(claim).to receive(:submittable_674?).and_return(false)
-          expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) {
-                                                          mailer_double
-                                                        }
-          expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
-
-          expect(central_mail_submission.reload.state).to eq('failed')
-        end
-      end
-
-      it 'submits the saved claim and updates submission to success' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'MARK'
-          }
-        )
-        expect(claim).to receive(:submittable_686?).and_return(true)
-        expect(claim).to receive(:submittable_674?).and_return(false)
-        subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
-        expect(central_mail_submission.reload.state).to eq('success')
-      end
+    it 'submits the saved claim and updates submission to success' do
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        user_struct.va_profile_email,
+        'fake_template_id',
+        {
+          'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+          'first_name' => 'MARK'
+        }
+      )
+      expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
+      expect(claim).to receive(:submittable_674?).and_return(false)
+      subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
+      expect(central_mail_submission.reload.state).to eq('success')
     end
   end
 
@@ -204,23 +149,36 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
   end
 
   describe '#process_pdf' do
-    subject { job.process_pdf('path1') }
+    timestamp = Time.zone.now
+    subject { job.process_pdf('path1', timestamp, '686C-674') }
 
     it 'processes a record and add stamps' do
       datestamp_double1 = double
       datestamp_double2 = double
+      datestamp_double3 = double
 
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
-        x: 429,
+        x: 400,
         y: 770,
         text_only: true
       ).and_return('path3')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(datestamp_double3).to receive(:run).with(
+        text: 'Application Submitted on va.gov',
+        x: 400,
+        y: 675,
+        text_only: true,
+        timestamp:,
+        page_number: 6,
+        template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
+        multistamp: true
+      ).and_return('path4')
 
-      expect(subject).to eq('path3')
+      expect(subject).to eq('path4')
     end
 
     describe '#get_hash_and_pages' do

@@ -6,7 +6,7 @@ module SM
       ##
       # Middleware class responsible for customizing MHV SM response parsing
       #
-      class SMParser < Faraday::Response::Middleware
+      class SMParser < Faraday::Middleware
         ##
         # Override the Faraday #on_complete method to filter body through custom #parse
         # @param env [Faraday::Env] the request environment

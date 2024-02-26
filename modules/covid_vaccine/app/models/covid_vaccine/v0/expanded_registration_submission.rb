@@ -8,7 +8,7 @@ module CovidVaccine
       include AASM
       aasm(:state) do
         # Fire off job for email confirmation to the user that submission has been received
-        # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
+        # Fire off job to determine eligibility to kick off after hours; transition to eligible or ineligible
         state :received, initial: true
         state :enrollment_pending, :enrollment_complete, :enrollment_failed, :registered,
               :registered_no_icn, :registered_no_facility

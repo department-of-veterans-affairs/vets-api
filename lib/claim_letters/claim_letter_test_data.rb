@@ -140,6 +140,36 @@ module ClaimLetterTestData
       alt_doc_types: '',
       restricted: false,
       upload_date: Date.new(2022,12,23)
+    ),
+    OpenStruct.new(
+      document_id: '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA90}',
+      series_id: '{350C072A-90A1-43A7-AD50-A5C9C54C357D}',
+      version: '1',
+      type_description: 'Standard 5103 Notice',
+      type_id: '65',
+      doc_type: '65',
+      subject: nil,
+      received_at: Date.new(2022,8,22),
+      source: 'VBMS',
+      mime_type: 'application/pdf',
+      alt_doc_types: '',
+      restricted: false,
+      upload_date: Date.new(2022,8,23)
+    ),
+    OpenStruct.new(
+      document_id: '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA91}',
+      series_id: '{350C072A-90A1-43A7-AD50-A5C9C54C357E}',
+      version: '1',
+      type_description: '5103/DTA Letter',
+      type_id: '68',
+      doc_type: '68',
+      subject: nil,
+      received_at: Date.new(2023,1,22),
+      source: 'VBMS',
+      mime_type: 'application/pdf',
+      alt_doc_types: '',
+      restricted: false,
+      upload_date: Date.new(2023,1,23)
     )
   ].freeze
 end

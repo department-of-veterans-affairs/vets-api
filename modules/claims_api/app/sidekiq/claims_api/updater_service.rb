@@ -1,8 +1,23 @@
 # frozen_string_literal: true
 
+require 'sidekiq'
+require 'sentry_logging'
+require 'claims_api/claim_logger'
+
 module ClaimsApi
   class UpdaterService
     extend ActiveSupport::Concern
+    include Sidekiq::Job
+    include SentryLogging
+
+    sidekiq_retries_exhausted do |message|
+      ClaimsApi::Logger.log(
+        'claims_api_retries_exhausted',
+        claim_id: message['args'].last,
+        detail: "Job retries exhausted for #{message['class']}",
+        error: message['error_message']
+      )
+    end
 
     def bgs_headers(claim_id)
       return if claim_id.nil?
