@@ -41,6 +41,7 @@ module VAOS
             # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
+            log_telehealth_data(appt) unless appt[:telehealth].nil?
             convert_appointment_time(appt)
 
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
@@ -90,6 +91,7 @@ module VAOS
         with_monitoring do
           response = perform(:post, appointments_base_path, params, headers)
           convert_appointment_time(response.body)
+          log_telehealth_data(response.body) unless response.body[:telehealth].nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
@@ -451,6 +453,76 @@ module VAOS
           status: e.status_code,
           message: e.message
         }
+      end
+
+      def log_telehealth_data(appt)
+        atlas = atlas_details(appt)
+        gfe = gfe_details(appt)
+        misc = misc_details(appt)
+        message = { VAOS_TELEHEALTH_DATA_KEY => atlas.merge(gfe).merge(misc) }
+        Rails.logger.info('VAOS telehealth atlas details', message.to_json)
+      rescue => e
+        Rails.logger.warn("Error logging VAOS telehealth atlas details: #{e.message}")
+      end
+
+      def atlas_details(appt)
+        {
+          siteCode: appt.dig(:telehealth, :atlas, :site_code),
+          address: appt.dig(:telehealth, :atlas, :address)
+        }
+      end
+
+      def gfe_details(appt)
+        {
+          hasMobileGfe: appt.dig(:extension, :patient_has_mobile_gfe)
+        }
+      end
+
+      def misc_details(appt)
+        {
+          vvsKind: appt.dig(:telehealth, :vvs_kind),
+          siteId: appt[:location_id],
+          clinicId: appt[:clinic],
+          provider: extract_names(appt[:practitioners])
+        }
+      end
+
+      # Extracts the full names from each practitioner.
+      #
+      # @param [Array<Hash>] practitioners An array of Hash objects, each having practitioner information.
+      #   A practitioner hash should have a +:name+ key which itself is a hash with +:given+ and +:family+ keys.
+      #   The +:given+ key should point to an array of strings (first and middle names),
+      #   and +:family+ key should point to a single string (last name).
+      #
+      # @return [String] Returns the names of the practitioners as a comma separated string.
+      #   If the +practitioners+ array is empty or does not contain a +:name+, then it returns nil.
+      #
+      def extract_names(practitioners)
+        return nil unless non_empty_array_of_hashes?(practitioners)
+
+        names = []
+        practitioners.each do |practitioner|
+          given_names = practitioner.dig(:name, :given)&.join(' ')
+          family_name = practitioner.dig(:name, :family)
+          full_name = "#{given_names} #{family_name}"
+          names << full_name if full_name.present?
+        end
+        name_str = names.join(', ').strip
+        name_str.presence
+      end
+
+      # Checks if the provided argument is a non-empty array of Hash objects.
+      #
+      # This method checks whether the specified argument is of Array type,
+      # is not empty, and all of its elements are hashes.
+      #
+      # @param arg [Array] The argument to be checked
+      #
+      # @return [Boolean] true if the argument is a non-empty array and all
+      #   its elements are OpenStruct instances, false otherwise
+      #
+      def non_empty_array_of_hashes?(arg)
+        arg.is_a?(Array) && !arg.empty? && arg.all? { |elem| elem.is_a?(Hash) }
       end
 
       def deserialized_appointments(appointment_list)
