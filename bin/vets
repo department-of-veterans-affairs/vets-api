@@ -4,7 +4,7 @@
 puts <<~HELP
   Binstubs
     vets      Show available binstubs
-    info      Display version related informtation
+    info      Display version related information
     setup     Create the developer environment
     test      Run test(s) in spec folder(s)
     lint      Run rubocop, brakeman, and bundle-audit

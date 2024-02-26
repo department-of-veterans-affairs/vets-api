@@ -5,7 +5,6 @@ require_relative '../config/boot'
 require_relative '../lib/vets-api/commands/info'
 require 'rails'
 
-option = ARGV.first
 if ARGV.include?('--help') || ARGV.include?('-h')
   puts <<~HELP
     Usage:
