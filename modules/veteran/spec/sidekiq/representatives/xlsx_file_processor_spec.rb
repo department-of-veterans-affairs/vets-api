@@ -23,9 +23,9 @@ RSpec.describe Representatives::XlsxFileProcessor do
     let(:result) { xlsx_processor.process }
 
     context 'with valid data' do
-      let(:expected_keys) { %w[id email_address request_address phone_number] }
+      let(:expected_keys) { %i[id email_address request_address phone_number] }
       let(:request_address_keys) do
-        %w[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
+        %i[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
            country_code_iso3]
       end
 
@@ -34,13 +34,12 @@ RSpec.describe Representatives::XlsxFileProcessor do
         expect(result.keys).to include('Agents', 'Attorneys', 'Representatives')
 
         result.each_value do |value_array|
-          expect(value_array).to all(be_a(String))
+          expect(value_array).to all(be_a(Hash))
 
-          value_array.each do |json_string|
-            json_object = JSON.parse(json_string)
-            expect(json_object.keys).to match_array(expected_keys)
-            expect(json_object['request_address'].keys).to match_array(request_address_keys)
-            check_values(json_object)
+          value_array.each do |row|
+            expect(row.keys).to match_array(expected_keys)
+            expect(row[:request_address].keys).to match_array(request_address_keys)
+            check_values(row)
           end
         end
       end
@@ -83,9 +82,8 @@ RSpec.describe Representatives::XlsxFileProcessor do
         valid_states = Representatives::XlsxFileProcessor::US_STATES_TERRITORIES.keys
 
         result.each_value do |value_array|
-          value_array.each do |json_string|
-            json_object = JSON.parse(json_string)
-            state_code = json_object.dig('request_address', 'state_province', 'code')
+          value_array.each do |row|
+            state_code = row.dig('request_address', 'state_province', 'code')
 
             expect(valid_states).to include(state_code) unless state_code.nil?
           end

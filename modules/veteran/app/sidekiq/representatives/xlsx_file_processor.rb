@@ -103,7 +103,7 @@ module Representatives
 
         next unless US_STATES_TERRITORIES[state_code]
 
-        data << create_json_data(row, sheet_name, column_map)
+        data << process_row(row, sheet_name, column_map)
       end
 
       data
@@ -120,12 +120,12 @@ module Representatives
       end
     end
 
-    # Creates JSON data for a given row based on the sheet name and column map.
-    # @param row [Array] The row data to be transformed into JSON.
+    # Creates a hash for a given row based on the sheet name and column map.
+    # @param row [Array] The row data to be transformed into a hash.
     # @param sheet_name [String] The name of the sheet being processed.
     # @param column_map [Hash] The column index map for the sheet.
-    # @return [String] The JSON representation of the row data.
-    def create_json_data(row, sheet_name, column_map)
+    # @return [String] The hash representation of the row data.
+    def process_row(row, sheet_name, column_map)
       zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
 
       {
@@ -143,9 +143,9 @@ module Representatives
           zip_code4:,
           country_code_iso3: 'US'
         }
-      }.to_json
+      }
     rescue => e
-      log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
+      log_error("Error transforming data to hash for #{sheet_name}: #{e.message}")
     end
 
     def get_value(row, column_map, column_name)
