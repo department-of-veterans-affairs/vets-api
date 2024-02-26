@@ -1,0 +1,96 @@
+{
+    "form_number": "40-10007",
+    "application": {
+      "applicant": {
+        "applicant_relationship_to_claimant": "Self",
+        "name": {
+          "first": "Freddy",
+          "middle": "John",
+          "last": "Kruger",
+          "suffix": "Sr.",
+          "maiden": "kgyif1iimq"
+        },
+        "mailing_address": {
+          "street": "123 Elm St",
+          "street2": "APT 2B",
+          "city": "Springwood",
+          "country": "USA",
+          "state": "OH",
+          "postal_code": "23432"
+        },
+        "applicant_phone_number": "3125555678",
+        "applicant_email": "test@test.com"
+      },
+      "veteran": {
+        "address": {
+          "street": "123 Elm St",
+          "street2": "APT 2B",
+          "city": "Springwood",
+          "country": "USA",
+          "state": "OH",
+          "postal_code": "23432"
+        },
+        "service_name": {
+          "first": "Freddy",
+          "middle": "John",
+          "last": "Kruger",
+          "suffix": "Jr."
+        },
+        "service_records": [
+          {
+            "date_range": {
+              "from": "1990-01-01",
+              "to": "2000-01-01"
+            },
+            "service_branch": "AL",
+            "discharge_type": "2",
+            "highest_rank": "sdsfdfdfd"
+          }
+        ],
+        "military_service_number": "RA1234567",
+        "va_claim_number": "234343456",
+        "military_status": "A",
+        "date_of_death": "2001-01-01",
+        "is_deceased": "yes",
+        "gender": "Male",
+        "race": {
+          "is_american_indian_or_alaskan_native": true,
+          "is_asian": true
+        },
+        "marital_status": "Single",
+        "current_name": {
+          "first": "Ben",
+          "middle": "E",
+          "last": "Fitz",
+          "suffix": "Jr.",
+          "maiden": "sample"
+        },
+        "ssn": "234-34-3456",
+        "date_of_birth": "1991-01-01",
+        "place_of_birth": "Springwood"
+      },
+      "claimant": {
+        "address": {
+          "street": "123 Elm St",
+          "street2": "APT 2B",
+          "city": "Springwood",
+          "country": "USA",
+          "state": "OH",
+          "postal_code": "23432"
+        },
+        "phone_number": "3125555678",
+        "email": "test@test.com",
+        "name": {
+          "first": "Freddy",
+          "middle": "John",
+          "last": "Kruger",
+          "suffix": "Sr.",
+          "maiden": "kgyif1iimq"
+        },
+        "ssn": "987-87-8765",
+        "date_of_birth": "1990-02-01",
+        "relationship_to_vet": "2"
+      },
+      "has_currently_buried": "2"
+    }
+  }

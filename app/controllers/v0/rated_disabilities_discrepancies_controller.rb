@@ -9,7 +9,7 @@ module V0
     before_action { authorize :evss, :access? }
     before_action { authorize :lighthouse, :access? }
 
-    DECISION_ALLOWLIST = ['1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
+    DECISION_ALLOWLIST = ['1151 Denied', '1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
 
     def show
       lh_response = get_lh_rated_disabilities
