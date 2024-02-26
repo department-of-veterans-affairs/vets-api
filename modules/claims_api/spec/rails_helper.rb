@@ -13,8 +13,9 @@ RSpec.configure do |config|
   end
   config.after(:suite) do
     @results ||= []
+    keywords ||= File.readlines('modules/claims_api/spec/support/pii_key_words.txt', chomp: true).map!(&:downcase)
     File.readlines('log/test.log', chomp: true).each_with_index do |context, index|
-      File.readlines('modules/claims_api/spec/support/pii_key_words.txt', chomp: true).each do |phrase|
+      keywords.each do |phrase|
         @results << { line: index, phrase:, context: } if context.to_s.downcase.include?(phrase.downcase)
       end
     end
