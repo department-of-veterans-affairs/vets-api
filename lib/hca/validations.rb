@@ -34,6 +34,12 @@ module HCA
       parsed_date.strftime('%m/%d/%Y')
     end
 
+    def parse_short_date(date_string)
+      return '' if date_string.blank?
+
+      DateTime.strptime(date_string, '%Y-%m-XX').strftime('%m/%Y')
+    end
+
     def date_of_birth(input_dob)
       parsed_dob = parse_date(input_dob)
       return '' if parsed_dob.blank? || parsed_dob.future?
