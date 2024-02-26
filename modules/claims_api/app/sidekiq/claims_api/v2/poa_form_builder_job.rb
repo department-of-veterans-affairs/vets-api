@@ -17,8 +17,6 @@ module ClaimsApi
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
       def perform(power_of_attorney_id, form_number)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-        # rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
-        # poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
 
         output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number),
                                                              id: power_of_attorney.id)
@@ -46,14 +44,15 @@ module ClaimsApi
       #
       # @return [Hash] All data to be inserted into pdf
       def data(power_of_attorney, form_number)
-        res = power_of_attorney.form_data.deep_merge({
-                                                       'veteran' => {
-                                                         'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                                                         'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                                                         'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                                                         'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                                                       }
-                                                     })
+        res = power_of_attorney
+              .form_data.deep_merge({
+                                      'veteran' => {
+                                        'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                                        'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                                        'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                                        'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                                      }
+                                    })
 
         signatures = if form_number == '2122A'
                        individual_signatures(power_of_attorney)
