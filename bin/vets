@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+puts <<~HELP
+  Binstubs
+    vets      Show available binstubs
+    info      Display version related informtation
+    setup     Create the developer environment
+    test      Run test(s) in spec folder(s)
+    lint      Run rubocop, brakeman, and bundle-audit
+
+  Examples:
+    bin/setup --docker
+    bin/test --ci
+    bin/lint --dry --only-rubocop
+
+HELP
