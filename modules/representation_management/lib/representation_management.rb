@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'representationmanagement/engine'
+require 'representation_management/engine'
 
 module RepresentationManagement
   # Your code goes here...
