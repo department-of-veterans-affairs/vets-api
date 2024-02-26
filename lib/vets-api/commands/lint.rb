@@ -11,15 +11,14 @@ module VetsApi
           input_values = args.reject { |a| a.start_with?('--', '-') }
           @inputs = input_values.empty? ? '' : input_values.join(' ')
 
-          lint_docker
-          # case File.read('.developer-setup')
-          # when 'native', 'hybrid'
-          #   lint_native
-          # when 'docker'
-          #   lint_docker
-          # else
-          #   puts 'Invalid option for .developer-setup'
-          # end
+          case File.read('.developer-setup')
+          when 'native', 'hybrid'
+            lint_native
+          when 'docker'
+            lint_docker
+          else
+            puts 'Invalid option for .developer-setup'
+          end
         end
 
         private
