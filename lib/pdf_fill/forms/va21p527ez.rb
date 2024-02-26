@@ -1433,7 +1433,7 @@ module PdfFill
 
         marriage_type = current_marriage['marriageType']
         current_marriage['marriageType'] =
-          marriage_type == 'In a civil or religious ceremony with an officiant who signed my marriage license' ? 0 : 1
+          marriage_type == 'CEREMONY' ? 0 : 1
         current_marriage['dateOfMarriage'] =
           split_date(current_marriage['dateOfMarriage'])
         current_marriage
