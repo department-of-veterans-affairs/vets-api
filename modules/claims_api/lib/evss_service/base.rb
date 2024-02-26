@@ -104,8 +104,6 @@ module ClaimsApi
 
       def error_handler(error, claim, method)
         custom_error(error, claim, method).build_error
-        # log_outcome_for_claims_api("claims_api-526-#{method}", 'error', error, claim)
-        # raise EVSS::DisabilityCompensationForm::ServiceException, error
       end
     end
   end
