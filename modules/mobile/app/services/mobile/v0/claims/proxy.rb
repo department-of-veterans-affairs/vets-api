@@ -5,42 +5,58 @@ module Mobile
     module Claims
       class Proxy
         STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
+        CLAIMS_NOT_AUTHORIZED_MESSAGE = 'Forbidden: User is not authorized for claims'
+        APPEALS_NOT_AUTHORIZED_MESSAGE = 'Forbidden: User is not authorized for appeals'
 
         def initialize(user)
           @user = user
         end
 
-        def get_claims_and_appeals
-          claims, appeals = Parallel.map([get_all_claims, get_all_appeals], in_threads: 2, &:call)
-
+        def get_claims_and_appeals(use_cache)
           full_list = []
           errors = []
+          data = nil
 
-          claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
-          appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
-          data = claims_adapter.parse(full_list)
+          data = Mobile::V0::ClaimOverview.get_cached(@user) if use_cache
 
-          [data, errors]
-        end
-
-        def get_claims
-          claims = get_all_claims.call
-          data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
-
-          errors = []
-          errors.push(claims[:errors]) unless claims[:errors].nil?
-          errors.push({ service: 'appeals', error_details: 'Forbidden: User is not authorized for appeals' })
+          unless data
+            claims, appeals = Parallel.map([get_all_claims, get_all_appeals], in_threads: 2, &:call)
+            claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
+            appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
+            data = claims_adapter.parse(full_list)
+          end
 
           [data, errors]
         end
 
-        def get_appeals
-          appeals = get_all_appeals.call
-          data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
-
+        def get_claims(use_cache)
           errors = []
-          errors.push(appeals[:errors]) unless appeals[:errors].nil?
-          errors.push({ service: 'claims', error_details: 'Forbidden: User is not authorized for claims' })
+          data = nil
+
+          data = Mobile::V0::ClaimOverview.get_cached(@user) if use_cache
+          unless data
+            claims = get_all_claims.call
+            errors.push(claims[:errors]) unless claims[:errors].nil?
+            data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
+          end
+          errors.push({ service: 'appeals', error_details: APPEALS_NOT_AUTHORIZED_MESSAGE })
+
+          [data, errors]
+        end
+
+        def get_appeals(use_cache)
+          errors = []
+          data = nil
+
+          data = Mobile::V0::ClaimOverview.get_cached(@user) if use_cache
+
+          unless data
+            appeals = get_all_appeals.call
+            errors.push(appeals[:errors]) unless appeals[:errors].nil?
+            data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
+          end
+
+          errors.push({ service: 'claims', error_details: CLAIMS_NOT_AUTHORIZED_MESSAGE })
 
           [data, errors]
         end

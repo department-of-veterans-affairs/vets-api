@@ -3,6 +3,7 @@
 require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
+require_relative '../../../services/mobile/v0/claims/proxy'
 require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
@@ -150,21 +151,30 @@ module Mobile
       end
 
       def fetch_claims_and_appeals
-        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
-        return [list, []] if list.present?
+        service_list, service_errors = get_accessible_claims_appeals(validated_params[:use_cache])
 
-        service_list, service_errors = get_accessible_claims_appeals
-        Mobile::V0::ClaimOverview.set_cached(@current_user, service_list) if service_errors.blank?
+        unless non_authorization_errors?(service_errors)
+          Mobile::V0::ClaimOverview.set_cached(@current_user, service_list)
+        end
+
         [service_list, service_errors]
       end
 
-      def get_accessible_claims_appeals
+      def non_authorization_errors?(service_errors)
+        return false unless service_errors
+
+        authorization_errors = [Mobile::V0::Claims::Proxy::CLAIMS_NOT_AUTHORIZED_MESSAGE,
+                                Mobile::V0::Claims::Proxy::APPEALS_NOT_AUTHORIZED_MESSAGE]
+        !service_errors.all? { |error| authorization_errors.include?(error[:error_details]) }
+      end
+
+      def get_accessible_claims_appeals(use_cache)
         if claims_access? && appeals_access?
-          service.get_claims_and_appeals
+          service.get_claims_and_appeals(use_cache)
         elsif claims_access?
-          service.get_claims
+          service.get_claims(use_cache)
         elsif appeals_access?
-          service.get_appeals
+          service.get_appeals(use_cache)
         else
           raise Pundit::NotAuthorizedError
         end

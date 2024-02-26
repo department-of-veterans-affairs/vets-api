@@ -19,6 +19,8 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
         VCR.use_cassette('mobile/appeals/appeals') do
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
           subject.perform(user.uuid)
+
+          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(148)
           expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
             {
               id: 'SC1678',
@@ -30,6 +32,48 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
               display_title: 'supplemental claim for disability compensation',
               decision_letter_sent: false
             }
+          )
+        end
+      end
+    end
+
+    context 'when claims or appeals is not authorized' do
+      it 'caches the expected claims' do
+        allow_any_instance_of(AppealsPolicy).to receive(:access?).and_return(false)
+
+        VCR.use_cassette('mobile/claims/claims') do
+          expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+          subject.perform(user.uuid)
+          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(143)
+          expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
+            { id: '600118851',
+              type: 'claim',
+              subtype: 'Compensation',
+              completed: false,
+              date_filed: '2017-12-08',
+              updated_at: '2017-12-08',
+              display_title: 'Compensation',
+              decision_letter_sent: false }
+          )
+        end
+      end
+
+      it 'caches the expected appeals' do
+        allow_any_instance_of(EVSSPolicy).to receive(:access?).and_return(false)
+
+        VCR.use_cassette('mobile/appeals/appeals') do
+          expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+          subject.perform(user.uuid)
+          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(5)
+          expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
+            { id: 'SC1678',
+              type: 'appeal',
+              subtype: 'supplementalClaim',
+              completed: false,
+              date_filed: '2020-09-23',
+              updated_at: '2020-09-23',
+              display_title: 'supplemental claim for disability compensation',
+              decision_letter_sent: false }
           )
         end
       end
