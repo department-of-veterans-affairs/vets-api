@@ -43,6 +43,7 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
 
         service.submit_686c_form(claim)
       end
@@ -57,7 +58,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, true,
             true
           )
@@ -77,7 +78,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, true,
             true
           )
@@ -95,7 +96,7 @@ RSpec.describe BGS::DependentService do
           user.uuid, user.icn, claim.id,
           encrypted_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info,
           true, true
         )
@@ -114,7 +115,7 @@ RSpec.describe BGS::DependentService do
           anything
         )
         expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info,
           true, true
         )
@@ -133,7 +134,7 @@ RSpec.describe BGS::DependentService do
           anything
         )
         expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info,
           true, true
         )
@@ -152,7 +153,7 @@ RSpec.describe BGS::DependentService do
           anything
         )
         expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info,
           true, true
         )
@@ -187,6 +188,7 @@ RSpec.describe BGS::DependentService do
     end
 
     it 'calls find_person_by_participant_id' do
+      allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
@@ -205,7 +207,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, false,
             true
           )
@@ -225,7 +227,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, false,
             true
           )
@@ -243,7 +245,7 @@ RSpec.describe BGS::DependentService do
           user.uuid, user.icn, claim.id,
           encrypted_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info, false,
           true
         )
@@ -262,7 +264,7 @@ RSpec.describe BGS::DependentService do
           anything
         )
         expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info, false,
           true
         )
@@ -281,7 +283,7 @@ RSpec.describe BGS::DependentService do
           anything
         )
         expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info, false,
           true
         )
@@ -300,7 +302,7 @@ RSpec.describe BGS::DependentService do
           anything
         )
         expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info, false,
           true
         )

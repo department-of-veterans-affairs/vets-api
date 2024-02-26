@@ -501,7 +501,7 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (3.25.2)
+    google-protobuf (3.25.3)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -569,7 +569,8 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.7.1)
+    jwt (2.8.0)
+      base64
     kms_encrypted (1.5.1)
       activesupport (>= 6)
     kramdown (2.4.0)
