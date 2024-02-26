@@ -2,24 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentatives::V0::ApplicationController, type: :request do
-  path_suffix = 'arbitrary'
-  path = "/accredited_representatives/v0/#{path_suffix}"
-
-  describe "GET #{path}" do
+RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request do
+  describe 'GET /accredited_representatives/arbitrary' do
     before(:context) do
       module AccreditedRepresentatives
-        module V0
-          class ArbitraryController < ApplicationController
-            def arbitrary = head :ok
-          end
+        class ArbitraryController < ApplicationController
+          def arbitrary = head :ok
         end
       end
 
       AccreditedRepresentatives::Engine.routes.draw do
-        namespace :v0, defaults: { format: :json } do
-          get path_suffix, to: 'arbitrary#arbitrary'
-        end
+        get 'arbitrary', to: 'arbitrary#arbitrary'
       end
     end
 
@@ -31,7 +24,7 @@ RSpec.describe AccreditedRepresentatives::V0::ApplicationController, type: :requ
     end
 
     subject do
-      get path
+      get '/accredited_representatives/arbitrary'
       response
     end
 
