@@ -24,9 +24,7 @@ module VetsApi
 
         def store_developer_environment_preference(input_environment)
           file_path = '.developer-setup'
-          if input_environment
-            File.write(file_path, input_environment.tr('--', ''))
-          end
+          File.write(file_path, input_environment.tr('--', '')) if input_environment
         end
 
         def setup_developer_environment
@@ -38,7 +36,7 @@ module VetsApi
           when 'hybrid'
             setup_hybrid
           else
-            puts "Invalid option for .developer-setup"
+            puts 'Invalid option for .developer-setup'
           end
         end
 

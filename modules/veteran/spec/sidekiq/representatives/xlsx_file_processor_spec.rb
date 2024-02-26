@@ -77,5 +77,20 @@ RSpec.describe Representatives::XlsxFileProcessor do
         expect(xlsx_processor).to have_received(:log_message_to_sentry).with(expected_log_message, :error)
       end
     end
+
+    context 'with state code validation' do
+      it 'processes only rows with valid state codes' do
+        valid_states = Representatives::XlsxFileProcessor::US_STATES_TERRITORIES.keys
+
+        result.each_value do |value_array|
+          value_array.each do |json_string|
+            json_object = JSON.parse(json_string)
+            state_code = json_object.dig('request_address', 'state_province', 'code')
+
+            expect(valid_states).to include(state_code) unless state_code.nil?
+          end
+        end
+      end
+    end
   end
 end

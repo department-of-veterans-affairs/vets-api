@@ -39,8 +39,20 @@ RSpec.describe 'vaos v2 community care eligibility', type: :request do
 
       it 'has access and returns eligibility true', :skip_mvi do
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method path query]) do
+          logged_info =
+            { icn_digest: '434fce82be04d498f7e7e54f30c0d4c35f61bc4e53610137bcb446723597732a',
+              service_type: 'PrimaryCare',
+              eligible: true,
+              eligibility_codes: [{ description: 'Hardship', code: 'H' }],
+              no_full_service_va_medical_facility: false,
+              grandfathered: false,
+              timestamp: '2019-12-13T09:19:05.253378Z' }.to_json
+
+          allow(Rails.logger).to receive(:info).at_least(:once)
+
           get "/vaos/v2/community_care/eligibility/#{service_type}"
 
+          expect(Rails.logger).to have_received(:info).with('VAOS CCEligibility details', logged_info).at_least(:once)
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(json_body_for(response)).to match_schema('vaos/cc_eligibility')

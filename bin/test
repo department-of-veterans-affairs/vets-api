@@ -38,7 +38,7 @@ if ARGV.include?('--help') || ARGV.include?('-h')
 
   HELP
 elsif ARGV.include?('--ci')
-  puts "WARNING: --ci ignores all other options and inputs"
+  puts 'WARNING: --ci ignores all other options and inputs'
   ci_test_command = "docker-compose run web bash -c \"CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true \
    bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'\""
   system(ci_test_command)

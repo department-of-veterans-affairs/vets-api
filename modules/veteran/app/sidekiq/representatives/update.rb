@@ -9,39 +9,21 @@ module Representatives
   # A Sidekiq job class for updating address records. It processes JSON data for address updates,
   # validates the address, and then updates the address record if valid.
   class Update
-    include Sidekiq::Worker
     include Sidekiq::Job
     include SentryLogging
 
     # Performs the job of parsing JSON data, validating the address, and updating the record.
     # @param json_data [String] JSON string containing address data.
     def perform(json_data)
-      # Sidekiq::Limiter.window configures a rate limiter for Sidekiq jobs, enabling us to control the rate at which
-      # 'rep_update' jobs are processed. This setup limits the execution to 30 jobs within each 60-second window,
-      # aiming to prevent overloading the system or hitting external API rate limits. The `wait_timeout: 60` parameter
-      # indicates that if the rate limit is reached, a job will wait up to 60 seconds for an opportunity to execute
-      # within the current limit window before raising a Sidekiq::Limiter::OverLimit exception. If the exception occurs,
-      # the job is explicitly rescheduled to try again in 60 seconds, as handled in the rescue block below.
-      rep_update_throttle = Sidekiq::Limiter.window('rep_update', 30, 60, wait_timeout: 60)
+      data = JSON.parse(json_data)
+      validation_address = build_validation_address(data['request_address'])
+      response = validate_address(validation_address)
 
-      rep_update_throttle.within_limit do
-        data = JSON.parse(json_data)
-        validation_address = build_validation_address(data['request_address'])
-        response = validate_address(validation_address)
+      return unless address_valid?(response)
 
-        return unless address_valid?(response)
-
-        update_address_record(data, response)
-      rescue Sidekiq::Limiter::OverLimit => e
-        # If the job hits the rate limit, it's caught here to prevent immediate failure. Instead of failing,
-        # the job is rescheduled to run again in 60 seconds, aligning with the next rate limit window.
-        # This approach helps to smooth out job execution under rate limiting constraints, ensuring that
-        # the job has another chance to run when the rate limit potentially allows for more executions.
-        log_error(e)
-        self.class.perform_in(60, json_data)
-      rescue JSON::ParserError => e
-        log_error(e)
-      end
+      update_address_record(data, response)
+    rescue JSON::ParserError => e
+      log_error(e)
     end
 
     private

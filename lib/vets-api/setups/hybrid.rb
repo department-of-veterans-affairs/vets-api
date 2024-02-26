@@ -48,7 +48,7 @@ module VetsApi
 
       def configuring_clamav_antivirus
         print 'Configuring ClamAV...'
-        File.open("config/initializers/clamav.rb", "w") do |file|
+        File.open('config/initializers/clamav.rb', 'w') do |file|
           file.puts <<~CLAMD
             # frozen_string_literal: true
 
@@ -125,10 +125,9 @@ module VetsApi
 
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
-        system("RAILS_ENV=test bundle exec rake parallel:setup")
+        system('RAILS_ENV=test bundle exec rake parallel:setup')
         puts 'Setting up parallel_test...Done'
       end
-
     end
   end
 end

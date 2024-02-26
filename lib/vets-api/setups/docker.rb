@@ -21,7 +21,7 @@ module VetsApi
 
       def configuring_clamav_antivirus
         print 'Configuring ClamAV...'
-        File.open("config/initializers/clamav.rb", "w") do |file|
+        File.open('config/initializers/clamav.rb', 'w') do |file|
           file.puts <<~CLAMD
             # frozen_string_literal: true
 
