@@ -31,7 +31,10 @@ module SchemaContract
     def schema_file
       @schema_file ||= begin
         path = Settings.schema_contract[record.name]
-        raise SchemaContractValidationError, "No schema file #{record.name} found." if path.nil?
+        if path.nil?
+          @result = 'schema_not_found'
+          raise SchemaContractValidationError, "No schema file #{record.name} found."
+        end
 
         Rails.root.join(path)
       end

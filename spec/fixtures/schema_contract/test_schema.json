@@ -11,53 +11,27 @@
       "items": {
         "type": "object",
         "required": [
-          "id",
-          "identifier",
-          "extension"
+          "required_string",
+          "required_object"
         ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string" },
-          "identifier": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "system": { "type": "string" },
-                "value": { "type": "string" }
-              }
-            }
-          },
-          "extension": {
+          "required_string": { "type": "string" },
+          "optional_nullable_string": { "type": ["string", "null"] },
+          "required_object": {
             "type": "object",
             "required": [
-              "cc_location"
+              "required_nested_object"
             ],
             "properties": {
-              "cc_location": {
+              "required_nested_object": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
-                  "address": {
-                    "type": "object"
+                  "nested_optional_int": {
+                    "type": "integer"
                   }
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "meta": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "errors": {
-            "type":"array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "detail": { "type": "string" }
               }
             }
           }
