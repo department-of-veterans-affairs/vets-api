@@ -8,7 +8,7 @@ module AccreditedRepresentatives
   # deal with things later.
   #
   # TODO: address code tagged with <duplicates-application-controller>
-  class DuplicativeApplicationController < ActionController::API
+  class DuplicativeGlobalApplicationController < ActionController::API
     # <duplicates-application-controller>
     include Traceable
 
