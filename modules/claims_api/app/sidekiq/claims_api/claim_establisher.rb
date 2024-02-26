@@ -45,7 +45,6 @@ module ClaimsApi
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
-      debugger
       auto_claim.form_data = orig_form_data
       auto_claim.save
     rescue ::Common::Exceptions::BackendServiceException => e

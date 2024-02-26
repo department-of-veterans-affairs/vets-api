@@ -98,12 +98,12 @@ module ClaimsApi
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
 
-      def custom_error(error)
-        ClaimsApi::CustomError.new(error)
+      def custom_error(error, claim, method)
+        ClaimsApi::CustomError.new(error, claim, method)
       end
 
-      def error_handler(error, _claim, _method)
-        custom_error(error).build_error
+      def error_handler(error, claim, method)
+        custom_error(error, claim, method).build_error
         # log_outcome_for_claims_api("claims_api-526-#{method}", 'error', error, claim)
         # raise EVSS::DisabilityCompensationForm::ServiceException, error
       end
