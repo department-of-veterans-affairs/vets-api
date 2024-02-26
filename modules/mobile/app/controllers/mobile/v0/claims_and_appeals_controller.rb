@@ -3,7 +3,6 @@
 require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
-require_relative '../../../services/mobile/v0/claims/proxy'
 require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
