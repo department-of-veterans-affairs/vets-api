@@ -15,25 +15,19 @@ module ClaimsApi
         log_outcome_for_claims_api(custom_error)
 
         raise EVSS::DisabilityCompensationForm::ServiceException, custom_error
-
-      # empty client id, missing bracket on form_data are both caught by BackendServiceException
-      elsif @error.is_a?(::Common::Exceptions::BackendServiceException) || @error.is_a?(StandardError)
+      elsif @error.is_a?(::Common::Exceptions::BackendServiceException) # missing bracket on form_data
         custom_error = { 'messages' => [{ 'key' => 'BackendException',
-                                          'detail' => 'Backend exception or standard error', status: '500' }] }
+                                          'detail' => 'Backend exception', status: '500' }] }
         update_claim(custom_error)
         log_outcome_for_claims_api(custom_error)
 
         raise EVSS::DisabilityCompensationForm::ServiceException, custom_error
-      # elsif (@error.is_a?(::Common::Client::Errors::ClientError) && @error_object.status == '503') ||
-      #       (@error.is_a?(::Common::Client::Errors::ClientError) && @error_object.status != '403') ||
-      #       (@error == ::Common::Client::Errors::ClientError && @error_object.status == '403') ||
-      #       (@error.is_a?(::Common::Client::Errors::ClientError) && @error_object.status == '401')
-      #   custom_error = { 'messages' => [{ 'key' => 'Client error', 'detail' => 'client exception', status: '400' }] }
-      #   update_claim(custom_error)
-      #   log_outcome_for_claims_api(custom_error)
+      elsif @error.is_a?(StandardError) # when client_key is blank
+        custom_error = { 'messages' => [{ 'key' => 'Client error', 'detail' => 'client exception', status: '400' }] }
+        update_claim(custom_error)
+        log_outcome_for_claims_api(custom_error)
 
-      #   raise EVSS::DisabilityCompensationForm::ServiceException, custom_error
-
+        raise EVSS::DisabilityCompensationForm::ServiceException, custom_error
       else
         custom_error = { 'messages' => [{ 'key' => 'Unknown error', 'detail' => 'unknown error', status: '500' }] }
         update_claim(custom_error)
