@@ -5,22 +5,24 @@ require 'rails_helper'
 RSpec.describe Representatives::Update do
   describe '#perform' do
     let(:json_data) do
-      { request_address: {
-          address_pou: 'abc',
-          address_line1: 'abc',
-          address_line2: 'abc',
-          address_line3: 'abc',
-          city: 'abc',
-          state_province: {
-            code: 'abc'
+      [
+        { request_address: {
+            address_pou: 'abc',
+            address_line1: 'abc',
+            address_line2: 'abc',
+            address_line3: 'abc',
+            city: 'abc',
+            state_province: {
+              code: 'abc'
+            },
+            zip_code5: 'abc',
+            zip_code4: 'abc',
+            country_code_iso3: 'abc'
           },
-          zip_code5: 'abc',
-          zip_code4: 'abc',
-          country_code_iso3: 'abc'
-        },
-        id:,
-        email_address: 'test@example.com',
-        phone_number: '999-999-9999' }.to_json
+          id:,
+          email_address: 'test@example.com',
+          phone_number: '999-999-9999' }
+      ].to_json
     end
     let(:api_response) do
       {
@@ -73,7 +75,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "Update error: unexpected token at 'invalid json'", :error
+          "Representatives::Update: unexpected token at 'invalid json'", :error
         )
 
         subject.perform(invalid_json_data)
