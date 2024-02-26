@@ -696,6 +696,10 @@ features:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_medications_display_refill_content:
+    actor_type: user
+    description: Enables/disables refill-related content for Medications on VA.gov
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
