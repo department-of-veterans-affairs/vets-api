@@ -4,13 +4,12 @@ require 'rails_helper'
 
 RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request do
   describe 'GET /accredited_representatives/arbitrary' do
-    before(:context) do
-      module AccreditedRepresentatives
-        class ArbitraryController < ApplicationController
-          def arbitrary = head :ok
-        end
-      end
+    subject do
+      get '/accredited_representatives/arbitrary'
+      response
+    end
 
+    before(:context) do
       AccreditedRepresentatives::Engine.routes.draw do
         get 'arbitrary', to: 'arbitrary#arbitrary'
       end
@@ -21,11 +20,6 @@ RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request 
       # `ArbitraryController` as a const during cleanup. But we'll just leave it
       # around and avoid the extra metaprogramming.
       Rails.application.reload_routes!
-    end
-
-    subject do
-      get '/accredited_representatives/arbitrary'
-      response
     end
 
     describe 'when the representatives_portal_api feature toggle' do
@@ -39,13 +33,21 @@ RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request 
 
       describe 'is enabled' do
         let(:enabled) { true }
+
         it { is_expected.to have_http_status(:ok) }
       end
 
       describe 'is disabled' do
         let(:enabled) { false }
+
         it { is_expected.to have_http_status(:not_found) }
       end
     end
+  end
+end
+
+module AccreditedRepresentatives
+  class ArbitraryController < ApplicationController
+    def arbitrary = head :ok
   end
 end

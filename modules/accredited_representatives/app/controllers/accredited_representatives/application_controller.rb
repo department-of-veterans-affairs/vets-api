@@ -10,9 +10,7 @@ module AccreditedRepresentatives
     service_tag 'accredited-representatives'
 
     before_action do
-      if !Flipper.enabled?(:representatives_portal_api)
-        routing_error
-      end
+      routing_error unless Flipper.enabled?(:representatives_portal_api)
     end
 
     private
