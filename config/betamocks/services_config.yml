@@ -790,6 +790,13 @@
     - :method: :post
       :path: "/services/benefits-documents/v1/documents/search"
       :file_path: "/lighthouse/claims_api/benefits_documents/search/default"
+    # Service History and Eligibility API V2
+    - :method: :get
+      :path: "/services/veteran_verification/v2/disability_rating/*"
+      :file_path: "/lighthouse/veteran_verification/rated_disabilities"
+      :cache_multiple_responses:
+        :uid_location: "url"
+        :uid_locator: "\/services/veteran_verification/v2/disability_rating\/(.+)"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
