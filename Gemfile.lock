@@ -111,6 +111,7 @@ PATH
       rails
     my_health (0.1.0)
       rails
+    representation_management (0.1.0)
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails
@@ -1037,10 +1038,10 @@ GEM
 
 PLATFORMS
   java
-  ruby
   x64-mingw32
   x86-mingw32
   x86-mswin32
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
@@ -1178,6 +1179,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  representation_management!
   request_store
   restforce
   rgeo-geojson
