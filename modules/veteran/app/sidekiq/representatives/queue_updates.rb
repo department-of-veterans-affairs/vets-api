@@ -37,7 +37,8 @@ module Representatives
         begin
           batch.jobs do
             data[sheet].each_slice(slice_size) do |rows|
-              Representatives::Update.perform_in(delay.minutes, rows)
+              json_rows = rows.to_json
+              Representatives::Update.perform_in(delay.minutes, json_rows)
               delay += 1
             end
           end
