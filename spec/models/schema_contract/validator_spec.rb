@@ -36,130 +36,137 @@ describe SchemaContract::Validator, aggregate_failures: true do
       end
     end
 
-    describe 'when required properties are missing' do
-      let(:response) do
-        matching_response[:data][0].delete(:required_string)
-        matching_response
-      end
+    ###
+    # the following tests are duplicative of the underlying JSON::Validator gem specs but are useful
+    # for validating that this works as expected and for documenting expected behavior
+    ###
 
-      it 'raises and records errors' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('schema_errors_found')
-        expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0' did not contain a required property of 'required_string' in schema \
+    describe 'schema errors' do
+      context 'when required properties are missing' do
+        let(:response) do
+          matching_response[:data][0].delete(:required_string)
+          matching_response
+        end
+
+        it 'raises and records errors' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+          expect(contract_record.reload.status).to eq('schema_errors_found')
+          expect(contract_record.error_details).to \
+            match(%r{^\["The property '#/data/0' did not contain a required property of 'required_string' in schema \
 #{uuid_regex}"\]$})
-      end
-    end
-
-    context 'when response contains optional permitted properties' do
-      let(:response) do
-        matching_response[:data][0][:optional_nullable_string] = ':D'
-        matching_response
+        end
       end
 
-      it 'updates record and does not log errors' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('success')
-      end
-    end
+      context 'when response contains optional permitted properties' do
+        let(:response) do
+          matching_response[:data][0][:optional_nullable_string] = ':D'
+          matching_response
+        end
 
-    context 'when response contains unpermitted properties' do
-      let(:response) do
-        matching_response[:data][0][:extra] = ':D'
-        matching_response
+        it 'updates record and does not log errors' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+          expect(contract_record.reload.status).to eq('success')
+        end
       end
 
-      it 'raises and records errors' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('schema_errors_found')
-        expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0' contains additional properties \[\\"extra\\"\] outside of the schema \
+      context 'when response contains unpermitted properties' do
+        let(:response) do
+          matching_response[:data][0][:extra] = ':D'
+          matching_response
+        end
+
+        it 'raises and records errors' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+          expect(contract_record.reload.status).to eq('schema_errors_found')
+          expect(contract_record.error_details).to \
+            match(%r{^\["The property '#/data/0' contains additional properties \[\\"extra\\"\] outside of the schema \
 when none are allowed in schema #{uuid_regex}"\]$})
-      end
-    end
-
-    context 'when response contains properties of the wrong type' do
-      let(:response) do
-        matching_response[:data][0][:required_string] = 1
-        matching_response
+        end
       end
 
-      it 'raises and records errors' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('schema_errors_found')
+      context 'when response contains properties of the wrong type' do
+        let(:response) do
+          matching_response[:data][0][:required_string] = 1
+          matching_response
+        end
 
-        expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0/required_string' of type integer did not match the following type: \
+        it 'raises and records errors' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+          expect(contract_record.reload.status).to eq('schema_errors_found')
+
+          expect(contract_record.error_details).to \
+            match(%r{^\["The property '#/data/0/required_string' of type integer did not match the following type: \
 string in schema #{uuid_regex}"\]$})
-      end
-    end
-
-    context 'when response contains disallowed null value' do
-      let(:response) do
-        matching_response[:data][0][:required_string] = nil
-        matching_response
+        end
       end
 
-      it 'raises and records errors' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('schema_errors_found')
+      context 'when response contains disallowed null value' do
+        let(:response) do
+          matching_response[:data][0][:required_string] = nil
+          matching_response
+        end
 
-        expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0/required_string' of type null did not match the following type: string \
+        it 'raises and records errors' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+          expect(contract_record.reload.status).to eq('schema_errors_found')
+
+          expect(contract_record.error_details).to \
+            match(%r{^\["The property '#/data/0/required_string' of type null did not match the following type: string \
 in schema #{uuid_regex}"\]$})
-      end
-    end
-
-    context 'when response contains allowed null value' do
-      let(:response) do
-        matching_response[:data][0][:optional_nullable_string] = nil
-        matching_response
+        end
       end
 
-      it 'updates record' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+      context 'when response contains allowed null value' do
+        let(:response) do
+          matching_response[:data][0][:optional_nullable_string] = nil
+          matching_response
+        end
+
+        it 'updates record' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        end
+
+        it 'does not log errors' do
+          expect { SchemaContract::Validator.new(contract_record.id).validate }.to change {
+                                                                                     contract_record.reload.status
+                                                                                   }.from('initialized').to('success')
+        end
       end
 
-      it 'does not log errors' do
-        expect { SchemaContract::Validator.new(contract_record.id).validate }.to change {
-                                                                                   contract_record.reload.status
-                                                                                 }.from('initialized').to('success')
-      end
-    end
+      context 'when schema contains nested properties' do
+        let(:response) do
+          matching_response[:data][0][:required_object].delete(:required_nested_string)
+          matching_response[:data][0][:required_object][:extra] = ':D'
+          matching_response[:data][0][:required_object][:optional_nested_int] = 'not an integer'
+          matching_response
+        end
 
-    context 'when schema contains nested properties' do
-      let(:response) do
-        matching_response[:data][0][:required_object].delete(:required_nested_string)
-        matching_response[:data][0][:required_object][:extra] = ':D'
-        matching_response[:data][0][:required_object][:optional_nested_int] = 'not an integer'
-        matching_response
-      end
+        it 'validates them as expected' do
+          expect do
+            SchemaContract::Validator.new(contract_record.id).validate
+          end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+          expect(contract_record.reload.status).to eq('schema_errors_found')
 
-      it 'validates them as expected' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('schema_errors_found')
-
-        expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0/required_object' did not contain a required property of \
+          expect(contract_record.error_details).to \
+            match(%r{^\["The property '#/data/0/required_object' did not contain a required property of \
 'required_nested_string' in schema #{uuid_regex}", \
 "The property '#/data/0/required_object' contains additional properties \[\\"extra\\"\] outside of the \
 schema when none are allowed in schema #{uuid_regex}", \
 "The property '#/data/0/required_object/optional_nested_int' of type string did not match the following \
 type: integer in schema #{uuid_regex}"\]})
+        end
       end
     end
 

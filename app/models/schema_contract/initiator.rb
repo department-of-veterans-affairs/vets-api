@@ -9,12 +9,11 @@ module SchemaContract
         record = SchemaContract::Validation.create(
           contract_name:, user_uuid: user.uuid, response: response.to_json, status: 'initialized'
         )
-
-        Rails.logger.info('Schema contract validation initialized', { contract_name:, record_id: record.id })
+        Rails.logger.info('Initiating schema contract validation', { contract_name:, record_id: record.id })
         SchemaContract::ValidationJob.perform_async(record.id)
       end
     rescue => e
-      # blanket rescue to avoid this code blocking execution
+      # blanket rescue to avoid blocking main thread execution
       message = { response:, contract_name:, error_details: e.message }
       Rails.logger.error('Error creating schema contract job', message)
     end

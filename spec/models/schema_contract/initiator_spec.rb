@@ -7,7 +7,7 @@ describe SchemaContract::Initiator do
   describe '.call' do
     let(:user) { create(:user) }
     let(:response) do
-      OpenStruct.new({ success?: true, status: 200, body: { foo: 'bar' } })
+      OpenStruct.new({ success?: true, status: 200, body: { key: 'value' } })
     end
 
     before do
@@ -50,7 +50,9 @@ describe SchemaContract::Initiator do
         allow(SchemaContract::Validation).to receive(:create).with(any_args).and_raise(ArgumentError)
         error_message = { response:, contract_name: 'test_index', error_details: 'ArgumentError' }
         expect(Rails.logger).to receive(:error).with('Error creating schema contract job', error_message)
-        SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
+        expect do
+          SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
+        end.not_to raise_error
       end
     end
   end
