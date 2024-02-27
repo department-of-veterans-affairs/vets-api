@@ -77,7 +77,7 @@ module V0
 
       # In order for the rating to be considered active,
       # the date should be either nil or in the future
-      date.nil? || !Date.parse(date).past?
+      date.nil? || Date.parse(date).future?
     end
 
     def service
