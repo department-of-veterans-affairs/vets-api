@@ -7,10 +7,8 @@ describe SchemaContract::Validator, aggregate_failures: true do
   describe '#validate' do
     let(:fixture) { 'spec/fixtures/schema_contract/test_schema.json' }
     let(:test_data) { Rails.root.join(fixture).read }
-
-    # make a factory
     let(:contract_record) do
-      SchemaContract::Validation.create(name: 'test_index', user_uuid: '1234', response:, status: 'initialized')
+      create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:, status: 'initialized')
     end
     let(:matching_response) do
       {
@@ -24,7 +22,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
             }
           }
         ],
-        meta: [{}]
+        meta: [{}] # hmm
       }
     end
     let(:uuid_regex) { /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ }
@@ -186,7 +184,7 @@ when none are allowed in schema #{uuid_regex}"\]$})
 
     context 'when schema file does not exist' do
       let(:contract_record) do
-        SchemaContract::Validation.create(name: 'not_real', user_uuid: '1234', response: matching_response,
+        create(:schema_contract_validation, contract_name: 'not_real', user_uuid: '1234', response: matching_response,
                                                   status: 'initialized')
       end
 

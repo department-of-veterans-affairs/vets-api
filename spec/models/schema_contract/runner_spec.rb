@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative Rails.root.join('app', 'models', 'schema_contract', 'runner')
 
 describe SchemaContract::Runner do
-  describe '.run' do
+  describe '.call' do
     let(:user) { create(:user) }
     let(:response) do
       OpenStruct.new({ success?: true, status: 200, body: { foo: 'bar' } })
@@ -17,21 +17,21 @@ describe SchemaContract::Runner do
 
     context 'when a record already exists for the current day' do
       before do
-        SchemaContract::Validation.create(name: 'test_index', user_uuid: '1234', response:, status: 'initiated')
+        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:, status: 'initiated')
       end
 
       it 'does not create a record or enqueue a job' do
         expect(UpstreamSchemaValidationJob).not_to receive(:perform_async)
 
         expect do
-          SchemaContract::Runner.run(user:, response:, test_name: 'test_index')
+          SchemaContract::Runner.call(user:, response:, test_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
       end
     end
 
     context 'when no record exists for the current day' do
       before do
-        SchemaContract::Validation.create(name: 'test_index', user_uuid: '1234', response:, status: 'initiated',
+        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:, status: 'initiated',
                                                   created_at: Time.zone.yesterday.beginning_of_day)
       end
 
@@ -39,7 +39,7 @@ describe SchemaContract::Runner do
         expect(UpstreamSchemaValidationJob).to receive(:perform_async)
 
         expect do
-          SchemaContract::Runner.run(user:, response:, test_name: 'test_index')
+          SchemaContract::Runner.call(user:, response:, test_name: 'test_index')
         end.to change(SchemaContract::Validation, :count).by(1)
       end
     end
@@ -47,9 +47,9 @@ describe SchemaContract::Runner do
     context 'when an error is encountered' do
       it 'logs but does not raise the error' do
         allow(SchemaContract::Validation).to receive(:create).with(any_args).and_raise(ArgumentError)
-        error_message = { user:, response:, test_name: 'test_index', error_details: 'ArgumentError' }
+        error_message = { response:, test_name: 'test_index', error_details: 'ArgumentError' }
         expect(Rails.logger).to receive(:error).with('Error creating schema contract job', error_message)
-        SchemaContract::Runner.run(user:, response:, test_name: 'test_index')
+        SchemaContract::Runner.call(user:, response:, test_name: 'test_index')
       end
     end
   end
