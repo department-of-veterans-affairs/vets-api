@@ -1041,7 +1041,6 @@ PLATFORMS
   x64-mingw32
   x86-mingw32
   x86-mswin32
-  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
