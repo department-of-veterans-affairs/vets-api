@@ -29,10 +29,10 @@ module BenefitsEducation
     # in the response
     def inspect
       instance_variables_to_inspect = instance_variables - [:@icn]
-      instance_variables = instance_variables_to_inspect.map do |var|
+      instance_variables_string = instance_variables_to_inspect.map do |var|
         "#{var}=#{instance_variable_get(var).inspect}"
       end.join(', ')
-      "#<#{self.class}:#{self.object_id} #{instance_variables}>"
+      "#<#{self.class}:#{self.object_id} #{instance_variables_string}>"
     end
 
     ##
