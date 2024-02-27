@@ -23,11 +23,18 @@ module Representatives
 
         next unless address_valid?(response)
 
-        update_record(rep_data, response)
+        begin
+          update_rep_record(rep_data, response)
+        rescue => e
+          log_error("Error: Representative was not updated. Rep id: #{rep_data['id']}, Error message: #{e.message}")
+          next
+        end
+
+        update_flagged_records(rep_data)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Error: representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}") # rubocop:disable Layout/LineLength
+        log_error("Error: Representative address validation failed. Rep id: #{rep_data['id']}, Error message: #{e.message}") # rubocop:disable Layout/LineLength
       rescue => e
-        log_error("Error: representative was not updated. Rep id: #{rep_data['id']}, Error message: #{e.message}")
+        log_error("Error: Representative was not updated. Rep id: #{rep_data['id']}, Error message: #{e.message}")
       end
     rescue => e
       log_error("Error: There was an error processing this job. Error message: #{e.message}")
@@ -71,19 +78,29 @@ module Representatives
     # If the record cannot be found, logs an error to Sentry.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def update_record(rep_data, api_response)
+    def update_rep_record(rep_data, api_response)
       record =
         Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
 
       if record.nil?
-        log_message_to_sentry(
-          "Update record not found for representative with id: #{rep_data['id']}",
-          :error
-        )
+        throw StandardError, 'Representative not found.'
       else
         record_attributes = build_record_attributes(rep_data, api_response)
         record.update(record_attributes)
       end
+    end
+
+    def update_flagged_records(rep_data)
+      representative_id = rep_data['id']
+      update_flags(representative_id, 'address') if rep_data[:address_changed]
+      update_flags(representative_id, 'email') if rep_data[:email_changed]
+      update_flags(representative_id, 'phone_number') if rep_data[:phone_changed]
+    end
+
+    def update_flags(representative_id, flag_type)
+      Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id:, flag_type:).update_all(flagged_value_updated_at: Time.zone.now) # rubocop:disable Layout/LineLength,Rails/SkipsModelValidations
+    rescue => e
+      log_error("Error updating flagged records. Representative id: #{representative_id}. Flag type: #{flag_type}. Error message: #{e.message}") # rubocop:disable Layout/LineLength
     end
 
     # Updates the given record with the new address and other relevant attributes.

@@ -36,7 +36,7 @@ module Representatives
 
         begin
           batch.jobs do
-            data[sheet].each_slice(slice_size) do |rows|
+            rows_to_process(data[sheet]).each_slice(slice_size) do |rows|
               json_rows = rows.to_json
               Representatives::Update.perform_in(delay.minutes, json_rows)
               delay += 1
@@ -46,6 +46,34 @@ module Representatives
           log_error("Error queuing address updates: #{e.message}")
         end
       end
+    end
+
+    def rows_to_process(rows)
+      diffed_rows = rows.map do |row|
+        rep = Veteran::Service::Representative.find(representative_id: row[:id])
+        row[:address_changed] = address_changed?(rep, row)
+        row[:email_changed] = email_changed?(rep, row)
+        row[:phone_changed] = phone_changed?(rep, row)
+        row
+      end
+
+      diffed_rows.select { |row| row[:phone_changed] || row[:email_changed] || row[:address_changed] }
+    end
+
+    def address_changed?(rep, row)
+      rep_address = [rep.address_line1, rep.address_line2, rep.address_line3, rep.city, rep.state_code, rep.zip_code,
+                     rep.zip_suffix].join(' ')
+      incoming_address = row.values_at(:address_line1, :address_line2, :address_line3, :city,
+                                       :state_province[:code], :zip_code5, :zip_code4).join(' ')
+      rep_address != incoming_address
+    end
+
+    def email_changed?(rep, row)
+      rep.email != row[:email_address]
+    end
+
+    def phone_changed?(rep, row)
+      rep.phone_number != row[:phone_number]
     end
 
     def log_error(message)
