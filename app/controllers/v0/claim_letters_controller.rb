@@ -29,10 +29,13 @@ module V0
 
     # 27: Board Of Appeals Decision Letter
     # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
-    # 339: Rating Decision Letter
+    # 65: Standard 5103 Notice
+    # 68: 5103/DTA Letter
     def allowed_doctypes
       doctypes = %w[184]
       doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
+      doctypes << '65' if Flipper.enabled?(:cst_include_ddl_5103_letters, @user)
+      doctypes << '68' if Flipper.enabled?(:cst_include_ddl_5103_letters, @user)
       doctypes
     end
   end
