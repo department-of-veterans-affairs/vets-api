@@ -625,7 +625,6 @@ claims_api:
     content_type: 'application/vnd.api+json'
   report_enabled: false
   audit_enabled: false
-  hourly_failed_submission_reports_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
