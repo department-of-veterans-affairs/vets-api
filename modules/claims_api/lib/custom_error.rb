@@ -11,25 +11,29 @@ module ClaimsApi
     def build_error # rubocop:disable Metrics/MethodLength
       if @error == Faraday::ConnectionFailed || @error == Faraday::ParsingError
         custom_error = { 'messages' => [{ 'key' => 'ServiceException',
-                                          'detail' => 'A Faraday error has occurred.', status: '500' }] }
+                                          'detail' => 'A Faraday error has occurred, original_error: ' \
+                                                      "#{@error}.", status: '500' }] }
         update_claim(custom_error)
         raise EVSS::DisabilityCompensationForm::ServiceException, custom_error
 
-      elsif @error.is_a?(::Common::Exceptions::BackendServiceException) # missing bracket on form_data
+      elsif @error.is_a?(::Common::Exceptions::BackendServiceException)
         custom_error = { 'messages' => [{ 'key' => 'BackendException',
-                                          'detail' => 'A backend exception occurred.', status: '500' }] }
+                                          'detail' => 'A backend exception occurred, original_error: ' \
+                                                      "#{@error}.", status: '500' }] }
         update_claim(custom_error)
         raise EVSS::DisabilityCompensationForm::ServiceException, custom_error
-      elsif @error.is_a?(StandardError) # when client_key is blank
+      elsif @error.is_a?(StandardError)
         custom_error = { 'messages' => [{ 'key' => 'Client error',
-                                          'detail' => 'A client exception has occurred.', status: '400' }] }
+                                          'detail' => 'A client exception has occurred, original_error: ' \
+                                                      "#{@error}.", status: '400' }] }
         update_claim(custom_error)
-        raise custom_error
+        raise ::Common::Exceptions::BadRequest
       else
         custom_error = { 'messages' => [{ 'key' => 'Unknown error',
-                                          'detail' => 'An unknown error has occurred.', status: '500' }] }
+                                          'detail' => 'An unknown error has occurred, original_error: ' \
+                                                      "#{@error}.", status: '500' }] }
         update_claim(custom_error)
-        raise custom_error
+        raise @error
       end
     end
 
