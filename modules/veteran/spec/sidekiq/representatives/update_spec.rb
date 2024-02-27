@@ -75,7 +75,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "Representatives::Update: Error: There was an error processing this job. Error message: unexpected token at 'invalid json'", :error # rubocop:disable Layout/LineLength
+          "Representatives::Update: Error processing job: unexpected token at 'invalid json'", :error
         )
 
         subject.perform(invalid_json_data)
@@ -152,7 +152,7 @@ RSpec.describe Representatives::Update do
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'Update record not found for representative with id: not_found', :error
+            'Representatives::Update: Update failed for Rep id: not_found: uncaught throw StandardError', :error
           )
 
           subject.perform(json_data)
