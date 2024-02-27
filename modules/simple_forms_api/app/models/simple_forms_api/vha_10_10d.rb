@@ -35,7 +35,7 @@ module SimpleFormsApi
         end
       end
     end
-    
+
     def submission_date_config
       { should_stamp_date?: false }
     end
