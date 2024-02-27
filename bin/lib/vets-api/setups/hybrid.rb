@@ -26,7 +26,7 @@ module VetsApi
 
       def install_bundler
         print "Installing bundler gem v#{bundler_version}..."
-        `gem install bundler -v #{bundler_version}`
+        ShellCommand.run_quiet("gem install bundler -v #{bundler_version}")
         puts 'Done'
       end
 
@@ -113,19 +113,19 @@ module VetsApi
 
       def docker_build
         puts 'Building Docker Image(s) for This may take a while...'
-        system('docker-compose -f docker-compose-deps.yml build')
+        ShellCommand.run_quiet('docker-compose -f docker-compose-deps.yml build')
         puts 'Building Docker Image(s)...Done'
       end
 
       def setup_db
         puts 'Setting up database...'
-        `bundle exec rails db:setup`
+        ShellCommand.run_quiet('bundle exec rails db:setup')
         puts 'Setting up database...Done'
       end
 
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
-        system('RAILS_ENV=test bundle exec rake parallel:setup')
+        ShellCommand.run_quiet('RAILS_ENV=test bundle exec rake parallel:setup')
         puts 'Setting up parallel_test...Done'
       end
     end

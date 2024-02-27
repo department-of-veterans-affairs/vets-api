@@ -97,11 +97,11 @@ module VetsApi
           puts 'Skipping Sidekiq Enterprise License (value already set)'
         elsif response && key_regex.match?(response)
           print 'Setting Sidekiq Enterprise License... '
-          `bundle config enterprise.contribsys.com #{response}`
+          ShellCommand.run_quiet("bundle config enterprise.contribsys.com #{response}")
           if RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw|cygwin/i
-            `set BUNDLE_ENTERPRISE__CONTRIBSYS__COM=#{response}"`
+            ShellCommand.run_quiet("set BUNDLE_ENTERPRISE__CONTRIBSYS__COM=#{response}")
           else
-            system("BUNDLE_ENTERPRISE__CONTRIBSYS__COM=#{response}")
+            ShellCommand.run_quiet("BUNDLE_ENTERPRISE__CONTRIBSYS__COM=#{response}")
           end
           puts 'Done'
         else

@@ -47,7 +47,7 @@ module VetsApi
 
       def install_bundler
         print "Installing bundler gem v#{bundler_version}..."
-        `gem install bundler -v #{bundler_version}`
+        ShellCommand.run_quiet("gem install bundler -v #{bundler_version}")
         puts 'Done'
       end
 
@@ -70,13 +70,13 @@ module VetsApi
       # TODO: create a syscall to prevent logs (except errors) from logging
       def setup_db
         puts 'Setting up database...'
-        `bundle exec rails db:setup`
+        ShellCommand.run_quiet('bundle exec rails db:setup')
         puts 'Setting up database...Done'
       end
 
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
-        system('RAILS_ENV=test bundle exec rake parallel:setup')
+        ShellCommand.run_quiet('RAILS_ENV=test bundle exec rake parallel:setup')
         puts 'Setting up parallel_test...Done'
       end
 
@@ -97,19 +97,24 @@ module VetsApi
 
       def run_brewfile
         print 'Installing binary dependencies...'
-        `brew bundle`
+        ShellCommand.run_quiet('brew bundle')
         puts 'Done'
       end
 
       def install_pdftk
-        if `pdftk --help`
+        if pdftk_installed?
           puts 'Skipping pdftk install (binary already installed)'
         else
           puts 'Installing pdftk...'
-          `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
-          `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
+          pdftk_url = 'https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg'
+          ShellCommand.run_quiet("curl -o ~/Downloads/pdftk_download.pkg #{pdftk_url}")
+          ShellCommand.run_quiet('sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /')
           puts 'Installing pdftk...Done'
         end
+      end
+
+      def pdftk_installed?
+        ShellCommand.run_quiet('pdftk --help')
       end
     end
   end

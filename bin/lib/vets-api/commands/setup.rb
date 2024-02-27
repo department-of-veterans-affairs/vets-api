@@ -4,6 +4,7 @@ require_relative '../setups/base'
 require_relative '../setups/native'
 require_relative '../setups/docker'
 require_relative '../setups/hybrid'
+require './rakelib/support/shell_command'
 
 module VetsApi
   module Commands
@@ -51,7 +52,7 @@ module VetsApi
         end
 
         def setup_docker
-          if `docker -v`
+          if docker_running?
             VetsApi::Setups::Docker.new.run
           else
             puts "\nBefore continuing Docker Desktop (Engine + Compose) must be installed"
@@ -60,13 +61,17 @@ module VetsApi
         end
 
         def setup_hybrid
-          if RUBY_DESCRIPTION.include?('ruby 3.2.2') && `docker -v`
+          if RUBY_DESCRIPTION.include?('ruby 3.2.2') && docker_running?
             VetsApi::Setups::Hybrid.new.run
           else
             puts "\nBefore continuing Ruby v3.2.2 AND Docker Desktop (Engine + Compose) must be installed"
             puts 'More information about Ruby managers: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
             puts 'More information about Docker Desktop (Engine + Compose): https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
           end
+        end
+
+        def docker_running?
+          ShellCommand.run_quiet('docker -v')
         end
       end
     end

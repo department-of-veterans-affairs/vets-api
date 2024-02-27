@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../lib/vets-api/commands/lint'
+require_relative 'lib/vets-api/commands/lint'
 require 'rake'
 
 VALID_OPTIONS = ['--dry', '--only-rubocop', '--only-brakeman'].freeze

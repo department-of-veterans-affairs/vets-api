@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require_relative '../config/boot'
-require_relative '../lib/vets-api/commands/info'
+require_relative 'lib/vets-api/commands/info'
 require 'rails'
 
 if ARGV.include?('--help') || ARGV.include?('-h')

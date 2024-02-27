@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require './rakelib/support/shell_command'
+
 module VetsApi
   module Commands
     class Test
-
       attr_accessor :options, :inputs
 
       def self.run(args)
@@ -30,13 +31,13 @@ module VetsApi
 
       def test_native
         puts "running: #{rspec_command_builer}"
-        system(rspec_command_builer)
+        ShellCommand.run(rspec_command_builer)
       end
 
       def test_docker
         docker_rspec_command = "docker-compose run --rm --service-ports web bash -c \"#{rspec_command_builer}\""
         puts "running: #{docker_rspec_command}"
-        system(docker_rspec_command)
+        ShellCommand.run(docker_rspec_command)
       end
 
       def rspec_command_builer
