@@ -2169,6 +2169,13 @@ en:
         <<: *defaults
         code: LH_gateway_timeout
         status: 504
+    benefits_education:
+      outside_working_hours:
+        <<: *defaults
+        title: External service unavailable
+        detail: 'Lighthouse GI Bill Status is not available outside of working hours'
+        code: 114
+        status: 503
 
   evss:
     external_service_unavailable:
