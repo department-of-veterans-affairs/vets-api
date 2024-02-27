@@ -942,10 +942,6 @@ features:
     actor_type: user
     description: enables exclusion period checks
     enable_in_development: false
-  show_forms_app:
-    actor_type: user
-    description: Enables the TOE form to be displayed.
-    enable_in_development: true
   show_medical_copays:
     actor_type: user
     description: Enables the medical copays application on route /manage-va-debt/medical-copays/

@@ -7,7 +7,7 @@ require 'dgi/forms/service/submission_service'
 module MebApi
   module V0
     class FormsController < MebApi::V0::BaseController
-      before_action :check_forms_flipper
+      before_action :check_maintenance_flipper
 
       def claim_letter
         claimant_response = claimant_service.get_claimant_info('toe')
@@ -76,6 +76,10 @@ module MebApi
       end
 
       private
+
+      def check_maintenance_flipper
+        service_unavailable if Flipper.enabled(:show_meb_1990E_maintenance_alert)
+      end
 
       def claimant_service
         MebApi::DGI::Forms::Claimant::Service.new(@current_user)
