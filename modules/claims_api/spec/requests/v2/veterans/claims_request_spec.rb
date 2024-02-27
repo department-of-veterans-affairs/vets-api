@@ -1371,6 +1371,28 @@ RSpec.describe 'Claims', type: :request do
           end
         end
       end
+
+      context 'scopes' do
+        let(:invalid_scopes) { %w[system/526-pdf.override] }
+        let(:claims_show_scopes) { %w[claim.write claim.read] }
+
+        context 'submission to generatePDF' do
+          it 'returns a 200 response when successful' do
+            mock_ccg_for_fine_grained_scope(claims_show_scopes) do |auth_header|
+              post claims_show_path, params: data, headers: auth_header
+              expect(response.header['Content-Disposition']).to include('filename')
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          it 'returns a 401 unauthorized with incorrect scopes' do
+            mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+              post claims_show_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unauthorized)
+            end
+          end
+        end
+      end
     end
   end
 end
