@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative Rails.root.join('app', 'models', 'schema_contract', 'creator')
+require_relative Rails.root.join('app', 'models', 'schema_contract', 'initiator')
 
-describe SchemaContract::Creator do
+describe SchemaContract::Initiator do
   describe '.call' do
     let(:user) { create(:user) }
     let(:response) do
@@ -22,10 +22,10 @@ describe SchemaContract::Creator do
       end
 
       it 'does not create a record or enqueue a job' do
-        expect(UpstreamSchemaValidationJob).not_to receive(:perform_async)
+        expect(SchemaContract::ValidationJob).not_to receive(:perform_async)
 
         expect do
-          SchemaContract::Creator.call(user:, response:, test_name: 'test_index')
+          SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
       end
     end
@@ -37,10 +37,10 @@ describe SchemaContract::Creator do
       end
 
       it 'creates one with provided details and enqueues a job' do
-        expect(UpstreamSchemaValidationJob).to receive(:perform_async)
+        expect(SchemaContract::ValidationJob).to receive(:perform_async)
 
         expect do
-          SchemaContract::Creator.call(user:, response:, test_name: 'test_index')
+          SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
         end.to change(SchemaContract::Validation, :count).by(1)
       end
     end
@@ -48,9 +48,9 @@ describe SchemaContract::Creator do
     context 'when an error is encountered' do
       it 'logs but does not raise the error' do
         allow(SchemaContract::Validation).to receive(:create).with(any_args).and_raise(ArgumentError)
-        error_message = { response:, test_name: 'test_index', error_details: 'ArgumentError' }
+        error_message = { response:, contract_name: 'test_index', error_details: 'ArgumentError' }
         expect(Rails.logger).to receive(:error).with('Error creating schema contract job', error_message)
-        SchemaContract::Creator.call(user:, response:, test_name: 'test_index')
+        SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
       end
     end
   end

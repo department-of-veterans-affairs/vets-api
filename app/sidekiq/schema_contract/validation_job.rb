@@ -6,8 +6,8 @@ module SchemaContract
 
     sidekiq_options(retry: false)
 
-    def perform(test_name)
-      SchemaContract::Validator.new(test_name).validate
+    def perform(contract_name)
+      SchemaContract::Validator.new(contract_name).validate
     end
   end
 end
