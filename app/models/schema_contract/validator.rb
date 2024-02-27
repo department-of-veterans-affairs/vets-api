@@ -25,7 +25,7 @@ module SchemaContract
     private
 
     def record
-      @record ||= SchemaContractTest.find(@record_id)
+      @record ||= Validation.find(@record_id)
     end
 
     def schema_file

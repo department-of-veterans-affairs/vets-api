@@ -10,7 +10,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
 
     # make a factory
     let(:contract_record) do
-      SchemaContract::SchemaContractTest.create(name: 'test_index', user_uuid: '1234', response:, status: 'initialized')
+      SchemaContract::Validation.create(name: 'test_index', user_uuid: '1234', response:, status: 'initialized')
     end
     let(:matching_response) do
       {
@@ -180,13 +180,13 @@ when none are allowed in schema #{uuid_regex}"\]$})
       it 'raises not found' do
         expect do
           SchemaContract::Validator.new('1').validate
-        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContract::SchemaContractTest with 'id'=1")
+        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContract::Validation with 'id'=1")
       end
     end
 
     context 'when schema file does not exist' do
       let(:contract_record) do
-        SchemaContract::SchemaContractTest.create(name: 'not_real', user_uuid: '1234', response: matching_response,
+        SchemaContract::Validation.create(name: 'not_real', user_uuid: '1234', response: matching_response,
                                                   status: 'initialized')
       end
 
