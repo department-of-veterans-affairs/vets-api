@@ -6,6 +6,7 @@ set -euo pipefail
     cd /usr/local/share/ca-certificates/
 
     curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
+    curl -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt
 
     wget \
         --level=1 \
