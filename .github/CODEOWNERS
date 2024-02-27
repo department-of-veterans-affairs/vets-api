@@ -638,16 +638,16 @@ app/sidekiq/vre/submit1900_job.rb @department-of-veterans-affairs/Benefits-Team-
 app/sidekiq/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/fake_clamdscan @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/git_blame @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-bin/help @department-of-veterans-affairs/backend-review-group
-bin/info @department-of-veterans-affairs/backend-review-group
-bin/lib @department-of-veterans-affairs/backend-review-group
-bin/lint @department-of-veterans-affairs/backend-review-group
+bin/help @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+bin/info @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+bin/lib/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+bin/lint @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/rails @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/rspec @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/setup @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/sidekiq_quiet @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-bin/test @department-of-veterans-affairs/backend-review-group
+bin/test @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/application.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/betamocks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/betamocks/services_config.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
