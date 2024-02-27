@@ -54,7 +54,7 @@ module ClaimsApi
     end
 
     def allow_processing?
-      Settings.claims_api.hourly_failed_submission_reports_enabled
+      Settings.claims_api.hourly_failed_submission_reports_enabled || false
     end
   end
 end
