@@ -32,7 +32,7 @@ module BenefitsEducation
       instance_variables_string = instance_variables_to_inspect.map do |var|
         "#{var}=#{instance_variable_get(var).inspect}"
       end.join(', ')
-      "#<#{self.class}:#{self.object_id} #{instance_variables_string}>"
+      "#<#{self.class}:#{object_id} #{instance_variables_string}>"
     end
 
     ##

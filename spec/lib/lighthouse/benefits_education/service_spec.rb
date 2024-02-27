@@ -11,11 +11,11 @@ RSpec.describe BenefitsEducation::Service do
     @service = BenefitsEducation::Service.new(icn)
   end
 
-  # Veteran's ICN is now considered PII - do not include it 
+  # Veteran's ICN is now considered PII - do not include it
   # in the output of `inspect`
   it 'does not display icn when calling `inspect`' do
     service_inspect = @service.inspect
-    expect(service_inspect).not_to include("icn")
+    expect(service_inspect).not_to include('icn')
   end
 
   describe 'making requests' do
