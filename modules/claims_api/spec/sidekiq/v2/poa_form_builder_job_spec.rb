@@ -13,7 +13,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
     Sidekiq::Job.clear_all
   end
 
-  describe 'generating the filled and signed pdf' do
+  describe 'generating and uploading the signed pdf' do
     context '2122a' do
       before do
         power_of_attorney.form_data = {
@@ -70,10 +70,56 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         power_of_attorney.save
       end
 
-      it 'generates the pdf to match example' do
+      it 'generates e-signatures correctly' do
+        data = power_of_attorney
+               .form_data
+               .deep_merge(
+                 {
+                   'veteran' => {
+                     'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                     'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                     'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                     'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                   }
+                 }
+               )
+        final_data = data.merge(
+          {
+            'text_signatures' => {
+              'page1' => [
+                {
+                  'signature' => 'JESSE GRAY - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 73
+                },
+                {
+                  'signature' => 'Bob Representative - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 100
+                }
+              ],
+              'page2' => [
+                {
+                  'signature' => 'JESSE GRAY - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 306
+                },
+                {
+                  'signature' => 'Bob Representative - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 200
+                }
+              ]
+            }
+          }
+        )
+
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::V2::PoaPdfConstructor::Individual).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
+        expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
+          .to receive(:construct)
+          .with(final_data, id: power_of_attorney.id)
+          .and_call_original
+
         subject.new.perform(power_of_attorney.id, '2122A')
       end
 
@@ -148,10 +194,44 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         power_of_attorney.save
       end
 
-      it 'generates the pdf to match example' do
+      it 'generates e-signatures correctly' do
+        data = power_of_attorney
+               .form_data
+               .deep_merge(
+                 {
+                   'veteran' => {
+                     'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                     'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                     'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                     'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                   }
+                 }
+               )
+        final_data = data.merge(
+          {
+            'text_signatures' => {
+              'page2' => [
+                {
+                  'signature' => 'JESSE GRAY - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 240
+                },
+                {
+                  'signature' => 'Bob Representative - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 200
+                }
+              ]
+            }
+          }
+        )
+
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-        expect(ClaimsApi::V2::PoaPdfConstructor::Organization).to receive(:new).and_call_original
-        expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
+        expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
+          .to receive(:construct)
+          .with(final_data, id: power_of_attorney.id)
+          .and_call_original
+
         subject.new.perform(power_of_attorney.id, '2122')
       end
 

@@ -86,6 +86,8 @@ module ClaimsApi
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipLastFour'),
             # Item 8
             "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
+            # Item 9
+            "#{base_form}.EmailAddress_Optional[0]": data.dig('veteran', 'email'),
 
             # Section II
             # Item 10

@@ -10,10 +10,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
   before do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     temp.form_data = {
-      serviceOrganization: {
-        poaCode: '456',
-        firstName: 'Bob',
-        lastName: 'Representative',
+      veteran: {
         address: {
           numberAndStreet: '2719 Hyperion Ave',
           city: 'Los Angeles',
@@ -21,8 +18,48 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           country: 'US',
           zipFirstFive: '92264'
         },
-        jobTitle: 'Veteran Service Officer'
-      }
+        phone: {
+          areaCode: '555',
+          phoneNumber: '5551337'
+        },
+        email: 'test@example.com'
+      },
+      claimant: {
+        firstName: 'Lillian',
+        middleInitial: 'A',
+        lastName: 'Disney',
+        email: 'lillian@disney.com',
+        relationship: 'Spouse',
+        address: {
+          numberAndStreet: '2688 S Camino Real',
+          city: 'Palm Springs',
+          state: 'CA',
+          country: 'US',
+          zipFirstFive: '92264'
+        },
+        phone: {
+          areaCode: '555',
+          phoneNumber: '5551337'
+        }
+      },
+      serviceOrganization: {
+        poaCode: '456',
+        firstName: 'Bob',
+        lastName: 'Representative',
+        organizationName: 'I Help Vets LLC',
+        address: {
+          numberAndStreet: '2719 Hyperion Ave',
+          city: 'Los Angeles',
+          state: 'CA',
+          country: 'US',
+          zipFirstFive: '92264'
+        },
+        jobTitle: 'Veteran Service Officer',
+        email: 'example@test.com'
+      },
+      recordConsent: true,
+      consentAddressChange: true,
+      consentLimits: ['DRUG ABUSE', 'SICKLE CELL']
     }
     temp.save
   end

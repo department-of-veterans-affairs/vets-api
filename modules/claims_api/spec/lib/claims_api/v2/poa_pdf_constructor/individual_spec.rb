@@ -10,11 +10,46 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
   before do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     temp.form_data = {
+      veteran: {
+        vaFileNumber: '123456789',
+        serviceNumber: '987654321',
+        serviceBranch: 'ARMY',
+        address: {
+          numberAndStreet: '2719 Hyperion Ave',
+          city: 'Los Angeles',
+          state: 'CA',
+          country: 'US',
+          zipFirstFive: '92264'
+        },
+        phone: {
+          areaCode: '555',
+          phoneNumber: '5551337'
+        },
+        email: 'test@example.com'
+      },
+      claimant: {
+        firstName: 'Lillian',
+        middleInitial: 'A',
+        lastName: 'Disney',
+        email: 'lillian@disney.com',
+        relationship: 'Spouse',
+        address: {
+          numberAndStreet: '2688 S Camino Real',
+          city: 'Palm Springs',
+          state: 'CA',
+          country: 'US',
+          zipFirstFive: '92264'
+        },
+        phone: {
+          areaCode: '555',
+          phoneNumber: '5551337'
+        }
+      },
       representative: {
         poaCode: 'A1Q',
+        type: 'ATTORNEY',
         firstName: 'Bob',
         lastName: 'Law',
-        type: 'ATTORNEY',
         address: {
           numberAndStreet: '2719 Hyperion Ave',
           city: 'Los Angeles',
@@ -22,7 +57,11 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
           country: 'US',
           zipFirstFive: '92264'
         }
-      }
+      },
+      recordConsent: true,
+      consentAddressChange: true,
+      consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+      conditionsOfAppointment: ['Condition 1', 'Condition 2']
     }
     temp.save
   end
