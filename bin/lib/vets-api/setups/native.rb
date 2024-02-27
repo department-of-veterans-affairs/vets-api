@@ -38,7 +38,7 @@ module VetsApi
         hybrid_keys = %w[database_url test_database_url redis]
 
         hybrid_keys.each do |key|
-          settings.delete(key) if settings.has_key?(key)
+          settings.delete(key) if settings.key?(key)
         end
 
         File.write(settings_path, YAML.dump(settings).tr('---', ''))

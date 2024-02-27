@@ -51,7 +51,8 @@ module VetsApi
 
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
-        ShellCommand.run_quiet('docker-compose run --rm --service-ports web bash -c "RAILS_ENV=test bundle exec rake parallel:setup"')
+        parallel_setup_command = 'RAILS_ENV=test bundle exec rake parallel:setup'
+        ShellCommand.run_quiet("docker-compose run --rm --service-ports web bash -c \"#{parallel_setup_command}\"")
         puts 'Setting up parallel_test...Done'
       end
     end

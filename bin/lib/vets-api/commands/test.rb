@@ -41,7 +41,8 @@ module VetsApi
       end
 
       def rspec_command_builer
-        "RAILS_ENV=test DISABLE_BOOTSNAP=true #{coverage} bundle exec #{test_command} #{@inputs} #{test_options}".strip.gsub(
+        runtime_variables = 'RAILS_ENV=test DISABLE_BOOTSNAP=true'
+        "#{runtime_variables} #{coverage} bundle exec #{test_command} #{@inputs} #{test_options}".strip.gsub(
           /\s+/, ' '
         )
       end

@@ -14,10 +14,11 @@ module VetsApi
         setup_db
         setup_parallel_spec
         configuring_clamav_antivirus
-        dockerized_dependencies
+        dockerized_dependencies_settings
         puts "\nHybrid Setup Complete!"
         puts
-        puts 'Follow the Platform Specific Notes instructions, but skip any steps related to installing Postgres, Postgis, or Redis.'
+        puts 'Follow the Platform Specific Notes instructions, but skip any steps related to installing \
+              Postgres, Postgis, or Redis.'
         puts 'You will need to install the other dependencies such as pdftk and clamav.'
         puts 'https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#platform-specific-notes'
       end
@@ -61,11 +62,11 @@ module VetsApi
         puts 'Done'
       end
 
-      def dockerized_dependencies
+      def dockerized_dependencies_settings
         existing_settings = YAML.safe_load(File.read('config/settings.local.yml'), permitted_classes: [Symbol])
 
-        database_settings = { 'database_url' => 'postgis://postgres:password@localhost:54320/vets_api_development?pool=4' }
-        test_database_settings = { 'test_database_url' => 'postgis://postgres:password@localhost:54320/vets_api_test?pool=4' }
+        db_settings = { 'database_url' => 'postgis://postgres:password@localhost:54320/vets_api_development?pool=4' }
+        test_db_settings = { 'test_database_url' => 'postgis://postgres:password@localhost:54320/vets_api_test?pool=4' }
 
         redis_settings = {
           'redis' => {
@@ -80,12 +81,17 @@ module VetsApi
           }
         }
 
+        set_database_settings(existing_settings, db_settings, test_db_settings)
+        set_redis_settings(existing_settings, redis_settings)
+      end
+
+      def set_database_settings(existing_settings, db_settings, test_db_settings)
         if existing_settings.keys.include?('database_url')
           puts 'Skipping database_url (setting already exists)'
         else
           print 'Editing config/settings.local.yml to set database_url...'
           File.open('config/settings.local.yml', 'a') do |file|
-            file.puts database_settings.to_yaml.tr('---', '')
+            file.puts db_settings.to_yaml.tr('---', '')
           end
           puts 'Done'
         end
@@ -95,11 +101,13 @@ module VetsApi
         else
           print 'Editing config/settings.local.yml to set test_database_url...'
           File.open('config/settings.local.yml', 'a') do |file|
-            file.puts test_database_settings.to_yaml.tr('---', '')
+            file.puts test_db_settings.to_yaml.tr('---', '')
           end
           puts 'Done'
         end
+      end
 
+      def set_redis_settings(existing_settings, redis_settings)
         if existing_settings.keys.include?('redis')
           puts 'Skipping redis settings (setting already exists)'
         else

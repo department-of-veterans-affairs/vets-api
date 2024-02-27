@@ -46,7 +46,8 @@ module VetsApi
             VetsApi::Setups::Native.new.run
           else
             puts "\nBefore continuing Ruby v3.2.2 must be installed"
-            puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby to install and maintain your version of Ruby.'
+            puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby \
+                  to install and maintain your version of Ruby.'
             puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
           end
         end

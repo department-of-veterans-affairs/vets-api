@@ -31,7 +31,7 @@ class ShellCommand
       error = stderr.read
       puts error unless error.empty?
 
-      success = wait_thr.value.exitstatus == 0
+      success = wait_thr.value.exitstatus.zero?
     end
 
     $stdout.sync = old_sync
