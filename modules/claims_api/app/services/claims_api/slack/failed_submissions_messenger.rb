@@ -6,13 +6,14 @@ module ClaimsApi
   module Slack
     class FailedSubmissionsMessenger
       # rubocop:disable Metrics/ParameterLists
-      def initialize(claims, poa, itf, ews, from, to)
+      def initialize(claims, poa, itf, ews, from, to, env)
         @errored_claims = claims
         @errored_poa = poa
         @errored_itf = itf
         @errored_ews = ews
         @to = to
         @from = from
+        @environment = env
       end
       # rubocop:enable Metrics/ParameterLists
 
@@ -46,12 +47,9 @@ module ClaimsApi
 
       def build_heading_message
         heading_message = ''.dup
-        heading_title = "*ERRORED SUBMISSIONS* \n\n"
-        heading_message << heading_title
-        heading_timeframe = "#{@from} - #{@to} \n"
-        heading_message << heading_timeframe
-        heading_sub_text = "The following submissions have encountered errors in *#{@environment}*. \n\n"
-        heading_message << heading_sub_text
+        heading_text = "*ERRORED SUBMISSIONS* \n\n#{@from} - #{@to} \nThe following submissions have encountered " \
+                       "errors in *#{@environment}*. \n\n"
+        heading_message << heading_text
         heading_message
       end
 
@@ -59,14 +57,11 @@ module ClaimsApi
         return '' if errored_submissions.count.zero?
 
         errored_submission_message = ''.dup
-        errored_submission_message << "*#{submission_type} Errors* \n"
-        errored_submission_message << "Total: #{errored_submissions.count} \n"
-        errored_submission_message << '```'
+        errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n```"
         errored_submissions.each do |submission_id|
           errored_submission_message << "#{submission_id} \n"
         end
-        errored_submission_message << '```'
-        errored_submission_message << "  \n\n"
+        errored_submission_message << "```  \n\n"
         errored_submission_message
       end
     end

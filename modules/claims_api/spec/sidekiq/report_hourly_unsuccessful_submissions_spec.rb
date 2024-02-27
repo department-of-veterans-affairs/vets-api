@@ -10,7 +10,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
     context 'when no errored submissions exist' do
       before do
         # rubocop:disable Layout/LineLength
-        allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:skip_processing?).and_return(false)
+        allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:allow_processing?).and_return(true)
         # rubocop:enable Layout/LineLength
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return([])
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return([])
@@ -29,7 +29,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
     context 'when errored submissions exist' do
       before do
         # rubocop:disable Layout/LineLength
-        allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:skip_processing?).and_return(false)
+        allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:allow_processing?).and_return(true)
         # rubocop:enable Layout/LineLength
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: ['claim1']))
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
@@ -44,6 +44,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
           ['poa1'],
           ['itf1'],
           ['ews1'],
+          kind_of(String),
           kind_of(String),
           kind_of(String)
         )
