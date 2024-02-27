@@ -5,6 +5,7 @@
     "data",
     "meta"
   ],
+  "additionalProperties": false,
   "properties": {
     "data": {
       "type": "array",
@@ -21,21 +22,21 @@
           "required_object": {
             "type": "object",
             "required": [
-              "required_nested_object"
+              "required_nested_string"
             ],
+            "additionalProperties": false,
             "properties": {
-              "required_nested_object": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "nested_optional_int": {
-                    "type": "integer"
-                  }
-                }
-              }
+              "required_nested_string": { "type": "string" },
+              "optional_nested_int": { "type": "integer" }
             }
           }
         }
+      }
+    },
+    "meta": {
+      "type": "array",
+      "items": {
+        "type": "object"
       }
     }
   }

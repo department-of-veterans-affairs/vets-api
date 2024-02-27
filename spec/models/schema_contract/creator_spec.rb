@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative Rails.root.join('app', 'models', 'schema_contract', 'runner')
+require_relative Rails.root.join('app', 'models', 'schema_contract', 'creator')
 
-describe SchemaContract::Runner do
+describe SchemaContract::Creator do
   describe '.call' do
     let(:user) { create(:user) }
     let(:response) do
@@ -17,29 +17,30 @@ describe SchemaContract::Runner do
 
     context 'when a record already exists for the current day' do
       before do
-        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:, status: 'initiated')
+        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
+                                            status: 'initiated')
       end
 
       it 'does not create a record or enqueue a job' do
         expect(UpstreamSchemaValidationJob).not_to receive(:perform_async)
 
         expect do
-          SchemaContract::Runner.call(user:, response:, test_name: 'test_index')
+          SchemaContract::Creator.call(user:, response:, test_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
       end
     end
 
     context 'when no record exists for the current day' do
       before do
-        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:, status: 'initiated',
-                                                  created_at: Time.zone.yesterday.beginning_of_day)
+        create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
+                                            status: 'initiated', created_at: Time.zone.yesterday.beginning_of_day)
       end
 
       it 'creates one with provided details and enqueues a job' do
         expect(UpstreamSchemaValidationJob).to receive(:perform_async)
 
         expect do
-          SchemaContract::Runner.call(user:, response:, test_name: 'test_index')
+          SchemaContract::Creator.call(user:, response:, test_name: 'test_index')
         end.to change(SchemaContract::Validation, :count).by(1)
       end
     end
@@ -49,7 +50,7 @@ describe SchemaContract::Runner do
         allow(SchemaContract::Validation).to receive(:create).with(any_args).and_raise(ArgumentError)
         error_message = { response:, test_name: 'test_index', error_details: 'ArgumentError' }
         expect(Rails.logger).to receive(:error).with('Error creating schema contract job', error_message)
-        SchemaContract::Runner.call(user:, response:, test_name: 'test_index')
+        SchemaContract::Creator.call(user:, response:, test_name: 'test_index')
       end
     end
   end

@@ -8,7 +8,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
     let(:fixture) { 'spec/fixtures/schema_contract/test_schema.json' }
     let(:test_data) { Rails.root.join(fixture).read }
     let(:contract_record) do
-      create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:, status: 'initialized')
+      create(:schema_contract_validation, response:)
     end
     let(:matching_response) do
       {
@@ -16,13 +16,11 @@ describe SchemaContract::Validator, aggregate_failures: true do
           {
             required_string: '1234',
             required_object: {
-              required_nested_object: {
-                nested_optional_int: 1
-              }
+              required_nested_string: 'required'
             }
           }
         ],
-        meta: [{}] # hmm
+        meta: [{}]
       }
     end
     let(:uuid_regex) { /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ }
@@ -50,7 +48,8 @@ describe SchemaContract::Validator, aggregate_failures: true do
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
         expect(contract_record.reload.status).to eq('schema_errors_found')
         expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0' did not contain a required property of 'required_string' in schema #{uuid_regex}"\]$})
+          match(%r{^\["The property '#/data/0' did not contain a required property of 'required_string' in schema \
+#{uuid_regex}"\]$})
       end
     end
 
@@ -98,7 +97,8 @@ when none are allowed in schema #{uuid_regex}"\]$})
         expect(contract_record.reload.status).to eq('schema_errors_found')
 
         expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0/required_string' of type integer did not match the following type: string in schema #{uuid_regex}"\]$})
+          match(%r{^\["The property '#/data/0/required_string' of type integer did not match the following type: \
+string in schema #{uuid_regex}"\]$})
       end
     end
 
@@ -115,7 +115,8 @@ when none are allowed in schema #{uuid_regex}"\]$})
         expect(contract_record.reload.status).to eq('schema_errors_found')
 
         expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0/required_string' of type null did not match the following type: string in schema #{uuid_regex}"\]$})
+          match(%r{^\["The property '#/data/0/required_string' of type null did not match the following type: string \
+in schema #{uuid_regex}"\]$})
       end
     end
 
@@ -138,13 +139,15 @@ when none are allowed in schema #{uuid_regex}"\]$})
       end
     end
 
-    context 'when required nested property is omitted' do
+    context 'when schema contains nested properties' do
       let(:response) do
-        matching_response[:data][0][:required_object].delete(:required_nested_object)
+        matching_response[:data][0][:required_object].delete(:required_nested_string)
+        matching_response[:data][0][:required_object][:extra] = ':D'
+        matching_response[:data][0][:required_object][:optional_nested_int] = 'not an integer'
         matching_response
       end
 
-      it 'raises and records errors' do
+      it 'validates them as expected' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
@@ -152,25 +155,11 @@ when none are allowed in schema #{uuid_regex}"\]$})
 
         expect(contract_record.error_details).to \
           match(%r{^\["The property '#/data/0/required_object' did not contain a required property of \
-'required_nested_object' in schema #{uuid_regex}"\]$})
-      end
-    end
-
-    context 'when unpermitted nested property is included' do
-      let(:response) do
-        matching_response[:data][0][:required_object][:required_nested_object][:extra] = ':D'
-        matching_response
-      end
-
-      it 'raises and records errors' do
-        expect do
-          SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
-        expect(contract_record.reload.status).to eq('schema_errors_found')
-
-        expect(contract_record.error_details).to \
-          match(%r{^\["The property '#/data/0/required_object/required_nested_object' contains additional properties \
-\[\\"extra\\"\] outside of the schema when none are allowed in schema #{uuid_regex}"\]$})
+'required_nested_string' in schema #{uuid_regex}", \
+"The property '#/data/0/required_object' contains additional properties \[\\"extra\\"\] outside of the \
+schema when none are allowed in schema #{uuid_regex}", \
+"The property '#/data/0/required_object/optional_nested_int' of type string did not match the following \
+type: integer in schema #{uuid_regex}"\]})
       end
     end
 
@@ -184,8 +173,7 @@ when none are allowed in schema #{uuid_regex}"\]$})
 
     context 'when schema file does not exist' do
       let(:contract_record) do
-        create(:schema_contract_validation, contract_name: 'not_real', user_uuid: '1234', response: matching_response,
-                                                  status: 'initialized')
+        create(:schema_contract_validation, contract_name: 'not_real', response: matching_response)
       end
 
       it 'raises error' do
@@ -194,9 +182,6 @@ when none are allowed in schema #{uuid_regex}"\]$})
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, 'No schema file not_real found.')
         expect(contract_record.reload.status).to eq('schema_not_found')
       end
-    end
-
-    context 'when schema file is invalid' do
     end
   end
 end
