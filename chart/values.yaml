@@ -164,7 +164,6 @@ common:
   volumes: {}
   initContainers: {}
   secrets: {}
-  configMapsEnabled: false
   configMaps: {}
     # configMap:
     #   name: ""

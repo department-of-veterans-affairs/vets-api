@@ -1,4 +1,3 @@
-{{- if .Values.common.configMapsEnabled }}
 {{- $root := . -}}
 {{- range $name, $config := $root.Values.common.configMaps }}
 ---
@@ -14,5 +13,4 @@ metadata:
     argocd.argoproj.io/sync-wave: "-2"
 data:
 {{ toYaml $config.data | indent 2  }}
-{{- end }}
 {{- end }}
