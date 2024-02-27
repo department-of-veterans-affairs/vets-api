@@ -33,7 +33,7 @@ module V0
 
       ::Rails.logger.info(message, {
                             message_type: 'lh.rated_disabilities.length_discrepancy',
-                            revision: 3
+                            revision: 4
                           })
     end
 
@@ -73,7 +73,11 @@ module V0
     end
 
     def active?(rating)
-      rating['rating_end_date'].nil?
+      date = rating['rating_end_date']
+
+      # In order for the rating to be considered active,
+      # the date should be either nil or in the future
+      date.nil? || !Date.parse(date).past?
     end
 
     def service
