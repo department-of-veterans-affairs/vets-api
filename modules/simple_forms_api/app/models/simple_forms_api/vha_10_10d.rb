@@ -25,12 +25,8 @@ module SimpleFormsApi
     def handle_attachments(file_path)
       attachments = get_attachments
       if attachments.count.positive?
-        combined_pdf = CombinePDF.new
-        combined_pdf << CombinePDF.load(file_path)
         attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment)
         end
-
         combined_pdf.save file_path
       end
     end

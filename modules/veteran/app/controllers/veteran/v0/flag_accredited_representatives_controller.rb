@@ -4,9 +4,9 @@ module Veteran
   module V0
     class FlagAccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
-      before_action :enable_csrf_protection
-      before_action :feature_enabled
+      skip_before_action :verify_authenticity_token
       skip_before_action :authenticate
+      before_action :feature_enabled
 
       def create
         flags = nil
@@ -29,10 +29,6 @@ module Veteran
       end
 
       private
-
-      def enable_csrf_protection
-        set_csrf_header
-      end
 
       def create_flags
         FlaggedVeteranRepresentativeContactData.transaction do
