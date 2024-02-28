@@ -4,7 +4,7 @@ require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
 require_relative '../../../services/mobile/v0/claims/proxy'
-require_relative '../../../services/mobile/v0/lighthouse_claims/claims_index_interface'
+require 'modules/mobile/app/services/mobile/v0/lighthouse_claims/claims_index_interface'
 require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
@@ -177,7 +177,7 @@ module Mobile
       end
 
       def claims_index_interface
-        @appointments_cache_interface ||= Mobile::ClaimsIndexInterface.new(@current_user)
+        @claims_index_interface ||= Mobile::ClaimsIndexInterface.new(@current_user)
       end
 
       def validated_params

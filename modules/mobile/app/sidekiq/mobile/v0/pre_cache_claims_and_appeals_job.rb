@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../../services/mobile/v0/lighthouse_claims/claims_index_interface'
+require 'modules/mobile/app/services/mobile/v0/lighthouse_claims/claims_index_interface'
 
 module Mobile
   module V0
@@ -29,7 +29,7 @@ module Mobile
       private
 
       def claims_index_interface(user)
-        @appointments_cache_interface ||= Mobile::ClaimsIndexInterface.new(user)
+        @claims_index_interface ||= Mobile::ClaimsIndexInterface.new(user)
       end
     end
   end
