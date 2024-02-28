@@ -507,6 +507,9 @@ features:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
     enable_in_development: true
+  form_526_required_identifiers_in_user_object:
+    actor_type: user
+    description: includes a mapping of booleans in the profile section of a serialized user indicating which ids are nil for the user
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)
@@ -777,6 +780,9 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
+  profile_show_credential_retirement_messaging:
+    actor_type: user
+    description: Show/hide MHV and DS Logon credential retirement messaging in profile
   profile_show_email_notification_settings:
     actor_type: user
     description: Show/Hide the email channel based notification settings in profile
