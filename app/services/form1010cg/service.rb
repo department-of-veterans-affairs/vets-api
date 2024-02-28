@@ -56,8 +56,8 @@ module Form1010cg
       # Store for the search results we will run on MPI
       @cache = {
         # [form_subject]: String          - The person's ICN
-        # [form_subject]: NOT_FOUND       - This person could not be found in MVI
-        # [form_subject]: nil             - An MVI search has not been conducted for this person
+        # [form_subject]: NOT_FOUND       - This person could not be found in MPI
+        # [form_subject]: nil             - An MPI search has not been conducted for this person
         icns: {}
       }
     end
