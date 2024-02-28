@@ -8,14 +8,13 @@ module MebApi
   module V0
     class BaseController < ::ApplicationController
       service_tag 'education-benefits'
-      before_action :authorize_access 
-      
+      before_action :authorize_access
+
       private
 
       def authorize_access
         authorize(current_user, :access?, policy_class: MebPolicy)
       end
-
 
       def claim_status_service
         MebApi::DGI::Status::Service.new(@current_user)
