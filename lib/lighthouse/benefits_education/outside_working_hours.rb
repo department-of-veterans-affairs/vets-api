@@ -16,13 +16,6 @@ module BenefitsEducation
     end
 
     ##
-    # @return [Time] The time to retry the request
-    #
-    def retry_after
-      Time.now.httpdate.in_time_zone('Eastern Time (US & Canada)').to_s
-    end
-
-    ##
     # @return [String] The i18n key
     #
     def i18n_key
