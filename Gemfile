@@ -24,6 +24,7 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
+  gem 'representation_management'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'travel_pay'
