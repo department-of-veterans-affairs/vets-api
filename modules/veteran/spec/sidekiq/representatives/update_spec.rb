@@ -148,7 +148,8 @@ RSpec.describe Representatives::Update do
 
       context 'when address_changed is true and address is valid' do
         it 'updates the address and the associated flagged records' do
-          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'address')
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                   flag_type: 'address')
 
           flagged_records.each do |record|
             expect(record.flagged_value_updated_at).to be_nil
@@ -180,7 +181,7 @@ RSpec.describe Representatives::Update do
 
           flagged_records.each do |record|
             record.reload
-            expect(record.flagged_value_updated_at).to_not be_nil
+            expect(record.flagged_value_updated_at).not_to be_nil
           end
         end
       end
@@ -188,8 +189,9 @@ RSpec.describe Representatives::Update do
       context 'when address_changed is true and address is not valid' do
         let(:api_response) { { 'candidateAddresses' => [] } }
 
-        it "does not update the address or the associated flagged records" do
-          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'address')
+        it 'does not update the address or the associated flagged records' do
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                   flag_type: 'address')
 
           flagged_records.each do |record|
             expect(record.flagged_value_updated_at).to be_nil
@@ -256,7 +258,8 @@ RSpec.describe Representatives::Update do
 
       context 'when email_changed is true and address is valid' do
         it 'updates the email and the associated flagged records' do
-          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'email')
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                   flag_type: 'email')
 
           flagged_records.each do |record|
             expect(record.flagged_value_updated_at).to be_nil
@@ -288,7 +291,7 @@ RSpec.describe Representatives::Update do
 
           flagged_records.each do |record|
             record.reload
-            expect(record.flagged_value_updated_at).to_not be_nil
+            expect(record.flagged_value_updated_at).not_to be_nil
           end
         end
       end
@@ -296,8 +299,9 @@ RSpec.describe Representatives::Update do
       context 'when email_changed is true and address is not valid' do
         let(:api_response) { { 'candidateAddresses' => [] } }
 
-        it "does not update the email or the associated flagged records" do
-          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'email')
+        it 'does not update the email or the associated flagged records' do
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                   flag_type: 'email')
 
           flagged_records.each do |record|
             expect(record.flagged_value_updated_at).to be_nil
@@ -364,7 +368,8 @@ RSpec.describe Representatives::Update do
 
       context 'when phone_number is true and address is valid' do
         it 'updates the phone_number and the associated flagged records' do
-          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'phone_number')
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                   flag_type: 'phone_number')
 
           flagged_records.each do |record|
             expect(record.flagged_value_updated_at).to be_nil
@@ -396,7 +401,7 @@ RSpec.describe Representatives::Update do
 
           flagged_records.each do |record|
             record.reload
-            expect(record.flagged_value_updated_at).to_not be_nil
+            expect(record.flagged_value_updated_at).not_to be_nil
           end
         end
       end
@@ -404,8 +409,9 @@ RSpec.describe Representatives::Update do
       context 'when phone_number is true and address is not valid' do
         let(:api_response) { { 'candidateAddresses' => [] } }
 
-        it "does not update the phone_number or the associated flagged records" do
-          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'phone_number')
+        it 'does not update the phone_number or the associated flagged records' do
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                   flag_type: 'phone_number')
 
           flagged_records.each do |record|
             expect(record.flagged_value_updated_at).to be_nil
