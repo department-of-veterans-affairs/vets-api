@@ -52,6 +52,8 @@ module Representatives
     def rows_to_process(rows)
       rows.map do |row|
         rep = Veteran::Service::Representative.find(row[:id])
+        return nil if rep.nil?
+
         diff = rep.diff(row)
         row.merge(diff) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e
