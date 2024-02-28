@@ -21,7 +21,6 @@ module BenefitsEducation
       saturday_end: 19
     }.freeze
 
-
     ##
     # @parameter [String] icn: icn of the Veteran requesting education benefits information
     # @return [BenefitsEducation::Service] a new instance of the service
