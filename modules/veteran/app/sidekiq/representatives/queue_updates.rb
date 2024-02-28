@@ -49,20 +49,16 @@ module Representatives
     end
 
     def rows_to_process(rows)
-      processed_rows = rows.map do |row|
-        begin
-          rep = Veteran::Service::Representative.find(row[:id])
-          diff = rep.diff(row)
-          row.merge(diff) if diff.values.any?
-        rescue ActiveRecord::RecordNotFound => e
-          log_error("Error: Representative not found #{e.message}")
-          nil
-        end
+      rows.map do |row|
+        rep = Veteran::Service::Representative.find(row[:id])
+        diff = rep.diff(row)
+        row.merge(diff) if diff.values.any?
+      rescue ActiveRecord::RecordNotFound => e
+        log_error("Error: Representative not found #{e.message}")
+        nil
       end.compact
-
-      processed_rows
     end
-    
+
     def log_error(message)
       log_message_to_sentry("QueueUpdates error: #{message}", :error)
     end

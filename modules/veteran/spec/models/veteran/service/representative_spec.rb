@@ -164,10 +164,10 @@ describe Veteran::Service::Representative, type: :model do
 
       it 'returns a hash indicating changes in email and phone number but not address' do
         expect(representative.diff(new_data)).to eq({
-          'address_changed' => false,
-          'email_changed' => true,
-          'phone_number_changed' => true
-        })
+                                                      'address_changed' => false,
+                                                      'email_changed' => true,
+                                                      'phone_number_changed' => true
+                                                    })
       end
     end
 
@@ -188,10 +188,10 @@ describe Veteran::Service::Representative, type: :model do
 
       it 'returns a hash indicating no changes in address, email and phone number' do
         expect(representative.diff(new_data)).to eq({
-          'address_changed' => false,
-          'email_changed' => false,
-          'phone_number_changed' => false
-        })
+                                                      'address_changed' => false,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => false
+                                                    })
       end
     end
   end
@@ -208,12 +208,11 @@ describe Veteran::Service::Representative, type: :model do
     context 'when the address has changed' do
       let(:new_address) do
         { request_address: {
-            address_line1: '234 Main St',
-            city: 'Anytown',
-            zip_code5: '12345',
-            state_province: { code: 'ST' }
-          }
-        }
+          address_line1: '234 Main St',
+          city: 'Anytown',
+          zip_code5: '12345',
+          state_province: { code: 'ST' }
+        } }
       end
 
       it 'returns true' do
@@ -228,8 +227,7 @@ describe Veteran::Service::Representative, type: :model do
           city: 'Anytown',
           zip_code5: '12345',
           state_province: { code: 'ST' }
-          }
-        }
+        } }
       end
 
       it 'returns false' do
