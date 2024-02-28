@@ -23,7 +23,7 @@ module MyHealth
     end
 
     def authorize
-      raise_access_denied unless current_user.authorize(:mhv_health_records, :access?)
+      raise_access_denied unless current_user.authorize(:mhv_medical_records, :access?)
     end
 
     def raise_access_denied
