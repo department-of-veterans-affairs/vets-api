@@ -53,7 +53,7 @@ module MyHealth
           ids.each do |id|
             client.post_refill_rx(id)
           end
-        rescue
+        rescue => e
           puts "Error refilling prescription: #{e.message}"
         end
         head :no_content

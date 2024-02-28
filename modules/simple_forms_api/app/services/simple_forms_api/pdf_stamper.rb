@@ -19,7 +19,7 @@ module SimpleFormsApi
       auth_text = case current_loa
                   when 3
                     'Signee signed with an identity-verified account.'
-                  when 1
+                  when 2
                     'Signee signed in but hasn’t verified their identity.'
                   else
                     'Signee not signed in.'
