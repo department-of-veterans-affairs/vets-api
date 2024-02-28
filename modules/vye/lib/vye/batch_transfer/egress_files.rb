@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module VYE
+module Vye
   module BatchTransfer
-    module EgressFiles
+    module Vye::BatchTransfer::EgressFiles
       BDN_TIMEZONE = 'Central Time (US & Canada)'
 
       extend self

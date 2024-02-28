@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vye/batch_transfer/egress_files'
 
-RSpec.describe VYE::BatchTransfer::EgressFiles do
+RSpec.describe Vye::BatchTransfer::EgressFiles do
   describe '#address_changes_filename' do
     it 'returns a string' do
       expect(described_class.address_changes_filename).to be_a(String)
