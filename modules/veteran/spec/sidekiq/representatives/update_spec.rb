@@ -6,7 +6,9 @@ RSpec.describe Representatives::Update do
   describe '#perform' do
     let(:json_data) do
       [
-        { request_address: {
+        {
+          id:,
+          request_address: {
             address_pou: 'abc',
             address_line1: 'abc',
             address_line2: 'abc',
@@ -19,9 +21,12 @@ RSpec.describe Representatives::Update do
             zip_code4: 'abc',
             country_code_iso3: 'abc'
           },
-          id:,
           email_address: 'test@example.com',
-          phone_number: '999-999-9999' }
+          phone_number: '999-999-9999',
+          address_changed: false,
+          phone_changed: false,
+          email_changed: false
+        }
       ].to_json
     end
     let(:api_response) do
