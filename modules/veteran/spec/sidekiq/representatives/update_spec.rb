@@ -23,7 +23,7 @@ RSpec.describe Representatives::Update do
           },
           email: 'test@example.com',
           phone_number: '999-999-9999',
-          address_changed: false,
+          address_changed:,
           email_changed: false,
           phone_number_changed: false
         }
@@ -89,6 +89,7 @@ RSpec.describe Representatives::Update do
 
     context 'when updating a representative' do
       let(:id) { '123abc' }
+      let(:address_changed) { true }
       let!(:representative) do
         create(:representative,
                representative_id: '123abc',
@@ -113,8 +114,29 @@ RSpec.describe Representatives::Update do
                phone_number: '111-111-1111')
       end
 
-      context 'when address is valid' do
-        it 'updates the address and contact information' do
+      before do
+        Veteran::FlaggedVeteranRepresentativeContactData.create(
+          ip_address: '192.168.1.1',
+          representative_id: id,
+          flag_type: 'address',
+          flagged_value: 'flagged_value'
+        )
+        Veteran::FlaggedVeteranRepresentativeContactData.create(
+          ip_address: '192.168.1.2',
+          representative_id: id,
+          flag_type: 'address',
+          flagged_value: 'flagged_value'
+        )
+      end
+
+      context 'when address_changed is true and address is valid' do
+        it 'updates the address and updates associated flagged records' do
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'address')
+
+          flagged_records.each do |record|
+            expect(record.flagged_value_updated_at).to be_nil
+          end
+
           subject.perform(json_data)
 
           representative.reload
@@ -138,10 +160,15 @@ RSpec.describe Representatives::Update do
           expect(representative.location.y).to eq(40.717029)
           expect(representative.email).to eq('test@example.com')
           expect(representative.phone_number).to eq('999-999-9999')
+
+          flagged_records.each do |record|
+            record.reload
+            expect(record.flagged_value_updated_at).to_not be_nil
+          end
         end
       end
 
-      context 'when address is not valid' do
+      context 'when address_changed is true and address is not valid' do
         let(:api_response) { { 'candidateAddresses' => [] } }
 
         it 'does not update the address record' do
