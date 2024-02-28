@@ -14,13 +14,6 @@ module BenefitsEducation
 
     STATSD_KEY_PREFIX = 'api.benefits_education'
 
-    OPERATING_ZONE = 'Eastern Time (US & Canada)'
-    OPERATING_HOURS = {
-      start: 6,
-      end: 22,
-      saturday_end: 19
-    }.freeze
-
     ##
     # @parameter [String] icn: icn of the Veteran requesting education benefits information
     # @return [BenefitsEducation::Service] a new instance of the service
@@ -60,6 +53,5 @@ module BenefitsEducation
         endpoint
       )
     end
-
   end
 end
