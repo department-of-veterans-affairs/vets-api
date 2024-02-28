@@ -504,6 +504,9 @@ features:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
     enable_in_development: true
+  form_526_required_identifiers_in_user_object:
+    actor_type: user
+    description: includes a mapping of booleans in the profile section of a serialized user indicating which ids are nil for the user
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)
@@ -693,6 +696,10 @@ features:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_medications_display_refill_content:
+    actor_type: user
+    description: Enables/disables refill-related content for Medications on VA.gov
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -770,6 +777,9 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
+  profile_show_credential_retirement_messaging:
+    actor_type: user
+    description: Show/hide MHV and DS Logon credential retirement messaging in profile
   profile_show_email_notification_settings:
     actor_type: user
     description: Show/Hide the email channel based notification settings in profile
@@ -1094,6 +1104,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to display the physical location of an appointment.
+  va_online_scheduling_enable_OH_cancellations:
+    actor_type: user
+    enable_in_development: true
+    description: Allows appointment cancellations to be routed to Oracle Health sites.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -1283,6 +1297,12 @@ features:
     description: >-
       Master toggle for the VYE (Verify Your Enrollment) project.
       If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
+  yellow_ribbon_degree_filter:
+    actor_type: user
+    description: Enable the degree type filter for the Find a Yellow Ribbon school search
   yellow_ribbon_search_enhancement:
     actor_type: user
     description: Enable changes to Find a Yellow Ribbon school search functionality
+  yellow_ribbon_automated_date_on_school_search:
+    actor_type: user
+    description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
