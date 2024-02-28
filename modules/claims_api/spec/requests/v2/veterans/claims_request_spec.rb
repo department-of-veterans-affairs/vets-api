@@ -1370,25 +1370,31 @@ RSpec.describe 'Claims', type: :request do
             end
           end
         end
-      end
 
-      context 'scopes' do
-        let(:invalid_scopes) { %w[system/526-pdf.override] }
-        let(:claims_show_scopes) { %w[claim.write claim.read] }
+        context 'scopes' do
+          let(:invalid_scopes) { %w[system/526-pdf.override] }
+          let(:claims_show_scopes) { %w[system/claim.read] }
 
-        context 'submission to generatePDF' do
-          it 'returns a 200 response when successful' do
-            mock_ccg_for_fine_grained_scope(claims_show_scopes) do |auth_header|
-              post claims_show_path, params: data, headers: auth_header
-              expect(response.header['Content-Disposition']).to include('filename')
-              expect(response).to have_http_status(:ok)
+          context 'claims show' do
+            it 'returns a 200 response when successful' do
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                mock_ccg_for_fine_grained_scope(claims_show_scopes) do |auth_header|
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(lighthouse_claim)
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
+                  get claim_by_id_path, headers: auth_header
+
+                  expect(response).to have_http_status(:ok)
+                end
+              end
             end
-          end
 
-          it 'returns a 401 unauthorized with incorrect scopes' do
-            mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
-              post claims_show_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unauthorized)
+            it 'returns a 401 unauthorized with incorrect scopes' do
+              mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+                get claim_by_id_path, headers: auth_header
+                expect(response).to have_http_status(:unauthorized)
+              end
             end
           end
         end
