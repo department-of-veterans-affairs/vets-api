@@ -52,20 +52,8 @@ module Representatives
       processed_rows = rows.map do |row|
         begin
           rep = Veteran::Service::Representative.find(row[:id])
-          address_changed = address_changed?(rep, row[:request_address])
-          email_changed = email_changed?(rep, row)
-          phone_changed = phone_changed?(rep, row)
-    
-          if address_changed || email_changed || phone_changed
-            # Return a new row with changed flags
-            row.merge({
-              address_changed: address_changed,
-              email_changed: email_changed,
-              phone_changed: phone_changed
-            })
-          else
-            nil
-          end
+          diff = rep.diff(row)
+          row.merge(diff) if diff.values.any?
         rescue ActiveRecord::RecordNotFound => e
           log_error("Error: Representative not found #{e.message}")
           nil
@@ -75,20 +63,6 @@ module Representatives
       processed_rows
     end
     
-    def address_changed?(rep, row_address)
-      rep_address = [rep.address_line1, rep.address_line2, rep.address_line3, rep.city, rep.zip_code, rep.zip_suffix].push(rep.state_code).join(' ')
-      incoming_address = row_address.values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4).push(row_address.dig(:state_province, :code)).join(' ')
-      rep_address != incoming_address
-    end
-
-    def email_changed?(rep, row)
-      rep.email != row[:email_address]
-    end
-
-    def phone_changed?(rep, row)
-      rep.phone_number != row[:phone_number]
-    end
-
     def log_error(message)
       log_message_to_sentry("QueueUpdates error: #{message}", :error)
     end

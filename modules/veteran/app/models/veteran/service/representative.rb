@@ -110,14 +110,33 @@ module Veteran
         where(query, params)
       end
 
+      def self.max_per_page
+        Constants::MAX_PER_PAGE
+      end
+
       #
       # Set the full_name attribute for the representative
       def set_full_name
         self.full_name = "#{first_name} #{last_name}"
       end
 
-      def self.max_per_page
-        Constants::MAX_PER_PAGE
+      def diff(other)
+        %i[address email phone_number].each_with_object({}) do |field, diff|
+          if field == :address
+            diff['address_changed'] = address_changed?(other)
+          else
+            diff["#{field}_changed"] = send(field) != other[field]
+          end
+        end
+      end
+
+      def address_changed?(other)
+        address = [address_line1, address_line2, address_line3, city, zip_code, zip_suffix].push(state_code).join(' ')
+        other_address = other[:request_address]
+                        .values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4)
+                        .push(other.dig(:request_address, :state_province, :code))
+                        .join(' ')
+        address != other_address
       end
     end
   end
