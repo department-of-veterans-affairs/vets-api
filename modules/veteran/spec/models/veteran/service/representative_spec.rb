@@ -195,4 +195,46 @@ describe Veteran::Service::Representative, type: :model do
       end
     end
   end
+
+  describe '#address_changed?' do
+    let(:representative) do
+      FactoryBot.create(:representative,
+                        address_line1: '123 Main St',
+                        city: 'Anytown',
+                        zip_code: '12345',
+                        state_code: 'ST')
+    end
+
+    context 'when the address has changed' do
+      let(:new_address) do
+        { request_address: {
+            address_line1: '234 Main St',
+            city: 'Anytown',
+            zip_code5: '12345',
+            state_province: { code: 'ST' }
+          }
+        }
+      end
+
+      it 'returns true' do
+        expect(representative.address_changed?(new_address)).to be true
+      end
+    end
+
+    context 'when the address has not changed' do
+      let(:same_address) do
+        { request_address: {
+          address_line1: '123 Main St',
+          city: 'Anytown',
+          zip_code5: '12345',
+          state_province: { code: 'ST' }
+          }
+        }
+      end
+
+      it 'returns false' do
+        expect(representative.address_changed?(same_address)).to be false
+      end
+    end
+  end
 end
