@@ -80,18 +80,9 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       end
     end
 
-    it 'logs a warning with details when fetch fails' do
+    it 'does not cache when a non authorization error is present' do
       VCR.use_cassette('mobile/lighthouse_claims/index/404_response') do
         VCR.use_cassette('mobile/appeals/appeals') do
-          expect(Rails.logger).to receive(:warn).with(
-            'mobile claims pre-cache fetch errors',
-            {
-              errors: [{
-                error_details: [{ 'code' => '404', 'detail' => 'Resource not found', 'status' => '404',
-                                  'title' => 'Resource not found' }], service: 'claims'
-              }], user_uuid: user.uuid
-            }
-          )
           subject.perform(user.uuid)
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
         end

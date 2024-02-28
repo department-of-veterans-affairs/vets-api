@@ -82,16 +82,6 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
     it 'logs a warning with details when fetch fails' do
       VCR.use_cassette('mobile/claims/claims_with_errors') do
         VCR.use_cassette('mobile/appeals/appeals') do
-          expect(Rails.logger).to receive(:warn).with(
-            'mobile claims pre-cache fetch errors',
-            { errors: [{ error_details: [{ 'key' => 'EVSS_7022',
-                                           'severity' => 'ERROR',
-                                           'text' =>
-                     "Please define your custom text for this error in claims-webparts/ErrorCodeMessages.properties. \
-[Unique ID: 1522946240935]" }],
-                         service: 'claims' }],
-              user_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
-          )
           subject.perform(user.uuid)
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
         end

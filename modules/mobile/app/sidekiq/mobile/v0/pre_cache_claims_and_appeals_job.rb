@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../../services/mobile/v0/lighthouse_claims/service_authorization_interface'
+require_relative '../../../services/mobile/v0/lighthouse_claims/claims_index_interface'
 
 module Mobile
   module V0
@@ -16,14 +16,9 @@ module Mobile
         @user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless @user
 
-        data, errors = service_authorization_interface(@user).get_accessible_claims_appeals(false)
+        data, errors = claims_index_interface(@user).get_accessible_claims_appeals(false)
 
-        if service_authorization_interface(@user).non_authorization_errors?(errors)
-          Rails.logger.warn('mobile claims pre-cache fetch errors', user_uuid: uuid,
-                                                                    errors:)
-        else
-          Mobile::V0::ClaimOverview.set_cached(@user, data)
-        end
+        claims_index_interface(@user).try_cache(data, errors)
       rescue => e
         Rails.logger.warn('mobile claims pre-cache job failed',
                           user_uuid: uuid,
@@ -33,8 +28,8 @@ module Mobile
 
       private
 
-      def service_authorization_interface(user)
-        @appointments_cache_interface ||= Mobile::ServiceAuthorizationInterface.new(user)
+      def claims_index_interface(user)
+        @appointments_cache_interface ||= Mobile::ClaimsIndexInterface.new(user)
       end
     end
   end
