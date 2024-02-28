@@ -73,8 +73,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: bb06b010a79d5526a4becbc826b2cf07fc8a8335
-  branch: feature/pension-fixtures
+  revision: 11a82ea935fe45e1cea7b6b6af87842c31605a09
+  branch: master
   specs:
     vets_json_schema (20.37.1)
       multi_json (~> 1.0)
@@ -129,6 +129,16 @@ PATH
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
     vye (0.1.0)
+
+GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (2.5.3)
+      einhorn (>= 0.7.4)
+      sidekiq (>= 6.5.0, < 7)
+      sidekiq-pro (>= 5.5.0, < 6)
+    sidekiq-pro (5.5.8)
+      sidekiq (~> 6.0, >= 6.5.6)
 
 GEM
   remote: https://rubygems.org/
@@ -386,6 +396,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0)
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
@@ -472,7 +483,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.13.0)
+    google-apis-core (0.14.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.1, < 3.a)
@@ -1193,6 +1204,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (>= 6.4.0)
+  sidekiq-ent!
+  sidekiq-pro!
   sidekiq_alive
   simple_forms_api!
   simplecov
