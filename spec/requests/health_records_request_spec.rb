@@ -14,7 +14,7 @@ RSpec.describe 'health records' do
                               token: TOKEN })
   end
 
-  let(:current_user) { build(:user, :mhv, va_patient: false, mhv_account_type: 'Premium') }
+  let(:current_user) { build(:user, :mhv, va_patient: false, mhv_account_type: 'Basic') }
 
   before do
     allow(BB::Client).to receive(:new).and_return(authenticated_client)
