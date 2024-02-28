@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 MHVHealthRecordsPolicy = Struct.new(:user, :mhv_health_records) do
-  BB_ACCOUNT_TYPES = %w[Premium Advanced Basic].freeze
+  MR_ACCOUNT_TYPES = %w[Premium].freeze
 
   def access?
-    BB_ACCOUNT_TYPES.include?(user.mhv_account_type)
+    MR_ACCOUNT_TYPES.include?(user.mhv_account_type) && user.va_patient?
   end
 end
