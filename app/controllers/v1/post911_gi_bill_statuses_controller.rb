@@ -14,19 +14,15 @@ module V1
     STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
 
     def show
-      begin
-        response = service.get_gi_bill_status
-        render json: response.body['chapter33EducationInfo']
-      rescue StandardError => e
-        status = e.errors.first[:status].to_i if e.errors&.first&.key?(:status)
-        if status == 404 
-          log_vet_not_found(@current_user, Time.now)
-        end
-        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
-        render json: { error: e.errors.first }, status: status || :internal_server_error
-      ensure
-        StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
-      end
+      response = service.get_gi_bill_status
+      render json: response.body['chapter33EducationInfo']
+    rescue => e
+      status = e.errors.first[:status].to_i if e.errors&.first&.key?(:status)
+      log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
+      StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
+      render json: { error: e.errors.first }, status: status || :internal_server_error
+    ensure
+      StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
     end
 
     private

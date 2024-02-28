@@ -91,7 +91,6 @@ module BenefitsEducation
       service_start_time.tomorrow.httpdate
     end
 
-
     def self.get_current_time
       Time.now.in_time_zone(OPERATING_ZONE)
     end

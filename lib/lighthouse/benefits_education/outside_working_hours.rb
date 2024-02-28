@@ -5,7 +5,7 @@ require 'common/exceptions/base_error'
 module BenefitsEducation
   ##
   # Custom error for when the user is attempting to access the service
-  # outside of working hours.  The service proxies to a service which 
+  # outside of working hours.  The service proxies to a service which
   # has nightly downtime
   class OutsideWorkingHours < Common::Exceptions::BaseError
     ##

@@ -5,53 +5,52 @@ require 'lighthouse/benefits_education/service'
 require 'lighthouse/benefits_education/outside_working_hours'
 
 RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
-
   let(:user) { FactoryBot.create(:user, :loa3, icn: '1000000000V100000') }
-  before { sign_in_as(user) }
-
   let(:once) { { times: 1, value: 1 } }
-
-  let(:tz) { ActiveSupport::TimeZone.new(::BenefitsEducation::Service::OPERATING_ZONE) }
+  let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }
   let(:noon) { tz.parse('1st Feb 2018 12:00:00') }
+
+  before { sign_in_as(user) }
 
   context 'inside working hours' do
     before do
-        allow(::BenefitsEducation::Service).to receive(:within_scheduled_uptime?).and_return(true)
+      allow(BenefitsEducation::Service).to receive(:within_scheduled_uptime?).and_return(true)
     end
 
     it 'returns a 200 success' do
-      # valid icn retrieved from 
+      # valid icn retrieved from
       # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
-      valid_user = FactoryBot.create(:user, :loa3, icn: "1012667145V762142")
+      valid_user = FactoryBot.create(:user, :loa3, icn: '1012667145V762142')
       sign_in_as(valid_user)
 
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/200_response') do
-        expect(StatsD).to receive(:increment).with(::V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
         get :show
       end
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'returns a 404 when vet isn\'t found' do
-        VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/404_response') do
-          expect(StatsD).to receive(:increment).with(::V1::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, tags: ["error:404"])
-          expect(StatsD).to receive(:increment).with(::V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
-          expect {
-            get :show
-        }.to change { PersonalInformationLog.count }.by(1)
-        end
+      VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/404_response') do
+        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY,
+                                                   tags: ['error:404'])
+        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect do
+          get :show
+        end.to change(PersonalInformationLog, :count)
+      end
 
-        expect(response.status).to eq(404)
-        json_response = JSON.parse(response.body)
-        expect(json_response['error']['title']).to eq('Not Found')
-        expect(json_response['error']['detail']).to eq('Icn not found.')
+      expect(response).to have_http_status(:not_found)
+      json_response = JSON.parse(response.body)
+      expect(json_response['error']['title']).to eq('Not Found')
+      expect(json_response['error']['detail']).to eq('Icn not found.')
     end
   end
 
   context 'outside working hours' do
     # midnight
-    before { Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00'))}
+    before { Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00')) }
     after { Timecop.return }
 
     it 'returns 503' do
@@ -69,5 +68,4 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       get :show
     end
   end
-
 end
