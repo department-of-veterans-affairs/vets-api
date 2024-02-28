@@ -103,9 +103,11 @@ module DocHelpers
     end
 
     after do |example|
+      content_type = opts[:content_type].presence || 'application/json'
+
       r = if opts[:response_wrapper]
             send(opts[:response_wrapper], response)
-          else
+          elsif content_type == 'application/json'
             JSON.parse(response.body, symbolize_names: true)
           end
 
@@ -123,12 +125,10 @@ module DocHelpers
 
       example.metadata[:response][:content] = if opts[:extract_desc]
                                                 {
-                                                  'application/json' => {
-                                                    examples: { "#{opts[:desc]}": { value: r } }
-                                                  }
+                                                  content_type => { examples: { "#{opts[:desc]}": { value: r } } }
                                                 }
                                               else
-                                                { 'application/json' => { example: r } }
+                                                { content_type => { example: r } }
                                               end
     end
   end

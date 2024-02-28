@@ -1,0 +1,278 @@
+{
+  "Data": [
+      {
+          "Text": "Test",
+          "StartDate": "8/18/2024 1:00:00 PM",
+          "EndDate": "8/18/2024 1:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test announcement",
+          "StartDate": "9/12/2024 12:00:00 PM",
+          "EndDate": "9/12/2024 3:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Here is my team announcement. And this addition to the announcement.",
+          "StartDate": "11/14/2024 2:00:00 PM",
+          "EndDate": "11/14/2024 10:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "test banner",
+          "StartDate": "8/4/2024 1:00:00 PM",
+          "EndDate": "8/4/2024 3:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "this is a portal notice",
+          "StartDate": "8/18/2024 12:00:00 PM",
+          "EndDate": "8/20/2024 12:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "This is a global announcement",
+          "StartDate": "8/18/2024 12:00:00 PM",
+          "EndDate": "8/21/2024 12:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test banner",
+          "StartDate": "8/15/2023 3:00:00 PM",
+          "EndDate": "8/15/2023 6:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Admin banner test",
+          "StartDate": "8/18/2023 1:00:00 PM",
+          "EndDate": "8/18/2023 1:15:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "9/6/2023 12:00:00 PM",
+          "EndDate": "9/7/2023 12:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "9/6/2023 12:00:00 PM",
+          "EndDate": "9/7/2023 12:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "10/12/2022 6:00:00 PM",
+          "EndDate": "10/13/2022 2:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "test",
+          "StartDate": "10/11/2022 6:00:00 PM",
+          "EndDate": "10/15/2022 6:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "You are both CRAZY",
+          "StartDate": "8/3/2022 3:00:00 PM",
+          "EndDate": "8/5/2022 3:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "This is a new announcement ",
+          "StartDate": "8/8/2022 1:00:00 PM",
+          "EndDate": "8/8/2022 10:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Hi GI BILL!",
+          "StartDate": "8/8/2022 1:00:00 PM",
+          "EndDate": "8/9/2022 1:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "This is an announcement ",
+          "StartDate": "1/1/0001 12:00:00 AM",
+          "EndDate": "1/1/0001 12:00:00 AM",
+          "IsPortal": false
+      },
+      {
+          "Text": "announcement",
+          "StartDate": "1/1/0001 12:00:00 AM",
+          "EndDate": "1/1/0001 12:00:00 AM",
+          "IsPortal": false
+      },
+      {
+          "Text": "this is an announcement",
+          "StartDate": "8/9/2022 12:00:00 PM",
+          "EndDate": "8/9/2022 9:30:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "This is an announcement",
+          "StartDate": "8/10/2022 12:00:00 PM",
+          "EndDate": "8/10/2022 4:30:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "8/10/2022 12:00:00 PM",
+          "EndDate": "8/12/2022 12:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "This is an announcement",
+          "StartDate": "8/11/2022 12:00:00 PM",
+          "EndDate": "8/11/2022 4:30:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "this is an announcement",
+          "StartDate": "8/11/2022 12:00:00 PM",
+          "EndDate": "8/11/2022 6:30:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "7/31/2022 3:00:00 PM",
+          "EndDate": "8/2/2022 3:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Another Test",
+          "StartDate": "7/31/2022 3:00:00 PM",
+          "EndDate": "8/2/2022 12:30:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "System will be down Tuesday",
+          "StartDate": "8/4/2022 1:00:00 PM",
+          "EndDate": "8/5/2022 1:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "This is for Shelby",
+          "StartDate": "8/4/2022 1:00:00 PM",
+          "EndDate": "8/5/2022 1:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Will this duplicate??",
+          "StartDate": "8/4/2022 1:00:00 PM",
+          "EndDate": "8/4/2022 1:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "will this duplicate?",
+          "StartDate": "8/4/2022 1:00:00 PM",
+          "EndDate": "8/5/2022 5:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "And I'd give up forever to touch you\n'Cause I know that you feel me somehow\nYou're the closest to heaven that I'll ever be\nAnd I don't want to go home right now\nAnd all I can taste is this moment\nAnd all I can breathe is your life\nAnd sooner or later, it's over\nI just don't wanna miss you tonight\nAnd I don't want the world to see me\n'Cause I don't think that they'd understand\nWhen everything's made to be broken\nI just want you to know who I am\nAnd you can't fight the tears that ain't coming\nOr the moment of truth in your lies\nWhen everything feels like the movies\nYeah, you bleed just to know, you're alive\nAnd I don't want the world to see me\n'Cause I don't think that they'd understand\nWhen everything's made to be broken\nI just want you to know who I am\nAnd I don't want the world to see me\n'Cause I don't think that they'd understand\nWhen everything's made to be broken\nI just want you to know who I am\nAnd I don't want the world to see me\n'Cause I don't think that they'd understand\nWhen everything's made to be broken\nI just want you to know who I am\nI just want you to know who I am\nI just want you to know who I am\nI just want you to know who I am",
+          "StartDate": "9/13/2022 6:00:00 PM",
+          "EndDate": "9/16/2022 6:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "Team Announcement Testing - Bharath",
+          "StartDate": "8/23/2022 12:00:00 PM",
+          "EndDate": "8/25/2022 12:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "Test",
+          "StartDate": "10/24/2022 6:00:00 PM",
+          "EndDate": "10/29/2022 6:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test to see if links are clickable: https://www.va.gov",
+          "StartDate": "3/2/2023 2:00:00 PM",
+          "EndDate": "5/26/2023 5:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "test",
+          "StartDate": "10/25/2022 1:00:00 PM",
+          "EndDate": "10/26/2022 1:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "10/26/2022 12:00:00 PM",
+          "EndDate": "10/27/2022 12:30:00 AM",
+          "IsPortal": false
+      },
+      {
+          "Text": "this is a system test",
+          "StartDate": "12/4/2023 6:00:00 PM",
+          "EndDate": "2/2/2023 9:25:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "Testing Team Announcements for reduced license",
+          "StartDate": "1/18/2023 2:00:00 PM",
+          "EndDate": "1/20/2023 2:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "TEST",
+          "StartDate": "6/15/2023 1:00:00 PM",
+          "EndDate": "6/15/2023 5:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "Test",
+          "StartDate": "6/5/2023 3:00:00 PM",
+          "EndDate": "6/5/2023 3:30:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Test",
+          "StartDate": "6/16/2023 1:00:00 PM",
+          "EndDate": "6/16/2023 5:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "Test a banner",
+          "StartDate": "1/1/0001 12:00:00 AM",
+          "EndDate": "1/1/0001 12:00:00 AM",
+          "IsPortal": false
+      },
+      {
+          "Text": null,
+          "StartDate": "8/9/2023 12:00:00 PM",
+          "EndDate": "1/1/0001 12:00:00 AM",
+          "IsPortal": false
+      },
+      {
+          "Text": "TEST",
+          "StartDate": "8/9/2023 1:00:00 PM",
+          "EndDate": "8/9/2023 5:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "CRM Banner for Kyle!",
+          "StartDate": "2/1/2024 2:00:00 PM",
+          "EndDate": "2/1/2024 9:00:00 PM",
+          "IsPortal": false
+      },
+      {
+          "Text": "Portal Banner for Kyle!",
+          "StartDate": "2/1/2024 2:00:00 PM",
+          "EndDate": "2/1/2024 10:00:00 PM",
+          "IsPortal": true
+      },
+      {
+          "Text": "System Will be down on Tuesday 9/27/2022",
+          "StartDate": "9/27/2022 12:00:00 PM",
+          "EndDate": "9/27/2022 4:30:00 PM",
+          "IsPortal": false
+      }
+  ],
+  "Message": null,
+  "ExceptionOccurred": false,
+  "ExceptionMessage": null,
+  "MessageId": "e301dcda-a37b-4a12-add1-901f49bee764"
+}

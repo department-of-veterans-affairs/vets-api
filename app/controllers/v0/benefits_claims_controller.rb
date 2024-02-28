@@ -21,6 +21,10 @@ module V0
     def show
       claim = service.get_claim(params[:id])
 
+      # Document uploads to EVSS require a birls_id; This restriction should
+      # be removed when we move to Lighthouse Benefits Documents for document uploads
+      claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
+
       # We want to log some details about claim type patterns to track in DataDog
       claim_info = claim['data']['attributes']
       ::Rails.logger.info('Claim Type Details',

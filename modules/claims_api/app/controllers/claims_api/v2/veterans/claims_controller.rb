@@ -265,14 +265,13 @@ module ClaimsApi
             [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.compact
           return {} if lc_status_array.first.nil?
 
-          max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').first
+          max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').last
           return {} if max_completed_phase.downcase.eql?('n')
 
           {}.tap do |phase_date|
             lc_status_array.reverse.map do |phase|
               completed_phase_number = phase[:phase_type_change_ind].split('').first
-              if completed_phase_number <= max_completed_phase &&
-                 completed_phase_number.to_i.positive?
+              if completed_phase_number < max_completed_phase
                 phase_date["phase#{completed_phase_number}CompleteDate"] = date_present(phase[:phase_chngd_dt])
               end
             end

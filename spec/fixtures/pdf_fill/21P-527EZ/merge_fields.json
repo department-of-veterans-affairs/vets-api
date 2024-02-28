@@ -37,7 +37,7 @@
   "serveUnderOtherNames": true,
   "previousNames": [
     {
-      "first": "John",
+      "first": "Joseph",
       "last": "Doe"
     }
   ],
@@ -57,8 +57,9 @@
   },
   "socialSecurityDisability": 1,
   "medicalCondition": 1,
-  "nursingHome": 1,
-  "medicaidStatus": "Off",
+  "nursingHome": 0,
+  "medicaidCoverage": false,
+  "medicaidStatus": 0,
   "specialMonthlyPension": 1,
   "vaTreatmentHistory": 0,
   "vaMedicalCenters": [
@@ -88,39 +89,46 @@
         "middle": "Middle",
         "last": "Doe"
       },
+      "reasonForSeparation": 2,
+      "otherExplanation": "Other reason",
       "dateOfMarriage": {
         "month": "03",
         "day": "02",
         "year": "1989"
       },
-      "locationOfMarriage": "Dallas",
-      "reasonForSeparation": null,
       "dateOfSeparation": {
         "month": "03",
         "day": "02",
         "year": "1990"
       },
-      "locationOfSeparation": "San Antonio, TX"
+      "locationOfMarriage": "Dallas",
+      "locationOfSeparation": "San Antonio, TX",
+      "spouseFullNameOverflow": "Jessica Middle Doe",
+      "dateRangeOfMarriageOverflow": "03-02-1989 - 03-02-1990",
+      "reasonForSeparationOverflow": "Other"
     },
     {
       "spouseFullName": {
-        "first": "Jennie",
+        "first": "Jane",
         "middle": "Middle",
-        "last": "Dane"
+        "last": "Doe"
       },
+      "reasonForSeparation": 0,
       "dateOfMarriage": {
         "month": "03",
         "day": "02",
-        "year": "1983"
+        "year": "1989"
       },
-      "locationOfMarriage": "Dallas",
-      "reasonForSeparation": 1,
       "dateOfSeparation": {
         "month": "03",
         "day": "02",
-        "year": "1984"
+        "year": "1990"
       },
-      "locationOfSeparation": "San Antonio, TX"
+      "locationOfMarriage": "Dallas",
+      "locationOfSeparation": "San Antonio, TX",
+      "spouseFullNameOverflow": "Jane Middle Doe",
+      "dateRangeOfMarriageOverflow": "03-02-1989 - 03-02-1990",
+      "reasonForSeparationOverflow": "Death"
     }
   ],
   "spouseDateOfBirth": {
@@ -133,7 +141,7 @@
     "second": "22",
     "third": "4444"
   },
-  "spouseIsVeteran": true,
+  "spouseIsVeteran": 0,
   "spouseVaFileNumber": "23423444",
   "spouseAddress": {
     "street": "123 7th st",
@@ -153,7 +161,7 @@
     "part_two": "2",
     "part_one": "444"
   },
-  "currentSpouseMaritalHistory": "Yes",
+  "currentSpouseMaritalHistory": "YES",
   "spouseMarriages": [
     {
       "dateOfMarriage": {
@@ -174,7 +182,10 @@
         "day": "02",
         "year": "1990"
       },
-      "locationOfSeparation": "Tacoma, WA"
+      "locationOfSeparation": "Tacoma, WA",
+      "spouseFullNameOverflow": "Joe F Generic Jr.",
+      "dateRangeOfMarriageOverflow": "03-02-1980 - 03-02-1990",
+      "reasonForSeparationOverflow": "Death"
     },
     {
       "dateOfMarriage": {
@@ -196,7 +207,10 @@
         "day": "02",
         "year": "2005"
       },
-      "locationOfSeparation": "Tacoma, WA"
+      "locationOfSeparation": "Tacoma, WA",
+      "spouseFullNameOverflow": "John F Person Jr.",
+      "dateRangeOfMarriageOverflow": "03-02-1995 - 03-02-2005",
+      "reasonForSeparationOverflow": "Other"
     }
   ],
   "dependents": [
@@ -233,21 +247,22 @@
       "previouslyMarried": 1,
       "married": true,
       "fullName": {
-        "first": "Bobby",
-        "middle": "Middle",
+        "first": "Emily",
+        "middle": "Anne",
         "last": "Doe"
       },
       "childDateOfBirth": {
         "month": "03",
-        "day": "02",
-        "year": "1997"
+        "day": "03",
+        "year": "2000"
       },
-      "childDateOfBirthOverflow": "1997-03-02",
+      "fullNameOverflow": "Emily Anne Doe",
+      "childDateOfBirthOverflow": "03-03-2000",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
       "attendingCollege": "Off",
       "childNotInHousehold": 1,
-      "childStatusOverflow": "biological, previously married, does not live with you but contributes",
+      "childStatusOverflow": "Biological, previously married, does not live with you but contributes",
       "monthlyPaymentOverflow": "$3,444.00"
     },
     {
@@ -264,38 +279,34 @@
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
+      "attendingCollege": 1,
       "fullName": {
-        "first": "Emily",
-        "middle": "Middle",
+        "first": "Bobby",
+        "middle": "Nolan",
         "last": "Doe"
       },
       "childDateOfBirth": {
-        "month": "03",
-        "day": "02",
-        "year": "1993"
+        "month": "09",
+        "day": "22",
+        "year": "2005"
       },
-      "childDateOfBirthOverflow": "1993-03-02",
+      "fullNameOverflow": "Bobby Nolan Doe",
+      "childDateOfBirthOverflow": "09-22-2005",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
-      "attendingCollege": "Off",
       "childNotInHousehold": "Off",
-      "childStatusOverflow": "adopted",
+      "childStatusOverflow": "Adopted, 18-23 years old (in school)",
       "monthlyPayment": {},
       "monthlyPaymentOverflow": null
     },
     {
-      "childInHousehold": false,
+      "childInHousehold": true,
       "childAddress": {
         "street": "123 8th st",
         "city": "Hadley",
         "country": "USA",
         "state": "ME",
         "postalCode": "01050"
-      },
-      "personWhoLivesWithChild": {
-        "first": "Joe",
-        "middle": "Middle",
-        "last": "Smith"
       },
       "monthlyPayment": {
         "part_cents": "00",
@@ -314,22 +325,23 @@
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
+      "disabled": 1,
       "fullName": {
         "first": "Jack",
-        "middle": "Middle",
+        "middle": "Sawyer",
         "last": "Doe"
       },
       "childDateOfBirth": {
         "month": "04",
         "day": "01",
-        "year": "1992"
+        "year": "2010"
       },
-      "childDateOfBirthOverflow": "1992-04-01",
+      "fullNameOverflow": "Jack Sawyer Doe",
+      "childDateOfBirthOverflow": "04-01-2010",
       "childSocialSecurityNumberOverflow": "333224444",
-      "disabled": "Off",
       "attendingCollege": "Off",
-      "childNotInHousehold": 1,
-      "childStatusOverflow": "biological, does not live with you but contributes",
+      "childNotInHousehold": "Off",
+      "childStatusOverflow": "Biological, seriously disabled",
       "monthlyPaymentOverflow": "$2,300.00"
     }
   ],
@@ -371,7 +383,7 @@
       "recipientsOverflow": "Veteran",
       "careTypeOverflow": "Care facility",
       "ratePerHourOverflow": "$100.00",
-      "careDateRangeOverflow": "2020-08-01 - 2023-05-25",
+      "careDateRangeOverflow": "08-01-2020 - 05-25-2023",
       "noCareEndDate": "Off",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$2,500.00"
@@ -406,7 +418,7 @@
       "recipientsOverflow": "Spouse",
       "careTypeOverflow": "In home care provider",
       "ratePerHourOverflow": "$150.00",
-      "careDateRangeOverflow": "2021-08-01 - 2022-05-25",
+      "careDateRangeOverflow": "08-01-2021 - 05-25-2022",
       "noCareEndDate": "Off",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$1,500.00"
@@ -436,10 +448,10 @@
         "part_two": "22",
         "part_one": "500"
       },
-      "recipientsOverflow": "Child",
+      "recipientsOverflow": "Dependent",
       "careTypeOverflow": "Care facility",
       "ratePerHourOverflow": "$200.00",
-      "careDateRangeOverflow": "2020-08-01 - No End Date",
+      "careDateRangeOverflow": "08-01-2020 - No End Date",
       "paymentFrequencyOverflow": "ONCE_YEAR",
       "paymentAmountOverflow": "$22,500.00"
     }
@@ -462,7 +474,7 @@
         "part_one": "000"
       },
       "recipientsOverflow": "Veteran",
-      "paymentDateOverflow": "2020-03-15",
+      "paymentDateOverflow": "03-15-2020",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$10,000.00"
     },
@@ -482,8 +494,8 @@
         "part_two": "10",
         "part_one": "000"
       },
-      "recipientsOverflow": "Child",
-      "paymentDateOverflow": "2023-07-01",
+      "recipientsOverflow": "Dependent",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$10,000.00"
     },
@@ -502,7 +514,7 @@
         "part_one": "500"
       },
       "recipientsOverflow": "Spouse",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$500.00"
     },
@@ -522,8 +534,8 @@
         "part_two": "5",
         "part_one": "000"
       },
-      "recipientsOverflow": "Child",
-      "paymentDateOverflow": "2023-07-01",
+      "recipientsOverflow": "Dependent",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_YEAR",
       "paymentAmountOverflow": "$5,000.00"
     },
@@ -542,7 +554,7 @@
         "part_one": "200"
       },
       "recipientsOverflow": "Spouse",
-      "paymentDateOverflow": "2023-07-01",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_MONTH",
       "paymentAmountOverflow": "$200.00"
     },
@@ -561,8 +573,8 @@
         "part_cents": "00",
         "part_one": "100"
       },
-      "recipientsOverflow": "Child",
-      "paymentDateOverflow": "2023-07-01",
+      "recipientsOverflow": "Dependent",
+      "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$100.00"
     }
@@ -580,14 +592,15 @@
   "incomeSources": [
     {
       "typeOfIncome": 0,
-      "receiver": 0,
+      "receiver": 2,
+      "dependentName": "Bobby Doe",
       "payer": "John Doe",
       "amount": {
         "part_cents": "05",
         "part_one": "278"
       },
-      "receiverOverflow": "VETERAN",
-      "typeOfIncomeOverflow": "SOCIAL_SECURITY",
+      "receiverOverflow": "Dependent",
+      "typeOfIncomeOverflow": "Social security",
       "amountOverflow": "$278.05"
     },
     {
@@ -598,21 +611,21 @@
         "part_cents": "50",
         "part_one": "78"
       },
-      "receiverOverflow": "VETERAN",
-      "typeOfIncomeOverflow": "INTEREST_DIVIDEND",
+      "receiverOverflow": "Veteran",
+      "typeOfIncomeOverflow": "Interest dividend",
       "amountOverflow": "$78.50"
     },
     {
       "typeOfIncome": 4,
       "otherTypeExplanation": "part-time Uber",
-      "receiver": 0,
+      "receiver": 1,
       "payer": "John Doe",
       "amount": {
         "part_cents": "99",
         "part_one": "278"
       },
-      "receiverOverflow": "VETERAN",
-      "typeOfIncomeOverflow": "OTHER",
+      "receiverOverflow": "Spouse",
+      "typeOfIncomeOverflow": "Other",
       "amountOverflow": "$278.99"
     },
     {
@@ -625,8 +638,8 @@
         "part_two": "3",
         "part_one": "278"
       },
-      "receiverOverflow": "VETERAN",
-      "typeOfIncomeOverflow": "OTHER",
+      "receiverOverflow": "Veteran",
+      "typeOfIncomeOverflow": "Other",
       "amountOverflow": "$3,278.75"
     }
   ],
@@ -681,23 +694,27 @@
   },
   "additionalMarriages": 1,
   "additionalSpouseMarriages": 1,
-  "dependentChildrenInHousehold": "1",
+  "dependentChildrenInHousehold": "2",
   "dependentsNotWithYouAtSameAddress": 0,
-  "custodian": {
-    "first": "Joe",
-    "middle": "Middle",
-    "last": "Smith"
-  },
-  "custodianAddress": {
-    "street": "123 8th st",
-    "city": "Hadley",
-    "country": "USA",
-    "state": "ME",
-    "postalCode": {
-      "firstFive": "01050",
-      "lastFour": ""
+  "custodians": [
+    {
+      "first": "Joe",
+      "middle": "Middle",
+      "last": "Smith",
+      "custodianAddress": {
+        "street": "123 8th st",
+        "city": "Hadley",
+        "country": "USA",
+        "state": "ME",
+        "postalCode": {
+          "firstFive": "01050",
+          "lastFour": ""
+        }
+      },
+      "custodianAddressOverflow": "123 8th st\nHadley, ME, USA, 01050",
+      "dependentsWithCustodianOverflow": "Emily Anne Doe"
     }
-  },
+  ],
   "moreThanFourIncomeSources": 1,
   "hasAnyExpenses": 0,
   "signatureDate": {

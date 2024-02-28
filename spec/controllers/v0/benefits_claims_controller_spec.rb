@@ -96,6 +96,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(EVSSClaim.all.count).to equal(1)
       end
 
+      it 'returns the correct value for canUpload' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        expect(response).to have_http_status(:ok)
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body['data']['attributes']['canUpload']).to eq(true)
+      end
+
       it 'logs the claim type details' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })

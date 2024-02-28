@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :vye_award, class: 'Vye::Award' do
-    cur_award_ind { 'example' }
+    cur_award_ind { Vye::Award.cur_award_inds.values.sample }
     award_begin_date { DateTime.now }
     award_end_date { DateTime.now + 1.month }
     training_time { 40 }

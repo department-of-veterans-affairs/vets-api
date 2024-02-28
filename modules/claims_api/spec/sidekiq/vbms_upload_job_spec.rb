@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     Sidekiq::Job.clear_all
     @vbms_client = FakeVBMS.new
     allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
+    allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -177,6 +178,25 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
             expect(subject).not_to be_empty
           end
         end
+      end
+    end
+  end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      poa = create_poa
+      error_msg = 'An error occurred for the POA VBMS Upload Job'
+      msg = { 'args' => [poa.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: poa.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
       end
     end
   end

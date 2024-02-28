@@ -4,7 +4,6 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
-require 'hca/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -204,62 +203,15 @@ class FormProfile
     end
   end
 
-  def initialize_military_information_vaprofile
-    military_information_data = {}
-    military_information = HCA::MilitaryInformation.new(user)
-
-    HCA::MilitaryInformation::PREFILL_METHODS.each do |attr|
-      military_information_data[attr] = military_information.public_send(attr)
-    end
-
-    military_information_data
-  rescue => e
-    if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
-
-      {}
-    else
-      raise e
-    end
-  end
-
-  # When military_information_vaprofile Flipper is removed, this method will be shorter.
-  # rubocop:disable Metrics/MethodLength
   def initialize_military_information
     return {} unless user.authorize :va_profile, :access?
 
-    if Flipper.enabled?(:military_information_vaprofile)
-      military_information_data = {}
-      military_information_data.merge!(initialize_va_profile_prefill_military_information)
-      military_information_data[:vic_verified] = user.can_access_id_card?
+    military_information_data = {}
+    military_information_data.merge!(initialize_va_profile_prefill_military_information)
+    military_information_data[:vic_verified] = user.can_access_id_card?
 
-    else
-      military_information = user.military_information
-      military_information_data = {}
-
-      military_information_data.merge!(initialize_military_information_vaprofile)
-
-      military_information_data[:vic_verified] = user.can_access_id_card?
-
-      begin
-        EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
-          if military_information_data[attr].nil?
-            military_information_data[attr] = military_information.public_send(attr)
-          end
-        end
-      rescue => e
-        if Rails.env.production?
-          # fail silently if emis is down
-          log_exception_to_sentry(e, {}, external_service: :emis)
-        else
-          raise e
-        end
-      end
-
-    end
     FormMilitaryInformation.new(military_information_data)
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 

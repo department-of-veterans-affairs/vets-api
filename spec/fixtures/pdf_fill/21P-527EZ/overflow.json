@@ -21,12 +21,16 @@
   "serveUnderOtherNames": true,
   "previousNames": [
     {
-      "first": "John",
-      "last": "Doe"
+      "previousFullName": {
+        "first": "Joseph",
+        "last": "Doe"
+      }
     },
     {
-      "first": "Johnny",
-      "last": "Doe"
+      "previousFullName": {
+        "first": "Jarrod",
+        "last": "Doe"
+      }
     }
   ],
   "placeOfSeparation": "West Brookfield, MA",
@@ -62,9 +66,14 @@
       "jobType": "Customer service",
       "jobHoursWeek": 20,
       "jobTitle": "Manager"
+    },
+    {
+      "jobType": "Customer service",
+      "jobHoursWeek": 20,
+      "jobTitle": "Representative"
     }
   ],
-  "maritalStatus": "Separated",
+  "maritalStatus": "SEPARATED",
   "marriages": [
     {
       "spouseFullName": {
@@ -74,7 +83,20 @@
       },
       "dateOfMarriage": "1989-03-02",
       "locationOfMarriage": "Dallas",
-      "reasonForSeparation": "Divorce",
+      "reasonForSeparation": "OTHER",
+      "otherExplanation": "Personal reason thats too long to write an explanation for in this form field",
+      "dateOfSeparation": "1990-03-02",
+      "locationOfSeparation": "San Antonio, TX"
+    },
+    {
+      "spouseFullName": {
+        "first": "Jane",
+        "middle": "Middle",
+        "last": "Doe"
+      },
+      "dateOfMarriage": "1989-03-02",
+      "locationOfMarriage": "Dallas",
+      "reasonForSeparation": "DEATH",
       "dateOfSeparation": "1990-03-02",
       "locationOfSeparation": "San Antonio, TX"
     },
@@ -86,7 +108,7 @@
       },
       "dateOfMarriage": "1983-03-02",
       "locationOfMarriage": "Dallas",
-      "reasonForSeparation": "Divorce",
+      "reasonForSeparation": "DIVORCE",
       "dateOfSeparation": "1984-03-02",
       "locationOfSeparation": "San Antonio, TX"
     },
@@ -96,10 +118,10 @@
         "middle": "Middle",
         "last": "Doe"
       },
-      "dateOfMarriage": "1995-02-03",
-      "locationOfMarriage": "North Adams, MA",
-      "reasonForSeparation": "Divorce",
-      "dateOfSeparation": "1996-03-02",
+      "dateOfMarriage": "1999-10-02",
+      "locationOfMarriage": "Nashville, TN",
+      "reasonForSeparation": "DIVORCE",
+      "dateOfSeparation": "2001-03-02",
       "locationOfSeparation": "San Antonio, TX"
     },
     {
@@ -110,7 +132,7 @@
       },
       "dateOfMarriage": "1994-03-02",
       "locationOfMarriage": "North Adams, MA",
-      "marriageType": "Some other way",
+      "marriageType": "OTHER",
       "otherExplanation": "Other reason"
     }
   ],
@@ -129,7 +151,7 @@
   "reasonForCurrentSeparation": "OTHER",
   "otherExplanation": "Personal reason thats too long to write an explanation for in this form field",
   "currentSpouseMonthlySupport": 2444,
-  "currentSpouseMaritalHistory": "Yes",
+  "currentSpouseMaritalHistory": "YES",
   "spouseMarriages": [
     {
       "dateOfMarriage": "1980-03-02",
@@ -178,31 +200,32 @@
       "monthlyPayment": 3444,
       "childPlaceOfBirth": "Tallahassee, FL",
       "childSocialSecurityNumber": "333224444",
-      "childRelationship": "biological",
+      "childRelationship": "BIOLOGICAL",
       "previouslyMarried": true,
       "married": true,
       "fullName": {
-        "first": "Bobby",
-        "middle": "Middle",
+        "first": "Emily",
+        "middle": "Anne",
         "last": "Doe"
       },
-      "childDateOfBirth": "1997-03-02"
+      "childDateOfBirth": "2000-03-03"
     },
     {
       "childInHousehold": true,
       "childPlaceOfBirth": "Troy, MT",
       "childSocialSecurityNumber": "333224444",
-      "childRelationship": "adopted",
+      "childRelationship": "ADOPTED",
       "previouslyMarried": false,
+      "attendingCollege": true,
       "fullName": {
-        "first": "Emily",
-        "middle": "Middle",
+        "first": "Bobby",
+        "middle": "Nolan",
         "last": "Doe"
       },
-      "childDateOfBirth": "1993-03-02"
+      "childDateOfBirth": "2005-09-22"
     },
     {
-      "childInHousehold": false,
+      "childInHousehold": true,
       "childAddress": {
         "street": "123 8th st",
         "city": "Hadley",
@@ -210,22 +233,40 @@
         "state": "ME",
         "postalCode": "01050"
       },
-      "personWhoLivesWithChild": {
-        "first": "Joe",
-        "middle": "Middle",
-        "last": "Smith"
-      },
       "monthlyPayment": 2300,
       "childPlaceOfBirth": "Troy, MT",
       "childSocialSecurityNumber": "333224444",
-      "childRelationship": "biological",
+      "childRelationship": "BIOLOGICAL",
       "previouslyMarried": false,
+      "disabled": true,
       "fullName": {
-        "first": "Bennedictimaximus",
-        "middle": "Middle",
+        "first": "Jack",
+        "middle": "Sawyer",
         "last": "Doe"
       },
-      "childDateOfBirth": "1992-04-01"
+      "childDateOfBirth": "2010-04-01"
+    },
+    {
+      "childInHousehold": true,
+      "childAddress": {
+        "street": "123 8th st",
+        "city": "Hadley",
+        "country": "USA",
+        "state": "ME",
+        "postalCode": "01050"
+      },
+      "monthlyPayment": 3300,
+      "childPlaceOfBirth": "Portland, ME",
+      "childSocialSecurityNumber": "122222222",
+      "childRelationship": "ADOPTED",
+      "previouslyMarried": false,
+      "disabled": false,
+      "fullName": {
+        "first": "Sam",
+        "middle": "Jason",
+        "last": "Doe"
+      },
+      "childDateOfBirth": "2020-06-29"
     }
   ],
   "totalNetWorth": false,
@@ -259,7 +300,7 @@
       "paymentAmount": 1500
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "LA Care Provider",
       "careType": "CARE_FACILITY",
@@ -284,7 +325,7 @@
       "paymentAmount": 10000
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "Health Provider",
       "purpose": "Medical expenses",
@@ -301,7 +342,7 @@
       "paymentAmount": 500
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "Health Provider",
       "purpose": "Medical expenses",
@@ -318,7 +359,7 @@
       "paymentAmount": 200
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Joe Doe",
       "provider": "Health Provider",
       "purpose": "Medical fee",
@@ -327,7 +368,7 @@
       "paymentAmount": 100
     },
     {
-      "recipients": "CHILD",
+      "recipients": "DEPENDENT",
       "childName": "Jack Doe",
       "provider": "Health Provider",
       "purpose": "Medical fee",
@@ -345,33 +386,33 @@
   "incomeSources": [
     {
       "typeOfIncome": "SOCIAL_SECURITY",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 278.05
     },
     {
       "typeOfIncome": "INTEREST_DIVIDEND",
-      "receiver": "Jane Doe",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 78.5
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "part-time Uber",
-      "receiver": "Jane Doe",
+      "receiver": "SPOUSE",
       "payer": "John Doe",
       "amount": 278.99
     },
     {
       "typeOfIncome": "OTHER",
       "otherTypeExplanation": "full time job",
-      "receiver": "Jane Doe",
+      "receiver": "SPOUSE",
       "payer": "John Doe",
       "amount": 3278.75
     },
     {
-      "typeOfIncome": "PENSION",
-      "receiver": "Jane Doe",
+      "typeOfIncome": "PENSION_RETIREMENT",
+      "receiver": "VETERAN",
       "payer": "John Doe",
       "amount": 55.27
     }

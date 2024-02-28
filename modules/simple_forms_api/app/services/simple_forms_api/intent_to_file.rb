@@ -4,11 +4,11 @@ require 'lighthouse/benefits_claims/service'
 
 module SimpleFormsApi
   class IntentToFile
-    attr_reader :params, :icn
+    attr_reader :icn, :params
 
-    def initialize(params, icn)
-      @params = params
+    def initialize(icn, params = {})
       @icn = icn
+      @params = params
     end
 
     def submit
@@ -66,8 +66,12 @@ module SimpleFormsApi
 
     def handle_missing_intent(e, type)
       Rails.logger.info(
-        "Simple forms api - #{type} intent to file not found. Form number: #{params[:form_number]},
-          error: #{e}, ICN #{icn}"
+        'Simple forms api - intent to file not found',
+        {
+          intent_type: type,
+          form_number: params[:form_number],
+          error: e
+        }
       )
       nil
     end

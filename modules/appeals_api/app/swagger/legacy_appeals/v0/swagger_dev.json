@@ -142,7 +142,7 @@
                       "errors": [
                         {
                           "title": "Missing parameter",
-                          "detail": "The required parameter \"icn\", is missing",
+                          "detail": "The 'icn' parameter is required with this request",
                           "code": "108",
                           "status": "400"
                         }
@@ -154,7 +154,7 @@
                       "errors": [
                         {
                           "title": "Missing parameter",
-                          "detail": "The required parameter \"icn\", is missing",
+                          "detail": "The 'icn' parameter is required with this request",
                           "code": "108",
                           "status": "400"
                         }

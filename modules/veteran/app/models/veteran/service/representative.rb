@@ -26,10 +26,13 @@ module Veteran
       # @param last_name: [String] Last name to search for, ignoring case
       # @param ssn: nil [String] SSN to search for
       # @param dob: nil [String] Date of birth to search for
+      # @param middle_initial: nil [String] Middle initial to search for
+      # @param poa_code: nil [String] filter to reps working this POA code
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
-      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil)
+      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil, poa_code: nil) # rubocop:disable Metrics/ParameterLists
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
+        reps = reps.where('? = ANY(poa_codes)', poa_code) if poa_code
 
         reps.select do |rep|
           matching_ssn(rep, ssn) &&
@@ -94,7 +97,7 @@ module Veteran
 
       #
       # Find all representatives that are located within a distance of a specific location
-      # @params long [Float] longitude of the location of interest
+      # @param long [Float] longitude of the location of interest
       # @param lat [Float] latitude of the location of interest
       # @param max_distance [Float] the maximum search distance in meters
       #

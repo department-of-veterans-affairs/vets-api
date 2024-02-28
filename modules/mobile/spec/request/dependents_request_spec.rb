@@ -76,6 +76,7 @@ RSpec.describe 'dependents', type: :request do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
       end
 
       it 'returns job ids' do
@@ -83,19 +84,18 @@ RSpec.describe 'dependents', type: :request do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
         expect(response).to have_http_status(:accepted)
-        submit_pdf_job_id = VBMS::SubmitDependentsPdfJob.jobs.first['jid']
         submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
-        expect(response.parsed_body).to eq({ 'data' => { 'submitPdfJobId' => submit_pdf_job_id,
-                                                         'submitFormJobId' => submit_form_job_id } })
+        expect(response.parsed_body).to eq({ 'data' => { 'submitFormJobId' => submit_form_job_id } })
       end
     end
 
-    context 'with failed async job perform' do
+    context 'with failed sync job perform' do
       before do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
-        allow(VBMS::SubmitDependentsPdfEncryptedJob).to receive(:perform_async)
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
           .and_raise(Common::Exceptions::BackendServiceException)
+        allow_any_instance_of(BGS::DependentService).to receive(:submit_to_central_service)
       end
 
       it 'returns error' do

@@ -17,6 +17,7 @@ module Avs
         end
         property :meta, type: :object do
           property :generatedDate, type: :string
+          property :pageHeader, type: :string
           property :stationNo, type: :string
           property :timeZone, type: :string
         end
@@ -44,6 +45,11 @@ module Avs
         property :orders, type: :array do
           items do
             key :$ref, :order
+          end
+        end
+        property :procedures, type: :array do
+          items do
+            key :$ref, :procedure
           end
         end
         property :immunizations, type: :array do
@@ -82,6 +88,11 @@ module Avs
             key :$ref, :clinicalReminder
           end
         end
+        property :clinicalServices, type: :array do
+          items do
+            key :$ref, :clinicalService
+          end
+        end
         property :allergiesReactions, type: :object do
           property :T, type: :string
           property :noAllergyAssessment, type: :boolean
@@ -105,6 +116,17 @@ module Avs
         property :nonvaMedications, type: :array do
           items do
             key :$ref, :medication
+          end
+        end
+        property :medChangesSummary, type: :object do
+          property :discontinuedMeds, type: :array do
+            items type: :string
+          end
+          property :newMedications, type: :array do
+            items type: :string
+          end
+          property :changedMedications, type: :array do
+            items type: :string
           end
         end
         property :labResults, type: :array do
@@ -166,6 +188,11 @@ module Avs
       property :type, type: :string
       property :date, type: :string
       property :text, type: :string
+    end
+
+    swagger_schema :procedure do
+      property :code, type: :string
+      property :name, type: :string
     end
 
     swagger_schema :immunization do
@@ -231,6 +258,15 @@ module Avs
       property :lastOccurrence, type: :string
       property :name, type: :string
       property :frequency, type: :string
+    end
+
+    swagger_schema :clinicalService do
+      property :stationNo, type: :string
+      property :name, type: :string
+      property :location, type: :string
+      property :hours, type: :string
+      property :phone, type: :string
+      property :comment, type: :string
     end
 
     swagger_schema :allergy do

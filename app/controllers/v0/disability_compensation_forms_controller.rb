@@ -35,10 +35,17 @@ module V0
         :all_users,
         :get_separation_locations
       ) do
-        EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+        api_provider = ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:brd],
+          provider: nil,
+          options: {},
+          current_user: @current_user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+        )
+        api_provider.get_separation_locations
       end
-
-      render json: response, each_serializer: EVSSSeparationLocationSerializer
+      render json: response,
+             each_serializer: EVSSSeparationLocationSerializer
     end
 
     def suggested_conditions
