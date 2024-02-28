@@ -100,9 +100,9 @@ module Representatives
     # @param rep_data [Hash] The representative data including the id and flags for changes.
     def update_flagged_records(rep_data)
       representative_id = rep_data['id']
-      update_flags(representative_id, 'address') if rep_data[:address_changed]
-      update_flags(representative_id, 'email') if rep_data[:email_changed]
-      update_flags(representative_id, 'phone_number') if rep_data[:phone_number_changed]
+      update_flags(representative_id, 'address') if rep_data['address_changed']
+      update_flags(representative_id, 'email') if rep_data['email_changed']
+      update_flags(representative_id, 'phone_number') if rep_data['phone_number_changed']
     end
 
     # Updates the flags for a representative's contact data indicating a change.
