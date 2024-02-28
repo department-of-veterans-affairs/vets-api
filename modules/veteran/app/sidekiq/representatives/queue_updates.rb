@@ -49,22 +49,35 @@ module Representatives
     end
 
     def rows_to_process(rows)
-      diffed_rows = rows.map do |row|
-        rep = Veteran::Service::Representative.find(representative_id: row[:id])
-        row[:address_changed] = address_changed?(rep, row)
-        row[:email_changed] = email_changed?(rep, row)
-        row[:phone_changed] = phone_changed?(rep, row)
-        row
-      end
+      processed_rows = rows.map do |row|
+        begin
+          rep = Veteran::Service::Representative.find(row[:id])
+          address_changed = address_changed?(rep, row[:request_address])
+          email_changed = email_changed?(rep, row)
+          phone_changed = phone_changed?(rep, row)
+    
+          if address_changed || email_changed || phone_changed
+            # Return a new row with changed flags
+            row.merge({
+              address_changed: address_changed,
+              email_changed: email_changed,
+              phone_changed: phone_changed
+            })
+          else
+            nil
+          end
+        rescue ActiveRecord::RecordNotFound => e
+          log_error("Error: Representative not found #{e.message}")
+          nil
+        end
+      end.compact
 
-      diffed_rows.select { |row| row[:phone_changed] || row[:email_changed] || row[:address_changed] }
+      processed_rows
     end
-
-    def address_changed?(rep, row)
-      rep_address = [rep.address_line1, rep.address_line2, rep.address_line3, rep.city, rep.state_code, rep.zip_code,
-                     rep.zip_suffix].join(' ')
-      incoming_address = row.values_at(:address_line1, :address_line2, :address_line3, :city,
-                                       :state_province[:code], :zip_code5, :zip_code4).join(' ')
+    
+    def address_changed?(rep, row_address)
+      rep_address = [rep.address_line1, rep.address_line2, rep.address_line3, rep.city, rep.zip_code, rep.zip_suffix].push(rep.state_code).join(' ')
+      incoming_address = row_address.values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4).push(row_address.dig('state_province', 'code')).join(' ')
       rep_address != incoming_address
     end
 
