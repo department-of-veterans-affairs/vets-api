@@ -28,8 +28,8 @@ module ClaimsApi
           @errored_poa,
           @errored_itf,
           @errored_ews,
-          @reporting_to,
           @reporting_from,
+          @reporting_to,
           @environment
         )
       end
@@ -43,8 +43,8 @@ module ClaimsApi
         poa,
         itf,
         ews,
-        to,
         from,
+        to,
         env
       ).notify!
     end
