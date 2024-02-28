@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'medical_records/client'
+require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'Medical Records Integration', type: :request do
   include MedicalRecords::ClientHelpers
@@ -17,8 +18,38 @@ RSpec.describe 'Medical Records Integration', type: :request do
     sign_in_as(current_user)
   end
 
+  context 'Basic User' do
+    let(:mhv_account_type) { 'Basic' }
+
+    before { get '/my_health/v1/medical_records/allergies' }
+
+    include_examples 'for user account level', message: 'You do not have access to medical records'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
+  end
+
+  context 'Advanced User' do
+    let(:mhv_account_type) { 'Advanced' }
+
+    before { get '/my_health/v1/medical_records/allergies' }
+
+    include_examples 'for user account level', message: 'You do not have access to medical records'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to medical records'
+  end
+
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
+
+    context 'not a va patient' do
+      before { get '/my_health/v1/medical_records/allergies' }
+
+      let(:va_patient) { false }
+      let(:current_user) do
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
+      end
+
+      include_examples 'for non va patient user', authorized: false,
+                                                  message: 'You do not have access to medical records'
+    end
 
     it 'responds to GET #index' do
       VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
