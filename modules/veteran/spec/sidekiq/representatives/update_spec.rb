@@ -199,6 +199,8 @@ RSpec.describe Representatives::Update do
 
           representative.reload
           expect(representative.address_line1).to eq('123 East Main St')
+          expect(representative.email).to eq('email@example.com')
+          expect(representative.phone_number).to eq('111-111-1111')
 
           flagged_records.each do |record|
             record.reload
@@ -306,6 +308,115 @@ RSpec.describe Representatives::Update do
           representative.reload
           expect(representative.address_line1).to eq('123 East Main St')
           expect(representative.email).to eq('email@example.com')
+          expect(representative.phone_number).to eq('111-111-1111')
+
+          flagged_records.each do |record|
+            record.reload
+            expect(record.flagged_value_updated_at).to be_nil
+          end
+        end
+      end
+    end
+
+    context "when updating a representative's phone number" do
+      let(:id) { '123abc' }
+      let(:address_changed) { false }
+      let(:email_changed) { false }
+      let(:phone_number_changed) { true }
+      let!(:representative) do
+        create(:representative,
+               representative_id: '123abc',
+               first_name: 'Bob',
+               last_name: 'Law',
+               address_line1: '123 East Main St',
+               address_line2: 'Suite 1',
+               address_line3: 'Address Line 3',
+               address_type: 'DOMESTIC',
+               city: 'My City',
+               country_name: 'United States of America',
+               country_code_iso3: 'USA',
+               province: 'A Province',
+               international_postal_code: '12345',
+               state_code: 'ZZ',
+               zip_code: '12345',
+               zip_suffix: '6789',
+               lat: '39',
+               long: '-75',
+               email: 'email@example.com',
+               location: 'POINT(-75 39)',
+               phone_number: '111-111-1111')
+      end
+
+      before do
+        Veteran::FlaggedVeteranRepresentativeContactData.create(
+          ip_address: '192.168.1.1',
+          representative_id: id,
+          flag_type: 'phone_number',
+          flagged_value: 'flagged_value'
+        )
+        Veteran::FlaggedVeteranRepresentativeContactData.create(
+          ip_address: '192.168.1.2',
+          representative_id: id,
+          flag_type: 'phone_number',
+          flagged_value: 'flagged_value'
+        )
+      end
+
+      context 'when phone_number is true and address is valid' do
+        it 'updates the phone_number and the associated flagged records' do
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'phone_number')
+
+          flagged_records.each do |record|
+            expect(record.flagged_value_updated_at).to be_nil
+          end
+
+          subject.perform(json_data)
+
+          representative.reload
+
+          expect(representative.address_line1).to eq('37N 1st St')
+          expect(representative.address_line2).to be_nil
+          expect(representative.address_line3).to be_nil
+          expect(representative.address_type).to eq('Domestic')
+          expect(representative.city).to eq('Brooklyn')
+          expect(representative.country_code_iso3).to eq('USA')
+          expect(representative.country_name).to eq('United States')
+          expect(representative.county_name).to eq('Kings')
+          expect(representative.county_code).to eq('36047')
+          expect(representative.province).to eq('New York')
+          expect(representative.state_code).to eq('NY')
+          expect(representative.zip_code).to eq('11249')
+          expect(representative.zip_suffix).to eq('3939')
+          expect(representative.lat).to eq(40.717029)
+          expect(representative.long).to eq(-73.964956)
+          expect(representative.location.x).to eq(-73.964956)
+          expect(representative.location.y).to eq(40.717029)
+          expect(representative.email).to eq('test@example.com')
+          expect(representative.phone_number).to eq('999-999-9999')
+
+          flagged_records.each do |record|
+            record.reload
+            expect(record.flagged_value_updated_at).to_not be_nil
+          end
+        end
+      end
+
+      context 'when phone_number is true and address is not valid' do
+        let(:api_response) { { 'candidateAddresses' => [] } }
+
+        it "does not update the phone_number or the associated flagged records" do
+          flagged_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id, flag_type: 'phone_number')
+
+          flagged_records.each do |record|
+            expect(record.flagged_value_updated_at).to be_nil
+          end
+
+          subject.perform(json_data)
+
+          representative.reload
+          expect(representative.address_line1).to eq('123 East Main St')
+          expect(representative.email).to eq('email@example.com')
+          expect(representative.phone_number).to eq('111-111-1111')
 
           flagged_records.each do |record|
             record.reload
