@@ -15,12 +15,15 @@ if ARGV.include?('--help') || ARGV.include?('-h')
       --native              Setup native developer environment
       --docker              Setup Docker developer environment
       --hybrid              Setup hybrid developer environment
+      --base                Setup local settings and Sidekiq Enterprise
 
     Examples:
       bin/setup --help      Show help message
       bin/setup --docker    Setup Docker developer environment
+      bin/setup --base      This is useful for those running Linux or Windows
+
   HELP
-elsif ['--native', '--docker', '--hybrid'].include?(option)
+elsif ['--native', '--docker', '--hybrid', '--base'].include?(option)
   VetsApi::Commands::Setup.run(ARGV)
 else
   puts "Invalid option \"#{option || 'NULL'}\". Use \"--help\" for usage information."

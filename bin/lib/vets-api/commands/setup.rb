@@ -13,8 +13,10 @@ module VetsApi
         # TODO: run check to make sure in the correct directory /vets-api
         def run(args)
           setup_base
-          store_developer_environment_preference(args.first)
-          setup_developer_environment
+          unless args.first == '--base'
+            store_developer_environment_preference(args.first)
+            setup_developer_environment
+          end
         end
 
         private
@@ -42,11 +44,11 @@ module VetsApi
         end
 
         def setup_native
-          if RUBY_DESCRIPTION.include?('ruby 3.2.2')
+          if RUBY_DESCRIPTION.include?('ruby 3.2.3')
             VetsApi::Setups::Native.new.run
           else
-            puts "\nBefore continuing Ruby v3.2.2 must be installed"
-            puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby \
+            puts "\nBefore continuing Ruby v3.2.3 must be installed"
+            puts 'We suggest using a Ruby version manager such as rbenv, asdf, rvm, or chruby
                   to install and maintain your version of Ruby.'
             puts 'More information: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
           end
@@ -62,10 +64,10 @@ module VetsApi
         end
 
         def setup_hybrid
-          if RUBY_DESCRIPTION.include?('ruby 3.2.2') && docker_running?
+          if RUBY_DESCRIPTION.include?('ruby 3.2.3') && docker_running?
             VetsApi::Setups::Hybrid.new.run
           else
-            puts "\nBefore continuing Ruby v3.2.2 AND Docker Desktop (Engine + Compose) must be installed"
+            puts "\nBefore continuing Ruby v3.2.3 AND Docker Desktop (Engine + Compose) must be installed"
             puts 'More information about Ruby managers: https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
             puts 'More information about Docker Desktop (Engine + Compose): https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/ruby_managers.md'
           end
