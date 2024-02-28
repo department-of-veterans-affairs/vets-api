@@ -107,5 +107,4 @@ module BenefitsEducation
 
     private_class_method :get_current_time
   end
-
 end
