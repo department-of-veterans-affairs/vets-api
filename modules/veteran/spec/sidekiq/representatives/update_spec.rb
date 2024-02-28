@@ -87,6 +87,21 @@ RSpec.describe Representatives::Update do
       end
     end
 
+    context 'when the representative cannot be found' do
+      let(:id) { 'not_found' }
+      let(:address_changed) { true }
+      let(:email_changed) { false }
+      let(:phone_number_changed) { false }
+
+      it 'logs an error to Sentry' do
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+          'Representatives::Update: Update failed for Rep id: not_found: uncaught throw StandardError', :error
+        )
+
+        subject.perform(json_data)
+      end
+    end
+
     context "when updating a representative's addresses" do
       let(:id) { '123abc' }
       let(:address_changed) { true }
@@ -189,18 +204,6 @@ RSpec.describe Representatives::Update do
             record.reload
             expect(record.flagged_value_updated_at).to be_nil
           end
-        end
-      end
-
-      context 'when the representative cannot be found' do
-        let(:id) { 'not_found' }
-
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'Representatives::Update: Update failed for Rep id: not_found: uncaught throw StandardError', :error
-          )
-
-          subject.perform(json_data)
         end
       end
     end
@@ -308,18 +311,6 @@ RSpec.describe Representatives::Update do
             record.reload
             expect(record.flagged_value_updated_at).to be_nil
           end
-        end
-      end
-
-      context 'when the representative cannot be found' do
-        let(:id) { 'not_found' }
-
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'Representatives::Update: Update failed for Rep id: not_found: uncaught throw StandardError', :error
-          )
-
-          subject.perform(json_data)
         end
       end
     end
