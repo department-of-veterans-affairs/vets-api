@@ -5,8 +5,8 @@ require 'common/exceptions/base_error'
 module BenefitsEducation
   ##
   # Custom error for when the user is attempting to access the service
-  # outside of working hours
-  #
+  # outside of working hours.  The service proxies to a service which 
+  # has nightly downtime
   class OutsideWorkingHours < Common::Exceptions::BaseError
     ##
     # @return [Array[Common::Exceptions::SerializableError]] An array containing the error
@@ -19,7 +19,6 @@ module BenefitsEducation
     # @return [Time] The time to retry the request
     #
     def retry_after
-      # TODO: - this is correct format, but must write logic to properly calculate
       Time.now.httpdate.in_time_zone('Eastern Time (US & Canada)').to_s
     end
 
