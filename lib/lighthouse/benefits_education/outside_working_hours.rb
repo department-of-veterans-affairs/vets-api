@@ -27,7 +27,7 @@ module BenefitsEducation
     # @return [String] The i18n key
     #
     def i18n_key
-      'lighthosue.benefits_education.outside_working_hours'
+      'lighthouse.benefits_education.outside_working_hours'
     end
   end
 end

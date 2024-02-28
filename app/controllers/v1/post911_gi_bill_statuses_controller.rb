@@ -16,9 +16,7 @@ module V1
     def show
       begin
         response = service.get_gi_bill_status
-        render json: response,
-              serializer: Post911GIBillStatusSerializer,
-              meta: response.metadata
+        render json: response.body['chapter33EducationInfo']
       rescue StandardError => e
         status = e.errors.first[:status].to_i if e.errors&.first&.key?(:status)
         if status == 404 
