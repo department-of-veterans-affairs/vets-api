@@ -22,7 +22,8 @@ module SimpleFormsApi
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
         '20-10206' => 'vba_20_10206',
-        '40-10007' => 'vba_40_10007'
+        '40-10007' => 'vba_40_10007',
+        '20-10207' => 'vba_20_10207'
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
@@ -143,6 +144,7 @@ module SimpleFormsApi
         form.track_user_identity
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
+        byebug
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
