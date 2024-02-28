@@ -68,9 +68,6 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
   # Deletes old, completed AsyncTransaction records
 
-  mgr.register('30 3 * * 1', 'EVSS::FailedClaimsReport')
-  # Notify developers about EVSS claims which could not be uploaded
-
   mgr.register('0 4 * * *', 'EducationForm::CreateDailyFiscalYearToDateReport')
   # Send the daily report to VA stakeholders about Education Benefits submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
