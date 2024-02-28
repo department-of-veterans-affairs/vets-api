@@ -4,6 +4,65 @@ module Representatives
   class XlsxFileProcessor
     include SentryLogging
 
+    US_STATES_TERRITORIES = {
+      'AL' => true,
+      'AK' => true,
+      'AZ' => true,
+      'AR' => true,
+      'CA' => true,
+      'CO' => true,
+      'CT' => true,
+      'DE' => true,
+      'FL' => true,
+      'GA' => true,
+      'HI' => true,
+      'ID' => true,
+      'IL' => true,
+      'IN' => true,
+      'IA' => true,
+      'KS' => true,
+      'KY' => true,
+      'LA' => true,
+      'ME' => true,
+      'MD' => true,
+      'MA' => true,
+      'MI' => true,
+      'MN' => true,
+      'MS' => true,
+      'MO' => true,
+      'MT' => true,
+      'NE' => true,
+      'NV' => true,
+      'NH' => true,
+      'NJ' => true,
+      'NM' => true,
+      'NY' => true,
+      'NC' => true,
+      'ND' => true,
+      'OH' => true,
+      'OK' => true,
+      'OR' => true,
+      'PA' => true,
+      'RI' => true,
+      'SC' => true,
+      'SD' => true,
+      'TN' => true,
+      'TX' => true,
+      'UT' => true,
+      'VT' => true,
+      'VA' => true,
+      'WA' => true,
+      'WV' => true,
+      'WI' => true,
+      'WY' => true,
+      'AS' => true, # American Samoa
+      'DC' => true, # District of Columbia
+      'GU' => true, # Guam
+      'MP' => true, # Northern Mariana Islands
+      'PR' => true, # Puerto Rico
+      'VI' => true  # U.S. Virgin Islands
+    }.freeze
+
     SHEETS_TO_PROCESS = %w[Agents Attorneys Representatives].freeze
 
     def initialize(file_content)
@@ -40,7 +99,11 @@ module Representatives
       xlsx.sheet(sheet_name).each_with_index do |row, index|
         next if index.zero? || row.length < column_map.length
 
-        data << create_json_data(row, sheet_name, column_map)
+        state_code = get_value(row, column_map, 'WorkState')
+
+        next unless US_STATES_TERRITORIES[state_code]
+
+        data << process_row(row, sheet_name, column_map)
       end
 
       data
@@ -57,12 +120,12 @@ module Representatives
       end
     end
 
-    # Creates JSON data for a given row based on the sheet name and column map.
-    # @param row [Array] The row data to be transformed into JSON.
+    # Creates a hash for a given row based on the sheet name and column map.
+    # @param row [Array] The row data to be transformed into a hash.
     # @param sheet_name [String] The name of the sheet being processed.
     # @param column_map [Hash] The column index map for the sheet.
-    # @return [String] The JSON representation of the row data.
-    def create_json_data(row, sheet_name, column_map)
+    # @return [String] The hash representation of the row data.
+    def process_row(row, sheet_name, column_map)
       zip_code5, zip_code4 = get_value(row, column_map, 'WorkZip')
 
       {
@@ -80,9 +143,9 @@ module Representatives
           zip_code4:,
           country_code_iso3: 'US'
         }
-      }.to_json
+      }
     rescue => e
-      log_error("Error transforming data to JSON for #{sheet_name}: #{e.message}")
+      log_error("Error transforming data to hash for #{sheet_name}: #{e.message}")
     end
 
     def get_value(row, column_map, column_name)

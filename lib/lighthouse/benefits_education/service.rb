@@ -32,6 +32,16 @@ module BenefitsEducation
       super()
     end
 
+    # Overriding inspect to avoid displaying icn (now considered to be PII)
+    # in the response
+    def inspect
+      instance_variables_to_inspect = instance_variables - [:@icn]
+      instance_variables_string = instance_variables_to_inspect.map do |var|
+        "#{var}=#{instance_variable_get(var).inspect}"
+      end.join(', ')
+      "#<#{self.class}:#{object_id} #{instance_variables_string}>"
+    end
+
     ##
     # Retrieve a veteran's Post-9/11 GI Bill Status
     # @return [Faraday::Response] response from a GET request to Lighthouse API:

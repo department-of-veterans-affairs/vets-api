@@ -7,8 +7,8 @@ module AskVAApi
                   :name
 
       def initialize(info)
-        @id = info[:id]
-        @name = info[:name]
+        @id = info[:Id]
+        @name = info[:Name]
       end
     end
   end
