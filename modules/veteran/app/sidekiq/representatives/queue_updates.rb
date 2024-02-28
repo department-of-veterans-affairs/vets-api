@@ -8,6 +8,8 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
+    SLICE_SIZE = 30
+
     def perform
       file_content = fetch_file_content
       return unless file_content
@@ -32,11 +34,10 @@ module Representatives
 
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
-        slice_size = Settings.vsp_environment == 'production' ? 1000 : 30
 
         begin
           batch.jobs do
-            rows_to_process(data[sheet]).each_slice(slice_size) do |rows|
+            rows_to_process(data[sheet]).each_slice(SLICE_SIZE) do |rows|
               json_rows = rows.to_json
               Representatives::Update.perform_in(delay.minutes, json_rows)
               delay += 1
