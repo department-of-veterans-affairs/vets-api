@@ -24,10 +24,11 @@ RSpec.describe BenefitsEducation::Service do
         it 'returns a 200 ok status' do
           # in order to successfully (re)record this request,
           # - remove the existing 200_response.yml file,
-          # - set environment variables
-          #    LIGHTHOUSE_BENEFITS_EDUCATION_CLIENT_ID and
-          #    LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH
-          # - execute the test: `DISABLE_MOCKS=true rspec spec...`
+          # - edit config/test.yml and set the following values:
+          #   - use_mocks: false
+          #   - access_token:
+          #     - client_id: <your valid client_id>
+          #     - rsa_key: <path on your local filesystem>
           # these values are results of a request to get sandbox access:
           # https://developer.va.gov/explore/api/education-benefits
           VCR.use_cassette('lighthouse/benefits_education/200_response') do
