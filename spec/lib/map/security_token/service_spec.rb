@@ -11,7 +11,7 @@ describe MAP::SecurityToken::Service do
     let(:icn) { 'some-icn' }
     let(:log_prefix) { '[MAP][SecurityToken][Service]' }
     let(:expected_request_message) { "#{log_prefix} token request" }
-    let(:expected_request_payload) { { application:, icn: }}
+    let(:expected_request_payload) { { application:, icn: } }
 
     shared_examples 'STS token request' do
       it 'logs the token request' do
@@ -44,7 +44,7 @@ describe MAP::SecurityToken::Service do
 
       context 'and response is successful' do
         let(:expected_log_message) { "#{log_prefix} token success" }
-        let(:expected_log_payload) { { application:, icn: }}
+        let(:expected_log_payload) { { application:, icn: } }
 
         it 'logs a token success message',
            vcr: { cassette_name: 'map/security_token_service_200_response' } do
