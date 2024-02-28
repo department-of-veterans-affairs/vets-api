@@ -11,8 +11,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "address",
-        "phone"
+        "address"
       ],
       "properties": {
         "vaFileNumber": {
@@ -130,7 +129,6 @@
         "firstName",
         "lastName",
         "address",
-        "phone",
         "relationship"
       ],
       "properties": {
