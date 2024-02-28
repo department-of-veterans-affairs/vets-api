@@ -109,7 +109,7 @@ module EducationForm
 
             ## Testing to see if writer is the cause for retry attempt failures
             ## If we get to this message, it's not the writer object
-            log_info("Successfully wrote to filename: #{filename} for region: #{region}")
+            log_info("Successfully wrote #{records.count} applications to filename: #{filename} for region: #{region}")
 
             # send copy of staging spool files to testers
             # This mailer is intended to only work for development, staging and NOT production
