@@ -143,6 +143,10 @@ features:
     actor_type: user
     description: Enables the unified experience version of the landing page.
     enable_in_development: true
+  check_in_experience_travel_claim_redis_client_refactor:
+    actor_type: user
+    description: Uses the refactored code for Travel Claim Redis client to fetch attributes
+    enable_in_development: true
   check_in_experience_travel_claim_increase_timeout:
     actor_type: user
     description: Increases the timeout for BTSSS submit claim request to 120 seconds
@@ -507,6 +511,9 @@ features:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
     enable_in_development: true
+  form_526_required_identifiers_in_user_object:
+    actor_type: user
+    description: includes a mapping of booleans in the profile section of a serialized user indicating which ids are nil for the user
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)
@@ -777,6 +784,9 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
+  profile_show_credential_retirement_messaging:
+    actor_type: user
+    description: Show/hide MHV and DS Logon credential retirement messaging in profile
   profile_show_email_notification_settings:
     actor_type: user
     description: Show/Hide the email channel based notification settings in profile
@@ -794,10 +804,6 @@ features:
     description: Show/Hide the proof of veteran status page and links
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
-    enable_in_development: true
-    actor_type: user
-  profile_use_hub_page:
-    description: Use a hub style page as the root page for the profile application
     enable_in_development: true
     actor_type: user
   profile_use_vafsc:
