@@ -77,7 +77,7 @@ module Representatives
     
     def address_changed?(rep, row_address)
       rep_address = [rep.address_line1, rep.address_line2, rep.address_line3, rep.city, rep.zip_code, rep.zip_suffix].push(rep.state_code).join(' ')
-      incoming_address = row_address.values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4).push(row_address.dig('state_province', 'code')).join(' ')
+      incoming_address = row_address.values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4).push(row_address.dig(:state_province, :code)).join(' ')
       rep_address != incoming_address
     end
 
