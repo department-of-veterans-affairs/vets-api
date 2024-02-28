@@ -24,8 +24,8 @@ RSpec.describe Representatives::Update do
           email_address: 'test@example.com',
           phone_number: '999-999-9999',
           address_changed: false,
-          phone_changed: false,
-          email_changed: false
+          email_changed: false,
+          phone_number_changed: false
         }
       ].to_json
     end
