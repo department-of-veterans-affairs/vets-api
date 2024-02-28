@@ -142,4 +142,57 @@ describe Veteran::Service::Representative, type: :model do
       end
     end
   end
+
+  describe '#diff' do
+    let(:representative) do
+      FactoryBot.create(:representative,
+                        address_line1: '123 Main St',
+                        email: 'old@example.com',
+                        phone_number: '1234567890')
+    end
+
+    context 'when there are changes in email and phone number' do
+      let(:new_data) do
+        {
+          request_address: {
+            address_line1: '123 Main St'
+          },
+          email: 'new@example.com',
+          phone_number: '0987654321'
+        }
+      end
+
+      it 'returns a hash indicating changes in email and phone number but not address' do
+        expect(representative.diff(new_data)).to eq({
+          'address_changed' => false,
+          'email_changed' => true,
+          'phone_number_changed' => true
+        })
+      end
+    end
+
+    context 'when there are no changes' do
+      let(:new_data) do
+        {
+          request_address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating no changes in address, email and phone number' do
+        expect(representative.diff(new_data)).to eq({
+          'address_changed' => false,
+          'email_changed' => false,
+          'phone_number_changed' => false
+        })
+      end
+    end
+  end
 end
