@@ -31,7 +31,7 @@ module Representatives
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
     def process_rep_data(rep_data)
-      candidate_address = build_validation_address(rep_data['request_address'])
+      candidate_address = build_validation_address(rep_data['address'])
       response = validate_address(candidate_address)
       return unless address_valid?(response)
 
@@ -49,19 +49,19 @@ module Representatives
     end
 
     # Constructs a validation address object from the provided address data.
-    # @param request_address [Hash] A hash containing the details of the representative's address.
+    # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
-    def build_validation_address(request_address)
+    def build_validation_address(address)
       VAProfile::Models::ValidationAddress.new(
-        address_pou: request_address['address_pou'],
-        address_line1: request_address['address_line1'],
-        address_line2: request_address['address_line2'],
-        address_line3: request_address['address_line3'],
-        city: request_address['city'],
-        state_code: request_address['state_province']['code'],
-        zip_code: request_address['zip_code5'],
-        zip_code_suffix: request_address['zip_code4'],
-        country_code_iso3: request_address['country_code_iso3']
+        address_pou: address['address_pou'],
+        address_line1: address['address_line1'],
+        address_line2: address['address_line2'],
+        address_line3: address['address_line3'],
+        city: address['city'],
+        state_code: address['state_province']['code'],
+        zip_code: address['zip_code5'],
+        zip_code_suffix: address['zip_code4'],
+        country_code_iso3: address['country_code_iso3']
       )
     end
 
@@ -102,7 +102,7 @@ module Representatives
       representative_id = rep_data['id']
       update_flags(representative_id, 'address') if rep_data[:address_changed]
       update_flags(representative_id, 'email') if rep_data[:email_changed]
-      update_flags(representative_id, 'phone_number') if rep_data[:phone_changed]
+      update_flags(representative_id, 'phone_number') if rep_data[:phone_number_changed]
     end
 
     # Updates the flags for a representative's contact data indicating a change.
@@ -118,12 +118,12 @@ module Representatives
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def build_record_attributes(rep_data, api_response)
-      address = api_response['candidate_addresses'].first['address']
+      candidate_address = api_response['candidate_addresses'].first['address']
       geocode = api_response['candidate_addresses'].first['geocode']
       meta = api_response['candidate_addresses'].first['address_meta_data']
-      record_attributes = build_address_attributes(address, geocode, meta)
-                          .merge({ raw_address: rep_data['request_address'].to_json })
-      record_attributes[:email] = rep_data['email_address']
+      record_attributes = build_address_attributes(candidate_address, geocode, meta)
+                          .merge({ raw_address: rep_data['address'].to_json })
+      record_attributes[:email] = rep_data['email']
       record_attributes[:phone_number] = rep_data['phone_number']
       record_attributes
     end
