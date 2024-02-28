@@ -8,7 +8,7 @@ RSpec.describe Representatives::Update do
       [
         {
           id:,
-          request_address: {
+          address: {
             address_pou: 'abc',
             address_line1: 'abc',
             address_line2: 'abc',
@@ -21,7 +21,7 @@ RSpec.describe Representatives::Update do
             zip_code4: 'abc',
             country_code_iso3: 'abc'
           },
-          email_address: 'test@example.com',
+          email: 'test@example.com',
           phone_number: '999-999-9999',
           address_changed: false,
           email_changed: false,
