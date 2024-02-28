@@ -143,6 +143,10 @@ features:
     actor_type: user
     description: Enables the unified experience version of the landing page.
     enable_in_development: true
+  check_in_experience_travel_claim_redis_client_refactor:
+    actor_type: user
+    description: Uses the refactored code for Travel Claim Redis client to fetch attributes
+    enable_in_development: true
   check_in_experience_travel_claim_increase_timeout:
     actor_type: user
     description: Increases the timeout for BTSSS submit claim request to 120 seconds
