@@ -382,7 +382,9 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
 
         context 'appeals service succeed' do
           it 'appeals service succeed and caches appeals ' do
-            expect_any_instance_of(Mobile::ClaimsIndexInterface).not_to receive(:get_claims_and_appeals)
+            interface_class = Mobile::V0::LighthouseClaims::ClaimsIndexInterface
+            expect_any_instance_of(interface_class).not_to receive(:get_claims_and_appeals)
+
             VCR.use_cassette('mobile/appeals/appeals') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
