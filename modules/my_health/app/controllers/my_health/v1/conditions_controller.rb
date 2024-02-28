@@ -5,17 +5,17 @@ module MyHealth
     class ConditionsController < MrController
       def index
         resource = client.list_conditions
-        raise Common::Exceptions::InternalServerError if resource.blank?
-
         render json: resource.to_json
+      rescue ::MedicalRecords::PatientNotFound
+        render body: nil, status: :accepted
       end
 
       def show
         condition_id = params[:id].try(:to_i)
         resource = client.get_condition(condition_id)
-        raise Common::Exceptions::InternalServerError if resource.blank?
-
         render json: resource.to_json
+      rescue ::MedicalRecords::PatientNotFound
+        render body: nil, status: :accepted
       end
     end
   end

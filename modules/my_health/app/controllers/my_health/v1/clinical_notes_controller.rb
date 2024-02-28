@@ -5,17 +5,17 @@ module MyHealth
     class ClinicalNotesController < MrController
       def index
         resource = client.list_clinical_notes
-        raise Common::Exceptions::InternalServerError if resource.blank?
-
         render json: resource.to_json
+      rescue ::MedicalRecords::PatientNotFound
+        render body: nil, status: :accepted
       end
 
       def show
         note_id = params[:id].try(:to_i)
         resource = client.get_clinical_note(note_id)
-        raise Common::Exceptions::InternalServerError if resource.blank?
-
         render json: resource.to_json
+      rescue ::MedicalRecords::PatientNotFound
+        render body: nil, status: :accepted
       end
     end
   end
