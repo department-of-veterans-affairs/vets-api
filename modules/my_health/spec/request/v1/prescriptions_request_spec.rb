@@ -130,7 +130,7 @@ RSpec.describe 'prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['pagination']['per_page']).to eq(10)
       end
 
-      it 'responds to GET #refill_list with list of refillable prescriptions' do
+      it 'responds to GET #list_refillable_prescriptions with list of refillable prescriptions' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_refillable_prescriptions') do
           get '/my_health/v1/prescriptions/list_refillable_prescriptions'
         end
