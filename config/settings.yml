@@ -1055,8 +1055,6 @@ vbms:
 
 vet_verification:
   key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
-  mock_emis: false
-  mock_emis_host: false
   mock_bgs: false
   mock_bgs_url: false
 
