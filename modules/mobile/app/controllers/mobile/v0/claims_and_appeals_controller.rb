@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../models/mobile/v0/adapters/claims_overview'
-require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
-require_relative '../../../models/mobile/v0/claim_overview'
-require_relative '../../../services/mobile/v0/claims/proxy'
 require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
@@ -153,8 +149,6 @@ module Mobile
       def fetch_claims_and_appeals
         use_cache = validated_params[:use_cache]
         service_list, service_errors = claims_index_interface.get_accessible_claims_appeals(use_cache)
-
-        claims_index_interface.try_cache(service_list, service_errors)
 
         [service_list, service_errors]
       end

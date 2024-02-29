@@ -15,15 +15,19 @@ module Mobile
         end
 
         def get_accessible_claims_appeals(use_cache)
-          if claims_access? && appeals_access?
-            get_claims_and_appeals(use_cache)
-          elsif claims_access?
-            get_claims(use_cache)
-          elsif appeals_access?
-            get_appeals(use_cache)
-          else
-            raise Pundit::NotAuthorizedError
-          end
+          data, errors = if claims_access? && appeals_access?
+                           get_claims_and_appeals(use_cache)
+                         elsif claims_access?
+                           get_claims(use_cache)
+                         elsif appeals_access?
+                           get_appeals(use_cache)
+                         else
+                           raise Pundit::NotAuthorizedError
+                         end
+
+          try_cache(data, errors)
+
+          [data, errors]
         end
 
         def try_cache(data, errors)

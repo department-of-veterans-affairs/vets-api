@@ -79,7 +79,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       end
     end
 
-    it 'logs a warning with details when fetch fails' do
+    it 'does not cache when received non authorization error' do
       VCR.use_cassette('mobile/claims/claims_with_errors') do
         VCR.use_cassette('mobile/appeals/appeals') do
           subject.perform(user.uuid)

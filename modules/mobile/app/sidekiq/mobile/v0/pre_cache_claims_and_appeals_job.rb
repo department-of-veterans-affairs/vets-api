@@ -4,7 +4,6 @@ module Mobile
   module V0
     class PreCacheClaimsAndAppealsJob
       include Sidekiq::Job
-      include Pundit::Authorization
 
       sidekiq_options(retry: false)
 
@@ -14,9 +13,7 @@ module Mobile
         @user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless @user
 
-        data, errors = claims_index_interface(@user).get_accessible_claims_appeals(false)
-
-        claims_index_interface(@user).try_cache(data, errors)
+        claims_index_interface.get_accessible_claims_appeals(false)
       rescue => e
         Rails.logger.warn('mobile claims pre-cache job failed',
                           user_uuid: uuid,
@@ -26,8 +23,8 @@ module Mobile
 
       private
 
-      def claims_index_interface(user)
-        @claims_index_interface ||= Mobile::V0::LighthouseClaims::ClaimsIndexInterface.new(user)
+      def claims_index_interface
+        @claims_index_interface ||= Mobile::V0::LighthouseClaims::ClaimsIndexInterface.new(@user)
       end
     end
   end
