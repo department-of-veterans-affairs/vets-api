@@ -53,6 +53,34 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         subject.perform
       end
     end
+
+    context 'when flipper it not enabled' do
+      before do
+        # rubocop:disable Layout/LineLength
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(false)
+        # rubocop:enable Layout/LineLength
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: ['claim1']))
+        allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
+        allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
+        allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews1']))
+      end
+
+      it 'does not run the alert' do
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).not_to receive(:notify).with(
+          ['claim1'],
+          ['poa1'],
+          ['itf1'],
+          ['ews1'],
+          kind_of(String),
+          kind_of(String),
+          kind_of(String)
+        )
+        # rubocop:enable RSpec/SubjectStub
+
+        subject.perform
+      end
+    end
   end
 
   describe 'schedule' do
