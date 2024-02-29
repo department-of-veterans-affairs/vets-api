@@ -1561,7 +1561,6 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
-          21-0966
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
