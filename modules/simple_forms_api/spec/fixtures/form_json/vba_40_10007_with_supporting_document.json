@@ -11,6 +11,7 @@
       "applicant_relationship_to_claimant": "Self"
     },
     "claimant": {
+      "desired_cemetery": "987",
       "address": {
         "street": "123 Elm St",
         "street2": "APT 2B",
