@@ -43,7 +43,8 @@ module ClaimsApi
 
         doc = Nokogiri::XML.parse soap_message
         detail = doc.at_xpath('//env:Envelope/env:Body/env:Fault/detail')
-        fault_message = detail.xpath('.//efc:message', {'efc' => 'http://service.efolder.vbms.vba.va.gov/common'}).text
+        fault_message = detail.xpath('.//efc:message',
+                                     { 'efc' => 'http://service.efolder.vbms.vba.va.gov/common' }).text
         fault_message == 'Invalid format for Veteran Identifier.'
       else
         false
