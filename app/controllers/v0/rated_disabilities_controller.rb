@@ -12,7 +12,7 @@ module V0
     DECISION_ALLOWLIST = ['1151 Denied', '1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
 
     def show
-      raw_response = service.get_rated_disabilities('1012830774V793840')
+      raw_response = service.get_rated_disabilities(@current_user.icn)
 
       attributes = raw_response.dig('data', 'attributes')
 
