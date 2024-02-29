@@ -70,7 +70,7 @@ module ClaimsApi
       def headers
         return @auth_headers if @use_mock # no sense in getting a token if the target request is mocked
 
-        client_key = Settings.claims_api.evss_container&.client_key || ENV.fetch('EVSS_CLIENT_KEY', '')
+        client_key = 'invalid' # Settings.claims_api.evss_container&.client_key || ENV.fetch('EVSS_CLIENT_KEY', '')
         raise StandardError, 'EVSS client_key missing' if client_key.blank?
 
         @auth_headers.merge!({
