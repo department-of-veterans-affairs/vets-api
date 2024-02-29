@@ -14,6 +14,9 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
 
     before do
       create_flagged_records(flag_type)
+      allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double(
+                                                                                 'VAProfile::AddressValidation::Service', candidate: nil
+                                                                               ))
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
@@ -33,6 +36,12 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
         record.reload
         expect(record.flagged_value_updated_at).not_to be_nil
       end
+    end
+
+    it 'does not call validate_address or VAProfile::AddressValidation::Service.new' do
+      subject.perform(json_data)
+
+      expect(VAProfile::AddressValidation::Service).not_to have_received(:new)
     end
   end
 
