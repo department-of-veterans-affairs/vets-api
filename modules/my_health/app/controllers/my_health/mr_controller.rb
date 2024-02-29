@@ -11,6 +11,10 @@ module MyHealth
 
     # skip_before_action :authenticate
 
+    rescue_from ::MedicalRecords::PatientNotFound do |_exception|
+      render body: nil, status: :accepted
+    end
+
     protected
 
     def client
