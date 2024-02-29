@@ -33,27 +33,61 @@ module TravelClaim
     end
 
     def icn(uuid:)
+      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
+        return fetch_attribute(uuid:, attribute: :icn)
+      end
+
       return nil if appointment_identifiers(uuid:).nil?
 
       Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :icn)
     end
 
     def mobile_phone(uuid:)
+      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
+        return fetch_attribute(uuid:, attribute: :mobilePhone)
+      end
+
       return nil if appointment_identifiers(uuid:).nil?
 
       Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :mobilePhone)
     end
 
     def patient_cell_phone(uuid:)
+      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
+        return fetch_attribute(uuid:, attribute: :patientCellPhone)
+      end
+
       return nil if appointment_identifiers(uuid:).nil?
 
       Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
     end
 
     def station_number(uuid:)
+      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
+        return fetch_attribute(uuid:, attribute: :stationNo)
+      end
+
       return nil if appointment_identifiers(uuid:).nil?
 
       Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :stationNo)
+    end
+
+    def facility_type(uuid:)
+      if Flipper.enabled?('check_in_experience_travel_claim_redis_client_refactor')
+        return fetch_attribute(uuid:, attribute: :facilityType)
+      end
+
+      return nil if appointment_identifiers(uuid:).nil?
+
+      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :facilityType)
+    end
+
+    def fetch_attribute(uuid:, attribute:)
+      identifiers = appointment_identifiers(uuid:)
+      return nil if identifiers.nil?
+
+      parsed_identifiers = Oj.load(identifiers).with_indifferent_access
+      parsed_identifiers.dig(:data, :attributes, attribute)
     end
 
     private

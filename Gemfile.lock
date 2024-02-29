@@ -1,31 +1,4 @@
 GIT
-  remote: https://github.com/adhocteam/fhir_client.git
-  revision: a9de7e0e5b532c069dddacd2c4756046f95812fc
-  tag: v6.0.1
-  specs:
-    fhir_client (6.0.0)
-      activesupport (>= 3)
-      addressable (>= 2.3)
-      fhir_dstu2_models (>= 1.1.1)
-      fhir_models (>= 4.2.1)
-      fhir_stu3_models (>= 3.1.1)
-      http (~> 5.1)
-      nokogiri (>= 1.10.4)
-      oauth2 (>= 1.1)
-      rack (>= 1.5)
-      tilt (>= 1.1)
-
-GIT
-  remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
-  revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
-  tag: v4.0.0
-  specs:
-    govdelivery-tms (4.0.0)
-      activesupport (>= 5.2.4.3, < 8.0.0)
-      faraday
-      mime-types
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
   revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
   tag: v2.0.0.vsp
@@ -72,17 +45,45 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/fhir_client.git
+  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
+  tag: v6.0.0
+  specs:
+    fhir_client (6.0.0)
+      activesupport (>= 3)
+      addressable (>= 2.3)
+      fhir_dstu2_models (>= 1.1.1)
+      fhir_models (>= 4.2.1)
+      fhir_stu3_models (>= 3.1.1)
+      http (~> 5.1)
+      nokogiri (>= 1.10.4)
+      oauth2 (>= 1.1)
+      rack (>= 1.5)
+      tilt (>= 1.1)
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
+  revision: d58cc59ae47e5f5f642b3603224f42f518f92f56
+  tag: v4.0.0
+  specs:
+    govdelivery-tms (4.0.0)
+      activesupport (>= 5.2.4.3, < 8.0.0)
+      faraday
+      mime-types
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d11fa23200e236042ffab9230fa0f62f20054b09
+  revision: 9f735b78cb350ce891c50434b24e35b5fd5b8e54
   branch: master
   specs:
-    vets_json_schema (20.35.1)
+    vets_json_schema (20.37.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
 PATH
   remote: modules
   specs:
+    accredited_representatives (0.1.0)
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -110,6 +111,7 @@ PATH
       rails
     my_health (0.1.0)
       rails
+    representation_management (0.1.0)
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails
@@ -145,47 +147,47 @@ GEM
     Ascii85 (1.1.0)
     aasm (5.5.0)
       concurrent-ruby (~> 1.0)
-    actioncable (7.0.8)
-      actionpack (= 7.0.8)
-      activesupport (= 7.0.8)
+    actioncable (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       nio4r (~> 2.0)
       websocket-driver (>= 0.6.1)
-    actionmailbox (7.0.8)
-      actionpack (= 7.0.8)
-      activejob (= 7.0.8)
-      activerecord (= 7.0.8)
-      activestorage (= 7.0.8)
-      activesupport (= 7.0.8)
+    actionmailbox (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activestorage (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       mail (>= 2.7.1)
       net-imap
       net-pop
       net-smtp
-    actionmailer (7.0.8)
-      actionpack (= 7.0.8)
-      actionview (= 7.0.8)
-      activejob (= 7.0.8)
-      activesupport (= 7.0.8)
+    actionmailer (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      actionview (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       mail (~> 2.5, >= 2.5.4)
       net-imap
       net-pop
       net-smtp
       rails-dom-testing (~> 2.0)
-    actionpack (7.0.8)
-      actionview (= 7.0.8)
-      activesupport (= 7.0.8)
+    actionpack (7.0.8.1)
+      actionview (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       rack (~> 2.0, >= 2.2.4)
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.2.0)
-    actiontext (7.0.8)
-      actionpack (= 7.0.8)
-      activerecord (= 7.0.8)
-      activestorage (= 7.0.8)
-      activesupport (= 7.0.8)
+    actiontext (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activestorage (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       globalid (>= 0.6.0)
       nokogiri (>= 1.8.5)
-    actionview (7.0.8)
-      activesupport (= 7.0.8)
+    actionview (7.0.8.1)
+      activesupport (= 7.0.8.1)
       builder (~> 3.1)
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
@@ -195,27 +197,27 @@ GEM
       activemodel (>= 4.1)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
-    activejob (7.0.8)
-      activesupport (= 7.0.8)
+    activejob (7.0.8.1)
+      activesupport (= 7.0.8.1)
       globalid (>= 0.3.6)
-    activemodel (7.0.8)
-      activesupport (= 7.0.8)
-    activerecord (7.0.8)
-      activemodel (= 7.0.8)
-      activesupport (= 7.0.8)
+    activemodel (7.0.8.1)
+      activesupport (= 7.0.8.1)
+    activerecord (7.0.8.1)
+      activemodel (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
     activerecord-import (1.5.1)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (8.0.3)
       activerecord (~> 7.0.0)
       rgeo-activerecord (~> 7.0.0)
-    activestorage (7.0.8)
-      actionpack (= 7.0.8)
-      activejob (= 7.0.8)
-      activerecord (= 7.0.8)
-      activesupport (= 7.0.8)
+    activestorage (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       marcel (~> 1.0)
       mini_mime (>= 1.1.0)
-    activesupport (7.0.8)
+    activesupport (7.0.8.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -231,11 +233,12 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.883.0)
-    aws-sdk-core (3.191.0)
+    aws-partitions (1.894.0)
+    aws-sdk-core (3.191.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
+      base64
       jmespath (~> 1, >= 1.6.1)
     aws-sdk-kms (1.77.0)
       aws-sdk-core (~> 3, >= 3.191.0)
@@ -244,7 +247,7 @@ GEM
       aws-sdk-core (~> 3, >= 3.191.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
-    aws-sdk-sns (1.71.0)
+    aws-sdk-sns (1.72.0)
       aws-sdk-core (~> 3, >= 3.191.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.8.0)
@@ -267,7 +270,6 @@ GEM
     breakers (0.7.1)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
-    brow (0.4.1)
     builder (3.2.4)
     bundler-audit (0.9.1)
       bundler (>= 1.2.0, < 3)
@@ -309,7 +311,7 @@ GEM
       colored2 (~> 3.1)
     coverband (6.0.2)
       redis (>= 3.0)
-    crack (0.4.6)
+    crack (1.0.0)
       bigdecimal
       rexml
     crass (1.0.6)
@@ -451,18 +453,17 @@ GEM
       nokogiri (>= 1.11.4)
     fitbit_api (1.0.0)
       oauth2 (~> 2.0)
-    flipper (1.0.0)
-      brow (~> 0.4.1)
+    flipper (1.2.2)
       concurrent-ruby (< 2)
-    flipper-active_record (1.0.0)
+    flipper-active_record (1.2.2)
       activerecord (>= 4.2, < 8)
-      flipper (~> 1.0.0)
-    flipper-active_support_cache_store (1.0.0)
+      flipper (~> 1.2.2)
+    flipper-active_support_cache_store (1.2.2)
       activesupport (>= 4.2, < 8)
-      flipper (~> 1.0.0)
-    flipper-ui (1.0.0)
+      flipper (~> 1.2.2)
+    flipper-ui (1.2.2)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 1.0.0)
+      flipper (~> 1.2.2)
       rack (>= 1.4, < 4)
       rack-protection (>= 1.5.3, <= 4.0.0)
       sanitize (< 7)
@@ -483,7 +484,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.13.0)
+    google-apis-core (0.14.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.1, < 3.a)
@@ -491,18 +492,18 @@ GEM
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
       rexml
-    google-apis-discovery_v1 (0.15.0)
-      google-apis-core (>= 0.12.0, < 2.a)
-    google-apis-generator (0.13.1)
+    google-apis-discovery_v1 (0.16.0)
+      google-apis-core (>= 0.14.0, < 2.a)
+    google-apis-generator (0.14.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
-      google-apis-core (>= 0.12.0, < 2.a)
+      google-apis-core (>= 0.14.0, < 2.a)
       google-apis-discovery_v1 (~> 0.14)
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (3.25.2)
-    googleauth (1.10.0)
+    google-protobuf (3.25.3)
+    googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
@@ -569,7 +570,8 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.7.1)
+    jwt (2.8.0)
+      base64
     kms_encrypted (1.5.1)
       activesupport (>= 6)
     kramdown (2.4.0)
@@ -615,7 +617,7 @@ GEM
     mini_magick (4.12.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
-    minitest (5.22.0)
+    minitest (5.22.2)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
     multi_json (1.15.0)
@@ -625,7 +627,7 @@ GEM
     nenv (0.3.0)
     net-http (0.4.1)
       uri
-    net-imap (0.4.9.1)
+    net-imap (0.4.10)
       date
       net-protocol
     net-pop (0.1.2)
@@ -675,7 +677,7 @@ GEM
       activerecord (>= 6.1)
       request_store (~> 1.4)
     parallel (1.24.0)
-    parallel_tests (4.5.0)
+    parallel_tests (4.5.1)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -731,32 +733,33 @@ GEM
     raabro (1.4.0)
     racc (1.7.3)
     racc (1.7.3-java)
-    rack (2.2.8)
+    rack (2.2.8.1)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.1)
       rack (>= 2.0.0)
-    rack-protection (3.1.0)
+    rack-protection (3.2.0)
+      base64 (>= 0.1.0)
       rack (~> 2.2, >= 2.2.4)
     rack-test (2.1.0)
       rack (>= 1.3)
     rack-timeout (0.6.3)
     rack-vcr (0.1.6)
       vcr (>= 2.9)
-    rails (7.0.8)
-      actioncable (= 7.0.8)
-      actionmailbox (= 7.0.8)
-      actionmailer (= 7.0.8)
-      actionpack (= 7.0.8)
-      actiontext (= 7.0.8)
-      actionview (= 7.0.8)
-      activejob (= 7.0.8)
-      activemodel (= 7.0.8)
-      activerecord (= 7.0.8)
-      activestorage (= 7.0.8)
-      activesupport (= 7.0.8)
+    rails (7.0.8.1)
+      actioncable (= 7.0.8.1)
+      actionmailbox (= 7.0.8.1)
+      actionmailer (= 7.0.8.1)
+      actionpack (= 7.0.8.1)
+      actiontext (= 7.0.8.1)
+      actionview (= 7.0.8.1)
+      activejob (= 7.0.8.1)
+      activemodel (= 7.0.8.1)
+      activerecord (= 7.0.8.1)
+      activestorage (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       bundler (>= 1.15.0)
-      railties (= 7.0.8)
+      railties (= 7.0.8.1)
     rails-dom-testing (2.2.0)
       activesupport (>= 5.0.0)
       minitest
@@ -770,9 +773,9 @@ GEM
       rack
       railties (>= 5.1)
       semantic_logger (~> 4.13)
-    railties (7.0.8)
-      actionpack (= 7.0.8)
-      activesupport (= 7.0.8)
+    railties (7.0.8.1)
+      actionpack (= 7.0.8.1)
+      activesupport (= 7.0.8.1)
       method_source
       rake (>= 12.2)
       thor (~> 1.0)
@@ -929,7 +932,7 @@ GEM
     sidekiq_alive (2.4.0)
       gserver (~> 0.0.1)
       sidekiq (>= 5, < 8)
-    signet (0.18.0)
+    signet (0.19.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 3.0)
@@ -963,7 +966,7 @@ GEM
     swagger-blocks (3.0.0)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
-    thor (1.3.0)
+    thor (1.3.1)
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
     tilt (2.3.0)
@@ -1007,7 +1010,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.20.0)
+    webmock (3.23.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1030,8 +1033,8 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
-    yard (0.9.34)
-    zeitwerk (2.6.12)
+    yard (0.9.35)
+    zeitwerk (2.6.13)
 
 PLATFORMS
   java
@@ -1043,6 +1046,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
+  accredited_representatives!
   active_model_serializers
   activerecord-import
   activerecord-postgis-adapter
@@ -1175,6 +1179,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  representation_management!
   request_store
   restforce
   rgeo-geojson
@@ -1236,7 +1241,7 @@ DEPENDENCIES
   yard
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 3.2.3p157
 
 BUNDLED WITH
    2.4.9

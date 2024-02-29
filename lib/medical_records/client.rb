@@ -266,7 +266,9 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
+      params[:search][:parameters]
+        .merge!(_count: DEFAULT_COUNT)
+        .merge!('verification-status:not': 'entered-in-error')
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
       result
