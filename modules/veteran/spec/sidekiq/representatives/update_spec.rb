@@ -14,9 +14,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
 
     before do
       create_flagged_records(flag_type)
-      allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double(
-                                                                                 'VAProfile::AddressValidation::Service', candidate: nil
-                                                                               ))
+      allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
