@@ -6,16 +6,12 @@ module MyHealth
       def index
         resource = client.list_clinical_notes
         render json: resource.to_json
-      rescue ::MedicalRecords::PatientNotFound
-        render body: nil, status: :accepted
       end
 
       def show
         note_id = params[:id].try(:to_i)
         resource = client.get_clinical_note(note_id)
         render json: resource.to_json
-      rescue ::MedicalRecords::PatientNotFound
-        render body: nil, status: :accepted
       end
     end
   end
