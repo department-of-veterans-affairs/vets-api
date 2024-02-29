@@ -57,7 +57,7 @@ module ClaimsApi
     end
 
     def allow_processing?
-      Settings.claims_api.audit_enabled || false
+      Flipper.enabled? :claims_hourly_slack_error_report_enabled
     end
   end
 end
