@@ -261,6 +261,10 @@ features:
     actor_type: user
     description: enable/disable the use of LH Benefits Documents API in our Claim Status v2 services.
     enable_in_development: false
+  claims_hourly_slack_error_report_enabled:
+    actor: user
+    description: Enable/disable the running of the hourly slack alert for errored submissions
+    enable_in_development: false
   claims_status_v1_lh_auto_establish_claim_enabled:
     actor_type: user
     description: With feature flag enabled, v1 /526 should use Lighthouse Form526 docker container
@@ -514,6 +518,10 @@ features:
   form_526_required_identifiers_in_user_object:
     actor_type: user
     description: includes a mapping of booleans in the profile section of a serialized user indicating which ids are nil for the user
+  form40_0247_confirmation_email:
+    actor_type: user
+    description: Enables form 40-0247 email submission confirmation (VaNotify)
+    enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)

@@ -41,5 +41,24 @@ RSpec.describe 'Medical Records Integration', type: :request do
       expect(response).to be_successful
       expect(response.body).to be_a(String)
     end
+
+    context 'when the patient is not found' do
+      before do
+        allow_any_instance_of(MedicalRecords::Client).to receive(:list_labs_and_tests)
+          .and_raise(MedicalRecords::PatientNotFound)
+        allow_any_instance_of(MedicalRecords::Client).to receive(:get_diagnostic_report)
+          .and_raise(MedicalRecords::PatientNotFound)
+      end
+
+      it 'returns a 202 Accepted response for GET #index' do
+        get '/my_health/v1/medical_records/labs_and_tests'
+        expect(response).to have_http_status(:accepted)
+      end
+
+      it 'returns a 202 Accepted response for GET #show' do
+        get '/my_health/v1/medical_records/labs_and_tests/40766'
+        expect(response).to have_http_status(:accepted)
+      end
+    end
   end
 end
