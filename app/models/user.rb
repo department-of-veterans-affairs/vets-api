@@ -303,7 +303,7 @@ class User < Common::RedisStore
     @mpi = nil
   end
 
-  # emis attributes
+  # VA Profile attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
