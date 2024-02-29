@@ -28,7 +28,7 @@ module PdfFill
             question_num: 1,
             question_text: "DECEASED VETERAN'S FIRST NAME"
           },
-          'middleInitial' => {
+          'middle' => {
             key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]'
           },
           'last' => {
@@ -129,7 +129,7 @@ module PdfFill
             question_num: 7,
             question_text: "CLAIMANT'S FIRST NAME"
           },
-          'middleInitial' => {
+          'middle' => {
             key: 'form1[0].#subform[82].ClaimantsMiddleInitial1[0]'
           },
           'last' => {
@@ -236,7 +236,7 @@ module PdfFill
           question_num: 12,
           question_text: 'E-MAIL ADDRESS'
         },
-        'relationship' => {
+        'relationshipToVeteran' => {
           'checkbox' => {
             'spouse' => {
               key: 'form1[0].#subform[82].CheckboxSpouse[0]'
@@ -321,7 +321,7 @@ module PdfFill
             key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_LastFourNumbers[1]'
           }
         },
-        'placeOfBurial' => { #break into yes/nos
+        'finalRestingPlace' => { #break into yes/nos
           'checkbox' => {
             'cemetery' => {
               key: 'form1[0].#subform[83].#subform[84].RestingPlaceCemetery[5]'
@@ -343,7 +343,7 @@ module PdfFill
             key: 'form1[0].#subform[83].#subform[84].PLACE_OF_DEATH[0]'
           }
         },
-        'hasFederalCemetery' => {
+        'yesFederalCemetery' => {
           key: 'form1[0].#subform[37].FederalCemeteryYES[0]'
         },
         'noFederalCemetery' => {
@@ -367,7 +367,7 @@ module PdfFill
         'stateCemeteryOrTribalTrustZip' => {
           key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustZip[2]'
         },
-        'hasGovtContributions' => {
+        'yesGovtContributions' => {
           key: 'form1[0].#subform[37].GovContributionYES[0]'
         },
         'noGovtContributions' => {
@@ -412,16 +412,16 @@ module PdfFill
         },
         'locationOfDeath' => {
           'checkbox' => {
-            'nursingHomeOrResidenceNotPaid' => {
+            'nursingHomeUnpaid' => {
               key: 'form1[0].#subform[83].NursingHomeOrResidenceNotPaid[1]'
             },
-            'nursingHomeOrResidencePaid' => {
+            'nursingHomePaid' => {
               key: 'form1[0].#subform[83].NursingHomeOrResidencePaid[1]'
             },
             'vaMedicalCenter' => {
               key: 'form1[0].#subform[83].VaMedicalCenter[1]'
             },
-            'stateVeteransHome' => {
+            'atHome' => {
               key: 'form1[0].#subform[83].StateVeteransHome[1]'
             },
             'other' => {
@@ -436,16 +436,16 @@ module PdfFill
             limit: 50
           }
         },
-        'hasPreviouslyReceivedAllowance' => {
+        'yesPreviouslyReceivedAllowance' => {
           key: 'form1[0].#subform[83].PreviousAllowanceYes[0]'
         },
         'noPreviouslyReceivedAllowance' => {
           key: 'form1[0].#subform[83].PreviousAllowanceNo[0]'
         },
-        'responsibleForBurialCostYes' => {
+        'yesBurialExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForBurialCostYes[0]'
         },
-        'responsibleForBurialCostNo' => {
+        'noBurialExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForBurialCostNo[0]'
         },
         'certifyUnclaimedAndNotSufficientResourcesYes' => {
@@ -454,22 +454,16 @@ module PdfFill
         'certifyUnclaimedAndNotSufficientResourcesNo' => {
           key: 'form1[0].#subform[83].certifyUnclaimedNo[0]'
         },
-        'responsibleForPlotIntermentCostYes' => {
+        'yesPlotExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostYes[0]'
         },
-        'responsibleForPlotIntermentCostNo' => {
+        'noPlotExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostNo[0]'
         },
-        'responsibleForTransportationYes' => {
+        'yesTransportationExpenses' => {
           key: 'form1[0].#subform[83].ResponsibleForTransportationYes[0]'
         },
-        'responsibleForTransportationNo' => {
-          key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
-        },
-        'responsibleForTransportationYes' => {
-          key: 'form1[0].#subform[83].ResponsibleForTransportationYes[0]'
-        },
-        'responsibleForTransportationNo' => {
+        'noTransportationExpenses' => {
           key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
         },
         'wantClaimFDCProcessedYes' => {
@@ -574,7 +568,7 @@ module PdfFill
       end
 
       def expand_firm
-        if @form_data['relationship'].try(:[], 'isEntity')
+        if @form_data['relationshipToVeteran'].try(:[], 'isEntity')
           combine_name_addr(
             @form_data,
             name_key: 'firmName',
@@ -621,7 +615,7 @@ module PdfFill
 
         split_postal_code(@form_data)
 
-        expand_relationship(@form_data, 'relationship')
+        expand_relationship(@form_data, 'relationshipToVeteran')
 
         expand_place_of_death
 
