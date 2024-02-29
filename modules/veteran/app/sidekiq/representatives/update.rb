@@ -109,7 +109,7 @@ module Representatives
     # @param representative_id [String] The ID of the representative.
     # @param flag_type [String] The type of change (address, email, or phone number).
     def update_flags(representative_id, flag_type)
-      Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id:, flag_type:).update_all(flagged_value_updated_at: Time.zone.now) # rubocop:disable Layout/LineLength,Rails/SkipsModelValidations
+      Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id:, flag_type:, flagged_value_updated_at: nil).update_all(flagged_value_updated_at: Time.zone.now) # rubocop:disable Layout/LineLength,Rails/SkipsModelValidations
     rescue => e
       log_error("Error updating flagged records. Representative id: #{representative_id}. Flag type: #{flag_type}. Error message: #{e.message}") # rubocop:disable Layout/LineLength
     end
