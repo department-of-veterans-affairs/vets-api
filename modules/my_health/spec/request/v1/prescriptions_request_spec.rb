@@ -134,9 +134,16 @@ RSpec.describe 'prescriptions', type: :request do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_refillable_prescriptions') do
           get '/my_health/v1/prescriptions/list_refillable_prescriptions'
         end
+        six_months_from_today = Time.zone.today - 6.months
+        zero_date = Date.new(0, 1, 1)
+
         response_data = JSON.parse(response.body)['data']
         response_data.each do |prescription|
-          if prescription['is_refillable'] || (prescription['refill_status'] == 'active' && prescription['refill_remaining']&.zero?)
+          if prescription['is_refillable'] || prescription['refill_status'] == 'active' ||
+             (%w[Expired Discontinued].include?(prescription['disp_status']) &&
+             prescription['sorted_dispensed_date'] >= six_months_from_today &&
+             prescription['sorted_dispensed_date'] != zero_date)
+
             expect(prescription).to be_included
           end
         end
