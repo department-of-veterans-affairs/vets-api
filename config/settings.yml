@@ -649,6 +649,8 @@ claims_api:
         aud_claim_url: ~
     host: https://sandbox-api.va.gov
     use_mocks: false
+  poa_v2:
+    disable_jobs: false
 
 connected_apps_api:
   connected_apps:
