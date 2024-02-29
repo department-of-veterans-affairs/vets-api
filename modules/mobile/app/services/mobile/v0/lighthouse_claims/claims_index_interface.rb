@@ -30,11 +30,11 @@ module Mobile
           [data, errors]
         end
 
+        private
+
         def try_cache(data, errors)
           Mobile::V0::ClaimOverview.set_cached(@current_user, data) unless non_authorization_errors?(errors)
         end
-
-        private
 
         def get_claims_and_appeals(use_cache)
           full_list = []
