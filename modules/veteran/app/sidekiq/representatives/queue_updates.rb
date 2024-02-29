@@ -53,7 +53,7 @@ module Representatives
       rows.map do |row|
         rep = Veteran::Service::Representative.find(row[:id])
         diff = rep.diff(row)
-        row.merge(diff.merge({ address_exists: rep.location.nil? ? false : true })) if diff.values.any?
+        row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e
         log_error("Error: Representative not found #{e.message}")
         nil
