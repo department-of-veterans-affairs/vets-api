@@ -135,6 +135,8 @@ module Veteran
         end
       end
 
+      private
+
       #
       # Checks if the rep's address has changed compared to a new address hash.
       # @param other_address [Hash] New address data with keys for address components and state code.
