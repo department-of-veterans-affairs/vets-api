@@ -144,7 +144,6 @@ module SimpleFormsApi
         form.track_user_identity
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
-        byebug
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else
