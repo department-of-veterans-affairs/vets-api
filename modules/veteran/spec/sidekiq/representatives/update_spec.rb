@@ -267,6 +267,40 @@ RSpec.describe Representatives::Update do
       end
     end
 
+    context 'when address_changed and email_changed is true' do
+      let(:id) { '123abc' }
+      let(:address_exists) { false }
+      let(:address_changed) { true }
+      let(:email_changed) { true }
+      let(:phone_number_changed) { false }
+      let!(:representative) { create_representative }
+
+      before do
+        create_flagged_records('address')
+      end
+
+      it 'updates the address and email and the associated flagged records' do
+        flagged_address_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                         flag_type: 'address')
+        flagged_email_records = Veteran::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
+                                                                                       flag_type: 'email')
+        flagged_email_records.each do |record|
+          expect(record.flagged_value_updated_at).to be_nil
+        end
+
+        subject.perform(json_data)
+        representative.reload
+
+        expect(representative.send('address_line1')).to eq('37N 1st St')
+        expect(representative.send('email')).to eq('test@example.com')
+
+        flagged_address_records + flagged_email_records.each do |record|
+          record.reload
+          expect(record.flagged_value_updated_at).not_to be_nil
+        end
+      end
+    end
+
     context "when updating a representative's email" do
       it_behaves_like 'a representative email or phone update process', 'email', :email, 'test@example.com',
                       'email@example.com'
