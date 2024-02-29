@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'medical_records/client'
+require 'medical_records/phr_mgr/client'
 
 RSpec.describe 'Medical Records Session', type: :request do
   include MedicalRecords::ClientHelpers
@@ -14,6 +15,7 @@ RSpec.describe 'Medical Records Session', type: :request do
 
   before do
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
+    allow(PHRMgr::Client).to receive(:new).and_return(PHRMgr::Client.new(12_345))
     sign_in_as(current_user)
   end
 
