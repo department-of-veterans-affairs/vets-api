@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SchemaContract
-  class Initiator
+  class ValidationInitiator
     def self.call(user:, response:, contract_name:)
       if response.success? && Flipper.enabled?("schema_contract_#{contract_name}")
         return if SchemaContract::Validation.where(contract_name:, created_at: Time.zone.today.all_day).any?

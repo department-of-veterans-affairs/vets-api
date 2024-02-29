@@ -31,7 +31,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
       it 'updates record and does not log errors' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
-        end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        end.not_to raise_error
         expect(contract_record.reload.status).to eq('success')
       end
     end
@@ -67,7 +67,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
       it 'updates record and does not log errors' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
-        end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        end.not_to raise_error
         expect(contract_record.reload.status).to eq('success')
       end
     end
@@ -134,7 +134,7 @@ in schema #{uuid_regex}"\]$})
       it 'updates record' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
-        end.not_to raise_error(SchemaContract::Validator::SchemaContractValidationError)
+        end.not_to raise_error
       end
 
       it 'does not log errors' do

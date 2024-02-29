@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative Rails.root.join('app', 'models', 'schema_contract', 'initiator')
+require_relative Rails.root.join('app', 'models', 'schema_contract', 'validation_initiator')
 
-describe SchemaContract::Initiator do
+describe SchemaContract::ValidationInitiator do
   describe '.call' do
     let(:user) { create(:user) }
     let(:response) do
@@ -25,7 +25,7 @@ describe SchemaContract::Initiator do
         expect(SchemaContract::ValidationJob).not_to receive(:perform_async)
 
         expect do
-          SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
       end
     end
@@ -40,7 +40,7 @@ describe SchemaContract::Initiator do
         expect(SchemaContract::ValidationJob).to receive(:perform_async)
 
         expect do
-          SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.to change(SchemaContract::Validation, :count).by(1)
       end
     end
@@ -51,7 +51,7 @@ describe SchemaContract::Initiator do
         error_message = { response:, contract_name: 'test_index', error_details: 'ArgumentError' }
         expect(Rails.logger).to receive(:error).with('Error creating schema contract job', error_message)
         expect do
-          SchemaContract::Initiator.call(user:, response:, contract_name: 'test_index')
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.not_to raise_error
       end
     end
