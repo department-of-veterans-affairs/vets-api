@@ -9,34 +9,37 @@ module ClaimsApi
     end
 
     def build_error # rubocop:disable Metrics/MethodLength
-      if @error == Faraday::ConnectionFailed || @error == Faraday::ParsingError
-        errors = { :errors => [{ 'key' => 'ServiceException',
-                                     'detail' => 'A Faraday error has occurred, original_error: ' \
-                                                 "#{@error}.", status: '500' }] }
+      if @error == Faraday::ConnectionFailed || @error == Faraday::ParsingError ||
+         @error == Faraday::NilStatusError || @error == Faraday::TimeoutError ||
+         @error.is_a?(::Common::Exceptions::BackendServiceException) ||
+         @error.is_a?(::Common::Exceptions::ExternalServerInternalServerError) ||
+         @error.is_a?(::Common::Exceptions::BadGateway)
+        errors = { errors: [{ 'key' => 'Service Exception',
+                              'detail' => 'A re-tryable error has occurred, original_error: ' \
+                                          "#{@error}.", status: '500' }] }
         log_outcome_for_claims_api(errors)
-        raise ::Common::Exceptions::ServiceError.new(errors)
+        raise ::Common::Exceptions::ServiceError, errors
 
-      elsif @error.is_a?(::Common::Exceptions::BackendServiceException)
-        errors = { :errors => [{ 'key' => 'BackendException',
-                                     'detail' => 'A backend exception occurred, original_error: ' \
-                                                 "#{@error}.", status: '500' }] }
+      elsif @error.is_a?(StandardError) || @error.is_a?(Faraday::BadRequestError) ||
+            @error.is_a?(Faraday::ConflictError) || @error.is_a?(Faraday::ForbiddenError) ||
+            @error.is_a?(Faraday::ProxyAuthError) || @error.is_a?(Faraday::ResourceNotFound) ||
+            @error.is_a?(Faraday::UnauthorizedError) || @error.is_a?(Faraday::UnprocessableEntityError)
+
+        errors = { errors: [{ 'key' => 'Client error',
+                              'detail' => 'A client exception has occurred, job will not be re-tried.' \
+                                          "original_error: #{@error}.", status: '400' }] }
         log_outcome_for_claims_api(errors)
-        debugger
-        raise ::Common::Exceptions::ServiceError.new(errors)
-      elsif @error.is_a?(StandardError)
-        errors = { :errors => [{ 'key' => 'Client error',
-                                     'detail' => 'A client exception has occurred, original_error: ' \
-                                                 "#{@error}.", status: '400' }] }
-        log_outcome_for_claims_api(errors)
-        raise ::Common::Exceptions::BadRequest.new(errors)
+        raise ::Common::Exceptions::BadRequest, errors
       else
-        errors = { :errors => [{ 'key' => 'Unknown error',
-                                     'detail' => 'An unknown error has occurred, original_error: ' \
-                                                 "#{@error}.", status: '500' }] }
-                                                 log_outcome_for_claims_api(errors)
-                                                 raise ::Common::Exceptions::ServiceError.new(errors)
-                                                end
+        errors = { errors: [{ 'key' => 'Unknown error',
+                              'detail' => 'An unknown error has occurred, and the custom_error file may' \
+                                          "need to be modified. original_error: #{@error}.", status: '500' }] }
+        log_outcome_for_claims_api(errors)
+        raise ::Common::Exceptions::ServiceError, errors
+      end
     end
+
+    private
 
     def log_outcome_for_claims_api(errors)
       ClaimsApi::Logger.log('526_docker_container',

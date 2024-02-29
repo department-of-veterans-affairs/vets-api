@@ -10,7 +10,7 @@ module ClaimsApi
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
       orig_form_data = auto_claim.form_data
-      form_data = {} # auto_claim.to_internal
+      form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 
       if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
@@ -42,17 +42,14 @@ module ClaimsApi
 
       queue_flash_updater(auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
-    rescue ::Common::Exceptions::ServiceError, ::Common::Exceptions::ExternalServerInternalServerError,
-           ::Common::Exceptions::BadGateway => e
-           debugger
+    rescue ::Common::Exceptions::ServiceError => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.detailed_message
+      auto_claim.evss_response = e.errors || e.detailed_message
       auto_claim.form_data = orig_form_data
       auto_claim.save
     rescue => e
-      debugger
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.detailed_message
+      auto_claim.evss_response = e.errors || e.detailed_message
       auto_claim.form_data = orig_form_data
       auto_claim.save
       raise e
