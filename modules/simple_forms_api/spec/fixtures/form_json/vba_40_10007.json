@@ -96,11 +96,7 @@
         "place_of_birth": "Springwood"
       },
       "claimant": {
-        "desired_cemetery": {
-          "id": "122",
-          "label": "FOREST HOME CEMETERY",
-          "widget": "autosuggest"
-        },
+        "desired_cemetery": "916",
         "address": {
           "street": "123 Elm St",
           "street2": "APT 2B",
