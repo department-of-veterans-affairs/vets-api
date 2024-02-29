@@ -31,7 +31,7 @@ module Representatives
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
     def process_rep_data(rep_data)
-      return if record_should_not_be_updated?(rep_data)
+      return unless record_can_be_updated?(rep_data)
 
       address_validation_api_response = nil
 
@@ -54,10 +54,8 @@ module Representatives
       update_flagged_records(rep_data)
     end
 
-    def record_should_not_be_updated?(rep_data)
-      rep_data['address_exists'] == false &&
-        rep_data['address_changed'] == false &&
-        (rep_data['email_changed'] == true || rep_data['phone_number_changed'] == true)
+    def record_can_be_updated?(rep_data)
+      rep_data['address_exists'] || rep_data['address_changed']
     end
 
     # Constructs a validation address object from the provided address data.
