@@ -40,6 +40,7 @@ module SignIn
       REFRESH_TOKEN_COOKIE_NAME = 'vagov_refresh_token'
       SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME = 'service_account_access_token'
       TOKEN_ROUTE_PATH = '/v0/sign_in/token'
+      ALLOWED_CLIENT_IDS = ['vaweb'].freeze
     end
   end
 end

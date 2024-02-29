@@ -17,6 +17,7 @@ module SignIn
     def authenticate
       @access_token = authenticate_access_token
       @current_user = load_user_object
+      client_id_validation(@access_token.client_id)
       validate_request_ip
       @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
@@ -37,6 +38,12 @@ module SignIn
     end
 
     private
+
+    def client_id_validation(client_id)
+      if Constants::Auth::ALLOWED_CLIENT_IDS.exclude?(client_id)
+        raise Errors::ClientNotAllowed.new message: 'Client_id not allowed'
+      end
+    end
 
     def bearer_token
       header = request.authorization
