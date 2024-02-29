@@ -127,11 +127,7 @@ module Veteran
       # @return [Hash] Hash with "email_changed", "phone_number_changed", "address_changed" keys as booleans.
       def diff(other)
         %i[address email phone_number].each_with_object({}) do |field, diff|
-          if field == :address
-            diff['address_changed'] = address_changed?(other)
-          else
-            diff["#{field}_changed"] = send(field) != other[field]
-          end
+          diff["#{field}_changed"] = field == :address ? address_changed?(other) : send(field) != other[field]
         end
       end
 
