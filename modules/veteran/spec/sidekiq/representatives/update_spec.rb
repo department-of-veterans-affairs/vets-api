@@ -196,7 +196,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          'Representatives::Update: Update failed for Rep id: not_found: uncaught throw StandardError', :error
+          'Representatives::Update: Update failed for Rep id: not_found: Representative not found.', :error
         )
 
         subject.perform(json_data)

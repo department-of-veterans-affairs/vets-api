@@ -101,7 +101,7 @@ module Representatives
         Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
 
       if record.nil?
-        throw StandardError, 'Representative not found.'
+        raise StandardError, 'Representative not found.'
       else
         address_attributes = rep_data['address_changed'] ? build_address_attributes(rep_data, api_response) : {}
         email_attributes = rep_data['email_changed'] ? build_email_attributes(rep_data) : {}
