@@ -13,17 +13,19 @@ module ClaimsApi
          @error == Faraday::NilStatusError || @error == Faraday::TimeoutError ||
          @error.is_a?(::Common::Exceptions::BackendServiceException) ||
          @error.is_a?(::Common::Exceptions::ExternalServerInternalServerError) ||
-         @error.is_a?(::Common::Exceptions::BadGateway)
+         @error.is_a?(::Common::Exceptions::BadGateway) || @error == Faraday::ConnectionFailed ||
+         @error == Faraday::SSLError || @error == Faraday::ServerError
         errors = { errors: [{ 'key' => 'Service Exception',
                               'detail' => 'A re-tryable error has occurred, original_error: ' \
                                           "#{@error}.", status: '500' }] }
         log_outcome_for_claims_api(errors)
         raise ::Common::Exceptions::ServiceError, errors
 
-      elsif @error.is_a?(StandardError) || @error.is_a?(Faraday::BadRequestError) ||
-            @error.is_a?(Faraday::ConflictError) || @error.is_a?(Faraday::ForbiddenError) ||
-            @error.is_a?(Faraday::ProxyAuthError) || @error.is_a?(Faraday::ResourceNotFound) ||
-            @error.is_a?(Faraday::UnauthorizedError) || @error.is_a?(Faraday::UnprocessableEntityError)
+      elsif @error.is_a?(StandardError) || @error == Faraday::BadRequestError ||
+            @error == Faraday::ConflictError || @error == Faraday::ForbiddenError ||
+            @error == Faraday::ProxyAuthError || @error == Faraday::ResourceNotFound ||
+            @error == Faraday::UnauthorizedError || @error == Faraday::UnprocessableEntityError ||
+            @error == Faraday::ClientError
 
         errors = { errors: [{ 'key' => 'Client error',
                               'detail' => 'A client exception has occurred, job will not be re-tried.' \
