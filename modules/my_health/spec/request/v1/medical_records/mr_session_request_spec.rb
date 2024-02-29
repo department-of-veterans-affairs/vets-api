@@ -29,7 +29,6 @@ RSpec.describe 'Medical Records Session', type: :request do
       get '/my_health/v1/medical_records/session/status'
     end
 
-    puts response
     expect(response).to be_successful
     expect(response.body).to be_a(String)
   end
