@@ -5,7 +5,7 @@ module RepresentationManagement
     class FlagAccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
       skip_before_action :authenticate
-      # before_action :feature_enabled
+      before_action :feature_enabled
 
       def create
         flags = nil
@@ -41,9 +41,9 @@ module RepresentationManagement
         end
       end
 
-      # def feature_enabled
-      #   routing_error unless Flipper.enabled?(:find_a_representative_flag_results_enabled)
-      # end
+      def feature_enabled
+        routing_error unless Flipper.enabled?(:find_a_representative_flag_results_enabled)
+      end
     end
   end
 end
