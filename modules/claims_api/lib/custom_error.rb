@@ -12,10 +12,10 @@ module ClaimsApi
       get_status
       if @error == Faraday::ConnectionFailed || @error == Faraday::ParsingError ||
          @error == Faraday::NilStatusError || @error == Faraday::TimeoutError ||
-         @error.is_a?(::Common::Exceptions::BackendServiceException) ||
-         @error.is_a?(::Common::Exceptions::ExternalServerInternalServerError) ||
-         @error.is_a?(::Common::Exceptions::BadGateway) || @error == Faraday::ConnectionFailed ||
-         @error == Faraday::SSLError || @error == Faraday::ServerError || @status.to_s.start_with?('5')
+         @error == ::Common::Exceptions::BackendServiceException ||
+         @error == ::Common::Exceptions::ExternalServerInternalServerError ||
+         @error == ::Common::Exceptions::BadGateway || @error == Faraday::SSLError ||
+         @error == Faraday::ServerError || @status.to_s.start_with?('5')
         errors = { errors: [{ 'key' => 'Service Exception',
                               'detail' => 'A re-tryable error has occurred, original_error: ' \
                                           "#{@error}.", status: '500' }] }

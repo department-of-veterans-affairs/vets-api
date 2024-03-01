@@ -49,7 +49,7 @@ module ClaimsApi
       auto_claim.save
     rescue => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = e.errors || e.detailed_message
+      auto_claim.evss_response = (e.errors.presence || e.detailed_message)
       auto_claim.form_data = orig_form_data
       auto_claim.save
       raise e
