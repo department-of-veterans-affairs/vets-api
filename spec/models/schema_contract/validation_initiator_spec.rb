@@ -18,7 +18,7 @@ describe SchemaContract::ValidationInitiator do
     context 'when a record already exists for the current day' do
       before do
         create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                            status: 'initiated')
+                                            status: 'initialized')
       end
 
       it 'does not create a record or enqueue a job' do
@@ -33,7 +33,7 @@ describe SchemaContract::ValidationInitiator do
     context 'when no record exists for the current day' do
       before do
         create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                            status: 'initiated', created_at: Time.zone.yesterday.beginning_of_day)
+                                            status: 'initialized', created_at: Time.zone.yesterday.beginning_of_day)
       end
 
       it 'creates one with provided details and enqueues a job' do

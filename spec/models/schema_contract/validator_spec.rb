@@ -188,5 +188,17 @@ type: integer in schema #{uuid_regex}"\]})
         expect(contract_record.reload.status).to eq('schema_not_found')
       end
     end
+
+    context 'when unexpected error occurs' do
+      let(:response) { matching_response }
+
+      it 'records errors' do
+        allow(JSON::Validator).to receive(:fully_validate).and_raise(StandardError)
+        expect do
+          SchemaContract::Validator.new(contract_record.id).validate
+        end.to raise_error(StandardError)
+        expect(contract_record.reload.status).to eq('error')
+      end
+    end
   end
 end

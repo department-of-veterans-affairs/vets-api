@@ -7,12 +7,13 @@ module SchemaContract
     attribute :contract_name, :string
     attribute :user_uuid, :string
     attribute :response, :jsonb
-    attribute :status, :string
     attribute :error_details, :string
 
     validates :contract_name, presence: true
     validates :user_uuid, presence: true
     validates :response, presence: true
     validates :status, presence: true
+
+    enum status: { initialized: 0, success: 1, schema_errors_found: 2, schema_not_found: 3, error: 4 }
   end
 end

@@ -19,6 +19,7 @@ module SchemaContract
         @result = 'success'
       end
     ensure
+      @result ||= "error"
       record&.update(status: @result) if defined?(@record)
     end
 
