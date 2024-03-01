@@ -1,36 +1,35 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
-require 'lighthouse/benefits_claims/configuration'
-require 'lighthouse/benefits_claims/service'
 
 RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
   before do
     Sidekiq::Job.clear_all
-    token = 'abcdefghijklmnop'
-    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-    Flipper.enable(:mobile_lighthouse_claims)
+  end
+
+  before(:all) do
+    Flipper.disable(:mobile_lighthouse_claims)
   end
 
   describe '.perform_async' do
-    let(:user) { sis_user(icn: '1008596379V859838') }
+    let(:user) { create(:user, :loa3) }
 
     it 'caches the expected claims and appeals' do
-      VCR.use_cassette('mobile/lighthouse_claims/index/200_response') do
+      VCR.use_cassette('mobile/claims/claims') do
         VCR.use_cassette('mobile/appeals/appeals') do
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
           subject.perform(user.uuid)
-          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(11)
+
+          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(148)
           expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
             {
-              id: '600383363',
-              type: 'claim',
-              subtype: 'Compensation',
+              id: 'SC1678',
+              type: 'appeal',
+              subtype: 'supplementalClaim',
               completed: false,
-              date_filed: '2022-09-27',
-              updated_at: '2022-09-30',
-              display_title: 'Compensation',
+              date_filed: '2020-09-23',
+              updated_at: '2020-09-23',
+              display_title: 'supplemental claim for disability compensation',
               decision_letter_sent: false
             }
           )
@@ -42,17 +41,17 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       it 'caches the expected claims' do
         allow_any_instance_of(AppealsPolicy).to receive(:access?).and_return(false)
 
-        VCR.use_cassette('mobile/lighthouse_claims/index/200_response') do
+        VCR.use_cassette('mobile/claims/claims') do
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
           subject.perform(user.uuid)
-          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(6)
+          expect(Mobile::V0::ClaimOverview.get_cached(user).count).to eq(143)
           expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
-            { id: '600383363',
+            { id: '600118851',
               type: 'claim',
               subtype: 'Compensation',
               completed: false,
-              date_filed: '2022-09-27',
-              updated_at: '2022-09-30',
+              date_filed: '2017-12-08',
+              updated_at: '2017-12-08',
               display_title: 'Compensation',
               decision_letter_sent: false }
           )
@@ -60,7 +59,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       end
 
       it 'caches the expected appeals' do
-        allow_any_instance_of(LighthousePolicy).to receive(:access?).and_return(false)
+        allow_any_instance_of(EVSSPolicy).to receive(:access?).and_return(false)
 
         VCR.use_cassette('mobile/appeals/appeals') do
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
@@ -80,8 +79,8 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       end
     end
 
-    it 'does not cache when a non authorization error is present' do
-      VCR.use_cassette('mobile/lighthouse_claims/index/404_response') do
+    it 'does not cache when received non authorization error' do
+      VCR.use_cassette('mobile/claims/claims_with_errors') do
         VCR.use_cassette('mobile/appeals/appeals') do
           subject.perform(user.uuid)
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
