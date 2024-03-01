@@ -8,10 +8,12 @@ module VetsApi
     class Native
       def run
         puts "\nNative Setup... "
-        remove_other_setup_settings
-        install_bundler
+        # remove_other_setup_settings
+        # install_bundler
         if RbConfig::CONFIG['host_os'] =~ /darwin/i
+          install_postgres_and_postgis
           run_brewfile
+          pex_install_postis
           configuring_clamav_antivirus
           install_pdftk
         else
@@ -20,11 +22,6 @@ module VetsApi
         install_gems
         setup_db
         setup_parallel_spec
-        if RbConfig::CONFIG['host_os'] =~ /darwin/i
-          puts
-          puts 'Follow the Platform Specific Notes instructions to install Postgres & PostGIS'
-          puts 'https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#osx'
-        end
         puts "\nNative Setup Complete!"
       end
 
@@ -61,6 +58,36 @@ module VetsApi
         lines[bundler_line - 1].strip
       end
 
+      def install_postgres
+        ShellCommand.run('brew install postgres@14')
+      end
+
+      def run_brewfile
+        print 'Installing binary dependencies...'
+        ShellCommand.run_quiet('brew bundle')
+        puts 'Done'
+      end
+
+      def pex_install_postis
+        g_cppflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'
+        cflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'
+
+        return if ShellCommand.run("psql -U postgres -d vets-api -c 'SELECT PostGIS_Version();' | grep -q '(1 row)'")
+
+        unless ShellCommand.run("G_CPPFLAGS='#{g_cppflags}' CFLAGS='#{cflags}' pex install postgis")
+          puts "\n***ERROR***\n"
+          puts 'There was an issue installing the postgis extension on postgres'
+          puts 'You will need to install postgres and the extenstions via the app'
+          puts
+          puts '1. Download the Postgres.app with PostgreSQL 14 https://postgresapp.com/'
+          puts '2. Follow the install instructions'
+          puts '3. `sudo mkdir -p /etc/paths.d && echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp`'
+          puts '4. `ARCHFLAGS="-arch x86_64" gem install pg -v 1.5.5`'
+          puts '5. run postgres (e.g. open postgres.app, create a new server, and click "initialize")'
+          puts '6. Now you can rerun the bin/setup command to finish the setup'
+        end
+      end
+
       def install_gems
         print 'Installing all gems...'
         `bundle install`
@@ -92,12 +119,6 @@ module VetsApi
             end
           CLAMD
         end
-        puts 'Done'
-      end
-
-      def run_brewfile
-        print 'Installing binary dependencies...'
-        ShellCommand.run_quiet('brew bundle')
         puts 'Done'
       end
 
