@@ -2,7 +2,7 @@
 
 require 'iso_country_codes'
 
-class FormProfiles::VA21p530ez < FormProfile
+class FormProfiles::VA21p530v2 < FormProfile
   def metadata
     {
       version: 0,
