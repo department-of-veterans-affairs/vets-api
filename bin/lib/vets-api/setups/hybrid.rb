@@ -15,12 +15,8 @@ module VetsApi
         setup_parallel_spec
         configuring_clamav_antivirus
         dockerized_dependencies_settings
+        install_pdftk
         puts "\nHybrid Setup Complete!"
-        puts
-        puts 'Follow the Platform Specific Notes instructions, but skip any steps related to installing \
-              Postgres, Postgis, or Redis.'
-        puts 'You will need to install the other dependencies such as pdftk and clamav.'
-        puts 'https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md#platform-specific-notes'
       end
 
       private
@@ -135,6 +131,22 @@ module VetsApi
         puts 'Setting up parallel_test...'
         ShellCommand.run_quiet('RAILS_ENV=test bundle exec rake parallel:setup')
         puts 'Setting up parallel_test...Done'
+      end
+
+      def install_pdftk
+        if pdftk_installed?
+          puts 'Skipping pdftk install (binary already installed)'
+        else
+          puts 'Installing pdftk...'
+          pdftk_url = 'https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg'
+          ShellCommand.run_quiet("curl -o ~/Downloads/pdftk_download.pkg #{pdftk_url}")
+          ShellCommand.run_quiet('sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /')
+          puts 'Installing pdftk...Done'
+        end
+      end
+
+      def pdftk_installed?
+        ShellCommand.run_quiet('pdftk --help')
       end
     end
   end
