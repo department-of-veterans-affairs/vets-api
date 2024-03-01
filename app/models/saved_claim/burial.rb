@@ -3,7 +3,14 @@
 require 'pension_burial/processing_office'
 
 class SavedClaim::Burial < CentralMailClaim
+
   FORM = '21P-530'
+
+  attr_accessor :version_2
+
+  after_initialize do
+    self.form_id = self.version_2 ? '21P-530V2' : self.class::FORM.upcase
+  end
 
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten

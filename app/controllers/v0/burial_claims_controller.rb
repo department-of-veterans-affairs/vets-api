@@ -19,7 +19,7 @@ module V0
       # this method also calls claim.process_attachments!
       claim.submit_to_structured_data_services!
 
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.form_id}"
       clear_saved_form(claim.form_id)
       render(json: claim)
     end
