@@ -24,11 +24,18 @@ module SimpleFormsApi
 
     def handle_attachments(file_path)
       attachments = get_attachments
+      file_paths = [file_path]
+
       if attachments.count.positive?
-        attachments.each do |attachment|
+        attachments.each_with_index do |attachment, index|
+          new_file_name = "vha_10_10d-tmp#{index + 1}.pdf"
+          new_file_path = File.join(File.dirname(attachment), new_file_name)
+          File.rename(attachment, new_file_path)
+          file_paths << new_file_path
         end
-        combined_pdf.save file_path
       end
+
+      file_paths
     end
 
     def submission_date_config

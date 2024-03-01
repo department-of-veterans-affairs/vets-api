@@ -118,7 +118,7 @@ module Avs
             key :$ref, :medication
           end
         end
-        property :medChangesSummary, type: :array do
+        property :medChangesSummary, type: :object do
           property :discontinuedMeds, type: :array do
             items type: :string
           end
