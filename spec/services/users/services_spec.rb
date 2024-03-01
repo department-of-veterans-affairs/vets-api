@@ -44,5 +44,15 @@ RSpec.describe Users::Services do
         )
       end
     end
+
+    context 'with an MHV Premium user' do
+      let(:user) { build(:user, :mhv) }
+
+      it 'returns an array including the MHV services' do
+        %w[health-records medical-records messaging rx].each do |service|
+          expect(subject).to include(service)
+        end
+      end
+    end
   end
 end
