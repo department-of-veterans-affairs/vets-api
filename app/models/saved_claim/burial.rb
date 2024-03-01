@@ -6,10 +6,10 @@ class SavedClaim::Burial < CentralMailClaim
 
   FORM = '21P-530'
 
-  attr_accessor :version_2
+  attr_accessor :formV2
 
   after_initialize do
-    self.form_id = self.version_2 ? '21P-530V2' : self.class::FORM.upcase
+    self.form_id = self.formV2 ? '21P-530V2' : self.class::FORM.upcase
   end
 
   def process_attachments!

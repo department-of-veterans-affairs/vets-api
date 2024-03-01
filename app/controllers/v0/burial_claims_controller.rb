@@ -8,7 +8,7 @@ module V0
 
     def create
       PensionBurial::TagSentry.tag_sentry
-      claim = claim_class.new(form: filtered_params[:form], version_2: filtered_params[:form].try(:version_2))
+      claim = claim_class.new(form: filtered_params[:form], formV2: filtered_params[:form].try(:version_2))
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
