@@ -14,16 +14,6 @@ module Mobile
           claims_service.submit5103(@user, id)
         end
 
-        private
-
-        def claims_adapter
-          Mobile::V0::Adapters::LighthouseClaimsOverview.new
-        end
-
-        def claims_service
-          @claims_service ||= BenefitsClaims::Service.new(@user.icn)
-        end
-
         def get_all_claims
           lambda {
             begin
@@ -36,6 +26,12 @@ module Mobile
               { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'claims') }
             end
           }
+        end
+
+        private
+
+        def claims_service
+          @claims_service ||= BenefitsClaims::Service.new(@user.icn)
         end
       end
     end

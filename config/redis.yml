@@ -57,9 +57,6 @@ development: &defaults
     namespace: mpi-profile-response
     each_ttl: 86400
     failure_ttl: 1800
-  emis_response:
-    namespace: emis-response
-    each_ttl: 86400
   okta_response:
     namespace: okta-response
     each_ttl: 3600

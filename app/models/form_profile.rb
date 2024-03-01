@@ -100,7 +100,8 @@ class FormProfile
     vre_counseling: ['28-8832'],
     vre_readiness: ['28-1900'],
     coe: ['26-1880'],
-    adapted_housing: ['26-4555']
+    adapted_housing: ['26-4555'],
+    intent_to_file: ['21-0966']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -136,7 +137,8 @@ class FormProfile
     '28-1900' => ::FormProfiles::VA281900,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
-    '26-4555' => ::FormProfiles::VA264555
+    '26-4555' => ::FormProfiles::VA264555,
+    '21-0966' => ::FormProfiles::VA210966
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

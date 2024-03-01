@@ -6,7 +6,7 @@ module Preneeds
       # Faraday response middleware that cleans up the response body from EOAS
       # that can have some extra content before the relevant XML body.
       #
-      class CleanResponse < Faraday::Response::Middleware
+      class CleanResponse < Faraday::Middleware
         # Ensures expected formatting of EOAS response.
         #
         # @return [Faraday::Env]

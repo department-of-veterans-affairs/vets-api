@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Forms uploader', type: :request do
-  all_forms = [
-    'vha_10_10d.json',
+  non_ivc_forms = [
     'vba_26_4555.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
@@ -14,11 +13,16 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_21_0845.json',
     'vba_40_0247.json',
     'vba_21_0966.json',
-    'vba_20_10206.json'
+    'vba_20_10206.json',
+    'vba_40_10007.json'
+  ]
+
+  ivc_forms = [
+    'vha_10_10d.json'
   ]
 
   describe '#submit' do
-    all_forms.each do |form|
+    non_ivc_forms.each do |form|
       fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
 
@@ -51,6 +55,26 @@ RSpec.describe 'Forms uploader', type: :request do
             Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
           end
         end
+      end
+    end
+
+    let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+
+    before do
+      allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+    end
+
+    ivc_forms.each do |form|
+      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+      data = JSON.parse(fixture_path.read)
+
+      it 'uploads a PDF file to S3' do
+        allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+        allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -156,7 +180,7 @@ RSpec.describe 'Forms uploader', type: :request do
     end
 
     describe 'request with attached documents' do
-      it 'appends the attachments to the PDF' do
+      it 'appends the attachments to the 40-0247 PDF' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
@@ -165,12 +189,30 @@ RSpec.describe 'Forms uploader', type: :request do
             data = JSON.parse(fixture_path.read)
             attachment = double
             allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-            allow(CombinePDF).to receive(:load).and_return([])
 
             expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
+            expect(response).to have_http_status(:ok)
+          ensure
+            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+          end
+        end
+      end
+
+      it 'appends the attachments to the 40-10007 PDF' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'vba_40_10007_with_supporting_document.json')
+            pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+            data = JSON.parse(fixture_path.read)
+            attachment = double
+            allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+            expect(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
+            post '/simple_forms_api/v1/simple_forms', params: data
             expect(response).to have_http_status(:ok)
           ensure
             metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
@@ -313,16 +355,24 @@ RSpec.describe 'Forms uploader', type: :request do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
       file = fixture_file_upload('doctors-note.gif')
-      data = { form_id: '40-0247', file: }
 
-      expect do
-        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
-      end.to change(PersistentAttachment, :count).by(1)
+      # Define data for both form IDs
+      data_sets = [
+        { form_id: '10-10D', file: },
+        { form_id: '40-0247', file: },
+        { form_id: '40-10007', file: }
+      ]
 
-      expect(response).to have_http_status(:ok)
-      resp = JSON.parse(response.body)
-      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
-      expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      data_sets.each do |data|
+        expect do
+          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
     end
   end
 

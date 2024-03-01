@@ -1,27 +1,27 @@
 {
-  "data": [
+  "Data": [
       {
-          "id": 722310005,
-          "name": "Phone"
+          "Id": 722310005,
+          "Name": "Phone"
       },
       {
-          "id": 722310004,
-          "name": "US Mail"
+          "Id": 722310004,
+          "Name": "US Mail"
       },
       {
-          "id": 722310000,
-          "name": "AVA"
+          "Id": 722310000,
+          "Name": "AVA"
       },
       {
-          "id": 722310001,
-          "name": "Email"
+          "Id": 722310001,
+          "Name": "Email"
       },
       {
-          "id": 722310002,
-          "name": "Facebook"
+          "Id": 722310002,
+          "Name": "Facebook"
       }
   ],
-  "message": "",
+  "Message": "",
   "ExceptionOccurred": false,
   "ExceptionMessage": "",
   "MessageId": "99aff044-d45f-4d5e-954f-675ed4fc9e33"

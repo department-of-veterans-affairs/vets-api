@@ -4,7 +4,7 @@ module Common
   module Client
     module Middleware
       module Response
-        class CaseflowErrors < Faraday::Response::Middleware
+        class CaseflowErrors < Faraday::Middleware
           def on_complete(env)
             return if env.success?
 
