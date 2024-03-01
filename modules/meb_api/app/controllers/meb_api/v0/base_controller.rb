@@ -12,6 +12,11 @@ module MebApi
 
       private
 
+      def service_unavailable
+        render json: { error: 'Service is currently unavailable due to maintenance. Please try again later.' },
+               status: :service_unavailable
+      end
+
       def authorize_access
         authorize(current_user, :access?, policy_class: MebPolicy)
       end
