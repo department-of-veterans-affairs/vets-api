@@ -441,6 +441,10 @@ describe VAOS::V2::AppointmentsService do
         end
 
         context 'using vaos-service' do
+          before do
+            Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          end
+
           it 'returns a cancelled status and the cancelled appointment information' do
             VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200',
                              match_requests_on: %i[method path query]) do
@@ -466,6 +470,10 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when there is a server error in updating an appointment' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+      end
+
       it 'throws a BackendServiceException' do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
           expect { subject.update_appointment('35952', 'cancelled') }
