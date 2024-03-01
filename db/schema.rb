@@ -898,7 +898,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_26_235237) do
     t.string "contract_name", null: false
     t.string "user_uuid", null: false
     t.jsonb "response", null: false
-    t.string "status", null: false
+    t.integer "status", null: false
     t.string "error_details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
