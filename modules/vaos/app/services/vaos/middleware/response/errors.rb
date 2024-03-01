@@ -21,7 +21,7 @@ module VAOS
         # @return [URI] URI with anonymized ICN (If present), original URI otherwise.
         #
         def anonymize_icn(uri)
-          return uri if uri.nil?
+          return nil if uri.nil?
 
           # Extract the patient ICN part from the URL
           url = uri.to_s
