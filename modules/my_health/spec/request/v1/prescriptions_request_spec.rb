@@ -139,10 +139,11 @@ RSpec.describe 'prescriptions', type: :request do
 
         response_data = JSON.parse(response.body)['data']
         response_data.each do |prescription|
-          if prescription['is_refillable'] || prescription['refill_status'] == 'active' ||
-             (%w[Expired Discontinued].include?(prescription['disp_status']) &&
-             prescription['sorted_dispensed_date'] >= six_months_from_today &&
-             prescription['sorted_dispensed_date'] != zero_date)
+          sorted_dispensed_date = prescription['rxRfRecords']&.dig(0, 1, 0) || prescription['dispensedDate']
+          if prescription['isRefillable'] || ['Active', 'Active: Submitted'].include?(prescription['dispStatus']) ||
+             (%w[Expired Discontinued].include?(prescription['dispStatus']) &&
+             sorted_dispensed_date >= six_months_from_today &&
+             sorted_dispensed_date != zero_date)
 
             expect(prescription).to be_included
           end

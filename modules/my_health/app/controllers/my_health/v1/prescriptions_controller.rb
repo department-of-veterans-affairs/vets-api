@@ -178,7 +178,7 @@ module MyHealth
           disp_status = item.disp_status
           sorted_dispensed_date = item.sorted_dispensed_date.to_date
 
-          next true if disp_status == 'Active'
+          next true if ['Active', 'Active: Submitted'].include?(disp_status)
           next true if item.is_refillable
           next true if %w[Expired Discontinued].include?(disp_status) &&
                        sorted_dispensed_date >= six_months_from_today &&
