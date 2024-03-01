@@ -4,8 +4,8 @@ module RepresentationManagement
   module V0
     class FlagAccreditedRepresentativesController < ApplicationController
       service_tag 'lighthouse-veteran'
-      skip_before_action :authenticate
       before_action :feature_enabled
+      skip_before_action :authenticate
 
       def create
         flags = nil
