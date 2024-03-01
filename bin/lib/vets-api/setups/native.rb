@@ -69,10 +69,10 @@ module VetsApi
       end
 
       def pex_install_postis
+        return if ShellCommand.run("psql -U postgres -d vets-api -c 'SELECT PostGIS_Version();' | grep -q '(1 row)'")
+
         g_cppflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'
         cflags = '-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include'
-
-        return if ShellCommand.run("psql -U postgres -d vets-api -c 'SELECT PostGIS_Version();' | grep -q '(1 row)'")
 
         unless ShellCommand.run("G_CPPFLAGS='#{g_cppflags}' CFLAGS='#{cflags}' pex install postgis")
           puts "\n***ERROR***\n"
