@@ -85,7 +85,7 @@ module SignIn
     def create_access_token
       AccessToken.new(
         session_handle: session.handle,
-        client_id: session.client_id,
+        client_id:,
         user_uuid: refresh_token.user_uuid,
         audience:,
         refresh_token_hash: get_hash(child_refresh_token.to_json),
@@ -117,11 +117,15 @@ module SignIn
     end
 
     def audience
-      @audience ||= client_config.access_token_audience
+      @audience ||= AccessTokenAudienceGenerator.new(client_config:).perform
     end
 
     def client_config
-      @client_config ||= SignIn::ClientConfig.find_by!(client_id: session.client_id)
+      @client_config ||= SignIn::ClientConfig.find_by!(client_id:)
+    end
+
+    def client_id
+      @client_id ||= session.client_id
     end
 
     def get_hash(object)

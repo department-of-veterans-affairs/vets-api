@@ -24,6 +24,7 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
+  gem 'representation_management'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'travel_pay'
@@ -82,7 +83,7 @@ gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
-gem 'govdelivery-tms', git: 'https://github.com/adhocteam/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
+gem 'govdelivery-tms', git: 'https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
 gem 'httpclient' # for lib/evss/base_service.rb

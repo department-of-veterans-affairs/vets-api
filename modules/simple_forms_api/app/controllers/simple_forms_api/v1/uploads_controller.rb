@@ -21,14 +21,15 @@ module SimpleFormsApi
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
-        '20-10206' => 'vba_20_10206'
+        '20-10206' => 'vba_20_10206',
+        '40-10007' => 'vba_40_10007'
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d'
       }.freeze
 
-      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847].freeze
+      UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
@@ -43,7 +44,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 10-10D].include?(params[:form_id])
+        if %w[40-0247 10-10D 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -150,7 +151,7 @@ module SimpleFormsApi
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
         case form_id
-        when 'vba_40_0247', 'vha_10_10d'
+        when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
           form.handle_attachments(file_path)
         end
 
