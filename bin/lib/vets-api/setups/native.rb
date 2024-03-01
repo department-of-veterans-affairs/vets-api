@@ -8,8 +8,8 @@ module VetsApi
     class Native
       def run
         puts "\nNative Setup... "
-        # remove_other_setup_settings
-        # install_bundler
+        remove_other_setup_settings
+        install_bundler
         if RbConfig::CONFIG['host_os'] =~ /darwin/i
           install_postgres_and_postgis
           run_brewfile
