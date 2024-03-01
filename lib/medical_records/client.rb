@@ -71,6 +71,8 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def fhir_client
+      raise MedicalRecords::PatientNotFound if patient_fhir_id.nil?
+
       @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
