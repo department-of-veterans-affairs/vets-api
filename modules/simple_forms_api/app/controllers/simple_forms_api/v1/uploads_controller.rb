@@ -93,10 +93,10 @@ module SimpleFormsApi
       def submit_form_to_central_mail
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
-        file_path, metadata = get_file_path_and_metadata(parsed_form_data)
+        file_path, ivc_file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
 
         if IVC_FORM_NUMBER_MAP.value?(form_id)
-          status, error_message = handle_ivc_uploads(form_id, metadata, file_path)
+          status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
@@ -115,14 +115,19 @@ module SimpleFormsApi
         render json: get_json(confirmation_number || nil, form_id, error_message || nil), status:
       end
 
-      def handle_ivc_uploads(form_id, metadata, pdf_file_path)
+      def handle_ivc_uploads(form_id, metadata, pdf_file_paths)
         meta_file_name = "#{form_id}_metadata.json"
-        pdf_file_name = "#{form_id}.pdf"
         meta_file_path = "tmp/#{meta_file_name}"
 
-        pdf_upload_status, pdf_upload_error_message = upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+        pdf_results =
+          pdf_file_paths.map do |pdf_file_path|
+            pdf_file_name = pdf_file_path.gsub('tmp/', '').gsub('-tmp', '')
+            upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+          end
 
-        if pdf_upload_status == 200
+        all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
+
+        if all_pdf_success
           File.write(meta_file_path, metadata)
           meta_upload_status, meta_upload_error_message = upload_to_ivc_s3(meta_file_name, meta_file_path)
 
@@ -133,11 +138,11 @@ module SimpleFormsApi
             [meta_upload_status, meta_upload_error_message]
           end
         else
-          [meta_upload_status, pdf_upload_error_message]
+          [pdf_results]
         end
       end
 
-      def get_file_path_and_metadata(parsed_form_data)
+      def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         form.track_user_identity
@@ -150,12 +155,13 @@ module SimpleFormsApi
                     end
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        case form_id
-        when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
-          form.handle_attachments(file_path)
-        end
+        maybe_add_file_paths =
+          case form_id
+          when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
+            form.handle_attachments(file_path)
+          end
 
-        [file_path, metadata]
+        [file_path, maybe_add_file_paths, metadata]
       end
 
       def get_upload_location_and_uuid(lighthouse_service)
