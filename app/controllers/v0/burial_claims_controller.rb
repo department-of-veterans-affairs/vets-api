@@ -7,8 +7,8 @@ module V0
     service_tag 'burial-application'
 
     def create
-      PensionBurial::TagSentry.tag_sentry
-      claim = claim_class.new(form: filtered_params[:form], formV2: filtered_params[:form].try(:version_2))
+     PensionBurial::TagSentry.tag_sentry
+      claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params[:form])["formV2"])
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
