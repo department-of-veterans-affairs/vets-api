@@ -79,7 +79,7 @@ RSpec.describe BGS::Service do
 
       context 'when there is an error retrieving bank name' do
         it 'logs an exception to sentry and returns nil for bank name' do
-          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+          # VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('bgs/ddeft/find_bank_name_invalid_routing') do
               expect(bgs_service).to receive(:log_exception_to_sentry).with(
                 an_instance_of(Savon::SOAPFault),
@@ -97,7 +97,7 @@ RSpec.describe BGS::Service do
                 }
               )
             end
-          end
+          # end
         end
       end
 
