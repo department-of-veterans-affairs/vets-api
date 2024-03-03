@@ -124,7 +124,7 @@ describe VAOS::Middleware::VAOSLogging do
       expect(StatsD).to have_received(:increment).with(statsd_msg, anything).once
     end
 
-    it 'logs timeout error with anonymized URI' do
+    it 'logs timeout error with hashed URI' do
       expected_log_tags = {
         duration: 0.0,
         jti: 'unknown jti',
