@@ -18,7 +18,7 @@ describe VAOS::Middleware::Response::Errors do
   }
 
   let(:url) { URI.parse('url') }
-  let(:url_icn) { URI.parse('https://veteran.apps.va.gov/id/1234567890V123456') }
+  let(:url_w_icn) { URI.parse('https://veteran.apps.va.gov/id/1234567890V123456') }
   let(:success) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 200, nil, 'response_body') }
   let(:env_400) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 400, nil, 'response_body') }
   let(:env_403) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 403, nil, 'response_body') }
@@ -28,7 +28,7 @@ describe VAOS::Middleware::Response::Errors do
   let(:env_other) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 600, nil, 'response_body') }
   let(:env_with_error) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 400, nil, JSON[error]) }
   let(:env_with_errors) { Faraday::Env.new(:get, nil, url, nil, nil, nil, nil, nil, nil, nil, 400, nil, JSON[errors]) }
-  let(:env_w_icn) { Faraday::Env.new(:get, nil, url_icn, nil, nil, nil, nil, nil, nil, nil, 400, nil, JSON[errors]) }
+  let(:env_w_icn) { Faraday::Env.new(:get, nil, url_w_icn, nil, nil, nil, nil, nil, nil, nil, 400, nil, JSON[errors]) }
 
   describe 'on complete' do
     context 'with success' do
