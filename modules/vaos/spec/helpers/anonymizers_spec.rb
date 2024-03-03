@@ -13,7 +13,7 @@ RSpec.describe VAOS::Anonymizers do
       expect(subject.anonymize_uri_icn(uri)).to be(uri)
     end
 
-    it 'returns a URI with the ICN anonymized' do
+    it 'returns a URI with the ICN hashed' do
       uri = URI.parse('http://example.com/1234567890V123456')
       anon_uri = URI.parse('http://example.com/441ab560b8fc574c6bf84d6c6105318b79455321a931ef701d39f4ff91894c64')
       expect(subject.anonymize_uri_icn(uri)).to eql(anon_uri)
