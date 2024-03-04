@@ -50,7 +50,17 @@ Rails.application.reloader.to_prepare do
   end
 
   Sidekiq.configure_client do |config|
-    config.redis = REDIS_CONFIG[:sidekiq]
+
+    redis_url = if Rails.env.test?
+      require 'testcontainers/redis'
+      container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
+      container.start
+      container.redis_url
+    else
+      REDIS_CONFIG[:sidekiq][:url]
+    end
+
+    config.redis = { url: redis_url }
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
@@ -59,6 +69,8 @@ Rails.application.reloader.to_prepare do
     end
 
     # Remove the default error handler
-    config.error_handlers.delete_if { |handler| handler.is_a?(Sidekiq::ExceptionHandler::Logger) }
+    config.error_handlers.delete(Sidekiq::Config::ERROR_HANDLER)
   end
+
+  Sidekiq.strict_args!(false)
 end

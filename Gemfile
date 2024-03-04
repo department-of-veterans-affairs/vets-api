@@ -175,7 +175,6 @@ end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
-  gem 'fakeredis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
@@ -185,6 +184,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
+  gem 'testcontainers-redis'
   gem 'vcr'
   gem 'webrick'
 end
@@ -216,7 +216,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '>= 6.4.0'
+  gem 'sidekiq', '~> 7.2.0'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'

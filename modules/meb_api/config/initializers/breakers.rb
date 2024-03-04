@@ -10,10 +10,19 @@ require 'dgi/submission/configuration'
 require 'dgi/letters/configuration'
 
 Rails.application.reloader.to_prepare do
-  # Read the redis config, create a connection and a namespace for breakers
-  # .to_h because hashes from config_for don't support non-symbol keys
-  redis_options = REDIS_CONFIG[:redis].to_h
-  redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
+
+  redis = if Rails.env.test?
+    require 'testcontainers/redis'
+    container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
+    container.start
+    Redis.new(url: container.redis_url)
+  else
+    # Read the redis config, create a connection and a namespace for breakers
+    # .to_h because hashes from config_for don't support non-symbol keys
+    Redis.new(REDIS_CONFIG[:redis].to_h)
+  end
+
+  redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
   services = [
     MebApi::DGI::Configuration.instance.breakers_service,
