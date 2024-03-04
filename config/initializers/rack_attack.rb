@@ -8,15 +8,16 @@ class Rack::Attack
     end
   end
 
-  redis = if Rails.env.test?
-    require 'testcontainers/redis'
-    container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
-    container.start
-    Redis.new(url: container.redis_url)
-  else
-    # .to_h because hashes from config_for don't support non-symbol keys
-    Redis.new(REDIS_CONFIG[:redis].to_h)
-  end
+  redis = Redis.new(REDIS_CONFIG[:redis].to_h)
+  # if Rails.env.test?
+  #   require 'testcontainers/redis'
+  #   container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
+  #   container.start
+  #   Redis.new(url: container.redis_url)
+  # else
+  #   # .to_h because hashes from config_for don't support non-symbol keys
+  #   Redis.new(REDIS_CONFIG[:redis].to_h)
+  # end
 
   Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(redis)
 

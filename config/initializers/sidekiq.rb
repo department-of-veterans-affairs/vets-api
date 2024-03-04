@@ -51,16 +51,16 @@ Rails.application.reloader.to_prepare do
 
   Sidekiq.configure_client do |config|
 
-    redis_url = if Rails.env.test?
-      require 'testcontainers/redis'
-      container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
-      container.start
-      container.redis_url
-    else
-      REDIS_CONFIG[:sidekiq][:url]
-    end
+    # redis_url = if Rails.env.test?
+    #   require 'testcontainers/redis'
+    #   container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
+    #   container.start
+    #   container.redis_url
+    # else
+    #   REDIS_CONFIG[:sidekiq][:url]
+    # end
 
-    config.redis = { url: redis_url }
+    config.redis = { url: REDIS_CONFIG[:sidekiq][:url] }
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware

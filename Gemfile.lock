@@ -356,9 +356,6 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.5.1)
     docile (1.4.0)
-    docker-api (2.2.0)
-      excon (>= 0.47.0)
-      multi_json
     dogstatsd-ruby (5.6.1)
     domain_name (0.6.20240107)
     down (5.4.1)
@@ -407,7 +404,6 @@ GEM
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
-    excon (0.109.0)
     factory_bot (6.4.5)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.4.3)
@@ -623,6 +619,7 @@ GEM
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
     minitest (5.22.2)
+    mock_redis (0.44.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
     multi_json (1.15.0)
@@ -977,10 +974,6 @@ GEM
     swagger-blocks (3.0.0)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
-    testcontainers-core (0.2.0)
-      docker-api (~> 2.2)
-    testcontainers-redis (0.2.0)
-      testcontainers-core (~> 0.1)
     thor (1.3.1)
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
@@ -1154,6 +1147,7 @@ DEPENDENCIES
   mimemagic
   mini_magick
   mobile!
+  mock_redis
   mocked_authentication!
   my_health!
   net-sftp
@@ -1232,7 +1226,6 @@ DEPENDENCIES
   super_diff
   swagger-blocks
   test_user_dashboard!
-  testcontainers-redis
   timecop
   travel_pay!
   tzinfo-data
