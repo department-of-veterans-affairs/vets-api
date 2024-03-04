@@ -139,10 +139,10 @@ module SimpleFormsApi
 
     def self.stamp2010207(stamped_template_path, form)
       desired_stamps = if form.data['preparer_type'] == 'veteran'
-        [[50, 690]]
-      else
-        [[50, 570]]
-      end
+                         [[50, 690]]
+                       else
+                         [[50, 570]]
+                       end
       signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
