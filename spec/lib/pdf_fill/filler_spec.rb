@@ -84,12 +84,12 @@ describe PdfFill::Filler, type: :model do
           context "with #{type} test data" do
             let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
             let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
-            let(:form_data) {
+            let(:form_data) do
               return get_fixture("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
 
               schema = "#{form_id.upcase}-#{type.upcase}"
               VetsJsonSchema::EXAMPLES.fetch(schema)
-            }
+            end
             let(:saved_claim) { create(factory, form: form_data.to_json) }
 
             it 'fills the form correctly' do
