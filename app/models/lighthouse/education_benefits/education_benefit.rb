@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'active_support/inflector'
+
 module Lighthouse
   module EducationBenefits
     # The EducationBenefit model represents a veteran's education benefit status.

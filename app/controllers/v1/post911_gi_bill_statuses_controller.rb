@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'formatters/date_formatter'
-require 'active_support/inflector'
 
 module V1
   class Post911GIBillStatusesController < ApplicationController

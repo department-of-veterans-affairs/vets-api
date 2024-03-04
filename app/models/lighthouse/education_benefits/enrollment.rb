@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'active_support/inflector'
+
 module Lighthouse
   module EducationBenefits
     # The Enrollment model represents an enrollment of a veteran in an education program.
