@@ -37,7 +37,7 @@ module SimpleFormsApi
 
         if form_is210966 && icn && first_party?
           handle_210966_authenticated
-        elsif params[:form_number] == '26-4555' # && icn
+        elsif params[:form_number] == '26-4555' && icn
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
