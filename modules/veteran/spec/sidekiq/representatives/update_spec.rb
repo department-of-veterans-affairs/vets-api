@@ -18,8 +18,9 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
-      flagged_records = RepresentationManagement::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
-                                                                                                flag_type:)
+      flagged_records =
+        RepresentationManagement::FlaggedVeteranRepresentativeContactData
+        .where(representative_id: id, flag_type:)
 
       flagged_records.each do |record|
         expect(record.flagged_value_updated_at).to be_nil
@@ -51,8 +52,9 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     end
 
     it "does not update the #{flag_type} or the associated flagged records" do
-      flagged_records = RepresentationManagement::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
-                                                                                                flag_type:)
+      flagged_records =
+        RepresentationManagement::FlaggedVeteranRepresentativeContactData
+        .where(representative_id: id, flag_type:)
 
       flagged_records.each do |record|
         expect(record.flagged_value_updated_at).to be_nil
@@ -223,8 +225,9 @@ RSpec.describe Representatives::Update do
       end
 
       it 'updates the address and the associated flagged records' do
-        flagged_records = RepresentationManagement::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
-                                                                                                  flag_type: 'address')
+        flagged_records =
+          RepresentationManagement::FlaggedVeteranRepresentativeContactData
+          .where(representative_id: id, flag_type: 'address')
 
         flagged_records.each do |record|
           expect(record.flagged_value_updated_at).to be_nil
@@ -255,8 +258,9 @@ RSpec.describe Representatives::Update do
       end
 
       it 'updates the address and the associated flagged records' do
-        flagged_records = RepresentationManagement::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
-                                                                                                  flag_type: 'address')
+        flagged_records =
+          RepresentationManagement::FlaggedVeteranRepresentativeContactData
+          .where(representative_id: id, flag_type: 'address')
 
         flagged_records.each do |record|
           expect(record.flagged_value_updated_at).to be_nil
@@ -288,11 +292,11 @@ RSpec.describe Representatives::Update do
 
       it 'updates the address and email and the associated flagged records' do
         flagged_address_records =
-          RepresentationManagement::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
-                                                                                  flag_type: 'address')
+          RepresentationManagement::FlaggedVeteranRepresentativeContactData
+          .where(representative_id: id, flag_type: 'address')
         flagged_email_records =
-          RepresentationManagement::FlaggedVeteranRepresentativeContactData.where(representative_id: id,
-                                                                                  flag_type: 'email')
+          RepresentationManagement::FlaggedVeteranRepresentativeContactData
+          .where(representative_id: id, flag_type: 'email')
         flagged_email_records.each do |record|
           expect(record.flagged_value_updated_at).to be_nil
         end
