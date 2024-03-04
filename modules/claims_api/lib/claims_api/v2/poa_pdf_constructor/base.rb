@@ -75,14 +75,10 @@ module ClaimsApi
         # @param address [Hash] Segmented data representing an address
         #
         # @return [String] Single string representation of provided address
-        def stringify_address(address, version = 'v1')
+        def stringify_address(address)
           return if address.nil?
 
-          if version == 'v1'
-            "#{address['numberAndStreet']}, #{address['city']} #{address['state']} #{address['zipFirstFive']}"
-          else
-            "#{address['addressLine1']}, #{address['city']} #{address['stateCode']} #{address['zipCode']}"
-          end
+          "#{address['addressLine1']}, #{address['city']} #{address['stateCode']} #{address['zipCode']}"
         end
 
         private

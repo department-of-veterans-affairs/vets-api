@@ -140,7 +140,7 @@ module ClaimsApi
             # Item 17B
             "#{base_form}.Date_Of_Signature[1]": (data.dig('representative', 'type') == 'INDIVIDUAL PROVIDING REPRESENTATION UNDER SECTION 14.630' ? I18n.l(Time.zone.now.to_date, format: :va_form) : nil),
             # Item 18
-            "#{base_form}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('representative', 'address'), 'v2')
+            "#{base_form}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('representative', 'address'))
           }
         end
         # rubocop:enable Metrics/MethodLength
