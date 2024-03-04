@@ -110,14 +110,41 @@ module Veteran
         where(query, params)
       end
 
+      def self.max_per_page
+        Constants::MAX_PER_PAGE
+      end
+
       #
       # Set the full_name attribute for the representative
       def set_full_name
         self.full_name = "#{first_name} #{last_name}"
       end
 
-      def self.max_per_page
-        Constants::MAX_PER_PAGE
+      #
+      # Compares rep's current info with new data to detect changes in address, email, or phone number.
+      # @param rep_data [Hash] New data with :email, :phone_number, and :request_address keys for comparison.
+      #
+      # @return [Hash] Hash with "email_changed", "phone_number_changed", "address_changed" keys as booleans.
+      def diff(rep_data)
+        %i[address email phone_number].each_with_object({}) do |field, diff|
+          diff["#{field}_changed"] = field == :address ? address_changed?(rep_data) : send(field) != rep_data[field]
+        end
+      end
+
+      private
+
+      #
+      # Checks if the rep's address has changed compared to a new address hash.
+      # @param other_address [Hash] New address data with keys for address components and state code.
+      #
+      # @return [Boolean] True if current address differs from `other_address`, false otherwise.
+      def address_changed?(rep_data)
+        address = [address_line1, address_line2, address_line3, city, zip_code, zip_suffix, state_code].join(' ')
+        other_address = rep_data[:request_address]
+                        .values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4)
+                        .push(rep_data.dig(:request_address, :state_province, :code))
+                        .join(' ')
+        address != other_address
       end
     end
   end

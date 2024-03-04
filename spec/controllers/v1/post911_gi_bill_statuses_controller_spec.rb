@@ -33,9 +33,9 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       response_body = JSON.parse(response.body)
 
       # assertions that the data returned will match our test user
-      expect(response_body['first_name']).to eq("Tamara")
-      expect(response_body['last_name']).to eq("Ellis")
-      expect(response_body['date_of_birth']).to start_with("1967-06-19")
+      expect(response_body['first_name']).to eq('Tamara')
+      expect(response_body['last_name']).to eq('Ellis')
+      expect(response_body['date_of_birth']).to start_with('1967-06-19')
     end
 
     it 'returns a 404 when vet isn\'t found' do
