@@ -12,7 +12,7 @@ module VAOS
     def self.anonymize_uri_icn(uri)
       return nil if uri.nil?
 
-      # Extract the patient ICN part from the URL
+      # Extract the patient ICN from the URL
       url = uri.to_s
       match = url[/(\d{10}V\d{6})/]
 
