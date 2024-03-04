@@ -76,8 +76,39 @@ Rails.application.configure do
 
   ConfigHelper.setup_action_mailer(config)
 
-  config.rails_semantic_logger.semantic   = false
-  config.rails_semantic_logger.started    = true
-  config.rails_semantic_logger.processing = true
-  config.rails_semantic_logger.rendered   = true
+   # Include generic and useful information about system operation, but avoid logging too much
+  # information to avoid inadvertent exposure of personally identifiable information (PII).
+  config.log_level = :info
+
+  # Prepend all log lines with the following tags.
+  config.log_tags = {
+    request_id: :request_id,
+    remote_ip: :remote_ip,
+    user_agent: ->(request) { request.user_agent },
+    fingerprint: ->(request) { "#{request.remote_ip} #{request.user_agent}" },
+    ref: ->(_request) { AppInfo::GIT_REVISION },
+    referer: ->(request) { request.headers['Referer'] },
+    consumer_id: ->(request) { request.headers['X-Consumer-ID'] },
+    consumer_username: ->(request) { request.headers['X-Consumer-Username'] },
+    consumer_custom_id: ->(request) { request.headers['X-Consumer-Custom-ID'] },
+    credential_username: ->(request) { request.headers['X-Credential-Username'] },
+    csrf_token: ->(request) { request.headers['X-Csrf-Token'] }
+  }
+
+  config.rails_semantic_logger.format = :json
+  config.rails_semantic_logger.add_file_appender = true
+  config.semantic_logger.add_appender(io: $stdout,
+                                      level: config.log_level,
+                                      formatter: config.rails_semantic_logger.format)
+
+  config.semantic_logger.application = if Sidekiq.server?
+                                         'vets-api-worker'
+                                       else
+                                         'vets-api-server'
+                                       end
+
+#  config.rails_semantic_logger.semantic   = false
+#  config.rails_semantic_logger.started    = true
+#  config.rails_semantic_logger.processing = true
+#  config.rails_semantic_logger.rendered   = true
 end
