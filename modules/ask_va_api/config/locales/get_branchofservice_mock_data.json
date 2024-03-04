@@ -1,0 +1,112 @@
+{
+  "Data": [
+      {
+          "Id": 722310000,
+          "Name": "Air Force"
+      },
+      {
+          "Id": 722310002,
+          "Name": "Air Force National Guard"
+      },
+      {
+          "Id": 722310003,
+          "Name": "Air Force Nursing Corps (AFNC)"
+      },
+      {
+          "Id": 722310001,
+          "Name": "Air Force Reserves"
+      },
+      {
+          "Id": 722310005,
+          "Name": "Army"
+      },
+      {
+          "Id": 722310007,
+          "Name": "Army National Guard"
+      },
+      {
+          "Id": 722310006,
+          "Name": "Army Reserves"
+      },
+      {
+          "Id": 722310015,
+          "Name": "Coast Guard"
+      },
+      {
+          "Id": 722310016,
+          "Name": "Coast Guard Women's Reserve (SPARS)"
+      },
+      {
+          "Id": 722310019,
+          "Name": "Environmental Services Administration"
+      },
+      {
+          "Id": 722310010,
+          "Name": "Marine Corps"
+      },
+      {
+          "Id": 722310011,
+          "Name": "Marine Reserves"
+      },
+      {
+          "Id": 722310020,
+          "Name": "National Oceanic & Atmospheric Admin (NOAA)"
+      },
+      {
+          "Id": 722310012,
+          "Name": "Navy"
+      },
+      {
+          "Id": 722310014,
+          "Name": "Navy Nursing Corps (NNC)"
+      },
+      {
+          "Id": 722310013,
+          "Name": "Navy Reserves"
+      },
+      {
+          "Id": 722310022,
+          "Name": "Philippines Guerilla"
+      },
+      {
+          "Id": 722310023,
+          "Name": "Philippines Scout"
+      },
+      {
+          "Id": 722310018,
+          "Name": "Public Health Service"
+      },
+      {
+          "Id": 722310025,
+          "Name": "Space Force"
+      },
+      {
+          "Id": 722310021,
+          "Name": "U.S. Merchant Marine"
+      },
+      {
+          "Id": 722310004,
+          "Name": "Women's Air Force Service Pilots (WASP)"
+      },
+      {
+          "Id": 722310008,
+          "Name": "Women's Army Auxiliary Corps (WAAC)"
+      },
+      {
+          "Id": 722310009,
+          "Name": "Women's Army Corps (WAC)"
+      },
+      {
+          "Id": 722310017,
+          "Name": "Women's Voluntary Emergency Service (WAVES)"
+      },
+      {
+          "Id": 722310024,
+          "Name": "Unknown"
+      }
+  ],
+  "Message": "",
+  "ExceptionOccurred": false,
+  "ExceptionMessage": "",
+  "MessageId": "d0d4f082-9d6e-4d46-823d-67f6ba363bdb"
+}

@@ -27,6 +27,7 @@ module Crm
       endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
 
       params = { icn:, organizationName: 'iris-dev' }
+
       response = conn.public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
         req.headers = default_header.merge('Authorization' => "Bearer #{token}")
       end

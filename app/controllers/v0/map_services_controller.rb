@@ -7,10 +7,7 @@ module V0
     service_tag 'identity'
     # POST /v0/map_services/:application/token
     def token
-      unless (icn = @service_account_access_token.user_attributes['icn'])
-        raise MAP::SecurityToken::Errors::MissingICNError
-      end
-
+      icn = @service_account_access_token.user_attributes['icn']
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:)
 
       render json: result, status: :ok

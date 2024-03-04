@@ -15,7 +15,7 @@ module Form526ClaimFastTrackingConcern
 
   DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
-  EP_MERGE_SPECIAL_ISSUE = 'EP400 Merge Project'
+  EP_MERGE_SPECIAL_ISSUE = 'RRD'
   OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
@@ -123,8 +123,11 @@ module Form526ClaimFastTrackingConcern
     date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
     days_ago = (Time.zone.today - date).round
     StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
-    save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
-    add_ep_merge_special_issue! if Flipper.enabled?(:disability_526_ep_merge_api)
+
+    if Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+      save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
+      add_ep_merge_special_issue!
+    end
   end
 
   def get_claim_type
@@ -299,7 +302,7 @@ module Form526ClaimFastTrackingConcern
 
   def conditionally_merge_ep
     pending_claim_id = read_metadata(:ep_merge_pending_claim_id)
-    return unless pending_claim_id.present? && Flipper.enabled?(:disability_526_ep_merge_api)
+    return if pending_claim_id.blank?
 
     vro_client = VirtualRegionalOffice::Client.new
     vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)

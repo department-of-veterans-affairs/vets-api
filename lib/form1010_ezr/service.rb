@@ -36,24 +36,14 @@ module Form1010Ezr
     end
 
     def submit_sync(parsed_form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user, FORM_ID)
-      content = Gyoku.xml(formatted)
-      submission = soap.build_request(:save_submit_form, message: content)
-      response = with_monitoring do
-        perform(:post, '', submission.body)
+      res = with_monitoring do
+        es_submit(parsed_form, FORM_ID)
       end
 
-      root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
-      form_submission_id = root.locate('formSubmissionId').first.text.to_i
-
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info("SubmissionID=#{form_submission_id}")
+      Rails.logger.info("SubmissionID=#{res[:formSubmissionId]}")
 
-      {
-        success: true,
-        formSubmissionId: form_submission_id,
-        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
-      }
+      res
     end
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
