@@ -13,6 +13,7 @@ module SimpleFormsApi
     def as_payload
       {
         remarks: data['remarks'],
+        otherConditions: data['other_conditions'],
         livingSituation: {
           careFacilityName: data.dig('living_situation', 'care_facility_name'),
           careFacilityAddress: {
@@ -24,9 +25,40 @@ module SimpleFormsApi
           },
           isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
         },
-        previousHiApplication: {},
-        previousSahApplication: {},
-        veteran: {},
+        previousHiApplication: {
+          previousHiApplicationDate: data.dig('previous_hi_application', 'previous_hi_application_date'),
+          previousHiApplicationAddress: {
+            city: data.dig('previous_hi_application', 'previous_hi_application_address', 'city')
+          },
+          hasPreviousHiApplication: data.dig('previous_hi_application', 'has_previous_hi_application')
+        },
+        previousSahApplication: {
+          previousSahApplicationDate: data.dig('previous_sah_application', 'previous_sah_application_date'),
+          previousSahApplicationAddress: {
+            city: data.dig('previous_sah_application', 'previous_sah_application_address', 'city')
+          },
+          hasPreviousSahApplication: data.dig('previous_sah_application', 'has_previous_sah_application')
+        },
+        veteran: {
+          address: {
+            isMilitary: data.dig('veteran', 'address', 'is_military'),
+            country: data.dig('veteran', 'address', 'country'),
+            street: data.dig('veteran', 'address', 'street'),
+            street2: data.dig('veteran', 'address', 'street2'),
+            city: data.dig('veteran', 'address', 'city'),
+            state: data.dig('veteran', 'address', 'state'),
+            postalCode: data.dig('veteran', 'address', 'postal_code')
+          },
+          ssn: data.dig('veteran', 'ssn'),
+          vaFileNumber: data.dig('veteran', 'va_file_number'),
+          fullName: {
+            first: data.dig('veteran', 'full_name', 'first'),
+            middle: data.dig('veteran', 'full_name', 'middle'),
+            last: data.dig('veteran', 'full_name', 'last'),
+            suffix: data.dig('veteran', 'full_name', 'suffix')
+          },
+          dateOfBirth: data.dig('veteran', 'date_of_birth')
+        },
         statementOfTruthSignature: data['statement_of_truth_signature'],
         statementOfTruthCertified: data['statement_of_truth_certified'],
         formNumber: data['form_number']
