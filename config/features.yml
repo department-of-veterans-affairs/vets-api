@@ -468,10 +468,6 @@ features:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
     enable_in_development: true
-  form10182_nod:
-    actor_type: user
-    description: Form 10182 Notice of Disagreement - Request a board appeal
-    enable_in_development: true
   form0994_confirmation_email:
     actor_type: user
     description: Enables form 0994 email submission confirmation (VaNotify)
@@ -998,10 +994,6 @@ features:
   subform_8940_4192:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
-    enable_in_development: true
-  supplemental_claim:
-    actor_type: user
-    description: Enable showing Supplemental Claim form 0995
     enable_in_development: true
   va_online_scheduling:
     actor_type: user

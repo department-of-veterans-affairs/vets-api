@@ -18,6 +18,7 @@ module VAOS
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
+      ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
@@ -97,10 +98,13 @@ module VAOS
       end
 
       def update_appointment(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
-          response = perform(:put, url_path, params, headers)
+          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS)
+                       update_appointment_vpg(appt_id, status)
+                     else
+                       update_appointment_vaos(appt_id, status)
+                     end
+
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
@@ -513,6 +517,18 @@ module VAOS
 
       def date_format(date)
         date.strftime('%Y-%m-%dT%TZ')
+      end
+
+      def update_appointment_vpg(appt_id, status)
+        url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        body = JSON.generate([VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op])
+        perform(:patch, url_path, body, headers)
+      end
+
+      def update_appointment_vaos(appt_id, status)
+        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
+        perform(:put, url_path, params, headers)
       end
     end
   end
