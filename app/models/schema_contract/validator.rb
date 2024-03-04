@@ -13,13 +13,19 @@ module SchemaContract
       if errors.any?
         @result = 'schema_errors_found'
         record.update(error_details: errors)
-        detailed_message = { error_type: 'Schema discrepancy found', response: record.response, details: errors }
+        detailed_message = { error_type: 'Schema discrepancy found', record_id: @record_id, response: record.response,
+                             details: errors }
         raise SchemaContractValidationError, detailed_message
       else
         @result = 'success'
       end
+    rescue SchemaContractValidationError => e
+      raise e
+    rescue => e
+      @result = "error"
+      detailed_message = { error_type: 'Unknown', record_id: @record_id, details: e.message }
+      raise SchemaContractValidationError, detailed_message
     ensure
-      @result ||= "error"
       record&.update(status: @result) if defined?(@record)
     end
 

@@ -170,9 +170,12 @@ type: integer in schema #{uuid_regex}"\]})
 
     context 'when schema contract does not exist in db' do
       it 'raises not found' do
+        error_message = %({:error_type=>"Unknown", :record_id=>"1", \
+:details=>"Couldn't find SchemaContract::Validation with 'id'=1"})
+
         expect do
           SchemaContract::Validator.new('1').validate
-        end.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find SchemaContract::Validation with 'id'=1")
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, error_message)
       end
     end
 
@@ -196,7 +199,8 @@ type: integer in schema #{uuid_regex}"\]})
         allow(JSON::Validator).to receive(:fully_validate).and_raise(StandardError)
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
-        end.to raise_error(StandardError)
+        end.to raise_error(SchemaContract::Validator::SchemaContractValidationError,
+                           %({:error_type=>"Unknown", :record_id=>#{contract_record.id}, :details=>"StandardError"}))
         expect(contract_record.reload.status).to eq('error')
       end
     end
