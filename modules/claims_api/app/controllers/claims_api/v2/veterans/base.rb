@@ -8,19 +8,19 @@ module ClaimsApi
   module V2
     module Veterans
       class Base < ClaimsApi::V2::ApplicationController
-        include ClaimsApi::JsonFormatValidation
+        include ClaimsApi::V2::JsonFormatValidation
 
         before_action :validate_json_format, if: -> { request.post? }
 
         private
 
-        def validate_json_schema
+        def validate_json_schema(form_number = self.class::FORM_NUMBER)
           validator = ClaimsApi::FormSchemas.new(schema_version: 'v2')
-          validator.validate!(self.class::FORM_NUMBER, form_attributes)
+          validator.validate!(form_number, form_attributes)
         end
 
         def form_attributes
-          @json_body.dig('data', 'attributes') || {}
+          @json_body&.dig('data', 'attributes') || {}
         end
       end
     end

@@ -109,7 +109,7 @@ module V1
     def set_sentry_context_for_callback
       temp_session_object = Session.find(session[:token])
       temp_current_user = User.find(temp_session_object.uuid) if temp_session_object&.uuid
-      Raven.extra_context(
+      Sentry.set_extras(
         current_user_uuid: temp_current_user.try(:uuid),
         current_user_icn: temp_current_user.try(:mhv_icn)
       )
@@ -150,7 +150,7 @@ module V1
       set_cookies
       after_login_actions
 
-      if Settings.vsp_environment != 'production' && @current_user.needs_accepted_terms_of_use
+      if @current_user.needs_accepted_terms_of_use
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url

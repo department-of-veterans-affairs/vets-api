@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is present and allowed' do
-    let(:allow_poa_c_add) { 'y' }
+    let(:allow_poa_c_add) { 'Y' }
     let(:consent_address_change) { true }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -28,7 +28,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is present and not allowed' do
-    let(:allow_poa_c_add) { 'n' }
+    let(:allow_poa_c_add) { 'N' }
     let(:consent_address_change) { false }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -39,7 +39,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when address change is not present' do
-    let(:allow_poa_c_add) { 'n' }
+    let(:allow_poa_c_add) { 'N' }
     let(:consent_address_change) { nil }
 
     it 'updates a the BIRLS record for a qualifying POA submittal' do
@@ -50,7 +50,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   context 'when BGS fails the error is handled' do
-    let(:allow_poa_c_add) { 'y' }
+    let(:allow_poa_c_add) { 'Y' }
     let(:consent_address_change) { true }
 
     it 'marks the form as errored' do
@@ -61,6 +61,28 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       poa.reload
       expect(poa.status).to eq('errored')
       expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
+    end
+  end
+
+  context 'when an errored job has exhausted its retries' do
+    let(:allow_poa_c_add) { 'Y' }
+    let(:consent_address_change) { true }
+
+    it 'logs to the ClaimsApi Logger' do
+      poa = create_poa
+      error_msg = 'An error occurred for the POA VBMS Updater Job'
+      msg = { 'args' => [poa.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: poa.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
     end
   end
 

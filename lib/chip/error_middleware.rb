@@ -3,7 +3,7 @@
 require 'common/exceptions'
 
 module Chip
-  class ErrorMiddleware < Faraday::Response::Middleware
+  class ErrorMiddleware < Faraday::Middleware
     attr_reader :body, :status
 
     def on_complete(env)

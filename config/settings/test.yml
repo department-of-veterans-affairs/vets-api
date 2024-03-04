@@ -126,7 +126,7 @@ flipper:
 va_forms:
   drupal_username: ~
   drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  drupal_url: https://fake-url.com
 
 vanotify:
   client_url: http://fakeapi.com
@@ -225,6 +225,12 @@ lighthouse:
         client_id: abc123456
         rsa_key: path/to/key
       use_mocks: false
+  benefits_education: 
+      host: https://sandbox-api.va.gov
+      use_mocks: true
+      access_token:
+        client_id: ~
+        rsa_key: ~
 
 rrd:
   alerts:
@@ -402,3 +408,6 @@ ask_va:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
+
+nod_vanotify_status_callback:
+  bearer_token: bearer_token_secret

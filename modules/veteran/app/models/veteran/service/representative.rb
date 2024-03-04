@@ -26,10 +26,13 @@ module Veteran
       # @param last_name: [String] Last name to search for, ignoring case
       # @param ssn: nil [String] SSN to search for
       # @param dob: nil [String] Date of birth to search for
+      # @param middle_initial: nil [String] Middle initial to search for
+      # @param poa_code: nil [String] filter to reps working this POA code
       #
       # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
-      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil)
+      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, middle_initial: nil, poa_code: nil) # rubocop:disable Metrics/ParameterLists
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
+        reps = reps.where('? = ANY(poa_codes)', poa_code) if poa_code
 
         reps.select do |rep|
           matching_ssn(rep, ssn) &&
@@ -94,28 +97,21 @@ module Veteran
 
       #
       # Find all representatives that are located within a distance of a specific location
-      # @params long [Float] longitude of the location of interest
+      # @param long [Float] longitude of the location of interest
       # @param lat [Float] latitude of the location of interest
       # @param max_distance [Float] the maximum search distance in meters
       #
       # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
       #   all representatives matching the search criteria
       def self.find_within_max_distance(long, lat, max_distance = Constants::DEFAULT_MAX_DISTANCE)
-        query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
+        query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, veteran_representatives.location, :max_distance)' # rubocop:disable Layout/LineLength
         params = { long:, lat:, max_distance: }
 
         where(query, params)
       end
 
-      #
-      # Find all representatives with a full name with at least the FUZZY_SEARCH_THRESHOLD value of
-      #   word similarity. This gives us a way to fuzzy search for names.
-      # @param search_phrase [String] the word, words, or phrase we want representatives with full names similar to
-      #
-      # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
-      #   all representatives matching the search criteria
-      def self.find_with_name_similar_to(search_phrase)
-        where('word_similarity(?, full_name) >= ?', search_phrase, Constants::FUZZY_SEARCH_THRESHOLD)
+      def self.max_per_page
+        Constants::MAX_PER_PAGE
       end
 
       #
@@ -124,8 +120,31 @@ module Veteran
         self.full_name = "#{first_name} #{last_name}"
       end
 
-      def self.max_per_page
-        Constants::MAX_PER_PAGE
+      #
+      # Compares rep's current info with new data to detect changes in address, email, or phone number.
+      # @param rep_data [Hash] New data with :email, :phone_number, and :request_address keys for comparison.
+      #
+      # @return [Hash] Hash with "email_changed", "phone_number_changed", "address_changed" keys as booleans.
+      def diff(rep_data)
+        %i[address email phone_number].each_with_object({}) do |field, diff|
+          diff["#{field}_changed"] = field == :address ? address_changed?(rep_data) : send(field) != rep_data[field]
+        end
+      end
+
+      private
+
+      #
+      # Checks if the rep's address has changed compared to a new address hash.
+      # @param other_address [Hash] New address data with keys for address components and state code.
+      #
+      # @return [Boolean] True if current address differs from `other_address`, false otherwise.
+      def address_changed?(rep_data)
+        address = [address_line1, address_line2, address_line3, city, zip_code, zip_suffix, state_code].join(' ')
+        other_address = rep_data[:request_address]
+                        .values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4)
+                        .push(rep_data.dig(:request_address, :state_province, :code))
+                        .join(' ')
+        address != other_address
       end
     end
   end

@@ -112,6 +112,29 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
               end
             end
           end
+
+          context 'scopes' do
+            let(:invalid_scopes) { %w[system/526-pdf.override] }
+            let(:ews_scopes) { %w[system/claim.write] }
+
+            context 'evidence waiver' do
+              it 'returns a 200 response when successful' do
+                mock_ccg_for_fine_grained_scope(ews_scopes) do |auth_header|
+                  VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                    post sub_path, headers: auth_header
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+
+              it 'returns a 401 unauthorized with incorrect scopes' do
+                mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+                  post sub_path, headers: auth_header
+                  expect(response).to have_http_status(:unauthorized)
+                end
+              end
+            end
+          end
         end
       end
     end

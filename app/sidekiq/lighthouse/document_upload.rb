@@ -18,7 +18,7 @@ class Lighthouse::DocumentUpload
     document, client, uploader, file_body = nil
 
     Datadog::Tracing.trace('Config/Initialize Upload Document') do
-      Raven.tags_context(source: 'documents-upload')
+      Sentry.set_tags(source: 'documents-upload')
       document = LighthouseDocument.new document_hash
 
       raise Common::Exceptions::ValidationErrors, document_data unless document.valid?

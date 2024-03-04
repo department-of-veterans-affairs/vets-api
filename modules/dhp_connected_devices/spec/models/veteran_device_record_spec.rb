@@ -46,7 +46,7 @@ RSpec.describe VeteranDeviceRecord, type: :model do
       expect(veteran_active_devices.first).to eq(vdr_active)
     end
 
-    it 'will not create record if user ID and device ID combination exist' do
+    it 'does not create record if user ID and device ID combination exist' do
       VeteranDeviceRecord.create(device_id: @device.id, icn: current_user.icn, active: true)
       expect(VeteranDeviceRecord.create(icn: current_user.icn, device_id: @device.id,
                                         active: true)).not_to be_valid

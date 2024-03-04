@@ -102,7 +102,7 @@ module Lighthouse
           )
         end
       rescue Faraday::ClientError, Faraday::ServerError => e
-        Raven.tags_context(
+        Sentry.set_tags(
           team: 'benefits-claim-appeal-status',
           feature: 'letters-generator'
         )

@@ -89,7 +89,6 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request,
             mock_ccg(scopes) do |auth_header|
               allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
               post path, params: data, headers: auth_header
-
               expect(response.status).to eq(401)
             end
           end

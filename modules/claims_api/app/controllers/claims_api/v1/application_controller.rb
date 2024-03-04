@@ -179,7 +179,7 @@ module ClaimsApi
 
       def set_tags_and_extra_context
         RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
-        Raven.tags_context(source: 'claims_api')
+        Sentry.set_tags(source: 'claims_api')
       end
 
       def edipi_check

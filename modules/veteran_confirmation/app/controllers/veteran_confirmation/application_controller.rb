@@ -9,7 +9,7 @@ module VeteranConfirmation
 
     def set_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'veteran_confirmation' }
-      Raven.tags_context(source: 'veteran_confirmation')
+      Sentry.set_tags(source: 'veteran_confirmation')
     end
   end
 end

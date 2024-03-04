@@ -14,7 +14,7 @@ properties:
         example: "appointment_preferences"
       id:
         type: string
-        example: "3097e489-ad75-5746-ab1a-e0aabc1b426a"
+        example: "885b29b2-87bf-5791-b7ca-2bb86cf3d6f5"
       attributes:
         type: object
         required:

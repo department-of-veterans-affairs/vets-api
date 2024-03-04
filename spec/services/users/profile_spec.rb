@@ -164,6 +164,42 @@ RSpec.describe Users::Profile do
         end
       end
 
+      describe 'form 526 required identifiers' do
+        context 'when the user has the form_526_required_identifiers_in_user_object feature flag on' do
+          before do
+            Flipper.enable(:form_526_required_identifiers_in_user_object)
+          end
+
+          context 'when a user is missing an identifier required by the 526 form' do
+            it 'has a value of false in the [:claims][:form526_required_identifier_presence] hash' do
+              allow(user).to receive(:participant_id).and_return(nil)
+
+              identifiers = profile[:claims][:form526_required_identifier_presence]
+              expect(identifiers['participant_id']).to eq(false)
+            end
+          end
+
+          context 'when a user is not missing an identifier required by the 526 form' do
+            it 'has a value of true in the [:claims][:form526_required_identifier_presence] hash' do
+              allow(user).to receive(:participant_id).and_return('8675309')
+
+              identifiers = profile[:claims][:form526_required_identifier_presence]
+              expect(identifiers['participant_id']).to eq(true)
+            end
+          end
+        end
+
+        context 'when the user has the form_526_required_identifiers_in_user_object feature flag off' do
+          before do
+            Flipper.disable(:form_526_required_identifiers_in_user_object)
+          end
+
+          it 'does not include the identifiers in the claims section of the user profile' do
+            expect(profile[:claims][:form526_required_identifier_presence]).to eq(nil)
+          end
+        end
+      end
+
       it 'includes email' do
         expect(profile[:email]).to eq(user.email)
       end
@@ -326,9 +362,9 @@ RSpec.describe Users::Profile do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
             error = subject.errors.first
-            expect(error[:external_service]).to eq 'EMIS'
+            expect(error[:external_service]).to eq 'VAProfile'
             expect(error[:start_time]).to be_present
-            # expect(error[:description]).to include 'NOT_FOUND'
+            expect(error[:description]).to be_present
             expect(error[:status]).to eq 404
           end
         end
@@ -339,12 +375,6 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status call returns an error' do
-        before do
-          allow_any_instance_of(
-            EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, 503))
-        end
-
         it 'sets veteran_status to nil' do
           expect(veteran_status).to be_nil
         end
@@ -352,7 +382,7 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'EMIS'
+          expect(error[:external_service]).to eq 'VAProfile'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
           expect(error[:status]).to eq 503
@@ -366,12 +396,6 @@ RSpec.describe Users::Profile do
       context 'with a LOA1 user' do
         let(:user) { build(:user, :loa1) }
 
-        before do
-          allow_any_instance_of(
-            EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized.new(status: 401))
-        end
-
         it 'returns va_profile as null' do
           expect(veteran_status).to be_nil
         end
@@ -379,12 +403,12 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
                                                                                      allow_playback_repeats: true) do
-            emis_error = subject.errors.last
+            vaprofile_error = subject.errors.last
 
-            expect(emis_error[:external_service]).to eq 'EMIS'
-            expect(emis_error[:start_time]).to be_present
-            expect(emis_error[:description]).to include 'VA Profile failure'
-            expect(emis_error[:status]).to eq 401
+            expect(vaprofile_error[:external_service]).to eq 'VAProfile'
+            expect(vaprofile_error[:start_time]).to be_present
+            expect(vaprofile_error[:description]).to include 'VA Profile failure'
+            expect(vaprofile_error[:status]).to eq 401
           end
         end
 
@@ -443,7 +467,7 @@ RSpec.describe Users::Profile do
           results = Users::Profile.new(user).pre_serialize
           error   = results.errors.first
 
-          expect(error[:external_service]).to eq 'Vet360'
+          expect(error[:external_service]).to eq 'VAProfile'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
           expect(error[:status]).to eq 503
