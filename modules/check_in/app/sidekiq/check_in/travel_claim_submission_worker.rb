@@ -24,11 +24,7 @@ module CheckIn
 
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
-      mobile_phone = if Flipper.enabled?('check_in_experience_patient_cell_phone')
-                       redis_client.patient_cell_phone(uuid:)
-                     else
-                       redis_client.mobile_phone(uuid:)
-                     end
+      mobile_phone = redis_client.patient_cell_phone(uuid:)
       station_number = redis_client.station_number(uuid:)
 
       logger.info({
