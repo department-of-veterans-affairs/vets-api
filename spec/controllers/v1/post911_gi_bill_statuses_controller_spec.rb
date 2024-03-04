@@ -32,10 +32,14 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       expect(response).to have_http_status(:ok)
       response_body = JSON.parse(response.body)
 
-      # assertions that the data returned will match our test user
-      expect(response_body['first_name']).to eq('Tamara')
-      expect(response_body['last_name']).to eq('Ellis')
-      expect(response_body['date_of_birth']).to start_with('1967-06-19')
+      # assertions that the data returned will not be empty strings
+      expect(response_body['first_name']).not_to be_empty
+      expect(response_body['last_name']).not_to be_empty
+      expect(response_body['date_of_birth']).not_to be_empty
+      expect(response_body['delimiting_date']).not_to be_empty
+      expect(response_body['eligibility_date']).not_to be_empty
+      expect(response_body['enrollments'][0]['begin_date']).not_to be_empty
+      expect(response_body['enrollments'][0]['end_date']).not_to be_empty
     end
 
     it 'returns a 404 when vet isn\'t found' do

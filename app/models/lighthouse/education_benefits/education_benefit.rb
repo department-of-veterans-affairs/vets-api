@@ -13,7 +13,7 @@ module Lighthouse
       attr_accessor :first_name, :last_name, :name_suffix, :date_of_birth, :va_file_number, :active_duty,
                     :veteran_is_eligible, :regional_processing_office, :eligibility_date,
                     :percentage_benefit, :original_entitlement, :used_entitlement,
-                    :remaining_entitlement
+                    :remaining_entitlement, :delimiting_date
       attr_reader :enrollments
 
       def initialize(attributes = {})
