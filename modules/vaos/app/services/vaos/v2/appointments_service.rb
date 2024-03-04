@@ -52,6 +52,7 @@ module VAOS
         end
       end
 
+      # TODO: RI
       def get_appointment(appointment_id)
         params = {}
         with_monitoring do
