@@ -52,6 +52,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
       context 'when the document was successfully submitted to VBMS' do
         let(:vbms_submission_complete_status) do
+          # think will need to change these keys possibly?
           {
             'status': 'IN_PROGRESS',
             'steps': [

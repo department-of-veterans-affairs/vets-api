@@ -59,11 +59,11 @@ module BenefitsDocuments
       end
 
       def failed?
-        @lighthouse_document_status[:status] == LIGHTHOUSE_DOCUMENT_FAILED_STATUS
+        @lighthouse_document_status['status'] == LIGHTHOUSE_DOCUMENT_FAILED_STATUS
       end
 
       def completed?
-        @lighthouse_document_status[:status] == LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS
+        @lighthouse_document_status['status'] == LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS
       end
 
       def update_status
@@ -76,32 +76,41 @@ module BenefitsDocuments
         check_bgs_submission_status if @lighthouse_document_upload.pending_bgs_submission?
       end
 
+      def vbms_upload_failed?
+        @lighthouse_document_status['error']['step'] == LIGHTHOUSE_VBMS_STEP_NAME
+      end
+
+      def bgs_upload_failed?
+        @lighthouse_document_status['error']['step'] == LIGHTHOUSE_BGS_STEP_NAME
+      end
+
       private
+      # MAKE SURE YOU RE RUN THE TESTS FOR THIS
 
       def handle_upload_failure
-        error_message = @lighthouse_document_status[:error]
+        error_message = @lighthouse_document_status['error']
         @lighthouse_document_upload.update!(error_message: error_message.to_json)
 
-        if error_message[:step] == LIGHTHOUSE_VBMS_STEP_NAME
+        if vbms_upload_failed?
           @lighthouse_document_upload.vbms_submission_failed!(@document_upload_status)
-        elsif error_message[:step] == LIGHTHOUSE_BGS_STEP_NAME
+        elsif bgs_upload_failed?
           @lighthouse_document_upload.bgs_submission_failed!(@document_upload_status)
         end
       end
 
       def check_vbms_submission_status
-        vbms_step = @lighthouse_document_status[:steps].find { |step| step[:name] == LIGHTHOUSE_VBMS_STEP_NAME }
+        vbms_step = @lighthouse_document_status['steps'].find { |step| step['name'] == LIGHTHOUSE_VBMS_STEP_NAME }
 
-        if vbms_step[:status] == LIGHTHOUSE_STEP_SUCCEEDED_STATUS
+        if vbms_step['status'] == LIGHTHOUSE_STEP_SUCCEEDED_STATUS
           @lighthouse_document_upload.vbms_submission_complete!(@document_upload_status)
         end
       end
 
       def check_bgs_submission_status
-        bgs_step = @lighthouse_document_status[:steps].find { |step| step[:name] == LIGHTHOUSE_BGS_STEP_NAME }
+        bgs_step = @lighthouse_document_status['steps'].find { |step| step['name'] == LIGHTHOUSE_BGS_STEP_NAME }
 
-        if bgs_step[:status] == LIGHTHOUSE_STEP_SUCCEEDED_STATUS
-          processing_end_time = @lighthouse_document_status.dig(:time, :endTime)
+        if bgs_step['status'] == LIGHTHOUSE_STEP_SUCCEEDED_STATUS
+          processing_end_time = @lighthouse_document_status.dig('time', 'endTime')
 
           # Document is complete, save end time
           # Lighthouse returns date times as UNIX timestamps

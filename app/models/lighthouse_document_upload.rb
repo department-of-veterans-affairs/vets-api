@@ -4,10 +4,14 @@ class LighthouseDocumentUpload < ApplicationRecord
   include AASM
 
   VETERAN_UPLOAD_DOCUMENT_TYPE = 'Veteran Upload'
+  BDD_INSTRUCTIONS_DOCUMENT_TYPE = 'BDD Instructions'
+  FORM_0781_DOCUMENT_TYPE = 'Form 0781'
+  FORM_0781A_DOCUMENT_TYPE = 'Form 0781a'
+
   VALID_DOCUMENT_TYPES = [
-    'BDD Instructions',
-    'Form 0781',
-    'Form 0781a',
+    BDD_INSTRUCTIONS_DOCUMENT_TYPE,
+    FORM_0781_DOCUMENT_TYPE,
+    FORM_0781A_DOCUMENT_TYPE,
     VETERAN_UPLOAD_DOCUMENT_TYPE
   ].freeze
 
@@ -40,7 +44,9 @@ class LighthouseDocumentUpload < ApplicationRecord
     end
 
     event :bgs_submission_failed do
-      transitions from: :pending_bgs_submission, to: :failed_bgs_submission, guard: :error_message_saved?
+      # We allow transitioning from pending_vbms_submission to failed_bgs_submission, in case we missed the event
+      # where Lighthouse completed an upload to VBMS successfully before the BGS submission subsequently failed
+      transitions from: %i[pending_bgs_submission pending_vbms_submission], to: :failed_bgs_submission, guard: :error_message_saved?
     end
   end
 
@@ -70,6 +76,7 @@ class LighthouseDocumentUpload < ApplicationRecord
         from_state: aasm.from_state,
         to_state: aasm.to_state,
         event: aasm.current_event,
+        # THis is wrong because this is a polling endpoint
         transitioned_at: Time.zone.now
       }
     )
