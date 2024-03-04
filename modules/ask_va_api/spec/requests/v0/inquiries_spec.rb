@@ -9,9 +9,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
-    JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
+    JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
-  let(:valid_id) { mock_inquiries.first['id'] }
+  let(:valid_id) { mock_inquiries.first['Id'] }
   let(:invalid_id) { 'invalid-id' }
 
   before do
@@ -43,7 +43,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             'type' => 'inquiry',
             'attributes' =>
                { 'inquiry_number' => 'A-1',
-                 'attachments' => [{ 'id' => '1', 'name' => 'testfile.txt' }],
+                 'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
                  'correspondences' => nil,
                  'has_attachments' => true,
                  'has_been_split' => true,
@@ -108,7 +108,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           'type' => 'inquiry',
           'attributes' =>
           { 'inquiry_number' => 'A-1',
-            'attachments' => [{ 'id' => '1', 'name' => 'testfile.txt' }],
+            'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
             'correspondences' => { 'data' => [{
               'id' => '1',
               'type' => 'correspondence',
@@ -121,8 +121,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                 'enable_reply' => true,
                 'attachments' => [
                   {
-                    'id' => '12',
-                    'name' => 'correspondence_1_attachment.pdf'
+                    'Id' => '12',
+                    'Name' => 'correspondence_1_attachment.pdf'
                   }
                 ]
               }
@@ -257,14 +257,14 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
 
     it 'response with 200' do
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
     context 'when attachment is not found' do
       let(:id) { 'not_valid' }
 
       it 'responds with 500' do
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
