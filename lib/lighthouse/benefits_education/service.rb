@@ -52,7 +52,7 @@ module BenefitsEducation
         handle_error(e, config.service_name, config.base_api_path)
       end
 
-      education_info = response.body&.[]('chapter33EducationInfo')
+      education_info = response.body&.[]('chapter33EducationInfo') || {}
       Lighthouse::EducationBenefits::EducationBenefit.new(education_info).to_json
     end
 
