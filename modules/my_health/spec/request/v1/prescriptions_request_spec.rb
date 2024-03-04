@@ -130,6 +130,26 @@ RSpec.describe 'prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['pagination']['per_page']).to eq(10)
       end
 
+      it 'responds to GET #list_refillable_prescriptions with list of refillable prescriptions' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_refillable_prescriptions') do
+          get '/my_health/v1/prescriptions/list_refillable_prescriptions'
+        end
+        six_months_from_today = Time.zone.today - 6.months
+        zero_date = Date.new(0, 1, 1)
+
+        response_data = JSON.parse(response.body)['data']
+        response_data.each do |prescription|
+          sorted_dispensed_date = prescription['rxRfRecords']&.dig(0, 1, 0) || prescription['dispensedDate']
+          if prescription['isRefillable'] || ['Active', 'Active: Submitted'].include?(prescription['dispStatus']) ||
+             (%w[Expired Discontinued].include?(prescription['dispStatus']) &&
+             sorted_dispensed_date >= six_months_from_today &&
+             sorted_dispensed_date != zero_date)
+
+            expect(prescription).to be_included
+          end
+        end
+      end
+
       it 'responds to GET #index with pagination parameters when camel-inflected' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
           get '/my_health/v1/prescriptions?page=2&per_page=20', headers: inflection_header

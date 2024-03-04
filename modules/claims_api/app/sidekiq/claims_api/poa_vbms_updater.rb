@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'bgs'
-require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class PoaVBMSUpdater
-    include Sidekiq::Job
-
+  class PoaVBMSUpdater < ClaimsApi::ServiceBase
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       service = BGS::Services.new(

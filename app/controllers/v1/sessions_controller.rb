@@ -150,7 +150,7 @@ module V1
       set_cookies
       after_login_actions
 
-      if Settings.vsp_environment != 'production' && @current_user.needs_accepted_terms_of_use
+      if @current_user.needs_accepted_terms_of_use
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url

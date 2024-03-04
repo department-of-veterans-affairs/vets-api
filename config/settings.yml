@@ -399,6 +399,9 @@ coe:
 adapted_housing:
   prefill: true
 
+intent_to_file:
+  prefill: true
+
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:
@@ -547,52 +550,6 @@ mvi:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   pii_logging: false
-
-# Settings for eMIS
-# The certs used here can be obtained from the DevOps team. A different set is required for
-# each environment when connecting to the service.
-emis:
-  mock: true
-  host: https://vaausvrsapp81.aac.va.gov
-  veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
-  payment_url:
-    v1: /VIERSService/eMIS/v1/PaymentService
-    v2: /VIERSService/eMIS/v2/PaymentService
-  military_information_url:
-    v1: /VIERSService/eMIS/v1/MilitaryInformationService
-    v2: /VIERSService/eMIS/v2/MilitaryInformationService
-  client_cert_path: /fake/client/cert/path
-  client_key_path: /fake/client/key/path
-  soap_namespaces:
-    xmlns:xsd: http://www.w3.org/2001/XMLSchema
-    xmlns:xsi: http://www.w3.org/2001/XMLSchema-instance
-    xmlns:soap: http://www.w3.org/2003/05/soap-envelope
-    xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v1
-    xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
-    xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
-  military_information:
-    v1:
-      soap_namespaces:
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
-    v2:
-      soap_namespaces:
-        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2
-  payment:
-    v1:
-      soap_namespaces:
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
-    v2:
-      soap_namespaces:
-        xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v2
-        xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v2
-        xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v2
-        xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2
-  veteran_status:
-    soap_namespaces:
-      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
 caseflow:
   mock: true
@@ -1022,6 +979,13 @@ lighthouse:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
     use_mocks: false
+  benefits_education:
+    host: https://sandbox-api.va.gov
+    access_token:
+      client_id: ~
+      rsa_key: ~
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausln2mo4jCAYRrlR2p7/v1/token
+    use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1101,8 +1065,6 @@ vbms:
 
 vet_verification:
   key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
-  mock_emis: false
-  mock_emis_host: false
   mock_bgs: false
   mock_bgs_url: false
 
@@ -1292,9 +1254,11 @@ vanotify:
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form20_10206_confirmation_email: form20_10206_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
+        form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
@@ -1546,7 +1510,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience/merge
+  ep_merge_path: employee-experience-ep-merge-app/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1634,6 +1598,14 @@ forms_api_benefits_intake:
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
 
 form1095_b:
+  s3:
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    bucket: "bucket"
+    enabled: true
+    region: "region"
+
+ivc_forms:
   s3:
     aws_access_key_id: ~
     aws_secret_access_key: ~

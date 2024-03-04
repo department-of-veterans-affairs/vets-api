@@ -7,7 +7,7 @@ RSpec.describe AskVAApi::SubTopics::Retriever do
     described_class.new(topic_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
   end
 
-  let(:parsed_data) { { Topics: [{ id: 1, name: 'Topic 1', parentId: nil }] } }
+  let(:parsed_data) { { Topics: [{ Id: 1, Name: 'Topic 1', ParentId: nil }] } }
   let(:entity_class) { AskVAApi::SubTopics::Entity }
   let(:static_data_service) { instance_double(Crm::CacheData) }
   let(:user_mock_data) { true }

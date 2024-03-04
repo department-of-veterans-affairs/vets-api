@@ -22,9 +22,9 @@ module Mobile
 
       # this is a temporary fix
       def transitioning_facility?(user)
-        transitioning_facility_id = Rails.env.production? ? '556' : '459'
+        cerner_facility_id = Settings.vsp_environment == 'production' ? '556' : '979'
         Flipper.enabled?(:mobile_cerner_transition, user) &&
-          user.va_treatment_facility_ids.include?(transitioning_facility_id)
+          user.vha_facility_ids.include?(cerner_facility_id)
       end
 
       UserStruct = Struct.new(

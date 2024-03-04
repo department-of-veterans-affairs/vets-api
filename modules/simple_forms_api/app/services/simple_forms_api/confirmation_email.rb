@@ -9,7 +9,9 @@ module SimpleFormsApi
       'vba_21p_0847' => Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
       'vba_21_0972' => Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
       'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
-      'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email
+      'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
+      'vba_20_10206' => Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
+      'vba_40_0247' => Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
@@ -42,6 +44,7 @@ module SimpleFormsApi
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def form_specific_data
       email, first_name = case @form_number
                           when 'vba_21_0845'
@@ -64,11 +67,31 @@ module SimpleFormsApi
                             return unless Flipper.enabled?(:form21_10210_confirmation_email)
 
                             form21_10210_contact_info(@form_data)
+                          when 'vba_20_10206'
+                            return unless Flipper.enabled?(:form20_10206_confirmation_email)
+
+                            form20_10206_contact_info(@form_data)
+                          when 'vba_40_0247'
+                            return unless Flipper.enabled?(:form40_0247_confirmation_email)
+
+                            form40_0247_contact_info(@form_data)
                           else
                             [nil, nil]
                           end
 
       [email, first_name]
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def form20_10206_contact_info(form_data)
+      # email address not required and omitted
+      if form_data['email_address'].blank? && @user
+        [@user.va_profile_email, form_data.dig('full_name', 'first')]
+
+      # email address not required and optionally entered
+      else
+        [form_data['email_address'], form_data.dig('full_name', 'first')]
+      end
     end
 
     def form21_0845_contact_info(form_data)
@@ -107,6 +130,12 @@ module SimpleFormsApi
       else
         [nil, nil]
       end
+    end
+
+    def form40_0247_contact_info(form_data)
+      # email address is optional field
+      # when email is not entered, use current user's email
+      [form_data['applicant_email'].presence || @user&.va_profile_email, form_data.dig('applicant_full_name', 'first')]
     end
   end
 end

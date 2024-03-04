@@ -6,6 +6,7 @@ class ContactSerializer < ActiveModel::Serializer
   attributes(
     :contact_type,
     :given_name,
+    :middle_name,
     :family_name,
     :relationship,
     :address_line1,
@@ -18,6 +19,6 @@ class ContactSerializer < ActiveModel::Serializer
   )
 
   def id
-    nil
+    object.contact_type
   end
 end
