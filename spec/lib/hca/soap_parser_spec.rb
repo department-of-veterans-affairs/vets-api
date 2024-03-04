@@ -26,7 +26,7 @@ describe HCA::SOAPParser do
 
       it 'tags and log validation errors' do
         expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
-        expect(Raven).to receive(:tags_context).with(validation: 'hca')
+        expect(Sentry).to receive(:set_tags).with(validation: 'hca')
 
         subject
       end

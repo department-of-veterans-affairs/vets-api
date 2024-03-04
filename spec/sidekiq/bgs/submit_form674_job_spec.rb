@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
@@ -26,21 +27,22 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       }
     }
   end
+  let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
   let(:user_struct) do
-    nested_info = vet_info['veteran_information']
     OpenStruct.new(
-      first_name: nested_info['full_name']['first'],
-      last_name: nested_info['full_name']['last'],
-      middle_name: nested_info['full_name']['middle'],
-      ssn: nested_info['ssn'],
-      email: nested_info['email'],
-      va_profile_email: nested_info['va_profile_email'],
-      participant_id: nested_info['participant_id'],
-      icn: nested_info['icn'],
-      uuid: nested_info['uuid'],
-      common_name: nested_info['common_name']
+      first_name: vet_info['veteran_information']['full_name']['first'],
+      last_name: vet_info['veteran_information']['full_name']['last'],
+      middle_name: vet_info['veteran_information']['full_name']['middle'],
+      ssn: vet_info['veteran_information']['ssn'],
+      email: vet_info['veteran_information']['email'],
+      va_profile_email: vet_info['veteran_information']['va_profile_email'],
+      participant_id: vet_info['veteran_information']['participant_id'],
+      icn: vet_info['veteran_information']['icn'],
+      uuid: vet_info['veteran_information']['uuid'],
+      common_name: vet_info['veteran_information']['common_name']
     )
   end
+  let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
   context 'success' do
     before do
@@ -50,10 +52,10 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
     it 'successfully calls #submit for 674 submission' do
       expect(OpenStruct).to receive(:new)
-        .with(hash_including(user_struct.to_h))
+        .with(hash_including(user_struct.to_h.stringify_keys))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.not_to raise_error
     end
 
@@ -62,13 +64,13 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         .with(hash_including(icn: vet_info['veteran_information']['icn']))
         .and_return(user_struct)
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
       end.not_to raise_error
     end
 
     it 'sends confirmation email' do
       expect(OpenStruct).to receive(:new)
-        .with(hash_including(icn: vet_info['veteran_information']['icn']))
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
       expect(VANotify::EmailJob).to receive(:perform_async).with(
         user.va_profile_email,
@@ -79,7 +81,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         }
       )
 
-      subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+      subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 
@@ -91,14 +93,32 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
     it 'raises error' do
       expect(OpenStruct).to receive(:new)
-        .with(hash_including(icn: vet_info['veteran_information']['icn']))
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
         .and_return(user_struct)
       expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 
       expect do
-        subject.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
       end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
     end
+
+    it 'filters based on error cause' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(client_stub).to receive(:submit) { raise_nested_err }
+
+      expect do
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      end.to raise_error(Sidekiq::JobRetry::Skip)
+    end
   end
+end
+
+def raise_nested_err
+  raise BGS::SubmitForm674Job::Invalid674Claim, 'A very specific error occurred: insertBenefitClaim: Invalid zipcode.'
+rescue
+  raise BGS::SubmitForm674Job::Invalid674Claim, 'A Generic Error Occurred'
 end

@@ -37,7 +37,7 @@ class LogService
   end
 
   def handle_logging_error(action, error)
-    Raven.capture_exception(error, extra: { action: })
+    Sentry.capture_exception(error, extra: { action: })
     Rails.logger.error("Error logging action #{action}: #{error.message}")
     span&.set_tag('error', true)
     span&.set_tag('error.msg', error.message)

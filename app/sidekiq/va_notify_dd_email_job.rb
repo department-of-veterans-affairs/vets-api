@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 class VANotifyDdEmailJob
   include Sidekiq::Job
   extend SentryLogging
   sidekiq_options retry: 14
+
+  STATSD_ERROR_NAME = 'worker.direct_deposit_confirmation_email.error'
+  STATSD_SUCCESS_NAME = 'worker.direct_deposit_confirmation_email.success'
 
   def self.send_to_emails(user_emails, dd_type)
     if user_emails.present?
@@ -29,5 +34,15 @@ class VANotifyDdEmailJob
       email_address: email,
       template_id:
     )
+    StatsD.increment(STATSD_SUCCESS_NAME)
+  rescue => e
+    handle_errors(e)
+  end
+
+  def handle_errors(ex)
+    VANotifyDdEmailJob.log_exception_to_sentry(ex)
+    StatsD.increment(STATSD_ERROR_NAME)
+
+    raise ex if ex.status_code.between?(500, 599)
   end
 end

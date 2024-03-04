@@ -11,17 +11,7 @@ module Mobile
         delegate :get_claim, to: :claims_service
 
         def request_decision(id)
-          claims_service.submit5103(id)
-        end
-
-        private
-
-        def claims_adapter
-          Mobile::V0::Adapters::LighthouseClaimsOverview.new
-        end
-
-        def claims_service
-          @claims_service ||= BenefitsClaims::Service.new(@user.icn)
+          claims_service.submit5103(@user, id)
         end
 
         def get_all_claims
@@ -36,6 +26,12 @@ module Mobile
               { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'claims') }
             end
           }
+        end
+
+        private
+
+        def claims_service
+          @claims_service ||= BenefitsClaims::Service.new(@user.icn)
         end
       end
     end

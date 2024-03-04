@@ -31,6 +31,24 @@ RSpec.describe VANotify::EmailJob, type: :worker do
       described_class.new.perform(email, template_id)
     end
 
+    it 'can use non-default api key' do
+      client = double
+      api_key = 'test-yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy-zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
+      expect(VaNotify::Service).to receive(:new).with(api_key).and_return(client)
+
+      expect(client).to receive(:send_email).with(
+        {
+          email_address: email,
+          template_id:,
+          personalisation: {}
+        }
+      )
+
+      personalization = {}
+
+      described_class.new.perform(email, template_id, personalization, api_key)
+    end
+
     context 'when vanotify returns a 400 error' do
       it 'rescues and logs the error' do
         VCR.use_cassette('va_notify/bad_request') do

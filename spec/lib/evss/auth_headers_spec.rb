@@ -41,7 +41,7 @@ describe EVSS::AuthHeaders do
         allow(current_user).to receive(:edipi).and_return(nil)
       end
 
-      it 'will not return nil header values' do
+      it 'does not return nil header values' do
         expect(headers.values.include?(nil)).to eq false
       end
 

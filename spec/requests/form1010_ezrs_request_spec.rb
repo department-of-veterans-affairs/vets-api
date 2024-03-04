@@ -129,6 +129,34 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
             end
           end
         end
+
+        context 'when ezr_async is on' do
+          before do
+            Flipper.enable(:ezr_async)
+          end
+
+          let(:params) do
+            { form: }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => nil,
+              'timestamp' => nil,
+              'success' => true
+            }
+          end
+
+          it 'renders a successful response and deletes the saved form' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_async',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
+              subject
+              expect(JSON.parse(response.body)).to eq(body)
+            end
+          end
+        end
       end
 
       context 'when an error occurs' do

@@ -16,11 +16,35 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewSerializer do
           attributes: {
             status: higher_level_review.status,
             createDate: higher_level_review.created_at,
-            updateDate: higher_level_review.updated_at,
-            formData: higher_level_review.form_data
+            updateDate: higher_level_review.updated_at
           }
         }
       }
     )
+  end
+
+  context 'when HLR is in error state' do
+    let(:status) { 'error' }
+    let(:code) { '999' }
+    let(:detail) { 'detail text' }
+    let(:higher_level_review) { create(:higher_level_review_v0, status:, code:, detail:) }
+
+    it 'serializes the HLR properly, including error attributes' do
+      expect(rendered_hash).to eq(
+        {
+          data: {
+            type: :higherLevelReview,
+            id: higher_level_review.id,
+            attributes: {
+              createDate: higher_level_review.created_at,
+              updateDate: higher_level_review.updated_at,
+              status:,
+              code:,
+              detail:
+            }
+          }
+        }
+      )
+    end
   end
 end

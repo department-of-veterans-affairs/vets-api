@@ -57,4 +57,15 @@ RSpec.describe CentralMail::SubmitCareerCounselingJob do
       end
     end
   end
+
+  describe 'sidekiq_retries_exhausted block' do
+    it 'logs error when retries are exhausted' do
+      CentralMail::SubmitCareerCounselingJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once).with(
+          'Failed all retries on CentralMail::SubmitCareerCounselingJob, last error: An error occured'
+        )
+        expect(StatsD).to receive(:increment).with('worker.central_mail.submit_career_counseling_job.exhausted')
+      end
+    end
+  end
 end

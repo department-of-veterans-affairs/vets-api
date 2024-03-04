@@ -15,9 +15,9 @@ module SentryControllerLogging
       'user_uuid' => current_user&.uuid,
       'source' => request.headers['Source-App-Name']
     }
-    Raven.extra_context(request_uuid: request.uuid)
-    Raven.user_context(user_context) if current_user
-    Raven.tags_context(tags_context)
+    Sentry.set_extras(request_uuid: request.uuid)
+    Sentry.set_user(user_context) if current_user
+    Sentry.set_tags(tags_context)
   end
 
   def user_context

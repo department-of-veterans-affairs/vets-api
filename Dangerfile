@@ -12,7 +12,8 @@ module VSPDanger
         SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run,
-        CodeownersCheck.new.run
+        CodeownersCheck.new.run,
+        GemfileLockPlatformChecker.new.run
       ]
     end
 
@@ -157,7 +158,7 @@ module VSPDanger
 
     def run
       required_group = '@department-of-veterans-affairs/backend-review-group'
-      exception_groups = %w[@department-of-veterans-affairs/vsp-identity
+      exception_groups = %w[@department-of-veterans-affairs/octo-identity
                             @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot
                             @department-of-veterans-affairs/lighthouse-banana-peels]
 
@@ -235,6 +236,75 @@ module VSPDanger
 
     def files
       @files ||= `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only`.split("\n")
+    end
+  end
+
+  class GemfileLockPlatformChecker
+    def run
+      errors = []
+
+      errors << "#{ruby_error_message}\n#{ruby_resolution_message}" if ruby_platform_removed?
+
+      if (darwin_platform = darwin_platform_added)
+        errors << "#{darwin_error_message(darwin_platform)}\n#{darwin_resolution_message(darwin_platform)}"
+      end
+
+      return Result.success('Gemfile.lock platform checks passed.') if errors.empty?
+
+      errors << redownload_message
+
+      Result.error(errors.join("\n\n"))
+    end
+
+    private
+
+    def ruby_platform_removed?
+      !platforms_section.include?('ruby')
+    end
+
+    def darwin_platform_added
+      platforms_section[/.*-darwin-\d+/]
+    end
+
+    def ruby_error_message
+      "You've removed the `ruby` platform from the Gemfile.lock! You must restore it before merging this PR."
+    end
+
+    def ruby_resolution_message
+      <<~TEXT
+        ```
+        bundle lock --add-platform ruby
+        ```
+      TEXT
+    end
+
+    def darwin_error_message(darwin_platform)
+      "You've added a Darwin platform to the Gemfile.lock: `#{darwin_platform.strip}`. You must remove it before merging this PR."
+    end
+
+    def darwin_resolution_message(darwin_platform)
+      <<~TEXT
+        ```
+        bundle lock --remove-platform #{darwin_platform.strip}
+        ```
+      TEXT
+    end
+
+    def redownload_message
+      <<~TEXT
+        Redownload your gems after making the necessary changes:
+        ```
+        bundle install --redownload
+        ```
+      TEXT
+    end
+
+    def platforms_section
+      @platforms_section ||= gemfile_lock.match(/^PLATFORMS$(.*?)^\n/m)[1]
+    end
+
+    def gemfile_lock
+      File.read('Gemfile.lock')
     end
   end
 

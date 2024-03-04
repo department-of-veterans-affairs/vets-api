@@ -24,7 +24,7 @@ module AskVAApi
       end
 
       def fetch_by_icn
-        validate_input(icn, 'Invalid SEC_ID')
+        validate_input(icn, 'Invalid ICN')
         fetch_data(payload: { icn: }).map { |inq| Entity.new(inq) }
       rescue => e
         ErrorHandler.handle_service_error(e)

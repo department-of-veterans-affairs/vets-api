@@ -13,7 +13,7 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength
     def upload(body)
-      Raven.extra_context(
+      Sentry.set_extras(
         request: {
           metadata: body['metadata']
         }
@@ -28,7 +28,7 @@ module CentralMail
         )
       end
 
-      Raven.extra_context(
+      Sentry.set_extras(
         response: {
           status: response.status,
           body: response.body

@@ -14,6 +14,8 @@ class IAMUserIdentity < ::UserIdentity
   UPGRADE_AUTH_TYPES = %w[DSL MHV].freeze
   MULTIFACTOR_AUTH_TYPES = %w[IDME LOGINGOV].freeze
 
+  IAM_NAMESPACE = 'eb7b724e-bd8c-4dc3-b5fa-30f335938b42'
+
   redis_store REDIS_CONFIG[:iam_user_identity][:namespace]
   redis_ttl REDIS_CONFIG[:iam_user_identity][:each_ttl]
   redis_key :uuid
@@ -70,7 +72,7 @@ class IAMUserIdentity < ::UserIdentity
   # @return [String] UUID that is unique to this user
   #
   def uuid
-    Digest::UUID.uuid_v5(@iam_sec_id, @icn)
+    Digest::UUID.uuid_v5(IAM_NAMESPACE, @icn)
   end
 
   # Return a single mhv id from a possible comma-separated list value attribute

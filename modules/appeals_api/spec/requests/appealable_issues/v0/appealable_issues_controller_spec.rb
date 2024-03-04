@@ -26,11 +26,11 @@ describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :re
   end
 
   describe '#index' do
-    let(:headers) { {} }
+    let(:path) { "/services/appeals/appealable-issues/v0/appealable-issues/#{decision_review_type}" }
+    let(:icn) { '1012667145V762142' }
     let(:receipt_date) { '2019-12-01' }
     let(:decision_review_type) { 'notice-of-disagreements' }
     let(:benefit_type) {}
-    let(:icn) { '1234567890V012345' }
     let(:params) do
       p = {}
       p['receiptDate'] = receipt_date if receipt_date.present?
@@ -39,133 +39,116 @@ describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :re
       p
     end
     let(:json) { JSON.parse(response.body) }
-    let(:cassette) { "caseflow/#{decision_review_type.underscore}/contestable_issues" }
-    let(:path) { "/services/appeals/appealable-issues/v0/appealable-issues/#{decision_review_type}" }
-    let(:mpi_response) { create(:find_profile_response, profile: build(:mpi_profile)) }
+    let(:caseflow_cassette) { "caseflow/#{decision_review_type.underscore}/contestable_issues" }
+    let(:mpi_cassette) { 'mpi/find_candidate/valid' }
 
-    before do
-      allow_any_instance_of(MPI::Service)
-        .to receive(:find_profile_by_identifier)
-        .with(identifier: icn, identifier_type: MPI::Constants::ICN).and_return(mpi_response)
+    describe 'ICN parameter handling' do
+      it_behaves_like(
+        'GET endpoint with optional Veteran ICN parameter',
+        {
+          cassette: 'caseflow/notice_of_disagreements/contestable_issues',
+          path: '/services/appeals/appealable-issues/v0/appealable-issues/notice-of-disagreements',
+          scope_base: 'AppealableIssues',
+          params: { receiptDate: '2019-12-01' }
+        }
+      )
+    end
 
-      VCR.use_cassette(cassette) do
-        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
-          get(path, headers: auth_header, params:)
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: %w[veteran/AppealableIssues.read]) do
+        def make_request(auth_header)
+          VCR.use_cassette(caseflow_cassette) do
+            VCR.use_cassette(mpi_cassette) do
+              get(path, headers: auth_header, params:)
+            end
+          end
         end
       end
     end
 
-    context 'when all required fields provided' do
-      it 'fetches contestable_issues from Caseflow successfully' do
-        expect(response).to have_http_status(:ok)
-        expect(json['data']).not_to be_nil
-      end
-
-      it 'replaces the type "contestableIssue" with "appealableIssue" in responses' do
-        json['data'].each { |issue| expect(issue['type']).to eq('appealableIssue') }
-      end
-    end
-
-    describe 'icn parameter' do
-      context 'when icn is missing' do
-        let(:icn) {}
-
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['detail']).to include('One or more expected fields were not found')
-          expect(error['meta']['missing_fields']).to include('icn')
+    describe 'responses' do
+      before do
+        VCR.use_cassette(caseflow_cassette) do
+          VCR.use_cassette(mpi_cassette) do
+            with_openid_auth(%w[veteran/AppealableIssues.read]) do |auth_header|
+              get(path, headers: auth_header, params:)
+            end
+          end
         end
       end
 
-      context 'when icn does not meet length requirements' do
-        let(:icn) { '229384' }
-
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['title']).to eql('Invalid length')
-          expect(error['detail']).to include("'#{icn}' did not fit within the defined length limits")
+      describe 'on success' do
+        it 'replaces the type "contestableIssue" with "appealableIssue" in responses' do
+          json['data'].each { |issue| expect(issue['type']).to eq('appealableIssue') }
         end
       end
 
-      context 'when icn does not meet pattern requirements' do
-        let(:icn) { '22938439103910392' }
+      describe 'receiptDate parameter' do
+        context 'when receipt date is missing' do
+          let(:receipt_date) {}
 
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['title']).to eql('Invalid pattern')
-          expect(error['detail']).to include("'#{icn}' did not match the defined pattern")
+          it 'returns a 422 error with details' do
+            expect(response).to have_http_status(:unprocessable_entity)
+            error = json['errors'][0]
+            expect(error['title']).to eql('Missing required fields')
+            expect(error['detail']).to include('One or more expected fields were not found')
+          end
         end
-      end
-    end
 
-    describe 'receiptDate parameter' do
-      context 'when receipt date is missing' do
-        let(:receipt_date) {}
+        context 'when receipt date is not formatted correctly' do
+          let(:receipt_date) { '01/01/2001' }
 
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['title']).to eql('Missing required fields')
-          expect(error['detail']).to include('One or more expected fields were not found')
-        end
-      end
-
-      context 'when receipt date is not formatted correctly' do
-        let(:receipt_date) { '01/01/2001' }
-
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['title']).to eql('Invalid format')
-          expect(error['detail']).to include("'#{receipt_date}' did not match the defined format")
-        end
-      end
-    end
-
-    shared_examples 'benefitType required' do
-      context 'when benefitType is invalid' do
-        let(:benefit_type) { 'invalid' }
-
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['title']).to eql('Invalid option')
-          expect(error['detail']).to eql("'invalid' is not an available option")
+          it 'returns a 422 error with details' do
+            expect(response).to have_http_status(:unprocessable_entity)
+            error = json['errors'][0]
+            expect(error['title']).to eql('Invalid format')
+            expect(error['detail']).to include("'#{receipt_date}' did not match the defined format")
+          end
         end
       end
 
-      context 'when benefitType is missing' do
-        it 'returns a 422 error with details' do
-          expect(response).to have_http_status(:unprocessable_entity)
-          error = json['errors'][0]
-          expect(error['title']).to eql('Missing required fields')
-          expect(error['meta']['missing_fields']).to eql(%w[benefitType])
+      shared_examples 'benefitType required' do
+        context 'when benefitType is invalid' do
+          let(:benefit_type) { 'invalid' }
+
+          it 'returns a 422 error with details' do
+            expect(response).to have_http_status(:unprocessable_entity)
+            error = json['errors'][0]
+            expect(error['title']).to eql('Invalid option')
+            expect(error['detail']).to eql("'invalid' is not an available option")
+          end
+        end
+
+        context 'when benefitType is missing' do
+          it 'returns a 422 error with details' do
+            expect(response).to have_http_status(:unprocessable_entity)
+            error = json['errors'][0]
+            expect(error['title']).to eql('Missing required fields')
+            expect(error['meta']['missing_fields']).to eql(%w[benefitType])
+          end
         end
       end
-    end
 
-    context 'with decisionReviewType = HLR' do
-      let(:decision_review_type) { 'higher-level-reviews' }
+      context 'with decisionReviewType = HLR' do
+        let(:decision_review_type) { 'higher-level-reviews' }
 
-      it_behaves_like 'benefitType required'
+        it_behaves_like 'benefitType required'
 
-      context 'when benefitType is valid' do
-        let(:benefit_type) { 'compensation' }
+        context 'when benefitType is valid' do
+          let(:benefit_type) { 'compensation' }
 
-        it 'GETs contestable_issues from caseflow successfully' do
-          expect(response).to have_http_status(:ok)
-          expect(json['data']).to be_an Array
+          it 'GETs contestable_issues from caseflow successfully' do
+            expect(response).to have_http_status(:ok)
+            expect(json['data']).to be_an Array
+          end
         end
       end
-    end
 
-    context 'with decision_review_type = SC' do
-      let(:decision_review_type) { 'supplemental-claims' }
+      context 'with decision_review_type = SC' do
+        let(:decision_review_type) { 'supplemental-claims' }
 
-      it_behaves_like 'benefitType required'
+        it_behaves_like 'benefitType required'
+      end
     end
   end
 end

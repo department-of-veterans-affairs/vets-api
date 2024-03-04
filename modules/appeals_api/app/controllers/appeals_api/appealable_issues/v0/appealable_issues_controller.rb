@@ -6,9 +6,11 @@ module AppealsApi::AppealableIssues::V0
   class AppealableIssuesController < AppealsApi::ApplicationController
     include AppealsApi::CaseflowRequest
     include AppealsApi::OpenidAuth
+    include AppealsApi::IcnParameterValidation
     include AppealsApi::Schemas
 
     skip_before_action :authenticate
+    before_action :validate_icn_parameter!, only: %i[index]
     before_action :validate_json_schema, only: %i[index]
 
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'appealable_issues' }.freeze
@@ -62,7 +64,7 @@ module AppealsApi::AppealableIssues::V0
     end
 
     def generate_caseflow_headers
-      { 'X-VA-Receipt-Date' => params[:receiptDate], 'X-VA-SSN' => icn_to_ssn!(params[:icn]) }
+      { 'X-VA-Receipt-Date' => params[:receiptDate], 'X-VA-SSN' => icn_to_ssn!(veteran_icn) }
     end
 
     # Filters and reformats a response from caseflow for presentation to the client

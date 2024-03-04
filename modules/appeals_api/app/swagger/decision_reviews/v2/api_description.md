@@ -8,7 +8,7 @@ The Decision Reviews API passes data through to Caseflow, a case management syst
 Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
 
 ### Authorization and Access
-To gain access to the decision reviews API you must [request an API Key](https://developer.va.gov/support/contact-us). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
+To gain access to the decision reviews API you must [request an API Key](/support/contact-us). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
 ### Submission Statuses
 

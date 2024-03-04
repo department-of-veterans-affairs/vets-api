@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'faraday/multipart'
 require 'lighthouse/auth/client_credentials/jwt_generator'
 require 'lighthouse/auth/client_credentials/service'
 
@@ -67,6 +68,19 @@ module BenefitsClaims
           options
         )
       }" })
+    end
+
+    ##
+    # Makes a POST request with custom query parameters
+    #
+    # @return [Faraday::Response] response from POST request
+    #
+    def post_with_params(path, body, params, options = {})
+      connection.post(path) do |req|
+        req.body = body
+        req.params = params
+        req.headers['Authorization'] = "Bearer #{access_token(nil, nil, options)}"
+      end
     end
 
     ##

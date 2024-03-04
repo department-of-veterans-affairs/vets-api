@@ -1,0 +1,66 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Power of Attorney Submission UUID"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "dateRequestAccepted", "representative"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+              "enum": [
+                "pending",
+                "submitted",
+                "updated",
+                "errored"
+              ]
+            },
+            "dateRequestAccepted": {
+              "type": "string",
+              "description": "Date request was first accepted",
+              "format": "date"
+            },
+            "representative": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["serviceOrganization"],
+              "properties": {
+                "serviceOrganization": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "required": ["poaCode"],
+                  "properties": {
+                    "poa_code": {
+                      "type": "string",
+                      "description": "Power of Attorney Code submitted for Veteran"
+                    }
+                  }
+                }
+              }
+            },
+            "previousPoa": {
+              "type": "string",
+              "nullable": true,
+              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+            }
+          }
+        }
+      }
+    }
+  }
+}

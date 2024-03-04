@@ -27,7 +27,7 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
 
   describe 'correlation_id' do
     context 'with existing correlation_id' do
-      it 'will use existing user correlation_id if one exists' do
+      it 'uses existing user correlation_id if one exists' do
         expect(service_obj.send(:correlation_id)).to eq(user.mhv_correlation_id)
       end
     end
@@ -51,7 +51,7 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         allow(api_obj).to receive(:get_correlation_data).and_return(correlation_id_error_response)
       end
 
-      it 'will return identity document missing error if user is not found' do
+      it 'returns identity document missing error if user is not found' do
         expect(service_obj.send(:correlation_id)).to eq(nil)
         expect { service_obj.perform }.to raise_error(expected_error)
       end
@@ -65,7 +65,7 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         allow_any_instance_of(config_obj).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
       end
 
-      it 'will return identity document missing error if mhv service is down' do
+      it 'returns identity document missing error if mhv service is down' do
         expect(service_obj.send(:correlation_id)).to eq(nil)
         expect { service_obj.perform }.to raise_error(expected_error)
       end
@@ -95,16 +95,16 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         allow_any_instance_of(described_class).to receive(:code).and_return(code)
       end
 
-      it 'will return hash if user has identity proof' do
+      it 'returns hash if user has identity proof' do
         expect(service_obj.send(:identity_info)).to eq(identity_data_response)
       end
 
-      it 'will cache information' do
+      it 'caches information' do
         service_obj.perform
         expect(InheritedProofing::MHVIdentityData.find(code)).not_to be_nil
       end
 
-      it 'will return code' do
+      it 'returns code' do
         expect(service_obj.perform).to eq(code)
       end
     end
@@ -122,11 +122,11 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         allow(api_obj).to receive(:get_verification_data).and_return(identity_data_failed_response)
       end
 
-      it 'will return empty hash if user does not have identity proof' do
+      it 'returns empty hash if user does not have identity proof' do
         expect(service_obj.send(:identity_info)).to eq(identity_data_failed_response)
       end
 
-      it 'will raise identity document missing error, and will not cache any data' do
+      it 'raises identity document missing error, and will not cache any data' do
         expect { service_obj.perform }.to raise_error(expected_error)
         expect(InheritedProofing::MHVIdentityData.keys).to be_blank
       end
@@ -139,11 +139,11 @@ describe InheritedProofing::MHV::InheritedProofingVerifier do
         allow_any_instance_of(config_obj).to receive(:perform).and_raise(Common::Client::Errors::ClientError)
       end
 
-      it 'will return empty hash if mhv service is down' do
+      it 'returns empty hash if mhv service is down' do
         expect(service_obj.send(:identity_info)).to eq({})
       end
 
-      it 'will raise identity document missing error, and will not cache any data' do
+      it 'raises identity document missing error, and will not cache any data' do
         expect { service_obj.perform }.to raise_error(expected_error)
         expect(InheritedProofing::MHVIdentityData.keys).to be_blank
       end

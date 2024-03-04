@@ -36,7 +36,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Email a decision reviews stats report for the past month to configured recipients first of the month
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
-
+  mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
+  # Update static data cache
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
 
@@ -67,9 +68,6 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
   # Deletes old, completed AsyncTransaction records
 
-  mgr.register('30 3 * * 1', 'EVSS::FailedClaimsReport')
-  # Notify developers about EVSS claims which could not be uploaded
-
   mgr.register('0 4 * * *', 'EducationForm::CreateDailyFiscalYearToDateReport')
   # Send the daily report to VA stakeholders about Education Benefits submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
@@ -98,6 +96,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
   # Weekly logs of maintenance windows
   mgr.register('0 20 * * *', 'ClaimsApi::ClaimAuditor')
+  # Hourly slack alert of errored claim submissions
+  mgr.register('0 * * * *', 'ClaimsApi::ReportHourlyUnsuccessfulSubmissions')
   # Daily alert of pending claims longer than acceptable threshold
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
@@ -156,8 +156,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
   mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
-  # Updates veteran representatives and organizations address attributes (including lat, long, location)
-  # Updates veteran representatives email address
-  mgr.register('0 3 * * *', 'RepOrgAddresses::QueueAddressUpdates')
+  # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
+  mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+
+  # Updates veteran service organization names
+  mgr.register('0 5 * * *', 'Organizations::UpdateNames')
 }
 # rubocop:enable Metrics/BlockLength

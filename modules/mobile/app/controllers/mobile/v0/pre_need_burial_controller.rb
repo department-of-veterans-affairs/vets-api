@@ -45,7 +45,7 @@ module Mobile
         validation_errors = ::Preneeds::BurialForm.validate(schema, form.as_json)
 
         if validation_errors.present?
-          Raven.tags_context(validation: 'preneeds')
+          Sentry.set_tags(validation: 'preneeds')
           raise Common::Exceptions::SchemaValidationErrors, validation_errors
         end
       end

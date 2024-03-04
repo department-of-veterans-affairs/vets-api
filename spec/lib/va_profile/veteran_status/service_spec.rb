@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_profile/veteran_status/service'
 
-describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status_updated) do
+describe VAProfile::VeteranStatus::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }

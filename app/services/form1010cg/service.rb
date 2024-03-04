@@ -139,7 +139,7 @@ module Form1010cg
       end
 
       if response.not_found?
-        Raven.extra_context(mpi_transaction_id: response.error&.message)
+        Sentry.set_extras(mpi_transaction_id: response.error&.message)
         log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end
@@ -184,10 +184,6 @@ module Form1010cg
 
     def mpi_service
       @mpi_service ||= MPI::Service.new
-    end
-
-    def emis_service
-      @emis_service ||= EMIS::VeteranStatusService.new
     end
 
     def log_mpi_search_result(form_subject, result)

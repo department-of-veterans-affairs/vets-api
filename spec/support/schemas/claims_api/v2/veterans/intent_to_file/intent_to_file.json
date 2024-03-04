@@ -22,7 +22,7 @@
             "creationDate": {
               "type": "string",
               "format": "date",
-              "description": "Date the Intent to File was received at the VA"
+              "description": "Date the Intent to File was received at VA"
             },
             "expirationDate": {
               "type": "string",
@@ -36,7 +36,7 @@
             },
             "type": {
               "type": "string",
-              "description": "The type of Intent to File filed.",
+              "description": "The type of Intent to File filed",
               "example": "compensation"
             }
           }

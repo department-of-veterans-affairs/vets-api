@@ -186,9 +186,9 @@ RSpec.describe Form1010Ezr::Service do
         it 'increments statsd' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.fail',
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.fail',
                                                      tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
-          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_form.total')
+          expect(StatsD).to receive(:increment).with('api.1010ezr.submit_sync.total')
 
           expect do
             submit_form(form)

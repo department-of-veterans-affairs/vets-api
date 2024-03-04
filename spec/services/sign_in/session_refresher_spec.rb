@@ -37,7 +37,7 @@ RSpec.describe SignIn::SessionRefresher do
                user_verification:,
                client_id:)
       end
-      let(:session_expiration) { Time.zone.now + 5.minutes }
+      let(:session_expiration) { (Time.zone.now + 5.minutes).round(3) }
       let(:client_id) { client_config.client_id }
       let(:client_config) do
         create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:, enforced_terms:)
@@ -110,7 +110,7 @@ RSpec.describe SignIn::SessionRefresher do
 
           context 'and client in session does not match an existing client configuration' do
             let(:expected_error) { ActiveRecord::RecordNotFound }
-            let(:expected_error_message) { "Couldn't find SignIn::ClientConfig" }
+            let(:expected_error_message) { /Couldn't find SignIn::ClientConfig/ }
             let(:arbitrary_client_id) { 'some-client-id' }
 
             before do
@@ -130,7 +130,7 @@ RSpec.describe SignIn::SessionRefresher do
 
               context 'and client is configured with a short refresh token expiration time' do
                 let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
-                let(:updated_session_expiration) { Time.zone.now + refresh_token_duration }
+                let(:updated_session_expiration) { (Time.zone.now + refresh_token_duration).round(3) }
 
                 it 'updates the session with a new expiration time' do
                   expect do
@@ -143,7 +143,7 @@ RSpec.describe SignIn::SessionRefresher do
 
               context 'and client is configured with a long refresh token expiration time' do
                 let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS }
-                let(:updated_session_expiration) { Time.zone.now + refresh_token_duration }
+                let(:updated_session_expiration) { (Time.zone.now + refresh_token_duration).round(3) }
 
                 it 'updates the session with a new expiration time' do
                   expect do

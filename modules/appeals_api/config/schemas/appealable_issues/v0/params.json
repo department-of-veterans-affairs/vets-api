@@ -36,7 +36,6 @@
     }
   },
   "required": [
-    "icn",
     "receiptDate",
     "decisionReviewType"
   ],

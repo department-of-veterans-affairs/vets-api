@@ -102,7 +102,7 @@ RSpec.describe Facilities::MentalHealthReloadJob, type: :job do
       allow_any_instance_of(
         Facilities::MentalHealthReloadJob
       ).to receive(:fetch_mental_health_data).and_raise(Facilities::MentalHealthDownloadError)
-      expect(Raven).to receive(:capture_exception).with(Facilities::MentalHealthDownloadError, level: 'error')
+      expect(Sentry).to receive(:capture_exception).with(Facilities::MentalHealthDownloadError, level: 'error')
       Facilities::MentalHealthReloadJob.new.perform
     end
   end
