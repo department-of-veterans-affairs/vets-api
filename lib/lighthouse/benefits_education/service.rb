@@ -44,12 +44,16 @@ module BenefitsEducation
 
     ##
     # Retrieve a veteran's Post-9/11 GI Bill Status
-    # @return [Faraday::Response] response from a GET request to Lighthouse API:
-    #   A veteran's GI Bill status
+    # @return [String] A JSON string representing the veteran's GI Bill status.
     def get_gi_bill_status
-      config.get(@icn)
-    rescue => e
-      handle_error(e, config.service_name, config.base_api_path)
+      response = begin
+        config.get(@icn)
+      rescue => e
+        handle_error(e, config.service_name, config.base_api_path)
+      end
+
+      education_info = response.body&.[]('chapter33EducationInfo')
+      Lighthouse::EducationBenefits::EducationBenefit.new(education_info).to_json
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

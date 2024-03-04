@@ -20,6 +20,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
     it 'returns a 200 success' do
       # valid icn retrieved from
       # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
+      # 001	Tamara	E	Ellis	F	6/19/67	796130115	1012667145V762142
       valid_user = FactoryBot.create(:user, :loa3, icn: '1012667145V762142')
       sign_in_as(valid_user)
 
@@ -29,6 +30,12 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       end
 
       expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+
+      # assertions that the data returned will match our test user
+      expect(response_body['first_name']).to eq("Tamara")
+      expect(response_body['last_name']).to eq("Ellis")
+      expect(response_body['date_of_birth']).to start_with("1967-06-19")
     end
 
     it 'returns a 404 when vet isn\'t found' do
