@@ -33,5 +33,6 @@
   "pow_confinement_end_date": "2018-02-03",
   "pow_multiple_confinements": true,
   "pow_confinement2start_date": "2018-11-01",
-  "pow_confinement2end_date": "2018-11-12"
+  "pow_confinement2end_date": "2018-11-12",
+  "statement_of_truth_signature": "John Veteran"
 }
