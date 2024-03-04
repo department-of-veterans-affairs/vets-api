@@ -10,6 +10,24 @@ module SimpleFormsApi
       @data = data
     end
 
+    def requester_signature
+      if @data['preparer_type'] == 'veteran'
+        @data['statement_of_truth_signature']
+      end
+    end
+
+    def third_party_signature
+      if @data['preparer_type'] != 'veteran' && @data['third_party_type'] != 'power-of-attorney'
+        @data['statement_of_truth_signature']
+      end
+    end
+
+    def power_of_attorney_signature
+      if @data['third_party_type'] == 'power-of-attorney'
+        @data['statement_of_truth_signature']
+      end
+    end
+
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
