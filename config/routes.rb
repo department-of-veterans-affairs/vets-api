@@ -438,6 +438,8 @@ Rails.application.routes.draw do
     end
     resources :notice_of_disagreements, only: %i[create show]
 
+    resource :post911_gi_bill_status, only: [:show]
+
     namespace :supplemental_claims do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
