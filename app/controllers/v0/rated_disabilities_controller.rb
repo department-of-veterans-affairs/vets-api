@@ -27,7 +27,7 @@ module V0
     def active?(rating)
       end_date = rating['rating_end_date']
 
-      end_date.nil? || end_date.future?
+      end_date.nil? || Date.parse(end_date).future?
     end
 
     def remove_inactive_ratings!(ratings)
