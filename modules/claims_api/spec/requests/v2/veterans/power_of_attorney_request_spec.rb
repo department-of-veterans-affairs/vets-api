@@ -249,6 +249,34 @@ RSpec.describe 'Power Of Attorney', type: :request do
           end
         end
       end
+
+      context 'scopes' do
+        let(:invalid_scopes) { %w[system/526-pdf.override] }
+        let(:poa_scopes) { %w[system/claim.write] }
+
+        context 'POA organization' do
+          it 'returns a 200 response when successful' do
+            mock_ccg_for_fine_grained_scope(poa_scopes) do |auth_header|
+              expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                .and_return(bgs_poa)
+              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                .and_return({ person_poa_history: nil })
+
+              post appoint_organization_path, params: data.to_json, headers: auth_header
+
+              expect(response.status).to eq(202)
+            end
+          end
+
+          it 'returns a 401 unauthorized with incorrect scopes' do
+            mock_ccg_for_fine_grained_scope(invalid_scopes) do |auth_header|
+              post appoint_organization_path, params: data.to_json, headers: auth_header
+
+              expect(response).to have_http_status(:unauthorized)
+            end
+          end
+        end
+      end
     end
 
     describe 'validate2122' do
