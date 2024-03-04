@@ -14,51 +14,10 @@ module SimpleFormsApi
       {
         remarks: data['remarks'],
         otherConditions: data['other_conditions'],
-        livingSituation: {
-          careFacilityName: data.dig('living_situation', 'care_facility_name'),
-          careFacilityAddress: {
-            street: data.dig('living_situation', 'care_facility_address', 'street'),
-            street2: data.dig('living_situation', 'care_facility_address', 'street2'),
-            city: data.dig('living_situation', 'care_facility_address', 'city'),
-            state: data.dig('living_situation', 'care_facility_address', 'state'),
-            postalCode: data.dig('living_situation', 'care_facility_address', 'postal_code')
-          },
-          isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
-        },
-        previousHiApplication: {
-          previousHiApplicationDate: data.dig('previous_hi_application', 'previous_hi_application_date'),
-          previousHiApplicationAddress: {
-            city: data.dig('previous_hi_application', 'previous_hi_application_address', 'city')
-          },
-          hasPreviousHiApplication: data.dig('previous_hi_application', 'has_previous_hi_application')
-        },
-        previousSahApplication: {
-          previousSahApplicationDate: data.dig('previous_sah_application', 'previous_sah_application_date'),
-          previousSahApplicationAddress: {
-            city: data.dig('previous_sah_application', 'previous_sah_application_address', 'city')
-          },
-          hasPreviousSahApplication: data.dig('previous_sah_application', 'has_previous_sah_application')
-        },
-        veteran: {
-          address: {
-            isMilitary: data.dig('veteran', 'address', 'is_military'),
-            country: data.dig('veteran', 'address', 'country'),
-            street: data.dig('veteran', 'address', 'street'),
-            street2: data.dig('veteran', 'address', 'street2'),
-            city: data.dig('veteran', 'address', 'city'),
-            state: data.dig('veteran', 'address', 'state'),
-            postalCode: data.dig('veteran', 'address', 'postal_code')
-          },
-          ssn: data.dig('veteran', 'ssn'),
-          vaFileNumber: data.dig('veteran', 'va_file_number'),
-          fullName: {
-            first: data.dig('veteran', 'full_name', 'first'),
-            middle: data.dig('veteran', 'full_name', 'middle'),
-            last: data.dig('veteran', 'full_name', 'last'),
-            suffix: data.dig('veteran', 'full_name', 'suffix')
-          },
-          dateOfBirth: data.dig('veteran', 'date_of_birth')
-        },
+        livingSituation: living_situation_payload,
+        previousHiApplication: previous_hi_application_payload,
+        previousSahApplication: previous_sah_application_payload,
+        veteran: veteran_payload,
         statementOfTruthSignature: data['statement_of_truth_signature'],
         statementOfTruthCertified: data['statement_of_truth_certified'],
         formNumber: data['form_number']
@@ -89,6 +48,63 @@ module SimpleFormsApi
     def track_user_identity; end
 
     private
+
+    def living_situation_payload
+      {
+        careFacilityName: data.dig('living_situation', 'care_facility_name'),
+        careFacilityAddress: {
+          street: data.dig('living_situation', 'care_facility_address', 'street'),
+          street2: data.dig('living_situation', 'care_facility_address', 'street2'),
+          city: data.dig('living_situation', 'care_facility_address', 'city'),
+          state: data.dig('living_situation', 'care_facility_address', 'state'),
+          postalCode: data.dig('living_situation', 'care_facility_address', 'postal_code')
+        },
+        isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
+      }
+    end
+
+    def previous_hi_application_payload
+      {
+        previousHiApplicationDate: data.dig('previous_hi_application', 'previous_hi_application_date'),
+        previousHiApplicationAddress: {
+          city: data.dig('previous_hi_application', 'previous_hi_application_address', 'city')
+        },
+        hasPreviousHiApplication: data.dig('previous_hi_application', 'has_previous_hi_application')
+      }
+    end
+
+    def previous_sah_application_payload
+      {
+        previousSahApplicationDate: data.dig('previous_sah_application', 'previous_sah_application_date'),
+        previousSahApplicationAddress: {
+          city: data.dig('previous_sah_application', 'previous_sah_application_address', 'city')
+        },
+        hasPreviousSahApplication: data.dig('previous_sah_application', 'has_previous_sah_application')
+      }
+    end
+
+    def veteran_payload
+      {
+        address: {
+          isMilitary: data.dig('veteran', 'address', 'is_military'),
+          country: data.dig('veteran', 'address', 'country'),
+          street: data.dig('veteran', 'address', 'street'),
+          street2: data.dig('veteran', 'address', 'street2'),
+          city: data.dig('veteran', 'address', 'city'),
+          state: data.dig('veteran', 'address', 'state'),
+          postalCode: data.dig('veteran', 'address', 'postal_code')
+        },
+        ssn: data.dig('veteran', 'ssn'),
+        vaFileNumber: data.dig('veteran', 'va_file_number'),
+        fullName: {
+          first: data.dig('veteran', 'full_name', 'first'),
+          middle: data.dig('veteran', 'full_name', 'middle'),
+          last: data.dig('veteran', 'full_name', 'last'),
+          suffix: data.dig('veteran', 'full_name', 'suffix')
+        },
+        dateOfBirth: data.dig('veteran', 'date_of_birth')
+      }
+    end
 
     def veteran_ssn
       [
