@@ -162,14 +162,14 @@ module LGY
     end
 
     def post_grant_application(payload:)
-      # with_monitoring do
-      perform(
-        :post,
-        "#{grant_manager_end_point}/application/createGrantApplication",
-        payload.to_json,
-        request_headers
-      )
-    # end
+      with_monitoring do
+        perform(
+          :post,
+          "#{grant_manager_end_point}/application/createGrantApplication",
+          payload.to_json,
+          request_headers
+        )
+      end
     rescue Common::Client::Errors::ClientError => e
       raise e
     end
