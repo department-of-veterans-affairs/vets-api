@@ -221,7 +221,7 @@ module SimpleFormsApi
       end
 
       def first_party?
-        %w[VETERAN].include?(params[:preparer_identification])
+        params[:preparer_identification] == 'VETERAN'
       end
 
       def get_form_id
