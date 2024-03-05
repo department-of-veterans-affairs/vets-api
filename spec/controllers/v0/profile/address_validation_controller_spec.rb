@@ -7,7 +7,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   let(:multiple_match_addr) { build(:va_profile_address, :multiple_matches) }
   let(:invalid_address) { build(:va_profile_validation_address).to_h }
 
-  shared_examples 'invalid address response' do
+  shared_examples 'invalid address' do
     it 'returns an error' do
       post(:create, params: { address: invalid_address })
 
@@ -55,7 +55,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     end
   end
 
-  shared_examples 'found address response' do
+  shared_examples 'found address' do
     it 'returns suggested addresses for a given address' do
       VCR.use_cassette('va_profile/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
         post(:create, params: { address: multiple_match_addr.to_h })
@@ -111,12 +111,12 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   context 'with user signed in' do
     before { sign_in_as(user) }
 
-    include_examples 'invalid address response'
-    include_examples 'found address response'
+    include_examples 'invalid address'
+    include_examples 'found address'
   end
 
   context 'without user signed in' do
-    include_examples 'invalid address response'
-    include_examples 'found address response'
+    include_examples 'invalid address'
+    include_examples 'found address'
   end
 end
