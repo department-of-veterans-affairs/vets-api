@@ -41,7 +41,7 @@ module SimpleFormsApi
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
-          render json: response.body if response.status == 201
+          render json: response.body, status: response.status
         else
           submit_form_to_central_mail
         end

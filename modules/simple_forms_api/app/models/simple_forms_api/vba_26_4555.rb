@@ -50,14 +50,15 @@ module SimpleFormsApi
     private
 
     def living_situation_payload
+      care_facility_address = data.dig('living_situation', 'care_facility_address')
       {
         careFacilityName: data.dig('living_situation', 'care_facility_name'),
         careFacilityAddress: {
-          street: data.dig('living_situation', 'care_facility_address', 'street'),
-          street2: data.dig('living_situation', 'care_facility_address', 'street2'),
-          city: data.dig('living_situation', 'care_facility_address', 'city'),
-          state: data.dig('living_situation', 'care_facility_address', 'state'),
-          postalCode: data.dig('living_situation', 'care_facility_address', 'postal_code')
+          street: care_facility_address['street'],
+          street2: care_facility_address['street2'],
+          city: care_facility_address['city'],
+          state: care_facility_address['state'],
+          postalCode: care_facility_address['postal_code']
         },
         isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
       }
@@ -84,23 +85,25 @@ module SimpleFormsApi
     end
 
     def veteran_payload
+      address = data.dig('veteran', 'address')
+      full_name = data.dig('veteran', 'full_name')
       {
         address: {
-          isMilitary: data.dig('veteran', 'address', 'is_military'),
-          country: data.dig('veteran', 'address', 'country'),
-          street: data.dig('veteran', 'address', 'street'),
-          street2: data.dig('veteran', 'address', 'street2'),
-          city: data.dig('veteran', 'address', 'city'),
-          state: data.dig('veteran', 'address', 'state'),
-          postalCode: data.dig('veteran', 'address', 'postal_code')
+          isMilitary: address['is_military'],
+          country: address['country'],
+          street: address['street'],
+          street2: address['street2'],
+          city: address['city'],
+          state: address['state'],
+          postalCode: address['postal_code']
         },
         ssn: data.dig('veteran', 'ssn'),
         vaFileNumber: data.dig('veteran', 'va_file_number'),
         fullName: {
-          first: data.dig('veteran', 'full_name', 'first'),
-          middle: data.dig('veteran', 'full_name', 'middle'),
-          last: data.dig('veteran', 'full_name', 'last'),
-          suffix: data.dig('veteran', 'full_name', 'suffix')
+          first: full_name['first'],
+          middle: full_name['middle'],
+          last: full_name['last'],
+          suffix: full_name['suffix']
         },
         dateOfBirth: data.dig('veteran', 'date_of_birth')
       }
