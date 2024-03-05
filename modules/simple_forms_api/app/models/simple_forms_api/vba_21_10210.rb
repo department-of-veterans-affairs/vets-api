@@ -3,6 +3,7 @@
 module SimpleFormsApi
   class VBA2110210
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.21_10210'
 
     attribute :data
 
