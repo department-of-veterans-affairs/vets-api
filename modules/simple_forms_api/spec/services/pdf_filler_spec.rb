@@ -22,7 +22,6 @@ describe SimpleFormsApi::PdfFiller do
     end
   end
 
-  test_pdf_fill 'vha_10_10d'
   test_pdf_fill 'vba_26_4555'
   test_pdf_fill 'vba_26_4555', 'vba_26_4555-min'
   test_pdf_fill 'vba_21_4142'
@@ -39,6 +38,10 @@ describe SimpleFormsApi::PdfFiller do
   test_pdf_fill 'vba_40_0247', 'vba_40_0247-min'
   test_pdf_fill 'vha_10_7959c'
 
+  # IVC CHAMPVA Forms
+  test_pdf_fill 'vha_10_10d'
+  test_pdf_fill 'vha_10_7959f'
+
   def self.test_json_valid(mapping_file)
     it 'validates json is parseable' do
       expect do
@@ -48,7 +51,6 @@ describe SimpleFormsApi::PdfFiller do
   end
 
   test_json_valid 'vba_26_4555.json.erb'
-  test_json_valid 'vha_10_10d.json.erb'
   test_json_valid 'vba_21_4142.json.erb'
   test_json_valid 'vba_21_10210.json.erb'
   test_json_valid 'vba_21p_0847.json.erb'
@@ -56,4 +58,8 @@ describe SimpleFormsApi::PdfFiller do
   test_json_valid 'vba_21_0966.json.erb'
   test_json_valid 'vba_40_0247.json.erb'
   test_json_valid 'vha_10_7959c.json.erb'
+
+  # IVC CHAMPVA Forms
+  test_json_valid 'vha_10_10d.json.erb'
+  test_json_valid 'vha_10_7959f.json.erb'
 end

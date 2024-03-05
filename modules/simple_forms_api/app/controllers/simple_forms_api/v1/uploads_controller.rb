@@ -26,7 +26,8 @@ module SimpleFormsApi
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
-        '10-10D' => 'vha_10_10d'
+        '10-10D' => 'vha_10_10d',
+        '10-7959F' => 'vha_10_7959f'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
