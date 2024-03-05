@@ -3,7 +3,7 @@ services:
   redis:
     image: redis:6.2-alpine
     ports:
-      - "6379:6379"
+      - "63790:6379"
   postgres:
     image: mdillon/postgis:11-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
@@ -25,8 +25,8 @@ services:
       "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
       "Settings.binaries.clamdscan": "clamscan"           # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
-      "Settings.redis.app_data.url": "redis://redis:6379"
-      "Settings.redis.sidekiq.url": "redis://redis:6379"
+      "Settings.redis.app_data.url": "redis://localhost:63790"
+      "Settings.redis.sidekiq.url": "redis://localhost:63790"
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
