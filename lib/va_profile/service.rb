@@ -33,7 +33,7 @@ module VAProfile
     def log_dates(body)
       parsed_body = JSON.parse(body)
 
-      Raven.extra_context(
+      Sentry.set_extras(
         request_dates: parsed_body['bio'].slice('effectiveStartDate', 'effectiveEndDate', 'sourceDate')
       )
     rescue
@@ -43,7 +43,7 @@ module VAProfile
     def handle_error(error)
       case error
       when Common::Client::Errors::ParsingError # VAProfile sent a non-JSON response
-        Raven.extra_context(
+        Sentry.set_extras(
           message: error.message,
           url: config.base_path
         )
@@ -62,13 +62,13 @@ module VAProfile
     end
 
     def save_error_details(error)
-      Raven.extra_context(
+      Sentry.set_extras(
         message: error.message,
         url: config.base_path,
         body: error.body
       )
 
-      Raven.tags_context(
+      Sentry.set_tags(
         va_profile: person_transaction_failure?(error) ? 'failed_vet360_id_initializations' : 'general_client_error'
       )
     end

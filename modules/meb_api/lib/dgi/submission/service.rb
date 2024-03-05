@@ -13,7 +13,8 @@ module MebApi
         configuration MebApi::DGI::Submission::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-        def submit_claim(params)
+        def submit_claim(params, response_data = nil)
+          response_data.present? ? update_dd_params(params, response_data) : params
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
@@ -46,6 +47,16 @@ module MebApi
           else
             camelize_keys_for_java_service(params)
           end
+        end
+
+        def update_dd_params(params, dd_params)
+          account_number = params.dig(:direct_deposit, :account_number)
+          check_masking = account_number&.include?('*')
+          if check_masking
+            params[:direct_deposit][:account_number] = dd_params[:dposit_acnt_nbr]
+            params[:direct_deposit][:routing_number] = dd_params[:routng_trnsit_nbr]
+          end
+          params
         end
 
         def camelize_keys_for_java_service(params)

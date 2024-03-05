@@ -257,6 +257,8 @@ RSpec.describe V0::InProgressFormsController do
 
       context 'when a form mapping is not found' do
         it 'returns a 500' do
+          allow(FormProfile).to receive(:prefill_enabled_forms).and_return(['FOO'])
+
           get v0_in_progress_form_url('foo'), params: nil
           expect(response).to have_http_status(:internal_server_error)
         end

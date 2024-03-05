@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
-
+require 'central_mail/datestamp_pdf'
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
@@ -38,9 +38,25 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    upload_to_vbms(path: to_pdf(form_id:), doc_type:)
+    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
+  end
+
+  def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
+      text: 'Application Submitted on va.gov',
+      x: form_id == '686C-674' ? 400 : 300,
+      y: form_id == '686C-674' ? 675 : 775,
+      text_only: true, # passing as text only because we override how the date is stamped in this instance
+      timestamp:,
+      page_number: form_id == '686C-674' ? 6 : 0,
+      template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+      multistamp: true
+    )
+    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    File.rename(processed_pdf, renamed_path) # rename for vbms upload
+    renamed_path # return the renamed path
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -110,7 +126,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def to_pdf(form_id: FORM)
     self.form_id = form_id
 
-    PdfFill::Filler.fill_form(self)
+    PdfFill::Filler.fill_form(self, nil, { created_at: })
   end
 
   private

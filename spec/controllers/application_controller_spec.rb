@@ -99,9 +99,9 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'logs to Sentry' do
-          expect(Raven).to receive(:tags_context)
-          expect(Raven).to receive(:extra_context)
-          expect(Raven).to receive(:capture_message)
+          expect(Sentry).to receive(:set_tags)
+          expect(Sentry).to receive(:set_extras)
+          expect(Sentry).to receive(:capture_message)
           subject.log_message_to_sentry('blah', :error, { extra: 'context' }, tags: 'tagging')
         end
       end
@@ -113,7 +113,7 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'logs to Sentry' do
-          expect(Raven).to receive(:capture_exception).with(exception, level: 'error').once
+          expect(Sentry).to receive(:capture_exception).with(exception, level: 'error').once
           subject.log_exception_to_sentry(exception)
         end
       end
@@ -127,7 +127,7 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'does not log to Sentry' do
-          expect(Raven).to receive(:capture_exception).exactly(0).times
+          expect(Sentry).to receive(:capture_exception).exactly(0).times
           subject.log_message_to_sentry('blah', :warn, { extra: 'context' }, tags: 'tagging')
         end
       end
@@ -139,7 +139,7 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'does not log to Sentry' do
-          expect(Raven).to receive(:capture_exception).exactly(0).times
+          expect(Sentry).to receive(:capture_exception).exactly(0).times
           subject.log_exception_to_sentry(exception)
         end
       end
@@ -154,41 +154,41 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'does not log exceptions to sentry if Pundit::NotAuthorizedError' do
-      expect(Raven).not_to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
+      expect(Sentry).not_to receive(:capture_message)
       get :not_authorized
     end
 
     it 'does log exceptions to sentry based on level identified in exception.en.yml' do
-      expect(Raven).to receive(:capture_exception).with(
+      expect(Sentry).to receive(:capture_exception).with(
         Common::Exceptions::BackendServiceException,
         { level: 'warning' }
       )
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_message)
       get :common_error_with_warning_sentry
     end
 
     it 'does not log to sentry if Breakers::OutageException' do
-      expect(Raven).not_to receive(:capture_exception)
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception)
+      expect(Sentry).not_to receive(:capture_message)
       get :breakers_outage
     end
 
     it 'does not log to sentry if Common::Exceptions::Unauthorized' do
-      expect(Raven).not_to receive(:capture_exception)
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception)
+      expect(Sentry).not_to receive(:capture_message)
       get :unauthorized
     end
 
     it 'does not log to sentry if Common::Exceptions::RoutingError' do
-      expect(Raven).not_to receive(:capture_exception)
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception)
+      expect(Sentry).not_to receive(:capture_message)
       get :routing_error
     end
 
     it 'does not log to sentry if Common::Exceptions::Forbidden' do
-      expect(Raven).not_to receive(:capture_exception)
-      expect(Raven).not_to receive(:capture_message)
+      expect(Sentry).not_to receive(:capture_exception)
+      expect(Sentry).not_to receive(:capture_message)
       get :forbidden
     end
   end
@@ -309,10 +309,10 @@ RSpec.describe ApplicationController, type: :controller do
     it 'makes a call to sentry when there is cause' do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
-      expect(Raven).to receive(:extra_context).once.with(
+      expect(Sentry).to receive(:set_extras).once.with(
         { request_uuid: nil }
       )
-      expect(Raven).to receive(:extra_context).once.with(
+      expect(Sentry).to receive(:set_extras).once.with(
         {
           va_exception_errors: [{
             title: 'Service unavailable',
@@ -323,19 +323,19 @@ RSpec.describe ApplicationController, type: :controller do
         }
       )
       # if current user is nil it means user is not signed in.
-      expect(Raven).to receive(:tags_context).once.with(
+      expect(Sentry).to receive(:set_tags).once.with(
         {
           controller_name: 'anonymous',
           sign_in_method: 'not-signed-in',
           source: 'my_testing'
         }
       )
-      expect(Raven).to receive(:tags_context).once.with(
+      expect(Sentry).to receive(:set_tags).once.with(
         { error: 'mhv_session' }
       )
       # since user is not signed in this shouldnt get called.
-      expect(Raven).not_to receive(:user_context)
-      expect(Raven).to receive(:capture_exception).once
+      expect(Sentry).not_to receive(:set_user)
+      expect(Sentry).to receive(:capture_exception).once
       request.headers['Source-App-Name'] = 'my_testing'
       with_settings(Settings.sentry, dsn: 'T') do
         get :client_connection_failed
@@ -354,10 +354,10 @@ RSpec.describe ApplicationController, type: :controller do
       it 'makes a call to sentry when there is cause' do
         allow_any_instance_of(Rx::Client)
           .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
-        expect(Raven).to receive(:extra_context).once.with(
+        expect(Sentry).to receive(:set_extras).once.with(
           { request_uuid: nil }
         )
-        expect(Raven).to receive(:extra_context).once.with(
+        expect(Sentry).to receive(:set_extras).once.with(
           {
             va_exception_errors: [{
               title: 'Service unavailable',
@@ -368,15 +368,15 @@ RSpec.describe ApplicationController, type: :controller do
           }
         )
         # if authn_context is nil on current_user it means idme
-        expect(Raven).to receive(:tags_context).once.with(
+        expect(Sentry).to receive(:set_tags).once.with(
           { controller_name: 'anonymous', sign_in_method: SignIn::Constants::Auth::IDME, sign_in_acct_type: nil }
         )
 
-        expect(Raven).to receive(:tags_context).once.with(
+        expect(Sentry).to receive(:set_tags).once.with(
           { error: 'mhv_session' }
         )
         # since user IS signed in, this SHOULD get called
-        expect(Raven).to receive(:user_context).with(
+        expect(Sentry).to receive(:set_user).with(
           {
             id: user.uuid,
             authn_context: user.authn_context,
@@ -384,7 +384,7 @@ RSpec.describe ApplicationController, type: :controller do
             mhv_icn: user.mhv_icn
           }
         )
-        expect(Raven).to receive(:capture_exception).once.with(
+        expect(Sentry).to receive(:capture_exception).once.with(
           Faraday::ConnectionFailed,
           level: 'error'
         )
@@ -410,11 +410,11 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         it 'does not log info level and extra context to Sentry' do
-          expect(Raven).not_to receive(:capture_exception).with(
+          expect(Sentry).not_to receive(:capture_exception).with(
             Pundit::NotAuthorizedError,
             level: 'info'
           )
-          expect(Raven).not_to receive(:extra_context).with(
+          expect(Sentry).not_to receive(:set_extras).with(
             va_exception_errors: [{
               title: 'Forbidden',
               detail: 'User does not have access to the requested resource',
@@ -422,11 +422,11 @@ RSpec.describe ApplicationController, type: :controller do
               status: '403'
             }]
           )
-          expect(Raven).to receive(:extra_context).once.with(
+          expect(Sentry).to receive(:set_extras).once.with(
             request_uuid: nil
           )
 
-          expect(Raven).not_to receive(:capture_exception)
+          expect(Sentry).not_to receive(:capture_exception)
 
           with_settings(Settings.sentry, dsn: 'T') do
             get :not_authorized

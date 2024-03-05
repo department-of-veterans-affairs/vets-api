@@ -17,6 +17,19 @@ module HCA
 
     NO_RACE = '0000-0'
 
+    EXPOSURE_MAPPINGS = {
+      'exposureToAirPollutants' => 'Air Pollutants',
+      'exposureToChemicals' => 'Chemicals',
+      'exposureToContaminatedWater' => 'Contaminated Water at Camp Lejeune',
+      'exposureToRadiation' => 'Radiation',
+      'exposureToShad' => 'SHAD',
+      'exposureToOccupationalHazards' => 'Occupational Hazards',
+      'exposureToAsbestos' => 'Asbestos',
+      'exposureToMustardGas' => 'Mustard Gas',
+      'exposureToWarfareAgents' => 'Warfare Agents',
+      'exposureToOther' => 'Other'
+    }.freeze
+
     SIGI_CODES = {
       'M' => 'M',
       'F' => 'F',
@@ -26,24 +39,6 @@ module HCA
       'NA' => 'N',
       'NB' => 'B'
     }.freeze
-
-    FORM_TEMPLATE = IceNine.deep_freeze(
-      'va:form' => {
-        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-        'va:formIdentifier' => {
-          'va:type' => '100',
-          'va:value' => '1010EZ',
-          'va:version' => 2_986_360_436
-        }
-      },
-      'va:identity' => {
-        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-        'va:authenticationLevel' => {
-          'va:type' => '100',
-          'va:value' => 'anonymous'
-        }
-      }
-    )
 
     SERVICE_BRANCH_CODES = {
       'army' => 1,
@@ -93,6 +88,31 @@ module HCA
       'Mother' => 18,
       'Other' => 99
     }.freeze
+
+    # @param [String] form_id
+    # Depending on the type of submission, EZ or EZR, we need to set specific form identifiers
+    # Per Enrollment System staff (12/21/23)
+    def form_template(form_id)
+      is_ezr_submission = form_id == '10-10EZR'
+
+      IceNine.deep_freeze(
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => is_ezr_submission ? '101' : '100',
+            'va:value' => is_ezr_submission ? '1010EZR' : '1010EZ',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      )
+    end
 
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
@@ -523,10 +543,52 @@ module HCA
           'serviceConnectedIndicator' => veteran['vaCompensationType'] == 'highDisability'
         },
         'specialFactors' => {
-          'agentOrangeInd' => veteran['vietnamService'].present?,
+          'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
-          'radiationExposureInd' => veteran['exposedToRadiation'].present?
+          'radiationExposureInd' =>
+            veteran['exposedToRadiation'].present? || veteran['radiationCleanupEfforts'].present?
+        }.merge(veteran_to_tera(veteran))
+      }
+    end
+
+    def veteran_to_tera(veteran)
+      return {} unless veteran['hasTeraResponse']
+
+      {
+        'supportOperationsInd' => veteran['combatOperationService'].present?
+      }.merge(
+        if veteran['gulfWarService'].present?
+          {
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => veteran['gulfWarService'].present?,
+              'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
+              'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate'])
+            }
+          }
+        else
+          {}
+        end
+      ).merge(veteran_to_toxic_exposure(veteran))
+    end
+
+    def veteran_to_toxic_exposure(veteran)
+      categories = []
+
+      EXPOSURE_MAPPINGS.each do |k, v|
+        categories << v if veteran[k].present?
+      end
+
+      return {} if categories.blank?
+
+      {
+        'toxicExposure' => {
+          'exposureCategories' => {
+            'exposureCategory' => categories
+          },
+          'otherText' => veteran['otherToxicExposure'],
+          'fromDate' => Validations.parse_short_date(veteran['toxicExposureStartDate']),
+          'toDate' => Validations.parse_short_date(veteran['toxicExposureEndDate'])
         }
       }
     end
@@ -741,8 +803,8 @@ module HCA
       end
     end
 
-    def build_form_for_user(user_identifier)
-      form = FORM_TEMPLATE.deep_dup
+    def build_form_for_user(user_identifier, form_id)
+      form = form_template(form_id).deep_dup
 
       (user_id, id_type) = get_user_variables(user_identifier)
       return form if user_id.nil?
@@ -804,12 +866,17 @@ module HCA
 
     # @param [Hash] veteran data in JSON format
     # @param [Account] current_user
-    def veteran_to_save_submit_form(veteran, current_user)
+    # @param [String] form_id
+    def veteran_to_save_submit_form(
+      veteran,
+      current_user,
+      form_id
+    )
       return {} if veteran.blank?
 
       copy_spouse_address!(veteran)
 
-      request = build_form_for_user(current_user)
+      request = build_form_for_user(current_user, form_id)
 
       veteran['attachments']&.each do |attachment|
         hca_attachment = HCAAttachment.find_by(guid: attachment['confirmationCode'])

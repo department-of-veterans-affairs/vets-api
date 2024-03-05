@@ -44,9 +44,12 @@ module MAP
 
       def agreements_version_mapping
         {
-          'v1' => 2,
-          'v2' => 3
+          'v1' => 3
         }
+      end
+
+      def legal_display_version
+        1.0
       end
 
       def logging_prefix

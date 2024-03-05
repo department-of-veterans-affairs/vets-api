@@ -1,0 +1,50 @@
+meta {
+  name: Create upload location for SC evidence submission PUT request
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_uri}}/services/appeals/supplemental-claims/v0/evidence-submissions
+  body: json
+  auth: bearer
+}
+
+headers {
+  X-VA-SSN: {{veteran_ssn}}
+  X-VA-First-Name: {{veteran_first_name}}
+  X-VA-Last-Name: {{veteran_last_name}}
+  X-VA-Birth-Date: {{veteran_birth_date}}
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+body:json {
+  {
+    "ssn": "{{veteran_ssn}}",
+    "scId": "{{sc_id}}"
+  }
+}
+
+vars:pre-request {
+  oauth_scope: system/SupplementalClaims.write
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}
+
+script:post-response {
+  if (res.body.data) {
+    bru.setVar('sc_evidence_submission_location', res.body.data.attributes.location);
+    bru.setVar('sc_evidence_submission_id', res.body.data.id);
+  }
+}

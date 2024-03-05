@@ -51,6 +51,30 @@ describe Search::Service do
       end
     end
 
+    context 'when the upstream API gives a 503' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/503', VCR::MATCH_EVERYTHING) do
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(503)
+            expect(e.errors.first.code).to eq('SEARCH_503')
+          end
+        end
+      end
+    end
+
+    context 'when the upstream API gives a 504' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/504', VCR::MATCH_EVERYTHING) do
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(504)
+            expect(e.errors.first.code).to eq('SEARCH_504')
+          end
+        end
+      end
+    end
+
     context 'with an invalid API access key' do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do

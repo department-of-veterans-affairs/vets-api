@@ -50,21 +50,29 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'responds to GET #show' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-        get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+          get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+        end
       end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
+      response_hash = JSON.parse(response.body)
+      response_hash.delete('meta')
+      response.body = response_hash.to_json
       expect(response).to match_camelized_response_schema('message')
     end
 
     it 'generates mobile-specific metadata links' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-        get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+        VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+          get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+        end
       end
 
       result = JSON.parse(response.body)
       expect(result['data']['links']['self']).to match(%r{/mobile/v0})
+      expect(result['meta']['userInTriageTeam?']).to eq(false)
     end
 
     it 'returns message signature preferences' do
@@ -167,14 +175,14 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       let(:thread_id) { 573_059 }
 
       it 'responds to GET #thread' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
+        VCR.use_cassette('mobile/messages/v0_gets_a_message_thread') do
           get "/mobile/v0/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
         end
-
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('messages_thread')
-        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(2)
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(1)
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'unread')).to eq(1)
       end
     end
 

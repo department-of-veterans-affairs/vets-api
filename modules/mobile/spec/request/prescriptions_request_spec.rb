@@ -397,6 +397,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                                                                 'discontinued' => 6,
                                                                                 'transferred' => 1,
                                                                                 'expired' => 2,
+                                                                                'isRefillable' => 5,
                                                                                 'hold' => 1,
                                                                                 'unknown' => 1
                                                                               })

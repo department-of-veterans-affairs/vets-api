@@ -35,7 +35,7 @@
           "state": "OR",
           "zipFirstFive": "23451",
           "zipLastFour": "6789",
-          "addressChangeType": "PERMANENT"
+          "addressChangeType": "TEMPORARY"
         },
         "homelessness": {
           "pointOfContact": {
@@ -48,18 +48,14 @@
           "currentlyHomeless": {
             "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
             "otherLivingSituation": "other living situation"
-          },
-          "homelessnessRisk": {
-            "homelessnessRiskSituationType": "HOUSING_WILL_BE_LOST_IN_30_DAYS",
-            "otherLivingSituation": "other living situation (at risk)"
           }
         },
         "currentlyVAEmployee": false
       },
       "claimantCertification": true,
-      "standardClaim": false,
+      "standardClaim": true,
       "autoCestPDFGenerationDisabled": false,
-      "bddQualified": true,
+      "bddQualified": false,
       "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
       "directDeposit": {
         "accountType": "CHECKING",
@@ -71,7 +67,7 @@
         "waiveVABenefitsToRetainTrainingPay": true,
         "waiveVABenefitsToRetainRetiredPay": false,
         "militaryRetiredPay": {
-          "willReceiveInFuture": true,
+          "willReceiveInFuture": false,
           "receiving": true,
           "payment": {
             "serviceBranch": "Air Force",
@@ -121,7 +117,7 @@
         ],
         "reservesNationalGuardService": {
           "title10Activation": {
-            "anticipatedSeparationDate": "2020-01-01",
+            "anticipatedSeparationDate": "2024-01-01",
             "title10ActivationDate": "1999-03-04"
           },
           "obligationTermOfServiceFromDate": "2000-01-04",
@@ -143,8 +139,16 @@
       },
       "treatments": [
         {
-          "startDate": "2018-03-02",
-          "endDate": "2018-03-03",
+          "startDate": {
+            "year": "2018",
+            "month": "03",
+            "day": null
+          },
+          "endDate": {
+            "year": "2018",
+            "month": "03",
+            "day": null
+          },
           "treatedDisabilityNames": [
             "PTSD (post traumatic stress disorder)"
           ],
@@ -154,8 +158,16 @@
           }
         },
         {
-          "startDate": "2015-04-03",
-          "endDate": "2018-03-04",
+          "startDate": {
+            "year": "2015",
+            "month": "04",
+            "day": null
+          },
+          "endDate": {
+            "year": "2018",
+            "month": "03",
+            "day": null
+          },
           "treatedDisabilityNames": [
             "PTSD personal trauma"
           ],
@@ -168,7 +180,7 @@
       "disabilities": [
         {
           "diagnosticCode": 9999,
-          "disabilityActionType": "NEW",
+          "disabilityActionType": "INCREASE",
           "name": "PTSD (post traumatic stress disorder)",
           "ratedDisabilityId": "1100583",
           "secondaryDisabilities": [

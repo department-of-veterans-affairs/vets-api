@@ -8,6 +8,11 @@ module MyHealth
           client
           head :no_content
         end
+
+        def status
+          resource = phrmgr_client.get_phrmgr_status
+          render json: resource.to_json
+        end
       end
     end
   end

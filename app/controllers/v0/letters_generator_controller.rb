@@ -9,7 +9,7 @@ module V0
     service_tag 'letters'
     before_action { authorize :lighthouse, :access? }
     before_action :validate_letter_type, only: %i[download]
-    Raven.tags_context(team: 'benefits-claim-appeal-status', feature: 'letters-generator')
+    Sentry.set_tags(team: 'benefits-claim-appeal-status', feature: 'letters-generator')
     DOWNLOAD_PARAMS = %i[
       id
       format

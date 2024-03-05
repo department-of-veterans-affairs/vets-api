@@ -114,38 +114,6 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
-  describe '.find_with_name_similar_to' do
-    before do
-      # word similarity value = 1
-      create(:representative, representative_id: '456', first_name: 'Bob', last_name: 'Law')
-
-      # word similarity value = 0.375
-      create(:representative, representative_id: '789', first_name: 'Bobby', last_name: 'Low')
-
-      # word similarity value = 0.375
-      create(:representative, representative_id: '123', first_name: 'Bobbie', last_name: 'Lew')
-
-      # word similarity value = 0.25
-      create(:representative, representative_id: '246', first_name: 'Robert', last_name: 'Lanyard')
-    end
-
-    context 'when there are representatives with full names similar to the search phrase' do
-      it 'returns all representatives with full names >= the word similarity threshold' do
-        results = described_class.find_with_name_similar_to('Bob Law')
-
-        expect(results.pluck(:representative_id)).to match_array(%w[123 456 789])
-      end
-    end
-
-    context 'when there are no representatives with full names similar to the search phrase' do
-      it 'returns an empty array' do
-        results = described_class.find_with_name_similar_to('No Name')
-
-        expect(results.pluck(:representative_id)).to eq([])
-      end
-    end
-  end
-
   describe 'callbacks' do
     describe '#set_full_name' do
       context 'creating a new representative' do
@@ -171,6 +139,126 @@ describe Veteran::Service::Representative, type: :model do
 
           expect(rep.reload.full_name).to eq('Bob Smith')
         end
+      end
+    end
+  end
+
+  describe '#diff' do
+    context 'when there are changes in address' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          address_line1: '123 Main St',
+                          city: 'Anytown',
+                          zip_code: '12345',
+                          state_code: 'ST')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: '234 Main St',
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating changes in address but not email or phone' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => true,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => false
+                                                    })
+      end
+    end
+
+    context 'when there are changes in email' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          email: 'old@example.com')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: 'new@example.com',
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating changes in email but not address or phone' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
+                                                      'email_changed' => true,
+                                                      'phone_number_changed' => false
+                                                    })
+      end
+    end
+
+    context 'when there are changes in phone' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          phone_number: '1234567890')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: '0987654321'
+        }
+      end
+
+      it 'returns a hash indicating changes in phone but not address or email' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => true
+                                                    })
+      end
+    end
+
+    context 'when there are no changes to address, email or phone' do
+      let(:representative) do
+        FactoryBot.create(:representative,
+                          address_line1: '123 Main St',
+                          city: 'Anytown',
+                          zip_code: '12345',
+                          state_code: 'ST')
+      end
+      let(:new_data) do
+        {
+          address: {
+            address_line1: representative.address_line1,
+            city: representative.city,
+            zip_code5: representative.zip_code,
+            zip_code4: representative.zip_suffix,
+            state_province: { code: representative.state_code }
+          },
+          email: representative.email,
+          phone_number: representative.phone_number
+        }
+      end
+
+      it 'returns a hash indicating no changes in address, email and phone number' do
+        expect(representative.diff(new_data)).to eq({
+                                                      'address_changed' => false,
+                                                      'email_changed' => false,
+                                                      'phone_number_changed' => false
+                                                    })
       end
     end
   end

@@ -1,47 +1,330 @@
-{ "data": [
+{
+  "Data": [
     {
-      "respond_reply_id": "Original Question",
-      "inquiryNumber": "A-1",
-      "inquiryTopic": "Topic",
-      "inquiryProcessingStatus": "Close",
-      "lastUpdate": "08/07/23",
-      "submitterQuestions": "When is Sergeant Joe Smith birthday?",
-      "attachments": [
+      "Icn": "1008709396V637156",
+      "Id": "1",
+      "InquiryNumber": "A-1",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is my status?",
+      "LastUpdate": "12/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "Status of a pending claim",
+      "InquiryLevelOfAuthentication": "Personal",
+      "AttachmentNames": [
         {
-        "activity": "activity_1",
-        "date_sent": "08/7/23"
+          "Id": "1",
+          "Name": "testfile.txt"
         }
-      ],
-      "icn": "1008709396V637156"
+      ]
     },
     {
-      "respond_reply_id": "R-1",
-      "inquiryNumber": "A-2",
-      "inquiryTopic": "Topic",
-      "submitterQuestions": "How long was Sergeant Joe Smith overseas for?",
-      "inquiryProcessingStatus": "In Progress",
-      "lastUpdate": "08/07/23",
-      "attachments": [
+      "Icn": "1008709396V637156",
+      "Id": "2",
+      "InquiryNumber": "A-2",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "How do I update my address?",
+      "LastUpdate": "1/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Personal",
+      "AttachmentNames": [
         {
-        "activity": "activity_2",
-        "date_sent": "08/7/23"
+          "Id": "2",
+          "Name": "testfile.txt"
         }
-      ],
-      "icn": "1008709396V637156"
+      ]
     },
     {
-      "inquiryNumber": "A-3",
-      "inquiryTopic": "Topic",
-      "submitterQuestions": "Where was LT Bard Simpson stationed at in 1992?",
-      "inquiryProcessingStatus": "In Progress",
-      "lastUpdate": "08/07/23",
-      "attachments": [
+      "Icn": "1008709396V637156",
+      "Id": "3",
+      "InquiryNumber": "A-3",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "How do I change my caretaker?",
+      "LastUpdate": "2/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Personal",
+      "AttachmentNames": [
         {
-        "activity": "activity_2",
-        "date_sent": "08/7/23"
+          "Id": "3",
+          "Name": "testfile.txt"
         }
-      ],
-      "icn": "0001741122"
+      ]
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "4",
+      "InquiryNumber": "A-4",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is compensation?",
+      "LastUpdate": "3/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Personal",
+      "AttachmentNames": [
+        {
+          "Id": "4",
+          "Name": "testfile.txt"
+        }
+      ]
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "5",
+      "InquiryNumber": "A-5",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "How do I find more information about my compensation?",
+      "LastUpdate": "4/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Personal",
+      "AttachmentNames": [
+        {
+          "Id": "5",
+          "Name": "testfile.txt"
+        }
+      ]
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "6",
+      "InquiryNumber": "A-6",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is the status of my pending claim?",
+      "LastUpdate": "5/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Personal",
+      "AttachmentNames": [
+        {
+          "Id": "6",
+          "Name": "testfile.txt"
+        }
+      ]
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "7",
+      "InquiryNumber": "A-7",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is the status of my pending claim?",
+      "LastUpdate": "6/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": [
+        {
+          "Id": "7",
+          "Name": "testfile.txt"
+        }
+      ]
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "8",
+      "InquiryNumber": "A-8",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is the status of my claim?",
+      "LastUpdate": "7/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "9",
+      "InquiryNumber": "A-9",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "I am inquiring about the current status of my claim, specifically regarding its processing stage, any outstanding requirements, and the estimated timeline for completion. Could you please provide a detailed update?",
+      "LastUpdate": "8/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": [
+        {
+          "Id": "8",
+          "Name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "9",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "10",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "11",
+          "name": "part_of_inquiry_9.pdf"
+        },
+        {
+          "id": "14",
+          "name": "txt_file_for_inquiry_9.txt"
+        }
+      ]
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "10",
+      "InquiryNumber": "A-10",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "I am currently exploring options to increase my compensation and would greatly appreciate detailed guidance on the process. Could you please provide the necessary steps, required documentation, and any pertinent deadlines or criteria for eligibility?",
+      "LastUpdate": "9/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "11",
+      "InquiryNumber": "A-11",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is the process for vets to plan for the National Cemetery?",
+      "LastUpdate": "10/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "12",
+      "InquiryNumber": "A-12",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "Where can depends find more info on Burial Benefits?",
+      "LastUpdate": "10/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "13",
+      "InquiryNumber": "A-13",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "What is the process for a vet to transfer their benefits to their dependents?",
+      "LastUpdate": "10/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "14",
+      "InquiryNumber": "A-14",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "Where can I find more informoation on Education Debt?",
+      "LastUpdate": "10/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "15",
+      "InquiryNumber": "A-15",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "Where can I find more informoation on Education Debt?",
+      "LastUpdate": "11/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "16",
+      "InquiryNumber": "A-16",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "We have a major breakout! What do we do?",
+      "LastUpdate": "11/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "17",
+      "InquiryNumber": "A-17",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "We have a major breakout! What do we do?",
+      "LastUpdate": "11/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
+    },
+    {
+      "Icn": "1008709396V637156",
+      "Id": "18",
+      "InquiryNumber": "A-18",
+      "InquiryStatus": "In Progress",
+      "SubmitterQuestion": "Is it possible to do the 'wave' across America?",
+      "LastUpdate": "11/20/23",
+      "InquiryHasAttachments": true,
+      "InquiryHasBeenSplit": true,
+      "VeteranRelationship": "self",
+      "SchoolFacilityCode": "0123",
+      "InquiryTopic": "All other Questions",
+      "InquiryLevelOfAuthentication": "Business",
+      "AttachmentNames": []
     }
   ]
 }

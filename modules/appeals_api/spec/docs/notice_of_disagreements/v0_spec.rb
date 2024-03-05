@@ -8,25 +8,24 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
-def swagger_doc
+def openapi_spec
   "modules/appeals_api/app/swagger/notice_of_disagreements/v0/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength
-RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
+RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
   include DocHelpers
   include FixtureHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
   path '/forms/10182' do
     post 'Creates a new Notice of Disagreement' do
-      scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
       tags 'Notice of Disagreements'
       operationId 'createNod'
       description 'Submits an appeal of type Notice of Disagreement.' \
                   ' This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
                   ' via mail or fax directly to the Board of Veterans’ Appeals.'
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST])
       consumes 'application/json'
       produces 'application/json'
       parameter name: :nod_body, in: :body, schema: { '$ref' => '#/components/schemas/nodCreate' }
@@ -34,6 +33,8 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         'minimum fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') },
         'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
+
+      system_scopes = %w[system/NoticeOfDisagreements.write]
 
       response '201', 'Notice of Disagreement created' do
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
@@ -44,7 +45,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         desc: 'minimum fields used',
                         response_wrapper: :normalize_appeal_response,
                         extract_desc: true,
-                        scopes:
+                        scopes: system_scopes
       end
 
       response '201', 'Notice of Disagreement created' do
@@ -55,7 +56,30 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         desc: 'all fields used',
                         response_wrapper: :normalize_appeal_response,
                         extract_desc: true,
-                        scopes:
+                        scopes: system_scopes
+      end
+
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:nod_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Body is not a JSON object',
+                        extract_desc: true,
+                        scopes: system_scopes
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create a Notice of Disagreement for another veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:nod_body) do
+          fixture_as_json('notice_of_disagreements/v0/valid_10182.json').tap do |data|
+            data['data']['attributes']['veteran']['icn'] = '1234567890V987654'
+          end
+        end
+
+        it_behaves_like 'rswag example', scopes: %w[veteran/NoticeOfDisagreements.write]
       end
 
       response '422', 'Violates JSON schema' do
@@ -66,7 +90,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
           request_body
         end
 
-        it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes:
+        it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes: system_scopes
       end
 
       it_behaves_like 'rswag 500 response'
@@ -74,18 +98,21 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
   end
 
   path '/forms/10182/{id}' do
-    get 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)' do
-      scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
+    get 'Show a specific Notice of Disagreement' do
       tags 'Notice of Disagreements'
       operationId 'showNod'
-      description 'Returns all of the data associated with a specific Notice of Disagreement.'
-      security DocHelpers.oauth_security_config(scopes)
+      description 'Returns basic data associated with a specific Notice of Disagreement.'
+      security DocHelpers.oauth_security_config(
+        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
+      )
       produces 'application/json'
       parameter name: :id,
                 in: :path,
                 description: 'Notice of Disagreement UUID',
                 example: '02bbbe56-443c-42fa-aaf2-ef6200a6eddd',
                 schema: { type: :string, format: :uuid }
+
+      veteran_scopes = %w[veteran/NoticeOfDisagreements.read]
 
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodShowResponse'
@@ -94,14 +121,24 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         it_behaves_like 'rswag example',
                         desc: 'returns a 200 response',
                         response_wrapper: :normalize_appeal_response,
-                        scopes:
+                        scopes: veteran_scopes
+      end
+
+      response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Notice of Disagreement' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:id) { FactoryBot.create(:notice_of_disagreement_v0, veteran_icn: '1234567890V123456').id }
+
+        it_behaves_like 'rswag example',
+                        desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Notice of Disagreement',
+                        scopes: veteran_scopes
       end
 
       response '404', 'Notice of Disagreement not found' do
         schema '$ref' => '#/components/schemas/errorModel'
         let(:id) { '00000000-0000-0000-0000-000000000000' }
 
-        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: veteran_scopes
       end
 
       it_behaves_like 'rswag 500 response'
@@ -145,7 +182,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                 required: true,
                 examples:)
 
-      examples.each do |_, v|
+      examples.each_value do |v|
         response '200', 'The JSON schema for the given `schema_type` parameter' do
           let(:schema_type) { v[:value] }
           it_behaves_like 'rswag example',
@@ -232,7 +269,6 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
 
   path '/evidence-submissions' do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
-      scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
       tags 'Notice of Disagreements'
       operationId 'postNoticeOfDisagreementEvidenceSubmission'
       description <<~DESC
@@ -240,7 +276,9 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
       DESC
 
-      security DocHelpers.oauth_security_config(scopes)
+      security DocHelpers.oauth_security_config(
+        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
+      )
 
       consumes 'application/json'
       produces 'application/json'
@@ -251,6 +289,8 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       let(:nodId) { nod.id }
       let(:fileNumber) { nod.veteran.file_number }
       let(:nod_es_body) { { nodId:, fileNumber: } }
+
+      scopes = %w[system/NoticeOfDisagreements.write]
 
       response '201', 'Location created' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
@@ -265,13 +305,6 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         scopes:
       end
 
-      response '404', 'Associated Notice of Disagreement not found' do
-        schema '$ref' => '#/components/schemas/errorModel'
-        let(:nod_es_body) { { nodId: '00000000-0000-0000-0000-000000000000', fileNumber: } }
-
-        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
-      end
-
       response '400', 'Bad request' do
         schema '$ref' => '#/components/schemas/errorModel'
 
@@ -281,6 +314,22 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         desc: 'Not JSON object',
                         extract_desc: true,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create an Evidence Submission for a Notice of Disagreement belonging to another Veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
+        let(:evidence_submission) { create(:evidence_submission_v0, supportable: nod) }
+        let(:id) { evidence_submission.id }
+
+        it_behaves_like 'rswag example', desc: 'returns a 403 response', scopes: %w[veteran/NoticeOfDisagreements.write]
+      end
+
+      response '404', 'Associated Notice of Disagreement not found' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod_es_body) { { nodId: '00000000-0000-0000-0000-000000000000', fileNumber: } }
+
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
       end
 
       response '422', 'Validation errors' do
@@ -383,6 +432,8 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                 description: 'Notice of Disagreement UUID Evidence Submission',
                 example: 'b77404cf-ef08-45e4-8201-d5b7622f63df'
 
+      scopes = %w[system/NoticeOfDisagreements.read]
+
       response '200', 'Info about a single Notice of Disagreement Evidence Submission.' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
         let(:id) { FactoryBot.create(:evidence_submission).guid }
@@ -391,6 +442,15 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         desc: 'returns a 200 response',
                         response_wrapper: :normalize_evidence_submission_response,
                         scopes:
+      end
+
+      response '403', 'Forbidden attempt using a veteran-scoped OAuth token to view an Evidence Submission belonging to another Veteran' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
+        let(:evidence_submission) { create(:evidence_submission_v0, supportable: nod) }
+        let(:id) { evidence_submission.id }
+
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: %w[veteran/SupplementalClaims.read]
       end
 
       response '404', 'Notice of Disagreement Evidence Submission not found' do

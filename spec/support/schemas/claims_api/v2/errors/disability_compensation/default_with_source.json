@@ -1,0 +1,31 @@
+{
+  "required": ["errors"],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "required": ["title", "status", "detail"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "HTTP error code"
+          },
+          "detail": {
+            "type": "string",
+            "description": "HTTP error detail"
+          },
+          "source": {
+            "type": "object",
+            "pointer": {
+              "type": "string"
+            }
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

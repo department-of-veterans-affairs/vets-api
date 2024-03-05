@@ -43,12 +43,20 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     it { is_expected.to be_unique }
 
     context 'when the terms of use agreement is accepted' do
+      let(:attr_key) do
+        Digest::SHA256.hexdigest({ icn: user_account.icn, signature_name: common_name, version: }.to_json)
+      end
+
       before do
         allow(service_instance).to receive(:agreements_accept)
+        allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_key)
+        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_key).and_return({ icn: user_account.icn,
+                                                                                  signature_name: common_name,
+                                                                                  version: })
       end
 
       it 'updates the terms of use agreement in sign up service' do
-        job.perform(icn, common_name, version)
+        job.perform(attr_key)
 
         expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_accept).with(icn: user_account.icn,
@@ -58,14 +66,21 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
     end
 
     context 'when the terms of use agreement is declined' do
+      let(:attr_key) do
+        Digest::SHA256.hexdigest({ icn: user_account.icn, signature_name: common_name, version: }.to_json)
+      end
       let(:response) { 'declined' }
 
       before do
         allow(service_instance).to receive(:agreements_decline)
+        allow(Sidekiq::AttrPackage).to receive(:create).and_return(attr_key)
+        allow(Sidekiq::AttrPackage).to receive(:find).with(attr_key).and_return({ icn: user_account.icn,
+                                                                                  signature_name: common_name,
+                                                                                  version: })
       end
 
       it 'updates the terms of use agreement in sign up service' do
-        job.perform(icn, common_name, version)
+        job.perform(attr_key)
 
         expect(MAP::SignUp::Service).to have_received(:new)
         expect(service_instance).to have_received(:agreements_decline).with(icn: user_account.icn)

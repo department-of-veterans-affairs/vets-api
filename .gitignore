@@ -94,3 +94,10 @@ test_users.csv
 # Ignore VIM artifact files
 .ignore 
 *.swp
+
+# Ignore node_modules for development tools
+node_modules
+
+# Ignore public folder (used for local document uploads)
+public
+

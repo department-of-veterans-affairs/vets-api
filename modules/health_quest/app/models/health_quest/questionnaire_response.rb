@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module HealthQuest
   ##
   # An ActiveRecord object for modeling and persisting questionnaire response and user demographics data to the DB.
@@ -19,8 +21,8 @@ module HealthQuest
   class QuestionnaireResponse < ApplicationRecord
     attr_accessor :user
 
-    serialize :questionnaire_response_data, JsonMarshaller
-    serialize :user_demographics_data, JsonMarshaller
+    serialize :questionnaire_response_data, JsonMarshal::Marshaller
+    serialize :user_demographics_data, JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :questionnaire_response_data, :user_demographics_data, key: :kms_key, **lockbox_options
 

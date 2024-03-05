@@ -1,0 +1,80 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/vba_documents/v1/uploads/report
+    body:
+      encoding: UTF-8
+      string: '{"ids":[null,null]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - <LIGHTHOUSE_API_KEY>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 12 Dec 2023 20:37:18 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '11'
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '42'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Limit:
+      - '60'
+      Etag:
+      - W/"8fe32e407a1038ee38753b70e5374b3a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b301dea82b1e829ce5d29f356639a0539ddd97b7
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 1e6a62ac-dc40-4a37-81a3-19fbb656d800
+      X-Runtime:
+      - '0.003787'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload","attributes":{"guid":"6d8433c1-cd55-4c24-affd-f592287a7572","status":"error","code":"string","detail":"string","location":"https://sandbox-api.va.gov/services_user_content/vba_documents/id-path-doesnt-matter","updated_at":"2018-07-30T17:31:15.958Z","uploaded_pdf":null}}]}'
+  recorded_at: Tue, 12 Dec 2023 20:37:18 GMT
+recorded_with: VCR 6.2.0

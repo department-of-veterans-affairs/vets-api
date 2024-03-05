@@ -1,0 +1,32 @@
+meta {
+  name: List legacy appeals
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_uri}}/services/appeals/legacy-appeals/v0/legacy-appeals?icn={{veteran_icn}}
+  body: none
+  auth: bearer
+}
+
+query {
+  icn: {{veteran_icn}}
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/LegacyAppeals.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

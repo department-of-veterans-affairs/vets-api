@@ -24,8 +24,8 @@ module IncomeLimits
         data = fetch_csv_data
         if data
           CSV.parse(data, headers: true) do |row|
-            created = DateTime.strptime(row['CREATED'], '%m/%d/%Y %l:%M:%S.%N %p').to_s
-            updated = DateTime.strptime(row['UPDATED'], '%m/%d/%Y %l:%M:%S.%N %p').to_s if row['UPDATED']
+            created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
+            updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
             std_state = StdState.find_or_initialize_by(id: row['ID'].to_i)
             next unless std_state.new_record?
 

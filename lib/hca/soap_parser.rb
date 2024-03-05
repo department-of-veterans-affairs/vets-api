@@ -24,7 +24,7 @@ module HCA
         if el&.nodes.try(:[], 0) == 'formSubmissionException' &&
            doc.locate(FAULT_CODE_EL)[0]&.nodes.try(:[], 0) != 'VOA_0240'
           StatsD.increment(VALIDATION_FAIL_KEY)
-          Raven.tags_context(validation: 'hca')
+          Sentry.set_tags(validation: 'hca')
           log_exception_to_sentry(e)
 
           raise ValidationError

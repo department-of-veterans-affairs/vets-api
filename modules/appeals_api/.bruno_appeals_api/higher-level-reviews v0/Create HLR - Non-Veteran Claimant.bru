@@ -1,0 +1,155 @@
+meta {
+  name: Create HLR - Non-Veteran Claimant
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{base_uri}}/services/appeals/higher-level-reviews/v0/forms/200996
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+body:json {
+  {
+    "data": {
+      "type": "higherLevelReview",
+      "attributes": {
+        "informalConference": true,
+        "benefitType": "compensation",
+        "veteran": {
+          "ssn": "{{veteran_ssn}}",
+          "icn": "{{veteran_icn}}",
+          "firstName": "{{veteran_first_name}}",
+          "lastName": "{{veteran_last_name}}",
+          "birthDate": "{{veteran_birth_date}}",
+          "address": {
+            "addressLine1": "123 Somestreet",
+            "city": "Sometown",
+            "countryCodeIso3": "USA",
+            "zipCode5": "66002"
+          },
+          "phone": {
+            "countryCode": "1",
+            "areaCode": "555",
+            "phoneNumber": "8001111"
+          },
+          "email": "{{developer_email}}",
+          "timezone": "America/Chicago",
+          "homeless": false
+        },
+        "claimant": {
+          "ssn": "{{nvc_ssn}}",
+          "firstName": "{{nvc_first_name}}",
+          "lastName": "{{nvc_last_name}}",
+          "birthDate": "{{nvc_birth_date}}",
+          "address": {
+            "addressLine1": "456 First St",
+            "addressLine2": "Apt 5",
+            "addressLine3": "Box 1",
+            "city": "Detroit",
+            "countryCodeIso3": "USA",
+            "stateCode": "MI",
+            "zipCode5": "48070"
+          },
+          "phone": {
+            "countryCode": "1",
+            "areaCode": "555",
+            "phoneNumber": "8111100",
+            "phoneNumberExt": "4"
+          },
+          "email": "{{developer_email}}",
+          "timezone": "America/Detroit"
+        },
+        "socOptIn": true,
+        "informalConferenceContact": "veteran",
+        "informalConferenceTime": "800-1200 ET",
+        "informalConferenceRep": {
+          "firstName": "Helen",
+          "lastName": "Holly",
+          "phone": {
+            "countryCode": "6",
+            "areaCode": "555",
+            "phoneNumber": "8001111"
+          }
+        }
+      }
+    },
+    "included": [
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "tinnitus",
+          "decisionDate": "1900-01-01",
+          "decisionIssueId": 1,
+          "ratingIssueReferenceId": "2",
+          "ratingDecisionReferenceId": "3",
+          "socDate": "2020-08-01"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "left knee",
+          "decisionDate": "1900-01-02",
+          "decisionIssueId": 4,
+          "ratingIssueReferenceId": "5"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right knee",
+          "decisionDate": "1900-01-03",
+          "ratingIssueReferenceId": "6",
+          "ratingDecisionReferenceId": "7"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "PTSD",
+          "decisionDate": "1900-01-04",
+          "decisionIssueId": 8,
+          "ratingDecisionReferenceId": "9"
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "Traumatic Brain Injury",
+          "decisionDate": "1900-01-05",
+          "decisionIssueId": 10
+        }
+      },
+      {
+        "type": "appealableIssue",
+        "attributes": {
+          "issue": "right shoulder",
+          "decisionDate": "1900-01-06"
+        }
+      }
+    ]
+  }
+}
+
+vars:pre-request {
+  oauth_scope: system/HigherLevelReviews.write
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}
+
+script:post-response {
+  if (res.body.data) bru.setVar('hlr_id', res.body.data.id);
+}

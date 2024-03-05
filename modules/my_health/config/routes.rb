@@ -4,7 +4,9 @@ MyHealth::Engine.routes.draw do
   namespace :v1 do
     scope :medical_records do
       resources :session, only: %i[create], controller: 'medical_records/mr_session',
-                          defaults: { format: :json }
+                          defaults: { format: :json } do
+        get :status, on: :collection
+      end
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
       end
@@ -49,6 +51,9 @@ MyHealth::Engine.routes.draw do
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
+      patch :refill_prescriptions, to: 'prescriptions#refill_prescriptions', on: :collection
+      get :list_refillable_prescriptions, to: 'prescriptions#list_refillable_prescriptions', on: :collection
+      get 'get_prescription_image/:cmopNdcNumber', to: 'prescriptions#get_prescription_image', on: :collection
       resources :trackings, only: :index, controller: :trackings
       collection do
         resource :preferences, only: %i[show update], controller: 'prescription_preferences'

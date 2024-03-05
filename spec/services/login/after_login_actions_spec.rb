@@ -72,22 +72,22 @@ RSpec.describe Login::AfterLoginActions do
       before { allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type) }
 
       context 'with non-existent login stats record' do
-        it 'will create an account_login_stats record' do
+        it 'creates an account_login_stats record' do
           expect { described_class.new(user).perform }.to \
             change(AccountLoginStat, :count).by(1)
         end
 
-        it 'will update the correct login stats column' do
+        it 'updates the correct login stats column' do
           described_class.new(user).perform
           expect(AccountLoginStat.last.send("#{login_type_stat}_at")).not_to be_nil
         end
 
-        it 'will update the current_verification column' do
+        it 'updates the current_verification column' do
           described_class.new(user).perform
           expect(AccountLoginStat.last.current_verification).to eq('loa1')
         end
 
-        it 'will not create a record if login_type is not valid' do
+        it 'does not create a record if login_type is not valid' do
           login_type = 'something_invalid'
           allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
 
@@ -104,12 +104,12 @@ RSpec.describe Login::AfterLoginActions do
           AccountLoginStat.create(account_id: account.id, myhealthevet_at: 1.minute.ago)
         end
 
-        it 'will not create another record' do
+        it 'does not create another record' do
           expect { described_class.new(user).perform }.not_to \
             change(AccountLoginStat, :count)
         end
 
-        it 'will overwrite existing value if login type was seen previously' do
+        it 'overwrites existing value if login type was seen previously' do
           stat = AccountLoginStat.last
 
           expect do
@@ -118,7 +118,7 @@ RSpec.describe Login::AfterLoginActions do
           end.to change(stat, :myhealthevet_at)
         end
 
-        it 'will set new value in blank login column' do
+        it 'sets new value in blank login column' do
           login_type = SAML::User::IDME_CSID
           allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: login_type)
           stat = AccountLoginStat.last
@@ -131,7 +131,7 @@ RSpec.describe Login::AfterLoginActions do
           expect(stat.idme_at).not_to be_blank
         end
 
-        it 'will trigger sentry error if update fails' do
+        it 'triggers sentry error if update fails' do
           allow_any_instance_of(AccountLoginStat).to receive(:update!).and_raise('Failure!')
           expect_any_instance_of(described_class).to receive(:log_error)
           described_class.new(user).perform
@@ -141,7 +141,7 @@ RSpec.describe Login::AfterLoginActions do
       context 'with a non-existant account' do
         before { allow_any_instance_of(User).to receive(:account).and_return(nil) }
 
-        it 'will trigger sentry error message' do
+        it 'triggers sentry error message' do
           expect_any_instance_of(described_class).to receive(:no_account_log_message)
           expect { described_class.new(user).perform }.not_to \
             change(AccountLoginStat, :count)

@@ -4,7 +4,7 @@
 
 To create a minimal implementation of Rswag in your team's Rails engine you will need to do the following (commented lines are only for explaining what specific things do and should be removed from your specific implementation):
 
-- In `/spec/swagger_helper.rb` add your Rails Engine's name eg `AppealsApi` to the `config.swagger_docs` section.
+- In `/spec/swagger_helper.rb` add your Rails Engine's name eg `AppealsApi` to the `config.openapi_specs` section.
 - Create your Rswag config file in your engine's `spec/support` dir (eg `/modules/appeals_api/spec/support/rswag_config.rb`) a minimal configuration is as follows:
 
 ```ruby
@@ -49,8 +49,6 @@ class AppealsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/appeals/v2/decision_reviews',
-        # ^ basePath is used in building up the url that Rswag will use in testing
         servers: [
           # ^ Used in creating the 'Environment' drop-down for generating example curl commands
           {
@@ -106,7 +104,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
 
-describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
+describe 'Higher-Level Reviews', openapi_spec: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
   #                                           ^ this path needs to match one of the paths from your Rswag config
   #                                                                                                           ^ adding 'type: :request' makes sure that RSpec knows how to properly interpret your spec if it lives outside of the 'spec/requests' path
 
@@ -254,7 +252,7 @@ end
 
 ```ruby
 # ...
-describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
+describe 'Higher-Level Reviews', openapi_spec: 'modules/appeals_api/app/swagger/appeals_api/v2/swagger.json', type: :request do
   let(:apikey) { 'apikey' }
 
   path '/higher_level_reviews' do

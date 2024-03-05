@@ -2,20 +2,21 @@
 
 module AskVAApi
   module Correspondences
-    ENDPOINT = 'get_replies_mock_data'
+    ENDPOINT = 'replies'
 
     class Retriever
-      attr_reader :inquiry_number, :service
+      attr_reader :inquiry_id, :service
 
-      def initialize(inquiry_number:, service: nil)
-        @inquiry_number = inquiry_number
+      def initialize(inquiry_id:, service: nil)
+        @inquiry_id = inquiry_id
         @service = service || default_service
       end
 
       def call
-        validate_input(inquiry_number, 'Invalid Inquiry Number')
-        correspondences = fetch_data(payload: { inquiry_number: })
-        Entity.new(correspondences)
+        validate_input(inquiry_id, 'Invalid Inquiry ID')
+        fetch_data(payload: { InquiryId: inquiry_id }).map do |cor|
+          Entity.new(cor)
+        end
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -23,11 +24,11 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(icn: nil)
+        Crm::Service.new(icn: nil)
       end
 
       def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)
+        service.call(endpoint: ENDPOINT, payload:)[:Data]
       end
 
       def validate_input(input, error_message)

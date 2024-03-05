@@ -1,0 +1,28 @@
+meta {
+  name: Show NOD
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{base_uri}}/services/appeals/notice-of-disagreements/v0/forms/10182/{{nod_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/NoticeOfDisagreements.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

@@ -27,7 +27,7 @@ RSpec.describe InheritedProofing::MHVIdentityData, type: :model do
     context 'user_uuid' do
       let(:user_uuid) { nil }
 
-      it 'will return validation error if nil' do
+      it 'returns validation error if nil' do
         expect { mhv_identity_data.save! }.to raise_error(error, error_message)
       end
     end
@@ -35,7 +35,7 @@ RSpec.describe InheritedProofing::MHVIdentityData, type: :model do
     context 'code' do
       let(:code) { nil }
 
-      it 'will return validation error if nil' do
+      it 'returns validation error if nil' do
         expect { mhv_identity_data.save! }.to raise_error(error, error_message)
       end
     end
@@ -43,7 +43,7 @@ RSpec.describe InheritedProofing::MHVIdentityData, type: :model do
     context 'data' do
       let(:data) { nil }
 
-      it 'will return error message if nil' do
+      it 'returns error message if nil' do
         expect { mhv_identity_data.save! }.to raise_error(error, error_message)
       end
     end

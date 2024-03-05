@@ -48,11 +48,9 @@ module EVSS
     end
 
     def save_error_details(error)
-      Raven.tags_context(
-        external_service: self.class.to_s.underscore
-      )
+      Sentry.set_tags(external_service: self.class.to_s.underscore)
 
-      Raven.extra_context(
+      Sentry.set_extras(
         url: config.base_path,
         message: error.message,
         body: error.body,
@@ -61,7 +59,7 @@ module EVSS
     end
 
     def handle_error(error)
-      Raven.extra_context(
+      Sentry.set_extras(
         message: error.message,
         url: config.base_path,
         transaction_id: @transaction_id
@@ -71,7 +69,7 @@ module EVSS
       when Faraday::ParsingError
         raise_backend_exception('EVSS502', self.class)
       when Common::Client::Errors::ClientError
-        Raven.extra_context(body: error.body)
+        Sentry.set_extras(body: error.body)
         raise Common::Exceptions::Forbidden if error.status == 403
 
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400

@@ -19,6 +19,7 @@ module MedicalRecords
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
     DISCHARGE_SUMMARY = '18842-5' # Discharge summary
+    CONSULT_RESULT = '11488-4' # Consultation note
 
     # LOINC codes for vitals
     BLOOD_PRESSURE = '85354-9' # Blood Pressure
@@ -70,6 +71,8 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def fhir_client
+      raise MedicalRecords::PatientNotFound if patient_fhir_id.nil?
+
       @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
@@ -86,7 +89,8 @@ module MedicalRecords
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance,
                            {
-                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } },
+                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
+                                                     'verification-status:not': 'entered-in-error' } },
                              headers: { 'Cache-Control': 'no-cache' }
                            })
       sort_bundle(bundle, :recordedDate, :desc)
@@ -99,7 +103,7 @@ module MedicalRecords
     def list_vaccines
       bundle = fhir_search(FHIR::Immunization,
                            {
-                             search: { parameters: { patient: patient_fhir_id } },
+                             search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } },
                              headers: { 'Cache-Control': 'no-cache' }
                            })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
@@ -111,23 +115,33 @@ module MedicalRecords
 
     def list_vitals
       loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
-      bundle = fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
+      bundle = fhir_search(FHIR::Observation,
+                           search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
+                                                   'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def list_conditions
-      bundle = fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::Condition,
+                           search: { parameters: { patient: patient_fhir_id,
+                                                   'verification-status:not': 'entered-in-error' } })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def get_condition(condition_id)
-      fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
+      fhir_search(FHIR::Condition,
+                  search: { parameters: { _id: condition_id, _include: '*',
+                                          'verification-status:not': 'entered-in-error' } })
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
+      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
-                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+                           {
+                             search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
+                                                     'status:not': 'entered-in-error' } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
 
       # Sort the bundle of notes based on the date field appropriate to each note type.
       sort_bundle_with_criteria(bundle, :desc) do |resource|
@@ -138,7 +152,7 @@ module MedicalRecords
                      end
 
         case loinc_code
-        when PHYSICIAN_PROCEDURE_NOTE
+        when PHYSICIAN_PROCEDURE_NOTE, CONSULT_RESULT
           resource.date
         when DISCHARGE_SUMMARY
           resource.context&.period&.end
@@ -151,7 +165,8 @@ module MedicalRecords
     end
 
     def get_diagnostic_report(record_id)
-      fhir_search(FHIR::DiagnosticReport, search: { parameters: { _id: record_id, _include: '*' } })
+      fhir_search(FHIR::DiagnosticReport,
+                  search: { parameters: { _id: record_id, _include: '*', 'status:not': 'entered-in-error' } })
     end
 
     ##
@@ -208,7 +223,8 @@ module MedicalRecords
     #
     def list_labs_chemhem_diagnostic_report
       fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_fhir_id, category: 'LAB' } })
+                  search: { parameters: { patient: patient_fhir_id, category: 'LAB',
+                                          'status:not': 'entered-in-error' } })
     end
 
     ##
@@ -219,7 +235,9 @@ module MedicalRecords
     #
     def list_labs_other_diagnostic_report
       loinc_codes = "#{MICROBIOLOGY},#{PATHOLOGY}"
-      fhir_search(FHIR::DiagnosticReport, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
+      fhir_search(FHIR::DiagnosticReport,
+                  search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
+                                          'status:not': 'entered-in-error' } })
     end
 
     ##
@@ -231,7 +249,8 @@ module MedicalRecords
     def list_labs_document_reference
       loinc_codes = "#{EKG},#{RADIOLOGY}"
       fhir_search(FHIR::DocumentReference,
-                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
+                                          'status:not': 'entered-in-error' } })
     end
 
     ##
@@ -399,9 +418,9 @@ module MedicalRecords
       entries.sort_by! do |entry|
         case entry
         when FHIR::DiagnosticReport
-          -(entry.effectiveDateTime&.to_i || 0)
+          -entry.effectiveDateTime.to_i
         when FHIR::DocumentReference
-          -(entry.date&.to_i || 0)
+          -entry.date.to_i
         else
           0
         end

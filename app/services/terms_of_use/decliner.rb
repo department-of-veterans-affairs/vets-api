@@ -38,12 +38,16 @@ module TermsOfUse
     end
 
     def update_sign_up_service
-      SignUpServiceUpdaterJob.perform_async(icn, common_name, version)
+      SignUpServiceUpdaterJob.perform_async(attr_package_key)
     end
 
     def log_and_raise_decliner_error(error)
       Rails.logger.error("[TermsOfUse] [Decliner] Error: #{error.message}", { user_account_id: user_account&.id })
       raise Errors::DeclinerError, error.message
+    end
+
+    def attr_package_key
+      Sidekiq::AttrPackage.create(icn:, signature_name: common_name, version:, expires_in: 2.days)
     end
   end
 end

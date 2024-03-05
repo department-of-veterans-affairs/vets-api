@@ -20,12 +20,10 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
       FactoryBot.create(
         :pension_claim,
         form: {
-          privacyAgreementAccepted: true,
           veteranFullName: {
             first: 'Test',
             last: 'User'
           },
-          gender: 'F',
           email: 'foo@foo.com',
           veteranDateOfBirth: '1989-12-13',
           veteranSocialSecurityNumber: '111223333',
@@ -43,7 +41,9 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
             postalCode: '90210',
             street: '123 Main St',
             city: 'Anytown'
-          }
+          },
+          statementOfTruthCertified: true,
+          statementOfTruthSignature: 'Test User'
         }.to_json
       )
     end

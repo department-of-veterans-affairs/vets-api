@@ -1,0 +1,28 @@
+meta {
+  name: Schemas
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_uri}}/services/appeals/legacy-appeals/v0/schemas/{{schema_name}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  schema_name: icn
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

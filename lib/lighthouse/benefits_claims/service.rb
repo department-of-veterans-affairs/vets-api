@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service_exception'
+require 'lighthouse/benefits_claims/sponsor_resolver'
 require 'lighthouse/service_exception'
 
 module BenefitsClaims
@@ -37,8 +38,20 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def submit5103(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      config.post("#{@icn}/claims/#{id}/5103", {}, lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    def submit5103(user, id, options = {})
+      params = {}
+      is_dependent = SponsorResolver.dependent?(user)
+
+      # Log if the user doesn't have a file number; We are treating
+      # the BIRLS ID as a substitute for the file number
+      ::Rails.logger.info('[5103 Submission] No file number') if user.birls_id.nil?
+
+      if is_dependent
+        ::Rails.logger.info('[5103 Submission] Applying sponsorIcn param')
+        params[:sponsorIcn] = SponsorResolver.sponsor_icn(user)
+      end
+
+      config.post_with_params("#{@icn}/claims/#{id}/5103", {}, params, options).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -97,14 +110,17 @@ module BenefitsClaims
       # if we're coming straight from the transformation service without
       # making this a jsonapi request body first ({data: {type:, attributes}}),
       # this will put it in the correct format for transmission
-      if body['attributes'].blank?
-        body = {
-          data: {
-            type: 'form/526',
-            attributes: body
-          }
-        }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
-      end
+
+      body = {
+        data: {
+          type: 'form/526',
+          attributes: body
+        }
+      }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+
+      # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
+      # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
+      fix_current_va_employee(body)
 
       response = config.post(
         path,
@@ -118,6 +134,16 @@ module BenefitsClaims
     end
 
     private
+
+    def fix_current_va_employee(body)
+      if body.dig('data', 'attributes', 'veteranIdentification')&.select do |field|
+           field['currentVAEmployee']
+         end&.key?('currentVAEmployee')
+        body['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
+          body['data']['attributes']['veteranIdentification']['currentVAEmployee']
+        body['data']['attributes']['veteranIdentification'].delete('currentVAEmployee')
+      end
+    end
 
     def submit_response(response, body_only)
       if body_only

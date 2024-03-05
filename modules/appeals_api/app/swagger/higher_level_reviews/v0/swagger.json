@@ -18,7 +18,7 @@
     "/forms/200996": {
       "post": {
         "summary": "Creates a new Higher-Level Review",
-        "description": "Submits an appeal of type Higher Level Review. This endpoint is the same as submitting [VA Form 20-0996](https://www.va.gov/decision-reviews/higher-level-review/request-higher-level-review-form-20-0996) via mail or fax directly to the Board of Veterans’ Appeals.",
+        "description": "Submits an appeal of type Higher-Level Review. This endpoint is the same as submitting [VA Form 20-0996](https://www.va.gov/decision-reviews/higher-level-review/request-higher-level-review-form-20-0996) via mail or fax directly to the Board of Veterans’ Appeals.",
         "tags": [
           "Higher-Level Reviews"
         ],
@@ -45,128 +45,7 @@
           }
         ],
         "parameters": [
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
-            "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-First-Name",
-            "required": true,
-            "description": "Veteran's first name",
-            "example": "Cara",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Middle-Initial",
-            "required": false,
-            "description": "Veteran's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Last-Name",
-            "required": true,
-            "description": "Veteran's last name",
-            "example": "Bartlett",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Birth-Date",
-            "required": true,
-            "description": "Veteran's birth date",
-            "example": "1975-02-14",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Birth-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Insurance-Policy-Number",
-            "required": false,
-            "description": "Veteran's insurance policy number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-First-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Middle-Initial",
-            "required": false,
-            "description": "Non-Veteran claimant's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Last-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-SSN",
-            "required": false,
-            "description": "Non-Veteran claimant's SSN",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Birth-Date",
-            "required": false,
-            "description": "Non-Veteran claimant's Birth Date",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
-            }
-          }
+
         ],
         "responses": {
           "201": {
@@ -190,7 +69,7 @@
                                 "informalConference": false,
                                 "benefitType": "lifeInsurance",
                                 "veteran": {
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "ssn": "123456789",
                                   "firstName": "Jane",
                                   "lastName": "Doe",
@@ -234,7 +113,7 @@
                               "attributes": {
                                 "benefitType": "education",
                                 "veteran": {
-                                  "icn": "1013062086V794840",
+                                  "icn": "1012667145V762142",
                                   "ssn": "123456789",
                                   "firstName": "Jäñe",
                                   "middleInitial": "ø",
@@ -441,6 +320,50 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Body is not a JSON object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "code": "109",
+                          "detail": "The request body isn't a JSON object",
+                          "status": "400",
+                          "title": "Bad Request"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden attempt using a veteran-scoped OAuth token to create a Higher-Level Review for another veteran",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Violates JSON schema",
             "content": {
@@ -505,7 +428,7 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jane",
                           "lastName": "Doe",
@@ -538,7 +461,7 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
@@ -743,8 +666,8 @@
     },
     "/forms/200996/{id}": {
       "get": {
-        "summary": "Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)",
-        "description": "Returns all of the data associated with a specific Higher-Level Review.",
+        "summary": "Show a specific Higher-Level Review",
+        "description": "Returns basic data associated with a specific Higher-Level Review.",
         "tags": [
           "Higher-Level Reviews"
         ],
@@ -785,7 +708,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Info about a single Higher-Level Review",
+            "description": "Success",
             "content": {
               "application/json": {
                 "example": {
@@ -805,6 +728,26 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden access with a veteran-scoped OAuth token to an unowned Higher-Level Review",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Higher-Level Review not found",
             "content": {
@@ -812,10 +755,10 @@
                 "example": {
                   "errors": [
                     {
+                      "title": "Resource not found",
+                      "detail": "Higher-Level Review with uuid 11111111-1111-1111-1111-111111111111 not found",
                       "code": "404",
-                      "detail": "HigherLevelReview with uuid invalid not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "status": "404"
                     }
                   ]
                 },
@@ -876,12 +819,12 @@
             ]
           }
         ],
-        "description": "Returns a watermarked copy of a Higher-Level Review PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Higher-Level Review has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Higher-Level Review has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n",
+        "description": "Returns a watermarked copy of a Higher-Level Review PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Higher-Level Review has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Higher-Level Review has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n\nThe 'icn' parameter is required when accessing this endpoint using an OAuth token with the 'representative/HigherLevelReviews.read' or 'system/HigherLevelReviews.read' scopes.\nRequests made with the 'veteran/HigherLevelReviews.read' scope may omit the 'icn' parameter.\n",
         "parameters": [
           {
             "name": "icn",
-            "description": "ICN of the Veteran associated with the Higher-Level Review",
-            "example": "0123456789V012345",
+            "description": "ICN of the Veteran associated with the Higher-Level Review. Optional when using a veteran-scoped OAuth token. Required when using a representative- or system-scoped token.",
+            "example": "1012832025V743496",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]{10}V[0-9]{6}$",
@@ -889,7 +832,7 @@
               "maxLength": 17
             },
             "in": "query",
-            "required": true
+            "required": false
           },
           {
             "name": "id",
@@ -914,19 +857,63 @@
               }
             }
           },
-          "404": {
-            "description": "Higher-Level Review record was not found, or the provided 'icn' query parameter does not match the record's ICN",
+          "400": {
+            "description": "Missing 'icn' query parameter (with a system- or representative-scoped OAuth token)",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "code": "404",
-                      "detail": "HigherLevelReview with uuid 44444444-5555-6666-7777-888888888888 not found",
-                      "status": "404",
-                      "title": "Record not found"
+                      "title": "Missing parameter",
+                      "detail": "The 'icn' parameter is required with this request",
+                      "code": "108",
+                      "status": "400"
                     }
                   ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden access (with a veteran-scoped OAuth token to an unowned Higher-Level Review)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Invalid 'icn' parameter: Veterans may access only their own records",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Higher-Level Review not found, or 'icn' parameter does not match the Higher-Level Review's saved data": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Resource not found",
+                          "detail": "Higher-Level Review with uuid 44444444-5555-6666-7777-888888888888 not found",
+                          "code": "404",
+                          "status": "404"
+                        }
+                      ]
+                    }
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
@@ -955,16 +942,16 @@
             }
           },
           "422": {
-            "description": "Missing 'icn' query parameter",
+            "description": "PDF not ready",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Unprocessable Entity",
-                      "detail": "'icn' parameter is required",
                       "code": "422",
-                      "status": "422"
+                      "detail": "PDF for HigherLevelReview with id 44444444-5555-6666-7777-888888888888 cannot be downloaded yet because the appeal is still being submitted",
+                      "status": "422",
+                      "title": "PDF download not ready"
                     }
                   ]
                 },
@@ -2180,6 +2167,19 @@
                             "ROC",
                             "ROK",
                             "Singapore",
+                            "SystemV/AST4",
+                            "SystemV/AST4ADT",
+                            "SystemV/CST6",
+                            "SystemV/CST6CDT",
+                            "SystemV/EST5",
+                            "SystemV/EST5EDT",
+                            "SystemV/HST10",
+                            "SystemV/MST7",
+                            "SystemV/MST7MDT",
+                            "SystemV/PST8",
+                            "SystemV/PST8PDT",
+                            "SystemV/YST9",
+                            "SystemV/YST9YDT",
                             "Turkey",
                             "UCT",
                             "US/Alaska",
@@ -2296,128 +2296,7 @@
           }
         ],
         "parameters": [
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
-            "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-First-Name",
-            "required": true,
-            "description": "Veteran's first name",
-            "example": "Cara",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Middle-Initial",
-            "required": false,
-            "description": "Veteran's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Last-Name",
-            "required": true,
-            "description": "Veteran's last name",
-            "example": "Bartlett",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Birth-Date",
-            "required": true,
-            "description": "Veteran's birth date",
-            "example": "1975-02-14",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Birth-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Insurance-Policy-Number",
-            "required": false,
-            "description": "Veteran's insurance policy number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-First-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Middle-Initial",
-            "required": false,
-            "description": "Non-Veteran claimant's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Last-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-SSN",
-            "required": false,
-            "description": "Non-Veteran claimant's SSN",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Birth-Date",
-            "required": false,
-            "description": "Non-Veteran claimant's Birth Date",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Birth-Date"
-            }
-          }
+
         ],
         "responses": {
           "200": {
@@ -2568,7 +2447,7 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jane",
                           "lastName": "Doe",
@@ -2601,7 +2480,7 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
-                          "icn": "1013062086V794840",
+                          "icn": "1012667145V762142",
                           "ssn": "123456789",
                           "firstName": "Jäñe",
                           "middleInitial": "ø",
@@ -3056,6 +2935,13 @@
           }
         }
       },
+      "fileNumber": {
+        "description": "Veteran's VA file number (c-file / css)",
+        "type": "string",
+        "minLength": 7,
+        "maxLength": 9,
+        "example": "987654321"
+      },
       "hlrCreate": {
         "type": "object",
         "description": "JSON Schema for VA Form 20-0996",
@@ -3466,6 +3352,14 @@
           "data"
         ]
       },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17,
+        "example": "1012832025V743496"
+      },
       "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
@@ -3502,6 +3396,13 @@
           "areaCode",
           "phoneNumber"
         ]
+      },
+      "ssn": {
+        "type": "string",
+        "description": "Social Security Number",
+        "pattern": "^[0-9]{9}",
+        "minLength": 9,
+        "maxLength": 9
       },
       "timezone": {
         "type": "string",
@@ -4084,6 +3985,19 @@
           "ROC",
           "ROK",
           "Singapore",
+          "SystemV/AST4",
+          "SystemV/AST4ADT",
+          "SystemV/CST6",
+          "SystemV/CST6CDT",
+          "SystemV/EST5",
+          "SystemV/EST5EDT",
+          "SystemV/HST10",
+          "SystemV/MST7",
+          "SystemV/MST7MDT",
+          "SystemV/PST8",
+          "SystemV/PST8PDT",
+          "SystemV/YST9",
+          "SystemV/YST9YDT",
           "Turkey",
           "UCT",
           "US/Alaska",
@@ -4108,119 +4022,6 @@
       "uuid": {
         "type": "string",
         "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
-      },
-      "X-VA-Birth-Date": {
-        "description": "Veteran's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "type": "string"
-          }
-        ]
-      },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": "string",
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": "^[0-9]{10}V[0-9]{6}$"
-      },
-      "X-VA-Insurance-Policy-Number": {
-        "allOf": [
-          {
-            "description": "Veteran's insurance policy number",
-            "maxLength": 18
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Birth-Date": {
-        "description": "Non-veteran claimant's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-NonVeteranClaimant-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-SSN": {
-        "type": "string",
-        "description": "Non-Veteran claimants's SSN",
-        "pattern": "^[0-9]{9}$"
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

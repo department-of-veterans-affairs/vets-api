@@ -21,8 +21,8 @@ module MHV
     private
 
     def run_refresh(icn)
-      phr_client = PHRMgr::Client.new
-      phr_client.post_phrmgr_refresh(icn)
+      phr_client = PHRMgr::Client.new(icn)
+      phr_client.post_phrmgr_refresh
     end
 
     def mhv_user?(mhv_correlation_id)

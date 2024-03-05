@@ -62,7 +62,7 @@ module VBADocuments
     def generate_consumer_stats(expired, errored, processing, success, vbms, all)
       @stats['consumer_stats'] = []
 
-      all.pluck(:consumer_name).uniq.sort.each do |consumer|
+      all.pluck(:consumer_name).uniq.compact.sort.each do |consumer|
         errored_count = errored.for_consumer(consumer).count
         total = all.for_consumer(consumer).count
 
@@ -141,6 +141,7 @@ module VBADocuments
     def records_in_date_range
       @records_in_date_range ||= VBADocuments::UploadSubmission
                                  .where('created_at >= ? and created_at <= ?', start_date, end_date)
+                                 .where.not(consumer_name: nil)
     end
 
     def calculate_average(array)

@@ -11,9 +11,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "address",
-        "phone",
-        "email"
+        "address"
       ],
       "properties": {
         "address": {
@@ -121,8 +119,6 @@
         "firstName",
         "lastName",
         "address",
-        "phone",
-        "email",
         "relationship"
       ],
       "properties": {

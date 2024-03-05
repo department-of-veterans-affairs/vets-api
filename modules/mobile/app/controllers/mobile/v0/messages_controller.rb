@@ -26,12 +26,15 @@ module Mobile
 
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
+        user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
+        user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
+
         render json: response,
                serializer: Mobile::V0::MessageSerializer,
                include: {
                  attachments: { serializer: Mobile::V0::AttachmentSerializer }
                },
-               meta: response.metadata
+               meta: response.metadata.merge(user_in_triage_team?: user_in_triage_team)
       end
 
       def create
@@ -129,8 +132,11 @@ module Mobile
       def message_counts(resource)
         {
           message_counts: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
-            hash[:read] += 1 if obj[:read_receipt] || obj.read_receipt
-            hash[:unread] += 1 unless obj[:read_receipt] || obj.read_receipt
+            if obj[:read_receipt] || obj.try(:read_receipt)
+              hash[:read] += 1
+            else
+              hash[:unread] += 1
+            end
           end
         }
       end

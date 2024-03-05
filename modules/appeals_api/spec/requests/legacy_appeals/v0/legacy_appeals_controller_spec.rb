@@ -28,64 +28,67 @@ describe AppealsApi::LegacyAppeals::V0::LegacyAppealsController, type: :request 
 
   describe '#index' do
     let(:path) { '/services/appeals/legacy-appeals/v0/legacy-appeals' }
-    let(:headers) { {} }
-    let(:ssn) { '502628285' }
-    let(:icn) { '1234567890V012345' }
-    let(:params) { icn ? { 'icn' => icn } : {} }
-    let(:body) { JSON.parse(response.body) }
-    let(:cassette) { 'caseflow/legacy_appeals_get_by_ssn' }
-    let(:mpi_response) { create(:find_profile_response, profile: build(:mpi_profile)) }
+    let(:icn) { '1012667145V762142' }
+    let(:params) { { icn: } }
+    let(:mpi_cassette_name) { 'mpi/find_candidate/valid' }
+    let(:caseflow_cassette_name) { 'caseflow/legacy_appeals_get_by_ssn' }
 
-    before do
-      allow_any_instance_of(MPI::Service)
-        .to receive(:find_profile_by_identifier)
-        .with(identifier: icn, identifier_type: MPI::Constants::ICN).and_return(mpi_response)
+    describe 'ICN parameter handling' do
+      it_behaves_like(
+        'GET endpoint with optional Veteran ICN parameter',
+        {
+          cassette: 'caseflow/legacy_appeals_get_by_ssn',
+          path: '/services/appeals/legacy-appeals/v0/legacy-appeals',
+          scope_base: 'LegacyAppeals'
+        }
+      )
+    end
 
-      VCR.use_cassette(cassette) do
-        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
-          get(path, headers: auth_header, params:)
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: %w[veteran/LegacyAppeals.read]) do
+        def make_request(auth_header)
+          VCR.use_cassette(caseflow_cassette_name) do
+            VCR.use_cassette(mpi_cassette_name) do
+              get(path, headers: auth_header, params:)
+            end
+          end
         end
       end
     end
 
-    context 'when all required fields provided' do
+    describe 'caseflow interaction' do
+      let(:body) { JSON.parse(response.body) }
+      let(:error) { body.dig('errors', 0) }
+      let(:scopes) { %w[veteran/LegacyAppeals.read] }
+
+      before do
+        VCR.use_cassette(caseflow_cassette_name) do
+          VCR.use_cassette(mpi_cassette_name) do
+            with_openid_auth(scopes) { |auth_header| get(path, params:, headers: auth_header) }
+          end
+        end
+      end
+
       it 'GETs legacy appeals from Caseflow successfully' do
         expect(response).to have_http_status(:ok)
-        expect(body['data']).not_to be_nil
-        expect(body['data'][0]['attributes']).to include('latestSocSsocDate')
+        expect(body.dig('data', 0, 'attributes')).to include('latestSocSsocDate')
       end
-    end
 
-    context 'when icn not provided' do
-      let(:icn) { nil }
+      describe 'when veteran is not found by SSN in caseflow' do
+        let(:caseflow_cassette_name) { 'caseflow/legacy_appeals_no_veteran_record' }
 
-      it 'returns a 422 error with details' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        error = JSON.parse(response.body)['errors'][0]
-        expect(error['detail']).to include('One or more expected fields were not found')
-        expect(error['meta']['missing_fields']).to include('icn')
+        it 'returns a 404 error with a message that does not reference SSN' do
+          expect(response).to have_http_status(:not_found)
+          expect(error['detail']).not_to include('SSN')
+        end
       end
-    end
 
-    context 'when icn does not meet length requirements' do
-      let(:icn) { '229384' }
+      describe 'when caseflow throws a 500 error' do
+        let(:caseflow_cassette_name) { 'caseflow/legacy_appeals_server_error' }
 
-      it 'returns a 422 error with details' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        error = JSON.parse(response.body)['errors'][0]
-        expect(error['title']).to eql('Invalid length')
-        expect(error['detail']).to include("'#{icn}' did not fit within the defined length limits")
-      end
-    end
-
-    context 'when icn does not meet pattern requirements' do
-      let(:icn) { '22938439103910392' }
-
-      it 'returns a 422 error with details' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        error = JSON.parse(response.body)['errors'][0]
-        expect(error['title']).to eql('Invalid pattern')
-        expect(error['detail']).to include("'#{icn}' did not match the defined pattern")
+        it 'returns a 502 error instead' do
+          expect(response).to have_http_status(:bad_gateway)
+        end
       end
     end
   end

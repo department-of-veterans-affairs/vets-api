@@ -71,7 +71,7 @@ module Mobile
                      download_lighthouse_letters(params)
                    else
                      unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:type]
-                       Raven.tags_context(team: 'va-mobile-app') # tag sentry logs with team name
+                       Sentry.set_tags(team: 'va-mobile-app') # tag sentry logs with team name
                        raise Common::Exceptions::ParameterMissing, 'letter_type',
                              "#{params[:type]} is not a valid letter type"
                      end

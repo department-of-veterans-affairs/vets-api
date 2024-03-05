@@ -92,11 +92,9 @@ module MDOT
     end
 
     def save_error_details(error)
-      Raven.tags_context(
-        external_service: self.class.to_s.underscore
-      )
+      Sentry.set_tags(external_service: self.class.to_s.underscore)
 
-      Raven.extra_context(
+      Sentry.set_extras(
         url: config.base_path,
         message: error.message,
         body: error.body
@@ -114,7 +112,7 @@ module MDOT
     end
 
     def handle_parsing_error(error)
-      Raven.extra_context(
+      Sentry.set_extras(
         message: error.message,
         url: config.base_path
       )

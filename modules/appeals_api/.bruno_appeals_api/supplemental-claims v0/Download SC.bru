@@ -1,0 +1,32 @@
+meta {
+  name: Download SC
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{base_uri}}/services/appeals/supplemental-claims/v0/forms/200995/{{sc_id}}/download?icn={{veteran_icn}}
+  body: none
+  auth: bearer
+}
+
+query {
+  icn: {{veteran_icn}}
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/SupplementalClaims.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

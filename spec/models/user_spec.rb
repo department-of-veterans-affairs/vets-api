@@ -1195,69 +1195,33 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#military_information', :skip_va_profile do
-      context 'Feature military_information_vaprofile=false' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:military_information_vaprofile).and_return(false)
+    describe '#credential_lock' do
+      context 'when the user has a UserVerification' do
+        let(:user) { build(:user, :loa3, icn: user_account.icn) }
+        let(:user_account) { build(:user_account) }
+        let(:user_verification) { create(:idme_user_verification, user_account:, idme_uuid: user.idme_uuid, locked:) }
+        let(:locked) { false }
+
+        context 'when the UserVerification is not locked' do
+          it 'returns false' do
+            expect(user.credential_lock).to eq(false)
+          end
         end
 
-        it 'returns an instance of the EMISRedis class' do
-          expect(user.military_information).to be_an_instance_of(EMISRedis::MilitaryInformation)
-        end
-      end
+        context 'when the UserVerification is locked' do
+          let(:locked) { true }
 
-      context 'Feature military_information_vaprofile=true' do
-        before do
-          Flipper.enable(:military_information_vaprofile)
-        end
-
-        it 'returns an instance of the FormMilitaryInformation class' do
-          expect(user.military_information).to be_an_instance_of(FormMilitaryInformation)
-          expect(user.military_information).not_to be_nil
-        end
-
-        it 'returns attributes of military_information for a mock user' do
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability',
-                           allow_playback_repeats: true, match_requests_on: %i[method body]) do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                             allow_playback_repeats: true, match_requests_on: %i[method body]) do
-              expect(user.military_information.service_episodes_by_date.length).to eq(3)
-              expect(user.military_information.va_compensation_type).to eq('highDisability')
-              expect(user.military_information.last_service_branch).to eq('Army')
-              expect(user.military_information.tours_of_duty.length).to eq(3)
-            end
+          it 'returns true' do
+            expect(user.credential_lock).to eq(true)
           end
         end
       end
 
-      describe '#credential_lock' do
-        context 'when the user has a UserVerification' do
-          let(:user) { build(:user, :loa3, icn: user_account.icn) }
-          let(:user_account) { build(:user_account) }
-          let(:user_verification) { create(:idme_user_verification, user_account:, idme_uuid: user.idme_uuid, locked:) }
-          let(:locked) { false }
+      context 'when the user does not have a UserVerification' do
+        let(:user) { build(:user, :loa1) }
 
-          context 'when the UserVerification is not locked' do
-            it 'returns false' do
-              expect(user.credential_lock).to eq(false)
-            end
-          end
-
-          context 'when the UserVerification is locked' do
-            let(:locked) { true }
-
-            it 'returns true' do
-              expect(user.credential_lock).to eq(true)
-            end
-          end
-        end
-
-        context 'when the user does not have a UserVerification' do
-          let(:user) { build(:user, :loa1) }
-
-          it 'returns nil' do
-            expect(user.credential_lock).to eq(nil)
-          end
+        it 'returns nil' do
+          expect(user.credential_lock).to eq(nil)
         end
       end
     end

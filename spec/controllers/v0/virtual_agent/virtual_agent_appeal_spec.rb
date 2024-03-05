@@ -317,6 +317,30 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
                                    'appeal_or_review' => 'appeal'
                                  }])
         end
+
+        it 'returns single appeal with correct appeal status for sc_recieved' do
+          sign_in_as(user)
+
+          # new cassette to use for lighthouse mock request
+          VCR.use_cassette(
+            'caseflow/virtual_agent_appeals/lighthouse_mock_appeal_sc_recieved',
+            match_requests_on: [:headers]
+          ) do
+            get '/v0/virtual_agent/appeal'
+          end
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(res_body.length).to equal(1)
+          expect(res_body).to eq([{
+                                   'appeal_type' => 'Compensation',
+                                   'filing_date' => '08/10/2017',
+                                   'appeal_status' => 'A reviewer is examining your new evidence',
+                                   'updated_date' => '05/15/2018',
+                                   'description' => ' (Service connection, sleep apnea) ',
+                                   'appeal_or_review' => 'appeal'
+                                 }])
+        end
       end
 
       describe 'when logged in with user+54' do

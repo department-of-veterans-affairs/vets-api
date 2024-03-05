@@ -5,11 +5,11 @@ module AppealsApi
     class AppealsController < AppealsApi::ApplicationController
       include AppealsApi::CaseflowRequest
       include AppealsApi::OpenidAuth
+      include AppealsApi::IcnParameterValidation
 
       skip_before_action :authenticate
-      before_action :validate_icn_parameter, only: %i[index]
+      before_action :validate_icn_parameter!, only: %i[index]
 
-      ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/
       OAUTH_SCOPES = {
         GET: %w[veteran/AppealsStatus.read representative/AppealsStatus.read system/AppealsStatus.read]
       }.freeze
@@ -28,7 +28,7 @@ module AppealsApi
       end
 
       def ssn
-        @ssn ||= icn_to_ssn!(params[:icn])
+        @ssn ||= icn_to_ssn!(veteran_icn)
       end
 
       def va_user
@@ -39,38 +39,8 @@ module AppealsApi
         { 'Consumer' => request.headers['X-Consumer-Username'], 'VA-User' => required_header('X-VA-User') }
       end
 
-      def log_caseflow_request_details
-        hashed_ssn = Digest::SHA2.hexdigest(ssn)
-        Rails.logger.info('Caseflow Request', 'va_user' => va_user, 'lookup_identifier' => hashed_ssn)
-      end
-
-      def log_caseflow_response(res)
-        Rails.logger.info(
-          'Caseflow Response',
-          {
-            'va_user' => va_user,
-            'first_appeal_id' => res.body.dig('data', 0, 'id'),
-            'appeal_count' => res.body['data'].length
-          }
-        )
-      end
-
       def get_caseflow_response
-        log_caseflow_request_details
-        res = Caseflow::Service.new.get_appeals(OpenStruct.new(ssn:), caseflow_request_headers)
-        log_caseflow_response(res)
-        res
-      end
-
-      def validate_icn_parameter
-        if params[:icn].blank?
-          raise(Common::Exceptions::ParameterMissing, detail: "'icn' parameter is required")
-        elsif !ICN_REGEX.match?(params[:icn])
-          raise(
-            Common::Exceptions::UnprocessableEntity,
-            detail: "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
-          )
-        end
+        Caseflow::Service.new.get_appeals(OpenStruct.new(ssn:), caseflow_request_headers)
       end
 
       def token_validation_api_key

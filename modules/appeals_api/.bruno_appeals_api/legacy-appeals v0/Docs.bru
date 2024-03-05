@@ -1,0 +1,15 @@
+meta {
+  name: Docs
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_uri}}/services/appeals/legacy-appeals/v0/docs
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

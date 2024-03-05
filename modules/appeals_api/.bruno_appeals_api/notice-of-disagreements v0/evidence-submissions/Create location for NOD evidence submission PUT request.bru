@@ -1,0 +1,42 @@
+meta {
+  name: Create location for NOD evidence submission PUT request
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_uri}}/services/appeals/notice-of-disagreements/v0/evidence-submissions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+body:json {
+  {
+    "fileNumber": "{{veteran_file_number}}",
+    "nodId": "{{nod_id}}"
+  }
+}
+
+vars:pre-request {
+  oauth_scope: system/NoticeOfDisagreements.write
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}
+
+script:post-response {
+  if (res.body.data) {
+    bru.setVar('nod_evidence_submission_location', res.body.data.attributes.location);
+    bru.setVar('nod_evidence_submission_id', res.body.data.id);
+  }
+}

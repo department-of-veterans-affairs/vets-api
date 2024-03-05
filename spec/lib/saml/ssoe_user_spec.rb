@@ -457,7 +457,7 @@ RSpec.describe SAML::User do
           mhv_icn: '1012853550V207686',
           mhv_correlation_id: '12345748',
           mhv_account_type: 'Premium',
-          uuid: Digest::UUID.uuid_v3('sec-id', '1012853550').tr('-', ''),
+          uuid: nil,
           email: 'k+tristanmhv@example.com',
           idme_uuid: nil,
           logingov_uuid: nil,
@@ -737,7 +737,7 @@ RSpec.describe SAML::User do
       context 'with one id string' do
         let(:sec_id) { '1234567890' }
 
-        it 'will not log a warning to sentry' do
+        it 'does not log a warning to sentry' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(
             'User attributes contains multiple sec_id values',
             'warn',
@@ -750,7 +750,7 @@ RSpec.describe SAML::User do
       context 'with two ids string' do
         let(:sec_id) { '1234567890,0987654321' }
 
-        it 'will log a warning to sentry' do
+        it 'logs a warning to sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
             'User attributes contains multiple sec_id values',
             'warn',
@@ -1079,7 +1079,7 @@ RSpec.describe SAML::User do
           mhv_icn: '1012779219V964737',
           mhv_correlation_id: nil,
           mhv_account_type: nil,
-          uuid: '85ba80dba1b93ed3bf080b2989cde313',
+          uuid: nil,
           email: nil,
           idme_uuid: nil,
           logingov_uuid: nil,

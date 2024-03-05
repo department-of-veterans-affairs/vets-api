@@ -1,0 +1,36 @@
+meta {
+  name: List appeals statuses
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_uri}}/services/appeals/appeals-status/v1/appeals?icn={{veteran_icn}}
+  body: none
+  auth: bearer
+}
+
+query {
+  icn: {{veteran_icn}}
+}
+
+headers {
+  X-VA-User: {{veteran_email}}
+}
+
+auth:bearer {
+  token: {{bearer_token}}
+}
+
+vars:pre-request {
+  oauth_scope: system/AppealsStatus.read
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  const { setOauthToken } = require('./helpers.js');
+  await setOauthToken();
+}

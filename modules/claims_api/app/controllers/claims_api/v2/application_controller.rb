@@ -21,6 +21,10 @@ module ClaimsApi
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema]
+      before_action { permit_scopes %w[system/claim.read] if request.get? }
+      before_action except: %i[generate_pdf] do
+        permit_scopes %w[system/claim.write] if request.post? || request.put?
+      end
 
       def schema
         render json: { data: [ClaimsApi::FormSchemas.new(schema_version: 'v2').schemas[self.class::FORM_NUMBER]] }
@@ -50,7 +54,8 @@ module ClaimsApi
       # @param validator_class [any] Class implementing ActiveModel::Validations
       #
       def validate_request!(validator_class)
-        validator = validator_class.validator(params)
+        data = validator_class.as_json.split('::')[-1] == 'PowerOfAttorney' ? form_attributes : params
+        validator = validator_class.validator(data)
         return if validator.valid?
 
         raise ::Common::Exceptions::ValidationErrorsBadRequest, validator
@@ -87,12 +92,14 @@ module ClaimsApi
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
-      def file_number_check
-        if target_veteran&.mpi&.birls_id.present?
+      def file_number_check(icn: params[:veteranId])
+        if icn.present?
+          sponsor = build_target_veteran(veteran_id: icn, loa: { current: 3, highest: 3 })
+          @file_number = sponsor&.birls_id || sponsor&.mpi&.birls_id
+        elsif target_veteran&.mpi&.birls_id.present?
           @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
         else
-          claims_v2_logging('missing_file_number', icn: nil,
-                                                   message: 'missing_file_number on request in application controller.')
+          claims_v2_logging('missing_file_number', message: 'missing_file_number on request in application controller.')
 
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
@@ -100,9 +107,8 @@ module ClaimsApi
         end
       end
 
-      def claims_v2_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
+      def claims_v2_logging(tag = 'traceability', level: :info, message: nil)
         ClaimsApi::Logger.log(tag,
-                              icn:,
                               cid: token&.payload&.[]('cid'),
                               current_user: current_user&.uuid,
                               message:,

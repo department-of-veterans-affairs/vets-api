@@ -21,7 +21,7 @@ module AskVAApi
       private
 
       def default_service
-        Dynamics::Service.new(icn:)
+        Crm::Service.new(icn:)
       end
 
       def post_data(payload: {})

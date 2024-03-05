@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'medical_records/client'
+require 'medical_records/phr_mgr/client'
 
 module MyHealth
   class MrController < ApplicationController
@@ -10,6 +11,10 @@ module MyHealth
 
     # skip_before_action :authenticate
 
+    rescue_from ::MedicalRecords::PatientNotFound do |_exception|
+      render body: nil, status: :accepted
+    end
+
     protected
 
     def client
@@ -17,12 +22,16 @@ module MyHealth
                                                         icn: current_user.icn })
     end
 
-    def authorize
-      # raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
+    def phrmgr_client
+      @phrmgr_client ||= PHRMgr::Client.new(current_user.icn)
     end
 
-    # def raise_access_denied
-    #   # raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
-    # end
+    def authorize
+      raise_access_denied unless current_user.authorize(:mhv_medical_records, :access?)
+    end
+
+    def raise_access_denied
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to medical records'
+    end
   end
 end

@@ -39,7 +39,7 @@ class ClaimsApi::RswagConfig
             },
             productionOauth: {
               type: :oauth2,
-              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)',
               flows: {
                 authorizationCode: {
                   authorizationUrl: 'https://api.va.gov/oauth2/authorization',
@@ -53,7 +53,7 @@ class ClaimsApi::RswagConfig
             },
             sandboxOauth: {
               type: :oauth2,
-              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/authorization-code)',
               flows: {
                 authorizationCode: {
                   authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
@@ -68,7 +68,7 @@ class ClaimsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/claims/v1',
+        # basePath is not valid OAS v3
         servers: [
           {
             url: 'https://sandbox-api.va.gov/services/claims/{version}',
@@ -117,6 +117,18 @@ class ClaimsApi::RswagConfig
             description: <<~VERBIAGE
               Allows authenticated and authorized users to automatically establish an Intent to File (21-0966) in VBMS.
             VERBIAGE
+          },
+          {
+            name: 'Disability Compensation Claims',
+            description: <<~VERBIAGE
+              Allows authenticated and authorized users to automatically establish a Disability Compensation Claim (21-526EZ) in VBMS
+            VERBIAGE
+          },
+          {
+            name: 'Power of Attorney',
+            description: <<~VERBIAGE
+              Allows authenticated and authorized users to retrieve the active power of attorney for a Veteran
+            VERBIAGE
           }
         ],
         components: {
@@ -128,7 +140,7 @@ class ClaimsApi::RswagConfig
             },
             productionOauth: {
               type: :oauth2,
-              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+              description: 'This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)',
               flows: {
                 authorizationCode: {
                   authorizationUrl: 'https://api.va.gov/oauth2/authorization',
@@ -142,7 +154,7 @@ class ClaimsApi::RswagConfig
             },
             sandboxOauth: {
               type: :oauth2,
-              description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+              description: 'This API uses OAuth 2 with the client credential grant flow. [More info](https://developer.va.gov/explore/api/benefits-claims/client-credentials)',
               flows: {
                 authorizationCode: {
                   authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
@@ -157,7 +169,7 @@ class ClaimsApi::RswagConfig
           }
         },
         paths: {},
-        basePath: '/services/claims/v2',
+        # basePath is not valid OAS v3
         servers: [
           {
             url: 'https://sandbox-api.va.gov/services/claims/{version}',

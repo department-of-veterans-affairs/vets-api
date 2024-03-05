@@ -64,7 +64,7 @@ module ClaimsApi
 
     def get_phase_from_phase_type_ind(phase_type_ind)
       phase = ''
-      PHASE_STATUS_DICTIONARY.each do |_key, value|
+      PHASE_STATUS_DICTIONARY.each_value do |value|
         phase = value[1].to_s if value.include?(phase_type_ind.to_s)
       end
       phase
