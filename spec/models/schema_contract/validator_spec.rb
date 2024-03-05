@@ -7,9 +7,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
   describe '#validate' do
     let(:fixture) { 'spec/fixtures/schema_contract/test_schema.json' }
     let(:test_data) { Rails.root.join(fixture).read }
-    let(:contract_record) do
-      create(:schema_contract_validation, response:)
-    end
+    let(:contract_record) { create(:schema_contract_validation, response:) }
     let(:matching_response) do
       {
         data: [
@@ -24,7 +22,6 @@ describe SchemaContract::Validator, aggregate_failures: true do
       }
     end
     let(:uuid_regex) { /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ }
-
 
     ###
     # these tests are non-exhaustive and at times duplicative of the underlying JSON::Validator gem specs
@@ -101,7 +98,6 @@ when none are allowed in schema #{uuid_regex}"\]$})
           SchemaContract::Validator.new(contract_record.id).validate
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
         expect(contract_record.reload.status).to eq('schema_errors_found')
-
         expect(contract_record.error_details).to \
           match(%r{^\["The property '#/data/0/required_string' of type integer did not match the following type: \
 string in schema #{uuid_regex}"\]$})
@@ -119,7 +115,6 @@ string in schema #{uuid_regex}"\]$})
           SchemaContract::Validator.new(contract_record.id).validate
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
         expect(contract_record.reload.status).to eq('schema_errors_found')
-
         expect(contract_record.error_details).to \
           match(%r{^\["The property '#/data/0/required_string' of type null did not match the following type: string \
 in schema #{uuid_regex}"\]$})
@@ -153,7 +148,6 @@ in schema #{uuid_regex}"\]$})
           SchemaContract::Validator.new(contract_record.id).validate
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError)
         expect(contract_record.reload.status).to eq('schema_errors_found')
-
         expect(contract_record.error_details).to \
           match(%r{^\["The property '#/data/0/required_object' did not contain a required property of \
 'required_nested_string' in schema #{uuid_regex}", \
