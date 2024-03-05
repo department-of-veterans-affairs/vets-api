@@ -53,7 +53,7 @@ module MyHealth
           ids.each do |id|
             client.post_refill_rx(id)
           end
-        rescue
+        rescue => e
           puts "Error refilling prescription: #{e.message}"
         end
         head :no_content
@@ -61,9 +61,7 @@ module MyHealth
 
       def list_refillable_prescriptions
         resource = collection_resource
-        resource.data = resource.data.select do |item|
-          item.is_refillable || (item.refill_status == 'active' && item.refill_remaining&.zero?)
-        end
+        resource.data = filter_data_by_refill_and_renew(resource.data)
         render json: resource.data,
                serializer: CollectionSerializer,
                each_serializer: PrescriptionDetailsSerializer,
@@ -170,6 +168,24 @@ module MyHealth
         }
         new_metadata = resource.metadata.merge('sort' => sort_metadata)
         Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
+      end
+
+      def filter_data_by_refill_and_renew(data)
+        six_months_from_today = Time.zone.today - 6.months
+        zero_date = Date.new(0, 1, 1)
+
+        data.select do |item|
+          disp_status = item.disp_status
+          sorted_dispensed_date = item.sorted_dispensed_date.to_date
+
+          next true if ['Active', 'Active: Submitted'].include?(disp_status)
+          next true if item.is_refillable
+          next true if %w[Expired Discontinued].include?(disp_status) &&
+                       sorted_dispensed_date >= six_months_from_today &&
+                       sorted_dispensed_date != zero_date
+
+          false
+        end
       end
     end
   end

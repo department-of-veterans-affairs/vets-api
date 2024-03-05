@@ -396,6 +396,9 @@ coe:
 adapted_housing:
   prefill: true
 
+intent_to_file:
+  prefill: true
+
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:
@@ -973,6 +976,13 @@ lighthouse:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
     use_mocks: false
+  benefits_education:
+    host: https://sandbox-api.va.gov
+    access_token:
+      client_id: ~
+      rsa_key: ~
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausln2mo4jCAYRrlR2p7/v1/token
+    use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1245,6 +1255,7 @@ vanotify:
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
+        form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
