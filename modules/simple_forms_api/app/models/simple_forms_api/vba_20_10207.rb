@@ -16,7 +16,7 @@ module SimpleFormsApi
 
     def third_party_signature
       @data['statement_of_truth_signature'] if @data['preparer_type'] != 'veteran' &&
-        @data['third_party_type'] != 'power-of-attorney'
+                                               @data['third_party_type'] != 'power-of-attorney'
     end
 
     def power_of_attorney_signature
