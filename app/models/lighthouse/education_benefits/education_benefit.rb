@@ -6,8 +6,8 @@ module Lighthouse
   module EducationBenefits
     # The EducationBenefit model represents a veteran's education benefit status.
     # This model is used to parse and manipulate the data returned from the Lighthouse API.
-    # It includes ActiveModel::Model to get some of the ActiveRecord features, such as validations and conversions,
-    # but it does not persist data to a database.
+    # Although it includes ActiveModel::Model for some ActiveRecord-like features such as validations and conversions,
+    # it does not persist any data to a database.
     class EducationBenefit
       include ActiveModel::Model
       attr_accessor :first_name, :last_name, :name_suffix, :date_of_birth, :va_file_number, :active_duty,

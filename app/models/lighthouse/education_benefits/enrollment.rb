@@ -4,10 +4,10 @@ require 'active_support/inflector'
 
 module Lighthouse
   module EducationBenefits
-    # The Enrollment model represents an enrollment of a veteran in an education program.
-    # This model is used to parse and manipulate the enrollment data returned from the Lighthouse API.
-    # It includes ActiveModel::Model to get some of the ActiveRecord features, such as validations and conversions,
-    # but it does not persist data to a database.
+    # The Enrollment class encapsulates the concept of a veteran's enrollment in an education program.
+    # This model is used to parse and manipulate the data returned from the Lighthouse API.
+    # Although it includes ActiveModel::Model for some ActiveRecord-like features such as validations and conversions,
+    # it does not persist any data to a database.
     class Enrollment
       include ActiveModel::Model
       attr_accessor :begin_date, :end_date, :facility_code, :facility_name, :participant_id,
