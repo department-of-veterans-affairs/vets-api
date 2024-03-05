@@ -4,14 +4,14 @@ require 'rails_helper'
 
 RSpec.describe 'Claims API power of attorney routing', type: :routing do
   base_path = '/services/claims/v2/'
-  expected_controller = 'claims_api/v2/veterans/power_of_attorney'
+  controller_base = 'claims_api/v2/veterans/power_of_attorney'
 
   it "routes #{base_path}/veterans/:veteranId/power-of-attorney to PowerOfAttorneyController#show" do
     poa_path = "#{base_path}/veterans/123/power-of-attorney"
 
     expect(get(poa_path)).to route_to(
       format: 'json',
-      controller: expected_controller,
+      controller: "#{controller_base}/base",
       action: 'show',
       veteranId: '123'
     )
@@ -22,7 +22,7 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
 
     expect(post(validate2122_path)).to route_to(
       format: 'json',
-      controller: expected_controller,
+      controller: "#{controller_base}/organization",
       action: 'validate2122',
       veteranId: '123'
     )
@@ -33,7 +33,7 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
 
     expect(post(submit2122_path)).to route_to(
       format: 'json',
-      controller: expected_controller,
+      controller: "#{controller_base}/organization",
       action: 'submit2122',
       veteranId: '123'
     )
@@ -44,7 +44,7 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
 
     expect(post(validate2122a_path)).to route_to(
       format: 'json',
-      controller: expected_controller,
+      controller: "#{controller_base}/individual",
       action: 'validate2122a',
       veteranId: '123'
     )
@@ -55,7 +55,7 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
 
     expect(post(submit2122a_path)).to route_to(
       format: 'json',
-      controller: expected_controller,
+      controller: "#{controller_base}/individual",
       action: 'submit2122a',
       veteranId: '123'
     )
@@ -66,7 +66,7 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
 
     expect(get(poa_status_path)).to route_to(
       format: 'json',
-      controller: expected_controller,
+      controller: "#{controller_base}/base",
       action: 'status',
       veteranId: '123',
       id: '456'

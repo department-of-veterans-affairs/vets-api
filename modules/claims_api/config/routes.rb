@@ -43,14 +43,16 @@ ClaimsApi::Engine.routes.draw do
       get '/:veteranId/claims/:id', to: 'claims#show'
       post '/:veteranId/claims/:id/5103', to: 'evidence_waiver#submit'
       ## 2122 Forms
-      get '/:veteranId/power-of-attorney', to: 'power_of_attorney#show'
-      post '/:veteranId/2122/validate', to: 'power_of_attorney#validate2122'
-      post '/:veteranId/2122', to: 'power_of_attorney#submit2122'
-      post '/:veteranId/2122a', to: 'power_of_attorney#submit2122a'
-      post '/:veteranId/2122a/validate', to: 'power_of_attorney#validate2122a'
-      get '/:veteranId/power-of-attorney/:id', to: 'power_of_attorney#status'
-      post '/:veteranId/power-of-attorney:appoint-individual', to: 'power_of_attorney#appoint_individual',
-                                                               constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
+      scope module: 'power_of_attorney', path: '' do
+        get '/:veteranId/power-of-attorney', controller: 'base', action: 'show'
+        post '/:veteranId/2122/validate', controller: 'organization', action: 'validate2122'
+        post '/:veteranId/2122', controller: 'organization', action: 'submit2122'
+        post '/:veteranId/2122a', controller: 'individual', action: 'submit2122a'
+        post '/:veteranId/2122a/validate', controller: 'individual', action: 'validate2122a'
+        get '/:veteranId/power-of-attorney/:id', controller: 'base', action: 'status'
+        post '/:veteranId/power-of-attorney:appoint-individual', controller: 'individual', action: 'appoint_individual',
+                                                                 constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
+      end
       ## 0966 Forms
       get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'
       post '/:veteranId/intent-to-file', to: 'intent_to_file#submit'
