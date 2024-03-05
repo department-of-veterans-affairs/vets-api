@@ -30,6 +30,7 @@ RSpec.describe MebApi::V0::BaseController, type: :request do
   describe 'GET /meb_api/v0/forms_claimant_info' do
     context 'when user has an ICN, SSN, and is LOA3' do
       before do
+        Flipper.disable(:show_meb_1990E_maintenance_alert)
         sign_in_as(user_loa3)
       end
 
@@ -43,6 +44,8 @@ RSpec.describe MebApi::V0::BaseController, type: :request do
 
     context 'when user does not have ICN' do
       before do
+        Flipper.disable(:show_meb_1990E_maintenance_alert)
+        Flipper.disable(:show_meb_1990EZ_maintenance_alert)
         user_loa1 = build(:user, :loa1, icn: nil)
         sign_in_as(user_loa1)
       end
@@ -67,6 +70,8 @@ RSpec.describe MebApi::V0::BaseController, type: :request do
 
     context 'when user is not LOA3' do
       before do
+        Flipper.disable(:show_meb_1990E_maintenance_alert)
+        Flipper.disable(:show_meb_1990EZ_maintenance_alert)
         sign_in_as(user_loa1)
       end
 
@@ -80,6 +85,8 @@ RSpec.describe MebApi::V0::BaseController, type: :request do
   describe 'GET /meb_api/v0/claimant_info' do
     context 'when user has an ICN, SSN, and is LOA3' do
       before do
+        Flipper.disable(:show_meb_1990E_maintenance_alert)
+        Flipper.disable(:show_meb_1990EZ_maintenance_alert)
         sign_in_as(user_loa3)
       end
 

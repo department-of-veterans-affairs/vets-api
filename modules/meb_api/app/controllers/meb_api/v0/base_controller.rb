@@ -12,12 +12,13 @@ module MebApi
 
       private
 
-      def authorize_access
-        authorize(current_user, :access?, policy_class: MebPolicy)
+      def service_unavailable
+        render json: { error: 'Service is currently unavailable due to maintenance. Please try again later.' },
+               status: :service_unavailable
       end
 
-      def check_forms_flipper
-        routing_error unless Flipper.enabled?(:show_forms_app)
+      def authorize_access
+        authorize(current_user, :access?, policy_class: MebPolicy)
       end
 
       def claim_status_service
