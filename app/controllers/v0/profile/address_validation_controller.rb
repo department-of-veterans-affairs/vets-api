@@ -8,7 +8,7 @@ module V0
     class AddressValidationController < ApplicationController
       service_tag 'profile'
 
-      skip_before_action :authenticate, only: [:cors_preflight, :routing_errors, :create]
+      skip_before_action :authenticate, only: [:create]
 
       def create
         address = VAProfile::Models::ValidationAddress.new(address_params)
