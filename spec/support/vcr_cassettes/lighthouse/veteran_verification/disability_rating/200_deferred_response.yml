@@ -102,6 +102,7 @@ http_interactions:
         {
           "decision": "Deferred",
           "effective_date": "2018-03-12",
+          "rating_end_date": null,
           "rating_percentage": 30,
           "diagnostic_type_code": "6260",
           "diagnostic_type_name": "Tinnitus",          

@@ -27,11 +27,11 @@ module MyHealth
     end
 
     def authorize
-      # raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
+      raise_access_denied unless current_user.authorize(:mhv_medical_records, :access?)
     end
 
-    # def raise_access_denied
-    #   # raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
-    # end
+    def raise_access_denied
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to medical records'
+    end
   end
 end
