@@ -138,7 +138,7 @@ module SimpleFormsApi
     end
 
     def self.stamp2010207(stamped_template_path, form)
-      desired_stamps = if form.data['preparer_type'] != 'veteran'
+      desired_stamps = if form.data['preparer_type'] == 'veteran'
                          [[50, 690]]
                        elsif form.data['third_party_type'] == 'power-of-attorney'
                          [[50, 445]]
