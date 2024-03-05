@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 27 Feb 2024 02:22:38 GMT
+      - Mon, 04 Mar 2024 02:22:38 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -100,14 +100,24 @@ http_interactions:
           "diagnostic_text": "Diabetes mellitus0"
         },
         {
-          "decision": "Deferred",
+          "decision": "Service Connected",
           "effective_date": "2018-03-12",
-          "rating_end_date": null,
+          "rating_end_date": "2022-01-01",
           "rating_percentage": 30,
           "diagnostic_type_code": "6260",
           "diagnostic_type_name": "Tinnitus",          
           "disability_rating_id": "2",
           "diagnostic_text": "Tinnitus"
+        },
+        {
+          "decision": "Service Connected",
+          "effective_date": "2018-03-12",
+          "rating_end_date": "2025-03-16",
+          "rating_percentage": 20,
+          "diagnostic_type_code": "6100",
+          "diagnostic_type_name": "Hearing Loss",          
+          "disability_rating_id": "3",
+          "diagnostic_text": "hearing loss"
         },
         {
           "decision": "Not Service Connected",
@@ -116,7 +126,7 @@ http_interactions:
           "rating_percentage": null,
           "diagnostic_type_code": "5257",
           "diagnostic_type_name": "Impairment of the knee, general",
-          "disability_rating_id": "3",
+          "disability_rating_id": "4",
           "diagnostic_text": "knee condition right"
         },
         {
@@ -133,5 +143,5 @@ http_interactions:
     }
   }
 }'
-  recorded_at: Tue, 27 Feb 2024 02:22:38 GMT
+  recorded_at: Mon, 04 Mar 2024 02:22:38 GMT
 recorded_with: VCR 6.2.0
