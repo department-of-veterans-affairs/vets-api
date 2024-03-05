@@ -34,6 +34,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
 
     before do
       allow(faraday_response).to receive(:env)
+      Flipper.disable(:show_meb_1990EZ_maintenance_alert)
       sign_in_as(user)
     end
 
@@ -147,5 +148,23 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         end
       end
     end
+
+    describe 'GET /meb_api/v0/exclusion_periods' do
+      before do
+        allow(faraday_response).to receive(:env)
+        Flipper.enable(:show_meb_1990EZ_maintenance_alert)
+        sign_in_as(user)
+      end
+      context 'Maintenance banner is On and service is unavailable' do
+        it 'returns a 503 status when it' do
+          VCR.use_cassette('dgi/get_exclusion_period_controller') do
+            get '/meb_api/v0/exclusion_periods'
+            expect(response).to have_http_status(:service_unavailable)
+          end
+        end
+      end
+    end
+
+    
   end
 end

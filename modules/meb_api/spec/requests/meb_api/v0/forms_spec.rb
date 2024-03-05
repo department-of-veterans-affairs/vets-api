@@ -34,6 +34,7 @@ Rspec.describe MebApi::V0::FormsController, type: :request do
 
     before do
       allow(faraday_response).to receive(:env)
+      Flipper.disable(:show_meb_1990E_maintenance_alert)
       sign_in_as(user)
     end
 
@@ -66,6 +67,22 @@ Rspec.describe MebApi::V0::FormsController, type: :request do
             get '/meb_api/v0/forms_claimant_info'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+          end
+        end
+      end
+    end
+
+    describe 'GET /meb_api/v0/toe/claimant_info' do
+      before do
+        allow(faraday_response).to receive(:env)
+        Flipper.enable(:show_meb_1990E_maintenance_alert)
+        sign_in_as(user)
+      end
+      context 'Service is unavailable due to maintenance ' do
+        it 'returns a 503 when maintenance banner is turned on for TOE' do
+          VCR.use_cassette('dgi/post_toe_claimant_info') do
+            get '/meb_api/v0/forms_claimant_info'
+            expect(response).to have_http_status(:service_unavailable)
           end
         end
       end
