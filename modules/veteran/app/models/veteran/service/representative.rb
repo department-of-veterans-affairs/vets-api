@@ -122,7 +122,7 @@ module Veteran
 
       #
       # Compares rep's current info with new data to detect changes in address, email, or phone number.
-      # @param rep_data [Hash] New data with :email, :phone_number, and :request_address keys for comparison.
+      # @param rep_data [Hash] New data with :email, :phone_number, and :address keys for comparison.
       #
       # @return [Hash] Hash with "email_changed", "phone_number_changed", "address_changed" keys as booleans.
       def diff(rep_data)
@@ -140,9 +140,9 @@ module Veteran
       # @return [Boolean] True if current address differs from `other_address`, false otherwise.
       def address_changed?(rep_data)
         address = [address_line1, address_line2, address_line3, city, zip_code, zip_suffix, state_code].join(' ')
-        other_address = rep_data[:request_address]
+        other_address = rep_data[:address]
                         .values_at(:address_line1, :address_line2, :address_line3, :city, :zip_code5, :zip_code4)
-                        .push(rep_data.dig(:request_address, :state_province, :code))
+                        .push(rep_data.dig(:address, :state_province, :code))
                         .join(' ')
         address != other_address
       end
