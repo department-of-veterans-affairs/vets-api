@@ -25,21 +25,22 @@ describe SchemaContract::Validator, aggregate_failures: true do
     end
     let(:uuid_regex) { /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/ }
 
+
+    ###
+    # these tests are non-exhaustive and at times duplicative of the underlying JSON::Validator gem specs
+    # but are useful for confirming and documenting expected behavior
+    ###
+
     context 'when response matches schema' do
       let(:response) { matching_response }
 
-      it 'updates record and does not log errors' do
+      it 'updates record and does not raise errors' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
         end.not_to raise_error
         expect(contract_record.reload.status).to eq('success')
       end
     end
-
-    ###
-    # the following tests are duplicative of the underlying JSON::Validator gem specs and are non-exhaustive
-    # but are useful for validating that this works as expected and for documenting expected behavior
-    ###
 
     context 'when required properties are missing' do
       let(:response) do
@@ -64,7 +65,7 @@ describe SchemaContract::Validator, aggregate_failures: true do
         matching_response
       end
 
-      it 'updates record and does not log errors' do
+      it 'updates record and does not raise errors' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
         end.not_to raise_error
@@ -131,16 +132,11 @@ in schema #{uuid_regex}"\]$})
         matching_response
       end
 
-      it 'updates record' do
+      it 'updates record and does not raise errors' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
         end.not_to raise_error
-      end
-
-      it 'does not log errors' do
-        expect { SchemaContract::Validator.new(contract_record.id).validate }.to change {
-                                                                                   contract_record.reload.status
-                                                                                 }.from('initialized').to('success')
+        expect(contract_record.reload.status).to eq('success')
       end
     end
 
@@ -169,7 +165,7 @@ type: integer in schema #{uuid_regex}"\]})
     end
 
     context 'when schema contract does not exist in db' do
-      it 'raises not found' do
+      it 'raises errors' do
         error_message = %({:error_type=>"Unknown", :record_id=>"1", \
 :details=>"Couldn't find SchemaContract::Validation with 'id'=1"})
 
@@ -184,7 +180,7 @@ type: integer in schema #{uuid_regex}"\]})
         create(:schema_contract_validation, contract_name: 'not_real', response: matching_response)
       end
 
-      it 'raises error' do
+      it 'raises and records errors' do
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
         end.to raise_error(SchemaContract::Validator::SchemaContractValidationError, 'No schema file not_real found.')
@@ -195,7 +191,7 @@ type: integer in schema #{uuid_regex}"\]})
     context 'when unexpected error occurs' do
       let(:response) { matching_response }
 
-      it 'records errors' do
+      it 'raises and records errors' do
         allow(JSON::Validator).to receive(:fully_validate).and_raise(StandardError)
         expect do
           SchemaContract::Validator.new(contract_record.id).validate
