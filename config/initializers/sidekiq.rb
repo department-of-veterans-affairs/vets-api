@@ -60,7 +60,7 @@ Rails.application.reloader.to_prepare do
     #   REDIS_CONFIG[:sidekiq][:url]
     # end
 
-    config.redis = { url: REDIS_CONFIG[:sidekiq][:url] }
+    config.redis = REDIS_CONFIG[:sidekiq]
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
