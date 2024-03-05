@@ -72,6 +72,8 @@ module MebApi
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
+        send_confirmation_email if response.ok? && Flipper.enabled?(:form1990meb_confirmation_email)
+
         render json: {
           data: {
             'status': response.status
@@ -153,6 +155,18 @@ module MebApi
 
       def exclusion_period_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
+      end
+
+      def send_confirmation_email
+        form_data = params[:education_benefit]
+        email = form_data.dig('claimant', 'contact_info', 'email_address')
+        first_name = form_data.dig('claimant', 'first_name')&.upcase.presence
+
+        if email.present?
+          MebApi::V0::Submit1990mebFormConfirmation.perform_async(
+            @current_user.uuid, email, first_name
+          )
+        end
       end
     end
   end
