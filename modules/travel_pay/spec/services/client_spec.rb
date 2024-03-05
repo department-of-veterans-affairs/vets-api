@@ -3,17 +3,20 @@
 require 'rails_helper'
 
 describe TravelPay::Client do
-  before do
-    @stubs = Faraday::Adapter::Test::Stubs.new
-    conn = Faraday.new { |b| b.adapter(:test, @stubs) }
-    allow_any_instance_of(TravelPay::Client).to receive(:connection).and_return(conn)
-    veis_params_stub = {
+  let(:veis_params_stub) do
+    {
       client_id: 'sample_id',
       client_secret: 'sample_client',
       client_info: 1,
       grant_type: 'client_credentials',
       resource: 'sample_resource'
     }
+  end
+
+  before do
+    @stubs = Faraday::Adapter::Test::Stubs.new
+    conn = Faraday.new { |b| b.adapter(:test, @stubs) }
+    allow_any_instance_of(TravelPay::Client).to receive(:connection).and_return(conn)
     allow_any_instance_of(TravelPay::Client).to receive(:veis_params).and_return(veis_params_stub)
   end
 
