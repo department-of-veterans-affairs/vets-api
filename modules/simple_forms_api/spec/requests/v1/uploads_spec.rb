@@ -117,7 +117,7 @@ RSpec.describe 'Forms uploader', type: :request do
                 VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
                   VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
                     fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                                    'vba_21_0966-min.json')
+                                                   'vba_21_0966-min.json')
                     data = JSON.parse(fixture_path.read)
                     data['preparer_identification'] = 'VETERAN'
 
