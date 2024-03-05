@@ -1,0 +1,78 @@
+type: object
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+    items:
+      $ref: "./PrescriptionDetail.yml"
+  links:
+    type: object
+    nullable: true
+    properties:
+      self:
+        type: string
+        example: https://api.va.gov/my_health/v1/prescriptions?page=1&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+      first:
+        type: string
+        example: https://api.va.gov/my_health/v1/prescriptions?page=1&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+      prev:
+        type: string
+        nullable: true
+        example: https://api.va.gov/my_health/v1/prescriptions?page=2&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+      next:
+        type: string
+        nullable: true
+        example: https://api.va.gov/my_health/v1/prescriptions?page=2&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+      last:
+        type: string
+        example: https://api.va.gov/my_health/v1/prescriptions?page=9&per_page=20&sort%5B%5D=disp_status&sort%5B%5D=prescription_name&sort%5B%5D=dispensed_date"
+  meta:
+    type: object
+    required:
+      - sort
+      - pagination
+    properties:
+      sort:
+        type: object
+        required:
+          - dispStatus
+          - dispensedDate
+          - prescriptionName
+        properties:
+          dispStatus:
+            type: string
+            enum: [ DESC, ASC ]
+          dispensedDate:
+            type: string
+            enum: [ DESC, ASC ]
+          prescriptionName:
+            type: string
+            enum: [ DESC, ASC ]
+      pagination:
+        type: object
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: integer
+            example: 1
+          perPage:
+            type: integer
+            example: 10
+          totalPages:
+            type: integer
+            example: 2
+          totalEntries:
+            type: integer
+            example: 15
+      updatedAt:
+        type: string
+        example: "Wed, 28 Feb 2024 09:58:42 EST"
+      failedStationList:
+        type: string
+        nullable: true

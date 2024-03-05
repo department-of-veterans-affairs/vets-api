@@ -12,8 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Lock back to an @v1-version once https://github.com/ruby/setup-ruby/pull/491 is merged
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@22fdc77bf4148f810455b226c90fb81b5cbc00a7
         with:
           bundler-cache: true
 
