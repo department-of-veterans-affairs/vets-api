@@ -50,8 +50,6 @@ ClaimsApi::Engine.routes.draw do
         post '/:veteranId/2122a/validate', to: 'individual#validate'
         post '/:veteranId/2122a', to: 'individual#submit'
         get '/:veteranId/power-of-attorney/:id', to: 'base#status'
-        post '/:veteranId/power-of-attorney:appoint-individual', to: 'individual#appoint_individual',
-                                                                 constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
       end
       ## 0966 Forms
       get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'
