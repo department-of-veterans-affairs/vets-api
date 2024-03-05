@@ -85,18 +85,9 @@ module SimpleFormsApi
     end
 
     def veteran_payload
-      address = data.dig('veteran', 'address')
       full_name = data.dig('veteran', 'full_name')
       {
-        address: {
-          isMilitary: address['is_military'],
-          country: address['country'],
-          street: address['street'],
-          street2: address['street2'],
-          city: address['city'],
-          state: address['state'],
-          postalCode: address['postal_code']
-        },
+        address: veteran_address,
         ssn: data.dig('veteran', 'ssn'),
         vaFileNumber: data.dig('veteran', 'va_file_number'),
         fullName: {
@@ -106,6 +97,19 @@ module SimpleFormsApi
           suffix: full_name['suffix']
         },
         dateOfBirth: data.dig('veteran', 'date_of_birth')
+      }
+    end
+
+    def veteran_address
+      address = data.dig('veteran', 'address')
+      {
+        isMilitary: address['is_military'],
+        country: address['country'],
+        street: address['street'],
+        street2: address['street2'],
+        city: address['city'],
+        state: address['state'],
+        postalCode: address['postal_code']
       }
     end
 
