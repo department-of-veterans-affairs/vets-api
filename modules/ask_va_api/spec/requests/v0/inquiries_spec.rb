@@ -257,7 +257,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
 
     it 'response with 200' do
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:ok)
     end
 
     context 'when attachment is not found' do
