@@ -100,6 +100,8 @@ module SimpleFormsApi
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
+          SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number)
+
           Rails.logger.info(
             "Simple forms api - sent to benefits intake: #{params[:form_number]},
               status: #{status}, uuid #{confirmation_number}"

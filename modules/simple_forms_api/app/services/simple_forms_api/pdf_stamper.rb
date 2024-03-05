@@ -137,6 +137,17 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
+    def self.stamp4010007_uuid(uuid)
+      stamped_template_path = "tmp/vba_40_10007-stamped.pdf"
+      desired_stamps = [[50, 415]]
+      page_configuration = [
+        { type: :new_page },
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      multistamp(stamped_template_path, uuid, page_configuration)
+    end
+
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
       stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
