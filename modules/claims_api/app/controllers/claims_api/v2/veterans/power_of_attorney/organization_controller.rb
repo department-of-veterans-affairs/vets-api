@@ -11,17 +11,17 @@ module ClaimsApi
       class PowerOfAttorney::OrganizationController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = '2122'
 
-        def submit2122
-          shared_form_validation('2122')
-          poa_code = get_poa_code('2122')
+        def submit
+          shared_form_validation(FORM_NUMBER)
+          poa_code = get_poa_code(FORM_NUMBER)
           validate_org_poa_code!(poa_code)
 
-          submit_power_of_attorney(poa_code, '2122')
+          submit_power_of_attorney(poa_code, FORM_NUMBER)
         end
 
-        def validate2122
-          shared_form_validation('2122')
-          poa_code = get_poa_code('2122')
+        def validate
+          shared_form_validation(FORM_NUMBER)
+          poa_code = get_poa_code(FORM_NUMBER)
           validate_org_poa_code!(poa_code)
 
           render json: validation_success('21-22')
@@ -43,10 +43,6 @@ module ClaimsApi
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
             detail: "Could not find an Organization with code: #{poa_code}"
           )
-        end
-
-        def current_poa
-          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
       end
     end

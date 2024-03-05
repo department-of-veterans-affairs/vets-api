@@ -12,6 +12,7 @@ module ClaimsApi
         include ClaimsApi::PoaVerification
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
+        FORM_NUMBER_INDIVIDUAL = '2122A'
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
@@ -115,7 +116,7 @@ module ClaimsApi
         end
 
         def get_poa_code(form_number)
-          rep_or_org = form_number.upcase == '2122A' ? 'representative' : 'serviceOrganization'
+          rep_or_org = form_number.upcase == FORM_NUMBER_INDIVIDUAL ? 'representative' : 'serviceOrganization'
           form_attributes&.dig(rep_or_org, 'poaCode')
         end
 

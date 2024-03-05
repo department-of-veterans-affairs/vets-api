@@ -9,19 +9,19 @@ module ClaimsApi
   module V2
     module Veterans
       class PowerOfAttorney::IndividualController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
-        FORM_NUMBER = '2122a'
+        FORM_NUMBER = '2122A'
 
-        def submit2122a
-          shared_form_validation('2122A')
-          poa_code = get_poa_code('2122A')
+        def submit
+          shared_form_validation(FORM_NUMBER)
+          poa_code = get_poa_code(FORM_NUMBER)
           validate_individual_poa_code!(poa_code)
 
-          submit_power_of_attorney(poa_code, '2122A')
+          submit_power_of_attorney(poa_code, FORM_NUMBER)
         end
 
-        def validate2122a
-          shared_form_validation('2122A')
-          poa_code = get_poa_code('2122A')
+        def validate
+          shared_form_validation(FORM_NUMBER)
+          poa_code = get_poa_code(FORM_NUMBER)
           validate_individual_poa_code!(poa_code)
 
           render json: validation_success('21-22a')
@@ -35,14 +35,6 @@ module ClaimsApi
           raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
             detail: "Could not find an Accredited Representative with code: #{poa_code}"
           )
-        end
-
-        def parse_and_validate_poa_code(form_number)
-          poa_code = get_poa_code(form_number)
-          validate_poa_code!(poa_code)
-          validate_poa_code_for_current_user!(poa_code) if user_is_representative?
-
-          poa_code
         end
       end
     end

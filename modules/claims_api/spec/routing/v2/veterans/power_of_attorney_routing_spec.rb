@@ -17,46 +17,46 @@ RSpec.describe 'Claims API power of attorney routing', type: :routing do
     )
   end
 
-  it "routes #{base_path}/veterans/:veteranId/2122/validate to PowerOfAttorneyController#validate2122" do
+  it "routes #{base_path}/veterans/:veteranId/2122/validate to PowerOfAttorneyController#validate" do
     validate2122_path = "#{base_path}/veterans/123/2122/validate"
 
     expect(post(validate2122_path)).to route_to(
       format: 'json',
       controller: "#{controller_base}/organization",
-      action: 'validate2122',
+      action: 'validate',
       veteranId: '123'
     )
   end
 
-  it "routes #{base_path}/veterans/:veteranId/2122 to PowerOfAttorneyController#submit2122" do
+  it "routes #{base_path}/veterans/:veteranId/2122 to PowerOfAttorneyController#submit" do
     submit2122_path = "#{base_path}/veterans/123/2122"
 
     expect(post(submit2122_path)).to route_to(
       format: 'json',
       controller: "#{controller_base}/organization",
-      action: 'submit2122',
+      action: 'submit',
       veteranId: '123'
     )
   end
 
-  it "routes #{base_path}/veterans/:veteranId/2122a/validate to PowerOfAttorneyController#validate2122a" do
+  it "routes #{base_path}/veterans/:veteranId/2122a/validate to PowerOfAttorneyController#validate" do
     validate2122a_path = "#{base_path}/veterans/123/2122a/validate"
 
     expect(post(validate2122a_path)).to route_to(
       format: 'json',
       controller: "#{controller_base}/individual",
-      action: 'validate2122a',
+      action: 'validate',
       veteranId: '123'
     )
   end
 
-  it "routes #{base_path}/veterans/:veteranId/2122a to PowerOfAttorneyController#submit2122a" do
+  it "routes #{base_path}/veterans/:veteranId/2122a to PowerOfAttorneyController#submit" do
     submit2122a_path = "#{base_path}/veterans/123/2122a"
 
     expect(post(submit2122a_path)).to route_to(
       format: 'json',
       controller: "#{controller_base}/individual",
-      action: 'submit2122a',
+      action: 'submit',
       veteranId: '123'
     )
   end

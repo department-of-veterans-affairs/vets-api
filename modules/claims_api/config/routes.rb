@@ -45,10 +45,10 @@ ClaimsApi::Engine.routes.draw do
       ## 2122 Forms
       scope module: 'power_of_attorney', path: '' do
         get '/:veteranId/power-of-attorney', to: 'base#show'
-        post '/:veteranId/2122/validate', to: 'organization#validate2122'
-        post '/:veteranId/2122', to: 'organization#submit2122'
-        post '/:veteranId/2122a', to: 'individual#submit2122a'
-        post '/:veteranId/2122a/validate', to: 'individual#validate2122a'
+        post '/:veteranId/2122/validate', to: 'organization#validate'
+        post '/:veteranId/2122', to: 'organization#submit'
+        post '/:veteranId/2122a/validate', to: 'individual#validate'
+        post '/:veteranId/2122a', to: 'individual#submit'
         get '/:veteranId/power-of-attorney/:id', to: 'base#status'
         post '/:veteranId/power-of-attorney:appoint-individual', to: 'individual#appoint_individual',
                                                                  constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
