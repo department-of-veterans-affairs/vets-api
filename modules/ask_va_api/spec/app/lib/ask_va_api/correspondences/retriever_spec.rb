@@ -28,7 +28,7 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
     end
 
     context 'when Crm raise an error' do
-      let(:payload) { { inquiry_id: '1' } }
+      let(:payload) { { InquiryId: '1' } }
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Correspondences::ENDPOINT }
       let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
@@ -48,8 +48,8 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
 
     it 'returns an array object with correct data' do
       allow(service).to receive(:call)
-        .with(endpoint: 'get_replies_mock_data', payload: { inquiry_id: })
-        .and_return([double])
+        .with(endpoint: 'replies', payload: { InquiryId: inquiry_id })
+        .and_return({ Data: [double] })
       expect(retriever.call).to eq([entity])
     end
   end

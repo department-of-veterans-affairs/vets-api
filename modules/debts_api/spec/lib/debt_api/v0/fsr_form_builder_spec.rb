@@ -22,8 +22,8 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       let(:builder) { described_class.new(combined_form_data, '123', user) }
 
       it 'aggregates fsr reasons' do
-        expect(builder.sanitized_form['personalIdentification']['fsrReason']).to eq('waiver')
-        expect(builder.user_form.form_data['personalIdentification']['fsrReason']).to eq('monthly, waiver')
+        expect(builder.sanitized_form['personalIdentification']['fsrReason']).to eq('waiver, compromise, monthly')
+        expect(builder.user_form.form_data['personalIdentification']['fsrReason']).to eq('waiver, compromise, monthly')
       end
     end
 
@@ -52,6 +52,16 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       it 'adds an element for station type' do
         station_types = builder.vha_forms.map { |form| form.form_data['station_type'] }
         expect(station_types).to eq(%w[vista vista])
+      end
+
+      it 'does not give vha form vba form\'s reasons' do
+        vha_reasons = builder.vha_forms.first.form_data.dig('personalIdentification', 'fsrReason')
+        expect(vha_reasons).to eq('waiver')
+      end
+
+      it 'does not give vba form vha form\'s reasons' do
+        vba_reasons = builder.vba_form.form_data.dig('personalIdentification', 'fsrReason')
+        expect(vba_reasons).to eq('compromise, monthly')
       end
     end
 

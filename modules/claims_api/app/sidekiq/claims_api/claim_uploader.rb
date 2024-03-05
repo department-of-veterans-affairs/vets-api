@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'evss/documents_service'
-require 'claims_api/claim_logger'
 require 'bd/bd'
 
 module ClaimsApi
-  class ClaimUploader
-    include Sidekiq::Job
-
+  class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
     def perform(uuid)
@@ -19,14 +15,15 @@ module ClaimsApi
       doc_type = claim_object.is_a?(ClaimsApi::SupportingDocument) ? 'L023' : 'L122'
 
       if auto_claim.evss_id.nil?
-        ClaimsApi::Logger.log('claims_uploader', detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
+        ClaimsApi::Logger.log('lighthouse_claim_uploader',
+                              detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
         self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
         file_body = uploader.read
-        ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
+        ClaimsApi::Logger.log('lighthouse_claim_uploader', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd
           bd_upload_body(auto_claim:, file_body:, doc_type:)
         else
@@ -48,22 +45,37 @@ module ClaimsApi
       end
     end
 
-    def claim_bd_upload_document(claim, doc_type, pdf_path)
+    def claim_bd_upload_document(claim, doc_type, pdf_path) # rubocop:disable Metrics/MethodLength
       ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:)
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError => e
-      ClaimsApi::Logger.log('benefits_documents',
+      message = get_error_message(e)
+      ClaimsApi::Logger.log('lighthouse_claim_uploader',
                             retry: true,
-                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}; error class: #{e.class}.")
+                            detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       raise e
+    # Check to determine if job should be retried based on status code
+    rescue ::Common::Exceptions::BackendServiceException => e
+      message = get_error_message(e)
+      if will_retry_status_code?(e)
+        ClaimsApi::Logger.log('lighthouse_claim_uploader',
+                              retry: true,
+                              detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
+        raise e
+      else
+        ClaimsApi::Logger.log(
+          'claims_api_sidekiq_failure',
+          retry: false,
+          claim_id: claim&.id.to_s,
+          detail: 'ClaimUploader job failed',
+          error: message
+        )
+        {}
+      end
     # Permanent failures, don't retry
     rescue => e
-      message = if e.respond_to? :original_body
-                  e.original_body
-                else
-                  e.message
-                end
-      ClaimsApi::Logger.log('benefits_documents',
+      message = get_error_message(e)
+      ClaimsApi::Logger.log('lighthouse_claim_uploader',
                             retry: false,
                             detail: "/upload failure for claimId #{claim&.id}: #{message}; error class: #{e.class}.")
       {}

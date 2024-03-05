@@ -53,7 +53,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           path:,
           secure:,
-          httponly:
+          httponly:,
+          domain: :all
         }
       end
       let(:expected_refresh_token_cookie) do
@@ -80,7 +81,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           secure:,
           domain:,
-          httponly: httponly_info_cookie
+          httponly: httponly_info_cookie,
+          path:
         }
       end
       let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
@@ -182,7 +184,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           path:,
           secure:,
-          httponly:
+          httponly:,
+          domain: :all
         }
       end
       let(:expected_refresh_token_cookie) do
@@ -209,7 +212,8 @@ RSpec.describe SignIn::TokenSerializer do
           expires: refresh_token_expiration,
           secure:,
           domain:,
-          httponly: httponly_info_cookie
+          httponly: httponly_info_cookie,
+          path:
         }
       end
       let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }

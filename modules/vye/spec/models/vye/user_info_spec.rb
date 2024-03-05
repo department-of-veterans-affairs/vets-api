@@ -3,11 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Vye::UserInfo, type: :model do
-  before do
-    settings = Config.load_files(Rails.root / 'config/settings.yml', Vye::Engine.root / 'config/settings/test.yml')
-    described_class.extract_scrypt_config settings
-  end
-
   describe 'create' do
     it 'creates a new record' do
       expect do

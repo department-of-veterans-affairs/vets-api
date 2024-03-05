@@ -7,9 +7,9 @@ RSpec.describe AskVAApi::SubTopics::Retriever do
     described_class.new(topic_id: '75524deb-d864-eb11-bb24-000d3a579c45', user_mock_data:, entity_class:)
   end
 
-  let(:parsed_data) { { Topics: [{ id: 1, name: 'Topic 1', parentId: nil }] } }
+  let(:parsed_data) { { Topics: [{ Id: 1, Name: 'Topic 1', ParentId: nil }] } }
   let(:entity_class) { AskVAApi::SubTopics::Entity }
-  let(:static_data_service) { instance_double(Crm::StaticData) }
+  let(:static_data_service) { instance_double(Crm::CacheData) }
   let(:user_mock_data) { true }
 
   describe '#call' do
@@ -23,11 +23,11 @@ RSpec.describe AskVAApi::SubTopics::Retriever do
       let(:user_mock_data) { false }
 
       before do
-        allow(Crm::StaticData).to receive(:new).and_return(static_data_service)
+        allow(Crm::CacheData).to receive(:new).and_return(static_data_service)
         allow(static_data_service).to receive(:call).and_return(parsed_data)
       end
 
-      it 'fetches data using Crm::StaticData service and returns an array of Entity instances' do
+      it 'fetches data using Crm::CacheData service and returns an array of Entity instances' do
         expect(retriever.call).to all(be_a(AskVAApi::SubTopics::Entity))
       end
 
