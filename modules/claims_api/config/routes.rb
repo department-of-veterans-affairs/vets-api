@@ -44,13 +44,13 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/claims/:id/5103', to: 'evidence_waiver#submit'
       ## 2122 Forms
       scope module: 'power_of_attorney', path: '' do
-        get '/:veteranId/power-of-attorney', controller: 'base', action: 'show'
-        post '/:veteranId/2122/validate', controller: 'organization', action: 'validate2122'
-        post '/:veteranId/2122', controller: 'organization', action: 'submit2122'
-        post '/:veteranId/2122a', controller: 'individual', action: 'submit2122a'
-        post '/:veteranId/2122a/validate', controller: 'individual', action: 'validate2122a'
-        get '/:veteranId/power-of-attorney/:id', controller: 'base', action: 'status'
-        post '/:veteranId/power-of-attorney:appoint-individual', controller: 'individual', action: 'appoint_individual',
+        get '/:veteranId/power-of-attorney', to: 'base#show'
+        post '/:veteranId/2122/validate', to: 'organization#validate2122'
+        post '/:veteranId/2122', to: 'organization#submit2122'
+        post '/:veteranId/2122a', to: 'individual#submit2122a'
+        post '/:veteranId/2122a/validate', to: 'individual#validate2122a'
+        get '/:veteranId/power-of-attorney/:id', to: 'base#status'
+        post '/:veteranId/power-of-attorney:appoint-individual', to: 'individual#appoint_individual',
                                                                  constraints: { 'appoint-individual': /:appoint-individual/ } # rubocop:disable Layout/LineLength
       end
       ## 0966 Forms
