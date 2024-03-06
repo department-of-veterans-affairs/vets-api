@@ -15,6 +15,7 @@ module VAOS
       @user = user
     end
 
+    # TODO: check RI creation
     def token
       @token ||= JWT.encode(payload, Configuration.instance.rsa_key, 'RS512')
     end
