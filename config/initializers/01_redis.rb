@@ -4,8 +4,6 @@
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 # set the current global instance of Redis based on environment specific config
 
-Rails.logger.info("#{REDIS_CONFIG[:redis]}")
-
 $redis = Redis.new(REDIS_CONFIG[:redis].to_h)
 # if Rails.env.test?
 #   require 'testcontainers/redis'
