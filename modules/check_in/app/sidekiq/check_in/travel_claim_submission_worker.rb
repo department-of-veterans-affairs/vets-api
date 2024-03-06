@@ -51,7 +51,7 @@ module CheckIn
 
       claim_number, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
 
-      send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:)
+      send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:, facility_type:)
       StatsD.increment(STATSD_NOTIFY_SUCCESS)
     end
 
