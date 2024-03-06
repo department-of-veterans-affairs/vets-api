@@ -1669,3 +1669,6 @@ vye:
     r: 8
     p: 1
     length: 16
+
+schema_contract:
+  test_index: 'spec/fixtures/schema_contract/test_schema.json'

@@ -112,22 +112,20 @@ RSpec.describe 'Forms uploader', type: :request do
       end
 
       describe 'request with intent to file' do
-        describe 'veteran or surviving dependent' do
-          %w[VETERAN SURVIVING_DEPENDENT].each do |identification|
-            it 'makes the request with an intent to file' do
-              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
-                    VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-                      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                                     'vba_21_0966-min.json')
-                      data = JSON.parse(fixture_path.read)
-                      data['preparer_identification'] = identification
+        describe 'veteran' do
+          it 'makes the request with an intent to file' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
+                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+                    fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                                   'vba_21_0966-min.json')
+                    data = JSON.parse(fixture_path.read)
+                    data['preparer_identification'] = 'VETERAN'
 
-                      post '/simple_forms_api/v1/simple_forms', params: data
+                    post '/simple_forms_api/v1/simple_forms', params: data
 
-                      expect(response).to have_http_status(:ok)
-                    end
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end
