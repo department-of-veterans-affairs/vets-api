@@ -453,7 +453,7 @@ features:
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
   find_a_representative_enabled:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables Find a Representative tool
     enable_in_development: true
   find_a_representative_enable_frontend:
