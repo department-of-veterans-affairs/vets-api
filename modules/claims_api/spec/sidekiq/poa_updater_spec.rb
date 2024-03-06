@@ -74,7 +74,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
         subject.new.perform(poa.id)
         poa.reload
         expect(poa.status).to eq('errored')
-        expect(poa.vbms_error_message).to eq("No POA code found in form #{poa.id}")
+        expect(poa.vbms_error_message).to eq("No POA code found in the form data for poa:#{poa.id}")
       end
     end
 

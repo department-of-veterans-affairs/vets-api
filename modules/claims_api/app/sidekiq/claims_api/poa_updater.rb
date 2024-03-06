@@ -13,7 +13,6 @@ module ClaimsApi
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
       file_number = service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
-
       poa_code = extract_poa_code(poa_form.form_data)
 
       unless poa_code.nil?
@@ -57,7 +56,7 @@ module ClaimsApi
       if response&.[](:return_code)
         "BGS Error: update_birls_record failed with code #{response[:return_code]}"
       else
-        "No POA code found in form #{power_of_attorney_id}"
+        "No POA code found in the form data for poa:#{power_of_attorney_id}"
       end
     end
 
