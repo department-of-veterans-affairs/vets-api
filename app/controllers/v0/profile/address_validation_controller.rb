@@ -7,7 +7,7 @@ module V0
   module Profile
     class AddressValidationController < ApplicationController
       service_tag 'profile'
-
+      # Test. not mergin
       def create
         address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
