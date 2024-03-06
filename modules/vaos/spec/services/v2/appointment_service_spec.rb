@@ -410,31 +410,70 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#cancel_appointment' do
-    context 'when the upstream server attemps to cancel an appointment' do
+    context 'when the upstream server attempts to cancel an appointment' do
       context 'with Jaqueline Morgan' do
-        it 'returns a cancelled status and the cancelled appointment information' do
-          VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+        context 'using VPG' do
+          before do
+            Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+          end
+
+          it 'returns a cancelled status and the cancelled appointment information' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_vpg_200',
                              match_requests_on: %i[method path query]) do
-              response = subject.update_appointment('70060', 'cancelled')
-              expect(response.status).to eq('cancelled')
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.update_appointment('70060', 'cancelled')
+                expect(response.status).to eq('cancelled')
+              end
+            end
+          end
+
+          it 'returns a 400 when the appointment is not cancellable' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointment_vpg_400',
+                             match_requests_on: %i[method path query]) do
+              expect { subject.update_appointment('42081', 'cancelled') }
+                .to raise_error do |error|
+                expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                expect(error.status_code).to eq(400)
+              end
             end
           end
         end
-      end
 
-      it 'returns a 400 when the appointment is not cancellable' do
-        VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
-          expect { subject.update_appointment('42081', 'cancelled') }
-            .to raise_error do |error|
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(400)
+        context 'using vaos-service' do
+          before do
+            Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          end
+
+          it 'returns a cancelled status and the cancelled appointment information' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200',
+                             match_requests_on: %i[method path query]) do
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.update_appointment('70060', 'cancelled')
+                expect(response.status).to eq('cancelled')
+              end
+            end
+          end
+
+          it 'returns a 400 when the appointment is not cancellable' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
+              expect { subject.update_appointment('42081', 'cancelled') }
+                .to raise_error do |error|
+                expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                expect(error.status_code).to eq(400)
+              end
+            end
           end
         end
       end
     end
 
     context 'when there is a server error in updating an appointment' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+      end
+
       it 'throws a BackendServiceException' do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
           expect { subject.update_appointment('35952', 'cancelled') }

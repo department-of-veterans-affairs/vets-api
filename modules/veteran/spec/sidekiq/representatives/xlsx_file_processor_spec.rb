@@ -23,8 +23,8 @@ RSpec.describe Representatives::XlsxFileProcessor do
     let(:result) { xlsx_processor.process }
 
     context 'with valid data' do
-      let(:expected_keys) { %i[id email_address request_address phone_number] }
-      let(:request_address_keys) do
+      let(:expected_keys) { %i[id address email phone_number] }
+      let(:expected_address_keys) do
         %i[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
            country_code_iso3]
       end
@@ -38,7 +38,7 @@ RSpec.describe Representatives::XlsxFileProcessor do
 
           value_array.each do |row|
             expect(row.keys).to match_array(expected_keys)
-            expect(row[:request_address].keys).to match_array(request_address_keys)
+            expect(row[:address].keys).to match_array(expected_address_keys)
             check_values(row)
           end
         end
