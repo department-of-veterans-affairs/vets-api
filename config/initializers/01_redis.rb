@@ -4,7 +4,7 @@
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 # set the current global instance of Redis based on environment specific config
 
-$redis = Redis.new(REDIS_CONFIG[:redis].to_h)
+$redis = Redis.new(REDIS_CONFIG[:redis].to_hash)
 # if Rails.env.test?
 #   require 'testcontainers/redis'
 #   container = Testcontainers::RedisContainer.new("redis:6.2-alpine")
