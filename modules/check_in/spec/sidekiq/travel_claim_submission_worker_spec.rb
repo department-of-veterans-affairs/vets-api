@@ -39,8 +39,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: patient_cell_phone,
-          template_id: 'fake_success_template_id',
-          sms_sender_id: 'fake_sms_sender_id',
+          template_id: 'cie_fake_success_template_id',
+          sms_sender_id: 'cie_fake_sms_sender_id',
           personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
@@ -66,8 +66,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: patient_cell_phone,
-          template_id: 'fake_duplicate_template_id',
-          sms_sender_id: 'fake_sms_sender_id',
+          template_id: 'cie_fake_duplicate_template_id',
+          sms_sender_id: 'cie_fake_sms_sender_id',
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
@@ -93,8 +93,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: patient_cell_phone,
-          template_id: 'fake_error_template_id',
-          sms_sender_id: 'fake_sms_sender_id',
+          template_id: 'cie_fake_error_template_id',
+          sms_sender_id: 'cie_fake_sms_sender_id',
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
@@ -124,8 +124,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: patient_cell_phone,
-          template_id: 'fake_error_template_id',
-          sms_sender_id: 'fake_sms_sender_id',
+          template_id: 'cie_fake_error_template_id',
+          sms_sender_id: 'cie_fake_sms_sender_id',
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
@@ -148,7 +148,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         worker = described_class.new
         expect(worker).to receive(:log_exception_to_sentry).with(
           instance_of(Common::Exceptions::BackendServiceException),
-          { phone_number: patient_cell_phone_last_four, template_id: 'fake_success_template_id',
+          { phone_number: patient_cell_phone_last_four, template_id: 'cie_fake_success_template_id',
             claim_number: claim_last4 },
           { error: :check_in_va_notify_job, team: 'check-in' }
         )
@@ -180,8 +180,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: patient_cell_phone,
-          template_id: 'fake_success_template_id',
-          sms_sender_id: 'fake_sms_sender_id',
+          template_id: 'cie_fake_success_template_id',
+          sms_sender_id: 'cie_fake_sms_sender_id',
           personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
