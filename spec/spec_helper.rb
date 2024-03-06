@@ -195,9 +195,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    mock_redis = MockRedis.new(url: REDIS_CONFIG[:redis][:url])
-    allow(Redis).to receive(:new).and_return(mock_redis)
-    mock_redis.flushdb
+    $redis.flushdb
   end
 
 end

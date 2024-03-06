@@ -11,14 +11,7 @@ require 'dgi/letters/configuration'
 
 Rails.application.reloader.to_prepare do
 
-  redis = if Rails.env.test?
-    require 'mock_redis'
-    MockRedis.new(url: REDIS_CONFIG[:redis][:url])
-  else
-    Redis.new(REDIS_CONFIG[:redis].to_h)
-  end
-
-  redis_namespace = Redis::Namespace.new('breakers', redis: redis)
+  redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
 
   services = [
     MebApi::DGI::Configuration.instance.breakers_service,

@@ -8,14 +8,7 @@ class Rack::Attack
     end
   end
 
-  redis = if Rails.env.test?
-    require 'mock_redis'
-    MockRedis.new(url: REDIS_CONFIG[:redis][:url])
-  else
-    Redis.new(REDIS_CONFIG[:redis].to_h)
-  end
-
-  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(redis)
+  Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new($redis)
 
   throttle('example/ip', limit: 1, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/limited'
