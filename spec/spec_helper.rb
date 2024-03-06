@@ -191,18 +191,14 @@ RSpec.configure do |config|
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
   end
 
-  # Disable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
-  config.before(:each, csrf: false) do
-    ActionController::Base.allow_forgery_protection = false
-  end
-
-  # Enable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
-  config.after(:each, csrf: false) do
-    ActionController::Base.allow_forgery_protection = true
-  end
-
   config.after do
     Timecop.return
+  end
+
+  config.before(:each) do
+    mock_redis = MockRedis.new
+    allow(Redis).to receive(:new).and_return(mock_redis)
+    allow(Redis::Store).to receive(:new).and_return(mock_redis)
   end
 
 end

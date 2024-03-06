@@ -14,3 +14,5 @@ $redis = Redis.new(REDIS_CONFIG[:redis].to_h)
 # else
 #   Redis.new(REDIS_CONFIG[:redis].to_h)
 # end
+
+Redis.exists_returns_integer = true
