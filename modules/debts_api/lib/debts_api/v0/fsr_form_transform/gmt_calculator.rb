@@ -7,7 +7,7 @@ module DebtsApi
         class InvalidYear < StandardError; end
         class InvalidDependentCount < StandardError; end
         class InvalidZipCode < StandardError; end
-        
+
         INCOME_UPPER_PERCENTAGE = 1.5
         ASSET_PERCENTAGE = 0.065
         DISCRETIONARY_INCOME_PERCENTAGE = 0.0125
@@ -15,6 +15,7 @@ module DebtsApi
         attr_reader :year, :dependents, :zipcode,
                     :income_threshold_data, :gmt_threshold_data,
                     :pension_threshold, :national_threshold, :gmt_threshold
+
         def initialize(year:, dependents:, zipcode:)
           @year = year.to_i
           @dependents = dependents.to_i
@@ -23,7 +24,7 @@ module DebtsApi
           @income_threshold_year = @year - 1
           @income_threshold_data = find_income_threshold_data(@income_threshold_year)
           @gmt_threshold_data = find_gmt_threshold_data
-          
+
           @pension_threshold = calculate_pension_threshold
           @national_threshold = calculate_national_threshold
           @gmt_threshold = calculate_gmt_threshold
@@ -39,7 +40,7 @@ module DebtsApi
             gmt_threshold: @gmt_threshold,
             income_upper_threshold:,
             asset_threshold:,
-            discretionary_income_threshold: 
+            discretionary_income_threshold:
           }
         end
 
@@ -109,7 +110,7 @@ module DebtsApi
                       .order(trhd1: :desc)
                       .first
         end
-        
+
         def find_zipcode_data(zip)
           StdZipcode.find_by(zip_code: zip)
         end
@@ -127,8 +128,7 @@ module DebtsApi
           raise InvalidDependentCount unless valid_dependents?
           raise InvalidZipCode unless @zipcode_data
         end
-      end    
+      end
     end
-
   end
 end
