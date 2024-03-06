@@ -9,7 +9,7 @@ class SavedClaim::Burial < CentralMailClaim
   attr_accessor :formV2
 
   after_initialize do
-    self.form_id = self.formV2 ? '21P-530V2' : self.class::FORM.upcase
+    self.form_id = (self.formV2 || self.form_id == '21P-530V2') ? '21P-530V2' : self.class::FORM.upcase
   end
 
   def process_attachments!
@@ -30,5 +30,13 @@ class SavedClaim::Burial < CentralMailClaim
 
   def email
     parsed_form['claimantEmail']
+  end
+
+  def form_matches_schema
+    return unless form_is_string
+
+    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.form_id], parsed_form).each do |v|
+      errors.add(:form, v.to_s)
+    end
   end
 end

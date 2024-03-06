@@ -8,14 +8,13 @@ module V0
 
     def create
      PensionBurial::TagSentry.tag_sentry
-      claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params[:form])["formV2"])
+      claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params["form"])["formV2"])
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
-
       # this method also calls claim.process_attachments!
       claim.submit_to_structured_data_services!
 
