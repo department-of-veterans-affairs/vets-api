@@ -8,6 +8,8 @@ FactoryBot.define do
     aasm_state { 'pending' }
     document_type { 'BDD Instructions' }
     error_message { 'Something Broke' }
-    lighthouse_processing_ended_at { Faker::Date.backward }
+    lighthouse_processing_started_at { nil }
+    lighthouse_processing_ended_at { nil }
+    last_status_response { nil }
   end
 end

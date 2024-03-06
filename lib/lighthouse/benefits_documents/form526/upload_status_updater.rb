@@ -3,7 +3,7 @@
 module BenefitsDocuments
   module Form526
     class UploadStatusUpdater
-      # Parses the current status of a LighthouseDocumentUpload that has been submitted to Lighthouse,
+      # Parses the current status of a Lighthouse526DocumentUpload that has been submitted to Lighthouse,
       # using metadata returned from the Lighthouse Benefits Documents API '/uploads/status' endpoint
       # Encapsulates convenience methods for understanding if the document has completed all steps in Lighthouse or
       # if there was a failure, to avoid having code elsewhere know the schema of Lighthouse's status data structure
@@ -16,20 +16,16 @@ module BenefitsDocuments
 
       LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS = 'SUCCESS'
       LIGHTHOUSE_DOCUMENT_FAILED_STATUS = 'FAILED'
+      PROCESSING_TIMEOUT_WINDOW_IN_HOURS = 24
 
-      LIGHTHOUSE_STEP_SUCCEEDED_STATUS = 'SUCCESS'
-
-      LIGHTHOUSE_VBMS_STEP_NAME = 'CLAIMS_EVIDENCE'
-      LIGHTHOUSE_BGS_STEP_NAME = 'BENEFITS_GATEWAY_SERVICE'
-
-      # @param lighthouse_document_status [Hash] includes a single document's status progress
+      # @param lighthouse526_document_status [Hash] includes a single document's status progress
       # after it has been submitted to Lighthouse, while Lighthouse attempts to pass it on to
       # VBMS and then BGS. This data comes from Lighthouse's uploads/status endpoint
       #
-      # @param lighthouse_document_upload [LighthouseDocumentUpload] the VA.gov record of the document
+      # @param lighthouse526_document_upload [Lighthouse526DocumentUpload] the VA.gov record of the document
       # we submitted to Lighthouse we are tracking.
       #
-      # example lighthouse_document_status hash:
+      # example lighthouse526_document_status hash:
       #     {
       #       {
       #         "requestId": 600000001,
@@ -53,71 +49,82 @@ module BenefitsDocuments
       #       }
       #     }
       #
-      def initialize(lighthouse_document_status, lighthouse_document_upload)
-        @lighthouse_document_status = lighthouse_document_status
-        @lighthouse_document_upload = lighthouse_document_upload
-      end
 
-      def failed?
-        @lighthouse_document_status['status'] == LIGHTHOUSE_DOCUMENT_FAILED_STATUS
-      end
-
-      def completed?
-        @lighthouse_document_status['status'] == LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS
+      def initialize(lighthouse526_document_status, lighthouse526_document_upload)
+        @lighthouse526_document_status = lighthouse526_document_status
+        @lighthouse526_document_upload = lighthouse526_document_upload
       end
 
       def update_status
-        if failed?
-          handle_upload_failure
-          return
+        # We only save an upload's status if it has transitioned on the Lighthouse side
+        # since the last time we polled
+        return unless status_changed?
+
+        # Save these regardless of whether the document is still in progress or not
+        # We want to ensure we've saved the start time and the latest status response from the API
+        @lighthouse526_document_upload.update!(
+          lighthouse_processing_started_at: start_time,
+          last_status_response: @lighthouse526_document_status
+        )
+
+        # We always log the status check to the Rails logger as well
+        Rails.logger.info(
+          'BenefitsDocuments::Form526::UploadStatusUpdater',
+          status: @lighthouse526_document_status['status'],
+          status_response: @lighthouse526_document_status,
+          updated_at: DateTime.now
+        )
+
+        if completed? || failed?
+          @lighthouse526_document_upload.update!(lighthouse_processing_ended_at: end_time)
+
+          if completed?
+            @lighthouse526_document_upload.complete!
+          else
+            @lighthouse526_document_upload.update!(error_message: @lighthouse526_document_status['error'])
+            @lighthouse526_document_upload.fail!
+          end
         end
-
-        check_vbms_submission_status if @lighthouse_document_upload.pending_vbms_submission?
-        check_bgs_submission_status if @lighthouse_document_upload.pending_bgs_submission?
       end
 
-      def vbms_upload_failed?
-        @lighthouse_document_status['error']['step'] == LIGHTHOUSE_VBMS_STEP_NAME
+      def get_failure_step
+        return unless failed? && @lighthouse526_document_status['error']
+
+        @lighthouse526_document_status['error']['step']
       end
 
-      def bgs_upload_failed?
-        @lighthouse_document_status['error']['step'] == LIGHTHOUSE_BGS_STEP_NAME
+      # Returns true if document is still processing in Lighthouse,
+      # and it was started over a certain amount of hours ago
+      def processing_timeout?
+        return false if @lighthouse526_document_status.dig('time', 'endTime')
+
+        start_time < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago
       end
 
       private
-      # MAKE SURE YOU RE RUN THE TESTS FOR THIS
 
-      def handle_upload_failure
-        error_message = @lighthouse_document_status['error']
-        @lighthouse_document_upload.update!(error_message: error_message.to_json)
-
-        if vbms_upload_failed?
-          @lighthouse_document_upload.vbms_submission_failed!(@document_upload_status)
-        elsif bgs_upload_failed?
-          @lighthouse_document_upload.bgs_submission_failed!(@document_upload_status)
-        end
+      def status_changed?
+        @lighthouse526_document_status != @lighthouse526_document_upload.last_status_response
       end
 
-      def check_vbms_submission_status
-        vbms_step = @lighthouse_document_status['steps'].find { |step| step['name'] == LIGHTHOUSE_VBMS_STEP_NAME }
-
-        if vbms_step['status'] == LIGHTHOUSE_STEP_SUCCEEDED_STATUS
-          @lighthouse_document_upload.vbms_submission_complete!(@document_upload_status)
-        end
+      def start_time
+        # Lighthouse returns date times as UNIX timestamps
+        unix_start_time = @lighthouse526_document_status.dig('time', 'startTime')
+        DateTime.strptime(unix_start_time, '%s')
       end
 
-      def check_bgs_submission_status
-        bgs_step = @lighthouse_document_status['steps'].find { |step| step['name'] == LIGHTHOUSE_BGS_STEP_NAME }
+      def end_time
+        # Lighthouse returns date times as UNIX timestamps
+        unix_end_time = @lighthouse526_document_status.dig('time', 'endTime')
+        DateTime.strptime(unix_end_time, '%s')
+      end
 
-        if bgs_step['status'] == LIGHTHOUSE_STEP_SUCCEEDED_STATUS
-          processing_end_time = @lighthouse_document_status.dig('time', 'endTime')
+      def failed?
+        @lighthouse526_document_status['status'] == LIGHTHOUSE_DOCUMENT_FAILED_STATUS
+      end
 
-          # Document is complete, save end time
-          # Lighthouse returns date times as UNIX timestamps
-          formatted_end_time = DateTime.strptime(processing_end_time, '%s')
-          @lighthouse_document_upload.update!(lighthouse_processing_ended_at: formatted_end_time)
-          @lighthouse_document_upload.bgs_submission_complete!(@document_upload_status)
-        end
+      def completed?
+        @lighthouse526_document_status['status'] == LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS
       end
     end
   end
