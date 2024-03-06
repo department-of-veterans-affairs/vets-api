@@ -29,14 +29,6 @@ module ClaimsApi
 
         private
 
-        def format_organization(organization)
-          {
-            name: organization.name,
-            phone_number: organization.phone,
-            type: 'organization'
-          }
-        end
-
         def validate_org_poa_code!(poa_code)
           return if ::Veteran::Service::Organization.exists?(poa: poa_code)
 

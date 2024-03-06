@@ -108,6 +108,14 @@ module ClaimsApi
           }
         end
 
+        def format_organization(organization)
+          {
+            name: organization.name,
+            phone_number: organization.phone,
+            type: 'organization'
+          }
+        end
+
         def header_md5
           @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
                                                                     'va_eauth_service_transaction_id',
