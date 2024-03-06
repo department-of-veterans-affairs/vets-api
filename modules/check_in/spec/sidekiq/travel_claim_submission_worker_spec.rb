@@ -6,8 +6,6 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
   describe '#perform' do
     let(:uuid) { '3bcd636c-d4d3-4349-9058-03b2f6b38ced' }
     let(:appt_date) { '2022-09-01' }
-    let(:mobile_phone) { '123-345-4566' }
-    let(:mobile_phone_last_four) { '4566' }
     let(:patient_cell_phone) { '123-345-7777' }
     let(:patient_cell_phone_last_four) { '7777' }
     let(:station_number) { '500xyz' }
@@ -15,6 +13,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     let(:icn) { '123456' }
     let(:notify_appt_date) { 'Sep 01' }
     let(:claim_last4) { '1666' }
+    let(:facility_type) { 'oh' }
     let(:redis_client) { double }
 
     before do
@@ -22,10 +21,10 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
       allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
       allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
 
-      allow(redis_client).to receive(:mobile_phone).and_return(mobile_phone)
       allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
       allow(redis_client).to receive(:token).and_return(redis_token)
       allow(redis_client).to receive(:icn).and_return(icn)
+      allow(redis_client).to receive(:facility_type).and_return(nil)
       allow(redis_client).to receive(:station_number).and_return(station_number)
 
       allow(StatsD).to receive(:increment)
@@ -53,7 +52,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_SUCCESS).exactly(1).time
         expect(StatsD).to have_received(:increment)
           .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
@@ -80,7 +79,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_DUPLICATE).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_DUPLICATE).exactly(1).time
         expect(StatsD).to have_received(:increment)
           .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
@@ -107,7 +106,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_ERROR).exactly(1).time
         expect(StatsD).to have_received(:increment)
           .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
@@ -138,7 +137,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_ERROR).exactly(1).time
         expect(StatsD).to have_received(:increment)
           .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
@@ -194,7 +193,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::CIE_STATSD_BTSSS_SUCCESS).exactly(1).time
         expect(StatsD).to have_received(:increment)
           .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
