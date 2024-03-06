@@ -14,8 +14,7 @@ require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
-require 'rspec-sidekiq'
-require "mock_redis"
+# require "mock_redis"
 
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -193,11 +192,6 @@ RSpec.configure do |config|
 
   config.after do
     Timecop.return
-  end
-
-  config.before(:each) do
-    mock_redis = MockRedis.new
-    allow(Redis).to receive(:new).and_return(mock_redis)
   end
 
 end
