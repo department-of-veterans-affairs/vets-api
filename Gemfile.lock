@@ -962,7 +962,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.6.1)
+    statsd-instrument (3.7.0)
     strong_migrations (1.7.0)
       activerecord (>= 5.2)
     super_diff (0.11.0)
