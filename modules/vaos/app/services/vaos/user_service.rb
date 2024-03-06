@@ -5,6 +5,7 @@ require 'common/exceptions'
 module VAOS
   class UserService < VAOS::BaseService
     def session(user)
+      # changes to be made to this method
       cached = cached_by_account_uuid(user.account_uuid)
       return cached.token if cached
 
