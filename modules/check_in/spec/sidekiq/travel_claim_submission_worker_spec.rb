@@ -20,7 +20,6 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     before do
       allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
       allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-      allow(Flipper).to receive(:enabled?).with('check_in_experience_patient_cell_phone').and_return(false)
       allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
 
       allow(redis_client).to receive(:mobile_phone).and_return(mobile_phone)
@@ -40,7 +39,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
-          phone_number: mobile_phone,
+          phone_number: patient_cell_phone,
           template_id: 'fake_success_template_id',
           sms_sender_id: 'fake_sms_sender_id',
           personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
@@ -67,7 +66,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
-          phone_number: mobile_phone,
+          phone_number: patient_cell_phone,
           template_id: 'fake_duplicate_template_id',
           sms_sender_id: 'fake_sms_sender_id',
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
@@ -94,7 +93,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
-          phone_number: mobile_phone,
+          phone_number: patient_cell_phone,
           template_id: 'fake_error_template_id',
           sms_sender_id: 'fake_sms_sender_id',
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
@@ -125,7 +124,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
-          phone_number: mobile_phone,
+          phone_number: patient_cell_phone,
           template_id: 'fake_error_template_id',
           sms_sender_id: 'fake_sms_sender_id',
           personalisation: { claim_number: nil, appt_date: notify_appt_date }
@@ -150,7 +149,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         worker = described_class.new
         expect(worker).to receive(:log_exception_to_sentry).with(
           instance_of(Common::Exceptions::BackendServiceException),
-          { phone_number: mobile_phone_last_four, template_id: 'fake_success_template_id',
+          { phone_number: patient_cell_phone_last_four, template_id: 'fake_success_template_id',
             claim_number: claim_last4 },
           { error: :check_in_va_notify_job, team: 'check-in' }
         )
@@ -172,7 +171,6 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     context 'travel claim returns success with patient cell phone' do
       before do
         allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(true)
-        allow(Flipper).to receive(:enabled?).with('check_in_experience_patient_cell_phone').and_return(true)
       end
 
       it 'sends notification with success template' do
