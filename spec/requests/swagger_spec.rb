@@ -2741,7 +2741,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports the address validation api' do
         address = build(:va_profile_address, :multiple_matches)
-        
         VCR.use_cassette(
           'va_profile/address_validation/validate_match',
           VCR::MATCH_EVERYTHING
