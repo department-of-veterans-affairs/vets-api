@@ -44,6 +44,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         control_info = json['data']['attributes']['control_information']
 
         expect(control_info['can_update_direct_deposit']).to be(true)
+        expect(control_info['is_edu_claim_available']).to be(true)
       end
 
       it 'does not return errors' do
@@ -65,6 +66,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         json = JSON.parse(response.body)['data']['attributes']
         expect(json['control_information']['can_update_direct_deposit']).to be(false)
         expect(json['control_information']['has_payment_address']).to be(false)
+        expect(json['control_information']['is_edu_claim_available']).to be(false)
       end
     end
 
