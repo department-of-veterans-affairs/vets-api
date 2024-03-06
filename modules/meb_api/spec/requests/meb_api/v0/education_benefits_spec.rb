@@ -198,6 +198,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         it 'delegates to submit_0994_form_confirmation job' do
           VCR.use_cassette('dgi/submit_claim') do
             allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
 
             post '/meb_api/v0/submit_claim', params: claimant_params
 
@@ -209,6 +210,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         it 'does not delegate when claim submission fails' do
           VCR.use_cassette('dgi/submit_claim_failure') do
             allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
 
             response = post '/meb_api/v0/submit_claim', params: claimant_params
 
@@ -220,6 +222,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         it 'does not delegate when feature is disabled' do
           VCR.use_cassette('dgi/submit_claim') do
             allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
             Flipper.disable(:form1990meb_confirmation_email)
 
             post '/meb_api/v0/submit_claim', params: claimant_params
@@ -247,6 +250,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
             }
 
             allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+            expect_any_instance_of(BGS::Service).to receive(:get_ch33_dd_eft_info).and_return({})
 
             post '/meb_api/v0/submit_claim', params: claimant_params_without_email
 

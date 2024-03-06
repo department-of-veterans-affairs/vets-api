@@ -6,6 +6,7 @@ require 'dgi/submission/service'
 require 'dgi/enrollment/service'
 require 'dgi/contact_info/service'
 require 'dgi/exclusion_period/service'
+require 'bgs/service'
 
 module MebApi
   module V0
