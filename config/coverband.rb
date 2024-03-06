@@ -2,7 +2,13 @@
 
 # config/coverband.rb NOT in the initializers
 Coverband.configure do |config|
-  config.store = Coverband::Adapters::RedisStore.new(Redis.new(url: Settings.redis.app_data.url))
+  redis = if Rails.env.test?
+    require 'mock_redis'
+    MockRedis.new(url: Settings.redis.app_data.url)
+  else
+    Redis.new(url: Settings.redis.app_data.url)
+  end
+  config.store = Coverband::Adapters::RedisStore.new(redis)
   config.logger = Rails.logger
 
   # config options false, true. (defaults to false)
