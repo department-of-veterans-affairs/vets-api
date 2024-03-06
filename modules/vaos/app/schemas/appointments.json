@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "identifier",
+          "kind",
+          "status",
+          "location_id",
+          "clinic",
+          "start",
+          "cancellable",
+          "extension"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "system": { "type": "string" },
+                "value": { "type": "string" }
+              }
+            }
+          },
+          "kind": { "type": ["string", "null"] },
+          "status": { "type": ["string", "null"] },
+          "service_type": { "type": "string" },
+          "patient_icn": { "type": "string" },
+          "location_id": { "type": ["string", "null"] },
+          "clinic": { "type": "string" },
+          "practitioners": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "identifier": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "system": { "type": "string" },
+                      "value": {"type": "string"}
+                    }
+                  }
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "family": {"type": "string"},
+                    "given": {"type": "string"}
+                  }
+                },
+                "practice_name": { "type": "string" }
+              }
+            }
+          },
+          "start": { "type": "string" },
+          "end": { "type": "string" },
+          "minutes_duration": { "type": "integer" },
+          "comment": { "type": "string" },
+          "cancelation_reason": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["system"],
+                  "properties": {
+                    "system": { "type": "string" },
+                    "code": { "type": "string" },
+                    "display": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "cancellable": { "type": "boolean" },
+          "patient_instruction": { "type": "string" },
+          "telehealth": {
+            "type": "object",
+            "properties": {
+              "group": { "type": "boolean" },
+              "vvs_kind": { "type": "string" }
+            }
+          },
+          "extension": {
+            "type": "object",
+            "properties": {
+              "cc_location": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
