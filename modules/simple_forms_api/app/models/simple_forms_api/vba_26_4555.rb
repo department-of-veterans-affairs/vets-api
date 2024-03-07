@@ -12,15 +12,15 @@ module SimpleFormsApi
 
     def as_payload
       {
-        remarks: data['remarks'],
-        otherConditions: data['other_conditions'],
+        remarks: @data['remarks'],
+        otherConditions: @data['other_conditions'],
         livingSituation: living_situation_payload,
         previousHiApplication: previous_hi_application_payload,
         previousSahApplication: previous_sah_application_payload,
         veteran: veteran_payload,
-        statementOfTruthSignature: data['statement_of_truth_signature'],
-        statementOfTruthCertified: data['statement_of_truth_certified'],
-        formNumber: data['form_number']
+        statementOfTruthSignature: @data['statement_of_truth_signature'],
+        statementOfTruthCertified: @data['statement_of_truth_certified'],
+        formNumber: @data['form_number']
       }
     end
 
@@ -50,67 +50,77 @@ module SimpleFormsApi
     private
 
     def living_situation_payload
-      care_facility_address = data.dig('living_situation', 'care_facility_address')
+      care_facility_address = @data.dig('living_situation', 'care_facility_address')
       {
-        careFacilityName: data.dig('living_situation', 'care_facility_name'),
+        careFacilityName: @data.dig('living_situation', 'care_facility_name'),
         careFacilityAddress: {
-          street: care_facility_address['street'],
-          street2: care_facility_address['street2'],
-          city: care_facility_address['city'],
-          state: care_facility_address['state'],
-          postalCode: care_facility_address['postal_code']
+          street: care_facility_address && care_facility_address['street'],
+          street2: care_facility_address && care_facility_address['street2'],
+          city: care_facility_address && care_facility_address['city'],
+          state: care_facility_address && care_facility_address['state'],
+          postalCode: care_facility_address && care_facility_address['postal_code']
         },
-        isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
+        isInCareFacility: @data.dig('living_situation', 'is_in_care_facility')
       }
     end
 
     def previous_hi_application_payload
-      {
-        previousHiApplicationDate: data.dig('previous_hi_application', 'previous_hi_application_date'),
-        previousHiApplicationAddress: {
-          city: data.dig('previous_hi_application', 'previous_hi_application_address', 'city')
-        },
-        hasPreviousHiApplication: data.dig('previous_hi_application', 'has_previous_hi_application')
-      }
+      if @data.dig('previous_hi_application', 'has_previous_hi_application')
+        {
+          previousHiApplicationDate: @data.dig('previous_hi_application', 'previous_hi_application_date'),
+          previousHiApplicationAddress: {
+            city: @data.dig('previous_hi_application', 'previous_hi_application_address', 'city')
+          },
+          hasPreviousHiApplication: @data.dig('previous_hi_application', 'has_previous_hi_application')
+        }
+      else
+        {}
+      end
     end
 
     def previous_sah_application_payload
-      {
-        previousSahApplicationDate: data.dig('previous_sah_application', 'previous_sah_application_date'),
-        previousSahApplicationAddress: {
-          city: data.dig('previous_sah_application', 'previous_sah_application_address', 'city')
-        },
-        hasPreviousSahApplication: data.dig('previous_sah_application', 'has_previous_sah_application')
-      }
+      if @data.dig('previous_sah_application', 'has_previous_sah_application')
+        {
+          previousSahApplicationDate: @data.dig('previous_sah_application', 'previous_sah_application_date'),
+          previousSahApplicationAddress: {
+            city: @data.dig('previous_sah_application', 'previous_sah_application_address', 'city')
+          },
+          hasPreviousSahApplication: @data.dig('previous_sah_application', 'has_previous_sah_application')
+        }
+      else
+        {}
+      end
     end
 
     def veteran_payload
-      full_name = data.dig('veteran', 'full_name')
+      full_name = @data.dig('veteran', 'full_name')
       {
         address: veteran_address_payload,
-        ssn: data.dig('veteran', 'ssn'),
-        vaFileNumber: data.dig('veteran', 'va_file_number'),
+        ssn: @data.dig('veteran', 'ssn'),
+        vaFileNumber: @data.dig('veteran', 'va_file_number'),
         fullName: {
           first: full_name['first'],
           middle: full_name['middle'],
           last: full_name['last'],
           suffix: full_name['suffix']
         },
-        dateOfBirth: data.dig('veteran', 'date_of_birth')
+        dateOfBirth: @data.dig('veteran', 'date_of_birth')
       }
     end
 
     def veteran_address_payload
-      address = data.dig('veteran', 'address')
-      {
-        isMilitary: address['is_military'],
-        country: address['country'],
-        street: address['street'],
-        street2: address['street2'],
-        city: address['city'],
-        state: address['state'],
-        postalCode: address['postal_code']
-      }
+      address = @data.dig('veteran', 'address')
+      if address
+        {
+          isMilitary: true, # address['is_military'],
+          country: address['country'],
+          street: address['street'],
+          street2: address['street2'],
+          city: address['city'],
+          state: address['state'],
+          postalCode: address['postal_code']
+        }
+      end
     end
 
     def veteran_ssn
