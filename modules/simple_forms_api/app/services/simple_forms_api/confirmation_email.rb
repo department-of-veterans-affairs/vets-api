@@ -10,7 +10,8 @@ module SimpleFormsApi
       'vba_21_0972' => Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
       'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
       'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
-      'vba_20_10206' => Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email
+      'vba_20_10206' => Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
+      'vba_40_0247' => Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
@@ -70,6 +71,10 @@ module SimpleFormsApi
                             return unless Flipper.enabled?(:form20_10206_confirmation_email)
 
                             form20_10206_contact_info(@form_data)
+                          when 'vba_40_0247'
+                            return unless Flipper.enabled?(:form40_0247_confirmation_email)
+
+                            [@form_data['applicant_email'], @form_data.dig('applicant_full_name', 'first')]
                           else
                             [nil, nil]
                           end
