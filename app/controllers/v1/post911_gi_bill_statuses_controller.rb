@@ -5,15 +5,20 @@ require 'lighthouse/benefits_education/outside_working_hours'
 require 'lighthouse/benefits_education/service'
 
 module V1
-  class Post911GIBillStatusesController < ApplicationController
-    include IgnoreNotFound
-    include SentryLogging
-    service_tag 'gibill-statement'
+  # class Post911GIBillStatusesController < ApplicationController
+  class Post911GIBillStatusesController < ActionController::API
+    # include IgnoreNotFound
+    # include SentryLogging
+    # service_tag 'gibill-statement'
 
     before_action :service_available?, only: :show
 
     STATSD_GI_BILL_TOTAL_KEY = 'api.lighthouse.gi_bill_status.total'
     STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
+
+    def current_user
+      @current_user ||= OpenStruct.new(icn: "1012667145V762142")
+    end
 
     def show
       render json: service.get_gi_bill_status
@@ -27,7 +32,7 @@ module V1
 
     def handle_error(e)
       status = e.errors.first[:status].to_i if e.errors&.first&.key?(:status)
-      log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
+      log_vet_not_found(current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
       StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
       render json: { error: e.errors.first }, status: status || :internal_server_error
     end
@@ -69,7 +74,7 @@ module V1
     end
 
     def service
-      BenefitsEducation::Service.new(@current_user&.icn)
+      BenefitsEducation::Service.new(current_user&.icn)
     end
   end
 end
