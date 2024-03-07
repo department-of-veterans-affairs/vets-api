@@ -1918,7 +1918,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       it 'supports getting user with some external errors', skip_mvi: true do
-        expect(subject).to validate(:get, '/v0/user', 296, headers)
+        VCR.use_cassette('va_profile/demographics/demographics') do
+          expect(subject).to validate(:get, '/v0/user', 296, headers)
+        end
       end
     end
 
