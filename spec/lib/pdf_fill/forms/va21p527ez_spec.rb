@@ -11,7 +11,7 @@ describe PdfFill::Forms::Va21p527ez do
   include SchemaMatchers
 
   let(:form_data) do
-    get_fixture('pdf_fill/21P-527EZ/kitchen_sink')
+    VetsJsonSchema::EXAMPLES.fetch('21P-527EZ-KITCHEN_SINK')
   end
 
   describe '#merge_fields' do

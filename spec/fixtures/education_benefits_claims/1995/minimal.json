@@ -18,5 +18,9 @@
 		"state": "MD",
 		"postalCode": "21231"
 	},
+	"applicantGender": "F",
+  	"dateOfBirth": "1970-01-01",
+	"changeAnotherBenefit": "Yes",
+	"benefitAppliedFor": "chapter35",
 	"email": "test@sample.com",
 	"bankAccount": {}}

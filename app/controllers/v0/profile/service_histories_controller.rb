@@ -10,8 +10,6 @@ module V0
 
       # Fetches the service history for the current user.
       # This is an array of select military service episode data.
-      # Data source is moving from eMIS to VA Profile.
-      # Feature toggle will be used until transition is complete.
       #
       # @return [Response] Sample response.body:
       #   {

@@ -40,13 +40,14 @@ module EducationForm
                   )
         return false if federal_holiday?
 
-        # Group the formatted records into different regions
         if records.count.zero?
           log_info('No records to process.')
           return true
-        else
+        elsif retry_count.zero?
           log_info("Processing #{records.count} application(s)")
         end
+
+        # Group the formatted records into different regions
         regional_data = group_submissions_by_region(records)
         formatted_records = format_records(regional_data)
         # Create a remote file for each region, and write the records into them
@@ -99,7 +100,7 @@ module EducationForm
         if spool_file_event.successful_at.present?
           log_info("A spool file for #{region_id} on #{Time.zone.now.strftime('%m%d%Y')} was already created")
         else
-          log_submissions(records, filename)
+          log_submissions(records, filename, region)
           # create the single textual spool file
           contents = records.map(&:text).join(EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK)
 
@@ -108,7 +109,7 @@ module EducationForm
 
             ## Testing to see if writer is the cause for retry attempt failures
             ## If we get to this message, it's not the writer object
-            log_info("Successfully wrote to filename: #{filename}")
+            log_info("Successfully wrote #{records.count} applications to filename: #{filename} for region: #{region}")
 
             # send copy of staging spool files to testers
             # This mailer is intended to only work for development, staging and NOT production
@@ -189,8 +190,8 @@ module EducationForm
 
     # Useful for debugging which records were or were not sent over successfully,
     # in case of network failures.
-    def log_submissions(records, filename)
-      log_info("Writing #{records.count} application(s) to #{filename}")
+    def log_submissions(records, filename, region)
+      log_info("Writing #{records.count} application(s) to #{filename} for region: #{region}")
     end
 
     # Useful for alerting and monitoring the numbers of successfully send submissions

@@ -54,6 +54,10 @@ module Common
 
           begin
             get_patient_fhir_id(session.token) if session.token && patient_fhir_id.nil?
+          rescue MedicalRecords::PatientNotFound
+            # Don't raise this exception, as it will bubble up to a shared class where we don't
+            # want to handle it. Instead we simply don't set the Patient FHIR ID and raise an
+            # exception later in medical_records/client.rb where it will be easier to handle.
           rescue => e
             exception ||= e
           end

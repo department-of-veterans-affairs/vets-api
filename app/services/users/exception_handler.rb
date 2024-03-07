@@ -75,13 +75,6 @@ module Users
       )
     end
 
-    def emis_error(type)
-      error_template.merge(
-        description: "#{error.class}, #{RESPONSE_STATUS[type]}",
-        status: error.status.to_i
-      )
-    end
-
     def title_error(_type)
       error_template.merge(
         description: "#{error.class}, 404 Veteran Status title not found",
