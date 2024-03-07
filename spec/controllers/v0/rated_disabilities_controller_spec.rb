@@ -24,16 +24,27 @@ RSpec.describe V0::RatedDisabilitiesController, type: :controller do
       end
 
       it 'only returns active ratings' do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_inactives_response') do
+          get(:show)
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        # VCR Cassette should have 5 items in the individual_ratings array, only 4 should
+        # be "active" (1 of which should have a `rating_end_date` in the future)
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(4)
+      end
+
+      it 'removes the Veterans ICN from the response before sending' do
         VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
           get(:show)
         end
 
         expect(response).to have_http_status(:ok)
 
-        # VCR Cassette should have 3 items in the individual_ratings array, only 2 should
-        # be "active"
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(2)
+        expect(parsed_body.dig('data', 'id')).to eq('')
       end
     end
 
