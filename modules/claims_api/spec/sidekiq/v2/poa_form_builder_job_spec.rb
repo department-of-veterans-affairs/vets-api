@@ -71,17 +71,17 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       it 'generates e-signatures correctly for a veteran claimant' do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           data = power_of_attorney
-                .form_data
-                .deep_merge(
-                  {
-                    'veteran' => {
-                      'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                      'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                    }
-                  }
-                )
+                 .form_data
+                 .deep_merge(
+                   {
+                     'veteran' => {
+                       'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                       'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                       'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                       'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                     }
+                   }
+                 )
           final_data = data.merge(
             {
               'text_signatures' => {
@@ -199,17 +199,17 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       it 'generates e-signatures correctly for a non-veteran claimant' do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           data = power_of_attorney
-                .form_data
-                .deep_merge(
-                  {
-                    'veteran' => {
-                      'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                      'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                    }
-                  }
-                )
+                 .form_data
+                 .deep_merge(
+                   {
+                     'veteran' => {
+                       'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                       'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                       'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                       'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                     }
+                   }
+                 )
           final_data = data.merge(
             {
               'text_signatures' => {

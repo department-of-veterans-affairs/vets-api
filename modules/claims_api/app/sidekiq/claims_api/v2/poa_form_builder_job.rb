@@ -110,7 +110,7 @@ module ClaimsApi
         ]
       end
 
-      def individual_page2_signatures(power_of_attorney, rep_first_name, rep_last_name) # rubocop:disable Metrics/MethodLength
+      def individual_page2_signatures(power_of_attorney, rep_first_name, rep_last_name)
         first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         [
           {
