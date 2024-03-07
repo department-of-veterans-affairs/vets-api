@@ -22,7 +22,7 @@ module DecisionReview
 
       csv_file.gets # skip CSV header
       csv_file.each_line do |line|
-        email, full_name = line.split(",")
+        email, full_name = line.split(',')
         DecisionReview::NodSendEmailJob.perform_async(email, template_id, { 'full_name' => full_name.strip }, line_num)
         line_num += 1
       end

@@ -13,7 +13,9 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
   let(:template_id) { Faker::Internet.uuid }
 
   let(:file_name) { 'path/csv_file.csv' }
-  let(:csv_data) { StringIO.new("Email,Full Name\nemail@test.com,John Vet\nemail2@test.com,Jane Doe\ntest@test.test,GI Joe\n") }
+  let(:csv_data) do
+    StringIO.new("Email,Full Name\nemail@test.com,John Vet\nemail2@test.com,Jane Doe\ntest@test.test,GI Joe\n")
+  end
   let(:get_s3_object) { Aws::S3::Types::GetObjectOutput.new(body: csv_data) }
   let(:s3_client) { instance_double(Aws::S3::Client) }
 
