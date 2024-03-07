@@ -33,9 +33,9 @@ module V0
     # 68: 5103/DTA Letter
     def allowed_doctypes
       doctypes = %w[184]
-      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
-      doctypes << '65' if Flipper.enabled?(:cst_include_ddl_5103_letters, @user)
-      doctypes << '68' if Flipper.enabled?(:cst_include_ddl_5103_letters, @user)
+      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @current_user)
+      doctypes << '65' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '68' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
       doctypes
     end
   end
