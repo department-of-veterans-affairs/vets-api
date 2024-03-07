@@ -64,10 +64,10 @@ module Users
       nil
     end
 
-    def preferred_name
+    def demographics
       demographic_svc = VAProfile::Demographics::Service.new @user
       demographic = demographic_svc.get_demographics
-      demographic&.demographics&.preferred_name&.text
+      demographic&.demographics
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Demographics').serialize_error
       nil
@@ -79,7 +79,7 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
-        preferred_name:,
+        preferred_name: demographics&.preferred_name&.text,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,
