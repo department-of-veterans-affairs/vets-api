@@ -47,37 +47,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
       end
     end
 
-    context 'and the poaCode is not retrieved successfully from the V2 2122a form data' do
-      it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-        create_mock_lighthouse_service
-        expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-        poa = create_poa
-        poa.form_data = {
-          claimant: {
-            poaCode: '072',
-            firstName: 'my',
-            lastName: 'name',
-            type: 'ATTORNEY',
-            address: {
-              numberAndStreet: '123',
-              city: 'city',
-              country: 'US',
-              zipFirstFive: '12345'
-            }
-          },
-          recordConsent: true,
-          consentLimits: []
-        }
-        poa.save!
-
-        subject.new.perform(poa.id)
-        poa.reload
-        expect(poa.status).to eq('errored')
-        expect(poa.vbms_error_message).to eq("No POA code found in the form data for poa:#{poa.id}")
-      end
-    end
-
     context 'and record consent is granted' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
         create_mock_lighthouse_service
@@ -139,6 +108,37 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
       subject.new.perform(poa.id)
       poa.reload
       expect(poa.status).to eq('errored')
+    end
+  end
+
+  context 'when the poaCode is not retrieved successfully from the V2 2122a form data' do
+    it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+      create_mock_lighthouse_service
+      expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+
+      poa = create_poa
+      poa.form_data = {
+        claimant: {
+          poaCode: '072',
+          firstName: 'my',
+          lastName: 'name',
+          type: 'ATTORNEY',
+          address: {
+            numberAndStreet: '123',
+            city: 'city',
+            country: 'US',
+            zipFirstFive: '12345'
+          }
+        },
+        recordConsent: true,
+        consentLimits: []
+      }
+      poa.save!
+
+      subject.new.perform(poa.id)
+      poa.reload
+      expect(poa.status).to eq('errored')
+      expect(poa.vbms_error_message).to eq("No POA code found in the form data for poa:#{poa.id}")
     end
   end
 
