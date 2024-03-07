@@ -11,7 +11,6 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     temp.form_data = {
       veteran: {
-        vaFileNumber: '123456789',
         serviceNumber: '987654321',
         serviceBranch: 'ARMY',
         address: {
@@ -60,7 +59,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
       },
       recordConsent: true,
       consentAddressChange: true,
-      consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+      consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
       conditionsOfAppointment: ['Condition 1', 'Condition 2']
     }
     temp.save

@@ -92,25 +92,11 @@
           "maxLength": 61,
           "example": "veteran@example.com"
         },
-        "serviceBranch": {
-          "description": "Service Branch for the veteran.",
+        "serviceNumber": {
+          "description": "Service number for the veteran.",
           "type": "string",
-          "enum": [
-            "AIR FORCE",
-            "ARMY",
-            "COAST GUARD",
-            "MARINE CORPS",
-            "NAVY",
-            "SPACE FORCE",
-            "OTHER"
-          ],
-          "example": "ARMY"
-        },
-        "serviceBranchOther": {
-          "description": "For a 'service branch' of value 'other', please provide the service branch name.",
-          "type": "string",
-          "maxLength": 50,
-          "example": "Air National Guard"
+          "pattern": "^\\d{9}?$",
+          "example": "123456789"
         }
       }
     },
@@ -329,13 +315,13 @@
       "items": {
         "type": "string",
         "enum": [
-          "DRUG ABUSE",
+          "DRUG_ABUSE",
           "ALCOHOLISM",
           "HIV",
-          "SICKLE CELL"
+          "SICKLE_CELL"
         ]
       },
-      "example": "DRUG ABUSE"
+      "example": "DRUG_ABUSE"
     },
     "consentAddressChange": {
       "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",

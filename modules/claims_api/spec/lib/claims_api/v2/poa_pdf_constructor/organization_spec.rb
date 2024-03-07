@@ -59,7 +59,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
       },
       recordConsent: true,
       consentAddressChange: true,
-      consentLimits: ['DRUG ABUSE', 'SICKLE CELL']
+      consentLimits: %w[DRUG_ABUSE SICKLE_CELL]
     }
     temp.save
   end

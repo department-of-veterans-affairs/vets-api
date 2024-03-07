@@ -15,11 +15,6 @@
         "phone"
       ],
       "properties": {
-        "vaFileNumber": {
-          "description": "The Veteran's VA file number",
-          "type": "string",
-          "maxLength": 9
-        },
         "serviceNumber": {
           "description": "The Veteran's Service Number",
           "type": "string",
@@ -29,15 +24,21 @@
           "description": "Service Branch for the veteran.",
           "type": "string",
           "enum": [
-            "AIR FORCE",
+            "AIR_FORCE",
             "ARMY",
-            "COAST GUARD",
-            "MARINE CORPS",
+            "COAST_GUARD",
+            "MARINE_CORPS",
             "NAVY",
-            "SPACE FORCE",
+            "SPACE_FORCE",
             "OTHER"
           ],
           "example": "ARMY"
+        },
+        "serviceBranchOther": {
+          "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+          "type": "string",
+          "maxLength": 27,
+          "example": "Air National Guard"
         },
         "address": {
           "type": "object",
@@ -273,9 +274,7 @@
           "type": "string",
           "enum": [
             "ATTORNEY",
-            "AGENT",
-            "INDIVIDUAL PROVIDING REPRESENTATION UNDER SECTION 14.630",
-            "SERVICE ORGANIZATION REPRESENTATIVE"
+            "AGENT"
           ],
           "example": "ATTORNEY"
         },
@@ -336,9 +335,7 @@
           "type": "string",
           "example": "I help vets LLC."
         }
-      },
-      "if": { "properties": { "type": { "const":  "SERVICE ORGANIZATION REPRESENTATIVE" } } },
-      "then": { "required":  ["organizationName"] }
+      }
     },
     "recordConsent": {
       "description": "AUTHORIZATION FOR REPRESENTATIVE'S ACCESS TO RECORDS PROTECTED BY SECTION 7332, TITLE 38, U.S.C.",
@@ -350,10 +347,10 @@
       "items": {
         "type": "string",
         "enum": [
-          "DRUG ABUSE",
+          "DRUG_ABUSE",
           "ALCOHOLISM",
           "HIV",
-          "SICKLE CELL"
+          "SICKLE_CELL"
         ]
       },
       "example": "DRUG ABUSE"
