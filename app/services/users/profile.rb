@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/concerns/service_status'
+require 'va_profile/demographics/service'
 
 module Users
   class Profile
@@ -63,12 +64,22 @@ module Users
       nil
     end
 
+    def preferred_name
+      demographic_svc = VAProfile::Demographics::Service.new @user
+      demographic = demographic_svc.get_demographics
+      demographic&.demographics&.preferred_name&.text
+    rescue => e
+      scaffold.errors << Users::ExceptionHandler.new(e, 'Demographics').serialize_error
+      nil
+    end
+
     def profile
       {
         email: user.email,
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
+        preferred_name:,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,
