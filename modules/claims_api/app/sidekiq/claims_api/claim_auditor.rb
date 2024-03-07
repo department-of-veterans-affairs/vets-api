@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sentry_logging'
-
 module ClaimsApi
-  class ClaimAuditor
-    include Sidekiq::Job
-    include SentryLogging
-
+  class ClaimAuditor < ClaimsApi::ServiceBase
     def perform
       return unless Settings.claims_api.audit_enabled
 

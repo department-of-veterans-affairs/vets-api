@@ -53,16 +53,12 @@ module Form1010cg
       # The Form1010cg::Submission
       @submission   = submission
 
-      # Store for the search results we will run on MVI and eMIS
+      # Store for the search results we will run on MPI
       @cache = {
         # [form_subject]: String          - The person's ICN
-        # [form_subject]: NOT_FOUND       - This person could not be found in MVI
-        # [form_subject]: nil             - An MVI search has not been conducted for this person
-        icns: {},
-        # [form_subject]: true            - This person is a veteran
-        # [form_subject]: false           - This person's veteran status cannot be confirmed
-        # [form_subject]: nil             - An eMIS search has not been conducted for this person
-        veteran_statuses: {}
+        # [form_subject]: NOT_FOUND       - This person could not be found in MPI
+        # [form_subject]: nil             - An MPI search has not been conducted for this person
+        icns: {}
       }
     end
 
@@ -108,9 +104,9 @@ module Form1010cg
         }
       end
 
-      # Disabling the veteran status search since there is an issue with searching emis
+      # Disabling the veteran status search since there is an issue with searching
       # for a veteran status using an ICN. Only edipi works. Consider adding this back in
-      # once ICN searches work or we refactor our veteran status serach to use the edipi.
+      # once ICN searches work or we refactor our veteran status search to use the edipi.
       metadata[:veteran][:is_veteran] = false
       metadata
     end

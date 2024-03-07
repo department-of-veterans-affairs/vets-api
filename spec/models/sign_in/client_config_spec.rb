@@ -7,6 +7,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     create(:client_config,
            client_id:,
            authentication:,
+           shared_sessions:,
            anti_csrf:,
            redirect_uri:,
            logout_redirect_uri:,
@@ -22,6 +23,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:authentication) { SignIn::Constants::Auth::API }
   let(:certificates) { [] }
   let(:anti_csrf) { false }
+  let(:shared_sessions) { false }
   let(:redirect_uri) { 'some-redirect-uri' }
   let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -169,6 +171,18 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       context 'when anti_csrf is nil' do
         let(:anti_csrf) { nil }
         let(:expected_error_message) { 'Validation failed: Anti csrf is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#shared_sessions' do
+      context 'when shared_sessions is nil' do
+        let(:shared_sessions) { nil }
+        let(:expected_error_message) { 'Validation failed: Shared sessions is not included in the list' }
         let(:expected_error) { ActiveRecord::RecordInvalid }
 
         it 'raises validation error' do

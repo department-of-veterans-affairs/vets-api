@@ -19,13 +19,16 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
     let(:file_content) { 'dummy file content' }
     let(:processed_data) do
       {
-        'Agents' => [{ 'data' => 'value' }],
-        'Attorneys' => [{ 'data' => 'value' }],
-        'Representatives' => [{ 'data' => 'value' }]
+        'Agents' => [{ id: '123', address: {}, phone_number: '123-456-7890' }],
+        'Attorneys' => [{ id: '234', address: {}, phone_number: '123-456-7890' }],
+        'Representatives' => [{ id: '345', address: {}, phone_number: '123-456-7890' }]
       }
     end
 
     before do
+      Veteran::Service::Representative.create(representative_id: '123', poa_codes: ['A1'])
+      Veteran::Service::Representative.create(representative_id: '234', poa_codes: ['A1'])
+      Veteran::Service::Representative.create(representative_id: '345', poa_codes: ['A1'])
       allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
       allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_return(processed_data)
     end

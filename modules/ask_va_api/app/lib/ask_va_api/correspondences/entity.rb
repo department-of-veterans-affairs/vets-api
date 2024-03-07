@@ -13,14 +13,14 @@ module AskVAApi
                   :attachments
 
       def initialize(info)
-        @id = info[:id]
-        @inquiry_id = info[:inquiryId]
-        @message_type = info[:message_type]
-        @modified_on = info[:modifiedon]
-        @status_reason = info[:status_reason]
-        @description = info[:description]
-        @enable_reply = info[:enable_reply]
-        @attachments = info[:attachmentNames]
+        @id = info[:Id]
+        @inquiry_id = info[:InquiryId]
+        @message_type = info[:MessageType]
+        @modified_on = info[:ModifiedOn]
+        @status_reason = info[:StatusReason]
+        @description = info[:Description]
+        @enable_reply = info[:EnableReply]
+        @attachments = info[:AttachmentNames]
       end
     end
   end

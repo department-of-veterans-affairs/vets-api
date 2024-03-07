@@ -17,8 +17,8 @@ RSpec.describe AskVAApi::Attachments::Retriever do
     context 'when successful' do
       before do
         allow(service).to receive(:call)
-          .with(endpoint: 'get_attachments_mock_data', payload: { id: '1' })
-          .and_return([double])
+          .with(endpoint: 'attachment', payload: { id: '1' })
+          .and_return({ Data: double })
       end
 
       it 'returns an attachment object' do
@@ -33,7 +33,7 @@ RSpec.describe AskVAApi::Attachments::Retriever do
 
       before do
         allow(service).to receive(:call)
-          .with(endpoint: 'get_attachments_mock_data', payload: { id: '1' })
+          .with(endpoint: 'attachment', payload: { id: '1' })
           .and_raise(Crm::ErrorHandler::ServiceError, error_message)
       end
 

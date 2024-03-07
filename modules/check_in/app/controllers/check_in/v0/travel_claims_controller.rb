@@ -16,7 +16,7 @@ module CheckIn
       end
 
       def permitted_params
-        params.require(:travel_claims).permit(:uuid, :appointment_date)
+        params.require(:travel_claims).permit(:uuid, :appointment_date, :facility_type)
       end
 
       def authorize

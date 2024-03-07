@@ -10,6 +10,10 @@ module VAOS
 
     STATSD_KEY_PREFIX = 'api.vaos'
 
+    def patch(path, params, headers, options)
+      request(:patch, path, params, headers, options)
+    end
+
     private
 
     def config

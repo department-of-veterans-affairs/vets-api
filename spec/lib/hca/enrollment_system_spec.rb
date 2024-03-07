@@ -883,6 +883,28 @@ describe HCA::EnrollmentSystem do
             radiationExposureInd: true
           }
         }.deep_stringify_keys
+      ],
+      [
+        {
+          hasTeraResponse: true,
+          combatOperationService: true
+        }.deep_stringify_keys,
+        {
+          'eligibleForMedicaid' => false,
+          'noseThroatRadiumInfo' => {
+            'receivingTreatment' => false
+          },
+          'serviceConnectionAward' => {
+            'serviceConnectedIndicator' => false
+          },
+          'specialFactors' => {
+            'agentOrangeInd' => false,
+            'envContaminantsInd' => false,
+            'campLejeuneInd' => false,
+            'radiationExposureInd' => false,
+            'supportOperationsInd' => true
+          }
+        }
       ]
     ]
   )

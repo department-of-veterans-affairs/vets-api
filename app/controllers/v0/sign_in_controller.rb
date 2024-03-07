@@ -360,7 +360,7 @@ module V0
     end
 
     def delete_cookies
-      cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME, domain: :all)
       cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)

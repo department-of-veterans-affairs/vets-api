@@ -5,6 +5,14 @@ require 'bgs/utilities/helpers'
 module BGS
   class Job
     include BGS::Utilities::Helpers
+    FILTERED_ERRORS = [
+      'insertBenefitClaim: Invalid zipcode.',
+      'Maximum number of EPs reached for this bnftClaimTypeCd',
+      'This update is being elevated for additional review due to an Incident Flash associated with this Beneficiary',
+      'ORA-20099: Error - File Number and Social Security number are different',
+      'ORA-00001: unique constraint',
+      'The length of the EXTERNAL_UID or EXTERNAL_KEY exceeds the maximum'
+    ].freeze
 
     def in_progress_form_copy(in_progress_form)
       return nil if in_progress_form.blank?

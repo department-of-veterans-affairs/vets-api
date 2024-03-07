@@ -17,6 +17,19 @@ module HCA
 
     NO_RACE = '0000-0'
 
+    EXPOSURE_MAPPINGS = {
+      'exposureToAirPollutants' => 'Air Pollutants',
+      'exposureToChemicals' => 'Chemicals',
+      'exposureToContaminatedWater' => 'Contaminated Water at Camp Lejeune',
+      'exposureToRadiation' => 'Radiation',
+      'exposureToShad' => 'SHAD',
+      'exposureToOccupationalHazards' => 'Occupational Hazards',
+      'exposureToAsbestos' => 'Asbestos',
+      'exposureToMustardGas' => 'Mustard Gas',
+      'exposureToWarfareAgents' => 'Warfare Agents',
+      'exposureToOther' => 'Other'
+    }.freeze
+
     SIGI_CODES = {
       'M' => 'M',
       'F' => 'F',
@@ -530,10 +543,52 @@ module HCA
           'serviceConnectedIndicator' => veteran['vaCompensationType'] == 'highDisability'
         },
         'specialFactors' => {
-          'agentOrangeInd' => veteran['vietnamService'].present?,
+          'agentOrangeInd' => veteran['vietnamService'].present? || veteran['exposedToAgentOrange'].present?,
           'envContaminantsInd' => veteran['swAsiaCombat'].present?,
           'campLejeuneInd' => veteran['campLejeune'].present?,
-          'radiationExposureInd' => veteran['exposedToRadiation'].present?
+          'radiationExposureInd' =>
+            veteran['exposedToRadiation'].present? || veteran['radiationCleanupEfforts'].present?
+        }.merge(veteran_to_tera(veteran))
+      }
+    end
+
+    def veteran_to_tera(veteran)
+      return {} unless veteran['hasTeraResponse']
+
+      {
+        'supportOperationsInd' => veteran['combatOperationService'].present?
+      }.merge(
+        if veteran['gulfWarService'].present?
+          {
+            'gulfWarHazard' => {
+              'gulfWarHazardInd' => veteran['gulfWarService'].present?,
+              'fromDate' => Validations.parse_short_date(veteran['gulfWarStartDate']),
+              'toDate' => Validations.parse_short_date(veteran['gulfWarEndDate'])
+            }
+          }
+        else
+          {}
+        end
+      ).merge(veteran_to_toxic_exposure(veteran))
+    end
+
+    def veteran_to_toxic_exposure(veteran)
+      categories = []
+
+      EXPOSURE_MAPPINGS.each do |k, v|
+        categories << v if veteran[k].present?
+      end
+
+      return {} if categories.blank?
+
+      {
+        'toxicExposure' => {
+          'exposureCategories' => {
+            'exposureCategory' => categories
+          },
+          'otherText' => veteran['otherToxicExposure'],
+          'fromDate' => Validations.parse_short_date(veteran['toxicExposureStartDate']),
+          'toDate' => Validations.parse_short_date(veteran['toxicExposureEndDate'])
         }
       }
     end

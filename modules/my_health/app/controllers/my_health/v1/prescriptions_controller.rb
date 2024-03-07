@@ -47,6 +47,27 @@ module MyHealth
         head :no_content
       end
 
+      def refill_prescriptions
+        ids = params[:ids]
+        begin
+          ids.each do |id|
+            client.post_refill_rx(id)
+          end
+        rescue => e
+          puts "Error refilling prescription: #{e.message}"
+        end
+        head :no_content
+      end
+
+      def list_refillable_prescriptions
+        resource = collection_resource
+        resource.data = filter_data_by_refill_and_renew(resource.data)
+        render json: resource.data,
+               serializer: CollectionSerializer,
+               each_serializer: PrescriptionDetailsSerializer,
+               meta: resource.metadata
+      end
+
       def get_prescription_image
         image_url = get_image_uri(params[:cmopNdcNumber])
         image_data = fetch_image(image_url)
@@ -147,6 +168,24 @@ module MyHealth
         }
         new_metadata = resource.metadata.merge('sort' => sort_metadata)
         Common::Collection.new(PrescriptionDetails, data: sorted_data, metadata: new_metadata)
+      end
+
+      def filter_data_by_refill_and_renew(data)
+        six_months_from_today = Time.zone.today - 6.months
+        zero_date = Date.new(0, 1, 1)
+
+        data.select do |item|
+          disp_status = item.disp_status
+          sorted_dispensed_date = item.sorted_dispensed_date.to_date
+
+          next true if ['Active', 'Active: Submitted'].include?(disp_status)
+          next true if item.is_refillable
+          next true if %w[Expired Discontinued].include?(disp_status) &&
+                       sorted_dispensed_date >= six_months_from_today &&
+                       sorted_dispensed_date != zero_date
+
+          false
+        end
       end
     end
   end

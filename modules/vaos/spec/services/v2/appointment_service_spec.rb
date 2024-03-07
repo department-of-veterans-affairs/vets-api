@@ -89,11 +89,8 @@ describe VAOS::V2::AppointmentsService do
                          match_requests_on: %i[method path query]) do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                            match_requests_on: %i[method path query]) do
-            allow(Rails.logger).to receive(:info).at_least(:once)
             response = subject.post_appointment(va_booked_request_body)
             expect(response[:id]).to be_a(String)
-            expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
-                                                              any_args).at_least(:once)
             expect(response[:local_start_time])
               .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
           end
@@ -181,12 +178,8 @@ describe VAOS::V2::AppointmentsService do
       it 'logs the VAOS telehealth atlas details of the returned appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
                          allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-
           response = subject.get_appointments(start_date3, end_date3)
           expect(response[:data].size).to eq(163)
-          expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
-                                                            any_args).at_least(:once)
         end
       end
     end
@@ -417,31 +410,70 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#cancel_appointment' do
-    context 'when the upstream server attemps to cancel an appointment' do
+    context 'when the upstream server attempts to cancel an appointment' do
       context 'with Jaqueline Morgan' do
-        it 'returns a cancelled status and the cancelled appointment information' do
-          VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+        context 'using VPG' do
+          before do
+            Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+          end
+
+          it 'returns a cancelled status and the cancelled appointment information' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_vpg_200',
                              match_requests_on: %i[method path query]) do
-              response = subject.update_appointment('70060', 'cancelled')
-              expect(response.status).to eq('cancelled')
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.update_appointment('70060', 'cancelled')
+                expect(response.status).to eq('cancelled')
+              end
+            end
+          end
+
+          it 'returns a 400 when the appointment is not cancellable' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointment_vpg_400',
+                             match_requests_on: %i[method path query]) do
+              expect { subject.update_appointment('42081', 'cancelled') }
+                .to raise_error do |error|
+                expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                expect(error.status_code).to eq(400)
+              end
             end
           end
         end
-      end
 
-      it 'returns a 400 when the appointment is not cancellable' do
-        VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
-          expect { subject.update_appointment('42081', 'cancelled') }
-            .to raise_error do |error|
-            expect(error).to be_a(Common::Exceptions::BackendServiceException)
-            expect(error.status_code).to eq(400)
+        context 'using vaos-service' do
+          before do
+            Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          end
+
+          it 'returns a cancelled status and the cancelled appointment information' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200',
+                             match_requests_on: %i[method path query]) do
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.update_appointment('70060', 'cancelled')
+                expect(response.status).to eq('cancelled')
+              end
+            end
+          end
+
+          it 'returns a 400 when the appointment is not cancellable' do
+            VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
+              expect { subject.update_appointment('42081', 'cancelled') }
+                .to raise_error do |error|
+                expect(error).to be_a(Common::Exceptions::BackendServiceException)
+                expect(error.status_code).to eq(400)
+              end
+            end
           end
         end
       end
     end
 
     context 'when there is a server error in updating an appointment' do
+      before do
+        Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+      end
+
       it 'throws a BackendServiceException' do
         VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
           expect { subject.update_appointment('35952', 'cancelled') }
@@ -678,156 +710,6 @@ describe VAOS::V2::AppointmentsService do
 
     it 'raises an ArgumentError when the appointment nil' do
       expect { subject.send(:booked?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
-    end
-  end
-
-  describe '#non_empty_array_of_hashes?' do
-    context 'when argument is not an array' do
-      arg = 'not an array'
-
-      it 'returns false' do
-        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
-      end
-    end
-
-    context 'when argument is an empty array' do
-      arg = []
-
-      it 'returns false' do
-        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
-      end
-    end
-
-    context 'when argument is an array with non OpenStruct element' do
-      arg = [1, OpenStruct.new, 'a string']
-
-      it 'returns false' do
-        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
-      end
-    end
-
-    context 'when argument is an array with only Hash elements' do
-      arg = [{}, {}]
-
-      it 'returns true' do
-        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be true
-      end
-    end
-
-    context 'when argument is nil' do
-      it 'returns false' do
-        expect(subject.send(:non_empty_array_of_hashes?, nil)).to be false
-      end
-    end
-  end
-
-  describe '#extract_names' do
-    context 'when practitioners is not a non-empty array' do
-      practitioners = 'not a non-empty array'
-
-      it 'returns nil' do
-        expect(subject.send(:extract_names, practitioners)).to be_nil
-      end
-    end
-
-    context 'when practitioners is an array of practitioners' do
-      practitioners =
-        [
-          { name: { given: ['John'], family: 'Doe' } },
-          { name: { given: ['Jane'], family: 'Roe' } }
-        ]
-
-      it 'returns a string of practitioner full names joined by comma' do
-        expect(subject.send(:extract_names, practitioners)).to eq 'John Doe, Jane Roe'
-      end
-    end
-
-    context 'when practitioners is a single practitioner with two given names' do
-      practitioners =
-        [
-          { name: { given: %w[Jane Olivia], family: 'Roe' } }
-        ]
-
-      it 'returns the practitioner full name' do
-        expect(subject.send(:extract_names, practitioners)).to eq 'Jane Olivia Roe'
-      end
-    end
-
-    context 'when practitioners is a single practitioner with no given names' do
-      practitioners =
-        [
-          { name: { family: 'Roe' } }
-        ]
-
-      it 'returns the practitioner family name' do
-        expect(subject.send(:extract_names, practitioners)).to eq 'Roe'
-      end
-    end
-
-    context 'when practitioners is a single practitioner with no name' do
-      practitioners =
-        [
-          {}
-        ]
-
-      it 'returns nil' do
-        expect(subject.send(:extract_names, practitioners)).to be_nil
-      end
-    end
-  end
-
-  describe '#log_telehealth_data' do
-    let(:appt) do
-      { id: '177402',
-        location_id: '983',
-        practitioners: [
-          { identifier: [
-              { system: 'dfn-983', value: '520647710' }
-            ],
-            name: {
-              family: 'Poldass', given: ['Aarathi']
-            },
-            practice_name: 'Cheyenne WY VAMC' }
-        ],
-        telehealth: { atlas: { site_code: 'VFW-VA-20151-07',
-                               confirmation_code: '272438',
-                               address: { street_address: 'AFS CHANTILLY WALMART',
-                                          city: ' CHANTILLY ',
-                                          state: 'VA',
-                                          zip_code: '20105',
-                                          country: 'USA',
-                                          latitutde: 38.91753,
-                                          longitude: 7.0,
-                                          additional_details: '' } },
-                      vvs_kind: 'ADHOC' },
-        extension: { patient_has_mobile_gfe: false } }
-    end
-
-    let(:arg1) { 'VAOS telehealth atlas details' }
-
-    let(:arg2) do
-      '{"VAOSTelehealthData":{"siteCode":"VFW-VA-20151-07","address":{"street_address"' \
-        ':"AFS CHANTILLY WALMART","city":" CHANTILLY ","state":"VA","zip_code":"20105",' \
-        '"country":"USA","latitutde":38.91753,"longitude":7.0,"additional_details":""}' \
-        ',"hasMobileGfe":false,"vvsKind":"ADHOC","siteId":"983",' \
-        '"clinicId":null,"provider":"Aarathi Poldass"}}'
-    end
-
-    context 'when a telehealth appointment is passed in' do
-      it 'logs the telehealth data' do
-        expect(Rails.logger).to receive(:info).with(arg1, arg2)
-        subject.send(:log_telehealth_data, appt)
-      end
-    end
-
-    context 'when an exception is raised getting the telehealth data' do
-      it 'logs the exception' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService)
-          .to receive(:atlas_details).and_raise(StandardError)
-
-        expect(Rails.logger).to receive(:warn).with('Error logging VAOS telehealth atlas details: StandardError')
-        subject.send(:log_telehealth_data, appt)
-      end
     end
   end
 

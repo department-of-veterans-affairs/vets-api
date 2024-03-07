@@ -301,9 +301,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
         post(path, params: mod_data.to_json, headers:)
 
-        puts parsed['errors'][0]['title']
-        puts parsed['errors'][0]['meta']['missing_fields'][0]
-
         expect(response.status).to eq(422)
         expect(parsed['errors'][0]['title']).to eq('Missing required fields')
         expect(parsed['errors'][0]['meta']['missing_fields'][0]).to eq('retrieveFrom')

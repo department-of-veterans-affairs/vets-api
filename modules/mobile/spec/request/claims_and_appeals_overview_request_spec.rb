@@ -11,6 +11,10 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     lighthouse_flag ? 'mobile/lighthouse_claims/index/200_response' : 'mobile/claims/claims'
   end
 
+  let(:claim_count) do
+    lighthouse_flag ? 6 : 143
+  end
+
   let(:error_claims_response_vcr_path) do
     lighthouse_flag ? 'mobile/lighthouse_claims/index/404_response' : 'mobile/claims/claims_with_errors'
   end
@@ -318,16 +322,13 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     end
 
     context 'when there are cached claims and appeals' do
-      let(:params) { { useCache: true } }
+      let(:params) { { useCache: true, page: { size: 999 } } }
 
-      before do
+      it 'retrieves the cached claims amd appeals rather than hitting the service' do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'claims_and_appeals.json')
         data = Mobile::V0::Adapters::ClaimsOverview.new.parse(JSON.parse(File.read(path)))
         Mobile::V0::ClaimOverview.set_cached(user, data)
-      end
 
-      it 'retrieves the cached appointments rather than hitting the service' do
-        expect_any_instance_of(Mobile::V0::Claims::Proxy).not_to receive(:get_claims_and_appeals)
         get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
         expect(response).to have_http_status(:ok)
         parsed_response_contents = response.parsed_body['data']
@@ -335,6 +336,88 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         expect(open_claim.dig('attributes', 'completed')).to eq(false)
         expect(open_claim['type']).to eq('claim')
         expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+      end
+
+      context 'when user is only authorized to access claims, not appeals' do
+        before { allow_any_instance_of(User).to receive(:loa3?).and_return(nil) }
+
+        context 'claims service succeed' do
+          it 'uses cached claims ' do
+            VCR.use_cassette(good_claims_response_vcr_path) do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            end
+
+            expect(response).to have_http_status(:multi_status)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            data = response.parsed_body['data']
+            expect(data.dig(0, 'type')).to eq('claim')
+            expect(data.count).to eq(claim_count)
+
+            error = response.parsed_body['meta'].dig('errors', 0, 'errorDetails')
+            expect(error).to eq('Forbidden: User is not authorized for appeals')
+
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            expect(response).to have_http_status(:multi_status)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            expect(response.parsed_body['data'].count).to eq(claim_count)
+            expect(response.parsed_body.dig('meta', 'errors', 0,
+                                            'errorDetails')).to eq('Forbidden: User is not authorized for appeals')
+          end
+        end
+
+        context 'claims service fails' do
+          it 'returns error and does not cache ' do
+            VCR.use_cassette(error_claims_response_vcr_path) do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
+              expect(response).to have_http_status(:bad_gateway)
+              expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            end
+          end
+        end
+      end
+
+      context 'when user is only authorized to access appeals, not claims' do
+        before { allow_any_instance_of(User).to receive(:participant_id).and_return(nil) }
+
+        context 'appeals service succeed' do
+          it 'appeals service succeed and caches appeals ' do
+            interface_class = Mobile::V0::LighthouseClaims::ClaimsIndexInterface
+            expect_any_instance_of(interface_class).not_to receive(:get_claims_and_appeals)
+
+            VCR.use_cassette('mobile/appeals/appeals') do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            end
+
+            expect(response).to have_http_status(:multi_status)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+
+            data = response.parsed_body['data']
+            expect(data.dig(0, 'type')).to eq('appeal')
+            expect(data.count).to eq(5)
+
+            error = response.parsed_body['meta'].dig('errors', 0, 'errorDetails')
+            expect(error).to eq('Forbidden: User is not authorized for claims')
+
+            get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+            expect(response).to have_http_status(:multi_status)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            expect(response.parsed_body['data'].count).to eq(5)
+            expect(response.parsed_body.dig('meta', 'errors', 0,
+                                            'errorDetails')).to eq('Forbidden: User is not authorized for claims')
+          end
+        end
+
+        context 'appeals service fails' do
+          it 'returns error and does not cache ' do
+            VCR.use_cassette('mobile/appeals/server_error') do
+              get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
+              expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
+              expect(response).to have_http_status(:bad_gateway)
+              expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            end
+          end
+        end
       end
     end
 

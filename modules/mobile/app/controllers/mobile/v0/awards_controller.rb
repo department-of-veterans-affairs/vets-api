@@ -8,6 +8,8 @@ module Mobile
     class AwardsController < ApplicationController
       def index
         award_data = regular_award_service.get_awards
+        raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless award_data
+
         award_data.merge!(pension_award_service.get_awards_pension.body['awards_pension']&.transform_keys(&:to_sym))
         award_data[:id] = current_user.uuid
         awards = Mobile::V0::Award.new(award_data)

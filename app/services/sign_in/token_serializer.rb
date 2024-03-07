@@ -12,13 +12,11 @@ module SignIn
     def perform
       if cookie_authentication_client?
         set_cookies
-        set_info_cookie
         {}
       elsif api_authentication_client?
         token_json_response
       elsif mock_authentication_client?
         set_cookies
-        set_info_cookie
         token_json_response
       end
     end
@@ -26,38 +24,37 @@ module SignIn
     private
 
     def set_cookies
-      set_cookie!(name: Constants::Auth::REFRESH_TOKEN_COOKIE_NAME,
-                  value: encrypted_refresh_token,
-                  path: Constants::Auth::REFRESH_ROUTE_PATH,
-                  expires: session_expiration)
       set_cookie!(name: Constants::Auth::ACCESS_TOKEN_COOKIE_NAME,
                   value: encoded_access_token,
-                  expires: session_expiration)
+                  httponly: true,
+                  domain: :all)
+
+      set_cookie!(name: Constants::Auth::REFRESH_TOKEN_COOKIE_NAME,
+                  value: encrypted_refresh_token,
+                  httponly: true,
+                  path: Constants::Auth::REFRESH_ROUTE_PATH)
+
+      set_cookie!(name: Constants::Auth::INFO_COOKIE_NAME,
+                  value: info_cookie_value.to_json,
+                  httponly: false,
+                  domain: Settings.sign_in.info_cookie_domain)
+
       if anti_csrf_enabled_client?
         set_cookie!(name: Constants::Auth::ANTI_CSRF_COOKIE_NAME,
                     value: anti_csrf_token,
-                    expires: session_expiration)
+                    httponly: true)
       end
     end
 
-    def set_cookie!(name:, value:, expires:, path: '/')
+    def set_cookie!(name:, value:, httponly:, domain: nil, path: '/')
       cookies[name] = {
         value:,
-        expires:,
-        path:,
-        secure: Settings.sign_in.cookies_secure,
-        httponly: true
-      }
-    end
-
-    def set_info_cookie
-      cookies[Constants::Auth::INFO_COOKIE_NAME] = {
-        value: info_cookie_value.to_json,
         expires: session_expiration,
         secure: Settings.sign_in.cookies_secure,
-        httponly: false,
-        domain: Settings.sign_in.info_cookie_domain
-      }
+        httponly:,
+        path:,
+        domain:
+      }.compact
     end
 
     def info_cookie_value

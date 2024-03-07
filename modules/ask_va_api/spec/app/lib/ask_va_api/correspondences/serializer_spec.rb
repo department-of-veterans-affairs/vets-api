@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AskVAApi::Correspondences::Serializer do
   let(:file_path) { 'modules/ask_va_api/config/locales/get_replies_mock_data.json' }
-  let(:data) { JSON.parse(File.read(file_path), symbolize_names: true)[:data] }
+  let(:data) { JSON.parse(File.read(file_path), symbolize_names: true)[:Data] }
   let(:cor1) { AskVAApi::Correspondences::Entity.new(data.first) }
   let(:cor2) { AskVAApi::Correspondences::Entity.new(data.last) }
   let(:response) { described_class.new([cor1]) }
@@ -17,7 +17,7 @@ RSpec.describe AskVAApi::Correspondences::Serializer do
                              status_reason: 'Completed/Sent',
                              description: 'Your claim is still In Progress',
                              enable_reply: true,
-                             attachments: [{ id: '12', name: 'correspondence_1_attachment.pdf' }] } }] }
+                             attachments: [{ Id: '12', Name: 'correspondence_1_attachment.pdf' }] } }] }
   end
 
   context 'when successful' do

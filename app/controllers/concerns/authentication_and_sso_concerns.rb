@@ -6,8 +6,13 @@ module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
   include ActionController::Cookies
   include SignIn::Authentication
+  include SignIn::AudienceValidator
 
-  included { before_action :authenticate, :set_session_expiration_header }
+  included do
+    before_action :authenticate, :set_session_expiration_header
+
+    validates_access_token_audience [Settings.sign_in.vaweb_client_id, ('vamock' if MockedAuthentication.mockable_env?)]
+  end
 
   protected
 

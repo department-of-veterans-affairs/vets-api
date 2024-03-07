@@ -28,6 +28,16 @@ describe Avs::V0::AfterVisitSummary, type: :model do
                 value: '99.1'
               }
             ]
+          },
+          'medChangesSummary' => {
+            discontinuedMeds: [
+              'ACARBOSE 50MG TAB - take one-half tablet by mouth every morning'
+            ],
+            newMedications: [
+              'AMOXYCILLIN - take 10mL morning and evening for 10 days',
+              'DIASTIX STRIPS (100S) - use 1 strip for testing as directed as directed'
+            ],
+            changedMedications: nil
           }
         }
       }
@@ -83,7 +93,16 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           clinic_medications: [],
           va_medications: [],
           nonva_medications: [],
-          med_changes_summary: [],
+          med_changes_summary: {
+            discontinuedMeds: [
+              'ACARBOSE 50MG TAB - take one-half tablet by mouth every morning'
+            ],
+            newMedications: [
+              'AMOXYCILLIN - take 10mL morning and evening for 10 days',
+              'DIASTIX STRIPS (100S) - use 1 strip for testing as directed as directed'
+            ],
+            changedMedications: nil
+          },
           lab_results: [],
           radiology_reports1_yr: nil,
           more_help_and_information: nil,
@@ -141,7 +160,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
           clinic_medications: [],
           va_medications: [],
           nonva_medications: [],
-          med_changes_summary: [],
+          med_changes_summary: nil,
           lab_results: [],
           radiology_reports1_yr: nil,
           more_help_and_information: nil,

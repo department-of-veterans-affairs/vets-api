@@ -31,7 +31,7 @@ module AskVAApi
           it 'calls on Crm::CacheData' do
             expect(retriever.call).to all(be_a(entity_class))
 
-            expect(cache_data_service).to have_received(:call).with(endpoint: 'optionset', cache_key: name,
+            expect(cache_data_service).to have_received(:call).with(endpoint: 'OptionSet', cache_key: name,
                                                                     payload: { name: 'iris_branchofservice' })
           end
         end

@@ -3,25 +3,27 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Inquiries::Retriever do
-  subject(:retriever) { described_class.new(icn:) }
+  subject(:retriever) { described_class.new(icn:, service:) }
 
-  let(:icn) { '123' }
-  let(:service) { instance_double(Crm::Service) }
+  let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
+  let(:service) { DynamicsMockService.new(icn:) }
   let(:correspondences) { instance_double(AskVAApi::Correspondences::Retriever) }
   let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
-  let(:id) { 'A-1' }
+  let(:id) { '1' }
   let(:error_message) { 'Some error occurred' }
   let(:payload) { { id: '1' } }
 
   before do
-    allow(Crm::Service).to receive(:new).and_return(service)
     allow(AskVAApi::Correspondences::Retriever).to receive(:new).and_return(correspondences)
     allow(correspondences).to receive(:call).and_return(entity)
     allow(AskVAApi::Inquiries::Entity).to receive(:new).and_return(entity)
-    allow(service).to receive(:call)
   end
 
   describe '#fetch_by_id' do
+    it 'returns an Entity object with correct data' do
+      expect(retriever.fetch_by_id(id:)).to eq(entity)
+    end
+
     context 'when id is blank' do
       let(:id) { nil }
 
@@ -49,13 +51,6 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
         end.to raise_error(ErrorHandler::ServiceError, "Crm::ErrorHandler::ServiceError: #{error_message}")
       end
     end
-
-    it 'returns an Entity object with correct data' do
-      allow(service).to receive(:call)
-        .with(endpoint: 'get_inquiries_mock_data', payload: { id: })
-        .and_return([double])
-      expect(retriever.fetch_by_id(id:)).to eq(entity)
-    end
   end
 
   describe '#fetch_by_icn' do
@@ -70,13 +65,12 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
     context 'when icn is present' do
       it 'returns an array of Entity objects' do
-        allow(service).to receive(:call).and_return([entity])
-        expect(retriever.fetch_by_icn).to eq([entity])
+        expect(retriever.fetch_by_icn.first).to eq(entity)
       end
 
       context 'when there are no inquiries' do
         it 'returns an empty array' do
-          allow(service).to receive(:call).and_return([])
+          allow(service).to receive(:call).and_return({ Data: [] })
           expect(retriever.fetch_by_icn).to be_empty
         end
       end

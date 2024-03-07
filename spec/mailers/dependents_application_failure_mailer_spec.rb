@@ -17,7 +17,7 @@ RSpec.describe DependentsApplicationFailureMailer, type: [:mailer] do
       expect(mailer.to).to eq(recipients)
       expect(mailer.body.raw_source).to include(
         "Dear #{user.first_name} #{user.last_name}",
-        "We're sorry. Something went wrong when we tried to submit your application to add or remove a dependent"
+        'We’re sorry. Something went wrong when we tried to submit your application to add or remove a dependent'
       )
     end
   end

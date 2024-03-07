@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../models/mobile/v0/adapters/claims_overview'
-require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
-require_relative '../../../models/mobile/v0/claim_overview'
 require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
@@ -150,24 +147,10 @@ module Mobile
       end
 
       def fetch_claims_and_appeals
-        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
-        return [list, []] if list.present?
+        use_cache = validated_params[:use_cache]
+        service_list, service_errors = claims_index_interface.get_accessible_claims_appeals(use_cache)
 
-        service_list, service_errors = get_accessible_claims_appeals
-        Mobile::V0::ClaimOverview.set_cached(@current_user, service_list) if service_errors.blank?
         [service_list, service_errors]
-      end
-
-      def get_accessible_claims_appeals
-        if claims_access? && appeals_access?
-          service.get_claims_and_appeals
-        elsif claims_access?
-          service.get_claims
-        elsif appeals_access?
-          service.get_appeals
-        else
-          raise Pundit::NotAuthorizedError
-        end
       end
 
       def lighthouse_claims_adapter
@@ -184,6 +167,10 @@ module Mobile
 
       def lighthouse_document_service
         @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user)
+      end
+
+      def claims_index_interface
+        @claims_index_interface ||= Mobile::V0::LighthouseClaims::ClaimsIndexInterface.new(@current_user)
       end
 
       def validated_params
@@ -235,27 +222,6 @@ module Mobile
 
       def adapt_response(response)
         response['success'] ? 'success' : 'failure'
-      end
-
-      def service
-        claim_status_lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
-      end
-
-      def claims_access?
-        if claim_status_lighthouse?
-          @current_user.authorize(:lighthouse,
-                                  :access?)
-        else
-          @current_user.authorize(:evss, :access?)
-        end
-      end
-
-      def appeals_access?
-        @current_user.authorize(:appeals, :access?)
-      end
-
-      def claim_status_lighthouse?
-        Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
       end
 
       def active_claims_count(list)

@@ -10,6 +10,10 @@ require 'flipper/instrumentation/event_subscriber'
 
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
 
+Rails.application.configure do
+  config.flipper.test_help = false
+end
+
 Rails.application.reloader.to_prepare do
   Flipper.configure do |config|
     config.default do

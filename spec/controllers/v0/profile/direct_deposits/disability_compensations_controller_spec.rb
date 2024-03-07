@@ -44,6 +44,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         control_info = json['data']['attributes']['control_information']
 
         expect(control_info['can_update_direct_deposit']).to be(true)
+        expect(control_info['is_edu_claim_available']).to be(true)
       end
 
       it 'does not return errors' do
@@ -56,6 +57,20 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
       end
     end
 
+    context 'when missing education benefits flag' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_missing_edu_flag') do
+          get(:show)
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        json = JSON.parse(response.body)
+        control_info = json['data']['attributes']['control_information']
+        expect(control_info['is_edu_claim_available']).to be_nil
+      end
+    end
+
     context 'when has restrictions' do
       it 'control info has flags set to false' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_has_restrictions') do
@@ -65,6 +80,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         json = JSON.parse(response.body)['data']['attributes']
         expect(json['control_information']['can_update_direct_deposit']).to be(false)
         expect(json['control_information']['has_payment_address']).to be(false)
+        expect(json['control_information']['is_edu_claim_available']).to be(false)
       end
     end
 

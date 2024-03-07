@@ -31,6 +31,7 @@ RSpec.describe 'decision letters', type: :request do
           Flipper.enable('mobile_filter_doc_27_decision_letters_out')
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
+
           expect(response).to have_http_status(:ok)
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')

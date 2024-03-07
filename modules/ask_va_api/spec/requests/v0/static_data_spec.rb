@@ -26,7 +26,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   end
 
   describe 'GET #index' do
-    let(:index_path) { '/ask_va_api/v0/static_data?name=irish_country' }
+    let(:index_path) { '/ask_va_api/v0/static_data?key=name&value=irish_country' }
     let(:expected_response) { 'pong' }
     let(:authorized_user) do
       build(:user, :accountable_with_sec_id,

@@ -8,7 +8,7 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
-    BATCH_SIZE = 5000
+    SLICE_SIZE = 30
 
     def perform
       file_content = fetch_file_content
@@ -27,20 +27,37 @@ module Representatives
     end
 
     def queue_address_updates(data)
+      delay = 0
+
       Representatives::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
         next if data[sheet].blank?
 
         batch = Sidekiq::Batch.new
         batch.description = "Batching #{sheet} sheet data"
 
-        batch.jobs do
-          data[sheet].each_slice(BATCH_SIZE) do |rows|
-            rows.each do |row|
-              Representatives::Update.perform_async(row)
+        begin
+          batch.jobs do
+            rows_to_process(data[sheet]).each_slice(SLICE_SIZE) do |rows|
+              json_rows = rows.to_json
+              Representatives::Update.perform_in(delay.minutes, json_rows)
+              delay += 1
             end
           end
+        rescue => e
+          log_error("Error queuing address updates: #{e.message}")
         end
       end
+    end
+
+    def rows_to_process(rows)
+      rows.map do |row|
+        rep = Veteran::Service::Representative.find(row[:id])
+        diff = rep.diff(row)
+        row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
+      rescue ActiveRecord::RecordNotFound => e
+        log_error("Error: Representative not found #{e.message}")
+        nil
+      end.compact
     end
 
     def log_error(message)

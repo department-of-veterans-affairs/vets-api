@@ -172,4 +172,22 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
       end.to raise_error(::Common::Exceptions::BackendServiceException)
     end
   end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Claim Uploader Job'
+      msg = { 'args' => [auto_claim.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: auto_claim.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
+    end
+  end
 end

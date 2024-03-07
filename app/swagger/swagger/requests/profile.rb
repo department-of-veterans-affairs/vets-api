@@ -42,8 +42,9 @@ module Swagger
                       has_no_fiduciary_assigned
                       is_not_deceased
                       has_payment_address
+                      is_edu_claim_available
                     ]
-                    property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view payment account information'
+                    property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view C&P direct deposit information'
                     property :is_corp_available, type: :boolean, example: true, description: ''
                     property :is_corp_rec_found, type: :boolean, example: true, description: ''
                     property :has_no_bdn_payments, type: :boolean, example: true, description: ''
@@ -54,6 +55,7 @@ module Swagger
                     property :has_no_fiduciary_assigne, type: :boolean, example: true, description: ''
                     property :is_not_decease, type: :boolean, example: true, description: ''
                     property :has_payment_address, type: :boolean, example: true, description: ''
+                    property :is_edu_claim_available, type: :boolean, example: true, description: 'Must be true to view EDU direct deposit information'
                   end
 
                   property :payment_account do

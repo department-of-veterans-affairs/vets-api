@@ -39,9 +39,14 @@ RSpec.describe EVSSClaimService do
     # Overriding global user / service values
     let(:user) { FactoryBot.create(:evss_user, birls_id: nil) }
     let(:service) { described_class.new(user) }
+    # rubocop:disable Style/HashSyntax
+    let(:claim) { { :benefit_claim_details_dto => { :ptcpnt_vet_id => '234567891' } } }
+    # rubocop:enable Style/HashSyntax
+    let(:claim_service) { BGS::EbenefitsBenefitClaimsStatus }
 
     before do
       allow(Rails.logger).to receive(:info)
+      allow_any_instance_of(claim_service).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim)
     end
 
     describe '#request_decision' do
@@ -53,15 +58,16 @@ RSpec.describe EVSSClaimService do
         job_id = job['jid']
         job_args = job['args'][0]
 
-        header = job_args['va_eauth_birlsfilenumber']
-        expect(header).to eq(user.ssn)
+        header = job_args['va_eauth_pid']
+        expect(header).to eq('234567891')
 
         expect(Rails.logger)
           .to have_received(:info)
           .with('Supplementing EVSS headers', {
                   message_type: 'evss.request_decision.no_birls_id',
                   claim_id: 1,
-                  job_id:
+                  job_id:,
+                  revision: 2
                 })
       end
     end
@@ -90,15 +96,16 @@ RSpec.describe EVSSClaimService do
         job_id = job['jid']
         job_args = job['args'][0]
 
-        header = job_args['va_eauth_birlsfilenumber']
-        expect(header).to eq(user.ssn)
+        header = job_args['va_eauth_pid']
+        expect(header).to eq('234567891')
 
         expect(Rails.logger)
           .to have_received(:info)
           .with('Supplementing EVSS headers', {
                   message_type: 'evss.document_upload.no_birls_id',
                   claim_id: 1,
-                  job_id:
+                  job_id:,
+                  revision: 2
                 })
       end
     end

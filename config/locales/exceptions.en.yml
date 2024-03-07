@@ -677,12 +677,6 @@ en:
         code: 'BGS_686c_SERVICE_403'
         detail: BGS service understood submisssion but could not process.
         status: 403
-      EMIS_HIST502:
-        <<: *external_defaults
-        title: Unexpected response body
-        code: 'EMIS_HIST502'
-        detail: EMIS service responded with something other than the expected array of service history hashes.
-        status: 502
       EMIS_STATUS502:
         <<: *external_defaults
         title: Unexpected response body
@@ -2169,7 +2163,13 @@ en:
         <<: *defaults
         code: LH_gateway_timeout
         status: 504
-
+    benefits_education:
+      outside_working_hours:
+        <<: *defaults
+        title: External service unavailable
+        detail: 'Lighthouse GI Bill Status is not available outside of working hours'
+        code: 114
+        status: 503
   evss:
     external_service_unavailable:
       <<: *defaults

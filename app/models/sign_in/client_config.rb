@@ -16,6 +16,7 @@ module SignIn
     validates :authentication,
               presence: true,
               inclusion: { in: Constants::Auth::AUTHENTICATION_TYPES, allow_nil: false }
+    validates :shared_sessions, inclusion: [true, false]
     validates :enforced_terms, inclusion: { in: Constants::Auth::ENFORCED_TERMS, allow_nil: true }
     validates :terms_of_use_url, presence: true, if: :enforced_terms
     validates :client_id, presence: true, uniqueness: true

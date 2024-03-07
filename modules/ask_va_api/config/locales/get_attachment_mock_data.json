@@ -1,0 +1,102 @@
+{
+  "Data": [
+    {
+      "Id": "1",
+      "InquiriesId": "1",
+      "CorrespondenceId": null,
+      "FileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "FileName": "testfile.txt"
+    },
+    {
+      "Id": "2",
+      "InquiriesId": "2",
+      "CorrespondenceId": null,
+      "FileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "FileName": "testfile.txt"
+    },
+    {
+      "Id": "3",
+      "InquiriesId": "3",
+      "CorrespondenceId": null,
+      "FileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "FileName": "testfile.txt"
+    },
+    {
+      "Id": "4",
+      "InquiriesId": "4",
+      "CorrespondenceId": null,
+      "FileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "FileName": "testfile.txt"
+    },
+    {
+      "Id": "5",
+      "InquiriesId": "5",
+      "CorrespondenceId": null,
+      "FileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "FileName": "testfile.txt"
+    },
+    {
+      "Id": "6",
+      "InquiriesId": "6",
+      "CorrespondenceId": null,
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "inquiry_6_attachment.pdf"
+    },
+    {
+      "Id": "7",
+      "InquiriesId": "7",
+      "CorrespondenceId": null,
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "inquiry_7_attachment.pdf"
+    },
+    {
+      "Id": "8",
+      "InquiriesId": "9",
+      "CorrespondenceId": null,
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "part_of_inquiry_9.pdf"
+    },
+    {
+      "Id": "9",
+      "InquiriesId": "9",
+      "CorrespondenceId": null,
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "part_of_inquiry_9.pdf"
+    },
+    {
+      "Id": "10",
+      "InquiriesId": "9",
+      "CorrespondenceId": null,
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "part_of_inquiry_9.pdf"
+    },
+    {
+      "Id": "11",
+      "InquiriesId": "9",
+      "CorrespondenceId": null,
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "part_of_inquiry_9.pdf"
+    },
+    {
+      "Id": "12",
+      "InquiriesId": null,
+      "CorrespondenceId": "1",
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "correspondence_1_attachment.pdf"
+    },
+    {
+      "Id": "13",
+      "InquiriesId": null,
+      "CorrespondenceId": "2",
+      "FileContent": "JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovUmVzb3VyY2VzIDw8Ci9Qcm9jU2V0IFsvUERGIC9UZXh0XQo+PgovQ29udGVudHMgNCAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL0xlbmd0aCA0NAo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEhlbGxvLCB0aGlzIGlzIGEgdGVzdCBQREYgZmlsZSBmb3IgZG93bmxvYWRpbmchKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDEwIDAwMDAwIG4KMDAwMDAwMDA3OSAwMDAwMCBuCjAwMDAwMDAxNzMgMDAwMDAgbgowMDAwMDAwNDU3IDAwMDAwIG4KdHJhaWxlcgo8PAovU2l6ZSA1Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo1NjYKJSVFT0Y=",
+      "FileName": "correspondence_2_attachment.pdf"
+    }, 
+    {
+      "Id": "14",
+      "InquiriesId":" 9",
+      "CorrespondenceId": null,
+      "FileContent": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==",
+      "FileName": "txt_file_for_inquiry_9.txt"
+    }
+  ]
+}

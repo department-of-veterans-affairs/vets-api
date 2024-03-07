@@ -2,7 +2,7 @@
 
 module AskVAApi
   module Correspondences
-    ENDPOINT = 'get_replies_mock_data'
+    ENDPOINT = 'replies'
 
     class Retriever
       attr_reader :inquiry_id, :service
@@ -14,7 +14,7 @@ module AskVAApi
 
       def call
         validate_input(inquiry_id, 'Invalid Inquiry ID')
-        fetch_data(payload: { inquiry_id: }).map do |cor|
+        fetch_data(payload: { InquiryId: inquiry_id }).map do |cor|
           Entity.new(cor)
         end
       rescue => e
@@ -28,7 +28,7 @@ module AskVAApi
       end
 
       def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)
+        service.call(endpoint: ENDPOINT, payload:)[:Data]
       end
 
       def validate_input(input, error_message)

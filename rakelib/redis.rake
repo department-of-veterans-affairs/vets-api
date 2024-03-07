@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'emis/responses/response'
-
 namespace :redis do
   desc 'Flush Vets.gov User/Sessions'
   task flush_session: %i[flush_session_store flush_users_store]

@@ -13,6 +13,7 @@ vaweb.update!(authentication: SignIn::Constants::Auth::COOKIE,
               logout_redirect_uri: 'http://localhost:3001',
               enforced_terms: SignIn::Constants::Auth::VA_TERMS,
               terms_of_use_url: 'http://localhost:3001/terms-of-use',
+              shared_sessions: true,
               refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for VA flagship mobile Sign in Service client
@@ -46,6 +47,7 @@ vamock.update!(authentication: SignIn::Constants::Auth::MOCK,
                access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
                access_token_audience: 'va.gov',
                logout_redirect_uri: 'http://localhost:3001',
+               shared_sessions: true,
                refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for example external client using cookie auth
@@ -57,6 +59,7 @@ sample_client_web.update!(authentication: SignIn::Constants::Auth::COOKIE,
                           access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
                           access_token_audience: 'sample_client',
                           logout_redirect_uri: 'http://localhost:4567',
+                          shared_sessions: true,
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for example external client using api auth
