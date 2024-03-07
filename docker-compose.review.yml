@@ -13,12 +13,6 @@ services:
     ports:
       - "54320:5432"
     restart: unless-stopped
-  clamav:
-    volumes:
-      - shared-vol:/vets-api
-    image: clamav/clamav
-    ports:
-      - 33100:3310
   vets-api:
     build:
       context: .
@@ -59,4 +53,3 @@ services:
 volumes:
   db-data:
   dev_bundle:
-  shared-vol:
