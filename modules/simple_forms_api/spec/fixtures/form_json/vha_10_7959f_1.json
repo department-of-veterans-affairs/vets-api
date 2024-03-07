@@ -22,7 +22,7 @@
       "postal_code": "12345"
     },
     "ssn": "222554444",
-    "claim_number": "123456789",
+    "va_claim_number": "123456789",
     "phone_number": "9876543213",
     "email_address": "veteran@mail.com"
   },

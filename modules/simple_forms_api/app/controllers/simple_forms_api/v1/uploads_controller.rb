@@ -167,6 +167,8 @@ module SimpleFormsApi
           case form_id
           when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
             form.handle_attachments(file_path)
+          else
+            [file_path]
           end
 
         [file_path, maybe_add_file_paths, metadata]
