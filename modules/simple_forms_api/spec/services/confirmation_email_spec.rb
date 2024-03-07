@@ -144,7 +144,7 @@ describe SimpleFormsApi::ConfirmationEmail do
       context 'when user is signed in' do
         let(:user) { create(:user, :loa3) }
 
-        it 'sends the confirmation email' do
+        it 'does not send the confirmation email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
           expect(data['applicant_email']).to be_nil
 
@@ -157,15 +157,7 @@ describe SimpleFormsApi::ConfirmationEmail do
 
           subject.send
 
-          expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            user.va_profile_email,
-            'form40_0247_confirmation_email_template_id',
-            {
-              'first_name' => 'JOE',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => 'confirmation_number'
-            }
-          )
+          expect(VANotify::EmailJob).not_to have_received(:perform_async)
         end
       end
 
