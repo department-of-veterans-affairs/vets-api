@@ -66,8 +66,7 @@ module SimpleFormsApi
 
         PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
       end
-
       attachments
-    end      
+    end
   end
 end
