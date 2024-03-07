@@ -4,6 +4,7 @@ require 'ddtrace'
 require 'simple_forms_api_submission/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'simple_forms_api_submission/s3'
+require 'lgy/service'
 
 module SimpleFormsApi
   module V1
@@ -36,6 +37,11 @@ module SimpleFormsApi
 
         if form_is210966 && icn && first_party?
           handle_210966_authenticated
+        elsif params[:form_number] == '26-4555' && icn
+          parsed_form_data = JSON.parse(params.to_json)
+          form = SimpleFormsApi::VBA264555.new(parsed_form_data)
+          response = LGY::Service.new.post_grant_application(payload: form.as_payload)
+          render json: response.body, status: response.status
         else
           submit_form_to_central_mail
         end
