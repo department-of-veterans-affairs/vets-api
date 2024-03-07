@@ -1,12 +1,12 @@
 {
-  "preneed_attachments": [
-    {
-      "name": "123.jpeg",
-      "size": 80364,
-      "confirmation_code": "a-random-uuid"
-    }
-  ],
   "application": {
+    "preneed_attachments": [
+      {
+        "name": "123.jpeg",
+        "size": 80364,
+        "confirmation_code": "a-random-uuid"
+      }
+    ],
     "applicant": {
       "applicant_relationship_to_claimant": "Self"
     },
