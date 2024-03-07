@@ -26,7 +26,7 @@ RSpec.describe DecisionReview::NodSendEmailJob, type: :job do
       it 'sends email using VANotify service' do
         expect(service).to receive(:send_email).with({ email_address:, template_id:, customisation: })
 
-        subject.perform_async(email, template_id, customisation, line_num)
+        subject.perform_async(email_address, template_id, customisation, line_num)
       end
     end
 
@@ -44,7 +44,7 @@ RSpec.describe DecisionReview::NodSendEmailJob, type: :job do
           expect(args[:params][:exception_message]).to eq error_message
         end
 
-        expect { job.perform(email, template_id, customisation, line_num) }.not_to raise_exception
+        expect { job.perform(email_address, template_id, customisation, line_num) }.not_to raise_exception
       end
     end
   end
