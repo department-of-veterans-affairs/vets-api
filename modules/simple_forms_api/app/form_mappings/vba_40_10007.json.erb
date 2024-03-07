@@ -15,7 +15,7 @@
   "F[0].Page_1[0].Field13[7]": "<%= (form.data.dig('application', 'veteran', 'race', 'not_spanish_hispanic_latino')) ? 1 : 0%>",
   "F[0].Page_1[0].Field13[8]": "<%= (form.data.dig('application', 'veteran', 'race', 'is_native_hawaiian_or_other_pacific_islander')) ? 1 : 0%>",
   "F[0].Page_1[0].Field13[9]": "<%= (form.data.dig('application', 'veteran', 'race', 'is_white')) ? 1 : 0%>",
-  "F[0].Page_1[0].Field9[0]": "<%= form.data.dig('application', 'veteran', 'date_of_birth') %>",
+  "F[0].Page_1[0].Field9[0]": "<%= (form.data.dig('application', 'claimant', 'relationship_to_vet')) != '1' ? (form.data.dig('application', 'veteran', 'date_of_birth') || '') : (form.data.dig('application', 'claimant','date_of_birth') || '') %>",
   "F[0].Page_1[0].Field19[2]": "<%= form.data.dig('application', 'veteran', 'place_of_birth') %>",
   "F[0].Page_1[0].Field13[10]": "<%= (form.data.dig('application', 'veteran', 'is_deceased')) == 'yes' ? 1 : 0%>",
   "F[0].Page_1[0].Field13[11]": "<%= (form.data.dig('application', 'veteran', 'is_deceased')) == 'no' ? 1 : 0%>",

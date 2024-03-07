@@ -59,4 +59,4 @@ en:
         pdf:
           locked: We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again.
           invalid: We couldn’t open your PDF. Please save it and try uploading it again.
-          incorrect_password: We couldn’t unlock your PDF. Save the PDF without a password and try again. If it still doesn’t work, you can send us your evidence by mail.
+          incorrect_password: We couldn’t unlock your PDF. Save the PDF without a password and try again.

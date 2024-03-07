@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_06_150112) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -603,6 +603,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
+    t.string "aasm_state", default: "unprocessed"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -892,6 +893,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+  end
+
+  create_table "schema_contract_validations", force: :cascade do |t|
+    t.string "contract_name", null: false
+    t.string "user_uuid", null: false
+    t.jsonb "response", null: false
+    t.integer "status", null: false
+    t.string "error_details"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "service_account_configs", force: :cascade do |t|
