@@ -127,30 +127,15 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "firstName",
-        "lastName",
         "address",
         "phone",
         "relationship"
       ],
       "properties": {
-        "firstName": {
-          "description": "First name of Claimant.",
+        "claimantId": {
           "type": "string",
-          "example": "John",
-          "maxLength": 12
-        },
-        "middleInitial": {
-          "description": "Middle initial of Claimant.",
-          "type": "string",
-          "example": "M",
-          "maxLength": 1
-        },
-        "lastName": {
-          "description": "Last name of Claimant.",
-          "type": "string",
-          "example": "Dow",
-          "maxLength": 18
+          "example": "123456789",
+          "description": "Id of the claimant."
         },
         "address": {
           "type": "object",
