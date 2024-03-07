@@ -1,12 +1,12 @@
 {
-  "preneed_attachments": [
-    {
-      "name": "123.jpeg",
-      "size": 80364,
-      "confirmation_code": "a-random-uuid"
-    }
-  ],
   "application": {
+    "preneed_attachments": [
+      {
+        "name": "123.jpeg",
+        "size": 80364,
+        "confirmation_code": "a-random-uuid"
+      }
+    ],
     "applicant": {
       "applicant_relationship_to_claimant": "Self"
     },
@@ -49,6 +49,7 @@
         "postal_code": "23432"
       },
       "military_status": "O",
+      "date_of_birth": "2016-10-27",
       "current_name": {
         "first": "Quinlan",
         "middle": "Tucker Strong",
