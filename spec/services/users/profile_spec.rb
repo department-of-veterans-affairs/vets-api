@@ -421,8 +421,8 @@ RSpec.describe Users::Profile do
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           VCR.use_cassette('profile/demographics') do
-            VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
-                                                                                       allow_playback_repeats: true) do
+            VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank',
+                             match_requests_on: %i[method body], allow_playback_repeats: true) do
               vaprofile_error = subject.errors.last
 
               expect(vaprofile_error[:external_service]).to eq 'VAProfile'
