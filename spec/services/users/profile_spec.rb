@@ -544,7 +544,7 @@ RSpec.describe Users::Profile do
     describe 'preferred name' do
       it 'No demographics' do
         expect(profile[:preferred_name]).to be_nil
-        expect(subject.errors).not_to be_empty
+        expect(subject.errors).to be_present
         expect(subject.errors.select { |error| error[:external_service] == 'Demographics' }).not_to be_empty
       end
 

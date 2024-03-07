@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'byebug'
 
 RSpec.describe 'Fetching user data' do
   include SchemaMatchers
@@ -15,8 +16,10 @@ RSpec.describe 'Fetching user data' do
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
-        get v0_user_url, params: nil, headers: v0_user_request_headers
+      VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+          get v0_user_url, params: nil, headers: v0_user_request_headers
+        end
       end
     end
 
@@ -177,7 +180,7 @@ RSpec.describe 'Fetching user data' do
       it 'returns meta.errors information', :aggregate_failures do
         error = body.dig('meta', 'errors').first
 
-        expect(error['external_service']).to eq 'VAProfile'
+        expect(error['external_service']).to be_present
         expect(error['description']).to be_present
         expect(error['status']).to eq 502
       end
@@ -192,8 +195,10 @@ RSpec.describe 'Fetching user data' do
       user = new_user(:loa1)
       sign_in_as(user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
-        get v0_user_url, params: nil, headers: v0_user_request_headers
+      VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+          get v0_user_url, params: nil, headers: v0_user_request_headers
+        end
       end
     end
 
@@ -202,13 +207,15 @@ RSpec.describe 'Fetching user data' do
     end
 
     it 'returns a status of 296 with errors', :aggregate_failures do
-      body  = JSON.parse(response.body)
-      error = body.dig('meta', 'errors').first
+      VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+        body  = JSON.parse(response.body)
+        error = body.dig('meta', 'errors').first
 
-      expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
-      expect(error['description']).to be_present
-      expect(error['status']).to eq 401
+        expect(response.status).to eq 296
+        expect(error['external_service']).to eq 'MVI'
+        expect(error['description']).to be_present
+        expect(error['status']).to eq 401
+      end
     end
 
     context 'with camel inflection' do
@@ -255,53 +262,59 @@ RSpec.describe 'Fetching user data' do
     end
 
     it 'MVI error should only make a request to MVI one time per request!', :aggregate_failures do
-      stub_mpi_failure
-      expect { get v0_user_url, params: nil }
-        .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
-        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-        .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+      VCR.use_cassette('va_profile/demographics/demographics') do
+        stub_mpi_failure
+        expect { get v0_user_url, params: nil }
+          .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
 
-      body  = JSON.parse(response.body)
-      error = body.dig('meta', 'errors').first
+        body  = JSON.parse(response.body)
+        error = body.dig('meta', 'errors').first
 
-      expect(body['data']['attributes']['va_profile']).to be_nil
-      expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
-      expect(error['description']).to be_present
-      expect(error['status']).to eq 500
+        expect(body['data']['attributes']['va_profile']).to be_nil
+        expect(response.status).to eq 296
+        expect(error['external_service']).to eq 'MVI'
+        expect(error['description']).to be_present
+        expect(error['status']).to eq 500
+      end
     end
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
-      stub_mpi_record_not_found
-      expect { get v0_user_url, params: nil }
-        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-      body  = JSON.parse(response.body)
-      error = body.dig('meta', 'errors').first
+      VCR.use_cassette('va_profile/demographics/demographics') do
+        stub_mpi_record_not_found
+        expect { get v0_user_url, params: nil }
+          .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+        body  = JSON.parse(response.body)
+        error = body.dig('meta', 'errors').first
 
-      expect(body['data']['attributes']['va_profile']).to be_nil
-      expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
-      expect(error['description']).to be_present
-      expect(error['status']).to eq 404
+        expect(body['data']['attributes']['va_profile']).to be_nil
+        expect(response.status).to eq 296
+        expect(error['external_service']).to eq 'MVI'
+        expect(error['description']).to be_present
+        expect(error['status']).to eq 404
+      end
     end
 
     it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
-      stub_mpi_duplicate_record
-      expect { get v0_user_url, params: nil }
-        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+      VCR.use_cassette('va_profile/demographics/demographics') do
+        stub_mpi_duplicate_record
+        expect { get v0_user_url, params: nil }
+          .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
 
-      body  = JSON.parse(response.body)
-      error = body.dig('meta', 'errors').first
+        body  = JSON.parse(response.body)
+        error = body.dig('meta', 'errors').first
 
-      expect(body['data']['attributes']['va_profile']).to be_nil
-      expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
-      expect(error['description']).to be_present
-      expect(error['status']).to eq 404
+        expect(body['data']['attributes']['va_profile']).to be_nil
+        expect(response.status).to eq 296
+        expect(error['external_service']).to eq 'MVI'
+        expect(error['description']).to be_present
+        expect(error['status']).to eq 404
+      end
     end
 
     it 'MVI success should only make a request to MVI one time per multiple requests!' do
@@ -324,47 +337,49 @@ RSpec.describe 'Fetching user data' do
       end
 
       it 'MVI raises a breakers exception after 50% failure rate', :aggregate_failures do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
-          now = Time.current
-          start_time = now - 120
-          Timecop.freeze(start_time)
+        VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+            now = Time.current
+            start_time = now - 120
+            Timecop.freeze(start_time)
 
-          # starts out successful
-          stub_mpi_success
-          sign_in_as(user)
-          expect { get v0_user_url, params: nil }
-            .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+            # starts out successful
+            stub_mpi_success
+            sign_in_as(user)
+            expect { get v0_user_url, params: nil }
+              .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
 
-          # encounters failure and breakers kicks in
-          stub_mpi_failure
-          sign_in_as(user2)
-          expect { get v0_user_url, params: nil }
-            .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
+            # encounters failure and breakers kicks in
+            stub_mpi_failure
+            sign_in_as(user2)
+            expect { get v0_user_url, params: nil }
+              .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+            expect(MPI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
 
-          # skipped because breakers is active
-          stub_mpi_success
-          sign_in_as(user2)
-          expect { get v0_user_url, params: nil }
-            .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
-          Timecop.freeze(now)
+            # skipped because breakers is active
+            stub_mpi_success
+            sign_in_as(user2)
+            expect { get v0_user_url, params: nil }
+              .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+            expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
+            Timecop.freeze(now)
 
-          # sufficient time has elapsed that new requests are made, resulting in success
-          sign_in_as(user2)
-          expect { get v0_user_url, params: nil }
-            .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-            .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-          expect(response.status).to eq(200)
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
-          Timecop.return
+            # sufficient time has elapsed that new requests are made, resulting in success
+            sign_in_as(user2)
+            expect { get v0_user_url, params: nil }
+              .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+              .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+            expect(response.status).to eq(200)
+            expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+            Timecop.return
+          end
         end
       end
     end

@@ -1898,9 +1898,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports getting the 200 user data' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
-                                                                                  allow_playback_repeats: true) do
-        expect(subject).to validate(:get, '/v0/user', 200, headers)
+      VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+                                                                                    allow_playback_repeats: true) do
+          expect(subject).to validate(:get, '/v0/user', 200, headers)
+        end
       end
     end
 
