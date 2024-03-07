@@ -31,7 +31,7 @@ module SimpleFormsApi
       stamp_submission_date(stamped_template_path, form.submission_date_config)
     end
 
-    def self.stamp107959f(stamped_template_path, form)
+    def self.stamp107959f1(stamped_template_path, form)
       desired_stamps = [[26, 82.5, form.data['statement_of_truth_signature']]]
       stamp(desired_stamps, stamped_template_path)
     end
