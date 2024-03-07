@@ -76,8 +76,6 @@ sign_in:
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
-  vaweb_client_id: vaweb
-  vamobile_client_id: vamobile
 
 terms_of_use:
   current_version: v1
