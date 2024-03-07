@@ -22,20 +22,53 @@
         ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string" },
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          },
           "identifier": {
             "type": "array",
             "items": {
               "type": "object",
+              "required": [
+                "system",
+                "value"
+              ],
               "properties": {
                 "system": { "type": "string" },
                 "value": { "type": "string" }
               }
             }
           },
-          "kind": { "type": ["string", "null"] },
-          "status": { "type": ["string", "null"] },
+          "kind": {
+            "type": ["string", "null"], // null not explicitly mentioned in docs
+            "enum": ["clinic", "cc", "telehealth", "phone"]
+          },
+          "status": {
+            "type": ["string", "null"], // null not mentioned in docs
+            "enum": ["proposed", "pending", "booked", "arrived", "noshow", "fulfilled", "cancelled", "entered-in-error", "checked-in"]
+          },
           "service_type": { "type": "string" },
+          "service_types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "coding": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "system": { "type": "string" },
+                      "code": { "type": "string" },
+                      "display:": { "type": "string" }
+                    }
+                  }
+                },
+                "text": { "type": "string" }
+              }
+            }
+          }
           "patient_icn": { "type": "string" },
           "location_id": { "type": ["string", "null"] },
           "clinic": { "type": "string" },
