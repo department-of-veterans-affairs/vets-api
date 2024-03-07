@@ -4,7 +4,7 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972].freeze
+    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972 20-10207].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
@@ -130,6 +130,27 @@ module SimpleFormsApi
       desired_stamps = [[50, 415]]
       signature_text = form.data['statement_of_truth_signature']
       page_configuration = [
+        { type: :new_page },
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      multistamp(stamped_template_path, signature_text, page_configuration)
+    end
+
+    def self.stamp2010207(stamped_template_path, form)
+      desired_stamps = if form.data['preparer_type'] == 'veteran'
+                         [[50, 690]]
+                       elsif form.data['third_party_type'] == 'power-of-attorney'
+                         [[50, 445]]
+                       elsif form.data['preparer_type'] == 'third-party-veteran' ||
+                             form.data['preparer_type'] == 'third-party-non-veteran'
+                         [[50, 570]]
+                       end
+      signature_text = form.data['statement_of_truth_signature']
+      page_configuration = [
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
         { type: :new_page },
         { type: :text, position: desired_stamps[0] }
       ]

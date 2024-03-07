@@ -15,7 +15,8 @@ module Lighthouse
                     :has_mailing_address,
                     :has_no_fiduciary_assigned,
                     :is_not_deceased,
-                    :has_payment_address
+                    :has_payment_address,
+                    :is_edu_claim_available
     end
   end
 end
