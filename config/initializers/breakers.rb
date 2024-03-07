@@ -39,7 +39,6 @@ require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
 
 Rails.application.reloader.to_prepare do
-
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
 
   services = [
