@@ -549,8 +549,9 @@ GEM
     httpi (2.5.0)
       rack
       socksify
-    i18n (1.14.1)
+    i18n (1.14.3)
       concurrent-ruby (~> 1.0)
+      racc (~> 1.7)
     ice_nine (0.11.2)
     image_processing (1.12.2)
       mini_magick (>= 4.9.5, < 5)
