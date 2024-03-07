@@ -14,7 +14,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
   end
 
   describe 'generating and uploading the signed pdf' do
-    context '2122a' do
+    context '2122a veteran claimant' do
       before do
         power_of_attorney.form_data = {
           recordConsent: true,
@@ -142,7 +142,117 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       end
     end
 
-    context '2122' do
+    context '2122a non-veteran claimant' do
+      before do
+        power_of_attorney.form_data = {
+          recordConsent: true,
+          consentAddressChange: true,
+          consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+          veteran: {
+            serviceBranch: 'ARMY',
+            address: {
+              numberAndStreet: '2719 Hyperion Ave',
+              city: 'Los Angeles',
+              state: 'CA',
+              country: 'US',
+              zipFirstFive: '92264'
+            },
+            phone: {
+              areaCode: '555',
+              phoneNumber: '5551337'
+            }
+          },
+          claimant: {
+            claimantId: '1012830872V584140',
+            email: 'lillian@disney.com',
+            relationship: 'Spouse',
+            address: {
+              numberAndStreet: '2688 S Camino Real',
+              city: 'Palm Springs',
+              state: 'CA',
+              country: 'US',
+              zipFirstFive: '92264'
+            },
+            phone: {
+              areaCode: '555',
+              phoneNumber: '5551337'
+            }
+          },
+          representative: {
+            poaCode: poa_code.to_s,
+            type: 'SERVICE ORGANIZATION REPRESENTATIVE',
+            firstName: 'Bob',
+            lastName: 'Representative',
+            organizationName: 'I Help Vets LLC',
+            address: {
+              numberAndStreet: '2719 Hyperion Ave',
+              city: 'Los Angeles',
+              state: 'CA',
+              country: 'US',
+              zipFirstFive: '92264'
+            }
+          }
+        }
+        power_of_attorney.save
+      end
+
+      it 'generates e-signatures correctly for a non-veteran claimant' do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+          data = power_of_attorney
+                .form_data
+                .deep_merge(
+                  {
+                    'veteran' => {
+                      'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                      'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                      'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                      'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                    }
+                  }
+                )
+          final_data = data.merge(
+            {
+              'text_signatures' => {
+                'page1' => [
+                  {
+                    'signature' => 'JESSE GRAY - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 73
+                  },
+                  {
+                    'signature' => 'Bob Representative - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 100
+                  }
+                ],
+                'page2' => [
+                  {
+                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 306
+                  },
+                  {
+                    'signature' => 'Bob Representative - signed via api.va.gov',
+                    'x' => 35,
+                    'y' => 200
+                  }
+                ]
+              }
+            }
+          )
+
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+          expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Individual)
+            .to receive(:construct)
+            .with(final_data, id: power_of_attorney.id)
+            .and_call_original
+
+          subject.new.perform(power_of_attorney.id, '2122A')
+        end
+      end
+    end
+
+    context '2122 veteran claimant' do
       before do
         power_of_attorney.form_data = {
           recordConsent: true,
@@ -249,6 +359,102 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
+
+          subject.new.perform(power_of_attorney.id, '2122')
+        end
+      end
+    end
+
+    context '2122 non-veteran claimant' do
+      before do
+        power_of_attorney.form_data = {
+          recordConsent: true,
+          consentAddressChange: true,
+          consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+          veteran: {
+            address: {
+              numberAndStreet: '2719 Hyperion Ave',
+              city: 'Los Angeles',
+              state: 'CA',
+              country: 'US',
+              zipFirstFive: '92264'
+            },
+            phone: {
+              areaCode: '555',
+              phoneNumber: '5551337'
+            }
+          },
+          claimant: {
+            claimantId: '1012830872V584140',
+            email: 'lillian@disney.com',
+            relationship: 'Spouse',
+            address: {
+              numberAndStreet: '2688 S Camino Real',
+              city: 'Palm Springs',
+              state: 'CA',
+              country: 'US',
+              zipFirstFive: '92264'
+            },
+            phone: {
+              areaCode: '555',
+              phoneNumber: '5551337'
+            }
+          },
+          serviceOrganization: {
+            poaCode: poa_code.to_s,
+            firstName: 'Bob',
+            lastName: 'Representative',
+            organizationName: 'I Help Vets LLC',
+            address: {
+              numberAndStreet: '2719 Hyperion Ave',
+              city: 'Los Angeles',
+              state: 'CA',
+              country: 'US',
+              zipFirstFive: '92264'
+            }
+          }
+        }
+        power_of_attorney.save
+      end
+
+      it 'generates e-signatures correctly' do
+        data = power_of_attorney
+               .form_data
+               .deep_merge(
+                 {
+                   'veteran' => {
+                     'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+                     'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+                     'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+                     'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+                   }
+                 }
+               )
+        final_data = data.merge(
+          {
+            'text_signatures' => {
+              'page2' => [
+                {
+                  'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 240
+                },
+                {
+                  'signature' => 'Bob Representative - signed via api.va.gov',
+                  'x' => 35,
+                  'y' => 200
+                }
+              ]
+            }
+          }
+        )
+
+        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+          expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
+            .to receive(:construct)
+            .with(final_data, id: power_of_attorney.id)
+            .and_call_original
 
           subject.new.perform(power_of_attorney.id, '2122')
         end
