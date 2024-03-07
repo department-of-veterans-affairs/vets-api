@@ -138,14 +138,13 @@ module SimpleFormsApi
     end
 
     def self.stamp4010007_uuid(uuid)
-      stamped_template_path = "tmp/vba_40_10007-stamped.pdf"
-      desired_stamps = [[50, 415]]
+      stamped_template_path = "tmp/vba_40_10007-tmp.pdf"
+      desired_stamps = [[450, 10]]
       page_configuration = [
-        { type: :new_page },
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, uuid, page_configuration)
+      multistamp(stamped_template_path, uuid, page_configuration, 8)
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
