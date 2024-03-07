@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VHA107959f
+  class VHA107959f1
     include Virtus.model(nullify_blank: true)
 
     attribute :data
