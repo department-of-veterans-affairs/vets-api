@@ -66,8 +66,7 @@ module Users
 
     def demographics
       demographic_svc = VAProfile::Demographics::Service.new @user
-      demographic = demographic_svc.get_demographics
-      demographic&.demographics
+      demographic_svc.get_demographics&.demographics
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Demographics').serialize_error
       nil
