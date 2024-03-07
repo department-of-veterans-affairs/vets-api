@@ -35,7 +35,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             }
           },
           claimant: {
-            # claimantId: '1012830872V584140',
             email: 'lillian@disney.com',
             relationship: 'Spouse',
             address: {
@@ -272,7 +271,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             }
           },
           claimant: {
-            # claimantId: '1012830872V584140',
             email: 'lillian@disney.com',
             relationship: 'Spouse',
             address: {
