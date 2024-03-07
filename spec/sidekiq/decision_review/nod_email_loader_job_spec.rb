@@ -10,11 +10,10 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
     Sidekiq::Testing.inline!(&example)
   end
 
-  let(:file_name) { 'path/csv_file.csv' }
-
   let(:template_id) { Faker::Internet.uuid }
 
-  let(:csv_data) { StringIO.new("email@test.com\nemail2@test.com\ntest@test.test\n") }
+  let(:file_name) { 'path/csv_file.csv' }
+  let(:csv_data) { StringIO.new("Email,Full Name\nemail@test.com,John Vet\nemail2@test.com,Jane Doe\ntest@test.test,GI Joe\n") }
   let(:get_s3_object) { Aws::S3::Types::GetObjectOutput.new(body: csv_data) }
   let(:s3_client) { instance_double(Aws::S3::Client) }
 
@@ -33,12 +32,15 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
   describe 'perform' do
     context 'when csv with emails is loaded' do
       it 'queues additional jobs with the correct parameters' do
+        expect(DecisionReview::NodSendEmailJob).not_to receive(:perform_async)
+          .with('Email', anything, anything, anything)
+
         expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
-          .with('email@test.com', template_id, 1)
+          .with('email@test.com', template_id, { 'full_name' => 'John Vet' }, 1)
         expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
-          .with('email2@test.com', template_id, 2)
+          .with('email2@test.com', template_id, { 'full_name' => 'Jane Doe' }, 2)
         expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
-          .with('test@test.test', template_id, 3)
+          .with('test@test.test', template_id, { 'full_name' => 'GI Joe' }, 3)
 
         subject.perform_async(file_name, template_id)
       end

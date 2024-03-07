@@ -16,12 +16,15 @@ module DecisionReview
     }.freeze
 
     def perform(file_name, template_id, s3_config = Settings.decision_review.s3)
-      emails = get_emails(file_name, s3_config)
+      csv_file = get_csv(file_name, s3_config)
 
-      line = 1
-      emails.each_line do |email|
-        DecisionReview::NodSendEmailJob.perform_async(email.strip, template_id, line)
-        line += 1
+      line_num = 1
+
+      csv_file.gets # skip CSV header
+      csv_file.each_line do |line|
+        email, full_name = line.split(",")
+        DecisionReview::NodSendEmailJob.perform_async(email, template_id, { 'full_name' => full_name.strip }, line_num)
+        line_num += 1
       end
 
       log_formatted(**LOG_PARAMS, is_success: true)
@@ -32,7 +35,7 @@ module DecisionReview
     private
 
     # returns StringIO
-    def get_emails(file_name, s3_config)
+    def get_csv(file_name, s3_config)
       credentials = Aws::Credentials.new(s3_config.aws_access_key_id, s3_config.aws_secret_access_key)
       s3 = Aws::S3::Client.new(region: s3_config.region, credentials:)
       s3.get_object(bucket: s3_config.bucket, key: file_name).body

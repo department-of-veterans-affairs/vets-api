@@ -15,14 +15,13 @@ module DecisionReview
       user_uuid: nil
     }.freeze
 
-    def perform(email, template_id, line)
-      Rails.logger.debug { "Starting send email job line: #{line} #{email}" }
+    def perform(email_address, template_id, customisation, line_num)
       notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
-      notify_client.send_email({ email_address: email, template_id: })
+      notify_client.send_email({ email_address:, template_id:, customisation: })
 
-      log_formatted(**LOG_PARAMS, is_success: true, params: { line: })
+      log_formatted(**LOG_PARAMS, is_success: true, params: { line_num: })
     rescue => e
-      log_formatted(**LOG_PARAMS, is_success: false, params: { exception_message: e.message, line: })
+      log_formatted(**LOG_PARAMS, is_success: false, params: { exception_message: e.message, line_num: })
     end
   end
 end
