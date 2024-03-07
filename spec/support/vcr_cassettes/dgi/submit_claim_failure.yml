@@ -1,0 +1,34 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimsubmission
+    body:
+      encoding: UTF-8
+      string: '{"claimant":{"claimantId":99900000200000000,"suffix":"","dateOfBirth":"1970-01-01","firstName":"Hoover","lastName":"Hoover","middleName":"Hoover","notificationMethod":"EMAIL","contactInfo":{"addressLine1":"503
+        upper park","addressLine2":"","city":"falls church","zipcode":"22046","emailAddress":"hhover@test.com","addressType":"DOMESTIC","mobilePhoneNumber":"4409938894","homePhoneNumber":null,"countryCode":"US","stateCode":"VA"},"preferredContact":"EMAIL"},"relinquishedBenefit":{"effRelinquishDate":"2021-10-15","relinquishedBenefit":"Chapter30"},"additionalConsiderations":{"activeDutyKicker":"N/A","reserveKicker":"N/A","academyRotcScholarship":"YES","seniorRotcScholarship":"YES","activeDutyDodRepayLoan":"YES","terminalLeave":null},"comments":{"disagreeWithServicePeriod":true}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 424
+      message: 'An unexpected error has occurred'
+    headers:
+      Content-Length:
+      - '0'
+      Date:
+      - Thu, 13 Jul 2023 18:43:30 GMT
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Thu, 13 Jul 2023 18:43:30 GMT
+recorded_with: VCR 6.0.0

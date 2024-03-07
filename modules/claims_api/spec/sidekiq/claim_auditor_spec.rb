@@ -38,4 +38,21 @@ RSpec.describe ClaimsApi::ClaimAuditor, type: :job do
       subject.new.perform
     end
   end
+
+  describe 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      error_msg = 'An error occurred from the Claim Auditor Job'
+      msg = { 'class' => described_class,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: nil,
+          detail: "Job retries exhausted for #{described_class}",
+          error: error_msg
+        )
+      end
+    end
+  end
 end

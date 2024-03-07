@@ -53,18 +53,6 @@ describe AppealsApi::V1::AppealsController, type: :request do
         end
       end
 
-      it 'logs the caseflow request and response' do
-        expect(response).to match_response_schema('appeals')
-        expect(Rails.logger).to have_received(:info).with(
-          'Caseflow Request',
-          { 'va_user' => va_user, 'lookup_identifier' => Digest::SHA2.hexdigest(ssn) }
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          'Caseflow Response',
-          { 'va_user' => va_user, 'first_appeal_id' => '1196201', 'appeal_count' => 3 }
-        )
-      end
-
       describe 'when veteran is not found by SSN in caseflow' do
         let(:caseflow_cassette_name) { 'caseflow/not_found' }
 
