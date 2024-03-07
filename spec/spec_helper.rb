@@ -14,8 +14,7 @@ require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
-require "mock_redis"
-
+require 'mock_redis'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -194,8 +193,7 @@ RSpec.configure do |config|
     Timecop.return
   end
 
-  config.before(:each) do
+  config.before do
     $redis.flushdb
   end
-
 end

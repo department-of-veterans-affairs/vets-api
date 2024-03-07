@@ -4,7 +4,6 @@ require 'sidekiq'
 require 'sidekiq/job_logger'
 
 class Sidekiq::SemanticLogging < Sidekiq::JobLogger
-
   def initialize
     logger = Rails.logger
     super(logger)

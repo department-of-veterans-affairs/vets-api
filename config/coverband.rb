@@ -2,7 +2,6 @@
 
 # config/coverband.rb NOT in the initializers
 Coverband.configure do |config|
-
   config.store = Coverband::Adapters::RedisStore.new($redis)
   config.logger = Rails.logger
 

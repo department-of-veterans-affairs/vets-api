@@ -30,12 +30,12 @@ describe Chip::RedisClient do
 
     it 'saves entry' do
       expect_any_instance_of(Redis::Namespace).to receive(:set).once.with(
-        "#{tenant_id}", 'test_token', { ex: REDIS_CONFIG[:chip][:each_ttl] }
+        tenant_id, 'test_token', { ex: REDIS_CONFIG[:chip][:each_ttl] }
       )
       redis_client.save(token:)
     end
 
-    it "saves entry with chip namespace" do
+    it 'saves entry with chip namespace' do
       redis_client.save(token:)
 
       expect(redis_client.redis_namespace.redis.keys).to include("chip:#{tenant_id}")

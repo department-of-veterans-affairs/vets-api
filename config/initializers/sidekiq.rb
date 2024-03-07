@@ -50,7 +50,6 @@ Rails.application.reloader.to_prepare do
   end
 
   Sidekiq.configure_client do |config|
-
     # redis_url = if Rails.env.test?
     #   require 'testcontainers/redis'
     #   container = Testcontainers::RedisContainer.new("redis:6.2-alpine")

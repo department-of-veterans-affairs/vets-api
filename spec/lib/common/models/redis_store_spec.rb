@@ -69,10 +69,10 @@ describe Common::RedisStore do
       subject.save
     end
 
-    it "saves entry with namespace" do
+    it 'saves entry with namespace' do
       subject.save
 
-      expect(subject.redis_namespace.redis.keys).to include("my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea")
+      expect(subject.redis_namespace.redis.keys).to include('my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea')
     end
   end
 
@@ -107,7 +107,7 @@ describe Common::RedisStore do
     it "entry doesn't exists" do
       subject.destroy
 
-      expect(subject.redis_namespace.redis.keys).not_to include("my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea")
+      expect(subject.redis_namespace.redis.keys).not_to include('my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea')
     end
 
     it 'freezes the instance after destroy is called' do
