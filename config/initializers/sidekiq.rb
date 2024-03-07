@@ -50,7 +50,6 @@ Rails.application.reloader.to_prepare do
   end
 
   Sidekiq.configure_client do |config|
-
     config.redis = REDIS_CONFIG[:sidekiq]
 
     config.client_middleware do |chain|
