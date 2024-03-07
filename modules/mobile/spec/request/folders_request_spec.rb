@@ -111,6 +111,8 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_camelized_response_schema('folder')
+          link = response.parsed_body.dig('data', 'links', 'self')
+          expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/folders/0')
         end
       end
     end
