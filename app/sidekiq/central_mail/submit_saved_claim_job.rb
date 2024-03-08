@@ -40,7 +40,9 @@ module CentralMail
       log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
 
       #flipper logic will be put here
-      response = send_claim_to_central_mail(saved_claim_id)
+
+      #response = send_claim_to_central_mail(saved_claim_id)
+      response = send_claim_to_benefits_intake(saved_claim_id)
 
       if response.success?
         update_submission('success')
@@ -86,12 +88,12 @@ module CentralMail
       metadata = generate_metadata
       payload = {
         upload_url: @lighthouse_service.location,
-        file: split_file_and_path(@form_path),
+        file: split_file_and_path(@pdf_path),
         metadata: metadata.to_json,
         attachments: @attachment_paths.map(&method(:split_file_and_path))
       }
 
-      Rails.logger.info('Lighthouse::PensionBenefitIntakeJob Upload', {
+      Rails.logger.info('Lighthouse::SubmitSavedClaimJob Upload', {
         file: payload[:file],
         attachments: payload[:attachments],
         claim_id: @claim.id,
@@ -99,6 +101,9 @@ module CentralMail
         confirmation_number: @claim.confirmation_number
       })
       response = @lighthouse_service.upload_doc(**payload)
+
+      create_form_submission_attempt(@lighthouse_service.uuid)
+      response 
     end
 
     def create_request_body
@@ -160,7 +165,7 @@ module CentralMail
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => @claim.guid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        'source' => 'va.gov',
+        'source' => "#{@claim.class} va.gov",
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => number_attachments,
         'docType' => @claim.form_id,
@@ -174,7 +179,7 @@ module CentralMail
         metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
       end
 
-      metadata
+      SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -207,11 +212,14 @@ module CentralMail
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'docType' => @claim.form_id,
-        'businessLine' => PENSION_BUSINESSLINE,
-        'source' => PENSION_SOURCE
+        'source' => "#{@claim.class} va.gov}"
       }
 
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+    end
+
+    def split_file_and_path(path)
+      { file: path, file_name: path.split('/').last }
     end
 
   end
