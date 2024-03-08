@@ -25,7 +25,7 @@ module TravelPay
     # * Remove feature flag from database (requires platform support for prod)
     # * Remove this before_action
     # * Remove block_if_flag_disabled definition
-    
+
     before_action :block_if_flag_disabled
 
     protected
