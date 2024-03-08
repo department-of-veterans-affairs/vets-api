@@ -28,7 +28,8 @@ module SimpleFormsApi
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
-        '10-10D' => 'vha_10_10d'
+        '10-10D' => 'vha_10_10d',
+        '10-7959F-1' => 'vha_10_7959f_1'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -168,6 +169,8 @@ module SimpleFormsApi
           case form_id
           when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
             form.handle_attachments(file_path)
+          else
+            [file_path]
           end
 
         [file_path, maybe_add_file_paths, metadata]
