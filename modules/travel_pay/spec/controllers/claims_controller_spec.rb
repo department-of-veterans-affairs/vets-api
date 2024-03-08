@@ -9,7 +9,7 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
   before do
     allow(TravelPay::Client).to receive(:new).and_return(client)
     veis_response = double
-    allow(veis_response).to receive(:body).and_return( {'access_token' => 'sample_token'} )
+    allow(veis_response).to receive(:body).and_return({ 'access_token' => 'sample_token' })
     allow(client).to receive(:request_veis_token).and_return(veis_response)
     btsss_ping_response = double
     allow(btsss_ping_response).to receive(:status).and_return(200)
