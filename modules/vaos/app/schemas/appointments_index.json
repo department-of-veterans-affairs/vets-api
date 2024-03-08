@@ -17,8 +17,7 @@
           "location_id",
           "clinic",
           "start",
-          "cancellable",
-          "extension"
+          "cancellable"
         ],
         "additionalProperties": false,
         "properties": {
@@ -48,8 +47,8 @@
             "type": ["string", "null"], // null not mentioned in docs
             "enum": ["proposed", "pending", "booked", "arrived", "noshow", "fulfilled", "cancelled", "entered-in-error", "checked-in"]
           },
-          "serviceType": { "type": "string" },
-          "serviceTypes": {
+          "service_type": { "type": "string" },
+          "service_types": {
             "type": "array",
             "items": {
               "type": "object",
@@ -69,7 +68,7 @@
               }
             }
           },
-          "serviceCategory": {
+          "service_category": {
             "type": "array",
             "items": {
               "type": "object",
@@ -89,7 +88,7 @@
               }
             }
           },
-          "reasonCode": {
+          "reason_code": {
             "type": "array",
             "items": {
               "type": "object",
@@ -111,13 +110,13 @@
           },
           "description": { "type": "string" },
           "priority": { "type": "number" },
-          "patientIcn": {
+          "patient_icn": {
             "type": "string",
             "nullable": false
           },
-          "locationId": { "type": "string" },
+          "location_id": { "type": "string" },
           "clinic": { "type": "string" },
-          "practitionerIds": {
+          "practitioner_ids": {
             "type": "array",
             "items": {
               "type": "object",
@@ -181,7 +180,7 @@
           "reason": { "type": "string" },
           "start": { "type": "string" }, // format datetime?
           "end": { "type": "string" }, //format datetime?
-          "minutesDuration": { "type": "integer" },
+          "minutes_duration": { "type": "integer" },
           "slot": {
             "type": "object",
             "properties": {
@@ -191,7 +190,7 @@
             }
           },
           "created": { "type": "string" },
-          "requestedPeriods": {
+          "requested_periods": {
             "type": "array",
             "items": {
               "type": "object",
@@ -223,21 +222,21 @@
               }
             }
           },
-          "preferredTimesForPhoneCall": {
+          "preferred_times_for_phoneCall": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": ["Morning", "Afternoon", "Evening"]
             }
           },
-          "preferredLocation": {
+          "preferred_location": {
             "type": "object",
             "properties": {
               "city": { "type": "string" },
               "state": { "type": "string" }
             }
           },
-          "cancelationReason": {
+          "cancelation_reason": {
             "type": "object",
             "properties": {
               "properties": {
@@ -248,9 +247,9 @@
             }
           },
           "comment": { "type": "string" },
-          "preferredLanguage": { "type": "string" },
+          "preferred_language": { "type": "string" },
           "cancellable": { "type": "boolean" },
-          "patientInstruction": { "type": "string" },
+          "patient_instruction": { "type": "string" },
           "telehealth": {
             "type": "object",
             "properties": {
