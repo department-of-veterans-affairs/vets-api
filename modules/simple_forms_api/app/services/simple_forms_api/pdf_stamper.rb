@@ -161,7 +161,7 @@ module SimpleFormsApi
     def self.stamp4010007_uuid(uuid)
       uuid = "UUID: #{uuid}"
       stamped_template_path = 'tmp/vba_40_10007-tmp.pdf'
-      desired_stamps = [[410, 10]]
+      desired_stamps = [[410, 20]]
       page_configuration = [
         { type: :text, position: desired_stamps[0] }
       ]
