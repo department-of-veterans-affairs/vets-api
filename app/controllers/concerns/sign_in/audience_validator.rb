@@ -24,6 +24,10 @@ module SignIn
       super
     rescue Errors::InvalidAudienceError => e
       render json: { errors: e }, status: :unauthorized
+    rescue Errors::AccessTokenExpiredError => e
+      render json: { errors: e }, status: :forbidden
+    rescue Errors::StandardError => e
+      handle_authenticate_error(e)
     end
 
     private

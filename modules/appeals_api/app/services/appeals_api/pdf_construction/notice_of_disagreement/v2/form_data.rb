@@ -79,6 +79,10 @@ module AppealsApi
           appealing_vha_denial? ? 1 : 'Off'
         end
 
+        def extra_contestable_issues
+          contestable_issues.size > 5 ? 1 : 'Off'
+        end
+
         def additional_pages
           contestable_issues.size > 5 || requesting_extension? || long_preferred_email? || long_rep_name? ? 1 : 'Off'
         end

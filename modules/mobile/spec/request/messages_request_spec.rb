@@ -61,6 +61,8 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       response_hash.delete('meta')
       response.body = response_hash.to_json
       expect(response).to match_camelized_response_schema('message')
+      link = response.parsed_body.dig('data', 'links', 'self')
+      expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/573059')
     end
 
     it 'generates mobile-specific metadata links' do
@@ -130,12 +132,13 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: params_with_attachments
           end
-
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_camelized_response_schema('message_with_attachment')
+          link = response.parsed_body.dig('data', 'links', 'self')
+          expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/674852')
         end
       end
 

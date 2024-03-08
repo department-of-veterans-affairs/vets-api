@@ -33,6 +33,11 @@ describe AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::Structure do
       result = described_class.new(notice_of_disagreement).add_additional_pages
       expect(result.page_count).to eq(2)
     end
+
+    it 'has no additional pages' do
+      result = described_class.new(create(:minimal_notice_of_disagreement_v2)).add_additional_pages
+      expect(result).to be_nil
+    end
   end
 
   describe '#final_page_adjustments' do

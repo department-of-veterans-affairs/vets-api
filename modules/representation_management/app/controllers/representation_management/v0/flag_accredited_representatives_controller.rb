@@ -42,7 +42,7 @@ module RepresentationManagement
       end
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:find_a_representative_flag_results_enabled)
+        routing_error unless Flipper.enabled?(:find_a_representative_enable_api)
       end
     end
   end
