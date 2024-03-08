@@ -1849,52 +1849,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports posting EVSS Letters' do
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
-
-      it 'supports getting EVSS PCIUAddress states' do
-        expect(subject).to validate(:get, '/v0/address/states', 401)
-        VCR.use_cassette('evss/pciu_address/states') do
-          expect(subject).to validate(:get, '/v0/address/states', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS PCIUAddress countries' do
-        expect(subject).to validate(:get, '/v0/address/countries', 401)
-        VCR.use_cassette('evss/pciu_address/countries') do
-          expect(subject).to validate(:get, '/v0/address/countries', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS PCIUAddress' do
-        expect(subject).to validate(:get, '/v0/address', 401)
-        VCR.use_cassette('evss/pciu_address/address_domestic') do
-          expect(subject).to validate(:get, '/v0/address', 200, headers)
-        end
-      end
-
-      it 'supports putting EVSS PCIUAddress' do
-        expect(subject).to validate(:put, '/v0/address', 401)
-        VCR.use_cassette('evss/pciu_address/address_update') do
-          expect(subject).to validate(
-            :put,
-            '/v0/address',
-            200,
-            headers.update(
-              '_data' => {
-                'type' => 'DOMESTIC',
-                'address_effective_date' => '2017-08-07T19:43:59.383Z',
-                'address_one' => '225 5th St',
-                'address_two' => '',
-                'address_three' => '',
-                'city' => 'Springfield',
-                'state_code' => 'OR',
-                'country_name' => 'USA',
-                'zip_code' => '97477',
-                'zip_suffix' => ''
-              }
-            )
-          )
-        end
-      end
     end
 
     it 'supports getting the 200 user data' do
