@@ -83,25 +83,25 @@ module CheckIn
       facility_type = opts[:facility_type] || ''
 
       statsd_metric, template_id = case facility_type.downcase
-                                      when 'oh'
-                                        case code
-                                        when TravelClaim::Response::CODE_SUCCESS
-                                          [OH_STATSD_BTSSS_SUCCESS, OH_SUCCESS_TEMPLATE_ID]
-                                        when TravelClaim::Response::CODE_CLAIM_EXISTS
-                                          [OH_STATSD_BTSSS_DUPLICATE, OH_DUPLICATE_TEMPLATE_ID]
-                                        else
-                                          [OH_STATSD_BTSSS_ERROR, OH_ERROR_TEMPLATE_ID]
-                                        end
-                                      else
-                                        case code
-                                        when TravelClaim::Response::CODE_SUCCESS
-                                          [CIE_STATSD_BTSSS_SUCCESS, CIE_SUCCESS_TEMPLATE_ID]
-                                        when TravelClaim::Response::CODE_CLAIM_EXISTS
-                                          [CIE_STATSD_BTSSS_DUPLICATE, CIE_DUPLICATE_TEMPLATE_ID]
-                                        else
-                                          [CIE_STATSD_BTSSS_ERROR, CIE_ERROR_TEMPLATE_ID]
-                                        end
-                                      end
+                                   when 'oh'
+                                     case code
+                                     when TravelClaim::Response::CODE_SUCCESS
+                                       [OH_STATSD_BTSSS_SUCCESS, OH_SUCCESS_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_CLAIM_EXISTS
+                                       [OH_STATSD_BTSSS_DUPLICATE, OH_DUPLICATE_TEMPLATE_ID]
+                                     else
+                                       [OH_STATSD_BTSSS_ERROR, OH_ERROR_TEMPLATE_ID]
+                                     end
+                                   else
+                                     case code
+                                     when TravelClaim::Response::CODE_SUCCESS
+                                       [CIE_STATSD_BTSSS_SUCCESS, CIE_SUCCESS_TEMPLATE_ID]
+                                     when TravelClaim::Response::CODE_CLAIM_EXISTS
+                                       [CIE_STATSD_BTSSS_DUPLICATE, CIE_DUPLICATE_TEMPLATE_ID]
+                                     else
+                                       [CIE_STATSD_BTSSS_ERROR, CIE_ERROR_TEMPLATE_ID]
+                                     end
+                                   end
 
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
