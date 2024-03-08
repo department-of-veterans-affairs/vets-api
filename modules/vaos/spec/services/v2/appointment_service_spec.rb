@@ -297,7 +297,7 @@ describe VAOS::V2::AppointmentsService do
           # expect(Rails.logger).not_to receive(:error)
           subject.get_appointments(start_date2, end_date2)
           record = SchemaContract::Validation.last
-          expect(record.errors).to eq(nil)
+          expect(record.error_details).to eq(nil)
         end
       end
     end

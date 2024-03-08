@@ -13,10 +13,7 @@
           "id",
           "identifier",
           "kind",
-          "status",
           "location_id",
-          "clinic",
-          "start",
           "cancellable"
         ],
         "additionalProperties": false,
@@ -222,7 +219,7 @@
               }
             }
           },
-          "preferred_times_for_phoneCall": {
+          "preferred_times_for_phone_call": {
             "type": "array",
             "items": {
               "type": "string",
@@ -239,11 +236,23 @@
           "cancelation_reason": {
             "type": "object",
             "properties": {
-              "properties": {
-                "system": { "type": "string" },
-                "code": { "type": "string" },
-                "display": { "type": "string" }
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "system": { "type": "string" },
+                    "code": { "type": "string" },
+                    "display": { "type": "string" }
+                  }
+                }
               }
+            }
+          },
+          "cancellation_reason": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" }
             }
           },
           "comment": { "type": "string" },
