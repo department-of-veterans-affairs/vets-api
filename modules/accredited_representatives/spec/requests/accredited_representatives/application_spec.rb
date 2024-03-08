@@ -9,6 +9,10 @@ RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request 
       response
     end
 
+    let(:user) { create(:user, :loa1) }
+
+    before { sign_in_as(user) }
+
     before(:context) do
       AccreditedRepresentatives::Engine.routes.draw do
         get 'arbitrary', to: 'arbitrary#arbitrary'

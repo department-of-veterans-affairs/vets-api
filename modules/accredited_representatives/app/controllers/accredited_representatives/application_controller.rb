@@ -10,20 +10,22 @@ module AccreditedRepresentatives
 
     before_action :verify_feature_enabled!
 
-    # TODO: Integrate SignIn Service to ARP Engine #76157
-    #   https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/76157
-    skip_before_action :authenticate
-
     private
+
+    def authenticate
+      # NOTE: this is currently a copy of app/controllers/concerns/authentication_and_sso_concerns.rb
+      # TODO: override the default authenticate method to use accredited representative authentication
+      if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+        super
+      else
+        validate_session || render_unauthorized
+      end
+    end
 
     def verify_feature_enabled!
       return if Flipper.enabled?(:representatives_portal_api)
 
       routing_error
-    end
-
-    def current_user
-      nil
     end
   end
 end
