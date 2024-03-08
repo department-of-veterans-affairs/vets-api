@@ -25,15 +25,10 @@ module TravelPay
     # * Remove feature flag from database (requires platform support for prod)
     # * Remove this before_action
     # * Remove block_if_flag_disabled definition
-    # * Remove flag_conditions_met? definition
-    #
+    
     before_action :block_if_flag_disabled
 
     protected
-
-    def raise_access_denied
-      raise Common::Exceptions::Unauthorized, detail: 'You do not have access to the requested resource'
-    end
 
     def before_logger
       logger.info('travel-pay') { Utils::Logger.build(self).before }
