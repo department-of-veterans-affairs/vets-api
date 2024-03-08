@@ -194,7 +194,18 @@
                     "personalInformation": { "type": "boolean" },
                     "ratingInfo": { "type": "boolean" },
                     "appeals": { "type": "boolean" },
-                    "medicalCopays": { "type": "boolean" }
+                    "medicalCopays": { "type": "boolean" },
+                    "form526RequiredIdentifierPresence": {
+                      "type": "object",
+                      "properties": {
+                        "participantId": { "type": "boolean" },
+                        "birlsId": { "type": "boolean" },
+                        "ssn": { "type": "boolean" },
+                        "birthDate": { "type": "boolean" },
+                        "edipi": { "type": "boolean" }
+                      },
+                      "required": ["participantId", "birlsId", "ssn", "birthDate", "edipi"]
+                    }
                   }
                 }
               }

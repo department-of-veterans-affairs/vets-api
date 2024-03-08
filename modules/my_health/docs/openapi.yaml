@@ -1227,6 +1227,216 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/threads/{id}/move
+  /v1/prescriptions:
+    get:
+      description:
+        List medications.
+      operationId: get_prescriptions
+      parameters:
+        - description: One refill status to filter on
+          in: query
+          name: refill_status
+          required: false
+          schema:
+            type: string
+        - description: The page number to get based on your page size
+          in: query
+          name: page
+          required: false
+          schema:
+            type: string
+        - description: The size of the pagination you want
+          in: query
+          name: per_page
+          required: false
+          schema:
+            type: string
+        - description: The attribute to sort on, negated for descending
+          in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions
+  /v1/prescriptions/{id}:
+    get:
+      description:
+        Get prescription.
+      operationId: get_prescription
+      parameters:
+        - description: prescription id
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Prescription.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/{id}
+  /v1/prescriptions/{id}/refill:
+    patch:
+      description:
+        Refill the prescription
+      operationId: patch_refill_prescription
+      parameters:
+        - description: The id of the prescription
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "204":
+          description: Success
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/{id}/refill
+  /v1/prescriptions/list_refillable_prescriptions:
+    get:
+      description:
+        List refillable medications.
+      operationId: get_list_refillable_prescriptions
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/PrescriptionList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/list_refillable_prescriptions
+  /v1/prescriptions/refill_prescriptions:
+    patch:
+      description:
+        Refill the prescriptions
+      operationId: patch_refill_prescription
+      parameters:
+        - description: Array of the prescription ids
+          in: query
+          name: ids
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "204":
+          description: Success
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/refill_prescriptions
+  /v1/prescriptions/get_prescription_image/{cmopNdcNumber}:
+    get:
+      description:
+        Get prescription image.
+      operationId: get_prescription_image
+      parameters:
+        - description: cmopNdcNumber
+          in: path
+          name: cmopNdcNumber
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/InflectionHeader"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: base64-encoded file contents
+                    type: string
+                    format: byte
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/prescriptions/list_refillable_prescriptions
 
 components:
   securitySchemes:

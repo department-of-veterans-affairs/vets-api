@@ -1,0 +1,71 @@
+{
+  "application": {
+    "preneed_attachments": [
+      {
+        "name": "123.jpeg",
+        "size": 80364,
+        "confirmation_code": "a-random-uuid"
+      }
+    ],
+    "applicant": {
+      "applicant_relationship_to_claimant": "Self"
+    },
+    "claimant": {
+      "desired_cemetery": "987",
+      "address": {
+        "street": "123 Elm St",
+        "street2": "APT 2B",
+        "city": "Springwood",
+        "country": "USA",
+        "state": "OH",
+        "postal_code": "23432"
+      },
+      "phone_number": "3125555678",
+      "email": "test@test.com",
+      "name": {
+        "first": "Lee",
+        "middle": "Ishmael Bender",
+        "last": "Gordon",
+        "suffix": "IV",
+        "maiden": "Uriel Benjamin"
+      },
+      "ssn": "134-51-2996",
+      "date_of_birth": "2016-10-27",
+      "relationship_to_vet": "2"
+    },
+    "has_currently_buried": "2",
+    "veteran": {
+      "service_records": [
+        {
+          "service_branch": "FF"
+        }
+      ],
+      "address": {
+        "street": "123 Elm St",
+        "street2": "APT 2B",
+        "city": "Springwood",
+        "country": "USA",
+        "state": "OH",
+        "postal_code": "23432"
+      },
+      "military_status": "O",
+      "date_of_birth": "2016-10-27",
+      "current_name": {
+        "first": "Quinlan",
+        "middle": "Tucker Strong",
+        "last": "Short",
+        "suffix": "III",
+        "maiden": "Quin Solis"
+      },
+      "ssn": "234-34-3456",
+      "gender": "Male",
+      "race": {
+        "is_asian": true
+      },
+      "marital_status": "Divorced",
+      "place_of_birth": "Adipisci et numquam anim sit odio dolore velit molestiae soluta sit voluptatem doloremque"
+    }
+  },
+  "privacy_agreement_accepted": true,
+  "form_number": "40-10007"
+}
