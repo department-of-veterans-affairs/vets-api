@@ -5,7 +5,7 @@ asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
 
 sudo apt update
-sudo apt install -y libpq-dev pdftk shared-mime-info
+sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-client
 
 gem install bundler
 bundle install
