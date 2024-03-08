@@ -460,8 +460,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  reference_data_service:
-    enabled: false
   international_postal_codes: "config/evss/international_postal_codes.json"
 
 # Settings for GI Bill Data Service
