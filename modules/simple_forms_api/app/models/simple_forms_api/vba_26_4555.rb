@@ -55,11 +55,11 @@ module SimpleFormsApi
       {
         careFacilityName: data.dig('living_situation', 'care_facility_name'),
         careFacilityAddress: {
-          street: care_facility_address && care_facility_address['street'],
-          street2: care_facility_address && care_facility_address['street2'],
-          city: care_facility_address && care_facility_address['city'],
-          state: care_facility_address && care_facility_address['state'],
-          postalCode: care_facility_address && care_facility_address['postal_code']
+          street: care_facility_address&.fetch('street', nil),
+          street2: care_facility_address&.fetch('street2', nil),
+          city: care_facility_address&.fetch('city', nil),
+          state: care_facility_address&.fetch('state', nil),
+          postalCode: care_facility_address&.fetch('postal_code', nil)
         },
         isInCareFacility: data.dig('living_situation', 'is_in_care_facility')
       }
