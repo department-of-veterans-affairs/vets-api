@@ -223,31 +223,58 @@
               }
             }
           },
-
-          "comment": { "type": "string" },
-          "cancelation_reason": {
+          "preferredTimesForPhoneCall": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["Morning", "Afternoon", "Evening"]
+            }
+          },
+          "preferredLocation": {
             "type": "object",
             "properties": {
-              "coding": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": ["system"],
-                  "properties": {
-                    "system": { "type": "string" },
-                    "code": { "type": "string" },
-                    "display": { "type": "string" }
-                  }
-                }
+              "city": { "type": "string" },
+              "state": { "type": "string" }
+            }
+          },
+          "cancelationReason": {
+            "type": "object",
+            "properties": {
+              "properties": {
+                "system": { "type": "string" },
+                "code": { "type": "string" },
+                "display": { "type": "string" }
               }
             }
           },
+          "comment": { "type": "string" },
+          "preferredLanguage": { "type": "string" },
           "cancellable": { "type": "boolean" },
-          "patient_instruction": { "type": "string" },
+          "patientInstruction": { "type": "string" },
           "telehealth": {
             "type": "object",
             "properties": {
+              "url": { "type": "string" },
+              "atlas": {
+                "type": "object",
+                "properties": {
+                  "sitecode": { "type": "string" },
+                  "confirmationCode": { "type": "string" },
+                  "address": {
+                    "type": "object",
+                    "properties": {
+                      "streetAddress": { "type": "string" },
+                      "city": { "type": "string" },
+                      "state": { "type": "string" },
+                      "zipCode": { "type": "string" },
+                      "country": { "type": "string" },
+                      "latitude": { "type": "number" },
+                      "longitude": { "type": "number" },
+                      "additionalDetails": { "type": "string" }
+                    }
+                  }
+                }
+              },
               "group": { "type": "boolean" },
               "vvs_kind": { "type": "string" }
             }
@@ -255,12 +282,41 @@
           "extension": {
             "type": "object",
             "properties": {
-              "cc_location": {
+              "ccLocation": {
                 "type": "object",
                 "properties": {
                   "address": {
-                    "type": "object"
-                  }
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["postal", "physical", "both"]
+                      },
+                      "line": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "city": { "type": "string" },
+                      "state": { "type": "string" },
+                      "postalCode": { "type": "string" },
+                      "country": { "type": "string" },
+                      "text": { "type": "string" }
+                    }
+                  },
+                  "telecom": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "system": {
+                          "type": "string",
+                          "enum": ["email", "phone"]
+                        },
+                        "value": { "type": "string" }
+                      }
+                    }
+                  },
+                  "practiceName": { "type": "string" }
                 }
               }
             }
