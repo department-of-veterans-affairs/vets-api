@@ -41,36 +41,6 @@ pipeline {
         ], wait: false
       }
     }
-
-    stage('Build AMI') {
-      when { anyOf { branch staging_branch; branch main_branch } }
-
-      steps {
-        // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
-        script {
-          commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
-        }
-
-        build job: 'builds/vets-api', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-          booleanParam(name: 'release', value: false),
-        ], wait: true
-      }
-    }
-
-    stage('Deploy staging') {
-      when { branch staging_branch }
-
-      steps {
-        build job: 'deploys/vets-api-server-vagov-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          booleanParam(name: 'migration_status', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
-
-      }
-    }
   }
   post {
     always {
