@@ -8,4 +8,4 @@ sleep 10
 bundle install
 ./bin/setup
 
-make native-up
+make native-up &

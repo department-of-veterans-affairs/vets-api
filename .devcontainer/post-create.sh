@@ -20,11 +20,11 @@ database_url: postgis://postgres:password@localhost:54320/vets_api_development?p
 test_database_url: postgis://postgres:password@localhost:54320/vets_api_test?pool=4
 
 redis:
-host: localhost
-port: 63790
-app_data:
+  host: localhost
+  port: 63790
+  app_data:
     url: redis://localhost:63790
-sidekiq:
+  sidekiq:
     url: redis://localhost:63790
 EOT
 fi
