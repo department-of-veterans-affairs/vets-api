@@ -28,7 +28,7 @@ pipeline {
       }
     }
 
-    stage('Scheudle Review Instance Creation') {
+    stage('Schedule Review Instance Creation') {
       when { not { branch 'master' } }
 
       steps {
