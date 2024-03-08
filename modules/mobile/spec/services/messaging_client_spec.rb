@@ -23,7 +23,7 @@ describe Mobile::V0::Messaging::Client do
                                      .to_return(status: 200, headers: { 'Token' => 'abcd1234z' })
         svc = Mobile::V0::Messaging::Client.new(session: { user_id: })
         svc.authenticate
-        expect(Redis.new.get(key)).to be_truthy
+        expect($redis.get(key)).to be_truthy
       end
     end
   end

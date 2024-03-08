@@ -34,8 +34,9 @@ module V0
     def allowed_doctypes
       doctypes = %w[184]
       doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @current_user)
-      doctypes << '65' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
-      doctypes << '68' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '704' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '706' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '858' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
       doctypes
     end
   end
