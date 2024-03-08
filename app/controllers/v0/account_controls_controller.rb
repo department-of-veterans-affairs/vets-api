@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module V0
+  # Test. not to be merged.
   class AccountControlsController < SignIn::ServiceAccountApplicationController
     service_tag 'identity'
     VALID_CSP_TYPES = %w[logingov idme dslogon mhv].freeze
