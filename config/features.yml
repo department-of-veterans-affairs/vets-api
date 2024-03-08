@@ -1120,6 +1120,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_use_vpg:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
