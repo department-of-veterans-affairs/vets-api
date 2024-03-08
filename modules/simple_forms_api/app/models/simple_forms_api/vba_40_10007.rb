@@ -59,15 +59,13 @@ module SimpleFormsApi
     def get_attachments
       attachments = []
 
-      supporting_documents = @data['preneed_attachments']
-
+      supporting_documents = @data['application']['preneed_attachments']
       if supporting_documents
         confirmation_codes = []
         supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
 
         PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
       end
-
       attachments
     end
   end

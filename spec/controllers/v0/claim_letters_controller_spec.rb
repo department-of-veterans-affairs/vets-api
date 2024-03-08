@@ -34,7 +34,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     it 'lists correct documents' do
       get(:index)
       letters = JSON.parse(response.body)
-      allowed_letters = letters.select { |d| d['doc_type'] == '27' || d['doc_type'] == '184' }
+      allowed_letters = letters.select { |d| %w[27 184].include?(d['doc_type']) }
 
       expect(allowed_letters.length).to eql(letters.length)
     end
@@ -49,7 +49,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     it 'lists correct documents' do
       get(:index)
       letters = JSON.parse(response.body)
-      allowed_letters = letters.select { |d| d['doc_type'] == '65' || d['doc_type'] == '68' || d['doc_type'] == '184' }
+      allowed_letters = letters.select { |d| %w[704 706 858 184].include?(d['doc_type']) }
 
       expect(allowed_letters.length).to eql(letters.length)
     end
