@@ -82,7 +82,7 @@ module CheckIn
       code = opts[:claims_resp]&.dig(:data, :code)
       facility_type = opts[:facility_type] || ''
 
-      statsd_increment, template_id = case facility_type.downcase
+      statsd_metric, template_id = case facility_type.downcase
                                       when 'oh'
                                         case code
                                         when TravelClaim::Response::CODE_SUCCESS
@@ -103,7 +103,7 @@ module CheckIn
                                         end
                                       end
 
-      StatsD.increment(statsd_increment)
+      StatsD.increment(statsd_metric)
       [claim_number, template_id]
     end
     # rubocop:enable Metrics/MethodLength
