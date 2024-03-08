@@ -545,7 +545,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       end
 
       context 'when the request scope is wrong' do
-        it 'returns a meaningful 201' do
+        it 'returns a 401' do
           mock_ccg_for_fine_grained_scope(invalid_post_scopes) do |auth_header|
             post request_rep_path, params: request_body, headers: auth_header
             expect(response).to have_http_status(:unauthorized)
