@@ -3,6 +3,7 @@ main_branch = 'master'
 
 pipeline {
   environment {
+    // test.
     DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
 
     // for PRs, BRANCH_NAME = PR-<ID>. for branches in the remote w/o a PR, BRANCH_NAME = <the name of the branch>
