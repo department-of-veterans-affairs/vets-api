@@ -19,7 +19,8 @@ RSpec.describe 'Forms uploader', type: :request do
   ]
 
   ivc_forms = [
-    'vha_10_10d.json'
+    'vha_10_10d.json',
+    'vha_10_7959f_1.json'
   ]
 
   describe '#submit' do
