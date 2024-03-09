@@ -122,6 +122,57 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   ep_code: '020',
                   claim_id: '600383363' })
       end
+
+      it 'logs evidence requests/tracked items details' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('Evidence Request Types',
+                { message_type: 'lh.cst.evidence_requests',
+                  claim_id: '600383363',
+                  evidence_requests: [
+                    {
+                      tracked_item_id: 395_084,
+                      tracked_item_type: 'Request 1'
+                    },
+                    {
+                      tracked_item_id: 394_443,
+                      tracked_item_type: 'Submit buddy statement(s)'
+                    },
+                    {
+                      tracked_item_id: 394_561,
+                      tracked_item_type: 'Submit buddy statement(s)'
+                    },
+                    {
+                      tracked_item_id: 394_413,
+                      tracked_item_type: 'Request 4'
+                    },
+                    {
+                      tracked_item_id: 397_176,
+                      tracked_item_type: 'Submit buddy statement(s)'
+                    },
+                    {
+                      tracked_item_id: 394_433,
+                      tracked_item_type: 'Request 5'
+                    },
+                    {
+                      tracked_item_id: 394_431,
+                      tracked_item_type: 'Request 9'
+                    },
+                    {
+                      tracked_item_id: 394_450,
+                      tracked_item_type: 'Request 8'
+                    },
+                    {
+                      tracked_item_id: 394_451,
+                      tracked_item_type: 'Request 7'
+                    }
+                  ] })
+      end
     end
 
     context 'when not authorized' do
