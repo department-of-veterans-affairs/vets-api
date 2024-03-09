@@ -29,8 +29,6 @@ describe VRE::Submit1900Job do
     end
 
     context 'using Benefits Intake API' do
-
-
     end
   end
 
