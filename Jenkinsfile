@@ -47,14 +47,5 @@ pipeline {
       sh 'env=$RAILS_ENV make down'
       deleteDir() /* clean up our workspace */
     }
-    failure {
-      script {
-        if (env.BRANCH_NAME == 'master') {
-          slackSend message: "Failed vets-api CI on branch: `${env.THE_BRANCH}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
-          color: 'danger',
-          failOnError: true
-        }
-      }
-    }
   }
 }
