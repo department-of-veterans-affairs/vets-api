@@ -29,8 +29,6 @@ pipeline {
     }
 
     stage('Schedule Review Instance Creation') {
-      when { not { branch 'master' } }
-
       steps {
         build job: 'deploys/vets-review-instance-deploy', parameters: [
           stringParam(name: 'devops_branch', value: 'master'),
