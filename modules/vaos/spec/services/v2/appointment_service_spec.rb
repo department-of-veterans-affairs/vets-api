@@ -292,12 +292,8 @@ describe VAOS::V2::AppointmentsService do
       it 'runs' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          # expect(SchemaContract::ValidationJob).to receive(:perform_async)
-          # this test only really works if you change the appointments service to use perform_sync
-          # expect(Rails.logger).not_to receive(:error)
+          expect(SchemaContract::ValidationInitiator).to receive(:call)
           subject.get_appointments(start_date2, end_date2)
-          record = SchemaContract::Validation.last
-          expect(record.error_details).to eq(nil)
         end
       end
     end

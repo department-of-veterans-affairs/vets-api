@@ -10,8 +10,7 @@ module SchemaContract
           contract_name:, user_uuid: user.uuid, response: response.body, status: :initialized
         )
         Rails.logger.info('Initiating schema contract validation', { contract_name:, record_id: record.id })
-        # SchemaContract::ValidationJob.perform_async(record.id)
-        SchemaContract::ValidationJob.perform_sync(record.id)
+        SchemaContract::ValidationJob.perform_async(record.id)
       end
     rescue => e
       # blanket rescue to avoid blocking main thread execution
