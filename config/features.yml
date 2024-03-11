@@ -1044,6 +1044,10 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
+  va_online_scheduling_sts_oauth_token:
+    actor_type: user
+    description: Allows toggling of MAP STS OAuth token for VAOS
+    enable_in_development: true
   va_online_scheduling_GA4_migration:
     actor_type: user
     description: Toggle for the GA4 events migration work.
