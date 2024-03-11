@@ -21,7 +21,7 @@ describe SchemaContract::ValidationInitiator do
                                             status: 'initialized', created_at: Time.zone.yesterday.beginning_of_day)
       end
 
-      it 'creates one with provided details and enqueues a job' do
+      it 'creates a record with provided details and enqueues a job' do
         expect(SchemaContract::ValidationJob).to receive(:perform_async)
         expect do
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
