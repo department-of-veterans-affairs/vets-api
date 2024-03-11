@@ -4,6 +4,8 @@
 asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
 
+git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata
+
 sudo apt update
 sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-client
 
@@ -26,5 +28,8 @@ redis:
     url: redis://localhost:63790
   sidekiq:
     url: redis://localhost:63790
+
+betamocks:
+  cache_dir: ../vets-api-mockdata
 EOT
 fi

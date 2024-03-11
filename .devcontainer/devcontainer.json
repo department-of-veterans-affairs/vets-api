@@ -19,11 +19,18 @@
 	"forwardPorts": [3000],
 
 	"postCreateCommand": "sh .devcontainer/post-create.sh",
-	"postStartCommand": "sh .devcontainer/post-start.sh"
+	"postStartCommand": "sh .devcontainer/post-start.sh",
 
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	"customizations": {
+		"codespaces": {
+			"repositories": {
+				"department-of-veterans-affairs/vets-api-mockdata": {
+					"permissions": {
+						"contents": "read",
+						"pull_requests": "write"
+					}
+				}
+			}
+		}
+	}
 }
