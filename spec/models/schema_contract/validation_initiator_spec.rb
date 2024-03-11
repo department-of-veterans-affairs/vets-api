@@ -18,12 +18,11 @@ describe SchemaContract::ValidationInitiator do
     context 'response is successful, feature flag is on, and no record exists for the current day' do
       before do
         create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                            status: :initialized, created_at: Time.zone.yesterday.beginning_of_day)
+                                            status: 'initialized', created_at: Time.zone.yesterday.beginning_of_day)
       end
 
       it 'creates one with provided details and enqueues a job' do
         expect(SchemaContract::ValidationJob).to receive(:perform_async)
-
         expect do
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.to change(SchemaContract::Validation, :count).by(1)
@@ -33,12 +32,11 @@ describe SchemaContract::ValidationInitiator do
     context 'when a validation record already exists for the current day' do
       before do
         create(:schema_contract_validation, contract_name: 'test_index', user_uuid: '1234', response:,
-                                            status: :initialized)
+                                            status: 'initialized')
       end
 
       it 'does not create a record or enqueue a job' do
         expect(SchemaContract::ValidationJob).not_to receive(:perform_async)
-
         expect do
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
@@ -50,7 +48,6 @@ describe SchemaContract::ValidationInitiator do
 
       it 'does not create a record or enqueue a job' do
         expect(SchemaContract::ValidationJob).not_to receive(:perform_async)
-
         expect do
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
@@ -64,7 +61,6 @@ describe SchemaContract::ValidationInitiator do
 
       it 'does not create a record or enqueue a job' do
         expect(SchemaContract::ValidationJob).not_to receive(:perform_async)
-
         expect do
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'test_index')
         end.not_to change(SchemaContract::Validation, :count)
