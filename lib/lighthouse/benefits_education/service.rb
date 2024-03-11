@@ -27,8 +27,8 @@ module BenefitsEducation
     # @return [BenefitsEducation::Service] a new instance of the service
     #
     def initialize(icn)
-      @icn = '1012667145V762142' # TODO: remove.
-      # @icn = icn
+      # @icn = '1012667145V762142' # TODO: remove before merging.  Valid test ICN
+      @icn = icn
       raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
 
       super()
@@ -58,17 +58,15 @@ module BenefitsEducation
     # Retrieve a veteran's Post-9/11 GI Bill Status
     # @return [String] A JSON string representing the veteran's GI Bill status.
     def get_gi_bill_status
-      # TODO
-      # test the FE response to different error statuses.  This code should be deleted.
-      handle_error(create_error_response(403), config.service_name, config.base_api_path)
+      # TODO: test the FE response to different error statuses.  This code should be deleted.
+      # handle_error(create_error_response(404), config.service_name, config.base_api_path)
 
-      # TODO: Uncomment this code when ready to merge
-      # raw_response = begin
-      #   config.get(@icn)
-      # rescue => e
-      #   handle_error(e, config.service_name, config.base_api_path)
-      # end
-      # BenefitsEducation::Response.new(raw_response.status, raw_response)
+      raw_response = begin
+        config.get(@icn)
+      rescue => e
+        handle_error(e, config.service_name, config.base_api_path)
+      end
+      BenefitsEducation::Response.new(raw_response.status, raw_response)
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)
