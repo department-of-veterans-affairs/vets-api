@@ -12,7 +12,11 @@ sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-client
 gem install bundler
 bundle install
 
+# Set up postgres + redis.
 docker-compose -f docker-compose-deps.yml build
+docker-compose -f docker-compose-deps.yml up &
+timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
+docker-compose -f docker-compose-deps.yml down
 
 # Add hybrid service config
 if [ ! -f config/settings.local.yml ]; then

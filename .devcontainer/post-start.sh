@@ -6,3 +6,5 @@ timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
 
 bundle install
 ./bin/setup
+
+make native-up

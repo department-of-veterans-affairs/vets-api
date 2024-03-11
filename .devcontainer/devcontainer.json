@@ -16,7 +16,13 @@
 		}
 	},
 
-	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "vets-api",
+			"onAutoForward": "notify",
+			"requireLocalPort": true
+		}
+	},
 
 	"postCreateCommand": "sh .devcontainer/post-create.sh",
 	"postStartCommand": "sh .devcontainer/post-start.sh",
