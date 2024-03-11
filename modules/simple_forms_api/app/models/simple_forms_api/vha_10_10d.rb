@@ -25,7 +25,7 @@ module SimpleFormsApi
 
     def handle_attachments(file_path)
       ssn_or_tin = @data.dig('veteran', 'ssn_or_tin')
-      file_path_ssn = file_path.gsub("vha_10_10d-tmp", "#{ssn_or_tin}_vha_10_10d-tmp")
+      file_path_ssn = file_path.gsub('vha_10_10d-tmp', "#{ssn_or_tin}_vha_10_10d-tmp")
       File.rename(file_path, file_path_ssn)
       attachments = get_attachments
       file_paths = [file_path_ssn]
