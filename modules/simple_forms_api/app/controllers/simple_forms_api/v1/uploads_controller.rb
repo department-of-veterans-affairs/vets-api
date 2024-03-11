@@ -113,8 +113,8 @@ module SimpleFormsApi
           SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
 
           Rails.logger.info(
-            "Simple forms api - sent to benefits intake: #{params[:form_number]},
-              status: #{status}, uuid #{confirmation_number}"
+            'Simple forms api - sent to benefits intake',
+            { form_number: params[:form_number], status:, uuid: confirmation_number }
           )
         end
 
