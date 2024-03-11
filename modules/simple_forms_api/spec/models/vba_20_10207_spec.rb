@@ -91,13 +91,12 @@ RSpec.describe 'SimpleFormsApi::VBA2010207' do
     it 'saves the combined pdf' do
       combined_pdf = double
       original_file_path = 'original-file-path'
-      new_file_path = 'new-file-path'
       attachment = double(to_pdf: double)
       allow(PersistentAttachment).to receive(:where).and_return([attachment])
       form = SimpleFormsApi::VBA2010207.new(
         {
-          'financial_hardship_documents' => [{confirmation_code: double}],
-          'als_documents' => [{confirmation_code: double}]
+          'financial_hardship_documents' => [{ confirmation_code: double }],
+          'als_documents' => [{ confirmation_code: double }]
         }
       )
       allow(CombinePDF).to receive(:new).and_return(combined_pdf)
