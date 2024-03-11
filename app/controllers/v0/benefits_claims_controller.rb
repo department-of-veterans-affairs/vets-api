@@ -83,19 +83,14 @@ module V0
 
     def log_evidence_requests(claim_id, claim_info)
       tracked_items = claim_info['trackedItems']
-      tracked_items_log = []
 
       tracked_items.each do |ti|
-        tracked_items_log << {
-          tracked_item_id: ti['id'],
-          tracked_item_type: ti['displayName']
-        }
+        ::Rails.logger.info('Evidence Request Types',
+                            { message_type: 'lh.cst.evidence_requests',
+                              claim_id:,
+                              tracked_item_id: ti['id'],
+                              tracked_item_type: ti['displayName'] })
       end
-
-      ::Rails.logger.info('Evidence Request Types',
-                          { message_type: 'lh.cst.evidence_requests',
-                            claim_id:,
-                            evidence_requests: tracked_items_log })
     end
   end
 end
