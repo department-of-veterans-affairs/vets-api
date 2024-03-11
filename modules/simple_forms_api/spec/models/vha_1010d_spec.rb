@@ -48,9 +48,9 @@ RSpec.describe SimpleFormsApi::VHA1010d do
       combined_pdf = CombinePDF.new
       p combined_pdf # Output to console using `p` for inspection
 
-    # Stub the file operation
-    allow(File).to receive(:exist?).with(file_path).and_return(true)
-    allow(File).to receive(:open).with(file_path, 'rb')
+      # Stub the file operation
+      allow(File).to receive(:exist?).with(file_path).and_return(true)
+      allow(File).to receive(:open).with(file_path, 'rb')
       # Call the method under test
       vha1010d.handle_attachments(file_path)
 
