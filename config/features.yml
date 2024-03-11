@@ -30,6 +30,9 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_require_gateway_origin:
+    actor_type: user
+    description: Requires that all requests made to endpoints in appeals_api, va_forms, and vba_documents be made through the gateway
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -450,15 +453,19 @@ features:
     enable_in_development: true
   find_a_representative_enabled:
     actor_type: cookie_id
-    description: Enables Find a Representative tool
+    description: Generic toggle for gating Find a Rep
+    enable_in_development: true
+  find_a_representative_enable_api:
+    actor_type: user
+    description: Enables all Find a Representative api endpoints
     enable_in_development: true
   find_a_representative_enable_frontend:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables Find a Representative frontend
     enable_in_development: true
   find_a_representative_flag_results_enabled:
     actor_type: user
-    description: Enables flag a rep for Find a Rep
+    description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -1039,6 +1046,10 @@ features:
   va_online_scheduling_static_landing_page:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
+    enable_in_development: true
+  va_online_scheduling_sts_oauth_token:
+    actor_type: user
+    description: Allows toggling of MAP STS OAuth token for VAOS
     enable_in_development: true
   va_online_scheduling_GA4_migration:
     actor_type: user

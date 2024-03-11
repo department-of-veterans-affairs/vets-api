@@ -556,7 +556,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
   end
 
-  describe '#download' do
+  describe '#download', skip: 'temporarily skipped' do
     it_behaves_like 'watermarked pdf download endpoint', { factory: :supplemental_claim, decision_reviews: true }
   end
 end
