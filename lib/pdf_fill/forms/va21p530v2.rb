@@ -373,24 +373,8 @@ module PdfFill
         'noGovtContributions' => {
           key: 'form1[0].#subform[37].GovContributionNO[0]'
         },
-        'amountGovtContributionFirst' => {
-          key: 'form1[0].#subform[37].FirstAmount[0]',
-          question_num: 19,
-          question_suffix: 'B',
-          dollar: true,
-          question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
-          limit: 2
-        },
-        'amountGovtContributionSecond' => {
-          key: 'form1[0].#subform[37].SecondAmount[0]',
-          question_num: 19,
-          question_suffix: 'B',
-          dollar: true,
-          question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
-          limit: 3
-        },
-        'amountGovtContributionThird' => {
-          key: 'form1[0].#subform[37].ThirdAmount[0]',
+        'amountGovtContribution' => {
+          key: 'form1[0].#subform[37].AmountGovtContribution[0]',
           question_num: 19,
           question_suffix: 'B',
           dollar: true,
