@@ -4,6 +4,7 @@ require 'ddtrace'
 require 'simple_forms_api_submission/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'simple_forms_api_submission/s3'
+require 'lgy/service'
 
 module SimpleFormsApi
   module V1
@@ -22,11 +23,13 @@ module SimpleFormsApi
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
         '20-10206' => 'vba_20_10206',
-        '40-10007' => 'vba_40_10007'
+        '40-10007' => 'vba_40_10007',
+        '20-10207' => 'vba_20_10207'
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
-        '10-10D' => 'vha_10_10d'
+        '10-10D' => 'vha_10_10d',
+        '10-7959F-1' => 'vha_10_7959f_1'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -36,6 +39,13 @@ module SimpleFormsApi
 
         if form_is210966 && icn && first_party?
           handle_210966_authenticated
+        elsif params[:form_number] == '26-4555' && icn
+          parsed_form_data = JSON.parse(params.to_json)
+          form = SimpleFormsApi::VBA264555.new(parsed_form_data)
+          response = LGY::Service.new.post_grant_application(payload: form.as_payload)
+          confirmation_number = response.body['reference_number']
+          status = response.body['status']
+          render json: { confirmation_number:, status: }, status: response.status
         else
           submit_form_to_central_mail
         end
@@ -44,7 +54,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 10-10D 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 10-10D 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -93,16 +103,18 @@ module SimpleFormsApi
       def submit_form_to_central_mail
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
-        file_path, metadata = get_file_path_and_metadata(parsed_form_data)
+        file_path, ivc_file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
 
         if IVC_FORM_NUMBER_MAP.value?(form_id)
-          status, error_message = handle_ivc_uploads(form_id, metadata, file_path)
+          status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
+          SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
+
           Rails.logger.info(
-            "Simple forms api - sent to benefits intake: #{params[:form_number]},
-              status: #{status}, uuid #{confirmation_number}"
+            'Simple forms api - sent to benefits intake',
+            { form_number: params[:form_number], status:, uuid: confirmation_number }
           )
         end
 
@@ -115,14 +127,19 @@ module SimpleFormsApi
         render json: get_json(confirmation_number || nil, form_id, error_message || nil), status:
       end
 
-      def handle_ivc_uploads(form_id, metadata, pdf_file_path)
+      def handle_ivc_uploads(form_id, metadata, pdf_file_paths)
         meta_file_name = "#{form_id}_metadata.json"
-        pdf_file_name = "#{form_id}.pdf"
         meta_file_path = "tmp/#{meta_file_name}"
 
-        pdf_upload_status, pdf_upload_error_message = upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+        pdf_results =
+          pdf_file_paths.map do |pdf_file_path|
+            pdf_file_name = pdf_file_path.gsub('tmp/', '').gsub('-tmp', '')
+            upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+          end
 
-        if pdf_upload_status == 200
+        all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
+
+        if all_pdf_success
           File.write(meta_file_path, metadata)
           meta_upload_status, meta_upload_error_message = upload_to_ivc_s3(meta_file_name, meta_file_path)
 
@@ -133,11 +150,11 @@ module SimpleFormsApi
             [meta_upload_status, meta_upload_error_message]
           end
         else
-          [meta_upload_status, pdf_upload_error_message]
+          [pdf_results]
         end
       end
 
-      def get_file_path_and_metadata(parsed_form_data)
+      def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         form.track_user_identity
@@ -150,12 +167,15 @@ module SimpleFormsApi
                     end
         metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
 
-        case form_id
-        when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
-          form.handle_attachments(file_path)
-        end
+        maybe_add_file_paths =
+          case form_id
+          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007'
+            form.handle_attachments(file_path)
+          else
+            [file_path]
+          end
 
-        [file_path, metadata]
+        [file_path, maybe_add_file_paths, metadata]
       end
 
       def get_upload_location_and_uuid(lighthouse_service)
@@ -215,7 +235,7 @@ module SimpleFormsApi
       end
 
       def first_party?
-        %w[VETERAN SURVIVING_DEPENDENT].include?(params[:preparer_identification])
+        params[:preparer_identification] == 'VETERAN'
       end
 
       def get_form_id

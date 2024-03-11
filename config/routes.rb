@@ -289,13 +289,6 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
-    resource :address, only: %i[show update] do
-      collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-      end
-    end
-
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
@@ -437,6 +430,8 @@ Rails.application.routes.draw do
       get 'contestable_issues', to: 'contestable_issues#index'
     end
     resources :notice_of_disagreements, only: %i[create show]
+
+    resource :post911_gi_bill_status, only: [:show]
 
     namespace :supplemental_claims do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
