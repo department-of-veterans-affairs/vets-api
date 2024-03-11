@@ -965,6 +965,10 @@ features:
     actor_type: user
     description: enables exclusion period checks
     enable_in_development: false
+  meb_auto_populate_relinquishment_date:
+    actor_type: user
+    description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: true
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
@@ -1185,10 +1189,6 @@ features:
   toe_short_circuit_bgs_failure:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
-    enable_in_development: true
-  toe_auto_populate_relinquishment_date:
-    actor_type: user
-    description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
   move_form_back_button:
     actor_type: user
