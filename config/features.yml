@@ -30,6 +30,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_education_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to retrieve GI Bill Statement of benefits
+    enable_in_development: true
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
