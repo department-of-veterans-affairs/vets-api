@@ -18,6 +18,45 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
     end
 
+    describe 'when batch size is less than or equal to max batch size' do
+      it 'successfully submits batch intake' do
+        pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
+        response = double
+        allow(response).to receive(:body).and_return({ 'data' => [] })
+
+        expect_any_instance_of(BenefitsIntakeService::Service).to receive(:get_bulk_status_of_uploads)
+          .with(pending_form_submission_ids).and_return(response)
+
+        BenefitsIntakeStatusJob.new.perform
+      end
+    end
+
+    describe 'when batch size is greater than max batch size' do
+      it 'successfully submits batch intake via batch' do
+        pending_form_submission_ids = create_list(:form_submission, 4, :pending).map(&:benefits_intake_uuid)
+        response = double
+        service = double(get_bulk_status_of_uploads: response)
+        allow(response).to receive(:body).and_return({ 'data' => [] })
+        allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+
+        BenefitsIntakeStatusJob.new(max_batch_size: 2).perform
+
+        expect(service).to have_received(:get_bulk_status_of_uploads).twice
+      end
+    end
+
+    describe 'when bulk status update fails' do
+      xit 'logs the error' do
+        response = double(success?: false)
+        service = double(get_bulk_status_of_uploads: response)
+        allow(response).to receive(:success?).and_return(false)
+
+        # TODO: Fix this spec.
+
+        allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+      end
+    end
+
     describe 'updating the form submission status' do
       it 'updates the status with vbms from the bulk status report endpoint' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_bulk_status_report_success') do
