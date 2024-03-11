@@ -9,6 +9,7 @@
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "identifier",
@@ -16,7 +17,6 @@
           "location_id",
           "cancellable"
         ],
-        "additionalProperties": false,
         "properties": {
           "id": {
             "type": "string",
@@ -26,6 +26,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
                 "system",
                 "value"
@@ -37,11 +38,11 @@
             }
           },
           "kind": {
-            "type": ["string", "null"], // null not explicitly mentioned in docs
+            "type": "string",
             "enum": ["clinic", "cc", "telehealth", "phone"]
           },
           "status": {
-            "type": ["string", "null"], // null not mentioned in docs
+            "type": ["string"],
             "enum": ["proposed", "pending", "booked", "arrived", "noshow", "fulfilled", "cancelled", "entered-in-error", "checked-in"]
           },
           "service_type": { "type": "string" },
@@ -49,11 +50,13 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "coding": {
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "system": { "type": "string" },
                       "code": { "type": "string" },
@@ -69,11 +72,13 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "coding": {
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "system": { "type": "string" },
                       "code": { "type": "string" },
@@ -89,11 +94,13 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "coding": {
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "system": { "type": "string" },
                       "code": { "type": "string" },
@@ -117,6 +124,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [ "system", "type" ],
               "properties": {
                 "system": { "type": "string" },
@@ -133,6 +141,7 @@
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "additionalProperties": false,
                     "required": ["system", "value"],
                     "properties": {
                       "system": { "type": "string" },
@@ -142,6 +151,7 @@
                 },
                 "name": {
                   "type": "object",
+                  "additionalProperties": false,
                   "properties": {
                     "family": {"type": "string"},
                     "given": {
@@ -153,6 +163,7 @@
                 "practiceName": { "type": "string" },
                 "address": {
                   "type": "object",
+                  "additionalProperties": false,
                   "properties": {
                     "type": {
                       "type": "string",
@@ -175,13 +186,14 @@
             }
           },
           "reason": { "type": "string" },
-          "start": { "type": "string" }, // format datetime?
-          "end": { "type": "string" }, //format datetime?
+          "start": { "type": "string" },
+          "end": { "type": "string" },
           "minutes_duration": { "type": "integer" },
           "slot": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
-              "id": { "type": "string" }, //pattern
+              "id": { "type": "string" },
               "start": { "type": "string" },
               "end": { "type": "string" }
             }
@@ -191,6 +203,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "start": { "type": "string" },
                 "end": { "type": "string" }
@@ -199,11 +212,13 @@
           },
           "contact": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "telecom": {
                 "type": "array",
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "properties": {
                     "type": {
                       "type": "string",
@@ -228,6 +243,7 @@
           },
           "preferred_location": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "city": { "type": "string" },
               "state": { "type": "string" }
@@ -235,11 +251,13 @@
           },
           "cancelation_reason": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "coding": {
                 "type": "array",
                 "items": {
                   "type": "object",
+                  "additionalProperties": false,
                   "properties": {
                     "system": { "type": "string" },
                     "code": { "type": "string" },
@@ -251,6 +269,7 @@
           },
           "cancellation_reason": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "code": { "type": "string" }
             }
@@ -261,15 +280,18 @@
           "patient_instruction": { "type": "string" },
           "telehealth": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "url": { "type": "string" },
               "atlas": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "sitecode": { "type": "string" },
                   "confirmationCode": { "type": "string" },
                   "address": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "streetAddress": { "type": "string" },
                       "city": { "type": "string" },
@@ -289,12 +311,15 @@
           },
           "extension": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "ccLocation": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "address": {
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                       "type": {
                         "type": "string",
@@ -315,6 +340,7 @@
                     "type": "array",
                     "items": {
                       "type": "object",
+                      "additionalProperties": false,
                       "properties": {
                         "system": {
                           "type": "string",
