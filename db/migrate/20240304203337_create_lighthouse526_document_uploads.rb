@@ -8,6 +8,7 @@ class CreateLighthouse526DocumentUploads < ActiveRecord::Migration[7.0]
       t.string :document_type
       t.datetime :lighthouse_processing_started_at
       t.datetime :lighthouse_processing_ended_at
+      t.datetime :status_last_polled_at, index: true
       t.jsonb :error_message
       t.jsonb :last_status_response
 
