@@ -1186,6 +1186,10 @@ features:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
     enable_in_development: true
+  toe_auto_populate_relinquishment_date:
+    actor_type: user
+    description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: true
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
