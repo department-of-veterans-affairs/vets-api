@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'lighthouse/benefits_education/configuration'
 require 'lighthouse/service_exception'
+require 'lighthouse/benefits_education/response'
 
 module BenefitsEducation
   class Service < Common::Client::Base
@@ -26,7 +27,8 @@ module BenefitsEducation
     # @return [BenefitsEducation::Service] a new instance of the service
     #
     def initialize(icn)
-      @icn = icn
+      @icn = "1012667145V762142" # TODO remove.
+      # @icn = icn
       raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
 
       super()
@@ -42,18 +44,32 @@ module BenefitsEducation
       "#<#{self.class}:#{object_id} #{instance_variables_string}>"
     end
 
+    # REMOVE THIS - helper method just for QA purposes
+    def create_error_response(status)
+      headers = { 'content-type' => 'application/json' }
+      error_body = { status: status, message: "foo", error: "bar", error_description: "baz" }
+    
+      response = OpenStruct.new(status: status, headers: headers, body: OpenStruct.new(errors: [error_body]))
+    
+      OpenStruct.new(response: response)
+    end
+    
     ##
     # Retrieve a veteran's Post-9/11 GI Bill Status
     # @return [String] A JSON string representing the veteran's GI Bill status.
     def get_gi_bill_status
-      response = begin
-        config.get(@icn)
-      rescue => e
-        handle_error(e, config.service_name, config.base_api_path)
-      end
 
-      education_info = response.body&.[]('chapter33EducationInfo') || {}
-      Lighthouse::EducationBenefits::EducationBenefit.new(education_info).to_json
+      # TODO
+      # test the FE response to different error statuses.  This code should be deleted.
+      handle_error(create_error_response(403), config.service_name, config.base_api_path)
+
+      # TODO Uncomment this code when ready to merge
+      # raw_response = begin
+      #   config.get(@icn)
+      # rescue => e
+      #   handle_error(e, config.service_name, config.base_api_path)
+      # end
+      # BenefitsEducation::Response.new(raw_response.status, raw_response)
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)
