@@ -6,6 +6,7 @@ require 'dgi/submission/service'
 require 'dgi/enrollment/service'
 require 'dgi/contact_info/service'
 require 'dgi/exclusion_period/service'
+require 'bgs/service'
 
 module MebApi
   module V0
@@ -71,6 +72,8 @@ module MebApi
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
+
+        send_confirmation_email if response.ok? && Flipper.enabled?(:form1990meb_confirmation_email)
 
         render json: {
           data: {
@@ -153,6 +156,18 @@ module MebApi
 
       def exclusion_period_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
+      end
+
+      def send_confirmation_email
+        form_data = params[:education_benefit]
+        email = form_data.dig('claimant', 'contact_info', 'email_address')
+        first_name = form_data.dig('claimant', 'first_name')&.upcase.presence
+
+        if email.present?
+          MebApi::V0::Submit1990mebFormConfirmation.perform_async(
+            @current_user.uuid, email, first_name
+          )
+        end
       end
     end
   end

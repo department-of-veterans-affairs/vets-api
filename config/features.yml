@@ -107,10 +107,6 @@ features:
     actor_type: user
     description: Enables downstream responses to be returned via betamocks
     enable_in_development: false
-  check_in_experience_patient_cell_phone:
-    actor_type: user
-    description: Enables patient cell phone rather than mobile phone
-    enable_in_development: true
   check_in_experience_phone_appointments_enabled:
     actor_type: user
     description: Enables telephone appointments for check-in
@@ -453,16 +449,20 @@ features:
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
   find_a_representative_enabled:
+    actor_type: cookie_id
+    description: Generic toggle for gating Find a Rep
+    enable_in_development: true
+  find_a_representative_enable_api:
     actor_type: user
-    description: Enables Find a Representative tool
+    description: Enables all Find a Representative api endpoints
     enable_in_development: true
   find_a_representative_enable_frontend:
-    actor_type: user
+    actor_type: cookie_id
     description: Enables Find a Representative frontend
     enable_in_development: true
   find_a_representative_flag_results_enabled:
     actor_type: user
-    description: Enables flag a rep for Find a Rep
+    description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
   form526_legacy:
     actor_type: user
@@ -517,6 +517,10 @@ features:
   form40_0247_confirmation_email:
     actor_type: user
     description: Enables form 40-0247 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form1990meb_confirmation_email:
+    actor_type: user
+    description: Enables form 1990meb email submission confirmation (VaNotify)
     enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
@@ -791,6 +795,15 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
+  profile_show_direct_deposit_single_form:
+    actor_type: user
+    description: Show/hide the single direct deposit form in profile for all users
+  profile_show_direct_deposit_single_form_alert:
+    actor_type: user
+    description: Show/hide an alert with information around migrating to a single direct deposit form in profile
+  profile_show_direct_deposit_single_form_edu_downtime:
+    actor_type: user
+    description: Show/hide the edu direct deposit form and instead display a downtime message in its place
   profile_show_email_notification_settings:
     actor_type: user
     description: Show/Hide the email channel based notification settings in profile
@@ -1030,6 +1043,10 @@ features:
   va_online_scheduling_static_landing_page:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
+    enable_in_development: true
+  va_online_scheduling_sts_oauth_token:
+    actor_type: user
+    description: Allows toggling of MAP STS OAuth token for VAOS
     enable_in_development: true
   va_online_scheduling_GA4_migration:
     actor_type: user

@@ -166,7 +166,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with Authentication-Method header value of SIS' do
-        let(:access_token) { create(:access_token) }
+        let(:access_token) { create(:access_token, audience: ['vamobile']) }
         let(:bearer_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
         let!(:user) { create(:user, :loa3, uuid: access_token.user_uuid) }
 
@@ -183,6 +183,16 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(response).to have_http_status(:ok)
           expect(controller.payload[:user_uuid]).to eq(access_token.user_uuid)
           expect(controller.payload[:session]).to eq(access_token.session_handle)
+        end
+
+        context 'when the access_token audience is invalid' do
+          let(:access_token) { create(:access_token, audience: ['invalid']) }
+
+          it 'returns unauthorized' do
+            get :index
+
+            expect(response).to have_http_status(:unauthorized)
+          end
         end
       end
     end
