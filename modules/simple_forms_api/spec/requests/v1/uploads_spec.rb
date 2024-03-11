@@ -14,11 +14,13 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_40_0247.json',
     'vba_21_0966.json',
     'vba_20_10206.json',
-    'vba_40_10007.json'
+    'vba_40_10007.json',
+    'vba_20_10207.json'
   ]
 
   ivc_forms = [
-    'vha_10_10d.json'
+    'vha_10_10d.json',
+    'vha_10_7959f_1.json'
   ]
 
   describe '#submit' do

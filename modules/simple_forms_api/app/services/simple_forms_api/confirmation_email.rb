@@ -74,7 +74,7 @@ module SimpleFormsApi
                           when 'vba_40_0247'
                             return unless Flipper.enabled?(:form40_0247_confirmation_email)
 
-                            form40_0247_contact_info(@form_data)
+                            [@form_data['applicant_email'], @form_data.dig('applicant_full_name', 'first')]
                           else
                             [nil, nil]
                           end
@@ -130,12 +130,6 @@ module SimpleFormsApi
       else
         [nil, nil]
       end
-    end
-
-    def form40_0247_contact_info(form_data)
-      # email address is optional field
-      # when email is not entered, use current user's email
-      [form_data['applicant_email'].presence || @user&.va_profile_email, form_data.dig('applicant_full_name', 'first')]
     end
   end
 end
