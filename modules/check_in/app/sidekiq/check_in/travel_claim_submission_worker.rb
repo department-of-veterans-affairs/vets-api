@@ -22,15 +22,9 @@ module CheckIn
     STATSD_BTSSS_ERROR = 'worker.checkin.travel_claim.btsss.error'
     STATSD_BTSSS_DUPLICATE = 'worker.checkin.travel_claim.btsss.duplicate'
 
-    # rubocop:disable Metrics/MethodLength
     def perform(uuid, appointment_date)
-      check_in_session = CheckIn::V2::Session.build(data: { uuid: })
       redis_client = TravelClaim::RedisClient.build
-      mobile_phone = if Flipper.enabled?('check_in_experience_patient_cell_phone')
-                       redis_client.patient_cell_phone(uuid:)
-                     else
-                       redis_client.mobile_phone(uuid:)
-                     end
+      mobile_phone = redis_client.patient_cell_phone(uuid:)
       station_number = redis_client.station_number(uuid:)
 
       logger.info({
@@ -40,28 +34,25 @@ module CheckIn
                     station_number:
                   })
 
-      begin
-        claims_resp = TravelClaim::Service.build(
-          check_in: check_in_session,
-          params: { appointment_date: }
-        ).submit_claim
-
-        claim_number, template_id = handle_response(claims_resp:)
-      rescue Common::Exceptions::BackendServiceException => e
-        logger.error({
-                       message: "Error calling BTSSS Service: #{e.message}",
-                       uuid:,
-                       appointment_date:,
-                       station_number:
-                     })
-        StatsD.increment(STATSD_BTSSS_ERROR)
-        template_id = ERROR_TEMPLATE_ID
-      end
+      claim_number, template_id = submit_claim(uuid:, appointment_date:, station_number:)
 
       send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:)
       StatsD.increment(STATSD_NOTIFY_SUCCESS)
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def submit_claim(opts = {})
+      check_in_session = CheckIn::V2::Session.build(data: { uuid: opts[:uuid] })
+      claims_resp = TravelClaim::Service.build(
+        check_in: check_in_session,
+        params: { appointment_date: opts[:appointment_date] }
+      ).submit_claim
+
+      handle_response(claims_resp:)
+    rescue Common::Exceptions::BackendServiceException => e
+      logger.error({ message: "Error calling BTSSS Service: #{e.message}" }.merge(opts))
+      StatsD.increment(STATSD_BTSSS_ERROR)
+      [nil, ERROR_TEMPLATE_ID]
+    end
 
     def handle_response(claims_resp:)
       claim_number = claims_resp&.dig(:data, :claimNumber)&.last(4)

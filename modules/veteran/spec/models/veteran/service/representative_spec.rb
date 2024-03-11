@@ -154,7 +154,7 @@ describe Veteran::Service::Representative, type: :model do
       end
       let(:new_data) do
         {
-          request_address: {
+          address: {
             address_line1: '234 Main St',
             city: representative.city,
             zip_code5: representative.zip_code,
@@ -182,7 +182,7 @@ describe Veteran::Service::Representative, type: :model do
       end
       let(:new_data) do
         {
-          request_address: {
+          address: {
             address_line1: representative.address_line1,
             city: representative.city,
             zip_code5: representative.zip_code,
@@ -210,7 +210,7 @@ describe Veteran::Service::Representative, type: :model do
       end
       let(:new_data) do
         {
-          request_address: {
+          address: {
             address_line1: representative.address_line1,
             city: representative.city,
             zip_code5: representative.zip_code,
@@ -241,7 +241,7 @@ describe Veteran::Service::Representative, type: :model do
       end
       let(:new_data) do
         {
-          request_address: {
+          address: {
             address_line1: representative.address_line1,
             city: representative.city,
             zip_code5: representative.zip_code,
