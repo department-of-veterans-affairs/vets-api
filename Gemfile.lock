@@ -1,31 +1,4 @@
 GIT
-  remote: https://github.com/adhocteam/fhir_client.git
-  revision: a9de7e0e5b532c069dddacd2c4756046f95812fc
-  tag: v6.0.1
-  specs:
-    fhir_client (6.0.0)
-      activesupport (>= 3)
-      addressable (>= 2.3)
-      fhir_dstu2_models (>= 1.1.1)
-      fhir_models (>= 4.2.1)
-      fhir_stu3_models (>= 3.1.1)
-      http (~> 5.1)
-      nokogiri (>= 1.10.4)
-      oauth2 (>= 1.1)
-      rack (>= 1.5)
-      tilt (>= 1.1)
-
-GIT
-  remote: https://github.com/adhocteam/govdelivery-tms-ruby.git
-  revision: 9a2070f5b3982bfd9fa55cd3d2c7cfc977a9a96d
-  tag: v4.0.0
-  specs:
-    govdelivery-tms (4.0.0)
-      activesupport (>= 5.2.4.3, < 8.0.0)
-      faraday
-      mime-types
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/apivore
   revision: f8ccd476f6c5301f5ebe4e2dd5b30ff0e567ffc1
   tag: v2.0.0.vsp
@@ -72,17 +45,45 @@ GIT
       xmlenc
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/fhir_client.git
+  revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
+  tag: v6.0.0
+  specs:
+    fhir_client (6.0.0)
+      activesupport (>= 3)
+      addressable (>= 2.3)
+      fhir_dstu2_models (>= 1.1.1)
+      fhir_models (>= 4.2.1)
+      fhir_stu3_models (>= 3.1.1)
+      http (~> 5.1)
+      nokogiri (>= 1.10.4)
+      oauth2 (>= 1.1)
+      rack (>= 1.5)
+      tilt (>= 1.1)
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
+  revision: d58cc59ae47e5f5f642b3603224f42f518f92f56
+  tag: v4.0.0
+  specs:
+    govdelivery-tms (4.0.0)
+      activesupport (>= 5.2.4.3, < 8.0.0)
+      faraday
+      mime-types
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d11fa23200e236042ffab9230fa0f62f20054b09
+  revision: 6941836945d2c45390c96c03e2c0de9e31ece3a5
   branch: master
   specs:
-    vets_json_schema (20.35.1)
+    vets_json_schema (21.0.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
 PATH
   remote: modules
   specs:
+    accredited_representatives (0.1.0)
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -110,6 +111,7 @@ PATH
       rails
     my_health (0.1.0)
       rails
+    representation_management (0.1.0)
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails
@@ -273,7 +275,7 @@ GEM
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
-    carrierwave (3.0.5)
+    carrierwave (3.0.6)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
       addressable (~> 2.6)
@@ -482,7 +484,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.13.0)
+    google-apis-core (0.14.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.1, < 3.a)
@@ -490,17 +492,17 @@ GEM
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
       rexml
-    google-apis-discovery_v1 (0.15.0)
-      google-apis-core (>= 0.12.0, < 2.a)
-    google-apis-generator (0.13.1)
+    google-apis-discovery_v1 (0.16.0)
+      google-apis-core (>= 0.14.0, < 2.a)
+    google-apis-generator (0.14.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
-      google-apis-core (>= 0.12.0, < 2.a)
+      google-apis-core (>= 0.14.0, < 2.a)
       google-apis-discovery_v1 (~> 0.14)
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (3.25.2)
+    google-protobuf (3.25.3)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -547,7 +549,7 @@ GEM
     httpi (2.5.0)
       rack
       socksify
-    i18n (1.14.1)
+    i18n (1.14.4)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.12.2)
@@ -559,7 +561,9 @@ GEM
     json (2.7.1-java)
     json-schema (4.1.1)
       addressable (>= 2.8)
-    json_schemer (2.1.1)
+    json_schemer (2.2.0)
+      base64
+      bigdecimal
       hana (~> 1.3)
       regexp_parser (~> 2.0)
       simpleidn (~> 0.2)
@@ -568,7 +572,8 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.7.1)
+    jwt (2.8.1)
+      base64
     kms_encrypted (1.5.1)
       activesupport (>= 6)
     kramdown (2.4.0)
@@ -601,7 +606,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    marcel (1.0.2)
+    marcel (1.0.4)
     matrix (0.4.2)
     memoist (0.16.2)
     method_source (1.0.0)
@@ -674,7 +679,7 @@ GEM
       activerecord (>= 6.1)
       request_store (~> 1.4)
     parallel (1.24.0)
-    parallel_tests (4.5.1)
+    parallel_tests (4.5.2)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -694,7 +699,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.5.5)
+    pg (1.5.6)
     pg_query (5.1.0)
       google-protobuf (>= 3.22.3)
     pg_search (2.3.6)
@@ -733,7 +738,7 @@ GEM
     rack (2.2.8.1)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
-    rack-cors (2.0.1)
+    rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-protection (3.2.0)
       base64 (>= 0.1.0)
@@ -855,7 +860,7 @@ GEM
     rswag-ui (2.13.0)
       actionpack (>= 3.1, < 7.2)
       railties (>= 3.1, < 7.2)
-    rubocop (1.60.2)
+    rubocop (1.62.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -863,22 +868,22 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
+      rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.30.0)
-      parser (>= 3.2.1.0)
+    rubocop-ast (1.31.1)
+      parser (>= 3.3.0.4)
     rubocop-capybara (2.20.0)
       rubocop (~> 1.41)
     rubocop-factory_bot (2.25.1)
       rubocop (~> 1.41)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.23.1)
+    rubocop-rails (2.24.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
-    rubocop-rspec (2.26.1)
+      rubocop-ast (>= 1.31.1, < 2.0)
+    rubocop-rspec (2.27.1)
       rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
@@ -889,7 +894,7 @@ GEM
     ruby-saml (1.16.0)
       nokogiri (>= 1.13.10)
       rexml
-    ruby-vips (2.2.0)
+    ruby-vips (2.2.1)
       ffi (~> 1.12)
     rubyzip (2.3.2)
     rufus-scheduler (3.9.1)
@@ -953,7 +958,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.6.1)
+    statsd-instrument (3.7.0)
     strong_migrations (1.7.0)
       activerecord (>= 5.2)
     super_diff (0.11.0)
@@ -963,7 +968,7 @@ GEM
     swagger-blocks (3.0.0)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
-    thor (1.3.0)
+    thor (1.3.1)
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
     tilt (2.3.0)
@@ -1007,7 +1012,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.22.0)
+    webmock (3.23.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1030,7 +1035,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
-    yard (0.9.34)
+    yard (0.9.36)
     zeitwerk (2.6.13)
 
 PLATFORMS
@@ -1043,6 +1048,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
+  accredited_representatives!
   active_model_serializers
   activerecord-import
   activerecord-postgis-adapter
@@ -1175,6 +1181,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  representation_management!
   request_store
   restforce
   rgeo-geojson
