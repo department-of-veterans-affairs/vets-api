@@ -3,6 +3,8 @@
 require 'central_mail/service'
 require 'central_mail/datestamp_pdf'
 require 'pension_burial/tag_sentry'
+require 'benefits_intake_service/service'
+require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
 
 module CentralMail
@@ -72,7 +74,11 @@ module CentralMail
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
-      response
+      if response.success?
+        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
+      else
+        raise CentralMailResponseError
+      end
     end
 
     def send_claim_to_benefits_intake(saved_claim_id)
