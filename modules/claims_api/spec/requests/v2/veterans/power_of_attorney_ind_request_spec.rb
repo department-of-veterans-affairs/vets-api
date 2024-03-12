@@ -225,11 +225,11 @@ RSpec.describe 'Power Of Attorney', type: :request do
                         email: 'lillian@disney.com',
                         relationship: 'Spouse',
                         address: {
-                          numberAndStreet: '2688 S Camino Real',
+                          addressLine1: '2688 S Camino Real',
                           city: 'Palm Springs',
-                          state: 'CA',
+                          stateCode: 'CA',
                           country: 'US',
-                          zipFirstFive: '92264'
+                          zipCode: '92264'
                         },
                         phone: {
                           areaCode: '555',
