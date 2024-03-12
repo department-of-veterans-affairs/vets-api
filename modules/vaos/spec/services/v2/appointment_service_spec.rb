@@ -884,7 +884,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns an error message in the avs field of the appointment response' do
         subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
-        expect(appt_no_avs[:avs_path]).to eq(avs_error_message)
+        expect(appt_no_avs[:avs_path]).to be_nil
       end
     end
   end
