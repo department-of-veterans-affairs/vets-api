@@ -30,6 +30,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_education_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to retrieve GI Bill Statement of benefits
+    enable_in_development: true
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api, va_forms, and vba_documents be made through the gateway
@@ -315,9 +319,6 @@ features:
   decision_review_monthly_stats_report_enabled:
     actor_type: user
     description: Enables the monthly decision review stats report email
-  decision_review_sc_pact_act_boolean:
-    actor_type: user
-    description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself

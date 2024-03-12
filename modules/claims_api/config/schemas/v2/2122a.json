@@ -43,20 +43,20 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber": {
-              "type": "integer",
+            "addressLine2": {
+              "type": "string",
               "maxLength": 5
             },
             "city": {
@@ -65,25 +65,24 @@
               "example": "Portland",
               "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
-              "example": "OR",
-              "maxLength": 2
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "OR"
             },
             "country": {
               "description": "Country of the address.",
               "type": "string",
-              "example": "US",
-              "maxLength": 2
+              "example": "USA"
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipCodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -141,20 +140,20 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber": {
-              "type": "integer",
+            "addressLine2": {
+              "type": "string",
               "maxLength": 5
             },
             "city": {
@@ -163,25 +162,24 @@
               "example": "Portland",
               "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
-              "example": "OR",
-              "maxLength": 2
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "OR"
             },
             "country": {
               "description": "Country of the address.",
               "type": "string",
-              "example": "US",
-              "maxLength": 2
+              "example": "USA"
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipCodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -268,20 +266,20 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber": {
-              "type": "integer",
+            "addressLine2": {
+              "type": "string",
               "maxLength": 5
             },
             "city": {
@@ -290,25 +288,24 @@
               "example": "Portland",
               "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
-              "example": "OR",
-              "maxLength": 2
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "OR"
             },
             "country": {
               "description": "Country of the address.",
               "type": "string",
-              "example": "US",
-              "maxLength": 2
+              "example": "USA"
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipCodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",

@@ -35,6 +35,10 @@ module ClaimsApi
           render json: poa, serializer: ClaimsApi::PowerOfAttorneySerializer, key_transform: :camel_lower
         end
 
+        def request_representative
+          render json: { data: { attributes: { success: true } } }, status: :created
+        end
+
         private
 
         def shared_form_validation(form_number)
@@ -70,7 +74,9 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+          unless Settings.claims_api&.poa_v2&.disable_jobs
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+          end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),

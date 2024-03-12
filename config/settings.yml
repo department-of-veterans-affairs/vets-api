@@ -356,7 +356,6 @@ modules_appeals_api:
       # List of flags to indicate parts of documentation that are still WIP and not ready for production.
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
-      - sc_v2_potential_pact_act
   legacy_appeals_enabled: true
   reports:
     daily_decision_review:
@@ -652,6 +651,8 @@ claims_api:
         aud_claim_url: ~
     host: https://sandbox-api.va.gov
     use_mocks: false
+  poa_v2:
+    disable_jobs: false
 
 connected_apps_api:
   connected_apps:
@@ -1649,8 +1650,14 @@ brd:
 
 
 travel_pay:
-  auth_url: https://login.microsoftonline.us
-  tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+  veis:
+    client_id: ~
+    client_secret: ~
+    resource: ~
+    tenant_id: ~
+    auth_url: https://login.microsoftonline.us
+  subscription_key: ~
+  base_url: ~
   service_name: BTSSS-API
 
 xlsx_file_fetcher:
@@ -1680,3 +1687,4 @@ vye:
 
 schema_contract:
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
