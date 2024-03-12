@@ -37,13 +37,6 @@ module AppealsApi::SupplementalClaims::V0
 
     def schema
       response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
-
-      unless Flipper.enabled?(:decision_review_sc_pact_act_boolean)
-        response.tap do |s|
-          s.dig(*%w[definitions scCreate properties data properties attributes properties])&.delete('potentialPactAct')
-        end
-      end
-
       render json: response
     end
 
