@@ -54,7 +54,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 10-10D 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 10-10D 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -113,8 +113,8 @@ module SimpleFormsApi
           SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
 
           Rails.logger.info(
-            "Simple forms api - sent to benefits intake: #{params[:form_number]},
-              status: #{status}, uuid #{confirmation_number}"
+            'Simple forms api - sent to benefits intake',
+            { form_number: params[:form_number], status:, uuid: confirmation_number }
           )
         end
 
@@ -169,7 +169,7 @@ module SimpleFormsApi
 
         maybe_add_file_paths =
           case form_id
-          when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
+          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007'
             form.handle_attachments(file_path)
           else
             [file_path]
