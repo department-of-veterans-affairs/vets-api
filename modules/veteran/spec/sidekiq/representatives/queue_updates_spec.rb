@@ -19,9 +19,9 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
     let(:file_content) { 'dummy file content' }
     let(:processed_data) do
       {
-        'Agents' => [{ id: '123', request_address: {}, phone_number: '123-456-7890' }],
-        'Attorneys' => [{ id: '234', request_address: {}, phone_number: '123-456-7890' }],
-        'Representatives' => [{ id: '345', request_address: {}, phone_number: '123-456-7890' }]
+        'Agents' => [{ id: '123', address: {}, phone_number: '123-456-7890' }],
+        'Attorneys' => [{ id: '234', address: {}, phone_number: '123-456-7890' }],
+        'Representatives' => [{ id: '345', address: {}, phone_number: '123-456-7890' }]
       }
     end
 

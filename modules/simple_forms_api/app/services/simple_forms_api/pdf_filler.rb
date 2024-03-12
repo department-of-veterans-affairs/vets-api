@@ -21,8 +21,12 @@ module SimpleFormsApi
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       FileUtils.copy(template_form_path, stamped_template_path)
       PdfStamper.stamp_pdf(stamped_template_path, form, current_loa)
-      pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
-      generated_form_path
+      if File.exist? stamped_template_path
+        pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
+        generated_form_path
+      else
+        raise "stamped template file does not exist: #{stamped_template_path}"
+      end
     ensure
       Common::FileHelpers.delete_file_if_exists(stamped_template_path) if defined?(stamped_template_path)
     end
