@@ -17,3 +17,6 @@ timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
 if ! curl -s http://localhost:3000|grep -q 'Welcome to the va.gov API'; then
   nohup bash -c 'foreman start -m all=1,clamd=0,freshclam=0 >> log/foreman.log 2>&1 &'
 fi
+
+# Wait for the API to be ready.
+timeout 120 sh -c 'until curl -s http://localhost:3000|grep -q "Welcome to the va.gov API"; do sleep 1; done'
