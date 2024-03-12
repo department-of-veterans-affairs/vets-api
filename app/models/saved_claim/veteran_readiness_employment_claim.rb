@@ -221,7 +221,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    #CentralMail::SubmitSavedClaimJob.new.perform(id)
+    CentralMail::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
   private
