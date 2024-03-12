@@ -33,7 +33,7 @@ module CentralMail
     rescue => e
       update_submission('failed')
       log_message_to_sentry(
-        'CentralMail::SubmitSavedClaimJob failed, retrying...', :warn, generate_sentry_details(e)
+        'CentralMail::SubmitBenefitsIntakeClaim failed, retrying...', :warn, generate_sentry_details(e)
       )
       raise
     end
@@ -50,13 +50,13 @@ module CentralMail
 
       payload = generate_payload
 
-      Rails.logger.info('Lighthouse::SubmitSavedClaimJob Upload', {
-        file: payload[:file],
-        attachments: payload[:attachments],
-        claim_id: @claim.id,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        confirmation_number: @claim.confirmation_number
-      })
+      Rails.logger.info('Central::SubmitBenefitsIntakeClaim Upload', {
+                          file: payload[:file],
+                          attachments: payload[:attachments],
+                          claim_id: @claim.id,
+                          benefits_intake_uuid: @lighthouse_service.uuid,
+                          confirmation_number: @claim.confirmation_number
+                        })
       response = @lighthouse_service.upload_doc(**payload)
 
       create_form_submission_attempt(@lighthouse_service.uuid)
@@ -111,10 +111,10 @@ module CentralMail
 
     def create_form_submission_attempt(intake_uuid)
       form_submission = FormSubmission.create(
-        form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+        form_type: @claim.form_id,
+        form_data: @claim.to_json,
         benefits_intake_uuid: intake_uuid,
-        saved_claim: claim,
-        user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
+        saved_claim: @claim,
       )
       FormSubmissionAttempt.create(form_submission:)
     end
