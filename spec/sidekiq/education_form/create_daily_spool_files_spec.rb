@@ -308,9 +308,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'writes files out over sftp' do
-      before do
-        allow(Rails.env).to receive(:production?).and_return(true)
-      end
+      allow(Rails.env).to receive(:production?).and_return(true)
 
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
