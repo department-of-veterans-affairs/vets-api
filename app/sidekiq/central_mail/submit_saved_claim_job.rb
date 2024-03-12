@@ -159,23 +159,23 @@ module CentralMail
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
-        'veteranFirstName' =>   veteran_full_name['first'],
-        'veteranLastName' =>    veteran_full_name['last'],
-        'fileNumber' =>         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'receiveDt' =>          receive_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'uuid' =>               @claim.guid,
-        'zipCode' =>            address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        'source' =>             "#{@claim.class} va.gov",
-        'hashV' =>              form_pdf_metadata[:hash],
-        'numberAttachments' =>  number_attachments,
-        'docType' =>            @claim.form_id,
-        'numberPages' =>        form_pdf_metadata[:pages]
+        'veteranFirstName' => veteran_full_name['first'],
+        'veteranLastName' => veteran_full_name['last'],
+        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'uuid' => @claim.guid,
+        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
+        'source' => "#{@claim.class} va.gov",
+        'hashV' => form_pdf_metadata[:hash],
+        'numberAttachments' => number_attachments,
+        'docType' => @claim.form_id,
+        'numberPages' => form_pdf_metadata[:pages]
       }
 
       @attachment_paths.each_with_index do |file_path, i|
         j = i + 1
-        attachment_pdf_metadata =     get_hash_and_pages(file_path)
-        metadata["ahash#{j}"] =       attachment_pdf_metadata[:hash]
+        attachment_pdf_metadata = get_hash_and_pages(file_path)
+        metadata["ahash#{j}"] = attachment_pdf_metadata[:hash]
         metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
       end
 
@@ -203,10 +203,10 @@ module CentralMail
 
     def generate_payload
       {
-        upload_url:   @lighthouse_service.location,
-        file:         split_file_and_path(@pdf_path),
-        metadata:     generate_metadata.to_json,
-        attachments:  @attachment_paths.map(&method(:split_file_and_path))
+        upload_url: @lighthouse_service.location,
+        file: split_file_and_path(@pdf_path),
+        metadata: generate_metadata.to_json,
+        attachments: @attachment_paths.map(&method(:split_file_and_path))
       }
     end
 
