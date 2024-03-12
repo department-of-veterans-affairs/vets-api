@@ -76,6 +76,8 @@ sign_in:
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
+  vaweb_client_id: vaweb
+  vamobile_client_id: vamobile
 
 terms_of_use:
   current_version: v1
@@ -354,7 +356,6 @@ modules_appeals_api:
       # List of flags to indicate parts of documentation that are still WIP and not ready for production.
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
-      - sc_v2_potential_pact_act
   legacy_appeals_enabled: true
   reports:
     daily_decision_review:
@@ -458,8 +459,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  reference_data_service:
-    enabled: false
   international_postal_codes: "config/evss/international_postal_codes.json"
 
 # Settings for GI Bill Data Service
@@ -652,6 +651,8 @@ claims_api:
         aud_claim_url: ~
     host: https://sandbox-api.va.gov
     use_mocks: false
+  poa_v2:
+    disable_jobs: false
 
 connected_apps_api:
   connected_apps:
@@ -1247,6 +1248,9 @@ vanotify:
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
+        form1990meb_approved_confirmation_email: form1990meb_approved_confirmation_email_template_id
+        form1990meb_offramp_confirmation_email: form1990meb_offramp_confirmation_email_template_id
+        form1990meb_denied_confirmation_email: form1990meb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
@@ -1285,6 +1289,8 @@ vanotify:
         claim_submission_success_text: fake_template_id
         claim_submission_duplicate_text: fake_template_id
         claim_submission_error_text: fake_template_id
+    benefits_decision_review:
+      api_key: fake_secret
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1642,6 +1648,18 @@ brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
 
+
+travel_pay:
+  veis:
+    client_id: ~
+    client_secret: ~
+    resource: ~
+    tenant_id: ~
+    auth_url: https://login.microsoftonline.us
+  subscription_key: ~
+  base_url: ~
+  service_name: BTSSS-API
+
 xlsx_file_fetcher:
   github_access_token: ~
 
@@ -1666,3 +1684,7 @@ vye:
     r: 8
     p: 1
     length: 16
+
+schema_contract:
+  test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
