@@ -22,7 +22,7 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
         get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: sis_headers
       end
       expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 

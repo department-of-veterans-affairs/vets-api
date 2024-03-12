@@ -21,7 +21,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         get '/mobile/v0/messaging/health/folders', headers: sis_headers
       end
       expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 

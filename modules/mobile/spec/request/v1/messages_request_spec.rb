@@ -19,7 +19,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
         get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
       end
       expect(response).not_to be_successful
-      expect(response.status).to eq(:forbidden)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 

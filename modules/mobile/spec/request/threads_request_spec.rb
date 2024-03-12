@@ -23,7 +23,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
             params: { page_size: '5', page: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
       end
       expect(response).not_to be_successful
-      expect(response.status).to eq(:forbidden)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 

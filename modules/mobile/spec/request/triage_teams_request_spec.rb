@@ -20,7 +20,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
         get '/mobile/v0/messaging/health/recipients', headers: sis_headers
       end
       expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 

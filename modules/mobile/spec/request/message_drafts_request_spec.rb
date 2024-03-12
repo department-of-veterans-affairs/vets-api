@@ -26,7 +26,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
         post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)
       end
       expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
