@@ -1,5 +1,5 @@
 {
-	"name": "vets-api hybrid setup",
+	"name": "vets-api docker setup",
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
@@ -37,9 +37,6 @@
 					}
 				}
 			}
-		},
-		"vscode": {
-			"extensions": ["Shopify.ruby-lsp"]
 		}
 	}
 }
