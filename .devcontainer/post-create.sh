@@ -14,9 +14,6 @@ bundle install
 
 # Set up postgres + redis.
 docker-compose -f docker-compose-deps.yml build
-docker-compose -f docker-compose-deps.yml up &
-timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
-docker-compose -f docker-compose-deps.yml down
 
 # Update default test DB config (because this config overrides the local settings when running tests)
 sed -i 's|^test_database_url: .*$|test_database_url: postgis://postgres:password@localhost:54320/vets_api_test?pool=4|' config/settings.yml
