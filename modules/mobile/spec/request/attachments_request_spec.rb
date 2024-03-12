@@ -4,7 +4,6 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'Mobile Message Attachments Integration', type: :request do
-
   let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
