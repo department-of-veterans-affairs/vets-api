@@ -10,9 +10,12 @@ sudo apt update
 sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-client
 
 gem install bundler
+NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
+bundle config --global jobs `expr $NUM_CORES - 1`
 bundle install
 
 # Set up postgres + redis.
+export VETS_API_USER_ID=$(id -u)
 docker-compose -f docker-compose-deps.yml build
 
 # Update default test DB config (because this config overrides the local settings when running tests)

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export VETS_API_USER_ID=$(id -u)
+
 mkdir -p log
 
 # Start postgres & redis.
