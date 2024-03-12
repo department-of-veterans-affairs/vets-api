@@ -37,7 +37,7 @@ module Mobile
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
-          secureMessaging: MHVMessagingPolicy.new(current_user).access?(sm_client),
+          secureMessaging: MHVMessagingPolicy.new(@user).access?(sm_client),
           userProfileUpdate: access?(vet360: :access?)
         }
       end
@@ -46,7 +46,7 @@ module Mobile
       private
 
       def sm_client
-        @client ||= Mobile::V0::Messaging::Client.new(session: { user_id: user.mhv_correlation_id })
+        @client ||= Mobile::V0::Messaging::Client.new(session: { user_id: @user.mhv_correlation_id })
       end
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
