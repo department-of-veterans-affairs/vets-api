@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'securerandom'
 
 module SimpleFormsApi
@@ -25,7 +26,7 @@ module SimpleFormsApi
     end
 
     def generate_secure_uuid
-       SecureRandom.uuid
+      SecureRandom.uuid
     end
 
     def handle_attachments(file_path)
