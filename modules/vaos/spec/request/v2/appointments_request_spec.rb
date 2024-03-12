@@ -162,9 +162,9 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
 
-            # TODO: currently appointment id 192308 is being used to trigger an avs error message;
+            # TODO: currently appointment id 192308 is being used to trigger an avs empty state;
             # switch back this field to expect avs_path after testing on id 192308 is complete
-            expect(data[0]['attributes']['avsPath']).to eq(avs_error_message)
+            expect(data[0]['attributes']['avsPath']).to be_nil
 
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
@@ -402,7 +402,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
               data = JSON.parse(response.body)['data']
 
               expect(data['id']).to eq('192308')
-              expect(data['attributes']['avsPath']).to eq(avs_error_message)
+              expect(data['attributes']['avsPath']).to be_nil
             end
           end
         end
