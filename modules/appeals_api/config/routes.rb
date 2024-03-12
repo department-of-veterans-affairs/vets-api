@@ -41,7 +41,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
-          get '/:id/download', action: 'download'
+          # get '/:id/download', action: 'download'
         end
       end
 
@@ -53,7 +53,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
-          get '/:id/download', action: 'download'
+          # get '/:id/download', action: 'download'
         end
       end
 
@@ -63,7 +63,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
-          get '/:id/download', action: 'download'
+          # get '/:id/download', action: 'download'
         end
       end
 
