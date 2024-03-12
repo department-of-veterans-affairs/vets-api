@@ -2,8 +2,12 @@
 
 MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def access?(client)
-    client.authenticate if client.session.expired?
-    !client.session.expired?
+    if client.session.expired?
+      client.authenticate
+      !client.session.expired?
+    else
+      true
+    end
   rescue
     false
   end

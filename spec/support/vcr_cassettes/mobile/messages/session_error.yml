@@ -26,7 +26,6 @@ http_interactions:
     headers:
       Server:
       - Apache-Coyote/1.1
-      Token: ""
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Content-Length:

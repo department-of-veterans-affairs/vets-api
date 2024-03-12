@@ -2,10 +2,8 @@
 
 require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
-require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Message Attachments Integration', type: :request do
-  include Mobile::MessagingClientHelper
 
   let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }
   let(:user_id) { '10616687' }
@@ -18,7 +16,7 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
 
   context 'when not authorized' do
     it 'responds with 403 error' do
-      VCR.use_cassette('sm_client/bad_session') do
+      VCR.use_cassette('mobile/messages/session_error') do
         get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: sis_headers
       end
       expect(response).not_to be_successful
