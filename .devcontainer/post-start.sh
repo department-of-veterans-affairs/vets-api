@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir -p log
+
 # Start postgres & redis.
 nohup bash -c 'docker-compose -f docker-compose-deps.yml up >> log/deps.log 2>&1 &'
 
