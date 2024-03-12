@@ -40,6 +40,22 @@ module ClaimsApi
         def shared_form_validation(form_number)
           target_veteran
           validate_json_schema(form_number.upcase)
+          validate_claimant_included
+        end
+
+        def validate_claimant_included
+          claimant_icn = form_attributes['claimant']['claimantId']
+          address = form_attributes['claimant']['address']
+          phone = form_attributes['claimant']['phone']
+          relationship = form_attributes['claimant']['relationship']
+
+          if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
+            return
+          end
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Must provide claimant.claimantId if claimant information is provided.'
+          )
         end
 
         def submit_power_of_attorney(poa_code, form_number)
