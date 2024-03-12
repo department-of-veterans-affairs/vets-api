@@ -37,6 +37,9 @@
 					}
 				}
 			}
+		},
+	    "vscode": {
+			"extensions": ["Shopify.ruby-lsp"]
 		}
 	}
 }

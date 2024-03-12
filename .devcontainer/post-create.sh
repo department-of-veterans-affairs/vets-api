@@ -40,3 +40,5 @@ betamocks:
   cache_dir: ../vets-api-mockdata
 EOT
 fi
+
+sh .devcontainer/start-services.sh
