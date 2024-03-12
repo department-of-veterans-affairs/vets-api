@@ -1686,3 +1686,4 @@ vye:
 
 schema_contract:
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
