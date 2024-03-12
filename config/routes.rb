@@ -289,13 +289,6 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
-    resource :address, only: %i[show update] do
-      collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-      end
-    end
-
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]

@@ -8,11 +8,11 @@ require 'claims_api/v2/json_format_validation'
 module ClaimsApi
   module V2
     module Veterans
-      class PowerOfAttorneyController < ClaimsApi::V2::Veterans::Base
+      class PowerOfAttorney::BaseController < ClaimsApi::V2::Veterans::Base
         include ClaimsApi::PoaVerification
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
-        FORM_NUMBER = '2122'
+        FORM_NUMBER_INDIVIDUAL = '2122A'
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
@@ -22,38 +22,6 @@ module ClaimsApi
           else
             render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
           end
-        end
-
-        def submit2122
-          shared_form_validation('2122')
-          poa_code = get_poa_code('2122')
-          validate_org_poa_code!(poa_code)
-
-          submit_power_of_attorney(poa_code, '2122')
-        end
-
-        def submit2122a
-          shared_form_validation('2122A')
-          poa_code = get_poa_code('2122A')
-          validate_individual_poa_code!(poa_code)
-
-          submit_power_of_attorney(poa_code, '2122A')
-        end
-
-        def validate2122
-          shared_form_validation('2122')
-          poa_code = get_poa_code('2122')
-          validate_org_poa_code!(poa_code)
-
-          render json: validation_success('21-22')
-        end
-
-        def validate2122a
-          shared_form_validation('2122A')
-          poa_code = get_poa_code('2122A')
-          validate_individual_poa_code!(poa_code)
-
-          render json: validation_success('21-22a')
         end
 
         def status
@@ -86,14 +54,35 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+          unless Settings.claims_api&.poa_v2&.disable_jobs
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+          end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
             root: :data
           ), status: :accepted, location: url_for(
-            controller: 'power_of_attorney', action: 'show', id: power_of_attorney.id
+            controller: 'power_of_attorney/base', action: 'show', id: power_of_attorney.id
           )
+        end
+
+        def validation_success(form_number)
+          {
+            data: {
+              type: "form/#{form_number}/validation",
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
+        end
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
+        def current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def representative(poa_code)
@@ -113,14 +102,6 @@ module ClaimsApi
           format_representative(individuals.first)
         end
 
-        def format_organization(organization)
-          {
-            name: organization.name,
-            phone_number: organization.phone,
-            type: 'organization'
-          }
-        end
-
         def format_representative(representative)
           {
             name: "#{representative.first_name} #{representative.last_name}",
@@ -129,43 +110,12 @@ module ClaimsApi
           }
         end
 
-        def validate_individual_poa_code!(poa_code)
-          return if ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).any?
-
-          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-            detail: "Could not find an Accredited Representative with code: #{poa_code}"
-          )
-        end
-
-        def validate_org_poa_code!(poa_code)
-          return if ::Veteran::Service::Organization.exists?(poa: poa_code)
-
-          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-            detail: "Could not find an Organization with code: #{poa_code}"
-          )
-        end
-
-        def validation_success(form_number)
+        def format_organization(organization)
           {
-            data: {
-              type: "form/#{form_number}/validation",
-              attributes: {
-                status: 'valid'
-              }
-            }
+            name: organization.name,
+            phone_number: organization.phone,
+            type: 'organization'
           }
-        end
-
-        def enable_vbms_access?
-          params[:recordConsent] && params[:consentLimits].blank?
-        end
-
-        def current_poa_code
-          current_poa.try(:code)
-        end
-
-        def current_poa
-          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def header_md5
@@ -176,16 +126,8 @@ module ClaimsApi
         end
 
         def get_poa_code(form_number)
-          rep_or_org = form_number.upcase == '2122A' ? 'representative' : 'serviceOrganization'
+          rep_or_org = form_number.upcase == FORM_NUMBER_INDIVIDUAL ? 'representative' : 'serviceOrganization'
           form_attributes&.dig(rep_or_org, 'poaCode')
-        end
-
-        def parse_and_validate_poa_code(form_number)
-          poa_code = get_poa_code(form_number)
-          validate_poa_code!(poa_code)
-          validate_poa_code_for_current_user!(poa_code) if user_is_representative?
-
-          poa_code
         end
 
         def source_data

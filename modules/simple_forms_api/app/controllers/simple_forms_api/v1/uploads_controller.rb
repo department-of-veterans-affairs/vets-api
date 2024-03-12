@@ -28,7 +28,8 @@ module SimpleFormsApi
       }.freeze
 
       IVC_FORM_NUMBER_MAP = {
-        '10-10D' => 'vha_10_10d'
+        '10-10D' => 'vha_10_10d',
+        '10-7959F-1' => 'vha_10_7959f_1'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -42,7 +43,9 @@ module SimpleFormsApi
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
-          render json: response.body, status: response.status
+          confirmation_number = response.body['reference_number']
+          status = response.body['status']
+          render json: { confirmation_number:, status: }, status: response.status
         else
           submit_form_to_central_mail
         end
@@ -51,7 +54,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 10-10D 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 10-10D 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -107,9 +110,11 @@ module SimpleFormsApi
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
+          SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
+
           Rails.logger.info(
-            "Simple forms api - sent to benefits intake: #{params[:form_number]},
-              status: #{status}, uuid #{confirmation_number}"
+            'Simple forms api - sent to benefits intake',
+            { form_number: params[:form_number], status:, uuid: confirmation_number }
           )
         end
 
@@ -164,8 +169,10 @@ module SimpleFormsApi
 
         maybe_add_file_paths =
           case form_id
-          when 'vba_40_0247', 'vha_10_10d', 'vba_40_10007'
+          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007'
             form.handle_attachments(file_path)
+          else
+            [file_path]
           end
 
         [file_path, maybe_add_file_paths, metadata]

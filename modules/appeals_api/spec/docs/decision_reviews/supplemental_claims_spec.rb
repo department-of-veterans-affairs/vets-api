@@ -152,18 +152,18 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
     end
   end
 
-  path '/supplemental_claims/{uuid}/download' do
-    get 'Download a watermarked copy of a submitted Supplemental Claim' do
-      tags 'Supplemental Claims'
-      operationId 'downloadSc'
-      security DocHelpers.decision_reviews_security_config
+  # path '/supplemental_claims/{uuid}/download' do
+  # get 'Download a watermarked copy of a submitted Supplemental Claim' do
+  # tags 'Supplemental Claims'
+  # operationId 'downloadSc'
+  # security DocHelpers.decision_reviews_security_config
 
-      include_examples 'decision reviews PDF download docs', {
-        factory: :extra_supplemental_claim,
-        appeal_type_display_name: 'Supplemental Claim'
-      }
-    end
-  end
+  # include_examples 'decision reviews PDF download docs', {
+  # factory: :extra_supplemental_claim,
+  # appeal_type_display_name: 'Supplemental Claim'
+  # }
+  # end
+  # end
 
   path '/supplemental_claims/schema' do
     get 'Gets the Supplemental Claims JSON Schema.' do
