@@ -37,13 +37,17 @@ module Mobile
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
-          secureMessaging: access?(mhv_messaging: :access?),
+          secureMessaging: MHVMessagingPolicy.new(current_user).access?(sm_client),
           userProfileUpdate: access?(vet360: :access?)
         }
       end
       # rubocop:enable Metrics/MethodLength
 
       private
+
+      def sm_client
+        @client ||= Mobile::V0::Messaging::Client.new(session: { user_id: user.mhv_correlation_id })
+      end
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
         if Flipper.enabled?(flag_name, @user)

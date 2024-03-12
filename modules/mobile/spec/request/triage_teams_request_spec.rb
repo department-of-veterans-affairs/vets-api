@@ -8,14 +8,30 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
 
-  before do
-    allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
+  before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
+
+  after { Timecop.return }
+
+  context 'when not authorized' do
+    it 'responds with 403 error' do
+      VCR.use_cassette('sm_client/bad_session') do
+        get '/mobile/v0/messaging/health/recipients', headers: sis_headers
+      end
+      expect(response).not_to be_successful
+      expect(response.status).to eq(403)
+    end
   end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
+
+    after do
+      VCR.eject_cassette
+    end
 
     it 'responds to GET #index' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
@@ -48,26 +64,6 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
           expect(response).to match_camelized_response_schema('triage_teams')
         end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
       end
-    end
-  end
-
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
-
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/recipients', headers: sis_headers
-      expect(response).not_to be_successful
-      expect(response.status).to eq(403)
-    end
-  end
-
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
-
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/recipients', headers: sis_headers
-      expect(response).not_to be_successful
-      expect(response.status).to eq(403)
     end
   end
 end

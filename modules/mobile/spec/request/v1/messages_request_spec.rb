@@ -7,35 +7,31 @@ require_relative '../../support/helpers/mobile_sm_client_helper'
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do
   include Mobile::MessagingClientHelper
 
-  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type:) }
+  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
 
-  before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
-    allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-  end
+  before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
+  after { Timecop.return }
 
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+  context 'when not authorized' do
+    it 'responds with 403 error' do
+      VCR.use_cassette('sm_client/bad_session') do
+        get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+      end
       expect(response).not_to be_successful
-      expect(response).to have_http_status(:forbidden)
+      expect(response.status).to eq(:forbidden)
     end
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
-
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
-      expect(response).not_to be_successful
-      expect(response).to have_http_status(:forbidden)
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
     end
-  end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+    after do
+      VCR.eject_cassette
+    end
+
     let(:thread_response) do
       { 'data' =>
           [

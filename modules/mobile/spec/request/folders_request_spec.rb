@@ -8,35 +8,31 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:inbox_id) { 0 }
 
-  before do
-    allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-  end
+  before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
+  after { Timecop.return }
 
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/folders', headers: sis_headers
+  context 'when not authorized' do
+    it 'responds with 403 error' do
+      VCR.use_cassette('sm_client/bad_session') do
+        get '/mobile/v0/messaging/health/folders', headers: sis_headers
+      end
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
-
-    it 'is not authorized' do
-      get '/mobile/v0/messaging/health/folders', headers: sis_headers
-      expect(response).not_to be_successful
-      expect(response.status).to eq(403)
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
     end
-  end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+    after do
+      VCR.eject_cassette
+    end
 
     describe '#index' do
       it 'responds to GET #index' do
