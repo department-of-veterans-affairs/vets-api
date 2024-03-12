@@ -10,7 +10,7 @@ module CentralMail
     include Sidekiq::Job
     include SentryLogging
 
-    class BenefitsIntakeError < StandardError; end
+    class BenefitsIntakeClaimError < StandardError; end
 
     def perform(saved_claim_id)
       PensionBurial::TagSentry.tag_sentry
@@ -28,7 +28,7 @@ module CentralMail
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
-        raise CentralMailResponseError, response.body
+        raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
       update_submission('failed')
