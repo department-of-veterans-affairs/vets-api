@@ -10,7 +10,6 @@ if !pg_isready -h localhost -p 54320; then
 fi
 
 bundle install
-code --install-extension "Shopify.ruby-lsp"
 
 # Wait for postgres to be ready before running setup.
 timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
