@@ -1,7 +1,5 @@
 #!/bin/sh
 
-export VETS_API_USER_ID=$(id -u)
-
 mkdir -p log
 
 # Start postgres & redis.
@@ -11,9 +9,13 @@ fi
 
 bundle install
 
-# Wait for postgres to be ready before running setup.
+# Wait for postgres to be ready.
 timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
 
+# Restart deps. (Sometimes permissions do not seem to be set correctly )
+docker-compose -f docker-compose-deps.yml down
+nohup bash -c 'VETS_API_USER_ID=$(id -u) docker-compose -f docker-compose-deps.yml up >> log/deps.log 2>&1 &'
+timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
 ./bin/setup
 
 if ! curl -s http://localhost:3000|grep -q 'Welcome to the va.gov API'; then
