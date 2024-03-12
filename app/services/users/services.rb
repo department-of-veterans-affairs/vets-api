@@ -18,7 +18,7 @@ module Users
     #
     def authorizations
       @list << BackendServices::RX if user.authorize :mhv_prescriptions, :access?
-      @list << BackendServices::MESSAGING if MHVMessagingPolicy.new(user).access?(client)
+      @list << BackendServices::MESSAGING if user.authorize :legacy_mhv_messaging, :access?
       @list << BackendServices::MEDICAL_RECORDS if user.authorize :mhv_medical_records, :access?
       @list << BackendServices::HEALTH_RECORDS if user.authorize :mhv_health_records, :access?
       @list << BackendServices::EVSS_CLAIMS if user.authorize :evss, :access?
@@ -34,10 +34,6 @@ module Users
     end
 
     private
-
-    def client
-      @client ||= SM::Client.new(session: { user_id: user.mhv_correlation_id })
-    end
 
     def auth_free_services
       [

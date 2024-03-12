@@ -15,7 +15,7 @@ module MyHealth
     end
 
     def authorize
-      raise_access_denied unless MHVMessagingPolicy.new(current_user).access?(client)
+      raise_access_denied unless current_user.authorize(:legacy_mhv_messaging, :access?)
     end
 
     def raise_access_denied
