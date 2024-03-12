@@ -11,7 +11,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
 
   after(:all) do
-    FileUtils.remove_dir('tmp/spool_files') if File.exist?('tmp/spool_files')
+    FileUtils.rm_rf('tmp/spool_files')
   end
 
   context 'scheduling' do
