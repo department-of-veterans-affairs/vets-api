@@ -34,10 +34,10 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
-                  numberAndStreet: '123',
+                  addressLine1: '123',
                   city: 'city',
                   country: 'US',
-                  zipFirstFive: '12345'
+                  zipCode: '12345'
                 }
               }
             }
@@ -95,10 +95,10 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
-                  numberAndStreet: '123',
+                  addressLine1: '123',
                   city: 'city',
                   country: 'US',
-                  zipFirstFive: '12345'
+                  zipCode: '12345'
                 }
               }
             }
