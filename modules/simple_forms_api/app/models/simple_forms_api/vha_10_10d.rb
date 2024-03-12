@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'securerandom'
 
 module SimpleFormsApi
   class VHA1010d
@@ -23,16 +24,20 @@ module SimpleFormsApi
       }
     end
 
+    def generate_secure_uuid
+       SecureRandom.uuid
+    end
+
     def handle_attachments(file_path)
-      ssn_or_tin = metadata['ssn_or_tin']
-      file_path_ssn = file_path.gsub('vha_10_10d-tmp', "#{ssn_or_tin}_vha_10_10d-tmp")
-      File.rename(file_path, file_path_ssn)
+      uuid = generate_secure_uuid
+      file_path_uuid = file_path.gsub('vha_10_10d-tmp', "#{uuid}_vha_10_10d-tmp")
+      File.rename(file_path, file_path_uuid)
       attachments = get_attachments
-      file_paths = [file_path_ssn]
+      file_paths = [file_path_uuid]
 
       if attachments.count.positive?
         attachments.each_with_index do |attachment, index|
-          new_file_name = "#{ssn_or_tin}_vha_10_10d-tmp#{index + 1}.pdf"
+          new_file_name = "#{uuid}_vha_10_10d-tmp#{index + 1}.pdf"
           new_file_path = File.join(File.dirname(attachment), new_file_name)
           File.rename(attachment, new_file_path)
           file_paths << new_file_path
