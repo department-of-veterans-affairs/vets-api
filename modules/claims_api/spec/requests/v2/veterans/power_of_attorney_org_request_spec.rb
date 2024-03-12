@@ -186,7 +186,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
                 end
               end
 
-
               context 'when no claimantId is provided and other claimant data is present' do
                 let(:request_body) do
                   Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
