@@ -310,7 +310,7 @@ module PdfFill
           question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
           limit: 180
         },
-        'veteranSocialSecurityNumberPageTwo' => {
+        'veteranSocialSecurityNumber2' => {
           'first' => {
             key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_FirstThreeNumbers[1]'
           },
@@ -484,7 +484,7 @@ module PdfFill
           question_suffix: 'B',
           question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
         },
-        'veteranSocialSecurityNumberPageThree' => {
+        'veteranSocialSecurityNumber3' => {
           'first' => {
             key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_FirstThreeNumbers[2]'
           },
@@ -590,10 +590,18 @@ module PdfFill
           extract_middle_i(@form_data, attr)
         end
 
+        %w[veteranDateOfBirth deathDate burialDate claimantDateOfBirth].each do |attr|
+          @form_data[attr] = split_date(@form_data[attr])
+        end
+       
+
         ssn = @form_data['veteranSocialSecurityNumber']
-        ['', '2'].each do |suffix|
+        ['', '2', '3'].each do |suffix|
           @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
+
+        @form_data['claimantSocialSecurityNumber'] = split_ssn(@form_data['claimantSocialSecurityNumber'])
+
 
         split_phone(@form_data, 'claimantPhone')
 
@@ -626,6 +634,7 @@ module PdfFill
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
+        puts @form_data
 
         @form_data
       end
