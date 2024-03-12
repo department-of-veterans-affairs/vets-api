@@ -1930,3 +1930,4 @@ spec/requests/va_profile/contacts_request_spec.rb @department-of-veterans-affair
 /helmCharts @department-of-veterans-affairs/backend-review-group
 /.github/workflows/build-and-publish.yaml @department-of-veterans-affairs/backend-review-group
 modules/accredited_representatives @department-of-veterans-affairs/benefits-accredited-rep-facing @department-of-veterans-affairs/backend-review-group
+README.md @department-of-veterans-affairs/backend-review-group 
