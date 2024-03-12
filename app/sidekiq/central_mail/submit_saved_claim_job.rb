@@ -3,8 +3,6 @@
 require 'central_mail/service'
 require 'central_mail/datestamp_pdf'
 require 'pension_burial/tag_sentry'
-require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
 
 module CentralMail
@@ -41,10 +39,7 @@ module CentralMail
       @saved_claim_id = saved_claim_id
       log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
 
-      # flipper logic will be put here
-
-      # response = send_claim_to_central_mail(saved_claim_id)
-      response = send_claim_to_benefits_intake(saved_claim_id)
+      response = send_claim_to_central_mail(saved_claim_id)
 
       if response.success?
         update_submission('success')
@@ -63,7 +58,7 @@ module CentralMail
     end
 
     def send_claim_to_central_mail(saved_claim_id)
-      @claim =    SavedClaim.find(saved_claim_id)
+      @claim = SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
 
       @attachment_paths = @claim.persistent_attachments.map do |record|
@@ -74,35 +69,6 @@ module CentralMail
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
-      if response.success?
-        @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
-      else
-        raise CentralMailResponseError
-      end
-    end
-
-    def send_claim_to_benefits_intake(saved_claim_id)
-      @claim =    SavedClaim.find(saved_claim_id)
-      @pdf_path = process_record(@claim)
-
-      @attachment_paths = @claim.persistent_attachments.map do |record|
-        process_record(record)
-      end
-
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-
-      payload = generate_payload
-
-      Rails.logger.info('Lighthouse::SubmitSavedClaimJob Upload', {
-                          file: payload[:file],
-                          attachments: payload[:attachments],
-                          claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid,
-                          confirmation_number: @claim.confirmation_number
-                        })
-      response = @lighthouse_service.upload_doc(**payload)
-
-      create_form_submission_attempt(@lighthouse_service.uuid)
       response
     end
 
@@ -159,13 +125,13 @@ module CentralMail
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
+        'veteranFirstName' => remove_invalid_characters(veteran_full_name['first']),
+        'veteranLastName' => remove_invalid_characters(veteran_full_name['last']),
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => @claim.guid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        'source' => "#{@claim.class} va.gov",
+        'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => number_attachments,
         'docType' => @claim.form_id,
@@ -179,7 +145,7 @@ module CentralMail
         metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
       end
 
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+      metadata
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -199,19 +165,6 @@ module CentralMail
       # Replace characters that do not match the pattern with an empty string
       str = I18n.transliterate(str)
       @claim.respond_to?(:central_mail_submission) ? str.gsub(%r{[^A-Za-z'/ -]}, '') : str
-    end
-
-    def generate_payload
-      {
-        upload_url: @lighthouse_service.location,
-        file: split_file_and_path(@pdf_path),
-        metadata: generate_metadata.to_json,
-        attachments: @attachment_paths.map(&method(:split_file_and_path))
-      }
-    end
-
-    def split_file_and_path(path)
-      { file: path, file_name: path.split('/').last }
     end
   end
 end

@@ -15,15 +15,11 @@ module CentralMail
     def perform(saved_claim_id)
       PensionBurial::TagSentry.tag_sentry
       @saved_claim_id = saved_claim_id
-      log_message_to_sentry('Attempting CentralMail::SubmitSavedClaimJob', :info, generate_sentry_details)
+      log_message_to_sentry('Attempting CentralMail::SubmitBenefitsIntakeClaim', :info, generate_sentry_details)
 
-      # flipper logic will be put here
-
-      # response = send_claim_to_central_mail(saved_claim_id)
       response = send_claim_to_benefits_intake(saved_claim_id)
 
       if response.success?
-        update_submission('success')
         log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
 
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
@@ -31,7 +27,6 @@ module CentralMail
         raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
-      update_submission('failed')
       log_message_to_sentry(
         'CentralMail::SubmitBenefitsIntakeClaim failed, retrying...', :warn, generate_sentry_details(e)
       )
@@ -114,7 +109,7 @@ module CentralMail
         form_type: @claim.form_id,
         form_data: @claim.to_json,
         benefits_intake_uuid: intake_uuid,
-        saved_claim: @claim,
+        saved_claim: @claim
       )
       FormSubmissionAttempt.create(form_submission:)
     end
