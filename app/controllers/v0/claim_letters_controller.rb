@@ -9,6 +9,7 @@ module V0
 
     def index
       docs = service.get_letters
+      log_metadata_to_datadog(docs)
 
       render json: docs
     end
@@ -33,10 +34,21 @@ module V0
     # 68: 5103/DTA Letter
     def allowed_doctypes
       doctypes = %w[184]
-      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @user)
-      doctypes << '65' if Flipper.enabled?(:cst_include_ddl_5103_letters, @user)
-      doctypes << '68' if Flipper.enabled?(:cst_include_ddl_5103_letters, @user)
+      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @current_user)
+      doctypes << '704' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '706' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '858' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
       doctypes
+    end
+
+    def log_metadata_to_datadog(docs)
+      docs_metadata = []
+      docs.each do |d|
+        docs_metadata << { doc_type: d[:doc_type], type_description: d[:type_description] }
+      end
+      ::Rails.logger.info('DDL Document Types Metadata',
+                          { message_type: 'ddl.doctypes_metadata',
+                            document_type_metadata: docs_metadata })
     end
   end
 end
