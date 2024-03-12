@@ -33,7 +33,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
     describe 'when batch size is greater than max batch size' do
       it 'successfully submits batch intake via batch' do
-        pending_form_submission_ids = create_list(:form_submission, 4, :pending).map(&:benefits_intake_uuid)
+        create_list(:form_submission, 4, :pending)
         response = double
         service = double(get_bulk_status_of_uploads: response)
         allow(response).to receive(:body).and_return({ 'data' => [] })
@@ -46,14 +46,20 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'when bulk status update fails' do
-      xit 'logs the error' do
-        response = double(success?: false)
-        service = double(get_bulk_status_of_uploads: response)
-        allow(response).to receive(:success?).and_return(false)
-
-        # TODO: Fix this spec.
-
+      it 'logs the error' do
+        create_list(:form_submission, 2, :pending)
+        service = double
+        message = 'error'
         allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+        allow(service).to receive(:get_bulk_status_of_uploads).and_raise(message)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:error)
+
+        BenefitsIntakeStatusJob.new.perform
+
+        expect(Rails.logger).to have_received(:error).with('Error processing Intake Status batch',
+                                                           class: 'BenefitsIntakeStatusJob', message:)
+        expect(Rails.logger).not_to have_received(:info).with('BenefitsIntakeStatusJob ended')
       end
     end
 
