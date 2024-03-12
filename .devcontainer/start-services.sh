@@ -5,7 +5,7 @@ export VETS_API_USER_ID=$(id -u)
 mkdir -p log
 
 # Start postgres & redis.
-if !pg_isready -h localhost -p 54320; then
+if ! pg_isready -h localhost -p 54320; then
   nohup bash -c 'docker-compose -f docker-compose-deps.yml up >> log/deps.log 2>&1 &'
 fi
 
