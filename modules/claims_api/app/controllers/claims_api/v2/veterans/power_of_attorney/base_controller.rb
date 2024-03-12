@@ -44,14 +44,14 @@ module ClaimsApi
         end
 
         def validate_claimant_included
-          claimant_icn = form_attributes['claimant']['claimantId']
-          address = form_attributes['claimant']['address']
-          phone = form_attributes['claimant']['phone']
-          relationship = form_attributes['claimant']['relationship']
+          claimant_data = form_attributes&.dig('claimant')
+          return if claimant_data.blank?
 
-          if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
-            return
-          end
+          claimant_icn = claimant_data&.dig('claimantId')
+          address = claimant_data&.dig('address')
+          phone = claimant_data&.dig('phone')
+          relationship = claimant_data&.dig('relationship')
+          return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
 
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'Must provide claimant.claimantId if claimant information is provided.'
