@@ -288,11 +288,12 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    it 'initiates schema validation' do
+    it 'validates schema' do
       VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                        match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-        expect(SchemaContract::ValidationInitiator).to receive(:call)
         subject.get_appointments(start_date2, end_date2)
+        SchemaContract::ValidationJob.drain
+        expect(SchemaContract::Validation.last.status).to eq('success')
       end
     end
   end
