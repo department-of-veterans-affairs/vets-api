@@ -5,7 +5,7 @@ module Common
     module_function
 
     def delete_file_if_exists(path)
-      File.delete(path) if File.exist?(path)
+      File.delete(path) if path && File.exist?(path)
     end
 
     def random_file_path
