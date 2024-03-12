@@ -14,9 +14,6 @@ NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
 bundle config --global jobs `expr $NUM_CORES - 1`
 bundle install
 
-# Set up postgres + redis.
-VETS_API_USER_ID=$(id -u) docker-compose -f docker-compose-deps.yml build
-
 # Update default test DB config (because this config overrides the local settings when running tests)
 sed -i 's|^test_database_url: .*$|test_database_url: postgis://postgres:password@localhost:54320/vets_api_test?pool=4|' config/settings.yml
 
