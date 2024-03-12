@@ -237,25 +237,23 @@ module PdfFill
           question_text: 'E-MAIL ADDRESS'
         },
         'relationshipToVeteran' => {
-          'checkbox' => {
-            'spouse' => {
-              key: 'form1[0].#subform[82].CheckboxSpouse[0]'
-            },
-            'child' => {
-              key: 'form1[0].#subform[82].CheckboxChild[0]'
-            },
-            'parent' => {
-              key: 'form1[0].#subform[82].CheckboxParent[0]'
-            },
-            'executor' => {
-              key: 'form1[0].#subform[82].CheckboxExecutor[0]'
-            },
-            'funeralHome' => {
-              key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
-            },
-            'other' => {
-              key: 'form1[0].#subform[82].CheckboxOther[0]'
-            },
+          'spouse' => {
+            key: 'form1[0].#subform[82].CheckboxSpouse[0]'
+          },
+          'child' => {
+            key: 'form1[0].#subform[82].CheckboxChild[0]'
+          },
+          'parent' => {
+            key: 'form1[0].#subform[82].CheckboxParent[0]'
+          },
+          'executor' => {
+            key: 'form1[0].#subform[82].CheckboxExecutor[0]'
+          },
+          'funeralHome' => {
+            key: 'form1[0].#subform[82].CheckboxFuneralHome[0]'
+          },
+          'other' => {
+            key: 'form1[0].#subform[82].CheckboxOther[0]'
           }
         },
         'toursOfDuty' => { #might need to break into three individual ones
@@ -322,7 +320,7 @@ module PdfFill
           }
         },
         'finalRestingPlace' => { #break into yes/nos
-          'checkbox' => {
+          'location' => {
             'cemetery' => {
               key: 'form1[0].#subform[83].#subform[84].RestingPlaceCemetery[5]'
             },
@@ -582,6 +580,22 @@ module PdfFill
         va_file_number.sub(/^[Cc]/, '')
       end
 
+      # override for on/off vs 1/off
+      def select_checkbox(value)
+        value ? 'On' : 'Off'
+      end
+
+      # override
+      def expand_checkbox_as_hash(hash, key)
+        value = hash.try(:[], key)
+        puts "what is value: #{value}"
+        return if value.blank?
+
+        hash['checkbox'] = {
+          value => "On"
+        }
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -603,12 +617,34 @@ module PdfFill
         @form_data['claimantSocialSecurityNumber'] = split_ssn(@form_data['claimantSocialSecurityNumber'])
 
 
+
+        relationship_to_veteran = @form_data['relationshipToVeteran']
+        @form_data['relationshipToVeteran'] = {
+          'spouse' => select_checkbox(relationship_to_veteran == 'spouse'),
+          'child' => select_checkbox(relationship_to_veteran == 'child'),
+          'executor' => select_checkbox(relationship_to_veteran == 'executor'),
+          'parent' => select_checkbox(relationship_to_veteran == 'parent'),
+          'funeralHome' => select_checkbox(relationship_to_veteran == 'funeralHome'),
+          'other' => select_checkbox(relationship_to_veteran == 'other'),
+        }
+
+        final_resting_place = @form_data.dig('finalRestingPlace', 'location')
+        @form_data['finalRestingPlace']['location'] = {
+          'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
+          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'), 
+          'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
+          'other' => select_checkbox(final_resting_place == 'other')
+        }
+
+        
+
+
         split_phone(@form_data, 'claimantPhone')
 
         split_postal_code(@form_data)
 
-        expand_relationship(@form_data, 'relationshipToVeteran')
-
+        #expand_relationship(@form_data, 'relationshipToVeteran')
+       
         expand_place_of_death
 
         expand_tours_of_duty(@form_data['toursOfDuty'])
@@ -619,7 +655,7 @@ module PdfFill
 
         expand_burial_allowance
 
-        expand_firm
+        #expand_firm
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
