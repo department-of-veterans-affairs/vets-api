@@ -28,9 +28,7 @@ pipeline {
       }
     }
 
-    stage('Scheudle Review Instance Creation') {
-      when { not { branch 'master' } }
-
+    stage('Schedule Review Instance Creation') {
       steps {
         build job: 'deploys/vets-review-instance-deploy', parameters: [
           stringParam(name: 'devops_branch', value: 'master'),
@@ -46,15 +44,6 @@ pipeline {
     always {
       sh 'env=$RAILS_ENV make down'
       deleteDir() /* clean up our workspace */
-    }
-    failure {
-      script {
-        if (env.BRANCH_NAME == 'master') {
-          slackSend message: "Failed vets-api CI on branch: `${env.THE_BRANCH}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
-          color: 'danger',
-          failOnError: true
-        }
-      }
     }
   }
 }
