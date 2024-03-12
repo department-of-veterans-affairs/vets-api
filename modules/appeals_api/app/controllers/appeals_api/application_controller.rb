@@ -7,6 +7,7 @@ module AppealsApi
     skip_after_action :set_csrf_header
     before_action :deactivate_endpoint
     before_action :set_default_headers
+    before_action :require_gateway_origin
 
     def render_response(response)
       render json: response.body, status: response.status
@@ -34,6 +35,12 @@ module AppealsApi
     end
 
     DEFAULT_HEADERS = { 'Content-Language' => 'en-US' }.freeze
+
+    def require_gateway_origin
+      if Rails.env.production? && params[:source].blank? && Flipper.enabled?(:benefits_require_gateway_origin)
+        raise Common::Exceptions::Unauthorized
+      end
+    end
 
     def set_default_headers
       DEFAULT_HEADERS.each { |k, v| response.headers[k] = v }

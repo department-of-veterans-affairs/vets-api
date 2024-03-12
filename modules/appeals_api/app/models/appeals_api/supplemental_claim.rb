@@ -66,11 +66,7 @@ module AppealsApi
       return unless %w[v2 v0].include?(api_version&.downcase)
 
       # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
-      self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)
-                        { form_data: { evidence_type:, potential_pact_act: }, pact: { potential_pact_act: } }
-                      else
-                        { form_data: { evidence_type: } }
-                      end
+      self.metadata = { form_data: { evidence_type: } }
       metadata['form_data']['benefit_type'] = benefit_type
       metadata['central_mail_business_line'] = lob
       metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
@@ -144,10 +140,6 @@ module AppealsApi
 
     def claimant_type_other_text
       data_attributes['claimantTypeOtherValue']&.strip
-    end
-
-    def potential_pact_act
-      data_attributes&.dig('potentialPactAct') ? true : false
     end
 
     def alternate_signer_first_name
