@@ -13,6 +13,11 @@ bundle install
 
 # Wait for postgres to be ready before running setup.
 timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
+
+# Re-start postgres to ensure it is fully ready.
+docker-compose -f docker-compose-deps.yml down
+nohup bash -c 'docker-compose -f docker-compose-deps.yml up >> log/deps.log 2>&1 &'
+timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
 ./bin/setup
 
 if ! curl -s http://localhost:3000|grep -q 'Welcome to the va.gov API'; then
