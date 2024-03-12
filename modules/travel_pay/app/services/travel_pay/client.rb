@@ -48,6 +48,16 @@ module TravelPay
       end
     end
 
+    def authorized_ping(veis_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      connection(server_url: btsss_url).get('/api/v1/Sample/authorized-ping') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+      end
+    end
+
     private
 
     def veis_params

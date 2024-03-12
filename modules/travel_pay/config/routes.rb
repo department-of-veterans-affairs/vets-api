@@ -2,4 +2,5 @@
 
 TravelPay::Engine.routes.draw do
   resources :claims
+  resources :pings
 end
