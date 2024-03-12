@@ -1653,8 +1653,14 @@ brd:
 
 
 travel_pay:
-  auth_url: https://login.microsoftonline.us
-  tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+  veis:
+    client_id: ~
+    client_secret: ~
+    resource: ~
+    tenant_id: ~
+    auth_url: https://login.microsoftonline.us
+  subscription_key: ~
+  base_url: ~
   service_name: BTSSS-API
 
 xlsx_file_fetcher:
@@ -1684,3 +1690,4 @@ vye:
 
 schema_contract:
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
