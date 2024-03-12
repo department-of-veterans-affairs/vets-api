@@ -60,7 +60,7 @@
                     "properties": {
                       "system": { "type": "string" },
                       "code": { "type": "string" },
-                      "display:": { "type": "string" }
+                      "display": { "type": "string" }
                     }
                   }
                 },
@@ -82,7 +82,7 @@
                     "properties": {
                       "system": { "type": "string" },
                       "code": { "type": "string" },
-                      "display:": { "type": "string" }
+                      "display": { "type": "string" }
                     }
                   }
                 },
@@ -104,7 +104,7 @@
                     "properties": {
                       "system": { "type": "string" },
                       "code": { "type": "string" },
-                      "display:": { "type": "string" }
+                      "display": { "type": "string" }
                     }
                   }
                 },
@@ -264,14 +264,17 @@
                     "display": { "type": "string" }
                   }
                 }
-              }
+              },
+              "text": { "type": "string" }
             }
           },
           "cancellation_reason": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "code": { "type": "string" }
+              "system": { "type": "string" },
+              "code": { "type": "string" },
+              "display": { "type": "string" }
             }
           },
           "comment": { "type": "string" },
