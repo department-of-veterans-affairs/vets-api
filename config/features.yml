@@ -662,10 +662,6 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
     enable_in_development: true
-  mhv_secure_messaging_blocked_triage_group_1_0:
-    actor_type: user
-    description: Enables/disables Secure Messaging Blocked Triage Group functionality on VA.gov
-    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
