@@ -35,15 +35,16 @@ module BenefitsDocuments
         Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE => 'form_0781a'
       }.freeze
 
-      def self.call(args)
-        new(args).call
+      def self.call(*args)
+        new(*args).call
       end
 
       # @param lighthouse526_document_uploads [Lighthouse526DocumentUpload] a collection of
       # Lighthouse526DocumentUpload records we are polling for status updates on Lighthouse's
       # uploads/status endpoint
-      def initialize(lighthouse526_document_uploads)
+      def initialize(lighthouse526_document_uploads, lighthouse_status_response)
         @lighthouse526_document_uploads = lighthouse526_document_uploads
+        @lighthouse_status_response = lighthouse_status_response
       end
 
       def call
@@ -53,10 +54,7 @@ module BenefitsDocuments
       private
 
       def update_documents_status
-        request_ids = @lighthouse526_document_uploads.pluck(:lighthouse_document_request_id)
-        response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(request_ids)
-
-        JSON.parse(response).dig('data', 'statuses').each do |document_progress|
+        JSON.parse(@lighthouse_status_response).dig('data', 'statuses').each do |document_progress|
           update_document_status(document_progress)
         end
       end

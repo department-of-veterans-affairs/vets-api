@@ -11,95 +11,90 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
     end
 
     context 'when a Lighthouse526DocumentUpload has completed all steps in Lighthouse' do
-      before do
-        # Mock response from the Lighthouse Document uploads/status endpont
-        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(
-          {
-            'data' => {
-              'statuses' => [
-                {
-                  'requestId' => pending_document_upload.lighthouse_document_request_id,
-                  'status' => 'SUCCESS',
-                  'time' => {
-                    'startTime' => '499152030',
-                    'endTime' => '499152060'
+      let(:lighthouse_completed_document_status) do
+        {
+          'data' => {
+            'statuses' => [
+              {
+                'requestId' => pending_document_upload.lighthouse_document_request_id,
+                'status' => 'SUCCESS',
+                'time' => {
+                  'startTime' => '499152030',
+                  'endTime' => '499152060'
+                },
+                'steps' => [
+                  {
+                    'name' => 'CLAIMS_EVIDENCE',
+                    'status' => 'SUCCESS'
                   },
-                  'steps' => [
-                    {
-                      'name' => 'CLAIMS_EVIDENCE',
-                      'status' => 'SUCCESS'
-                    },
-                    {
-                      'name' => 'BENEFITS_GATEWAY_SERVICE',
-                      'status' => 'SUCCESS'
-                    }
-                  ]
-                }
-              ]
-            }
-          }.to_json
-        )
+                  {
+                    'name' => 'BENEFITS_GATEWAY_SERVICE',
+                    'status' => 'SUCCESS'
+                  }
+                ]
+              }
+            ]
+          }
+        }.to_json
       end
 
       it 'transitions that document to the complete state' do
         uploads = Lighthouse526DocumentUpload.where(id: pending_document_upload.id)
-        described_class.call(uploads)
+        described_class.call(uploads, lighthouse_completed_document_status)
 
         expect(pending_document_upload.reload.aasm_state).to eq('completed')
       end
 
       it 'logs the document completion to DataDog' do
         uploads = Lighthouse526DocumentUpload.where(id: pending_document_upload.id)
-        expect { described_class.call(uploads) }.to trigger_statsd_increment(
+        expect { described_class.call(uploads, lighthouse_completed_document_status) }.to trigger_statsd_increment(
           'api.form_526.lighthouse_document_upload_processing_status.bdd_instructions.complete'
         )
       end
     end
 
     context 'when a Lighthouse526DocumentUpload fails in Lighthouse processing' do
-      before do
-        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(
-          {
-            'data' => {
-              'statuses' => [
-                {
-                  'requestId' => pending_document_upload.lighthouse_document_request_id,
-                  'status' => 'FAILED',
-                  'time' => {
-                    'startTime' => '499152030',
-                    'endTime' => '499152060'
+      let(:lighthouse_failed_document_status) do
+        {
+          'data' => {
+            'statuses' => [
+              {
+                'requestId' => pending_document_upload.lighthouse_document_request_id,
+                'status' => 'FAILED',
+                'time' => {
+                  'startTime' => '499152030',
+                  'endTime' => '499152060'
+                },
+                'steps' => [
+                  {
+                    'name' => 'CLAIMS_EVIDENCE',
+                    'status' => 'FAILED'
                   },
-                  'steps' => [
-                    {
-                      'name' => 'CLAIMS_EVIDENCE',
-                      'status' => 'FAILED'
-                    },
-                    {
-                      'name' => 'BENEFITS_GATEWAY_SERVICE',
-                      'status' => 'NOT_STARTED'
-                    }
-                  ],
-                  'error' => {
-                    'detail' => 'VBMS System Outage',
-                    'step' => 'CLAIMS_EVIDENCE'
+                  {
+                    'name' => 'BENEFITS_GATEWAY_SERVICE',
+                    'status' => 'NOT_STARTED'
                   }
+                ],
+                'error' => {
+                  'detail' => 'VBMS System Outage',
+                  'step' => 'CLAIMS_EVIDENCE'
                 }
-              ]
-            }
-          }.to_json
-        )
+              }
+            ]
+          }
+        }.to_json
       end
 
       it 'transitions the document to the failed state' do
         uploads = Lighthouse526DocumentUpload.where(id: pending_document_upload.id)
-        described_class.call(uploads)
+        described_class.call(uploads, lighthouse_failed_document_status)
 
         expect(pending_document_upload.reload.aasm_state).to eq('failed')
       end
 
       it 'logs the document failure to DataDog' do
         uploads = Lighthouse526DocumentUpload.where(id: pending_document_upload.id)
-        expect { described_class.call(uploads) }.to trigger_statsd_increment(
+        expect { described_class.call(uploads, lighthouse_failed_document_status) }.to trigger_statsd_increment(
           'api.form_526.lighthouse_document_upload_processing_status.bdd_instructions.failed.claims_evidence'
         )
       end
@@ -107,34 +102,31 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
 
     context 'when the document is still in progress at Lighthouse' do
       let(:lighthouse_processing_start_time) { DateTime.new(1985, 10, 26) }
-
-      before do
-        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(
-          {
-            'data' => {
-              'statuses' => [
-                {
-                  'requestId' => pending_document_upload.lighthouse_document_request_id,
-                  'status' => 'IN_PROGRESS',
-                  'time' => {
-                    'startTime' => lighthouse_processing_start_time.to_time.to_i.to_s,
-                    'endTime' => nil
+      let(:lighthouse_in_progress_document_status) do
+        {
+          'data' => {
+            'statuses' => [
+              {
+                'requestId' => pending_document_upload.lighthouse_document_request_id,
+                'status' => 'IN_PROGRESS',
+                'time' => {
+                  'startTime' => lighthouse_processing_start_time.to_time.to_i.to_s,
+                  'endTime' => nil
+                },
+                'steps' => [
+                  {
+                    'name' => 'CLAIMS_EVIDENCE',
+                    'status' => 'IN_PROGRESS'
                   },
-                  'steps' => [
-                    {
-                      'name' => 'CLAIMS_EVIDENCE',
-                      'status' => 'IN_PROGRESS'
-                    },
-                    {
-                      'name' => 'BENEFITS_GATEWAY_SERVICE',
-                      'status' => 'NOT_STARTED'
-                    }
-                  ]
-                }
-              ]
-            }
-          }.to_json
-        )
+                  {
+                    'name' => 'BENEFITS_GATEWAY_SERVICE',
+                    'status' => 'NOT_STARTED'
+                  }
+                ]
+              }
+            ]
+          }
+        }.to_json
       end
 
       context 'when it has been more than 24 hours since Lighthouse started processing the document' do
@@ -142,7 +134,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
           Timecop.freeze(lighthouse_processing_start_time + 2.days) do
             uploads = Lighthouse526DocumentUpload.where(id: pending_document_upload.id)
 
-            expect { described_class.call(uploads) }.to trigger_statsd_increment(
+            expect { described_class.call(uploads, lighthouse_in_progress_document_status) }.to trigger_statsd_increment(
               'api.form_526.lighthouse_document_upload_processing_status.bdd_instructions.processing_timeout'
             )
           end
@@ -154,7 +146,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
           Timecop.freeze(lighthouse_processing_start_time + 2.hours) do
             uploads = Lighthouse526DocumentUpload.where(id: pending_document_upload.id)
 
-            expect { described_class.call(uploads) }.not_to trigger_statsd_increment(
+            expect { described_class.call(uploads, lighthouse_in_progress_document_status) }.not_to trigger_statsd_increment(
               'api.form_526.lighthouse_document_upload_processing_status.bdd_instructions.processing_timeout'
             )
           end
@@ -190,15 +182,11 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
       context 'When the document is BDD Instructions' do
         let(:bdd_instruction_upload) { create(:lighthouse526_document_upload, document_type: 'BDD Instructions') }
 
-        before do
-          allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(
-            mock_success_response(bdd_instruction_upload.lighthouse_document_request_id)
-          )
-        end
-
         it 'increments the correct statsd metric' do
           uploads = Lighthouse526DocumentUpload.where(id: bdd_instruction_upload.id)
-          expect { described_class.call(uploads) }.to trigger_statsd_increment(
+          status_response = mock_success_response(bdd_instruction_upload.lighthouse_document_request_id)
+
+          expect { described_class.call(uploads, status_response) }.to trigger_statsd_increment(
             'api.form_526.lighthouse_document_upload_processing_status.bdd_instructions.complete'
           )
         end
@@ -207,15 +195,11 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
       context 'When the document is a Form 0781' do
         let(:form_0781_upload) { create(:lighthouse526_document_upload, document_type: 'Form 0781') }
 
-        before do
-          allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(
-            mock_success_response(form_0781_upload.lighthouse_document_request_id)
-          )
-        end
-
         it 'increments the correct statsd metric' do
           uploads = Lighthouse526DocumentUpload.where(id: form_0781_upload.id)
-          expect { described_class.call(uploads) }.to trigger_statsd_increment(
+          status_response = mock_success_response(form_0781_upload.lighthouse_document_request_id)
+
+          expect { described_class.call(uploads, status_response) }.to trigger_statsd_increment(
             'api.form_526.lighthouse_document_upload_processing_status.form_0781.complete'
           )
         end
@@ -232,7 +216,9 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
 
         it 'increments the correct statsd metric' do
           uploads = Lighthouse526DocumentUpload.where(id: form_0781a_upload.id)
-          expect { described_class.call(uploads) }.to trigger_statsd_increment(
+          status_response = mock_success_response(form_0781a_upload.lighthouse_document_request_id)
+
+          expect { described_class.call(uploads, status_response) }.to trigger_statsd_increment(
             'api.form_526.lighthouse_document_upload_processing_status.form_0781a.complete'
           )
         end
@@ -241,15 +227,11 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
       context 'When the document is a Veteran Upload' do
         let(:veteran_upload) { create(:lighthouse526_document_upload, document_type: 'Veteran Upload') }
 
-        before do
-          allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(
-            mock_success_response(veteran_upload.lighthouse_document_request_id)
-          )
-        end
-
         it 'increments the correct statsd metric' do
           uploads = Lighthouse526DocumentUpload.where(id: veteran_upload.id)
-          expect { described_class.call(uploads) }.to trigger_statsd_increment(
+          status_response = mock_success_response(veteran_upload.lighthouse_document_request_id)
+
+          expect { described_class.call(uploads, status_response) }.to trigger_statsd_increment(
             'api.form_526.lighthouse_document_upload_processing_status.veteran_upload.complete'
           )
         end
