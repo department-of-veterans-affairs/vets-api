@@ -116,5 +116,4 @@ class Swagger::V1::Requests::Post911GIBillStatuses
     property :days, type: :integer
     property :months, type: :integer
   end
-
 end
