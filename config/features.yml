@@ -30,6 +30,9 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_require_gateway_origin:
+    actor_type: user
+    description: Requires that all requests made to endpoints in appeals_api, va_forms, and vba_documents be made through the gateway
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -447,6 +450,10 @@ features:
   financial_status_report_review_page_navigation:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
+  find_a_representative_enabled:
+    actor_type: cookie_id
+    description: Generic toggle for gating Find a Rep
     enable_in_development: true
   find_a_representative_enable_api:
     actor_type: user
@@ -1040,6 +1047,10 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
+  va_online_scheduling_sts_oauth_token:
+    actor_type: user
+    description: Allows toggling of MAP STS OAuth token for VAOS
+    enable_in_development: true
   va_online_scheduling_GA4_migration:
     actor_type: user
     description: Toggle for the GA4 events migration work.
@@ -1319,6 +1330,12 @@ features:
   yellow_ribbon_search_enhancement:
     actor_type: user
     description: Enable changes to Find a Yellow Ribbon school search functionality
+  travel_pay_power_switch:
+    actor_type: user
+    description: >-
+      Main switch for the Travel Pay feature on VA.gov using the new BTSSS (travel pay) API.
+      Enabled - Requests are handled as normal.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results

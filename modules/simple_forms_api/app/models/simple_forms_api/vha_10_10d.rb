@@ -18,17 +18,21 @@ module SimpleFormsApi
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin')
       }
     end
 
     def handle_attachments(file_path)
+      ssn_or_tin = metadata['ssn_or_tin']
+      file_path_ssn = file_path.gsub('vha_10_10d-tmp', "#{ssn_or_tin}_vha_10_10d-tmp")
+      File.rename(file_path, file_path_ssn)
       attachments = get_attachments
-      file_paths = [file_path]
+      file_paths = [file_path_ssn]
 
       if attachments.count.positive?
         attachments.each_with_index do |attachment, index|
-          new_file_name = "vha_10_10d-tmp#{index + 1}.pdf"
+          new_file_name = "#{ssn_or_tin}_vha_10_10d-tmp#{index + 1}.pdf"
           new_file_path = File.join(File.dirname(attachment), new_file_name)
           File.rename(attachment, new_file_path)
           file_paths << new_file_path
