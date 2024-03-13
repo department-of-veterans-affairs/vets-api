@@ -957,7 +957,7 @@ module Swagger
           end
         end
       end
-      
+
       swagger_path '/v0/profile/service_history' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
