@@ -341,26 +341,6 @@
     "consentAddressChange": {
       "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
       "type": "boolean"
-    },
-    "signatures": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "veteran",
-        "representative"
-      ],
-      "properties": {
-        "veteran": {
-          "description": "Base64 encoded png image of the veteran or claimant signature.",
-          "title": "Signature of the Veteran",
-          "type":  "string"
-        },
-        "representative": {
-          "description": "Base64 encoded png image of the representative signature.",
-          "title": "Signature of the Veteran Representative",
-          "type":  "string"
-        }
-      }
     }
   }
 }

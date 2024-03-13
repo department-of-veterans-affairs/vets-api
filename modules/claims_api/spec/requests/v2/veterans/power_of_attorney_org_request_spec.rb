@@ -24,17 +24,13 @@ RSpec.describe 'Power Of Attorney', type: :request do
     end
 
     describe 'submit2122' do
-      b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
+      File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           data: {
             attributes: {
               serviceOrganization: {
                 poaCode: organization_poa_code.to_s
-              },
-              signatures: {
-                veteran: b64_image,
-                representative: b64_image
               }
             }
           }
