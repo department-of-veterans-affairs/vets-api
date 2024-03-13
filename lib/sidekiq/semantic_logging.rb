@@ -8,7 +8,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
     logger = Rails.logger
     super(logger)
   end
-  
+
   def call(_worker, item, queue)
     logger_tags = {
       class: item['class'],
