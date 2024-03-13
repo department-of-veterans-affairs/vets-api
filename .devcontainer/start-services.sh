@@ -18,7 +18,3 @@ sudo chown -R ${POSTGRES_UID} data
 nohup bash -c 'docker-compose -f docker-compose-deps.yml up >> log/deps.log 2>&1 &'
 # Wait for postgres to be ready.
 timeout 90 sh -c 'until pg_isready -h localhost -p 54320; do sleep 1; done'
-
-# Re-ensure permissions are set correctly for postgres user in container.
-echo "Setting file ownership for postgres data to uid: ${POSTGRES_UID}"
-sudo chown -R ${POSTGRES_UID} data
