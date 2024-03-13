@@ -157,29 +157,22 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context 'when the form includes TERA info' do
-        VCR.use_cassette('example', :record => :once) do
+        let(:form) { get_fixture('form1010_ezr/valid_form_with_tera') }
 
-          let(:form) { get_fixture('form1010_ezr/valid_form_with_tera') }
-
-          submit_ezr = submit_form(form)
-
-          expect(submit_ezr).to be_a(Object)
+        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_tera',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(submit_form(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 433_956_488,
+                timestamp: '2024-03-13T13:14:50.252-05:00'
+              }
+            )
+          end
         end
-        #
-        # it 'returns a success object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
-        #   VCR.use_cassette(
-        #     'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
-        #     { match_requests_on: %i[method uri body], erb: true }
-        #   ) do
-        #     expect(submit_form(form)).to eq(
-        #       {
-        #         success: true,
-        #         formSubmissionId: 432_861_975,
-        #         timestamp: '2023-11-30T09:52:37.290-06:00'
-        #       }
-        #     )
-        #   end
-        # end
       end
     end
 
