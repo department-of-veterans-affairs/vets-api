@@ -25,9 +25,11 @@ module Mobile
         %i[lighthouse letters_and_documents],
         %i[lighthouse immunizations],
         %i[mhv secure_messaging],
+        %i[mhv_sm secure_messaging],
         %i[vaos appointments],
         %i[vet360 user_profile_update],
         %i[mhv rx_refill],
+        %i[mhv_mr rx_refill],
         %i[eoas preneed_burial]
       )
 
