@@ -96,6 +96,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       include_examples 'SC metadata',
                        api_version: 'V0',
                        factory: :supplemental_claim_v0,
+                       extra_factory: :extra_supplemental_claim_v0,
                        form_data_fixture: 'supplemental_claims/v0/valid_200995.json'
     end
 
@@ -136,6 +137,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       include_examples 'SC metadata',
                        api_version: 'V2',
                        factory: :minimal_supplemental_claim,
+                       extra_factory: :extra_supplemental_claim,
                        form_data_fixture: 'decision_reviews/v2/valid_200995.json'
     end
 
