@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'json'
 
 module SimpleFormsApi
@@ -50,16 +51,16 @@ module SimpleFormsApi
     end
 
     def find_cemetery_by_id(cemetery_id)
-      file_path = 'modules/simple_forms_api/app/json/cemeteries.json' # Path to your JSON file
+      file_path = 'modules/simple_forms_api/app/json/cemeteries.json'
       file_content = File.read(file_path)
       cemeteries = JSON.parse(file_content)
-    
+
       cemetery = cemeteries['data'].find { |entry| entry['attributes']['cemetery_id'] == cemetery_id }
 
       if cemetery
         cemetery['attributes']['name']
       else
-        "Cemetery not found."
+        'Cemetery not found.'
       end
     end
 
