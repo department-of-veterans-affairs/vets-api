@@ -25,17 +25,13 @@ module SimpleFormsApi
       }
     end
 
-    def generate_secure_uuid
-      SecureRandom.uuid
-    end
-
     def handle_attachments(file_path)
-      uuid = generate_secure_uuid
+      uuid = SecureRandom.uuid # Generate the UUID inline
       file_path_uuid = file_path.gsub('vha_10_10d-tmp', "#{uuid}_vha_10_10d-tmp")
       File.rename(file_path, file_path_uuid)
       attachments = get_attachments
       file_paths = [file_path_uuid]
-
+    
       if attachments.count.positive?
         attachments.each_with_index do |attachment, index|
           new_file_name = "#{uuid}_vha_10_10d-tmp#{index + 1}.pdf"
@@ -44,7 +40,7 @@ module SimpleFormsApi
           file_paths << new_file_path
         end
       end
-
+    
       file_paths
     end
 
