@@ -13,11 +13,25 @@ module CentralMail
     class BenefitsIntakeClaimError < StandardError; end
 
     def perform(saved_claim_id)
-      PensionBurial::TagSentry.tag_sentry
-      @saved_claim_id = saved_claim_id
-      log_message_to_sentry('Attempting CentralMail::SubmitBenefitsIntakeClaim', :info, generate_sentry_details)
+      @claim =    SavedClaim.find(saved_claim_id)
+      @pdf_path = process_record(@claim)
+      binding.pry
+      @attachment_paths = @claim.persistent_attachments.map do |record|
+        process_record(record)
+      end
 
-      response = send_claim_to_benefits_intake(saved_claim_id)
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+
+      payload = {
+        upload_url: @lighthouse_service.location,
+        file: split_file_and_path(@pdf_path),
+        metadata: generate_metadata.to_json,
+        attachments: @attachment_paths.map(&method(:split_file_and_path))
+      }
+
+      response = @lighthouse_service.upload_doc(**payload)
+
+      create_form_submission_attempt(@lighthouse_service.uuid)
 
       if response.success?
         log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
@@ -36,68 +50,52 @@ module CentralMail
     def send_claim_to_benefits_intake(saved_claim_id)
       @claim =    SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
-
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
 
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
 
-      payload = generate_payload
-
-      Rails.logger.info('Central::SubmitBenefitsIntakeClaim Upload', {
-                          file: payload[:file],
-                          attachments: payload[:attachments],
-                          claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid,
-                          confirmation_number: @claim.confirmation_number
-                        })
+      payload = {
+        upload_url: @lighthouse_service.location,
+        file: split_file_and_path(@pdf_path),
+        metadata: generate_metadata.to_json,
+        attachments: @attachment_paths.map(&method(:split_file_and_path))
+      }
+      binding.pry
       response = @lighthouse_service.upload_doc(**payload)
 
       create_form_submission_attempt(@lighthouse_service.uuid)
       response
     end
 
-    def generate_payload
-      {
-        upload_url: @lighthouse_service.location,
-        file: split_file_and_path(@pdf_path),
-        metadata: generate_metadata.to_json,
-        attachments: @attachment_paths.map(&method(:split_file_and_path))
-      }
-    end
-
-    # rubocop:disable Metrics/MethodLength
     def generate_metadata
       form = @claim.parsed_form
-      form_pdf_metadata = get_hash_and_pages(@pdf_path)
-      number_attachments = @attachment_paths.size
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
-      receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'uuid' => @claim.guid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => "#{@claim.class} va.gov",
-        'hashV' => form_pdf_metadata[:hash],
-        'numberAttachments' => number_attachments,
         'docType' => @claim.form_id,
-        'numberPages' => form_pdf_metadata[:pages]
+        'businessLine' => business_line
       }
 
-      @attachment_paths.each_with_index do |file_path, i|
-        j = i + 1
-        attachment_pdf_metadata =     get_hash_and_pages(file_path)
-        metadata["ahash#{j}"] =       attachment_pdf_metadata[:hash]
-        metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
-      end
-
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+    end
+
+    def process_record(record)
+      pdf_path = record.to_pdf
+      stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
+      CentralMail::DatestampPdf.new(stamped_path).run(
+        text: 'FDC Reviewed - va.gov Submission',
+        x: 429,
+        y: 770,
+        text_only: true
+      )
     end
 
     def split_file_and_path(path)
@@ -112,6 +110,31 @@ module CentralMail
         saved_claim: @claim
       )
       FormSubmissionAttempt.create(form_submission:)
+    end
+
+    def business_line
+      case @claim.class
+      when SavedClaim::VeteranReadinessEmploymentClaim
+        'VRE'
+      when SavedClaim::EducationBenefitsClaim
+        'EDU'
+      when SavedClaim::Burial
+        'NCA'
+      else
+        ''
+      end
+    end
+
+    private
+
+    def generate_sentry_details(e = nil)
+      details = {
+        'guid' => @claim&.guid,
+        'docType' => @claim&.form_id,
+        'savedClaimId' => @saved_claim_id
+      }
+      details['error'] = e.message if e
+      details
     end
   end
 end
