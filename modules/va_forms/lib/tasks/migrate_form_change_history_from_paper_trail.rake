@@ -6,7 +6,7 @@ namespace :va_forms do
       form_versions = form.versions.order(created_at: :asc)
 
       if form_versions.present?
-        form.last_sha256_change = form_versions.last&.created_at
+        form.last_sha256_change = form_versions.last.created_at
         form.change_history = {}
         form.change_history['versions'] = form_versions.map do |v|
           if v.changeset.present?
