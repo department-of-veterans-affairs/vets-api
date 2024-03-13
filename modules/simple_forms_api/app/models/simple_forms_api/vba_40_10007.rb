@@ -55,7 +55,9 @@ module SimpleFormsApi
       file_content = File.read(file_path)
       cemeteries = JSON.parse(file_content)
 
-      cemetery = cemeteries['data'].find { |entry| entry['attributes']['cemetery_id'] == cemetery_id }
+      cemetery = cemeteries['data']&.find do |entry|
+        entry['attributes']&.dig('cemetery_id') == cemetery_id
+      end
 
       if cemetery
         cemetery['attributes']['name']
