@@ -2,7 +2,7 @@
 
 namespace :va_forms do
   task migrate_form_change_history_from_paper_trail: :environment do
-    VAForms::Form.all.each do |form|
+    VAForms::Form.find_each do |form|
       form_versions = form.versions.order(created_at: :asc)
 
       if form_versions.present?
