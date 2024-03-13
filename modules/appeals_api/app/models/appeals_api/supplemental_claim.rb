@@ -147,10 +147,6 @@ module AppealsApi
       data_attributes['claimantTypeOtherValue']&.strip
     end
 
-    def potential_pact_act
-      data_attributes&.dig('potentialPactAct') ? true : false
-    end
-
     def alternate_signer_first_name
       (auth_headers&.dig('X-Alternate-Signer-First-Name') || \
         form_data&.dig('data', 'attributes', 'alternateSigner', 'firstName'))&.strip
