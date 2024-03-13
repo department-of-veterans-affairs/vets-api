@@ -27,7 +27,6 @@ module BenefitsEducation
     # @return [BenefitsEducation::Service] a new instance of the service
     #
     def initialize(icn)
-      # @icn = '1012667145V762142' # TODO: remove before merging.  Valid test ICN
       @icn = icn
       raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
 
@@ -44,23 +43,10 @@ module BenefitsEducation
       "#<#{self.class}:#{object_id} #{instance_variables_string}>"
     end
 
-    # REMOVE THIS - helper method just for QA purposes
-    def create_error_response(status)
-      headers = { 'content-type' => 'application/json' }
-      error_body = { status:, message: 'foo', error: 'bar', error_description: 'baz' }
-
-      response = OpenStruct.new(status:, headers:, body: OpenStruct.new(errors: [error_body]))
-
-      OpenStruct.new(response:)
-    end
-
     ##
     # Retrieve a veteran's Post-9/11 GI Bill Status
     # @return [String] A JSON string representing the veteran's GI Bill status.
     def get_gi_bill_status
-      # TODO: test the FE response to different error statuses.  This code should be deleted.
-      # handle_error(create_error_response(404), config.service_name, config.base_api_path)
-
       raw_response = begin
         config.get(@icn)
       rescue => e

@@ -59,8 +59,13 @@ module BenefitsEducation
 
     def initialize(_status, response = nil)
       @response = response
-      key_mapping = { 'eligibility_date_time' => 'eligibility_date', 'delimiting_date_time' => 'delimiting_date', 'date_time_of_birth' => 'date_of_birth'}
-      attributes = contains_education_info? ? response.body['chapter33EducationInfo'].deep_transform_keys!(&:underscore) : {}
+      key_mapping = { 'eligibility_date_time' => 'eligibility_date', 'delimiting_date_time' => 'delimiting_date',
+                      'date_time_of_birth' => 'date_of_birth' }
+      attributes = if contains_education_info?
+                     response.body['chapter33EducationInfo'].deep_transform_keys!(&:underscore)
+                   else
+                     {}
+                   end
       attributes.transform_keys! { |key| key_mapping[key] || key }
       super(attributes)
     end
