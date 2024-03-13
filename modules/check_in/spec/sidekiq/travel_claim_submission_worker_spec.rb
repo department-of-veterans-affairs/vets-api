@@ -144,6 +144,33 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
       end
     end
 
+    context 'travel claim taking longer time to respond' do
+      it 'throws timeout exception and sends notification with error message' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        worker = described_class.new
+        notify_client = double
+
+        expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                                  .and_return(notify_client)
+
+        expect(notify_client).to receive(:send_sms).with(
+          phone_number: patient_cell_phone,
+          template_id: 'fake_error_template_id',
+          sms_sender_id: 'fake_sms_sender_id',
+          personalisation: { claim_number: nil, appt_date: notify_appt_date }
+        )
+
+        Sidekiq::Testing.inline! do
+          worker.perform(uuid, appt_date)
+        end
+
+        expect(StatsD).to have_received(:increment).with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR)
+                                                   .exactly(1).time
+        expect(StatsD).to have_received(:increment).with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
+                                                   .exactly(1).time
+      end
+    end
+
     context 'send_sms returns an error' do
       it 'handles the error' do
         worker = described_class.new
