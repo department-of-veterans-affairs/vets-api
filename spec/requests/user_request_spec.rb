@@ -15,8 +15,8 @@ RSpec.describe 'Fetching user data' do
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+      VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
           get v0_user_url, params: nil, headers: v0_user_request_headers
         end
       end
@@ -194,8 +194,8 @@ RSpec.describe 'Fetching user data' do
       user = new_user(:loa1)
       sign_in_as(user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+      VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
           get v0_user_url, params: nil, headers: v0_user_request_headers
         end
       end
@@ -206,15 +206,13 @@ RSpec.describe 'Fetching user data' do
     end
 
     it 'returns a status of 296 with errors', :aggregate_failures do
-      VCR.use_cassette('va_profile/demographics/demographics', allow_playback_repeats: true) do
-        body  = JSON.parse(response.body)
-        error = body.dig('meta', 'errors').first
+      body  = JSON.parse(response.body)
+      error = body.dig('meta', 'errors').first
 
-        expect(response.status).to eq 296
-        expect(error['external_service']).to eq 'MVI'
-        expect(error['description']).to be_present
-        expect(error['status']).to eq 401
-      end
+      expect(response.status).to eq 296
+      expect(error['external_service']).to eq 'MVI'
+      expect(error['description']).to be_present
+      expect(error['status']).to eq 401
     end
 
     context 'with camel inflection' do
