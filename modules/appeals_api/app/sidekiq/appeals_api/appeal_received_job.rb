@@ -31,7 +31,7 @@ module AppealsApi
       end
 
       appeal_type_name = appeal.class.name.demodulize.snakecase
-      template_name = "#{appeal_type_name}_received#{appeal.claimant.signing_appellant? ? '_claimant' : ''}"
+      template_name = "#{appeal_type_name}_received#{appeal.non_veteran_claimant? ? '_claimant' : ''}"
       template_id = Settings.vanotify.services.lighthouse.template_id[template_name]
 
       if template_id.blank?
@@ -40,7 +40,7 @@ module AppealsApi
       end
 
       vanotify_args = { template_id:, date_submitted: DateTime.iso8601(date_submitted_str).strftime('%B %d, %Y') }
-      vanotify_args.merge!(if appeal.claimant.signing_appellant?
+      vanotify_args.merge!(if appeal.non_veteran_claimant?
                              {
                                email_address: appeal.claimant.email,
                                personalisation: {
@@ -61,7 +61,7 @@ module AppealsApi
       vanotify_service.send_email(vanotify_args)
       StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: {
                          appeal_type: appeal.class.name.demodulize.scan(/\p{Upper}/).map(&:downcase).join,
-                         claimant_type: appeal.claimant.signing_appellant? ? 'non-veteran' : 'veteran'
+                         claimant_type: appeal.non_veteran_claimant? ? 'non-veteran' : 'veteran'
                        })
     rescue ActiveRecord::RecordNotFound
       Rails.logger.error("#{self.class.name}: Unable to find #{appeal_class_str} with id '#{appeal_id}'")
