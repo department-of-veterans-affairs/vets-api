@@ -15,11 +15,11 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         serviceNumber: '987654321',
         serviceBranch: 'ARMY',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
+          addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         phone: {
           areaCode: '555',
@@ -34,11 +34,11 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         email: 'lillian@disney.com',
         relationship: 'Spouse',
         address: {
-          numberAndStreet: '2688 S Camino Real',
+          addressLine1: '2688 S Camino Real',
           city: 'Palm Springs',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         phone: {
           areaCode: '555',
@@ -51,11 +51,11 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         firstName: 'Bob',
         lastName: 'Law',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
+          addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         }
       },
       recordConsent: true,
