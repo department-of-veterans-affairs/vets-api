@@ -65,13 +65,14 @@ module AppealsApi
     def assign_metadata
       return unless %w[v2 v0].include?(api_version&.downcase)
 
-      # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
-      self.metadata = { form_data: { evidence_type: } }
-      metadata['form_data']['benefit_type'] = benefit_type
-      metadata['central_mail_business_line'] = lob
-      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
-        issue['attributes']['ratingIssueReferenceId'].blank?
-      end.count
+      self.metadata = {
+        central_mail_business_line: lob,
+        form_data: { benefit_type:, evidence_type: },
+        non_veteran_claimant: non_veteran_claimant?,
+        potential_write_in_issue_count: contestable_issues.filter do |issue|
+          issue['attributes']['ratingIssueReferenceId'].blank?
+        end.count
+      }
     end
 
     def veteran
@@ -90,8 +91,12 @@ module AppealsApi
       )
     end
 
+    def non_veteran_claimant?
+      claimant.signing_appellant?
+    end
+
     def signing_appellant
-      claimant.signing_appellant? ? claimant : veteran
+      non_veteran_claimant? ? claimant : veteran
     end
 
     def appellant_local_time
