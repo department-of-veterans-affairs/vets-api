@@ -30,6 +30,13 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
+  benefits_education_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to retrieve GI Bill Statement of benefits
+    enable_in_development: true
+  benefits_require_gateway_origin:
+    actor_type: user
+    description: Requires that all requests made to endpoints in appeals_api, va_forms, and vba_documents be made through the gateway
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -312,9 +319,6 @@ features:
   decision_review_monthly_stats_report_enabled:
     actor_type: user
     description: Enables the monthly decision review stats report email
-  decision_review_sc_pact_act_boolean:
-    actor_type: user
-    description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
@@ -447,6 +451,10 @@ features:
   financial_status_report_review_page_navigation:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
+  find_a_representative_enabled:
+    actor_type: cookie_id
+    description: Generic toggle for gating Find a Rep
     enable_in_development: true
   find_a_representative_enable_api:
     actor_type: user
@@ -882,6 +890,9 @@ features:
     actor_type: user
     description: Enables the representatives endpoint
     enable_in_development: true
+  schema_contract_appointments_index:
+    actor_type: user
+    description: Enables schema validation for the appointments service index fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -1039,6 +1050,10 @@ features:
   va_online_scheduling_static_landing_page:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
+    enable_in_development: true
+  va_online_scheduling_sts_oauth_token:
+    actor_type: user
+    description: Allows toggling of MAP STS OAuth token for VAOS
     enable_in_development: true
   va_online_scheduling_GA4_migration:
     actor_type: user
@@ -1315,6 +1330,12 @@ features:
   yellow_ribbon_search_enhancement:
     actor_type: user
     description: Enable changes to Find a Yellow Ribbon school search functionality
+  travel_pay_power_switch:
+    actor_type: user
+    description: >-
+      Main switch for the Travel Pay feature on VA.gov using the new BTSSS (travel pay) API.
+      Enabled - Requests are handled as normal.
+      Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
