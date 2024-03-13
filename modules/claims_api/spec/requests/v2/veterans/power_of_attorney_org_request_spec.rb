@@ -24,7 +24,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
     end
 
     describe 'submit2122' do
-      File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
       let(:data) do
         {
           data: {
