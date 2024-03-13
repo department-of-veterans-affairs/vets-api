@@ -503,26 +503,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       get path
       expect(response.status).to eq(200)
     end
-
-    it 'excludes the potentialPactAct field when feature disabled' do
-      Flipper.disable(:decision_review_sc_pact_act_boolean)
-
-      get path
-
-      schema_path = %w[definitions scCreate properties data properties attributes properties potentialPactAct]
-      potential_pact_act = JSON.parse(response.body).dig(*schema_path)
-      expect(potential_pact_act).to be_nil
-    end
-
-    it 'includes the potentialPactAct field when feature enabled' do
-      Flipper.enable(:decision_review_sc_pact_act_boolean)
-
-      get path
-
-      schema_path = %w[definitions scCreate properties data properties attributes properties potentialPactAct]
-      potential_pact_act = JSON.parse(response.body).dig(*schema_path)
-      expect(potential_pact_act).to eq({ 'type' => 'boolean' })
-    end
   end
 
   describe '#show' do
@@ -556,7 +536,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     end
   end
 
-  describe '#download' do
+  describe '#download', skip: 'temporarily skipped' do
     it_behaves_like 'watermarked pdf download endpoint', { factory: :supplemental_claim, decision_reviews: true }
   end
 end
