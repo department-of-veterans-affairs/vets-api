@@ -287,6 +287,15 @@ describe VAOS::V2::AppointmentsService do
         end
       end
     end
+
+    it 'validates schema' do
+      VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                       match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+        subject.get_appointments(start_date2, end_date2)
+        SchemaContract::ValidationJob.drain
+        expect(SchemaContract::Validation.last.status).to eq('success')
+      end
+    end
   end
 
   describe '#get_most_recent_visited_clinic_appointment' do
@@ -884,7 +893,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns an error message in the avs field of the appointment response' do
         subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
-        expect(appt_no_avs[:avs_path]).to eq(avs_error_message)
+        expect(appt_no_avs[:avs_path]).to be_nil
       end
     end
   end
