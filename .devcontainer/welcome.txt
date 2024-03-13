@@ -1,0 +1,14 @@
+~~~~~~ Welcome to vets-api on codespaces! ~~~~~~
+
+For more information, see the codespaces README.
+
+~~~~~~ Quickstart ~~~~~~
+
+To see running services, use the Docker extension or run:
+
+docker ps
+
+To start vets-api, run:
+
+foreman start -m all=1,clamd=0,freshclam=0
+
