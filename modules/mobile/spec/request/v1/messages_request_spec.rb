@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require_relative '../../support/helpers/sis_session_helper'
-require_relative '../../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do
   let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
