@@ -109,6 +109,7 @@ module SimpleFormsApi
           status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+          form.track_user_identity(confirmation_number)
 
           SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
 
@@ -157,7 +158,6 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        form.track_user_identity
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
         file_path = if @current_user
