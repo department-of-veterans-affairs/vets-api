@@ -222,7 +222,7 @@ http_interactions:
                               "requestedDate": "2023-03-16",
                               "suspenseDate": "2023-04-15",
                               "id": 395084,
-                              "status": "SUBMITTED_AWAITING_REVIEW",
+                              "status": "NEEDED_FROM_YOU",
                               "uploaded": true,
                               "uploadsAllowed": true
                            },
@@ -235,7 +235,7 @@ http_interactions:
                               "requestedDate": "2023-04-14",
                               "suspenseDate": null,
                               "id": 394443,
-                              "status": "INITIAL_REVIEW_COMPLETE",
+                              "status": "NEEDED_FROM_YOU",
                               "uploaded": true,
                               "uploadsAllowed": false
                            }
