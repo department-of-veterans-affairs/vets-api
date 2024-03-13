@@ -3,7 +3,7 @@
 require 'json_marshal/marshaller'
 
 class NodNotification < ApplicationRecord
-  serialize :payload, coder: JsonMarshal::Marshaller
+  serialize :payload, JsonMarshal::Marshaller
 
   has_kms_key
   has_encrypted :payload, key: :kms_key, **lockbox_options
