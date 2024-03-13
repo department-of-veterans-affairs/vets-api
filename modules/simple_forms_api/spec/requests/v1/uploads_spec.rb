@@ -5,23 +5,23 @@ require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Forms uploader', type: :request do
   non_ivc_forms = [
-    # 'vba_26_4555.json',
-    # 'vba_21_4142.json',
-    # 'vba_21_10210.json',
-    # 'vba_21p_0847.json',
-    # 'vba_21_0972.json',
-    # 'vba_21_0845.json',
-    # 'vba_40_0247.json',
-    # 'vba_21_0966.json',
-    # 'vba_20_10206.json',
-    # 'vba_40_10007.json',
-    # 'vba_20_10207-veteran.json',
+    'vba_26_4555.json',
+    'vba_21_4142.json',
+    'vba_21_10210.json',
+    'vba_21p_0847.json',
+    'vba_21_0972.json',
+    'vba_21_0845.json',
+    'vba_40_0247.json',
+    'vba_21_0966.json',
+    'vba_20_10206.json',
+    'vba_40_10007.json',
+    'vba_20_10207-veteran.json',
     'vba_20_10207-non-veteran.json'
   ]
 
   ivc_forms = [
-    # 'vha_10_10d.json',
-    # 'vha_10_7959f_1.json'
+    'vha_10_10d.json',
+    'vha_10_7959f_1.json'
   ]
 
   describe '#submit' do

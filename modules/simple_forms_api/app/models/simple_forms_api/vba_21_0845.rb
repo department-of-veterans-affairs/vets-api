@@ -39,7 +39,7 @@ module SimpleFormsApi
       }
     end
 
-    def (confirmation_number); end
+    def track_user_identity(confirmation_number); end
 
     private
 
