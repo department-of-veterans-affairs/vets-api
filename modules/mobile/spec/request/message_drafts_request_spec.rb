@@ -14,9 +14,15 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
   let(:draft_signature_only) { attributes_for(:message, body: '\n\n\n\nSignature\nExample', subject: 'Subject 1') }
 
-  before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
+  before do
+    Flipper.enable_actor(:mobile_sm_session_policy, user)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
+  end
 
-  after { Timecop.return }
+  after do
+    Flipper.disable(:mobile_sm_session_policy)
+    Timecop.return
+  end
 
   context 'when not authorized' do
     it 'responds with 403 error' do

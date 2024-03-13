@@ -9,9 +9,15 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
   let(:inbox_id) { 0 }
 
-  before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
+  before do
+    Flipper.enable_actor(:mobile_sm_session_policy, user)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
+  end
 
-  after { Timecop.return }
+  after do
+    Flipper.disable(:mobile_sm_session_policy)
+    Timecop.return
+  end
 
   context 'when not authorized' do
     it 'responds with 403 error' do

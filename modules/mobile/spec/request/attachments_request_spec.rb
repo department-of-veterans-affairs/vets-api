@@ -9,9 +9,15 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
 
-  before { Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z')) }
+  before do
+    Flipper.enable_actor(:mobile_sm_session_policy, user)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
+  end
 
-  after { Timecop.return }
+  after do
+    Flipper.disable(:mobile_sm_session_policy)
+    Timecop.return
+  end
 
   context 'when not authorized' do
     it 'responds with 403 error' do
