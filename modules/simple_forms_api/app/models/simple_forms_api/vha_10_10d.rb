@@ -31,7 +31,7 @@ module SimpleFormsApi
       File.rename(file_path, file_path_uuid)
       attachments = get_attachments
       file_paths = [file_path_uuid]
-    
+
       if attachments.count.positive?
         attachments.each_with_index do |attachment, index|
           new_file_name = "#{uuid}_vha_10_10d-tmp#{index + 1}.pdf"
@@ -40,7 +40,7 @@ module SimpleFormsApi
           file_paths << new_file_path
         end
       end
-    
+
       file_paths
     end
 
