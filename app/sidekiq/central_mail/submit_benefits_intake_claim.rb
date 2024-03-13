@@ -15,7 +15,6 @@ module CentralMail
     def perform(saved_claim_id)
       @claim =    SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
-      binding.pry
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
@@ -32,7 +31,6 @@ module CentralMail
       response = @lighthouse_service.upload_doc(**payload)
 
       create_form_submission_attempt(@lighthouse_service.uuid)
-
       if response.success?
         log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
 

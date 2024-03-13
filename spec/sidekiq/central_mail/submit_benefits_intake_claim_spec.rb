@@ -6,26 +6,38 @@ RSpec.describe CentralMail::SubmitBenefitsIntakeClaim, uploader_helpers: true do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:veteran_readiness_employment_claim) }
-  let(:benefits_intake_service) { instance_double(BenefitsIntakeService::Service) }
 
   describe '#perform' do
+    let(:service) { double('service') }
+    let(:response) { double('response') }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
-    let(:success) { true }
 
     before do
-      allow(benefits_intake_service).to receive(:upload_doc).and_return(success)
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:uuid)
+      allow(service).to receive(:location).and_return(location)
+      allow(service).to receive(:upload_doc).and_return(response)
     end
 
     it 'submits the saved claim successfully' do
-      doc = { file: pdf_path, file_name: 'pdf' }
+      allow(response).to receive(:success?).and_return(true)
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
-      expect(benefits_intake_service).to receive(:upload_doc).with(
-        upload_url: 'test_location', file: doc, metadata: anything, attachments: []
-      ).and_return(success)
-
+      expect(service).to receive(:upload_doc)
       job.perform(claim.id)
+      expect(response.success?).to eq(true)
+      expect(claim.form_submissions).not_to eq(nil)
+    end
+
+    it 'submits and gets a response error' do
+      allow(response).to receive(:success?).and_return(false)
+      allow(response).to receive(:body).and_return("There was an error submitting the claim")
+      expect(job).to receive(:create_form_submission_attempt)
+      expect(job).to receive(:generate_metadata).once
+      expect(service).to receive(:upload_doc)
+      expect { job.perform(claim.id) }.to raise_error(CentralMail::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
+      expect(response.success?).to eq(false)
     end
     # perform
   end
