@@ -87,41 +87,20 @@ module ClaimsApi
         first_name = power_of_attorney.form_data['representative']['firstName']
         last_name = power_of_attorney.form_data['representative']['lastName']
         {
-          'page1' => individual_page1_signatures(power_of_attorney, first_name, last_name),
-          'page2' => individual_page2_signatures(power_of_attorney, first_name, last_name)
+          'page2' => [
+            {
+              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
+                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'x' => 35,
+              'y' => 306
+            },
+            {
+              'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
+              'x' => 35,
+              'y' => 200
+            }
+          ]
         }
-      end
-
-      def individual_page1_signatures(power_of_attorney, first_name, last_name)
-        [
-          {
-            'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                           "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
-            'x' => 35,
-            'y' => 73
-          },
-          {
-            'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
-            'x' => 35,
-            'y' => 100
-          }
-        ]
-      end
-
-      def individual_page2_signatures(power_of_attorney, first_name, last_name)
-        [
-          {
-            'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                           "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
-            'x' => 35,
-            'y' => 306
-          },
-          {
-            'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
-            'x' => 35,
-            'y' => 200
-          }
-        ]
       end
     end
   end
