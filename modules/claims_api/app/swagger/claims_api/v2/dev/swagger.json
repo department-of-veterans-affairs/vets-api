@@ -8901,11 +8901,6 @@
                               "address"
                             ],
                             "properties": {
-                              "vaFileNumber": {
-                                "description": "The Veteran's VA file number",
-                                "type": "string",
-                                "maxLength": 9
-                              },
                               "serviceNumber": {
                                 "description": "The Veteran's Service Number",
                                 "type": "string",
@@ -8915,15 +8910,21 @@
                                 "description": "Service Branch for the veteran.",
                                 "type": "string",
                                 "enum": [
-                                  "AIR FORCE",
+                                  "AIR_FORCE",
                                   "ARMY",
-                                  "COAST GUARD",
-                                  "MARINE CORPS",
+                                  "COAST_GUARD",
+                                  "MARINE_CORPS",
                                   "NAVY",
-                                  "SPACE FORCE",
+                                  "SPACE_FORCE",
                                   "OTHER"
                                 ],
                                 "example": "ARMY"
+                              },
+                              "serviceBranchOther": {
+                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                                "type": "string",
+                                "maxLength": 27,
+                                "example": "Air National Guard"
                               },
                               "address": {
                                 "type": "object",
@@ -9160,9 +9161,7 @@
                                 "type": "string",
                                 "enum": [
                                   "ATTORNEY",
-                                  "AGENT",
-                                  "INDIVIDUAL PROVIDING REPRESENTATION UNDER SECTION 14.630",
-                                  "SERVICE ORGANIZATION REPRESENTATIVE"
+                                  "AGENT"
                                 ],
                                 "example": "ATTORNEY"
                               },
@@ -9216,18 +9215,6 @@
                                 "type": "string",
                                 "example": "I help vets LLC."
                               }
-                            },
-                            "if": {
-                              "properties": {
-                                "type": {
-                                  "const": "SERVICE ORGANIZATION REPRESENTATIVE"
-                                }
-                              }
-                            },
-                            "then": {
-                              "required": [
-                                "organizationName"
-                              ]
                             }
                           },
                           "recordConsent": {
@@ -9240,10 +9227,10 @@
                             "items": {
                               "type": "string",
                               "enum": [
-                                "DRUG ABUSE",
+                                "DRUG_ABUSE",
                                 "ALCOHOLISM",
                                 "HIV",
-                                "SICKLE CELL"
+                                "SICKLE_CELL"
                               ]
                             },
                             "example": "DRUG ABUSE"
@@ -9717,25 +9704,11 @@
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
                               },
-                              "serviceBranch": {
-                                "description": "Service Branch for the veteran.",
+                              "serviceNumber": {
+                                "description": "Service number for the veteran.",
                                 "type": "string",
-                                "enum": [
-                                  "AIR FORCE",
-                                  "ARMY",
-                                  "COAST GUARD",
-                                  "MARINE CORPS",
-                                  "NAVY",
-                                  "SPACE FORCE",
-                                  "OTHER"
-                                ],
-                                "example": "ARMY"
-                              },
-                              "serviceBranchOther": {
-                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
-                                "type": "string",
-                                "maxLength": 50,
-                                "example": "Air National Guard"
+                                "pattern": "^\\d{9}?$",
+                                "example": "123456789"
                               }
                             }
                           },
@@ -9908,37 +9881,17 @@
                             "items": {
                               "type": "string",
                               "enum": [
-                                "DRUG ABUSE",
+                                "DRUG_ABUSE",
                                 "ALCOHOLISM",
                                 "HIV",
-                                "SICKLE CELL"
+                                "SICKLE_CELL"
                               ]
                             },
-                            "example": "DRUG ABUSE"
+                            "example": "DRUG_ABUSE"
                           },
                           "consentAddressChange": {
                             "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                             "type": "boolean"
-                          },
-                          "signatures": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "veteran",
-                              "representative"
-                            ],
-                            "properties": {
-                              "veteran": {
-                                "description": "Base64 encoded png image of the veteran or claimant signature.",
-                                "title": "Signature of the Veteran",
-                                "type": "string"
-                              },
-                              "representative": {
-                                "description": "Base64 encoded png image of the representative signature.",
-                                "title": "Signature of the Veteran Representative",
-                                "type": "string"
-                              }
-                            }
                           }
                         }
                       }
@@ -10285,11 +10238,6 @@
                               "address"
                             ],
                             "properties": {
-                              "vaFileNumber": {
-                                "description": "The Veteran's VA file number",
-                                "type": "string",
-                                "maxLength": 9
-                              },
                               "serviceNumber": {
                                 "description": "The Veteran's Service Number",
                                 "type": "string",
@@ -10299,15 +10247,21 @@
                                 "description": "Service Branch for the veteran.",
                                 "type": "string",
                                 "enum": [
-                                  "AIR FORCE",
+                                  "AIR_FORCE",
                                   "ARMY",
-                                  "COAST GUARD",
-                                  "MARINE CORPS",
+                                  "COAST_GUARD",
+                                  "MARINE_CORPS",
                                   "NAVY",
-                                  "SPACE FORCE",
+                                  "SPACE_FORCE",
                                   "OTHER"
                                 ],
                                 "example": "ARMY"
+                              },
+                              "serviceBranchOther": {
+                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
+                                "type": "string",
+                                "maxLength": 27,
+                                "example": "Air National Guard"
                               },
                               "address": {
                                 "type": "object",
@@ -10544,9 +10498,7 @@
                                 "type": "string",
                                 "enum": [
                                   "ATTORNEY",
-                                  "AGENT",
-                                  "INDIVIDUAL PROVIDING REPRESENTATION UNDER SECTION 14.630",
-                                  "SERVICE ORGANIZATION REPRESENTATIVE"
+                                  "AGENT"
                                 ],
                                 "example": "ATTORNEY"
                               },
@@ -10600,18 +10552,6 @@
                                 "type": "string",
                                 "example": "I help vets LLC."
                               }
-                            },
-                            "if": {
-                              "properties": {
-                                "type": {
-                                  "const": "SERVICE ORGANIZATION REPRESENTATIVE"
-                                }
-                              }
-                            },
-                            "then": {
-                              "required": [
-                                "organizationName"
-                              ]
                             }
                           },
                           "recordConsent": {
@@ -10624,10 +10564,10 @@
                             "items": {
                               "type": "string",
                               "enum": [
-                                "DRUG ABUSE",
+                                "DRUG_ABUSE",
                                 "ALCOHOLISM",
                                 "HIV",
-                                "SICKLE CELL"
+                                "SICKLE_CELL"
                               ]
                             },
                             "example": "DRUG ABUSE"
@@ -11092,25 +11032,11 @@
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
                               },
-                              "serviceBranch": {
-                                "description": "Service Branch for the veteran.",
+                              "serviceNumber": {
+                                "description": "Service number for the veteran.",
                                 "type": "string",
-                                "enum": [
-                                  "AIR FORCE",
-                                  "ARMY",
-                                  "COAST GUARD",
-                                  "MARINE CORPS",
-                                  "NAVY",
-                                  "SPACE FORCE",
-                                  "OTHER"
-                                ],
-                                "example": "ARMY"
-                              },
-                              "serviceBranchOther": {
-                                "description": "For a 'service branch' of value 'other', please provide the service branch name.",
-                                "type": "string",
-                                "maxLength": 50,
-                                "example": "Air National Guard"
+                                "pattern": "^\\d{9}?$",
+                                "example": "123456789"
                               }
                             }
                           },
@@ -11283,37 +11209,17 @@
                             "items": {
                               "type": "string",
                               "enum": [
-                                "DRUG ABUSE",
+                                "DRUG_ABUSE",
                                 "ALCOHOLISM",
                                 "HIV",
-                                "SICKLE CELL"
+                                "SICKLE_CELL"
                               ]
                             },
-                            "example": "DRUG ABUSE"
+                            "example": "DRUG_ABUSE"
                           },
                           "consentAddressChange": {
                             "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                             "type": "boolean"
-                          },
-                          "signatures": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "veteran",
-                              "representative"
-                            ],
-                            "properties": {
-                              "veteran": {
-                                "description": "Base64 encoded png image of the veteran or claimant signature.",
-                                "title": "Signature of the Veteran",
-                                "type": "string"
-                              },
-                              "representative": {
-                                "description": "Base64 encoded png image of the representative signature.",
-                                "title": "Signature of the Veteran Representative",
-                                "type": "string"
-                              }
-                            }
                           }
                         }
                       }
