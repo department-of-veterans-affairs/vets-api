@@ -58,7 +58,7 @@ module TravelClaim
     #
     # @see TravelClaim::Client#submit_claim
     #
-    # @return [Response] claimNumber
+    # @return [Hash] response hash
     def submit_claim
       resp = if token.present?
                client.submit_claim(token:, patient_icn:, appointment_date:)
