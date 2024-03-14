@@ -11,23 +11,23 @@ module ClaimsApi
     def build_error # rubocop:disable Metrics/MethodLength
       get_status
       get_code
-      if @error == Faraday::ConnectionFailed || @error == Faraday::ParsingError ||
-         @error == Faraday::NilStatusError || @error == Faraday::TimeoutError ||
-         @error == ::Common::Exceptions::BackendServiceException ||
-         @error == ::Common::Exceptions::ExternalServerInternalServerError ||
-         @error == ::Common::Exceptions::BadGateway || @error == Faraday::SSLError ||
-         @error == Faraday::ServerError
+      if @error.is_a?(Faraday::ConnectionFailed) || @error.is_a?(Faraday::ParsingError) ||
+         @error.is_a?(Faraday::NilStatusError) || @error.is_a?(Faraday::TimeoutError) ||
+         @error.is_a?(::Common::Exceptions::BackendServiceException) ||
+         @error.is_a?(::Common::Exceptions::ExternalServerInternalServerError) ||
+         @error.is_a?(::Common::Exceptions::BadGateway) || @error.is_a?(Faraday::SSLError) ||
+         @error.is_a?(Faraday::ServerError)
         errors = { errors: [{ 'title' => 'Service Exception',
                               'detail' => 'A re-tryable error has occurred, original_error: ' \
                                           "#{@error}.", status: @status, code: @code }] }
         log_outcome_for_claims_api(errors)
         raise ::Common::Exceptions::ServiceError, errors
 
-      elsif @error.is_a?(StandardError) || @error == Faraday::BadRequestError ||
-            @error == Faraday::ConflictError || @error == Faraday::ForbiddenError ||
-            @error == Faraday::ProxyAuthError || @error == Faraday::ResourceNotFound ||
-            @error == Faraday::UnauthorizedError || @error == Faraday::UnprocessableEntityError ||
-            @error == Faraday::ClientError
+      elsif @error.is_a?(StandardError) || @error.is_a?(Faraday::BadRequestError) ||
+            @error.is_a?(Faraday::ConflictError) || @error.is_a?(Faraday::ForbiddenError) ||
+            @error.is_a?(Faraday::ProxyAuthError) || @error.is_a?(Faraday::ResourceNotFound) ||
+            @error.is_a?(Faraday::UnauthorizedError) || @error.is_a?(Faraday::UnprocessableEntityError) ||
+            @error.is_a?(Faraday::ClientError)
 
         errors = { errors: [{ 'title' => 'Client error',
                               'detail' => 'A client exception has occurred, job will not be re-tried. ' \
