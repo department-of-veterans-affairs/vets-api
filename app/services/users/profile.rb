@@ -64,9 +64,15 @@ module Users
       nil
     end
 
-    def demographics
+    # Get the preferred named from the user's demographics. See scaffold.errors for any errors.
+    #
+    # @return the user's preferred name or nil if the user has no preferred name or there was an
+    # error fetching the name.
+    #
+    def preferred_name
       demographic_svc = VAProfile::Demographics::Service.new @user
-      demographic_svc.get_demographics&.demographics
+      # We want to catch if preferred_name or text is missing, so no safe operator here.
+      demographic_svc.get_demographics.demographics.preferred_name.text
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       nil
@@ -78,7 +84,7 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
-        preferred_name: demographics&.preferred_name&.text,
+        preferred_name:,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,
