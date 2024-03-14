@@ -27,15 +27,13 @@ module ClaimsApi
             detail: "If claimant is present 'address' must be filled in " \
                     ' with required fields addressLine1, city, stateCode, country and zipCode'
           )
+        else
+          validate_address_line_one(address)
+          validate_address_city(address)
+          validate_address_state_code(address)
+          validate_address_country(address)
+          validate_address_zip_code(address)
         end
-
-        return if address.nil?
-
-        validate_address_line_one(address)
-        validate_address_city(address)
-        validate_address_state_code(address)
-        validate_address_country(address)
-        validate_address_zip_code(address)
       end
 
       def validate_address_line_one(address)
