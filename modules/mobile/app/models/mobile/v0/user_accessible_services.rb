@@ -37,8 +37,8 @@ module Mobile
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
-          secureMessaging: flagged_access?(:mobile_sm_session_policy, { mhv_messaging_policy: :mobile_access? },
-                                           { legacy_mhv_messaging_policy: :access? }),
+          secureMessaging: flagged_access?(:mobile_sm_session_policy, { mhv_messaging: :low_impact_mobile_access? },
+                                           { legacy_mhv_messaging: :access? }),
           userProfileUpdate: access?(vet360: :access?)
         }
       end
