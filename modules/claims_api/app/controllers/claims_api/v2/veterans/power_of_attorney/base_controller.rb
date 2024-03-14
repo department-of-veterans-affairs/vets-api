@@ -55,7 +55,7 @@ module ClaimsApi
           poa_code = form_attributes.dig(base, 'poaCode')
           rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
                                                          poa_code,
-                                                         rn).first
+                                                         rn).order(created_at: :desc).first
           if rep.nil?
             raise ::Common::Exceptions::ResourceNotFound.new(
               detail: "Could not retrieve Power of Attorney with registration number: #{rn} and poa code: #{poa_code}"
