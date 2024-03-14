@@ -132,7 +132,7 @@
           "additionalProperties": false,
           "properties" : {
             "addressLine1": {
-              "description": "Street address with number and name.",
+              "description": "Street address with number and name. Required if claimant information provided.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
@@ -142,24 +142,24 @@
               "maxLength": 5
             },
             "city": {
-              "description": "City for the address.",
+              "description": "City for the address. Required if claimant information provided.",
               "type": "string",
               "example": "Portland",
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State for the address.",
+              "description": "State for the address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "country": {
-              "description": "Country of the address.",
+              "description": "Country of the address. Required if claimant information provided.",
               "type": "string",
               "example": "USA"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -204,7 +204,7 @@
           "example": "claimant@example.com"
         },
         "relationship": {
-          "description": "Relationship of claimant to the veteran.",
+          "description": "Relationship of claimant to the veteran. Required if claimant information provided.",
           "type": "string",
           "example": "Spouse"
         }
