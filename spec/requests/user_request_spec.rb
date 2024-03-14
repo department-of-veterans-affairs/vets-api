@@ -10,15 +10,21 @@ RSpec.describe 'Fetching user data' do
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
 
+    let(:cassettes_good_vet_status) do
+    [
+      { name: 'va_profile/demographics/demographics' },
+      { name: 'va_profile/veteran_status/va_profile_veteran_status_200',
+        options: { match_requests_on: %i[method body] } }
+    ]
+  end
+
     before do
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/demographics/demographics') do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
-          get v0_user_url, params: nil, headers: v0_user_request_headers
-        end
+      VCR.use_cassettes(cassettes_good_vet_status) do
+        get v0_user_url, params: nil, headers: v0_user_request_headers
       end
     end
 
@@ -194,10 +200,11 @@ RSpec.describe 'Fetching user data' do
       user = new_user(:loa1)
       sign_in_as(user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/demographics/demographics') do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
-          get v0_user_url, params: nil, headers: v0_user_request_headers
-        end
+      VCR.use_cassettes([
+        { name: 'va_profile/demographics/demographics' },
+        { name: 'va_profile/veteran_status/va_profile_veteran_status_200' }
+      ]) do
+        get v0_user_url, params: nil, headers: v0_user_request_headers
       end
     end
 
