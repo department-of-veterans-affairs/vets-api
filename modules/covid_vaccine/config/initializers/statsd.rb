@@ -2,7 +2,7 @@
 
 StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
 
-Rails.application.reloader.to_prepare do
+Rails.application.config.after_initialize do
   CovidVaccine::SubmissionJob.extend StatsD::Instrument
   CovidVaccine::SubmissionJob.statsd_count_success :perform,
                                                    'covid_vaccine.submission_job'
