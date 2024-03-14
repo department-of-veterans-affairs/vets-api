@@ -3,7 +3,7 @@
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
-		"ghcr.io/devcontainers/features/ruby:1": {
+		"ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
 			"version": "3.2.3"
 		},
 		"ghcr.io/itsmechlark/features/redis-server:1": {

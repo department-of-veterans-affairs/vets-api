@@ -3,6 +3,10 @@
 # Add welcome message
 sudo cp .devcontainer/welcome.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
 
+# Switch to vets-api ruby version
+asdf install ruby $( cat .ruby-version )
+asdf global ruby $( cat .ruby-version )
+
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata
 
 sudo apt update
