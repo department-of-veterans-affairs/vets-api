@@ -24,7 +24,7 @@ module ClaimsApi
         if address.nil?
           collect_error_messages(
             source: '/claimant/address/',
-            detail: "If claimant is present 'adress' must be filled in " \
+            detail: "If claimant is present 'address' must be filled in " \
                     ' with required fields addressLine1, city, stateCode, country and zipCode'
           )
         end
