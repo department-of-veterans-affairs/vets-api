@@ -14,6 +14,7 @@ describe Common::Client::Concerns::MhvLockedSessionClient do
         @retry_attempts = retry_attempts
         @session = session
       end
+
       def user_key
         session.icn
       end
