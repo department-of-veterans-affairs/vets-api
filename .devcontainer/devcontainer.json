@@ -7,7 +7,7 @@
 			"version": "3.2.3"
 		},
 		"ghcr.io/itsmechlark/features/redis-server:1": {
-			"version": "7"
+			"version": "6"
 		},
 		"ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
 			"version": "13"
