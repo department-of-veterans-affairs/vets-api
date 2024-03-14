@@ -98,8 +98,12 @@ module AppealsApi
       )
     end
 
+    def non_veteran_claimant?
+      claimant.signing_appellant?
+    end
+
     def signing_appellant
-      claimant.signing_appellant? ? claimant : veteran
+      non_veteran_claimant? ? claimant : veteran
     end
 
     def appellant_local_time
@@ -204,10 +208,13 @@ module AppealsApi
     end
 
     def assign_metadata
-      metadata['central_mail_business_line'] = lob
-      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
-        issue['attributes']['ratingIssueReferenceId'].blank?
-      end.count
+      self.metadata = {
+        central_mail_business_line: lob,
+        non_veteran_claimant: non_veteran_claimant?,
+        potential_write_in_issue_count: contestable_issues.filter do |issue|
+          issue['attributes']['ratingIssueReferenceId'].blank?
+        end.count
+      }
     end
 
     def accepts_evidence?
