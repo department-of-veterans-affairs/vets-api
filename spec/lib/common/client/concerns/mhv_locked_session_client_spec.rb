@@ -10,10 +10,10 @@ describe Common::Client::Concerns::MhvLockedSessionClient do
       include Common::Client::Concerns::MhvLockedSessionClient
 
       # This will override the initialize method in the mixin
-      def initialize(session: nil)
+      def initialize(session: nil, retry_attempts: 40)
+        @retry_attempts = retry_attempts
         @session = session
       end
-
       def user_key
         session.icn
       end
@@ -64,7 +64,7 @@ describe Common::Client::Concerns::MhvLockedSessionClient do
         allow(dummy_instance).to receive(:lock_and_get_session).and_return(false)
 
         expect(dummy_instance).to receive(:lock_and_get_session)
-          .exactly(Common::Client::Concerns::MhvLockedSessionClient::RETRY_ATTEMPTS).times
+          .exactly(40).times
         expect(dummy_instance.authenticate).to eq(dummy_instance)
       end
     end

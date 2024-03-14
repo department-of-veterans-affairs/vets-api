@@ -43,6 +43,7 @@ module Common
 
           # Loop unless a complete, valid MHV session exists, or until max_iterations is reached
           while invalid?(session) && iteration < @retry_attempts
+
             break if lock_and_get_session # Break out of the loop once a new session is created.
 
             sleep(LOCK_RETRY_DELAY)
