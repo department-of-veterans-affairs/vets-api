@@ -54,5 +54,10 @@
 	    "vscode": {
 			"extensions": ["ms-azuretools.vscode-docker", "Shopify.ruby-lsp"]
 		}
+	},
+	"hostRequirements": {
+		"cpus": 8,
+		"memory": "32gb",
+		"storage": "64gb"
 	}
 }
