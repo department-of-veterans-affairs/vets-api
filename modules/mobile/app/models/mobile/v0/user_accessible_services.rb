@@ -37,7 +37,8 @@ module Mobile
           preferredName: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
-          secureMessaging: mhv_messaging_authorized?,
+          secureMessaging: flagged_access?(:mobile_sm_session_policy, { mhv_messaging_policy: :mobile_access? },
+                                           { legacy_mhv_messaging_policy: :access? }),
           userProfileUpdate: access?(vet360: :access?)
         }
       end
@@ -69,18 +70,6 @@ module Mobile
                         { evss: :access?, ppiu: %i[access? access_update?] })
       rescue
         false
-      end
-
-      def mhv_messaging_authorized?
-        if Flipper.enabled?(:mobile_sm_session_policy, @user)
-          MHVMessagingPolicy.new(@user).access?(sm_client)
-        else
-          LegacyMHVMessagingPolicy.new(@user).access?
-        end
-      end
-
-      def sm_client
-        @client ||= Mobile::V0::Messaging::Client.new(session: { user_id: @user.mhv_correlation_id })
       end
     end
   end
