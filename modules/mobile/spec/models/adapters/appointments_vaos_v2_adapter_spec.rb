@@ -230,7 +230,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'facility_id' => '552',
                                           'sta6aid' => '552',
                                           'healthcare_provider' => nil,
-                                          'healthcare_service' => nil,
+                                          'healthcare_service' => 'Primary Care',
                                           'location' => {
                                             'id' => nil,
                                             'name' => nil,
@@ -424,7 +424,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                       'facility_id' => '442',
                                       'sta6aid' => '442',
                                       'healthcare_provider' => nil,
-                                      'healthcare_service' => nil,
+                                      'healthcare_service' => 'Primary Care',
                                       'location' =>
                                        { 'id' => nil,
                                          'name' => 'Cheyenne VA Medical Center',
@@ -479,7 +479,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'facility_id' => '442',
                                        'sta6aid' => '442',
                                        'healthcare_provider' => nil,
-                                       'healthcare_service' => nil,
+                                       'healthcare_service' => 'Primary Care',
                                        'location' =>
                                         { 'id' => nil,
                                           'name' => 'Cheyenne VA Medical Center',
@@ -532,7 +532,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'facility_id' => '442',
                                      'sta6aid' => '442',
                                      'healthcare_provider' => nil,
-                                     'healthcare_service' => nil,
+                                     'healthcare_service' => 'Primary Care',
                                      'location' =>
                                       { 'id' => nil,
                                         'name' => 'Cheyenne VA Medical Center',
@@ -581,7 +581,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                 'facility_id' => '442',
                                                 'sta6aid' => '442',
                                                 'healthcare_provider' => nil,
-                                                'healthcare_service' => nil,
+                                                'healthcare_service' => 'Primary Care',
                                                 'location' =>
                                                   { 'id' => '442',
                                                     'name' => 'Cheyenne VA Medical Center',
@@ -637,7 +637,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                           'facility_id' => '442',
                                                           'sta6aid' => '442',
                                                           'healthcare_provider' => nil,
-                                                          'healthcare_service' => nil,
+                                                          'healthcare_service' => 'Primary Care',
                                                           'location' => {
                                                             'id' => '442',
                                                             'name' => 'Cheyenne VA Medical Center',
@@ -811,7 +811,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
           'facility_id' => '552',
           'sta6aid' => '552',
           'healthcare_provider' => nil,
-          'healthcare_service' => nil,
+          'healthcare_service' => 'Amputation care',
           'location' => {
             'id' => '984',
             'name' => 'Dayton VA Medical Center',
