@@ -28,6 +28,7 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
           response.body[:data].each do |appt|
             # for Lovell appointments set cancellable to false per GH#75512
             set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
@@ -239,9 +240,9 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        # Testing AVS error message using the below id - remove after testing is complete
+        # Testing AVS empty state using the below id - remove after testing is complete
         if appt[:id] == AVS_APPT_TEST_ID
-          appt[:avs_path] = AVS_ERROR_MESSAGE
+          appt[:avs_path] = nil
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link

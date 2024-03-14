@@ -19,9 +19,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         power_of_attorney.form_data = {
           recordConsent: true,
           consentAddressChange: true,
-          consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+          consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
           veteran: {
-            serviceBranch: 'ARMY',
             address: {
               numberAndStreet: '2719 Hyperion Ave',
               city: 'Los Angeles',
@@ -54,7 +53,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           },
           representative: {
             poaCode: poa_code.to_s,
-            type: 'SERVICE ORGANIZATION REPRESENTATIVE',
+            type: 'ATTORNEY',
             firstName: 'Bob',
             lastName: 'Representative',
             organizationName: 'I Help Vets LLC',
@@ -145,7 +144,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         power_of_attorney.form_data = {
           recordConsent: true,
           consentAddressChange: true,
-          consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+          consentLimits: %w[DRUG_ABUSE SICKLE_CELL],
           veteran: {
             address: {
               numberAndStreet: '2719 Hyperion Ave',

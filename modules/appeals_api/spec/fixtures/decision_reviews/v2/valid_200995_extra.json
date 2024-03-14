@@ -5,7 +5,6 @@
       "benefitType": "compensation",
       "claimantType": "other",
       "claimantTypeOtherValue": "Veteran Attorney",
-      "potentialPactAct": true,
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",
