@@ -4,6 +4,7 @@
 sudo cp .devcontainer/welcome.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
 
 # Switch to vets-api ruby version
+export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
 asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
 
@@ -40,6 +41,7 @@ EOT
 fi
 
 mkdir -p log
+nohup bash -c '/home/linuxbrew/.linuxbrew/opt/redis@6.2/bin/redis-server /home/linuxbrew/.linuxbrew/etc/redis.conf' >> log/redis.log 2>&1 &
 sudo /etc/init.d/postgresql restart
 pg_isready -t 60
 sudo -u root sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
