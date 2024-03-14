@@ -83,7 +83,7 @@ module DebtsApi
     def station_adjustments(form)
       stations = []
       @copays.each do |copay|
-        stations << 'vista' if copay['pHDfnNumber'].instance_of?(Integer) && (copay['pHDfnNumber']).positive?
+        stations << 'vista' if copay['pHDfnNumber'].to_i.positive?
         if copay['pHCernerPatientId'].instance_of?(String) && copay['pHCernerPatientId'].strip.length.positive?
           stations << 'cerner'
         end
