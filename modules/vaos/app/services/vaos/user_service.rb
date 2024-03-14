@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
+require 'map/security_token/service'
 
 module VAOS
   class UserService < VAOS::BaseService
     def session(user)
-      # changes to be made to this method
       cached = cached_by_account_uuid(user.account_uuid)
       return cached.token if cached
 
-      new_session_token(user)
+      if Flipper.enabled?(:va_online_scheduling_sts_oauth_token, user)
+        new_sts_session_token(user)
+      else
+        new_session_token(user)
+      end
     end
 
     def extend_session(account_uuid)
@@ -32,6 +36,7 @@ module VAOS
                             active_jti: decoded_token(cached.token)['jti']
                           })
         save_session!(account_uuid, new_token)
+        new_token
       else
         Rails.logger.warn('VAOS no session to update', account_uuid:)
       end
@@ -67,7 +72,6 @@ module VAOS
       )
       session_store.save
       session_store.expire(ttl_duration_from_token(token))
-      token
     end
 
     def new_session_token(user)
@@ -79,8 +83,26 @@ module VAOS
       Rails.logger.info('VAOS session created',
                         { account_uuid: user.account_uuid, jti: decoded_token(token)['jti'] })
 
+      token = response.body
       lock_session_creation(user.account_uuid)
-      save_session!(user.account_uuid, response.body)
+      save_session!(user.account_uuid, token)
+      token
+    end
+
+    def new_sts_session_token(user)
+      map_sts_rslt = MAP::SecurityToken::Service.new.token(application: :appointments, icn: user.icn)
+      token = map_sts_rslt[:access_token]
+
+      Rails.logger.info('VAOS session created with STS token',
+                        {
+                          account_uuid: user.account_uuid,
+                          request_id: RequestStore.store['request_id'],
+                          jti: decoded_token(token)['jti']
+                        })
+
+      lock_session_creation(user.account_uuid)
+      save_session!(user.account_uuid, token)
+      token
     end
 
     def headers
