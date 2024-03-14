@@ -214,101 +214,31 @@ http_interactions:
                        "tempJurisdiction":null,
                        "trackedItems":[
                           {
-                             "closedDate":"2022-10-30",
-                             "description":null,
-                             "displayName":"Reserve or Guard service claimed - unit info needed",
-                             "overdue":false,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"NO_LONGER_REQUIRED",
-                             "suspenseDate":"2022-10-30",
-                             "id":360047,
-                             "uploadsAllowed":false
-                          },
-                          {
-                             "closedDate":null,
-                             "description":"The number of previous marriages indicated on your application for benefits did not equal the former spouses listed.  On the enclosed VA Form 21-686c, Declaration of Status of Dependents, please provide your complete marital history, listing the date and place of each prior marriage, and its termination.",
-                             "displayName":"Claimant marital history inconsistent - need 21-686c",
-                             "overdue":true,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"SUBMITTED_AWAITING_REVIEW",
-                             "suspenseDate":"2022-10-30",
-                             "id":360050,
-                             "uploadsAllowed":true
-                          },
-                          {
-                             "closedDate":null,
-                             "description":"On your application for benefits you did not provide a complete history of your previous marriages.  On the enclosed VA Form 21-686c, Declaration of Status of Dependents, please provide a complete marital history, listing the date and place of each prior marriage, and its termination.",
-                             "displayName":"History of prior marriages of claimant needed",
-                             "overdue":true,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"NEEDED_FROM_YOU",
-                             "suspenseDate":"2022-10-30",
-                             "id":360051,
-                             "uploadsAllowed":true
-                          },
-                          {
-                             "closedDate":null,
-                             "description":"The information provided concerning your prior marital history is inconsistent.  In order to resolve these inconsistencies you should submit certified copies of the public record of the termination (death, divorce or annulment) for each of your prior marriages.",
-                             "displayName":"Claimant marital history inconsistent - need proof",
-                             "overdue":true,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"SUBMITTED_AWAITING_REVIEW",
-                             "suspenseDate":"2022-10-30",
-                             "id":360052,
-                             "uploadsAllowed":true
-                          },
-                          {
-                             "closedDate":null,
-                             "description":"Provide the type of termination (death/annulment/divorce) for your marriage to <name of former spouse>.",
-                             "displayName":"Claimant - previous marriage termination type needed",
-                             "overdue":true,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"SUBMITTED_AWAITING_REVIEW",
-                             "suspenseDate":"2022-10-30",
-                             "id":360053,
-                             "uploadsAllowed":true
-                          },
-                          {
-                             "closedDate":"2022-10-30",
-                             "description":null,
-                             "displayName":"Claim based on other agency disability grant",
-                             "overdue":false,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"NO_LONGER_REQUIRED",
-                             "suspenseDate":"2022-10-30",
-                             "id":360054,
-                             "uploadsAllowed":false
-                          },
-                          {
-                             "closedDate":"2022-10-30",
-                             "description":null,
-                             "displayName":"Spouse claimant biological relationship to child needed",
-                             "overdue":false,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"NO_LONGER_REQUIRED",
-                             "suspenseDate":"2022-10-30",
-                             "id":360055,
-                             "uploadsAllowed":false
-                          },
-                          {
-                             "closedDate":"2022-10-30",
-                             "description":null,
-                             "displayName":"Stepchild - clarify % of support from claimant",
-                             "overdue":false,
-                             "receivedDate":null,
-                             "requestedDate":"2022-09-30",
-                             "status":"NO_LONGER_REQUIRED",
-                             "suspenseDate":"2022-10-30",
-                             "id":360056,
-                             "uploadsAllowed":false
-                          }
+                              "closedDate": null,
+                              "description": "Please complete and return the enclosed VA Form 21-4142, Authorization to Disclose Information, so that we can obtain the authorization to request treatment records from your private medical sources listed on the received VA Form 21-4142a, General Release for Medical Provider Information.\n",
+                              "displayName": "Request 1",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2023-03-16",
+                              "suspenseDate": "2023-04-15",
+                              "id": 395084,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": true
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "You may also submit statements from individuals having knowledge of your claimed condition.  These individuals    should tell us what they observed of your condition, including the approximate dates, places and circumstances.  They should clearly state whether they actually witnessed the event leading to your condition.  If they were in service with you, they should include name, rank, and unit of assignment.  All statements must have the following certification:  I hereby certify that this information is true and correct to the best of my knowledge and belief.",
+                              "displayName": "Submit buddy statement(s)",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
+                           }
                        ]
                     }
                  }

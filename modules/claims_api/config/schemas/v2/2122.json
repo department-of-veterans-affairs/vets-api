@@ -20,27 +20,32 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "addressLine2": {
+              "type": "string",
+              "maxLength": 5
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",
-              "example": "Portland"
+              "example": "Portland",
+              "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "country": {
@@ -48,13 +53,13 @@
               "type": "string",
               "example": "USA"
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipCodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -92,25 +97,11 @@
           "maxLength": 61,
           "example": "veteran@example.com"
         },
-        "serviceBranch": {
-          "description": "Service Branch for the veteran.",
+        "serviceNumber": {
+          "description": "Service number for the veteran.",
           "type": "string",
-          "enum": [
-            "AIR FORCE",
-            "ARMY",
-            "COAST GUARD",
-            "MARINE CORPS",
-            "NAVY",
-            "SPACE FORCE",
-            "OTHER"
-          ],
-          "example": "ARMY"
-        },
-        "serviceBranchOther": {
-          "description": "For a 'service branch' of value 'other', please provide the service branch name.",
-          "type": "string",
-          "maxLength": 50,
-          "example": "Air National Guard"
+          "pattern": "^\\d{9}?$",
+          "example": "123456789"
         }
       }
     },
@@ -145,27 +136,32 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "addressLine2": {
+              "type": "string",
+              "maxLength": 5
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",
-              "example": "Portland"
+              "example": "Portland",
+              "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "country": {
@@ -173,13 +169,13 @@
               "type": "string",
               "example": "USA"
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipCodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -262,27 +258,32 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "country",
-            "zipFirstFive"
+            "zipCode"
           ],
           "properties" : {
-            "numberAndStreet": {
+            "addressLine1": {
               "description": "Street address with number and name.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
-            "aptUnitNumber":   { "type": "integer" },
+            "addressLine2": {
+              "type": "string",
+              "maxLength": 5
+            },
             "city": {
               "description": "City for the address.",
               "type": "string",
-              "example": "Portland"
+              "example": "Portland",
+              "maxLength": 18
             },
-            "state": {
+            "stateCode": {
               "description": "State for the address.",
               "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "country": {
@@ -290,13 +291,13 @@
               "type": "string",
               "example": "USA"
             },
-            "zipFirstFive": {
+            "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
-            "zipLastFour": {
+            "zipCodeSuffix": {
               "description": "Zipcode (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
@@ -329,37 +330,17 @@
       "items": {
         "type": "string",
         "enum": [
-          "DRUG ABUSE",
+          "DRUG_ABUSE",
           "ALCOHOLISM",
           "HIV",
-          "SICKLE CELL"
+          "SICKLE_CELL"
         ]
       },
-      "example": "DRUG ABUSE"
+      "example": "DRUG_ABUSE"
     },
     "consentAddressChange": {
       "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
       "type": "boolean"
-    },
-    "signatures": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "veteran",
-        "representative"
-      ],
-      "properties": {
-        "veteran": {
-          "description": "Base64 encoded png image of the veteran or claimant signature.",
-          "title": "Signature of the Veteran",
-          "type":  "string"
-        },
-        "representative": {
-          "description": "Base64 encoded png image of the representative signature.",
-          "title": "Signature of the Veteran Representative",
-          "type":  "string"
-        }
-      }
     }
   }
 }

@@ -155,6 +155,25 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
       end
+
+      context 'when the form includes TERA info' do
+        let(:form) { get_fixture('form1010_ezr/valid_form_with_tera') }
+
+        it 'returns a success object', run_at: 'Wed, 13 Mar 2024 18:14:49 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_tera',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            expect(submit_form(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 433_956_488,
+                timestamp: '2024-03-13T13:14:50.252-05:00'
+              }
+            )
+          end
+        end
+      end
     end
 
     context 'when an error occurs' do

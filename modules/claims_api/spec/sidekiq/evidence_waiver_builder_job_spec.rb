@@ -38,4 +38,15 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
       end
     end
   end
+
+  describe 'bad file number error raised by VBMS' do
+    it 'EW builder job handles and sets status to errored, does not retry' do
+      allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: 'asdf' })
+      expect(ClaimsApi::EvidenceWaiver).to receive(:new).and_call_original
+      expect_any_instance_of(ClaimsApi::EvidenceWaiver).to receive(:construct).and_call_original
+      subject.new.perform(ews.id)
+      ews.reload
+      expect(ews.status).to eq('errored')
+    end
+  end
 end

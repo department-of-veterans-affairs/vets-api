@@ -13,6 +13,20 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
     end
 
+    describe 'non-veteran claimant flag' do
+      it 'saves non-veteran claimant status to metadata' do
+        expect(nod.metadata['non_veteran_claimant']).to eq(false)
+      end
+
+      describe 'with non-veteran claimant' do
+        let(:nod) { create(opts[:extra_factory]) }
+
+        it 'saves non-veteran claimant status to metadata' do
+          expect(nod.metadata['non_veteran_claimant']).to eq(true)
+        end
+      end
+    end
+
     describe 'potential_write_in_issue_count' do
       context 'with no write-in issues' do
         it 'saves the correct value to metadata' do
@@ -403,6 +417,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     describe 'metadata' do
       include_examples 'NOD metadata', {
         factory: :notice_of_disagreement_v2,
+        extra_factory: :extra_notice_of_disagreement_v2,
         form_data_fixture: 'decision_reviews/v2/valid_10182.json'
       }
     end
@@ -449,6 +464,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     describe 'metadata' do
       include_examples 'NOD metadata', {
         factory: :notice_of_disagreement_v0,
+        extra_factory: :extra_notice_of_disagreement_v0,
         form_data_fixture: 'notice_of_disagreements/v0/valid_10182.json'
       }
     end

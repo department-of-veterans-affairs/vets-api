@@ -40,6 +40,12 @@ module AskVAApi
         render json: get_profile.payload, status: get_profile.status
       end
 
+      def status
+        stat = Inquiries::Status::Retriever.new(icn: current_user.icn).call(inquiry_number: params[:id])
+        serializer = Inquiries::Status::Serializer.new(stat)
+        render json: serializer.serializable_hash, status: :ok
+      end
+
       private
 
       def inquiry_params

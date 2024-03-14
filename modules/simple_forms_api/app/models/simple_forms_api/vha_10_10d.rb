@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module SimpleFormsApi
   class VHA1010d
     include Virtus.model(nullify_blank: true)
@@ -18,17 +20,21 @@ module SimpleFormsApi
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin')
       }
     end
 
     def handle_attachments(file_path)
+      uuid = SecureRandom.uuid # Generate the UUID inline
+      file_path_uuid = file_path.gsub('vha_10_10d-tmp', "#{uuid}_vha_10_10d-tmp")
+      File.rename(file_path, file_path_uuid)
       attachments = get_attachments
-      file_paths = [file_path]
+      file_paths = [file_path_uuid]
 
       if attachments.count.positive?
         attachments.each_with_index do |attachment, index|
-          new_file_name = "vha_10_10d-tmp#{index + 1}.pdf"
+          new_file_name = "#{uuid}_vha_10_10d-tmp#{index + 1}.pdf"
           new_file_path = File.join(File.dirname(attachment), new_file_name)
           File.rename(attachment, new_file_path)
           file_paths << new_file_path
@@ -42,7 +48,7 @@ module SimpleFormsApi
       { should_stamp_date?: false }
     end
 
-    def track_user_identity; end
+    def track_user_identity(confirmation_number); end
 
     private
 

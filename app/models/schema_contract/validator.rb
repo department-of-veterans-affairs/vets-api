@@ -11,18 +11,18 @@ module SchemaContract
     def validate
       errors = JSON::Validator.fully_validate(parsed_schema, record.response)
       if errors.any?
-        @result = :schema_errors_found
+        @result = 'schema_errors_found'
         record.update(error_details: errors)
         detailed_message = { error_type: 'Schema discrepancy found', record_id: @record_id, response: record.response,
                              details: errors }
         raise SchemaContractValidationError, detailed_message
       else
-        @result = :success
+        @result = 'success'
       end
     rescue SchemaContractValidationError => e
       raise e
     rescue => e
-      @result = :error
+      @result = 'error'
       detailed_message = { error_type: 'Unknown', record_id: @record_id, details: e.message }
       raise SchemaContractValidationError, detailed_message
     ensure
@@ -39,7 +39,7 @@ module SchemaContract
       @schema_file ||= begin
         path = Settings.schema_contract[record.contract_name]
         if path.nil?
-          @result = :schema_not_found
+          @result = 'schema_not_found'
           raise SchemaContractValidationError, "No schema file #{record.contract_name} found."
         end
 

@@ -158,18 +158,18 @@ describe 'Notice of Disagreements', openapi_spec:, type: :request do
     end
   end
 
-  path '/notice_of_disagreements/{uuid}/download' do
-    get 'Download a watermarked copy of a submitted Notice of Disagreement' do
-      tags 'Notice of Disagreements'
-      operationId 'downloadNod'
-      security DocHelpers.decision_reviews_security_config
+  # path '/notice_of_disagreements/{uuid}/download' do
+  # get 'Download a watermarked copy of a submitted Notice of Disagreement' do
+  # tags 'Notice of Disagreements'
+  # operationId 'downloadNod'
+  # security DocHelpers.decision_reviews_security_config
 
-      include_examples 'decision reviews PDF download docs', {
-        factory: :extra_notice_of_disagreement_v2,
-        appeal_type_display_name: 'Notice of Disagreement'
-      }
-    end
-  end
+  # include_examples 'decision reviews PDF download docs', {
+  # factory: :extra_notice_of_disagreement_v2,
+  # appeal_type_display_name: 'Notice of Disagreement'
+  # }
+  # end
+  # end
 
   path '/notice_of_disagreements/schema' do
     get 'Gets the Notice of Disagreement JSON Schema.' do

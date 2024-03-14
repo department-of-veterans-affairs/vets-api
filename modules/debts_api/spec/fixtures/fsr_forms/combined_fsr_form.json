@@ -209,12 +209,16 @@
             "debt_type": "COPAY",
             "resolution_option": "waiver",
             "p_h_amt_due": "100",
+            "p_h_dfn_number": 123456,
+            "p_h_cerner_patient_id": "                ",
             "station": {"facilit_y_num": "123"}
         },
         {
             "debt_type": "COPAY",
             "resolution_option": "waiver",
             "p_h_amt_due": "200",
+            "p_h_dfn_number": 123456,
+            "p_h_cerner_patient_id": "                ",
             "station": {
                 "facilit_y_num": "123"
             }
@@ -223,6 +227,8 @@
             "debt_type": "COPAY",
             "resolution_option": "compromise",
             "p_h_amt_due": "300",
+            "p_h_dfn_number": 123456,
+            "p_h_cerner_patient_id": "                ",
             "station": {
                 "facilit_y_num": "999"
             }

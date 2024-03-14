@@ -48,7 +48,7 @@ module SimpleFormsApi
       value.to_s # Convert nil to an empty string
     end
 
-    def track_user_identity; end
+    def track_user_identity(confirmation_number); end
 
     def submission_date_config
       { should_stamp_date?: false }

@@ -269,7 +269,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
   end
 
-  describe 'GET /profile' do
+  describe 'GET #profile' do
     context 'when a user is signed in' do
       before do
         sign_in(authorized_user)
@@ -312,6 +312,29 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                       'AskVAApi::Profile::InvalidInquiryError: No Contact found'
+    end
+  end
+
+  describe 'GET #status' do
+    before do
+      allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+      allow_any_instance_of(Crm::Service)
+        .to receive(:call).and_return({
+                                        Status: 'Reopened',
+                                        Message: nil,
+                                        ExceptionOccurred: false,
+                                        ExceptionMessage: nil,
+                                        MessageId: 'c6252e77-cf7f-48b6-96be-1b43d8e9905c'
+                                      })
+      sign_in(authorized_user)
+      get "/ask_va_api/v0/inquiries/#{valid_id}/status"
+    end
+
+    it 'returns the status for the given inquiry id' do
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']).to eq({ 'id' => nil,
+                                                        'type' => 'inquiry_status',
+                                                        'attributes' => { 'status' => 'Reopened' } })
     end
   end
 end

@@ -11,7 +11,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
 
   after(:all) do
-    FileUtils.remove_dir('tmp/spool_files')
+    FileUtils.rm_rf('tmp/spool_files')
   end
 
   context 'scheduling' do
@@ -308,6 +308,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'writes files out over sftp' do
+      # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
+      allow(Rails.env).to receive(:production?).and_return(true)
+      ENV['HOSTNAME'] = 'api.va.gov'
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 

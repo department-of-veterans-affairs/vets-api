@@ -92,4 +92,40 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
       expect(response.header['Content-Disposition']).to include("filename=\"#{filename}\"")
     end
   end
+
+  context 'DDL Logging' do
+    before do
+      Flipper.enable(:cst_include_ddl_5103_letters)
+      Flipper.enable(:cst_include_ddl_boa_letters)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    it 'logs metadata of document types to DataDog' do
+      get(:index)
+      expect(Rails.logger)
+        .to have_received(:info)
+        .with('DDL Document Types Metadata',
+              { message_type: 'ddl.doctypes_metadata',
+                document_type_metadata: [
+                  { doc_type: '27',
+                    type_description: 'Board Of Appeals Decision Letter' },
+                  { doc_type: '858',
+                    type_description: 'Custom 5103 Notice' },
+                  { doc_type: '706',
+                    type_description: '5103/DTA Letter' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '704',
+                    type_description: 'Standard 5103 Notice' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  { doc_type: '184',
+                    type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' }
+                ] })
+    end
+  end
 end

@@ -7,7 +7,7 @@ module SchemaContract
         return if SchemaContract::Validation.where(contract_name:, created_at: Time.zone.today.all_day).any?
 
         record = SchemaContract::Validation.create(
-          contract_name:, user_uuid: user.uuid, response: response.to_json, status: 'initialized'
+          contract_name:, user_uuid: user.uuid, response: response.body, status: 'initialized'
         )
         Rails.logger.info('Initiating schema contract validation', { contract_name:, record_id: record.id })
         SchemaContract::ValidationJob.perform_async(record.id)

@@ -142,3 +142,7 @@ The version of Ruby and gem dependencies (including Rails) used are defined in t
 #### Version Policy
 
 The goal is to have vets-api use supported versions of gems and Ruby, which is often the latest. However the versions are generally updated as need or availability arise. If you need a newer version of a gem, please submit a pull-request marked as `draft` with just the gem updated and passing tests.
+
+## Not a member of the repository and want to be added?
+- If you're on a VA.gov Platform team, contact your Program Manager.
+- If you're on a VFS team, you must complete [Platform Orientation](https://depo-platform-documentation.scrollhelp.site/getting-started/platform-orientation) to be added to this repository. This includes completing your Platform Orientation ticket(s) in GitHub.

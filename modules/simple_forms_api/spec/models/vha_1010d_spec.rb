@@ -4,6 +4,10 @@
 
 require 'rails_helper'
 
+folder_path = 'modules/simple_forms_api/spec/fixtures/test_file/'
+file_name = 'test_file.pdf'
+file_path = File.join(folder_path, file_name)
+
 RSpec.describe SimpleFormsApi::VHA1010d do
   let(:data) do
     {
@@ -20,7 +24,6 @@ RSpec.describe SimpleFormsApi::VHA1010d do
     }
   end
   let(:vha1010d) { described_class.new(data) }
-  let(:file_path) { 'test_file.pdf' }
 
   describe '#metadata' do
     it 'returns metadata for the form' do
@@ -45,6 +48,9 @@ RSpec.describe SimpleFormsApi::VHA1010d do
       combined_pdf = CombinePDF.new
       p combined_pdf # Output to console using `p` for inspection
 
+      # Stub the file operation
+      allow(File).to receive(:exist?).with(file_path).and_return(true)
+      allow(File).to receive(:open).with(file_path, 'rb')
       # Call the method under test
       vha1010d.handle_attachments(file_path)
 
