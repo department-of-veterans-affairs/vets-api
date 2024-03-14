@@ -1,24 +1,37 @@
 {
-	"name": "vets-api docker setup",
+	"name": "vets-api native setup",
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
-			"moby": true,
-			"azureDnsAutoDetection": true,
-			"installDockerBuildx": true,
-			"installDockerComposeSwitch": true,
-			"version": "latest",
-			"dockerDashComposeVersion": "latest"
-		},
-		"ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
+		"ghcr.io/devcontainers/features/ruby:1": {
 			"version": "3.2.3"
+		},
+		"ghcr.io/itsmechlark/features/redis-server:1": {
+			"version": "7"
+		},
+		"ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
+			"version": "13"
 		}
 	},
 
 	"portsAttributes": {
 		"3000": {
 			"label": "vets-api",
+			"onAutoForward": "notify",
+			"requireLocalPort": true
+		},
+		"9293": {
+			"label": "vets-api-healthcheck",
+			"onAutoForward": "notify",
+			"requireLocalPort": true
+		},
+		"5432": {
+			"label": "postgis",
+			"onAutoForward": "notify",
+			"requireLocalPort": true
+		},
+		"6379": {
+			"label": "redis",
 			"onAutoForward": "notify",
 			"requireLocalPort": true
 		}
