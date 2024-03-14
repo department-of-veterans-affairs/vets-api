@@ -14,6 +14,12 @@
 		}
 	},
 
+	"forwardPorts": [
+		3000,
+		9293,
+		5432,
+		6379
+	],
 	"portsAttributes": {
 		"3000": {
 			"label": "vets-api",

@@ -17,8 +17,7 @@ NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
 bundle config --global jobs `expr $NUM_CORES - 1`
 
 # Update default test DB config (because this config overrides the local settings when running tests)
-# FIXME: necessary?
-# sed -i 's|^test_database_url: .*$|test_database_url: postgis://postgres:password@localhost:54320/vets_api_test?pool=4|' config/settings.yml
+sed -i 's|^test_database_url: .*$|test_database_url: postgis://postgres:password@localhost:5432/vets_api_test?pool=4|' config/settings.yml
 
 # Add service config
 if [ ! -f config/settings.local.yml ]; then
