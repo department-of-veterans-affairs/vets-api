@@ -8,6 +8,7 @@ AskVAApi::Engine.routes.draw do
     # inquiries
     get '/inquiries', to: 'inquiries#index'
     get '/inquiries/:id', to: 'inquiries#show'
+    get '/inquiries/:id/status', to: 'inquiries#status'
     get '/download_attachment', to: 'inquiries#download_attachment'
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
