@@ -55,6 +55,7 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
+      scaffold.demographics = demographics_data
     end
 
     def account
@@ -69,13 +70,17 @@ module Users
     # @return the user's preferred name or nil if the user has no preferred name or there was an
     # error fetching the name.
     #
-    def preferred_name
+    def demographics_data
       demographic_svc = VAProfile::Demographics::Service.new @user
-      # We want to catch if preferred_name or text is missing, so no safe operator here.
-      demographic_svc.get_demographics.demographics.preferred_name.text
+      demographics = demographic_svc.get_demographics.demographics
+      {
+        preferred_name: demographics.preferred_name.text
+      }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
-      nil
+      {
+        preferred_name: nil
+      }
     end
 
     def profile
@@ -84,7 +89,6 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
-        preferred_name:,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,

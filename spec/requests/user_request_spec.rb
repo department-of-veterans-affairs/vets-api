@@ -342,9 +342,10 @@ RSpec.describe 'Fetching user data' do
 
       it 'MVI raises a breakers exception after 50% failure rate', :aggregate_failures do
         VCR.use_cassettes([
-          { name: 'va_profile/demographics/demographics', options: { allow_playback_repeats: true } },
-          { name: 'va_profile/veteran_status/va_profile_veteran_status_200', options: { allow_playback_repeats: true } }
-        ]) do
+                            { name: 'va_profile/demographics/demographics', options: { allow_playback_repeats: true } },
+                            { name: 'va_profile/veteran_status/va_profile_veteran_status_200',
+                              options: { allow_playback_repeats: true } }
+                          ]) do
           now = Time.current
           start_time = now - 120
           Timecop.freeze(start_time)

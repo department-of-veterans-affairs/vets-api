@@ -84,7 +84,6 @@
                 "firstName",
                 "middleName",
                 "lastName",
-                "preferredName",
                 "birthDate",
                 "gender",
                 "zip",
@@ -113,12 +112,6 @@
                   ]
                 },
                 "lastName": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                },
-                "preferredName": {
                   "type": [
                     "string",
                     null
@@ -261,6 +254,20 @@
                 "object",
                 "null"
               ]
+            },
+            "demographics": {
+              "type": "object",
+              "required": [
+                "preferredName"
+              ],
+              "properties": {
+                "preferredName": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                }
+              }
             }
           }
         }

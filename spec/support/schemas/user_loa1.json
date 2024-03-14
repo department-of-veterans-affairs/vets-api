@@ -48,7 +48,6 @@
                 "first_name",
                 "middle_name",
                 "last_name",
-                "preferred_name",
                 "birth_date",
                 "gender", "zip",
                 "last_signed_in",
@@ -64,7 +63,6 @@
                 "first_name": { "type": [ "string", null ] },
                 "middle_name": { "type": [ "string", null ] },
                 "last_name": { "type": [ "string", null ] },
-                "preferred_name": { "type": [ "string", null ] },
                 "birth_date": { "type": [ "string", null] },
                 "gender": { "type": [ "string", null ] },
                 "zip": { "type": [ "string", null ] },
@@ -142,6 +140,13 @@
             },
             "vet360_contact_information": {
               "type": ["object", "null"]
+            },
+            "demographics": {
+              "type": "object",
+              "required": ["preferred_name"],
+              "properties": {
+                "preferred_name": { "type": [ "string", null ] }
+              }
             }
           }
         }

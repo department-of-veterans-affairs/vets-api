@@ -36,7 +36,6 @@ module Swagger
               property :first_name, type: :string, example: 'Abigail'
               property :middle_name, type: :string, example: 'Jane'
               property :last_name, type: :string, example: 'Brown'
-              property :preferred_name, type: :string, example: 'Jay'
               property :birth_date, type: :string, example: '1900-01-01'
               property :gender, type: :string, example: 'F'
               property :zip,
@@ -99,6 +98,9 @@ module Swagger
             property :session, type: :object do
               property :ssoe, type: :boolean
               property :transactionid, type: %i[string null]
+            end
+            property :demographics, type: :object do
+              property :preferred_name, type: :string, example: 'Jay'
             end
           end
         end

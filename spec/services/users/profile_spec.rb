@@ -544,11 +544,13 @@ RSpec.describe Users::Profile do
       end
     end
 
-    describe 'preferred name' do
+    describe 'Demographics' do
+      let(:demographics) { subject.demographics }
+
       it 'No demographics' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
                          match_requests_on: %i[method body]) do
-          expect(profile[:preferred_name]).to be_nil
+          expect(demographics[:preferred_name]).to be_nil
           expect(subject.errors).to be_present
           expect(subject.errors.select { |error| error[:external_service] == 'VAProfile' }).not_to be_empty
         end
@@ -556,7 +558,7 @@ RSpec.describe Users::Profile do
 
       it 'demographics exist' do
         VCR.use_cassettes(cassettes_good_vet_status) do
-          expect(subject.profile[:preferred_name]).to eq('ABE')
+          expect(demographics[:preferred_name]).to eq('ABE')
           expect(subject.errors).not_to be_present
         end
       end
