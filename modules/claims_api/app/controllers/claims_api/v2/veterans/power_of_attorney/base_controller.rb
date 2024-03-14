@@ -44,6 +44,24 @@ module ClaimsApi
         def shared_form_validation(form_number)
           target_veteran
           validate_json_schema(form_number.upcase)
+          @rep_id = validate_registration_number!(form_number)
+        end
+
+        def validate_registration_number!(form_number)
+          return if form_number != '2122' # Placeholder until API-33481
+
+          base = form_number == '2122' ? 'serviceOrganization' : 'representative'
+          rn = form_attributes.dig(base, 'registrationNumber')
+          poa_code = form_attributes.dig(base, 'poaCode')
+          rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
+                                                         poa_code,
+                                                         rn).first
+          if rep.nil?
+            raise ::Common::Exceptions::ResourceNotFound.new(
+              detail: "Could not retrieve Power of Attorney with registration number: #{rn} and poa code: #{poa_code}"
+            )
+          end
+          rep.id
         end
 
         def submit_power_of_attorney(poa_code, form_number)
@@ -59,7 +77,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
@@ -104,6 +122,11 @@ module ClaimsApi
           end
 
           format_representative(individuals.first)
+        end
+
+        def organization
+          poa = form_attributes.dig('serviceOrganization', 'poaCode')
+          @organization ||= ::Veteran::Service::Organization.find_by(poa:)
         end
 
         def format_representative(representative)

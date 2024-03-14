@@ -9520,7 +9520,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Organization with code: 083",
+                      "detail": "Could not retrieve Power of Attorney with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
                       }
@@ -10906,7 +10906,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Organization with code: 083",
+                      "detail": "Could not retrieve Power of Attorney with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
                       }

@@ -355,6 +355,9 @@ describe 'PowerOfAttorney',
             Veteran::Service::Organization.create!(poa: organization_poa_code,
                                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
                                                    phone: '555-555-5555')
+            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+                                                     first_name: 'Firstname', last_name: 'Lastname',
+                                                     phone: '555-555-5555')
 
             mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
@@ -681,6 +684,9 @@ describe 'PowerOfAttorney',
 
           before do |example|
             Veteran::Service::Organization.create!(poa: poa_code)
+            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [poa_code],
+                                                     first_name: 'Firstname', last_name: 'Lastname',
+                                                     phone: '555-555-5555')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
