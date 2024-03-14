@@ -26,7 +26,6 @@ describe AppealsApi::StatsReport do
   let(:outside_range_groups) { create_transition_groups }
 
   before do
-    allow(AppealsApi::AppealReceivedJob).to receive(:perform_async)
     stub_const('AppealsApi::StatsReport::STATUS_TRANSITION_PAIRS',
                [%w[processing submitted], %w[submitted complete], %w[processing success], %w[error success]])
     Sidekiq::Testing.inline! do
