@@ -42,6 +42,9 @@ module VAOS
             # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
+            # TODO: log count of C&P appointments in the appointments list, per GH#78141
+            log_cnp_appt_count if cnp?(appt)
+
             convert_appointment_time(appt)
 
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
@@ -157,6 +160,10 @@ module VAOS
       def avs_service
         @avs_service ||=
           Avs::V0::AvsService.new
+      end
+
+      def log_cnp_appt_count
+        # TODO: impl
       end
 
       # Extracts the station number and appointment IEN from an Appointment.
