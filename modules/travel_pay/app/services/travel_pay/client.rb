@@ -12,7 +12,7 @@ module TravelPay
       tenant_id = Settings.travel_pay.veis.tenant_id
 
       connection(server_url: auth_url).post("/#{tenant_id}/oauth2/token") do |req|
-        req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        req.headers[:content_type] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form(veis_params)
       end
     end
@@ -71,7 +71,7 @@ module TravelPay
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks if use_fakes?
-        conn.response :json, { content_type: /\bjson/ }
+        conn.response :json
 
         conn.adapter Faraday.default_adapter
       end
