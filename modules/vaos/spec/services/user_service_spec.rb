@@ -41,8 +41,35 @@ describe VAOS::UserService do
       'HM1A'
   end
 
+  let(:expected_sts_token) do
+    {
+      access_token:
+      'eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ2MDQzVjU3NjM0MSIsImF1dGhlbnRpY2F0aW9uQXV0' \
+      'aG9yaXR5IjoiZ292LnZhLm1vYmlsZS5vYXV0aC52MSIsImlkVHlwZSI6ImljbiIsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyI' \
+      'iwib25CZWhhbGZPZiI6eyJpZCI6IjEwMTI4NDYwNDNWNTc2MzQxIiwiaWRUeXBlIjoiaWNuIiwicmVwcmVzZW50YXRpdmVJZCI6Ijc0YjMxND' \
+      'VlMTM1NDU1NWUiLCJyZXByZXNlbnRhdGl2ZUlkVHlwZSI6Im1vYmlsZS1vYXV0aC1zdHMtY2xpZW50LWlkIiwicmVwcmVzZW50YXRpdmVOYW1' \
+      'lIjoiVkEuZ292IEFwcG9pbnRtZW50cyAoU1FBKSJ9LCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKigvKT9wYXRpZW50W3NdPy9FRElQSS8x' \
+      'MDEzNTk5NzMwKC8uKik_JCIsIl4uKigvKT9wYXRpZW50W3NdPy8oSUNOLyk_MTAxMjg0NjA0M1Y1NzYzNDEoLy4qKT8kIiwiXi4qKC8pP3Npd' \
+      'GVbc10_LyhkZm4tKT85ODMvcGF0aWVudFtzXT8vNzIxNjY4NS9hcHBvaW50bWVudHMoLy4qKT8kIiwiXi4qKC8pP3NpdGVbc10_LyhkZm4tKT' \
+      '82NjgvcGF0aWVudFtzXT8vMTYxNzM3L2FwcG9pbnRtZW50cygvLiopPyQiLCJeLiooLyk_c2l0ZVtzXT8vKGRmbi0pPzk4NC9wYXRpZW50W3N' \
+      'dPy81NTIxNjEwNDQvYXBwb2ludG1lbnRzKC8uKik_JCJdLCJ2ZXJzaW9uIjoyLjgsInZpc3RhSWRzIjpbeyJzaXRlSWQiOiI5ODMiLCJwYXRp' \
+      'ZW50SWQiOiI3MjE2Njg1In0seyJzaXRlSWQiOiI5ODQiLCJwYXRpZW50SWQiOiI1NTIxNjEwNDQifSx7InNpdGVJZCI6IjY2OCIsInBhdGllb' \
+      'nRJZCI6IjE2MTczNyJ9XSwiYXVkIjoiNzRiMzE0NWUxMzU0NTU1ZSIsIm5iZiI6MTcxMDQyNDAxOSwic3N0IjoxNzEwNDI0MTk5LCJwYXRpZW' \
+      '50Ijp7ImZpcnN0TmFtZSI6IkpBQ1FVRUxJTkUiLCJtaWRkbGVOYW1lIjoiSyIsImxhc3ROYW1lIjoiTU9SR0FOIiwiZGF0ZU9mQmlydGgiOiI' \
+      'xOTYyLTAyLTA3IiwiZ2VuZGVyIjoiRiIsInNzbiI6Ijc5NjAyOTE0NiIsImljbiI6IjEwMTI4NDYwNDNWNTc2MzQxIiwiZWRpcGlkIjoiMTAx' \
+      'MzU5OTczMCJ9LCJhdHRyaWJ1dGVzIjp7InZhX2VhdXRoX3NlY2lkIjoiMDAwMDAyODEyMSJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhb' \
+      'iJdLCJ1c2VyVHlwZSI6Im9uLWJlaGFsZi1vZiIsImV4cCI6MTcxMDQyNTA5OSwiaWF0IjoxNzEwNDI0MTk5LCJqdGkiOiI3Y2UzNjBmZi1jNW' \
+      'E0LTQ0NmUtYmU0OC04NmZiMjc1OWMzNmQifQ.Kd_6NlaNnjtWk0RBgwDKTjbrLL0oo18DQ753-crp4LuDcWy_370s5PLQCjyo7EUwoGOieAsp' \
+      'SsYaPmZQ_bghzI1W1MXtUJWVOOTgJIAcESsfquXGj7-0QXxTT4rHSaL8oBRVt6UqfI9exEPmfjM58ibJY2ECVTUdaScJaT1BXShiwTDEqC5bn' \
+      'ApUvAMUzEHi8dx48EIMbqNLYgUZT3GCtMs0xIP9wGjt6JK0l-UDOn0aK3b-fJUF-ZcerYdY2opUJuu5oQrDaOocbRqrwBlCFqa1oUTCxLYLV6' \
+      '9cuaSOQfXqTIoWuvbj-7FSFhF1nc2lhgjOWckJ740vzINYZ_uQNA',
+      expiration: Time.zone.now + 15.minutes
+    }
+  end
+
   before do
     allow(VAOS::Configuration.instance).to receive(:rsa_key).and_return(rsa_key)
+    Rails.cache.clear
     time = Time.utc(2019, 10, 10, 18, 14, 56)
     Timecop.freeze(time)
   end
@@ -188,6 +215,44 @@ describe VAOS::UserService do
             .to raise_error(Common::Exceptions::BackendServiceException)
           expect(Rails.logger).to have_received(:error).with('VAOS session update failed', anything)
         end
+      end
+    end
+  end
+
+  context 'Feature toggle va_online_scheduling_sts_oauth_token enabled' do
+    before do
+      Flipper.enable(:va_online_scheduling_sts_oauth_token)
+    end
+
+    describe '#session' do
+      context 'when a successful request to the Mobile OAuth Secure Token Service is made' do
+        before do
+          allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token).and_return(expected_sts_token)
+        end
+
+        it 'returns the session token' do
+          expect(subject.session(user)).to eq(expected_sts_token[:access_token])
+        end
+
+        it 'saves the session token in the cache' do
+          subject.session(user)
+          token = Oj.load($redis.get("va-mobile-session:#{user.account_uuid}"))[:token]
+
+          expect(token).to eq(expected_sts_token[:access_token])
+        end
+      end
+    end
+
+    context 'when a request to the Mobile OAuth Secure Token Service fails' do
+      before do
+        allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token)
+            .and_raise(Common::Client::Errors::ClientError)
+      end
+
+      it 'raises a Common::Client::Errors::ClientError' do
+        expect { subject.session(user) }.to raise_error(
+          Common::Client::Errors::ClientError
+        )
       end
     end
   end
