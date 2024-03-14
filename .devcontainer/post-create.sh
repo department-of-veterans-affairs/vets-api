@@ -10,7 +10,7 @@ asdf global ruby $( cat .ruby-version )
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata
 
 sudo apt update
-sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-11-postgis-3
+sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
 
 gem install bundler
 NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
