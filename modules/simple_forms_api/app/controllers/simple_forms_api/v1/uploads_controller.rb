@@ -108,9 +108,7 @@ module SimpleFormsApi
         if IVC_FORM_NUMBER_MAP.value?(form_id)
           status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
-          status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
-
-          SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
+          status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata, form_id)
 
           Rails.logger.info(
             'Simple forms api - sent to benefits intake',
@@ -197,9 +195,10 @@ module SimpleFormsApi
         end
       end
 
-      def upload_pdf_to_benefits_intake(file_path, metadata)
+      def upload_pdf_to_benefits_intake(file_path, metadata, form_id)
         lighthouse_service = SimpleFormsApiSubmission::Service.new
         uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
+        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid_and_location[:uuid]) if form_id == 'vba_40_10007'
         form_submission = FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid_and_location[:uuid],
