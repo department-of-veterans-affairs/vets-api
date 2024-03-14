@@ -85,6 +85,7 @@ module Mobile
         end
 
         # rubocop:disable Metrics/MethodLength
+        # healthcare_service will eventually be removed/reverted once the FE is updated
         def build_appointment_model
           adapted_appointment = {
             id: appointment[:id],
@@ -95,7 +96,7 @@ module Mobile
             facility_id:,
             sta6aid: facility_id,
             healthcare_provider: appointment[:healthcare_provider],
-            healthcare_service: type_of_care(appointment[:service_type]), #this will eventually be removed once the FE is updated
+            healthcare_service: type_of_care(appointment[:service_type]),
             location:,
             physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
