@@ -37,8 +37,8 @@ module SimpleFormsApi
     end
 
     def track_user_identity(confirmation_number)
-      identity = form.data.dig('relationship_to_deceased_claimant', 'other_relationship_to_veteran') ||
-                 form.data.dig('relationship_to_deceased_claimant', 'relationship_to_veteran')
+      identity = data.dig('relationship_to_deceased_claimant', 'other_relationship_to_veteran') ||
+                 data.dig('relationship_to_deceased_claimant', 'relationship_to_veteran')
       StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('Simple forms api - 21P-0847 submission user identity', identity:, confirmation_number:)
     end
