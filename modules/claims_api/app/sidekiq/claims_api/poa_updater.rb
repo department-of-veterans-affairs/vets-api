@@ -15,15 +15,13 @@ module ClaimsApi
       file_number = service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
       poa_code = extract_poa_code(poa_form.form_data)
 
-      unless poa_code.nil?
-        response = service.vet_record.update_birls_record(
-          file_number:,
-          ssn:,
-          poa_code:
-        )
-      end
+      response = service.vet_record.update_birls_record(
+        file_number:,
+        ssn:,
+        poa_code:
+      )
 
-      if response && response[:return_code] == 'BMOD0001'
+      if response[:return_code] == 'BMOD0001'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
@@ -32,11 +30,9 @@ module ClaimsApi
 
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
       else
-        error_response = set_error_message(response, power_of_attorney_id)
-
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
-        poa_form.vbms_error_message = error_response
-        ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Failed', error: error_response)
+        poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
+        ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Failed', error: response[:return_code])
       end
 
       poa_form.save
