@@ -20,6 +20,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
     it 'returns a 200 success' do
       # valid icn retrieved from
       # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
+      # 001	Tamara	E	Ellis	F	6/19/67	796130115	1012667145V762142
       valid_user = FactoryBot.create(:user, :loa3, icn: '1012667145V762142')
       sign_in_as(valid_user)
 
@@ -29,6 +30,16 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       end
 
       expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)['data']['attributes']
+
+      # assertions that the data returned will not be empty strings
+      expect(response_body['first_name']).not_to be_empty
+      expect(response_body['last_name']).not_to be_empty
+      expect(response_body['date_of_birth']).not_to be_empty
+      expect(response_body['delimiting_date']).not_to be_empty
+      expect(response_body['eligibility_date']).not_to be_empty
+      expect(response_body['enrollments'][0]['begin_date']).not_to be_empty
+      expect(response_body['enrollments'][0]['end_date']).not_to be_empty
     end
 
     it 'returns a 404 when vet isn\'t found' do
@@ -43,8 +54,9 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
       expect(response).to have_http_status(:not_found)
       json_response = JSON.parse(response.body)
-      expect(json_response['error']['title']).to eq('Not Found')
-      expect(json_response['error']['detail']).to eq('Icn not found.')
+      error = json_response['errors'][0]
+      expect(error['title']).to eq('Not Found')
+      expect(error['detail']).to eq('Icn not found.')
     end
   end
 

@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'lighthouse/benefits_education/configuration'
 require 'lighthouse/service_exception'
+require 'lighthouse/benefits_education/response'
 
 module BenefitsEducation
   class Service < Common::Client::Base
@@ -44,12 +45,14 @@ module BenefitsEducation
 
     ##
     # Retrieve a veteran's Post-9/11 GI Bill Status
-    # @return [Faraday::Response] response from a GET request to Lighthouse API:
-    #   A veteran's GI Bill status
+    # @return [String] A JSON string representing the veteran's GI Bill status.
     def get_gi_bill_status
-      config.get(@icn)
-    rescue => e
-      handle_error(e, config.service_name, config.base_api_path)
+      raw_response = begin
+        config.get(@icn)
+      rescue => e
+        handle_error(e, config.service_name, config.base_api_path)
+      end
+      BenefitsEducation::Response.new(raw_response.status, raw_response)
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'formatters/date_formatter'
+require 'lighthouse/benefits_education/outside_working_hours'
+require 'lighthouse/benefits_education/service'
 
 module V1
   class Post911GIBillStatusesController < ApplicationController
@@ -15,17 +17,22 @@ module V1
 
     def show
       response = service.get_gi_bill_status
-      render json: response.body['chapter33EducationInfo']
+      render json: response,
+             serializer: Post911GIBillStatusSerializer
     rescue => e
-      status = e.errors.first[:status].to_i if e.errors&.first&.key?(:status)
-      log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
-      StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
-      render json: { error: e.errors.first }, status: status || :internal_server_error
+      handle_error(e)
     ensure
       StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
     end
 
     private
+
+    def handle_error(e)
+      status = e.errors.first[:status].to_i
+      log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
+      StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
+      render json: { errors: e.errors }, status: status || :internal_server_error
+    end
 
     def service_available?
       unless BenefitsEducation::Service.within_scheduled_uptime?

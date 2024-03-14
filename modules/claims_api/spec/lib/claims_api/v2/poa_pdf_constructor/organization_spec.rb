@@ -6,17 +6,18 @@ require_relative '../../../../support/pdf_matcher'
 
 describe ClaimsApi::V2::PoaPdfConstructor::Organization do
   let(:temp) { create(:power_of_attorney, :with_full_headers) }
+  let(:invalid_temp) { create(:power_of_attorney, :with_full_headers) }
 
   before do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     temp.form_data = {
       veteran: {
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
+          addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         phone: {
           areaCode: '555',
@@ -31,11 +32,11 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
         email: 'lillian@disney.com',
         relationship: 'Spouse',
         address: {
-          numberAndStreet: '2688 S Camino Real',
+          addressLine1: '2688 S Camino Real',
           city: 'Palm Springs',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         phone: {
           areaCode: '555',
@@ -48,18 +49,18 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
         lastName: 'Representative',
         organizationName: 'I Help Vets LLC',
         address: {
-          numberAndStreet: '2719 Hyperion Ave',
+          addressLine1: '2719 Hyperion Ave',
           city: 'Los Angeles',
-          state: 'CA',
+          stateCode: 'CA',
           country: 'US',
-          zipFirstFive: '92264'
+          zipCode: '92264'
         },
         jobTitle: 'Veteran Service Officer',
         email: 'example@test.com'
       },
       recordConsent: true,
       consentAddressChange: true,
-      consentLimits: ['DRUG ABUSE', 'SICKLE CELL']
+      consentLimits: %w[DRUG_ABUSE SICKLE_CELL]
     }
     temp.save
   end
