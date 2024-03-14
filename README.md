@@ -57,6 +57,7 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
    - [Native setup](docs/setup/native.md) (OSX/Ubuntu)
    - [Docker setup](docs/setup/docker.md)
    - [Hybrid setup](docs/setup/hybrid.md)
+   - [Codespaces setup](docs/setup/codespaces.md)
 
 ## Running the app
 
