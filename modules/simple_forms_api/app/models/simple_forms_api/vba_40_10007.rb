@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'json'
 
 module SimpleFormsApi
   class VBA4010007
@@ -46,6 +47,22 @@ module SimpleFormsApi
               end
 
       value.to_s # Convert nil to an empty string
+    end
+
+    def find_cemetery_by_id(cemetery_id)
+      file_path = 'modules/simple_forms_api/app/json/cemeteries.json'
+      file_content = File.read(file_path)
+      cemeteries = JSON.parse(file_content)
+
+      cemetery = cemeteries['data']&.find do |entry|
+        entry['attributes']&.dig('cemetery_id') == cemetery_id
+      end
+
+      if cemetery
+        cemetery['attributes']['name']
+      else
+        'Cemetery not found.'
+      end
     end
 
     def track_user_identity(confirmation_number); end
