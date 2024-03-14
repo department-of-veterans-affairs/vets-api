@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'debts_api/v0/fsr_form_transform/expense_calculator'
 
-RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenceCalculator, type: :service do
+RSpec.describe DebtsApi::V0::FsrFormTransform::ExpenseCalculator, type: :service do
   describe '#get_monthly_expenses' do
     let(:enhanced_expenses) do
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/enhanced_fsr_expenses')

@@ -16,6 +16,9 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
   let(:enhanced_expenses) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/enhanced_fsr_expenses')
   end
+  let(:andrew_expenses) do
+    get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/andrew_fsr_expenses')
+  end
   let(:old_expenses) do
     get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/non_enhanced_fsr_expenses')
   end
@@ -46,6 +49,11 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
     context 'with enhanced form params' do
       it 'returns all expenses' do
         post('/debts_api/v0/calculate_all_expenses', params: enhanced_expenses.to_h, as: :json)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'takes andrews params' do
+        post('/debts_api/v0/calculate_all_expenses', params: andrew_expenses.to_h, as: :json)
         expect(response).to have_http_status(:ok)
       end
     end

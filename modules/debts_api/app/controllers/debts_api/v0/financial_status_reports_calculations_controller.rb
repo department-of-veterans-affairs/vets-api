@@ -155,41 +155,41 @@ module DebtsApi
 
       def expense_form
         params.permit(
-          :'view:enhancedFinancialStatusReport',
+          :'view:enhanced_financial_status_report',
           expenses: [
             :food,
-            :rentOrMortgage,
-            { expenseRecords: %i[
+            :rent_or_mortgage,
+            { expense_records: %i[
                 name
                 amount
               ],
-              creditCardBills: %i[
+              credit_card_bills: %i[
                 purpose
-                creditorName
-                originalAmount
-                unpaidBalance
-                amountDueMonthly
-                dateStarted
-                amountPastDue
+                creditor_name
+                original_amount
+                unpaid_balance
+                amount_due_monthly
+                date_started
+                amount_past_due
               ] }
           ],
-          otherExpenses: %i[
+          other_expenses: %i[
             name
             amount
           ],
-          installmentContracts: %i[
-            creditorName
-            dateStarted
+          installment_contracts: %i[
+            creditor_name
+            date_started
             purpose
-            originalAmount
+            original_amount
             unpaid_balance
-            amountDueMonthly
-            amountPastDue
+            amount_due_monthly
+            amount_past_due
           ],
-          utilityRecords: %i[
-            utilityType
+          utility_records: %i[
+            utility_type
             amount
-            monthlyUtilityAmount
+            monthly_utility_amount
           ]
         ).to_hash
       end
@@ -204,7 +204,7 @@ module DebtsApi
       end
 
       def expense_calculator
-        DebtsApi::V0::FsrFormTransform::ExpenceCalculator.build(expense_form)
+        DebtsApi::V0::FsrFormTransform::ExpenseCalculator.build(expense_form)
       end
     end
   end

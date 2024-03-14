@@ -5,7 +5,7 @@ require 'debts_api/v0/fsr_form_transform/expense_calculator'
 module DebtsApi
   module V0
     module FsrFormTransform
-      class OldExpenceCalculator
+      class OldExpenseCalculator
         RENT = 'Rent'
         MORTGAGE_PAYMENT = 'Mortgage payment'
         FOOD = 'Food'
