@@ -224,7 +224,7 @@ module PdfFill
         expand_incidents(@form_data['incidents'])
         expand_other_information
 
-        expand_signature(@form_data['veteranFullName'])
+        expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data

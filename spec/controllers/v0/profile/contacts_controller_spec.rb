@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::Profile::ContactsController, type: :controller do
   include SchemaMatchers
 
-  let(:idme_uuid) { 'e444837a-e88b-4f59-87da-10d3c74c787b' }
+  let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
   let(:user) { build(:user, :loa3, idme_uuid:) }
   let(:loa1_user) { build(:user, :loa1) }
 

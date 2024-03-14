@@ -155,6 +155,9 @@ Rails.application.routes.draw do
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
+    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
+    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
+
     resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
@@ -286,23 +289,14 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
-    resource :address, only: %i[show update] do
-      collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-      end
-    end
-
     namespace :profile do
-      resource :alternate_phone, only: %i[show create]
-      resource :email, only: %i[show create]
       resource :full_name, only: :show
       resource :personal_information, only: :show
-      resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
+      resource :military_occupations, only: :show
 
       # Lighthouse
       namespace :direct_deposits do
@@ -434,10 +428,16 @@ Rails.application.routes.draw do
     end
     resources :notice_of_disagreements, only: %i[create show]
 
+    resource :post911_gi_bill_status, only: [:show]
+
     namespace :supplemental_claims do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+
+    scope format: false do
+      resources :nod_callbacks, only: [:create]
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -453,6 +453,7 @@ Rails.application.routes.draw do
   end
 
   # Modules
+  mount AccreditedRepresentatives::Engine, at: '/accredited_representatives'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
@@ -461,6 +462,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'

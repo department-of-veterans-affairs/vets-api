@@ -31,14 +31,17 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'Incorrect content-type for document part')
       end
-      regex = /^#{META_PART_NAME}|#{DOC_PART_NAME}|attachment\d+$/
+      regex = /\A#{META_PART_NAME}|#{DOC_PART_NAME}|attachment\d+\z/
       invalid_parts = parts.keys.reject { |key| regex.match?(key) }
       log_invalid_parts(model, invalid_parts) if invalid_parts.any?
     end
 
-    def validate_metadata(metadata_input, submission_version:)
+    def validate_metadata(metadata_input, consumer_id, upload_guid, submission_version:)
       metadata = JSON.parse(metadata_input)
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
+
+      # check for extra metadata accounting for consumer specific permitted keys
+      validate_consumer_extra_metadata(metadata, consumer_id, upload_guid)
 
       missing_keys = REQUIRED_KEYS - metadata.keys
       if missing_keys.present?
@@ -90,6 +93,25 @@ module VBADocuments
     end
 
     private
+
+    def validate_consumer_extra_metadata(metadata, consumer_id, upload_guid)
+      # check for extra keys accounting for consumer specific permitted keys,
+      # at this point, we are only logging extra keys found
+      extra_keys = metadata.keys - REQUIRED_KEYS - OPTIONAL_KEYS
+      unless extra_keys.empty?
+        begin
+          cma = JSON.parse(Settings.vba_documents.custom_metadata_allow_list)
+          unpermitted_keys = extra_keys - cma.fetch(consumer_id, [])
+          unless unpermitted_keys.empty?
+            Rails.logger.warn(
+              "VBADocuments unpermitted metadata supplied. Guid: #{upload_guid} Keys: #{unpermitted_keys.join(',')}"
+            )
+          end
+        rescue
+          Rails.logger.warn('VBADocuments missing or malformed Setting: custom_metadata_allow_list')
+        end
+      end
+    end
 
     def validate_veteran_name(first, last)
       [first, last].each do |name|

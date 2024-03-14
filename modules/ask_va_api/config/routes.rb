@@ -8,10 +8,12 @@ AskVAApi::Engine.routes.draw do
     # inquiries
     get '/inquiries', to: 'inquiries#index'
     get '/inquiries/:id', to: 'inquiries#show'
+    get '/inquiries/:id/status', to: 'inquiries#status'
     get '/download_attachment', to: 'inquiries#download_attachment'
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
     post '/upload_attachment', to: 'inquiries#upload_attachment'
+    get '/profile', to: 'inquiries#profile'
 
     # static_data
     get '/categories', to: 'static_data#categories'
@@ -20,8 +22,13 @@ AskVAApi::Engine.routes.draw do
     get '/zipcodes', to: 'static_data#zipcodes'
     get '/states', to: 'static_data#states'
     get '/optionset', to: 'static_data#optionset'
+    get '/announcements', to: 'static_data#announcements'
 
     # address_validation
     post '/address_validation', to: 'address_validation#create'
+
+    # health_facilities
+    get '/health_facilities', to: 'health_facilities#index'
+    get '/health_facilities/:id', to: 'health_facilities#show'
   end
 end

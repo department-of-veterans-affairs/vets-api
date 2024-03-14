@@ -7,9 +7,19 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[index]
 
       def index
-        service = Crm::Service.new(icn: 'a')
-        data = service.call(endpoint: 'optionset', payload: { name: params[:name] })
+        icn = YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['crm_test_user_icn']
+        service = Crm::Service.new(icn:)
+        options = if params[:key]
+                    key = params[:key].to_sym
+                    { key => params[:value] }
+                  end
+        data = service.call(endpoint: params[:endpoint], payload: options)
         render json: data.to_json, status: :ok
+      end
+
+      def announcements
+        get_resource('announcements', user_mock_data: params[:user_mock_data])
+        render_result(@announcements)
       end
 
       def categories

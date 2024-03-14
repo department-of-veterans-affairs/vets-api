@@ -22,6 +22,15 @@ module SimpleFormsApi
       }
     end
 
-    def track_user_identity; end
+    def submission_date_config
+      {
+        should_stamp_date?: true,
+        page_number: 1,
+        title_coords: [440, 690],
+        text_coords: [440, 670]
+      }
+    end
+
+    def track_user_identity(confirmation_number); end
   end
 end

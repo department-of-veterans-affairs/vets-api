@@ -1,35 +1,35 @@
 {
-  "data": [
+  "Data": [
       {
-          "id": 722310000,
-          "name": "Jr"
+          "Id": 722310000,
+          "Name": "Jr"
       },
       {
-          "id": 722310001,
-          "name": "Sr"
+          "Id": 722310001,
+          "Name": "Sr"
       },
       {
-          "id": 722310003,
-          "name": "II"
+          "Id": 722310003,
+          "Name": "II"
       },
       {
-          "id": 722310004,
-          "name": "III"
+          "Id": 722310004,
+          "Name": "III"
       },
       {
-          "id": 722310006,
-          "name": "IV"
+          "Id": 722310006,
+          "Name": "IV"
       },
       {
-          "id": 722310002,
-          "name": "V"
+          "Id": 722310002,
+          "Name": "V"
       },
       {
-          "id": 722310005,
-          "name": "VI"
+          "Id": 722310005,
+          "Name": "VI"
       }
   ],
-  "message": "",
+  "Message": "",
   "ExceptionOccurred": false,
   "ExceptionMessage": "",
   "MessageId": "8b7f3990-2b8a-430d-a799-d602b9efb10c"
