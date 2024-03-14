@@ -95,7 +95,7 @@ module Mobile
             facility_id:,
             sta6aid: facility_id,
             healthcare_provider: appointment[:healthcare_provider],
-            healthcare_service:,
+            healthcare_service: type_of_care(appointment[:service_type]), #this will eventually be removed once the FE is updated
             location:,
             physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
