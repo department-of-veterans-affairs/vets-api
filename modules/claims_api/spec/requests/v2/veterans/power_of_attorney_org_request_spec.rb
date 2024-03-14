@@ -29,7 +29,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
           data: {
             attributes: {
               serviceOrganization: {
-                poaCode: organization_poa_code.to_s
+                poaCode: organization_poa_code.to_s,
+                registrationNumber: '67890'
               }
             }
           }

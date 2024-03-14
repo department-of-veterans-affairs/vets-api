@@ -9835,7 +9835,8 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode"
+                              "poaCode",
+                              "registrationNumber"
                             ],
                             "properties": {
                               "poaCode": {
@@ -9847,6 +9848,11 @@
                                 "description": "Name of the service organization.",
                                 "type": "string",
                                 "example": "I help vets LLC."
+                              },
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
+                                "type": "string",
+                                "example": "12345"
                               },
                               "firstName": {
                                 "description": "First Name of the representative.",
@@ -9962,7 +9968,8 @@
                   "data": {
                     "attributes": {
                       "serviceOrganization": {
-                        "poaCode": "083"
+                        "poaCode": "083",
+                        "registrationNumber": "67890"
                       }
                     }
                   }
@@ -11214,7 +11221,8 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode"
+                              "poaCode",
+                              "registrationNumber"
                             ],
                             "properties": {
                               "poaCode": {
@@ -11226,6 +11234,11 @@
                                 "description": "Name of the service organization.",
                                 "type": "string",
                                 "example": "I help vets LLC."
+                              },
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
+                                "type": "string",
+                                "example": "12345"
                               },
                               "firstName": {
                                 "description": "First Name of the representative.",
@@ -11341,7 +11354,8 @@
                   "data": {
                     "attributes": {
                       "serviceOrganization": {
-                        "poaCode": "083"
+                        "poaCode": "083",
+                        "registrationNumber": "67890"
                       }
                     }
                   }

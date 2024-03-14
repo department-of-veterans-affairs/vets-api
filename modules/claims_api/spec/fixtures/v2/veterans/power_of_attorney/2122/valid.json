@@ -2,7 +2,8 @@
   "data": {
     "attributes": {
       "serviceOrganization": {
-        "poaCode": "083"
+        "poaCode": "083",
+        "registrationNumber": "67890"
       }
     }
   }
