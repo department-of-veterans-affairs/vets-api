@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_06_150112) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -825,6 +825,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_06_150112) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "pension_ipf_notifications", force: :cascade do |t|
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -1112,6 +1119,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_06_150112) do
     t.integer "row_id"
     t.float "ranking"
     t.string "tags"
+    t.date "last_sha256_change"
+    t.jsonb "change_history"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 

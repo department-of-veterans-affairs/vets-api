@@ -149,7 +149,8 @@ module SimpleFormsApi
                        elsif form.data['third_party_type'] == 'power-of-attorney'
                          [[50, 445]]
                        elsif form.data['preparer_type'] == 'third-party-veteran' ||
-                             form.data['preparer_type'] == 'third-party-non-veteran'
+                             form.data['preparer_type'] == 'third-party-non-veteran' ||
+                             form.data['preparer_type'] == 'non-veteran'
                          [[50, 570]]
                        end
       signature_text = form.data['statement_of_truth_signature']
@@ -162,6 +163,17 @@ module SimpleFormsApi
       ]
 
       multistamp(stamped_template_path, signature_text, page_configuration)
+    end
+
+    def self.stamp4010007_uuid(uuid)
+      uuid = "UUID: #{uuid}"
+      stamped_template_path = 'tmp/vba_40_10007-tmp.pdf'
+      desired_stamps = [[410, 20]]
+      page_configuration = [
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      multistamp(stamped_template_path, uuid, page_configuration, 7)
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
