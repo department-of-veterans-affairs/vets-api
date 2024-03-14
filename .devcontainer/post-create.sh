@@ -17,15 +17,14 @@ gem install bundler
 NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
 bundle config --global jobs `expr $NUM_CORES - 1`
 
-# Update default test DB config (because this config overrides the local settings when running tests)
-sed -i 's|^test_database_url: .*$|test_database_url: postgis://postgres:password@localhost:5432/vets_api_test?pool=4|' config/settings.yml
+# Update test DB config
+echo 'test_database_url: postgis://postgres:password@localhost:5432/vets_api_test?pool=4' > config/settings/test.local.yml
 
 # Add service config
 if [ ! -f config/settings.local.yml ]; then
   cp config/settings.local.yml.example config/settings.local.yml
   cat <<EOT >> config/settings.local.yml
 database_url: postgis://postgres:password@localhost:5432/vets_api_development?pool=4
-test_database_url: postgis://postgres:password@localhost:5432/vets_api_test?pool=4
 
 redis:
   host: localhost
