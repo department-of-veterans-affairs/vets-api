@@ -30,7 +30,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       end
 
       expect(response).to have_http_status(:ok)
-      response_body = JSON.parse(response.body)
+      response_body = JSON.parse(response.body)['data']['attributes']
 
       # assertions that the data returned will not be empty strings
       expect(response_body['first_name']).not_to be_empty
@@ -54,8 +54,9 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
       expect(response).to have_http_status(:not_found)
       json_response = JSON.parse(response.body)
-      expect(json_response['error']['title']).to eq('Not Found')
-      expect(json_response['error']['detail']).to eq('Icn not found.')
+      error = json_response['errors'][0]
+      expect(error['title']).to eq('Not Found')
+      expect(error['detail']).to eq('Icn not found.')
     end
   end
 
