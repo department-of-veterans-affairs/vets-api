@@ -96,21 +96,15 @@ module BenefitsDocuments
     end
 
     def get_documents_status(lighthouse_document_request_ids)
-      headers = { 'Authorization' => "Bearer #{
-        access_token(
-          lighthouse_client_id,
-          lighthouse_rsa_key_path,
-          options
-        )
-      }",
+      headers = { 'Authorization' => "Bearer #{access_token}",
       'Content-Type' => 'Content-Type: application/json' }
-
 
       body = {
         data: {
           requestIds: lighthouse_document_request_ids
         }
-      }
+      }.to_json
+
 
       connection.post(DOCUMENTS_STATUS_PATH, body, headers)
     end
@@ -162,9 +156,11 @@ module BenefitsDocuments
     # @return [BenefitsClaims::AccessToken::Service] Service used to generate access tokens.
     #
     def token_service(lighthouse_client_id, lighthouse_rsa_key_path, aud_claim_url = nil, host = nil)
+
       lighthouse_client_id = global_settings.ccg.client_id if lighthouse_client_id.nil?
       lighthouse_rsa_key_path = global_settings.ccg.rsa_key if lighthouse_rsa_key_path.nil?
       host ||= base_path(host)
+
       url = "#{host}/#{TOKEN_PATH}"
       aud_claim_url ||= documents_settings.access_token.aud_claim_url
 

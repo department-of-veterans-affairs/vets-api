@@ -2,8 +2,6 @@
 
 require 'common/client/base'
 require 'lighthouse/benefits_documents/configuration'
-# Do we need this?
-# require 'lighthouse/service_exception'
 
 module BenefitsDocuments
   module Form526
@@ -15,15 +13,15 @@ module BenefitsDocuments
       end
 
       def initialize(lighthouse_document_request_ids)
-        super
         @lighthouse_document_request_ids = lighthouse_document_request_ids
+        super()
+      end
+
+      def call
+        check_documents_status
       end
 
       private
-
-      def call
-        get_document_status
-      end
 
       def check_documents_status
         config.get_documents_status(@lighthouse_document_request_ids)

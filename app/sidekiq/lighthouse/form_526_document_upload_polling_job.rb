@@ -6,7 +6,6 @@ require 'lighthouse/benefits_documents/form526/update_documents_status_service'
 module Lighthouse
   class Form526DocumentUploadPollingJob
     include Sidekiq::Job
-
     # This job runs every 24 hours
     # Only retry within that window to avoid polling the same documents twice
     # 13 retries = retry for ~17 hours
@@ -37,7 +36,11 @@ module Lighthouse
       ) do |document_batch|
         lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
         response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
+        # TODO: CATCH POLLING SERVICE TIMEOUT AND FAILURE RESPONSES
 
+        # TODO: RESOLVING ISSUES WITH QA ENDPOINT WITH LIGHTHOUSE,
+        # NEED TO ADDRESS BEFORE WE CAN RECORD VCR CASSETES FOR THESE TESTS,
+        # CALLER MAY BE DIFFERENT HERE
         BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response)
 
         document_batch.update_all(

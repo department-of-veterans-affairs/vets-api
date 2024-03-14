@@ -1,0 +1,97 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-api.va.gov/oauth2/benefits-documents/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInN1YiI6IjBvYXAxOHFvZnVjY2FXUVVSMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzaTN1aTgzZkxhNjhJSnYycDcvdjEvdG9rZW4iLCJpYXQiOjE3MTAzNjcyNDQsImV4cCI6MTcxMDM2NzU0NH0.dOrrAwaW-mWzKKbPVX6ozsq-GUu7Hyaz0Z_j_dc3JLeXIQuhx4DizcXFQicAsf4mJgHJSvqWZLzZUBG52zzT23zrOukkXkRMb945TJ9RIi0rMj7WU1hQ_P_XZcEM5CZtelUcsy8hmsFJb0mxL1Ws79mQW_o1vWcTUq5O4q9_9jA1pvUbXnMBJ2YrQCg_il40BH8JbXmHcdzMM86V3s4xruzdZKF62fzeOSrrlhnj9s-unJZbx-z-Am_1bVhefkYD9uVOQlZqX3oIRluGnbIJOe9Th7QIwbzifZctel-9I8K_-L5tR5ocbdJjrLevweKIfaM8-OLi1-zIFuJGcJNFAg&scope=documents.read+documents.write
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 13 Mar 2024 22:00:45 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '15'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"406-TaVOZgzhseoAzVjyHLv87i6nJaM"
+      Access-Control-Allow-Origin:
+      - "*"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJ5c3RTeC0xTmFRRTY2em5hNGNHb1ptQTVWV3R2TzdkQS11U3ZQV3QzaXFvIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlkxZ2d3cmgxU1VpUWhhdmZ6MkNJdU5OUGdZQXNMcS1EdmFiYXQySlFHWnMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpM3VpODNmTGE2OElKdjJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2JlbmVmaXRzLWRvY3VtZW50cyIsImlhdCI6MTcxMDM2NzI0NSwiZXhwIjoxNzEwMzY3ODQ1LCJjaWQiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInNjcCI6WyJkb2N1bWVudHMud3JpdGUiLCJkb2N1bWVudHMucmVhZCJdLCJzdWIiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsImxhYmVsIjoiQ29mb3JtYUJ1cmdlc3MtMTY5NTgzMjQ0NyJ9.I6aFHY8Ma6JKaz2cHwFCLVlBxDQnbKIxxyblzY5NY1mhLJ1bduffM02eCjtuxVNt1a_jpxGaR2zPP3-48rQ0jb3gNPgintzOp1LYqoGChGHVhSd_T6cErbHVU6ad-A1TKHb9fD2_3V2SXLadPMdaERCawjFwcPRlHrP3eL2GmeDIMMn5DErJvFFX_HHHre52CipwD-nizXDx5rI105jr0HVyg2pZ1RDz_RnfjZfuVp3fnFHEWNILhFJPlih-WwenjlIFX0GFBkjnmMdi96X7bHTyhUUglYpoEauOxjbJ0Kf7qXk-My1-2l_A_cguRERz7vVpVt92nzPBnM5laWSJTg","token_type":"Bearer","scope":"documents.write
+        documents.read","expires_in":600,"state":null}'
+  recorded_at: Wed, 13 Mar 2024 22:00:45 GMT
+- request:
+    method: post
+    uri: https://dev-api.va.gov/services/benefits-documents/uploads/status
+    body:
+      encoding: UTF-8
+      string: '{"data":{"requestIds":["16819"]}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - 'Content-Type: application/json'
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Wed, 13 Mar 2024 22:00:46 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"message":"no Route matched with those values"}'
+  recorded_at: Wed, 13 Mar 2024 22:00:46 GMT
+recorded_with: VCR 6.2.0

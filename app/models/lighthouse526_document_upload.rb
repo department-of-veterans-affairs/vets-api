@@ -26,7 +26,7 @@ class Lighthouse526DocumentUpload < ApplicationRecord
   validates :form_attachment, presence: true, if: :veteran_upload?
 
   # Window for polling Lighthouse for the status of an upload
-  scope :status_update_required, -> { where('status_last_polled_at < ?', 1.day.ago.utc) }
+  scope :status_update_required, -> { where('status_last_polled_at < ?', 1.day.ago.utc).or(where(status_last_polled_at: nil)) }
 
   aasm do
     state :pending, initial: true
