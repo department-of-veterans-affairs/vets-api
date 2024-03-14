@@ -121,7 +121,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    2. Alternatively Postgresql 15 & PostGIS 3 can be installed with homebrew
       - `brew install postgresql@15`
       - `brew services start postgresql@15`
-      - Install the `pex` manager to add your Postgresql 11 extensions from [here](https://github.com/petere/pex#installation)
+      - Install the `pex` manager to add your Postgresql 15 extensions from [here](https://github.com/petere/pex#installation)
       - Install the `postgis` extension along with a number of patches using the instructions summarized [here](https://gist.github.com/skissane/0487c097872a7f6d0dcc9bcd120c2ccd):
       - ```bash
          PG_CPPFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' CFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' pex install postgis
