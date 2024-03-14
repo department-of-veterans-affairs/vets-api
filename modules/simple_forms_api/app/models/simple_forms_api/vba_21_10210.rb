@@ -38,10 +38,10 @@ module SimpleFormsApi
       }
     end
 
-    def track_user_identity
+    def track_user_identity(confirmation_number)
       identity = "#{data['claimant_type']} #{data['claim_ownership']}"
       StatsD.increment("#{STATS_KEY}.#{identity}")
-      Rails.logger.info('Simple forms api - 21-10210 submission user identity', identity:)
+      Rails.logger.info('Simple forms api - 21-10210 submission user identity', identity:, confirmation_number:)
     end
 
     private
