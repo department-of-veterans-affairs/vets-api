@@ -24,7 +24,6 @@ module Mobile
         %i[lighthouse disability_rating],
         %i[lighthouse letters_and_documents],
         %i[lighthouse immunizations],
-        %i[mhv mhv_platform],
         %i[mhv_platform mhv_sm],
         %i[mhv_platform mhv_meds],
         %i[mhv_sm secure_messaging],
