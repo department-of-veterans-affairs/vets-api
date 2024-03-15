@@ -32,7 +32,7 @@ RSpec.describe CentralMail::SubmitBenefitsIntakeClaim, uploader_helpers: true do
 
     it 'submits and gets a response error' do
       allow(response).to receive(:success?).and_return(false)
-      allow(response).to receive(:body).and_return("There was an error submitting the claim")
+      allow(response).to receive(:body).and_return('There was an error submitting the claim')
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)

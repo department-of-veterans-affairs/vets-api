@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'central_mail/service'
 require 'central_mail/datestamp_pdf'
 require 'pension_burial/tag_sentry'
@@ -30,8 +32,11 @@ module CentralMail
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
+
+    # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
+      create_form_submission_attempt(@lighthouse_service.uuid)
       @pdf_path = process_record(@claim)
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
@@ -48,43 +53,19 @@ module CentralMail
 
       response = @lighthouse_service.upload_doc(**payload)
 
-      create_form_submission_attempt(@lighthouse_service.uuid)
       if response.success?
         log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
-
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
-      log_message_to_sentry(
-        'CentralMail::SubmitBenefitsIntakeClaim failed, retrying...', :warn, generate_sentry_details(e)
-      )
+      log_message_to_sentry('CentralMail::SubmitBenefitsIntakeClaim failed, retrying...', :warn,
+                            generate_sentry_details(e))
       raise
     end
 
-    def send_claim_to_benefits_intake(saved_claim_id)
-      @claim =    SavedClaim.find(saved_claim_id)
-      @pdf_path = process_record(@claim)
-      @attachment_paths = @claim.persistent_attachments.map do |record|
-        process_record(record)
-      end
-
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-
-      payload = {
-        upload_url: @lighthouse_service.location,
-        file: split_file_and_path(@pdf_path),
-        metadata: generate_metadata.to_json,
-        attachments: @attachment_paths.map(&method(:split_file_and_path))
-      }
-
-      response = @lighthouse_service.upload_doc(**payload)
-
-      create_form_submission_attempt(@lighthouse_service.uuid)
-      response
-    end
-
+    # rubocop:enable Metrics/MethodLength
     def generate_metadata
       form = @claim.parsed_form
       veteran_full_name = form['veteranFullName']
