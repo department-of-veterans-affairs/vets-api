@@ -78,9 +78,7 @@ module Users
       }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
-      {
-        preferred_name: nil
-      }
+      nil
     end
 
     def profile
