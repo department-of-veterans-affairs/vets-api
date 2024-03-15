@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module AccreditedRepresentatives
+module AccreditedRepresentativePortal
   class Engine < ::Rails::Engine
-    isolate_namespace AccreditedRepresentatives
+    isolate_namespace AccreditedRepresentativePortal
     config.generators.api_only = true
 
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
