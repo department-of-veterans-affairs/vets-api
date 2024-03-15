@@ -17,6 +17,8 @@ module Vye
 
     validates(*REQUIRED_ATTRIBUTES, presence: true)
 
+    enum origin: { frontend: 'f', backend: 'b' }
+
     scope :created_today, lambda {
       includes(user_info: :user_profile)
         .where('created_at >= ?', Time.zone.now.beginning_of_day)
@@ -29,7 +31,7 @@ module Vye
           benefit_type: record.user_info.indicator,
           ssn: record.user_info.ssn,
           file_number: record.user_info.file_number,
-          veteran_name: record.user_info.full_name,
+          veteran_name: record.veteran_name,
           address1: record.address1,
           address2: record.address2,
           address3: record.address3,
