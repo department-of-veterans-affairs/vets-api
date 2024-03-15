@@ -109,6 +109,8 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567890' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         service = BGS::DependentService.new(user)
+        expect(service).not_to receive(:log_exception_to_sentry)
+
 
         expect(BGS::SubmitForm686cJob).not_to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
@@ -126,6 +128,7 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567'
         service = BGS::DependentService.new(user)
+        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
@@ -143,6 +146,7 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '123456789'
         service = BGS::DependentService.new(user)
+        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
@@ -252,6 +256,7 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567890' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567890'
         service = BGS::DependentService.new(user)
+        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
@@ -269,6 +274,7 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567'
         service = BGS::DependentService.new(user)
+        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
@@ -286,6 +292,7 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '123456789'
         service = BGS::DependentService.new(user)
+        expect(service).not_to receive(:log_exception_to_sentry)
 
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
