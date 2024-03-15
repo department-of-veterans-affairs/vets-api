@@ -176,8 +176,12 @@ module SimpleFormsApi
         [file_path, maybe_add_file_paths, metadata, form]
       end
 
-      def get_upload_location_and_uuid(lighthouse_service)
+      def get_upload_location_and_uuid(lighthouse_service, form_id)
         upload_location = lighthouse_service.get_upload_location.body
+        if form_id == 'vba_40_10007'
+          uuid = upload_location.dig('data', 'id')
+          SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid)
+        end
         {
           uuid: upload_location.dig('data', 'id'),
           location: upload_location.dig('data', 'attributes', 'location')
@@ -197,8 +201,7 @@ module SimpleFormsApi
 
       def upload_pdf_to_benefits_intake(file_path, metadata, form_id)
         lighthouse_service = SimpleFormsApiSubmission::Service.new
-        uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
-        SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid_and_location[:uuid]) if form_id == 'vba_40_10007'
+        uuid_and_location = get_upload_location_and_uuid(lighthouse_service, form_id)
         form_submission = FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid_and_location[:uuid],
