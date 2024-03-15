@@ -16,7 +16,7 @@ module BenefitsDocuments
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
     DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
-    DOCUMENTS_STATUS_PATH = 'services/benefits-documents/uploads/status'
+    DOCUMENTS_STATUS_PATH = 'services/benefits-documents/v1/uploads/status'
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
 
     ##
@@ -105,7 +105,6 @@ module BenefitsDocuments
         }
       }.to_json
 
-
       connection.post(DOCUMENTS_STATUS_PATH, body, headers)
     end
 
@@ -156,7 +155,6 @@ module BenefitsDocuments
     # @return [BenefitsClaims::AccessToken::Service] Service used to generate access tokens.
     #
     def token_service(lighthouse_client_id, lighthouse_rsa_key_path, aud_claim_url = nil, host = nil)
-
       lighthouse_client_id = global_settings.ccg.client_id if lighthouse_client_id.nil?
       lighthouse_rsa_key_path = global_settings.ccg.rsa_key if lighthouse_rsa_key_path.nil?
       host ||= base_path(host)
