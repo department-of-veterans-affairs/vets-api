@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_13_235317) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -376,18 +376,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
-  end
-
-  create_table "credential_adoption_email_records", force: :cascade do |t|
-    t.string "icn", null: false
-    t.string "email_address", null: false
-    t.string "email_template_id", null: false
-    t.datetime "email_triggered_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
-    t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
-    t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
