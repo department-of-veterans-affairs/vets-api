@@ -111,7 +111,6 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         expect(service).not_to receive(:log_exception_to_sentry)
 
-
         expect(BGS::SubmitForm686cJob).not_to receive(:perform_async).with(
           user.uuid, user.icn, claim.id,
           encrypted_vet_info
