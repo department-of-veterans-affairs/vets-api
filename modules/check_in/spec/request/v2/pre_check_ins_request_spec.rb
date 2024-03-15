@@ -157,6 +157,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
         {
           'id' => id,
           'payload' => {
+            'address' => nil,
             'demographics' => demographics,
             'appointments' => [appointment1],
             'patientDemographicsStatus' => patient_demographic_status,

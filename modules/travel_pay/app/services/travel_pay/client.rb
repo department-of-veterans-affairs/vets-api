@@ -11,8 +11,8 @@ module TravelPay
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
 
-      connection(server_url: auth_url).post("/#{tenant_id}/oauth2/token") do |req|
-        req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+      connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
+        req.headers[:content_type] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form(veis_params)
       end
     end
@@ -26,7 +26,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      connection(server_url: btsss_url).post('/api/v1/Auth/access-token') do |req|
+      connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.body = { authJwt: vagov_token }
@@ -42,7 +42,7 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      connection(server_url: btsss_url).get('/api/v1/Sample/ping') do |req|
+      connection(server_url: btsss_url).get('api/v1/Sample/ping') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
       end
@@ -71,7 +71,7 @@ module TravelPay
         conn.use :breakers
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks if use_fakes?
-        conn.response :json, { content_type: /\bjson/ }
+        conn.response :json
 
         conn.adapter Faraday.default_adapter
       end

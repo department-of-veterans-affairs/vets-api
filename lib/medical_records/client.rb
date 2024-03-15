@@ -28,6 +28,7 @@ module MedicalRecords
     HEIGHT = '8302-2' # Height
     TEMPERATURE = '8310-5' # Temperature
     WEIGHT = '29463-7' # Weight
+    PULSE_OXIMETRY = '59408-5,2708-6, ' # Oxygen saturation in Arterial blood
 
     # LOINC codes for labs & tests
     MICROBIOLOGY = '79381-0' # Gastrointestinal pathogens panel
@@ -114,9 +115,10 @@ module MedicalRecords
     end
 
     def list_vitals
-      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
+      # loinc_codes =
+      #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,
-                           search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
+                           search: { parameters: { patient: patient_fhir_id, category: 'vital-signs',
                                                    'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end

@@ -159,6 +159,7 @@ describe V2::Lorota::Service do
   let(:approved_response) do
     {
       payload: {
+        address: nil,
         demographics: {
           mailingAddress: {
             street1: '123 Turtle Trail',

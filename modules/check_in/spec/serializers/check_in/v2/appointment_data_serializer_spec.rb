@@ -153,6 +153,7 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
           type: :appointment_data,
           attributes: {
             payload: {
+              address: nil,
               demographics: {
                 mailingAddress: {
                   street1: '123 Turtle Trail',
@@ -279,6 +280,49 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
       appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
 
       expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+    end
+
+    context 'when demographics and demographics status are nil' do
+      let(:appointment_data) do
+        {
+          id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          payload: {
+            appointments: [
+              {
+                appointmentIEN: '460'
+              }
+            ]
+          }
+        }
+      end
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_data,
+            attributes: {
+              payload: {
+                address: nil,
+                demographics: {},
+                appointments: [
+                  {
+                    appointmentIEN: '460'
+                  }
+                ],
+                patientDemographicsStatus: {},
+                setECheckinStartedCalled: nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'return empty hash' do
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
     end
   end
 end
