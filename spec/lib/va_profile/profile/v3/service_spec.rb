@@ -102,7 +102,7 @@ describe VAProfile::Profile::V3::Service do
 
       it 'raises an error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect { subject.get_health_benefit_bio }.to raise_error( Common::Exceptions::GatewayTimeout)
+        expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
   end
