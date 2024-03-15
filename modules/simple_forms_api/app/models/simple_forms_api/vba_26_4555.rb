@@ -46,7 +46,7 @@ module SimpleFormsApi
       { should_stamp_date?: false }
     end
 
-    def track_user_identity; end
+    def track_user_identity(confirmation_number); end
 
     private
 
@@ -100,9 +100,9 @@ module SimpleFormsApi
         ssn: data.dig('veteran', 'ssn'),
         vaFileNumber: data.dig('veteran', 'va_file_number'),
         fullName: {
-          first: full_name['first'],
-          middle: full_name['middle']&.[](0..39),
-          last: full_name['last'],
+          first: full_name['first']&.[](0..29),
+          middle: full_name['middle']&.[](0..29),
+          last: full_name['last']&.[](0..29),
           suffix: full_name['suffix']
         },
         dateOfBirth: data.dig('veteran', 'date_of_birth')
