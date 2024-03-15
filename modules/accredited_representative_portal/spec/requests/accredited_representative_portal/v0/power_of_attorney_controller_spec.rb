@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyController, type: :request do
-  include RequestHelper
-
   before do
     Flipper.enable(:representatives_portal_api)
   end
