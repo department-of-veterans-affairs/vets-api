@@ -2,7 +2,6 @@
 
 require 'bgs/services'
 require 'mpi/service'
-require 'bgs_service/local_bgs'
 
 OkComputer.mount_at = false
 OkComputer.check_in_parallel = true

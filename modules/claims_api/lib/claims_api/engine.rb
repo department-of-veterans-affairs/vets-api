@@ -25,5 +25,28 @@ module ClaimsApi
         FactoryBot.definition_file_paths << path
       end
     end
+
+    initializer 'claims_api.setup_autoloader', after: :setup_main_autoloader do |app|
+      Zeitwerk::Loader.new.tap do |loader|
+        loader.push_dir(
+          root.join('lib', 'bgs_service'),
+          namespace: ClaimsApi
+        )
+
+        loader.inflector.inflect(
+          # The other classes conform to standard inflection.
+          'local_bgs' => 'LocalBGS'
+        )
+
+        unless app.config.cache_classes
+          loader.enable_reloading
+          app.config.to_prepare do
+            loader.reload
+          end
+        end
+
+        loader.setup
+      end
+    end
   end
 end

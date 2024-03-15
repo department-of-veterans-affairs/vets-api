@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'bgs/power_of_attorney_verifier'
-require 'bgs_service/local_bgs'
 
 module ClaimsApi
   module V1
