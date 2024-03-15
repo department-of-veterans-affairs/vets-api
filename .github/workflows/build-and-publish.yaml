@@ -1,8 +1,8 @@
-name: build-and-publish-preview-environment
+name: Build And Publish Preview Environment
 run-name: Build And Publish Preview Environment
 on: [push]
 jobs:
-  build-and-publish-preview-environment:
+  build-and-publish:
     runs-on: ubuntu-latest
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
