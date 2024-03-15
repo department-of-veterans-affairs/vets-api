@@ -255,17 +255,21 @@ module AppealsApi
         return if auth_headers.blank? # Go no further if we've removed PII
 
         if status == 'submitted' && email_present?
-          AppealsApi::AppealReceivedJob.perform_async(
-            {
-              receipt_event: 'sc_received',
-              email_identifier:,
-              first_name: veteran.first_name,
-              date_submitted: appellant_local_time.iso8601,
-              guid: id,
-              claimant_email: claimant.email,
-              claimant_first_name: claimant.first_name
-            }.deep_stringify_keys
-          )
+          if Flipper.enabled? :decision_review_use_appeal_submitted_job
+            AppealsApi::AppealSubmittedJob.perform_async(id, self.class.name, appellant_local_time.iso8601)
+          else
+            AppealsApi::AppealReceivedJob.perform_async(
+              {
+                receipt_event: 'sc_received',
+                email_identifier:,
+                first_name: veteran.first_name,
+                date_submitted: appellant_local_time.iso8601,
+                guid: id,
+                claimant_email: claimant.email,
+                claimant_first_name: claimant.first_name
+              }.deep_stringify_keys
+            )
+          end
         end
       end
     end
@@ -293,6 +297,14 @@ module AppealsApi
       }[benefit_type]
     end
 
+    def email_identifier
+      return { id_type: 'email', id_value: signing_appellant.email } if signing_appellant.email.present?
+
+      icn = mpi_veteran.mpi_icn
+
+      icn.present? ? { id_type: 'ICN', id_value: icn } : {}
+    end
+
     private
 
     #  Must supply non-veteran claimantType if claimant fields present
@@ -311,14 +323,6 @@ module AppealsApi
         last_name: veteran.last_name,
         birth_date: veteran.birth_date.iso8601
       )
-    end
-
-    def email_identifier
-      return { id_type: 'email', id_value: signing_appellant.email } if signing_appellant.email.present?
-
-      icn = mpi_veteran.mpi_icn
-
-      { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes
