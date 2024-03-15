@@ -623,6 +623,14 @@ module PdfFill
         @form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
       end
 
+      def combine_previous_names_and_service(previous_names)
+        return if previous_names.blank?
+
+        previous_names.map do |previous_name|
+          "#{combine_full_name(previous_name)} (#{previous_name["serviceBranch"]})"
+        end.join('; ')
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
@@ -642,8 +650,6 @@ module PdfFill
         end
 
         @form_data['claimantSocialSecurityNumber'] = split_ssn(@form_data['claimantSocialSecurityNumber'])
-
-
 
         relationship_to_veteran = @form_data['relationshipToVeteran']
         @form_data['relationshipToVeteran'] = {
@@ -685,13 +691,11 @@ module PdfFill
 
         expand_tours_of_duty(@form_data['toursOfDuty'])
 
-        @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
+        @form_data['previousNames'] = combine_previous_names_and_service(@form_data['previousNames'])
 
         @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
 
         expand_burial_allowance
-
-        #expand_firm
 
         convert_location_of_death
         
