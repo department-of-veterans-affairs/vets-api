@@ -22,9 +22,6 @@ module CentralMail
 
     sidekiq_options retry: RETRY
 
-    class CentralMailResponseError < StandardError
-    end
-
     sidekiq_retries_exhausted do |msg, _ex|
       Rails.logger.send(
         :error,
