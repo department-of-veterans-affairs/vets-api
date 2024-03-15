@@ -62,7 +62,6 @@ describe Common::Client::Concerns::MhvLockedSessionClient do
         stub_const('Common::Client::Concerns::MhvLockedSessionClient::LOCK_RETRY_DELAY', 0)
         allow(dummy_instance).to receive(:invalid?).and_return(true)
         allow(dummy_instance).to receive(:lock_and_get_session).and_return(false)
-
         expect(dummy_instance).to receive(:lock_and_get_session)
                                     .exactly(Common::Client::Concerns::MhvLockedSessionClient::RETRY_ATTEMPTS).times
         expect(dummy_instance.authenticate).to eq(dummy_instance)
