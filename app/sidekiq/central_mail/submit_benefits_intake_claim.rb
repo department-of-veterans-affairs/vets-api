@@ -63,6 +63,8 @@ module CentralMail
       log_message_to_sentry('CentralMail::SubmitBenefitsIntakeClaim failed, retrying...', :warn,
                             generate_sentry_details(e))
       raise
+    ensure
+      cleanup_file_paths
     end
 
     # rubocop:enable Metrics/MethodLength
@@ -99,16 +101,6 @@ module CentralMail
       { file: path, file_name: path.split('/').last }
     end
 
-    def create_form_submission_attempt(intake_uuid)
-      form_submission = FormSubmission.create(
-        form_type: @claim.form_id,
-        form_data: @claim.to_json,
-        benefits_intake_uuid: intake_uuid,
-        saved_claim: @claim
-      )
-      FormSubmissionAttempt.create(form_submission:)
-    end
-
     def business_line
       case @claim.class
       when SavedClaim::VeteranReadinessEmploymentClaim
@@ -132,6 +124,21 @@ module CentralMail
       }
       details['error'] = e.message if e
       details
+    end
+
+    def create_form_submission_attempt(intake_uuid)
+      form_submission = FormSubmission.create(
+        form_type: @claim.form_id,
+        form_data: @claim.to_json,
+        benefits_intake_uuid: intake_uuid,
+        saved_claim: @claim
+      )
+      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+    end
+
+    def cleanup_file_paths
+      Common::FileHelpers.delete_file_if_exists(@pdf_path) if @pdf_path
+      @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
   end
 end
