@@ -11,7 +11,25 @@ module CentralMail
     include SentryLogging
     class BenefitsIntakeClaimError < StandardError; end
 
+    FOREIGN_POSTALCODE = '00000'
+    STATSD_KEY_PREFIX = 'worker.central_mail.submit_benefits_intake_claim'
 
+    # Sidekiq has built in exponential back-off functionality for retries
+    # A max retry attempt of 14 will result in a run time of ~25 hours
+    RETRY = 14
+
+    sidekiq_options retry: RETRY
+
+    class CentralMailResponseError < StandardError
+    end
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      Rails.logger.send(
+        :error,
+        "Failed all retries on CentralMail::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+    end
     def perform(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
@@ -114,7 +132,7 @@ module CentralMail
       case @claim.class
       when SavedClaim::VeteranReadinessEmploymentClaim
         'VRE'
-      when SavedClaim::EducationBenefitsClaim
+      when SavedClaim::EducationCareerCounselingClaim
         'EDU'
       when SavedClaim::Burial
         'NCA'
