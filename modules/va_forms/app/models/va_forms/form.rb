@@ -65,9 +65,11 @@ module VAForms
     def set_sha256_history
       if sha256.present? && sha256_changed?
         self.last_sha256_change = Time.zone.today
+
+        current_history = change_history&.dig('versions')
         new_history = { sha256:, revision_on: last_sha256_change.strftime('%Y-%m-%d') }
 
-        if change_history&.dig('versions').present?
+        if current_history.present? && current_history.is_a?(Array)
           change_history['versions'] << new_history
         else
           self.change_history = { versions: [new_history] }
