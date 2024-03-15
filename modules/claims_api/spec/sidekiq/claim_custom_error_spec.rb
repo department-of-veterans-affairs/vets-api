@@ -20,9 +20,17 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
     claim
   end
 
+  let(:backtrace) do
+    OpenStruct.new(backtrace: [
+                     "/vets-api/lib/common/client/middleware/response/raise_error.rb:30:in `raise_error!'",
+                     "/vets-api/lib/common/client/middleware/response/raise_error.rb:23:in `on_complete'"
+                   ])
+  end
+
   describe 'errors are funneled as service errors and set to raise and not re-try' do
     context 'claim_establisher sends a backend exception' do
-      let(:backend_error) { Common::Exceptions::BackendServiceException.new }
+      let(:message) { OpenStruct.new(status: 500, detail: nil, code: 'VA900', source: '') }
+      let(:backend_error) { Common::Exceptions::BackendServiceException.new(backtrace.backtrace, message) }
       let(:backend_error_submit) { ClaimsApi::CustomError.new(backend_error, claim, 'submit') }
 
       it 'handles it as a service error' do
@@ -34,7 +42,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
     end
 
     context 'claim_establisher sends a Faraday ConnectionFailed' do
-      let(:faraday_error) { Faraday::ConnectionFailed.new }
+      let(:faraday_error) { Faraday::ConnectionFailed.new(backtrace) }
       let(:faraday_error_submit) { ClaimsApi::CustomError.new(faraday_error, claim, 'validate') }
 
       it 'handles the faraday error correctly' do
@@ -46,7 +54,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
     end
 
     context 'claim_establisher sends a Faraday::ServerError' do
-      let(:faraday_error) { Faraday::ServerError.new }
+      let(:faraday_error) { Faraday::ServerError.new(backtrace) }
       let(:faraday_error_submit) { ClaimsApi::CustomError.new(faraday_error, claim, 'validate') }
 
       it 'handles the faraday error correctly' do
