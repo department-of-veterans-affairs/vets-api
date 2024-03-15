@@ -15,7 +15,8 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_21_0966.json',
     'vba_20_10206.json',
     'vba_40_10007.json',
-    'vba_20_10207.json'
+    'vba_20_10207-veteran.json',
+    'vba_20_10207-non-veteran.json'
   ]
 
   ivc_forms = [
