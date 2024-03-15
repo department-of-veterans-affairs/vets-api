@@ -38,3 +38,4 @@ services:
       - postgres
 volumes:
   test_bundle:
+  

@@ -31,13 +31,12 @@ RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /et
 RUN echo "deb http://deb.debian.org/debian unstable main" >> /etc/apt/sources.list.d/unstable.list
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t "${RELEASE}" \
-    dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev \
-    clamav clamdscan clamav-daemon
+    dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev 
 
 # The pki work below is for parity with the non-docker BRD deploys to mount certs into
 # the container, we need to get rid of it and refactor the configuration bits into
 # something more continer friendly in a later bunch of work
-RUN mkdir -p /srv/vets-api/{clamav/database,pki/tls,secure,src} && \
+RUN mkdir -p /srv/vets-api/{pki/tls,secure,src} && \
     chown -R vets-api:vets-api /srv/vets-api && \
     ln -s /srv/vets-api/pki /etc/pki
 # XXX: get rid of the CA trust manipulation when we have a better model for it
@@ -47,6 +46,12 @@ RUN cd /usr/local/share/ca-certificates ; for i in *.pem ; do mv $i ${i/pem/crt}
 # Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
 WORKDIR /srv/vets-api/src
+
+COPY config/clamd.conf /etc/clamav/clamd.conf
+
+RUN mkdir -p /clamav_tmp && \
+    chown -R nonroot:nonroot /clamav_tmp && \
+    chmod 777 /clamav_tmp
 
 ###
 # dev stage; use --target=development to stop here
@@ -66,10 +71,9 @@ ENV BUNDLER_VERSION=2.4.9
 # only extra dev/build opts go here, common packages go in base 👆
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git build-essential libxml2-dev libxslt-dev libpq-dev
-COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh ./
+COPY --chown=vets-api:vets-api docker-entrypoint.sh ./
 USER vets-api
-# XXX: this is tacky
-RUN freshclam --config-file freshclam.conf
+
 RUN gem install vtk
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 RUN gem install bundler:${BUNDLER_VERSION} --no-document
@@ -109,7 +113,6 @@ FROM base AS production
 ENV RAILS_ENV=production
 COPY --from=builder $BUNDLE_APP_CONFIG $BUNDLE_APP_CONFIG
 COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/src ./
-COPY --from=builder --chown=vets-api:vets-api /srv/vets-api/clamav/database ../clamav/database
 RUN if [ -d certs-tmp ] ; then cd certs-tmp ; for i in * ; do cp $i /usr/local/share/ca-certificates/${i/pem/crt} ; done ; fi && update-ca-certificates
 USER vets-api
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
