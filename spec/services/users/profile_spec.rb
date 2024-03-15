@@ -422,7 +422,7 @@ RSpec.describe Users::Profile do
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           VCR.use_cassettes([
-                              { name: 'profile/demographics' },
+                              { name: 'va_profile/demographics/demographics' },
                               { name: 'va_profile/veteran_status/veteran_status_401_oid_blank',
                                 options: { match_requests_on: %i[method body] } }
                             ]) do
