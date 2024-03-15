@@ -50,7 +50,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                            'facility_id' => '442',
                                            'sta6aid' => '442',
                                            'healthcare_provider' => nil,
-                                           'healthcare_service' => 'Friendly Name Optometry',
+                                           'healthcare_service' => 'Optometry',
                                            'location' => {
                                              'id' => '442',
                                              'name' => 'Cheyenne VA Medical Center',
@@ -107,7 +107,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'facility_id' => '442',
                                         'sta6aid' => '442',
                                         'healthcare_provider' => nil,
-                                        'healthcare_service' => 'Friendly Name Optometry',
+                                        'healthcare_service' => 'Optometry',
                                         'location' => {
                                           'id' => '442',
                                           'name' => 'Cheyenne VA Medical Center',
@@ -169,7 +169,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'facility_id' => '552',
                                         'sta6aid' => '552',
                                         'healthcare_provider' => nil,
-                                        'healthcare_service' => 'CC practice name',
+                                        'healthcare_service' => 'Primary Care',
                                         'location' => {
                                           'id' => nil,
                                           'name' => 'CC practice name',
@@ -299,7 +299,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'facility_id' => '442',
                                           'sta6aid' => '442',
                                           'healthcare_provider' => nil,
-                                          'healthcare_service' => 'Friendly Name Optometry',
+                                          'healthcare_service' => 'Social Work',
                                           'location' => {
                                             'id' => '442',
                                             'name' => 'Cheyenne VA Medical Center',
@@ -361,7 +361,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'facility_id' => '442',
                                        'sta6aid' => '442',
                                        'healthcare_provider' => nil,
-                                       'healthcare_service' => 'Friendly Name Optometry',
+                                       'healthcare_service' => 'Primary Care',
                                        'location' => {
                                          'id' => '442',
                                          'name' => 'Cheyenne VA Medical Center',
