@@ -8,8 +8,43 @@
       }
     ],
     "applicant": {
-      "applicant_relationship_to_claimant": "Self"
+      "applicant_relationship_to_claimant": "Self",
+      "mailing_address": {
+        "street": "123 Elm St",
+        "street2": "APT 2B",
+        "city": "Springwood",
+        "country": "USA",
+        "state": "OH",
+        "postal_code": "23432"
+      },
+      "applicant_phone_number": "3125555678"
     },
+    "currently_buried_persons": [
+      {
+        "name": {
+          "first": "Ben",
+          "last": "Fitz"
+        }
+      },
+      {
+        "name": {
+          "first": "Ben",
+          "last": "Fitz"
+        }
+      },
+      {
+        "name": {
+          "first": "Freddy",
+          "last": "Kruger"
+        }
+      },
+      {
+        "name": {
+          "first": "Ben",
+          "last": "Fitz"
+        }
+      }
+    ],
     "claimant": {
       "desired_cemetery": "915",
       "address": {
@@ -37,17 +72,20 @@
     "veteran": {
       "service_records": [
         {
-          "service_branch": "FF"
+          "service_branch": "FF",
+          "discharge_type": "3",
+          "highest_rank": "Commander of the Starship Trooper legion of Klendathu"
         }
       ],
       "address": {
         "street": "123 Elm St",
         "street2": "APT 2B",
         "city": "Springwood",
-        "country": "USA",
+        "country": "CAN",
         "state": "OH",
         "postal_code": "23432"
       },
+      "is_deceased": "Yes",
       "military_status": "O",
       "date_of_birth": "2016-10-27",
       "current_name": {
