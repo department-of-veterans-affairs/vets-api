@@ -3,12 +3,12 @@
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
 # Maintain your gem's version:
-require 'accredited_representatives/version'
+require 'accredited_representative_portal/version'
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |spec|
-  spec.name        = 'accredited_representatives'
-  spec.version     = AccreditedRepresentatives::VERSION
+  spec.name        = 'accredited_representative_portal'
+  spec.version     = AccreditedRepresentativePortal::VERSION
   spec.authors     = ['']
   spec.email       = ['']
   spec.homepage    = 'https://api.va.gov'

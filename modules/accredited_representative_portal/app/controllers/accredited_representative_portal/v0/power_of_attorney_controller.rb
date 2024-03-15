@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module AccreditedRepresentatives
+module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyController < ApplicationController
       def accept
