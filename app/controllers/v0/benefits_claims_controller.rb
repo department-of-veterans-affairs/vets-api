@@ -89,7 +89,8 @@ module V0
                             { message_type: 'lh.cst.evidence_requests',
                               claim_id:,
                               tracked_item_id: ti['id'],
-                              tracked_item_type: ti['displayName'] })
+                              tracked_item_type: ti['displayName'],
+                              tracked_item_status: ti['status'] })
       end
     end
   end

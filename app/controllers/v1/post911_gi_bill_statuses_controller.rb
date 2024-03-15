@@ -16,7 +16,9 @@ module V1
     STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
 
     def show
-      render json: service.get_gi_bill_status
+      response = service.get_gi_bill_status
+      render json: response,
+             serializer: Post911GIBillStatusSerializer
     rescue => e
       handle_error(e)
     ensure
@@ -26,10 +28,10 @@ module V1
     private
 
     def handle_error(e)
-      status = e.errors.first[:status].to_i if e.errors&.first&.key?(:status)
+      status = e.errors.first[:status].to_i
       log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
       StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
-      render json: { error: e.errors.first }, status: status || :internal_server_error
+      render json: { errors: e.errors }, status: status || :internal_server_error
     end
 
     def service_available?
