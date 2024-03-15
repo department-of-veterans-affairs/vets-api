@@ -541,6 +541,9 @@ features:
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
+  form2010207:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 20-10207
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
@@ -663,10 +666,6 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
     enable_in_development: true
-  mhv_secure_messaging_blocked_triage_group_1_0:
-    actor_type: user
-    description: Enables/disables Secure Messaging Blocked Triage Group functionality on VA.gov
-    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -751,21 +750,9 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  omni_channel_link:
-    actor_type: user
-    description: This determines the visibility of the OmniChannel link in the claim status tool
-    enable_in_development: true
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
-  reactivation_experiment_initial_gate:
-    actor_type: user
-    description:
-      Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
-      enabled for one (1) week at the longest, starting 20JULY2023 or 21JULY2023 depending on deployment timing.
-  reactivation_experiment_rate_limit:
-    actor_type: user
-    description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
@@ -890,6 +877,9 @@ features:
     actor_type: user
     description: Enables the representatives endpoint
     enable_in_development: true
+  schema_contract_appointments_index:
+    actor_type: user
+    description: Enables schema validation for the appointments service index fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -1132,6 +1122,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_datadog_RUM:
+    actor_type: user
+    description: Enables datadog Real User Monitoring.
+    enable_in_development: true
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
