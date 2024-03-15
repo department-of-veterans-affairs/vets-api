@@ -159,7 +159,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     @sent_to_cmp = true
     log_to_statsd('cmp') do
-      process_attachments!
+      process_attachments!(user)
     end
 
     send_central_mail_confirmation_email(user)
@@ -217,12 +217,16 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
   end
 
-  def process_attachments!
+  def process_attachments!(user)
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
-    #CentralMail::SubmitSavedClaimJob.new.perform(id)
-    CentralMail::SubmitBenefitsIntakeClaim.new.perform(id)
+
+    if Flipper.enable?(:central_mail_benefits_intake_submission, user)
+      CentralMail::SubmitBenefitsIntakeClaim.new.perform(id)
+    else
+      CentralMail::SubmitSavedClaimJob.new.perform(id)
+    end
   end
 
   private
