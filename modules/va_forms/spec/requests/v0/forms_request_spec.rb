@@ -72,10 +72,16 @@ RSpec.describe 'VA Forms', type: :request do
       expect(VAForms::Form).to receive(:search_by_form_number).with('21-2001')
       get "#{base_url}?query=21-2001"
     end
+
+    it 'returns the date of the last sha256 change' do
+      get "#{base_url}?query=527"
+      last_sha256_change = JSON.parse(response.body)['data'][0]['attributes']['last_sha256_change']
+      expect(last_sha256_change).to eql('2024-03-15')
+    end
   end
 
   describe 'GET :show' do
-    it 'returns the forms' do
+    it 'returns the form' do
       get "#{base_url}/#{form.form_name}"
       expect(response).to match_response_schema('va_forms/form')
     end
@@ -94,6 +100,15 @@ RSpec.describe 'VA Forms', type: :request do
     it 'returns the forms when camel-inflected' do
       get "#{base_url}/#{form.form_name}", headers: inflection_header
       expect(response).to match_camelized_response_schema('va_forms/form')
+    end
+
+    it 'returns the form version history' do
+      get "#{base_url}/#{form.form_name}"
+      versions = JSON.parse(response.body)['data']['attributes']['versions']
+      expect(versions).to eql([{ 'sha256' => 'a8ba72e148e15e4e03476bb7fbbdbc4facd43ceb52d10eb2f605a8aa8b4bad6a',
+                                 'revision_on' => '2024-01-08' },
+                               { 'sha256' => '68b6d817881be1a1c8f323a9073a343b81d1c5a6e03067f27fe595db77645c22',
+                                 'revision_on' => '2024-03-15' }])
     end
   end
 end
