@@ -8,9 +8,9 @@ module VBADocuments
     before_action :require_gateway_origin
 
     def require_gateway_origin
-      if Rails.env.production? && params[:source].blank? && Flipper.enabled?(:benefits_require_gateway_origin)
-        raise Common::Exceptions::Unauthorized
-      end
+      raise Common::Exceptions::Unauthorized if Rails.env.production? \
+        && (request.headers['X-Consumer-ID'].blank? || consumer.blank?) \
+        && Flipper.enabled?(:benefits_require_gateway_origin)
     end
 
     def set_tags_and_extra_context
