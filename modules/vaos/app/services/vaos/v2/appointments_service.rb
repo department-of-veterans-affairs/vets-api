@@ -28,6 +28,7 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
           response.body[:data].each do |appt|
             # for Lovell appointments set cancellable to false per GH#75512
             set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
