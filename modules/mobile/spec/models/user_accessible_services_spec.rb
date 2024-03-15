@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/sis_session_helper'
 
 describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :model do
   let(:user) { build(:user, :loa3) }
@@ -392,28 +391,14 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
 
         context 'when user does not have mhv_messaging access' do
           it 'is false' do
-            VCR.use_cassette('mobile/messages/session_error') do
-              expect(user_services.service_auth_map[:secureMessaging]).to be(false)
-            end
+            expect(user_services.service_auth_map[:secureMessaging]).to be(false)
           end
         end
 
         context 'when user does have mhv_messaging access' do
-          context 'with mhv session' do
-            it 'is true' do
-              VCR.use_cassette('sm_client/session') do
-                expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
-              end
-            end
-          end
-
-          context 'with fallback legacy policy' do
-            let(:user) { build(:user, :mhv) }
-
-            it 'is true' do
-              VCR.use_cassette('mobile/messages/session_error') do
-                expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
-              end
+          it 'is true' do
+            VCR.use_cassette('sm_client/session') do
+              expect(user_services.service_auth_map[:secureMessaging]).to be_truthy
             end
           end
         end
