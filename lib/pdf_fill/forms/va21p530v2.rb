@@ -256,7 +256,7 @@ module PdfFill
             key: 'form1[0].#subform[82].CheckboxOther[0]'
           }
         },
-        'toursOfDuty' => { #might need to break into three individual ones
+        'toursOfDuty' => {
           limit: 3,
           first_key: 'rank',
           'dateRangeStart' => {
@@ -273,7 +273,7 @@ module PdfFill
             question_suffix: 'A',
             question_text: 'ENTERED SERVICE (place)'
           },
-          'serviceNumber' => {
+          'militaryServiceNumber' => {
             key: "form1[0].#subform[82].SERVICE_NUMBER[#{ITERATOR}]",
             limit: 12,
             question_num: 14,
@@ -341,22 +341,22 @@ module PdfFill
             key: 'form1[0].#subform[83].#subform[84].PLACE_OF_DEATH[0]'
           }
         },
-        'yesFederalCemetery' => {
+        'hasNationalOrFederal' => {
           key: 'form1[0].#subform[37].FederalCemeteryYES[0]'
         },
-        'noFederalCemetery' => {
-          key: 'form1[0].#subform[37].FederalCemeteryNO[0]'
+        'noNationalOrFederal' => {
+          key: 'form1[0].#subform[37].FederalCemeteryNo[0]'
         },
-        'federalCemeteryName' => {
+        'name' => {
           key: 'form1[0].#subform[37].FederalCemeteryName[0]'
         },
-        'hasStateCemetery' => {
+        'cemetaryLocationQuestionCemetery' => {
           key: 'form1[0].#subform[37].HasStateCemetery[2]'
         },
-        'hasTribalTrust' => {
+        'cemetaryLocationQuestionTribal' => {
           key: 'form1[0].#subform[37].HasTribalTrust[2]'
         },
-        'noStateCemetery' => {
+        'cemetaryLocationQuestionNone' => {
           key: 'form1[0].#subform[37].NoStateCemetery[2]'
         },
         'stateCemeteryOrTribalTrustName' => {
@@ -365,11 +365,11 @@ module PdfFill
         'stateCemeteryOrTribalTrustZip' => {
           key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustZip[2]'
         },
-        'yesGovtContributions' => {
+        'hasGovtContributions' => {
           key: 'form1[0].#subform[37].GovContributionYES[0]'
         },
         'noGovtContributions' => {
-          key: 'form1[0].#subform[37].GovContributionNO[0]'
+          key: 'form1[0].#subform[37].GovContributionNo[0]'
         },
         'amountGovtContribution' => {
           key: 'form1[0].#subform[37].AmountGovtContribution[0]',
@@ -377,7 +377,7 @@ module PdfFill
           question_suffix: 'B',
           dollar: true,
           question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
-          limit: 2
+          limit: 5
         },
         'burialAllowanceRequested' => {
           'checkbox' => {
@@ -403,7 +403,7 @@ module PdfFill
             'vaMedicalCenter' => {
               key: 'form1[0].#subform[83].VaMedicalCenter[1]'
             },
-            'atHome' => {
+            'stateVeteransHome' => {
               key: 'form1[0].#subform[83].StateVeteransHome[1]'
             },
             'other' => {
@@ -418,34 +418,34 @@ module PdfFill
             limit: 50
           }
         },
-        'yesPreviouslyReceivedAllowance' => {
+        'hasPreviouslyReceivedAllowance' => {
           key: 'form1[0].#subform[83].PreviousAllowanceYes[0]'
         },
         'noPreviouslyReceivedAllowance' => {
           key: 'form1[0].#subform[83].PreviousAllowanceNo[0]'
         },
-        'yesBurialExpenseResponsibility' => {
+        'hasBurialExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForBurialCostYes[0]'
         },
         'noBurialExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForBurialCostNo[0]'
         },
-        'certifyUnclaimedAndNotSufficientResourcesYes' => {
+        'hasConfirmation' => {
           key: 'form1[0].#subform[83].certifyUnclaimedYes[0]'
         },
-        'certifyUnclaimedAndNotSufficientResourcesNo' => {
+        'noConfirmation' => {
           key: 'form1[0].#subform[83].certifyUnclaimedNo[0]'
         },
-        'yesPlotExpenseResponsibility' => {
+        'hasPlotExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostYes[0]'
         },
         'noPlotExpenseResponsibility' => {
           key: 'form1[0].#subform[83].ResponsibleForPlotIntermentCostNo[0]'
         },
-        'yesTransportationExpenses' => {
+        'hasTransportation' => {
           key: 'form1[0].#subform[83].ResponsibleForTransportationYes[0]'
         },
-        'noTransportationExpenses' => {
+        'noTransportation' => {
           key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
         },
         'wantClaimFDCProcessedYes' => {
@@ -518,6 +518,14 @@ module PdfFill
         }
       end
 
+      #override for how this pdf works, it needs the strings of yes/no
+      def expand_checkbox(value, key)
+        {
+          "has#{key}" => value == true ? "YES" : nil,
+          "no#{key}" => value == false ? "NO" : nil
+        }
+      end
+
       def expand_checkbox_in_place(hash, key)
         hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
       end
@@ -532,21 +540,16 @@ module PdfFill
         tours_of_duty.each do |tour_of_duty|
           expand_date_range(tour_of_duty, 'dateRange')
           tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank], ', ')
+          tour_of_duty['militaryServiceNumber'] = @form_data['militaryServiceNumber']
         end
       end
 
-      def expand_place_of_death
+      def convert_location_of_death
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
-        location = location_of_death['location']
-
-        @form_data['placeOfDeath'] =
-          if location == 'other'
-            location_of_death['other']
-          else
-            PLACE_OF_DEATH_KEY[location]
-          end
+        location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == "atHome"
+        expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
       def expand_firm
@@ -564,11 +567,22 @@ module PdfFill
         burial_allowance = @form_data['burialAllowanceRequested']
         return if burial_allowance.blank?
 
+        burial_allowance.each do |key, value|
+          burial_allowance[key] = value.present? ? "On" : nil
+        end
+
         @form_data['burialAllowanceRequested'] = {
-          'value' => burial_allowance
+          'checkbox' => burial_allowance
         }
 
-        expand_checkbox_as_hash(@form_data['burialAllowanceRequested'], 'value')
+      end
+
+      def expandCemeteryLocation
+        cemeteryLocation = @form_data['cemeteryLocation']
+        return if cemeteryLocation.blank?
+
+        @form_data['stateCemeteryOrTribalTrustName'] = cemeteryLocation['name'] if cemeteryLocation['name'].present?
+        @form_data['stateCemeteryOrTribalTrustZip'] = cemeteryLocation['zip'] if cemeteryLocation['zip'].present?
       end
 
       # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
@@ -588,12 +602,25 @@ module PdfFill
       # override
       def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
-        puts "what is value: #{value}"
         return if value.blank?
-
         hash['checkbox'] = {
           value => "On"
         }
+      end
+
+      def expand_confirmation_question
+        if @form_data['confirmation'].present?
+          confirmation = @form_data['confirmation']
+          @form_data['confirmation'] = confirmation['checkBox']
+          expand_checkbox_in_place(@form_data, 'confirmation')
+        end
+      end
+
+      def expand_location_question
+        cemetery_location = @form_data['cemetaryLocationQuestion']
+        @form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
+        @form_data['cemetaryLocationQuestionTribal'] = select_checkbox(cemetery_location == 'tribal')
+        @form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -636,16 +663,25 @@ module PdfFill
           'other' => select_checkbox(final_resting_place == 'other')
         }
 
-        
+        expandCemeteryLocation
+
+        # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
+        burialExpenseResponsibility = @form_data['burialExpenseResponsibility']
+        @form_data['hasBurialExpenseResponsibility'] = burialExpenseResponsibility ? "On" : nil
+        @form_data['noBurialExpenseResponsibility'] = burialExpenseResponsibility ? nil : "On"
+
+        # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
+        plotExpenseResponsibility = @form_data['plotExpenseResponsibility']
+        @form_data['hasPlotExpenseResponsibility'] = plotExpenseResponsibility ? "On" : nil
+        @form_data['noPlotExpenseResponsibility'] = plotExpenseResponsibility ? nil : "On"
+
+        expand_confirmation_question
+        expand_location_question
 
 
         split_phone(@form_data, 'claimantPhone')
 
         split_postal_code(@form_data)
-
-        #expand_relationship(@form_data, 'relationshipToVeteran')
-       
-        expand_place_of_death
 
         expand_tours_of_duty(@form_data['toursOfDuty'])
 
@@ -657,16 +693,15 @@ module PdfFill
 
         #expand_firm
 
-        expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
+        convert_location_of_death
+        
 
         %w[
-          previouslyReceivedAllowance
-          burialAllowance
-          plotAllowance
-          benefitsUnclaimedRemains
-          federalCemetery
-          stateCemetery
+          nationalOrFederal
           govtContributions
+          previouslyReceivedAllowance
+          allowanceStatementOfTruth
+          transportation
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
