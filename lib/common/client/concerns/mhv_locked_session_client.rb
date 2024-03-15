@@ -20,14 +20,14 @@ module Common
         include SentryLogging
 
         LOCK_RETRY_DELAY = 0.3 # Number of seconds to wait between attempts to acquire a session lock
+        RETRY_ATTEMPTS = 40 # How many times to attempt await of acquiring a session lock by a preceding request
 
         attr_reader :session
 
         ##
         # @param session [Hash] a hash containing a key with which the session will be found or built
         #
-        def initialize(session:, retry_attempts: 40)
-          @retry_attempts = retry_attempts
+        def initialize(session:)
           refresh_session(session)
         end
 
@@ -42,7 +42,7 @@ module Common
           iteration = 0
 
           # Loop unless a complete, valid MHV session exists, or until max_iterations is reached
-          while invalid?(session) && iteration < @retry_attempts
+          while invalid?(session) && iteration < RETRY_ATTEMPTS
 
             break if lock_and_get_session # Break out of the loop once a new session is created.
 
@@ -52,7 +52,7 @@ module Common
             refresh_session(session)
             iteration += 1
           end
-          if invalid?(session) && iteration >= @retry_attempts
+          if invalid?(session) && iteration >= RETRY_ATTEMPTS
             Rails.logger.info("Failed to create #{@client_session} after #{iteration} attempts to acquire lock")
           end
 
