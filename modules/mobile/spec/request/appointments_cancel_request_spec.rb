@@ -16,7 +16,6 @@ RSpec.describe 'appointments', type: :request do
   context 'using vaos-service' do
     before do
       Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
-      Flipper.disable(:va_online_scheduling_use_vpg)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
@@ -65,7 +64,6 @@ RSpec.describe 'appointments', type: :request do
   context 'using vpg' do
     before do
       Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
-      Flipper.enable(:va_online_scheduling_use_vpg)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
