@@ -6,7 +6,7 @@ ruby '~> 3.2.3'
 
 # Modules
 path 'modules' do
-  gem 'accredited_representatives'
+  gem 'accredited_representative_portal'
   gem 'appeals_api'
   gem 'apps_api'
   gem 'ask_va_api'
@@ -37,7 +37,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.3'
 
 gem 'aasm'
 gem 'active_model_serializers'
