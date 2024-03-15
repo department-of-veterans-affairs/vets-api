@@ -62,5 +62,14 @@ RSpec.describe CentralMail::SubmitBenefitsIntakeClaim, uploader_helpers: true do
       expect(described_class.new.process_record(record)).to eq('path3')
     end
   end
+
+  describe 'when retries exhausted' do
+    it 'logs a distrinct error when retries are exhausted' do
+      Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+        expect(Rails.logger).to receive(:error).exactly(:once)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+      end
+    end
+  end
   # Rspec.describe
 end
