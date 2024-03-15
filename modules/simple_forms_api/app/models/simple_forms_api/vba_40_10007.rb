@@ -131,23 +131,24 @@ module SimpleFormsApi
       DISCHARGE_TYPE[key]
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create_attachment_page(file_path)
       place_of_birth = @data.dig('application', 'veteran', 'place_of_birth')
-      service_branch_value_1 = get_service_label(@data.dig('application', 'veteran', 'service_records', 0,
+      service_branch_value_a = get_service_label(@data.dig('application', 'veteran', 'service_records', 0,
                                                            'service_branch')) || ''
-      service_branch_value_2 = get_service_label(@data.dig('application', 'veteran', 'service_records', 1,
+      service_branch_value_b = get_service_label(@data.dig('application', 'veteran', 'service_records', 1,
                                                            'service_branch')) || ''
-      service_branch_value_3 = get_service_label(@data.dig('application', 'veteran', 'service_records', 2,
+      service_branch_value_c = get_service_label(@data.dig('application', 'veteran', 'service_records', 2,
                                                            'service_branch')) || ''
-      discharge_type_1 = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 0,
+      discharge_type_a = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 0,
                                                        'discharge_type')) || ''
-      discharge_type_2 = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 1,
+      discharge_type_b = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 1,
                                                        'discharge_type')) || ''
-      discharge_type_3 = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 2,
+      discharge_type_c = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 2,
                                                        'discharge_type')) || ''
-      highest_rank_1 = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank') || ''
-      highest_rank_2 = @data.dig('application', 'veteran', 'service_records', 1, 'highest_rank') || ''
-      highest_rank_3 = @data.dig('application', 'veteran', 'service_records', 2, 'highest_rank') || ''
+      highest_rank_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank') || ''
+      highest_rank_b = @data.dig('application', 'veteran', 'service_records', 1, 'highest_rank') || ''
+      highest_rank_c = @data.dig('application', 'veteran', 'service_records', 2, 'highest_rank') || ''
 
       Prawn::Document.generate(file_path) do |pdf|
         pdf.text '40-10007 Overflow Data', align: :center, size: 20
@@ -158,34 +159,35 @@ module SimpleFormsApi
         pdf.text "Place of Birth: #{place_of_birth}", size: 10
         pdf.move_down 10
         pdf.text 'Question 15 Service Branch Line 1'
-        pdf.text "Service Branch: #{service_branch_value_1}", size: 10
+        pdf.text "Service Branch: #{service_branch_value_a}", size: 10
         pdf.move_down 10
         pdf.text 'Question 18 Discharge type Line 1'
-        pdf.text "Discharge Type: #{discharge_type_1}", size: 10
+        pdf.text "Discharge Type: #{discharge_type_a}", size: 10
         pdf.move_down 10
         pdf.text 'Question 19 Highest rank Line 1'
-        pdf.text "Highest Rank: #{highest_rank_1}", size: 10
+        pdf.text "Highest Rank: #{highest_rank_a}", size: 10
         pdf.move_down 10
         pdf.text 'Question 15 Service Branch Line 2'
-        pdf.text "Service Branch: #{service_branch_value_2}", size: 10
+        pdf.text "Service Branch: #{service_branch_value_b}", size: 10
         pdf.move_down 10
         pdf.text 'Question 18 Discharge type Line 2'
-        pdf.text "Discharge Type: #{discharge_type_2}", size: 10
+        pdf.text "Discharge Type: #{discharge_type_b}", size: 10
         pdf.move_down 10
         pdf.text 'Question 19 Highest rank Line 2'
-        pdf.text "Highest Rank: #{highest_rank_2}", size: 10
+        pdf.text "Highest Rank: #{highest_rank_b}", size: 10
         pdf.move_down 10
         pdf.text 'Question 15 Service Branch Line 3'
-        pdf.text "Service Branch: #{service_branch_value_3}", size: 10
+        pdf.text "Service Branch: #{service_branch_value_c}", size: 10
         pdf.move_down 10
         pdf.text 'Question 18 Discharge type Line 3'
-        pdf.text "Discharge Type: #{discharge_type_3}", size: 10
+        pdf.text "Discharge Type: #{discharge_type_c}", size: 10
         pdf.move_down 10
         pdf.text 'Question 19 Highest rank Line 3'
-        pdf.text "Highest Rank: #{highest_rank_3}", size: 10
+        pdf.text "Highest Rank: #{highest_rank_c}", size: 10
       end
     end
 
+    # rubocop:enable Metrics/MethodLength
     def handle_attachments(file_path)
       attachments = get_attachments
       combined_pdf = CombinePDF.new
