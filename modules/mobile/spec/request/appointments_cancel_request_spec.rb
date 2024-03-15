@@ -10,6 +10,7 @@ RSpec.describe 'appointments', type: :request do
   let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
+    Flipper.enable('va_online_scheduling')
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 

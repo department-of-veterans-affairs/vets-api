@@ -26,8 +26,36 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
     end
 
     describe 'appointments' do
-      it 'is always true' do
-        expect(user_services.service_auth_map[:appointments]).to be_truthy
+      context 'when feature flag is off' do
+        it 'is false' do
+          expect(user_services.service_auth_map[:appointments]).to be(false)
+        end
+      end
+
+      context 'when feature flag is on' do
+        before { Flipper.enable(:va_online_scheduling) }
+
+        context 'when user does not have vaos access' do
+          let(:user) { build(:user, :loa1) }
+
+          it 'is false' do
+            expect(user_services.service_auth_map[:appointments]).to be(false)
+          end
+        end
+
+        context 'when user does not have an icn' do
+          let!(:user) { build(:user, :loa3, icn: nil) }
+
+          it 'is false' do
+            expect(user_services.service_auth_map[:appointments]).to be(false)
+          end
+        end
+
+        context 'when feature flag is on, user has an icn and vaos access' do
+          it 'is true' do
+            expect(user_services.service_auth_map[:appointments]).to be_truthy
+          end
+        end
       end
     end
 
