@@ -9,11 +9,11 @@ module CentralMail
   class SubmitBenefitsIntakeClaim
     include Sidekiq::Job
     include SentryLogging
-    before_perform :set_api_key
     class BenefitsIntakeClaimError < StandardError; end
 
+
     def perform(saved_claim_id)
-      @claim =    SavedClaim.find(saved_claim_id)
+      @claim = SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
@@ -133,19 +133,6 @@ module CentralMail
       }
       details['error'] = e.message if e
       details
-    end
-
-    def set_api_key
-      # If the class does not match any of the choices, the default api key is used
-      Settings.benefits_intake_service.api_key = case @claim.class
-                                                 when SavedClaim::VeteranReadinessEmploymentClaim
-                                                   # set to VRE api key
-                                                 when SavedClaim::EducationBenefitsClaim
-                                                   # set EBC api key
-                                                 when SavedClaim::Burial
-                                                   # set Burial api key
-                                                 end
-
     end
   end
 end
