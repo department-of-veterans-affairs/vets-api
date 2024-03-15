@@ -29,28 +29,28 @@ module DebtsApi
 
       # rubocop:disable Metrics/MethodLength
       def asset_form
-        params.require(:data).permit(
-          :cashInBank,
-          :cashOnHand,
-          :recVehicleAmount,
-          :usSavingsBonds,
-          :stocksAndOtherBonds,
-          :'view:enhancedFinancialStatusReport',
-          questions: [:hasVehicle],
-          realEstateRecords: %i[
-            realEstateType
-            realEstateAmount
+        params.permit(
+          :cash_in_bank,
+          :cash_on_hand,
+          :rec_vehicle_amount,
+          :us_savings_bonds,
+          :stocks_and_other_bonds,
+          :'view:enhanced_financial_status_report',
+          questions: [:has_vehicle],
+          real_estate_records: %i[
+            real_estate_type
+            real_estate_amount
           ],
           assets: [
-            :realEstateValue,
+            :resale_value,
             {
-              otherAssets: %i[
+              other_assets: %i[
                 name
                 amount
               ]
             },
-            :recVehicleAmount,
-            { automobiles: [:resaleValue] }
+            :rec_vehicle_amount,
+            { automobiles: [:resale_value] }
           ]
         )
       end

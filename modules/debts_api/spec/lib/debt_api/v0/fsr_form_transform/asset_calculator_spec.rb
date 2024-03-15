@@ -13,7 +13,7 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::AssetCalculator, type: :service d
   end
 
   def calculate_total_assets
-    calculations_controller = described_class.new(maximal_fsr_form_data['data'])
+    calculations_controller = described_class.new(maximal_fsr_form_data)
     @total_assets = calculations_controller.get_total_assets
   end
 
