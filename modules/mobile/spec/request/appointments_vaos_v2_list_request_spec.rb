@@ -99,7 +99,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     end
 
     context 'backfill clinic service returns data' do
-      it 'healthcareService is populated and vetextId is correct' do
+      it 'healthcareService is populated and equals ToC and vetextId is correct' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
@@ -108,13 +108,13 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
-        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to eq('MTZ-LAB (BLOOD WORK)')
+        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to eq('optometry')
         expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220827.043')
       end
     end
 
     context 'backfill clinic service uses facility id that does not exist' do
-      it 'healthcareService is nil' do
+      it 'healthcareService is equal to type of care' do
         allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_404', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
@@ -126,7 +126,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
-        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
+        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to eq('optometry')
       end
 
       it 'attempts to fetch clinic once' do
