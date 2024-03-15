@@ -475,6 +475,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
       context 'when the appointment is successfully cancelled' do
         before do
           Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          Flipper.disable(:va_online_scheduling_use_vpg)
         end
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
@@ -514,6 +515,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
         it 'returns a 400 status code' do
           Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          Flipper.disable(:va_online_scheduling_use_vpg)
           VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
             expect(response.status).to eq(400)
@@ -525,6 +527,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
       context 'when the backend service cannot handle the request' do
         before do
           Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          Flipper.disable(:va_online_scheduling_use_vpg)
         end
 
         it 'returns a 502 status code' do

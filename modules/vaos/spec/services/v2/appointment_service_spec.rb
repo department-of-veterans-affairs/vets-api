@@ -424,6 +424,7 @@ describe VAOS::V2::AppointmentsService do
         context 'using VPG' do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+            Flipper.enable(:va_online_scheduling_use_vpg)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -452,6 +453,7 @@ describe VAOS::V2::AppointmentsService do
         context 'using vaos-service' do
           before do
             Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+            Flipper.disable(:va_online_scheduling_use_vpg)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -481,6 +483,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when there is a server error in updating an appointment' do
       before do
         Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+        Flipper.disable(:va_online_scheduling_use_vpg)
       end
 
       it 'throws a BackendServiceException' do
