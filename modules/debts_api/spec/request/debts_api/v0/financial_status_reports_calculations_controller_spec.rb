@@ -34,6 +34,12 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReportsCalculations requesting', ty
         expect(response).to have_http_status(:ok)
       end
     end
+    context 'with andrew fsr form data' do
+      it 'returns monthly income' do
+        post('/debts_api/v0/calculate_monthly_income', params: andrew_expenses.to_h, as: :json)
+        expect(response).to have_http_status(:ok)
+      end
+    end
   end
 
   describe '#total_assets' do

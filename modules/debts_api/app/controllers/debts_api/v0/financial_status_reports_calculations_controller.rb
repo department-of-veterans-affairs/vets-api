@@ -56,29 +56,29 @@ module DebtsApi
       end
 
       def income_form
-        params.require(:data).permit(
-          :'view:enhancedFinancialStatusReport',
-          additionalIncome: [
+        params.permit(
+          :'view:enhanced_financial_status_report',
+          additional_income: [
             {
-              addlIncRecords: %i[
+              addl_inc_records: %i[
                 name
                 amount
               ]
             },
             {
               spouse: %i[
-                spAddlIncome
+                sp_addl_income
               ]
             }
           ],
           benefits: {
-            spouseBenefits: %i[
-              compensationAndPension
+            spouse_benefits: %i[
+              compensation_and_pension
               education
             ]
           },
-          currEmployment: [
-            :veteranGrossSalary,
+          curr_employment: [
+            :veteran_gross_salary,
             {
               deductions: %i[
                 name
@@ -90,37 +90,37 @@ module DebtsApi
             :type,
             :from,
             :to,
-            :isCurrent,
-            :employerName
+            :is_current,
+            :employer_name
           ],
           income: %i[
-            veteranOrSpouse
-            compensationAndPension
+            veteran_or_spouse
+            compensation_and_pension
             education
           ],
-          personalData: {
-            employmentHistory: {
+          personal_data: {
+            employment_history: {
               veteran: {
-                employmentRecords: [
+                employment_records: [
                   :type,
                   :from,
                   :to,
-                  :isCurrent,
-                  :employerName,
-                  :grossMonthlyIncome,
+                  :is_current,
+                  :employer_name,
+                  :gross_monthly_income,
                   {
                     deductions: %i[name amount]
                   }
                 ]
               },
               spouse: {
-                spEmploymentRecords: [
+                sp_employment_records: [
                   :type,
                   :from,
                   :to,
-                  :isCurrent,
-                  :employerName,
-                  :grossMonthlyIncome,
+                  :is_current,
+                  :employer_name,
+                  :gross_monthly_income,
                   {
                     deductions: %i[name amount]
                   }
@@ -128,8 +128,8 @@ module DebtsApi
               }
             }
           },
-          spCurrEmployment: [
-            :spouseGrossSalary,
+          sp_curr_employment: [
+            :spouse_gross_salary,
             {
               deductions: %i[
                 name
@@ -141,13 +141,13 @@ module DebtsApi
             :type,
             :from,
             :to,
-            :isCurrent,
-            :employerName
+            :is_current,
+            :employer_name
           ],
-          socialSecurity: [
-            :socialSecAmt,
+          social_security: [
+            :social_sec_amt,
             { spouse: [
-              :socialSecAmt
+              :social_sec_amt
             ] }
           ]
         ).to_hash
