@@ -36,13 +36,13 @@ module CentralMail
     # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
-      create_form_submission_attempt(@lighthouse_service.uuid)
       @pdf_path = process_record(@claim)
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
 
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
+      create_form_submission_attempt(@lighthouse_service.uuid)
 
       payload = {
         upload_url: @lighthouse_service.location,
