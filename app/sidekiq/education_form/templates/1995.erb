@@ -95,7 +95,7 @@ Type of Education or Training: <%= @applicant.educationType&.titleize %>
 Type of Education or Training: <%= @applicant.educationTypeUpdate&.titleize %>
 <% end -%>
 Education or Career Goal: <%= @applicant.educationObjective %>
-
+<% if Settings.vsp_environment.eql?('production') -%>
 New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
 
@@ -104,7 +104,7 @@ Current/Prior School or Training Establishment:
 
 Date You Stopped Training: <%= @applicant.trainingEndDate %>
 Reason for Change: <%= @applicant.reasonForChange %>
-
+<% end -%>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
