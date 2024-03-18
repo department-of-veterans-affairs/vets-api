@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_15_033526) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_18_190237) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -1275,9 +1275,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_15_033526) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "address_line5_ciphertext"
-    t.text "address_line6_ciphertext"
     t.string "origin"
+    t.text "address5_ciphertext"
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1329,6 +1328,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_15_033526) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
     t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
   end
 
@@ -1359,6 +1359,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_15_033526) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
     t.index ["icn"], name: "index_vye_user_infos_on_icn"
     t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
   end

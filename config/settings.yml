@@ -1289,6 +1289,12 @@ vanotify:
         claim_submission_success_text: fake_template_id
         claim_submission_duplicate_text: fake_template_id
         claim_submission_error_text: fake_template_id
+    oracle_health:
+      sms_sender_id: fake_secret
+      template_id:
+        claim_submission_success_text: fake_template_id
+        claim_submission_duplicate_text: fake_template_id
+        claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
   mock: false
