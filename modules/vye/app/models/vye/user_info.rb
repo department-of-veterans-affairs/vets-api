@@ -54,7 +54,7 @@ module Vye
 
     validates(*REQUIRED_ATTRIBUTES, presence: true)
 
-    serialize :dob, DobSerializer
+    serialize :dob, coder: DobSerializer
 
     before_validation :digest_ssn
 
