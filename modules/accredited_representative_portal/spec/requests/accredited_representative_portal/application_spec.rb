@@ -2,15 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request do
-  describe 'GET /accredited_representatives/arbitrary' do
+RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :request do
+  describe 'GET /accredited_representative_portal/arbitrary' do
     subject do
-      get '/accredited_representatives/arbitrary'
+      get '/accredited_representative_portal/arbitrary'
       response
     end
 
     before(:context) do
-      AccreditedRepresentatives::Engine.routes.draw do
+      AccreditedRepresentativePortal::Engine.routes.draw do
         get 'arbitrary', to: 'arbitrary#arbitrary'
       end
     end
@@ -22,11 +22,11 @@ RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request 
       Rails.application.reload_routes!
     end
 
-    describe 'when the representatives_portal_api feature toggle' do
+    describe 'when the accredited_representative_portal_api feature toggle' do
       before do
         expect(Flipper).to(
           receive(:enabled?)
-            .with(:representatives_portal_api)
+            .with(:accredited_representative_portal_api)
             .and_return(enabled)
         )
       end
@@ -46,7 +46,7 @@ RSpec.describe AccreditedRepresentatives::ApplicationController, type: :request 
   end
 end
 
-module AccreditedRepresentatives
+module AccreditedRepresentativePortal
   class ArbitraryController < ApplicationController
     def arbitrary = head :ok
   end
