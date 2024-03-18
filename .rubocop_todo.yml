@@ -744,6 +744,7 @@ RSpec/PendingWithoutReason:
     - 'spec/requests/authentication/standard_authentication_spec.rb'
     - 'spec/requests/breakers_integration_spec.rb'
     - 'spec/sidekiq/facilities/mental_health_reload_job_spec.rb'
+    - 'modules/claims_api/spec/requests/v1/disability_compensation_request_spec.rb'
 
 # Offense count: 630
 # This cop supports unsafe autocorrection (--autocorrect-all).
