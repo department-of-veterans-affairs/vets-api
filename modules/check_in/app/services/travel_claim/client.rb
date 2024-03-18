@@ -64,7 +64,7 @@ module TravelClaim
           { AppointmentDateTime: appointment_date } }).to_json
       end
     rescue Faraday::TimeoutError
-      Rails.logger.error(message: 'BTSSS Timeout Error')
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
       Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,
@@ -86,7 +86,7 @@ module TravelClaim
                                      }).to_json
       end
     rescue Faraday::TimeoutError
-      Rails.logger.error(message: 'BTSSS Timeout Error')
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
       Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,
