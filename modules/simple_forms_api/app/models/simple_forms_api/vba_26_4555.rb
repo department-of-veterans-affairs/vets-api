@@ -94,19 +94,17 @@ module SimpleFormsApi
 
     def veteran_payload
       full_name = data.dig('veteran', 'full_name')
-      if full_name
-        {
-          address: veteran_address_payload,
-          ssn: data.dig('veteran', 'ssn')&.tr('-', ''),
-          fullName: {
-            first: full_name['first']&.[](0..29),
-            middle: full_name['middle']&.[](0..29),
-            last: full_name['last']&.[](0..29),
-            suffix: full_name['suffix']
-          },
-          dateOfBirth: data.dig('veteran', 'date_of_birth')
-        }
-      end
+      {
+        address: veteran_address_payload,
+        ssn: data.dig('veteran', 'ssn')&.tr('-', ''),
+        fullName: {
+          first: full_name['first']&.[](0..29),
+          middle: full_name['middle']&.[](0..29),
+          last: full_name['last']&.[](0..29),
+          suffix: full_name['suffix']
+        },
+        dateOfBirth: data.dig('veteran', 'date_of_birth')
+      }
     end
 
     def veteran_address_payload
