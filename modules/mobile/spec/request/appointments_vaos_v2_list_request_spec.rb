@@ -44,7 +44,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
 
       context 'when feature flag is on and user has access' do
-        it 'returns no content' do
+        it 'returns ok' do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
