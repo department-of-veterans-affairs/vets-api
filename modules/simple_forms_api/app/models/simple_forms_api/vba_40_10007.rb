@@ -66,6 +66,10 @@ module SimpleFormsApi
       end
     end
 
+    def format_date(date)
+      Date.strptime(date, '%Y-%m-%d').strftime("%m/%d/%Y")  #=> "02/25/2012"
+    end
+
     def track_user_identity(confirmation_number); end
 
     def submission_date_config
