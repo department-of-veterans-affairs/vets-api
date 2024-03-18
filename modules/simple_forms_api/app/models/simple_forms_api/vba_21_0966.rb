@@ -67,7 +67,9 @@ module SimpleFormsApi
     def track_user_identity(confirmation_number)
       identity = data['preparer_identification']
       StatsD.increment("#{STATS_KEY}.#{identity}")
+      benefit_types = data['benefit_selection'].map { |benefit_type, is_selected| benefit_type if is_selected }.compact.join(', ')
       Rails.logger.info('Simple forms api - 21-0966 submission user identity', identity:, confirmation_number:)
+      Rails.logger.info('Simple forms api - 21-0966 submission benefit types', benefit_types:, confirmation_number:)
     end
 
     private

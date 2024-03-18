@@ -90,6 +90,7 @@ module SimpleFormsApi
         intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
+        form.track_user_identity(confirmation_number)
 
         render json: {
           confirmation_number:,
