@@ -7,7 +7,7 @@ RSpec.describe 'VA Forms', type: :request do
 
   let!(:form) do
     create(:va_form)
-    create(:va_form, form_name: '527', row_id: '4157', last_sha256_change: Date.new(2024, 3, 15))
+    create(:va_form, form_name: '527', row_id: '4157')
     create(:deleted_va_form)
     create(:va_form,
            form_name: '21-2001',
@@ -85,7 +85,7 @@ RSpec.describe 'VA Forms', type: :request do
     it 'returns the date of the last sha256 change' do
       get "#{base_url}?query=527"
       last_sha256_change = JSON.parse(response.body)['data'][0]['attributes']['last_sha256_change']
-      expect(last_sha256_change).to eql('2024-03-15')
+      expect(last_sha256_change).to eql(form.last_sha256_change.strftime('%Y-%m-%d'))
     end
   end
 
