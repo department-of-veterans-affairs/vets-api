@@ -15,10 +15,6 @@ RSpec.describe 'appointments', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  after do
-    Flipper.disable('va_online_scheduling')
-  end
-
   describe 'authorization' do
     context 'when feature flag is off' do
       before { Flipper.disable('va_online_scheduling') }

@@ -18,7 +18,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
     after do
       Timecop.return
-      Flipper.disable('va_online_scheduling')
     end
 
     let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
