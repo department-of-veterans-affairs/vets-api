@@ -210,7 +210,7 @@ GEM
       activemodel (= 7.1.3.2)
       activesupport (= 7.1.3.2)
       timeout (>= 0.4.0)
-    activerecord-import (1.5.1)
+    activerecord-import (1.6.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (9.0.1)
       activerecord (~> 7.1.0)
