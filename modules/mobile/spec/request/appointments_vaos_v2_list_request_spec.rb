@@ -27,6 +27,26 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
     let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
+    describe 'authorization' do
+      context 'when feature flag is off' do
+        before { Flipper.disable('va_online_scheduling') }
+
+        it 'returns forbidden' do
+          get('/mobile/v0/appointments', headers: sis_headers, params:)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when user does not have access' do
+        let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
+
+        it 'returns forbidden' do
+          get('/mobile/v0/appointments', headers: sis_headers, params:)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
     context 'backfill facility service returns data' do
       it 'location is populated' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
