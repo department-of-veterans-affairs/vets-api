@@ -28,6 +28,15 @@ RSpec.describe 'Power Of Attorney', type: :request do
         {
           data: {
             attributes: {
+              veteran: {
+                address: {
+                  addressLine1: '123',
+                  city: 'city',
+                  stateCode: 'OR',
+                  country: 'US',
+                  zipCode: '12345'
+                }
+              },
               serviceOrganization: {
                 poaCode: organization_poa_code.to_s,
                 registrationNumber: '67890'
