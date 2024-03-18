@@ -13,11 +13,12 @@ module ClaimsApi
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
       file_number = service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
+      poa_code = extract_poa_code(poa_form.form_data)
 
       response = service.vet_record.update_birls_record(
         file_number:,
         ssn:,
-        poa_code: poa_form.form_data['serviceOrganization']['poaCode']
+        poa_code:
       )
 
       if response[:return_code] == 'BMOD0001'
@@ -38,6 +39,14 @@ module ClaimsApi
     end
 
     private
+
+    def extract_poa_code(poa_form_data)
+      if poa_form_data.key?('serviceOrganization')
+        poa_form_data['serviceOrganization']['poaCode']
+      elsif poa_form_data.key?('representative') # V2 2122a
+        poa_form_data['representative']['poaCode']
+      end
+    end
 
     def enable_vbms_access?(poa_form:)
       poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
