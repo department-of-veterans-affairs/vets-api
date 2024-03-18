@@ -18,6 +18,37 @@ RSpec.describe VAForms::Form, type: :model do
       form.reload
       expect(form.last_revision_on).to eq(form.first_issued_on)
     end
+
+    describe '#set_sha256_history' do
+      let(:form) { create(:va_form) }
+      let(:new_sha256) { '68b6d817881be1a1c8f323a9073a343b81d1c5a6e03067f27fe595db77645c22' }
+
+      context 'when the sha256 has changed' do
+        it 'updates the last_sha256_change and change_history' do
+          form.sha256 = new_sha256
+          form.save!
+
+          current_date = Time.zone.today
+          new_history = { 'sha256' => new_sha256, 'revision_on' => current_date.strftime('%Y-%m-%d') }
+
+          expect(form.reload.last_sha256_change).to eq(current_date)
+          expect(form.reload.change_history['versions']).to include(new_history)
+        end
+      end
+
+      context 'when the sha256 has not changed' do
+        it 'does not update the last_sha256_change or change_history' do
+          last_sha256_change = form.last_sha256_change
+          change_history = form.change_history
+
+          form.title = 'A new title'
+          form.save
+
+          expect(form.reload.last_sha256_change).to eq(last_sha256_change)
+          expect(form.reload.change_history).to eq(change_history)
+        end
+      end
+    end
   end
 
   describe '.normalized_form_url' do
