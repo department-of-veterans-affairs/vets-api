@@ -33,6 +33,18 @@ RSpec.describe 'appointments', type: :request do
         expect(response).to have_http_status(:forbidden)
       end
     end
+
+    context 'when feature flag is on and user has access' do
+      it 'returns no content' do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+
+            expect(response).to have_http_status(:no_content)
+          end
+        end
+      end
+    end
   end
 
   context 'using vaos-service' do

@@ -59,6 +59,18 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           expect(response).to have_http_status(:forbidden)
         end
       end
+
+      context 'when feature flag is on and user has access' do
+        it 'returns no content' do
+          VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M',
+                           match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              post '/mobile/v0/appointment', params: {}, headers: sis_headers
+              expect(response).to have_http_status(:created)
+            end
+          end
+        end
+      end
     end
 
     it 'clears the cache' do

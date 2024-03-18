@@ -42,6 +42,19 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(response).to have_http_status(:forbidden)
         end
       end
+
+      context 'when feature flag is on and user has access' do
+        it 'returns no content' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: sis_headers, params:
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
 
     context 'backfill facility service returns data' do
