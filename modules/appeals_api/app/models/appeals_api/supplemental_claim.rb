@@ -36,8 +36,8 @@ module AppealsApi
     scope :v2, -> { where(api_version: 'V2') }
     scope :v0, -> { where(api_version: 'V0') }
 
-    serialize :auth_headers, JsonMarshal::Marshaller
-    serialize :form_data, JsonMarshal::Marshaller
+    serialize :auth_headers, coder: JsonMarshal::Marshaller
+    serialize :form_data, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :form_data, key: :kms_key, **lockbox_options
 
