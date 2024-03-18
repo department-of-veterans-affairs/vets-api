@@ -29,7 +29,8 @@ module SimpleFormsApi
 
       IVC_FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
-        '10-7959F-1' => 'vha_10_7959f_1'
+        '10-7959F-1' => 'vha_10_7959f_1',
+        '10-7959F-2' => 'vha_10_7959f_2'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -127,6 +128,8 @@ module SimpleFormsApi
       end
 
       def handle_ivc_uploads(form_id, metadata, pdf_file_paths)
+        Datadog::Tracing.active_trace&.set_tag('ivc_form_id', form_id)
+
         meta_file_name = "#{form_id}_metadata.json"
         meta_file_path = "tmp/#{meta_file_name}"
 
