@@ -7,20 +7,18 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'vaos v2 appointments', type: :request do
   include JsonSchemaMatchers
 
-  before do
-    Flipper.enable('va_online_scheduling')
-    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-  end
-
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
   describe 'GET /mobile/v0/appointments' do
     before do
+      Flipper.enable('va_online_scheduling')
+      allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
       Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z'))
     end
 
     after do
       Timecop.return
+      Flipper.disable('va_online_scheduling')
     end
 
     let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
