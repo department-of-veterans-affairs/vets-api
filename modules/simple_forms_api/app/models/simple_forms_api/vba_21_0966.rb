@@ -71,7 +71,8 @@ module SimpleFormsApi
         benefit_type if is_selected
       end.compact.join(', ')
 
-      Rails.logger.info('Simple forms api - 21-0966 submission user identity', identity:, benefit_types:, confirmation_number:)
+      Rails.logger.info('Simple forms api - 21-0966 submission user identity', identity:, benefit_types:,
+                                                                               confirmation_number:)
     end
 
     private
