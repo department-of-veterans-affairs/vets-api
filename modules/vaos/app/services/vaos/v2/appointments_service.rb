@@ -26,6 +26,8 @@ module VAOS
                  .merge(status_params(statuses))
                  .compact
 
+        cnp_count = 0
+
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
@@ -43,12 +45,13 @@ module VAOS
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
             # TODO: log count of C&P appointments in the appointments list, per GH#78141
-            log_cnp_appt_count if cnp?(appt)
+            cnp_count += 1 if cnp?(appt)
 
             convert_appointment_time(appt)
 
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
           end
+          log_cnp_appt_count(cnp_count) if cnp_count > 0
           {
             data: deserialized_appointments(response.body[:data]),
             meta: pagination(pagination_params).merge(partial_errors(response))
@@ -162,8 +165,9 @@ module VAOS
           Avs::V0::AvsService.new
       end
 
-      def log_cnp_appt_count
-        # TODO: impl
+      def log_cnp_appt_count(cnp_count)
+        Rails.logger.info("Compensation and Pension count on an appointment list retrieval",
+         { CompPenCount: cnp_count }.to_json)
       end
 
       # Extracts the station number and appointment IEN from an Appointment.
