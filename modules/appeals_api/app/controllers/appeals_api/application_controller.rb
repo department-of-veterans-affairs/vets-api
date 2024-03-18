@@ -37,9 +37,9 @@ module AppealsApi
     DEFAULT_HEADERS = { 'Content-Language' => 'en-US' }.freeze
 
     def require_gateway_origin
-      if Rails.env.production? && params[:source].blank? && Flipper.enabled?(:benefits_require_gateway_origin)
-        raise Common::Exceptions::Unauthorized
-      end
+      raise Common::Exceptions::Unauthorized if Rails.env.production? \
+        && (request.headers['X-Consumer-ID'].blank? || request.headers['X-Consumer-Username'].blank?) \
+        && Flipper.enabled?(:benefits_require_gateway_origin)
     end
 
     def set_default_headers

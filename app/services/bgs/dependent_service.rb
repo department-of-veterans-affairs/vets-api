@@ -43,15 +43,6 @@ module BGS
       submit_pdf_job(claim:, encrypted_vet_info:)
 
       if claim.submittable_686? || claim.submittable_674?
-        # Previously, we would wait until `BGS::Service#create_person`'s call to
-        # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
-        # or file number / SSN mismatch. Unfortunately, BGS's error response is
-        # so verbose that Sentry is unable to capture the portion of the message
-        # detailing this specific file number / SSN error, and is therefore unable
-        # to distinguish this error from others in our Sentry dashboards. That is
-        # why I am deliberately raising these errors here.
-
-        perform_file_number_validations!(file_number:)
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
         Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
@@ -157,32 +148,6 @@ module BGS
           'icn' => icn
         }
       }
-    end
-
-    def perform_file_number_validations!(file_number:)
-      validate_file_number_format!(file_number:)
-      validate_file_number_matches_ssn!(file_number:)
-    end
-
-    def validate_file_number_format!(file_number:)
-      # We've observed cases where BGS's file numbers are ten or thirteen digits.
-      # BGS has indicated that these file numbers are incorrect and that file numbers
-      # should be eight or nine digits. I want to log cases like this, so we can
-      # tell BGS the kinds of file numbers we are seeing.
-      if file_number.length < 8 || file_number.length > 9
-        file_number_pattern = file_number.gsub(/[0-9]/, 'X')
-        raise "Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (#{file_number_pattern})"
-      end
-    end
-
-    def validate_file_number_matches_ssn!(file_number:)
-      # BGS has indicated that nine-digit file numbers should be equal to the
-      # veteran's SSN. I want to log instances where that is not the case, so that
-      # we can inform MPI and others of instances where veteran account data is
-      # screwed up.
-      if file_number.length == 9 && file_number != ssn
-        raise 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!'
-      end
     end
   end
 end
