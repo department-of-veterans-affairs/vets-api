@@ -70,7 +70,7 @@ module SimpleFormsApi
       benefit_types = data['benefit_selection'].map do |benefit_type, is_selected|
         benefit_type if is_selected
       end.compact.join(', ')
-      
+
       Rails.logger.info('Simple forms api - 21-0966 submission user identity', identity:, confirmation_number:)
       Rails.logger.info('Simple forms api - 21-0966 submission benefit types', benefit_types:, confirmation_number:)
     end
