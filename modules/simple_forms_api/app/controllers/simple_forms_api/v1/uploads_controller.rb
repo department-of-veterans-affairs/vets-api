@@ -107,6 +107,7 @@ module SimpleFormsApi
         file_path, ivc_file_paths, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
         if IVC_FORM_NUMBER_MAP.value?(form_id)
+          Datadog::Tracing.active_trace&.set_tag('ivc_form_id', form_id)
           status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata, form_id)
@@ -128,8 +129,6 @@ module SimpleFormsApi
       end
 
       def handle_ivc_uploads(form_id, metadata, pdf_file_paths)
-        Datadog::Tracing.active_trace&.set_tag('ivc_form_id', form_id)
-
         meta_file_name = "#{form_id}_metadata.json"
         meta_file_path = "tmp/#{meta_file_name}"
 
