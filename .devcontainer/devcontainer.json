@@ -28,17 +28,17 @@
 		},
 		"9293": {
 			"label": "vets-api-healthcheck",
-			"onAutoForward": "notify",
+			"onAutoForward": "silent",
 			"requireLocalPort": true
 		},
 		"5432": {
 			"label": "postgis",
-			"onAutoForward": "notify",
+			"onAutoForward": "silent",
 			"requireLocalPort": true
 		},
 		"6379": {
 			"label": "redis",
-			"onAutoForward": "notify",
+			"onAutoForward": "silent",
 			"requireLocalPort": true
 		}
 	},
