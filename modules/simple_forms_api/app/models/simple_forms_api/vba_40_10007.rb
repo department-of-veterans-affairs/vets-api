@@ -67,7 +67,7 @@ module SimpleFormsApi
     end
 
     def format_date(date)
-      Date.strptime(date, '%Y-%m-%d').strftime("%m/%d/%Y")  #=> "02/25/2012"
+      Date.strptime(date, '%Y-%m-%d').strftime('%m/%d/%Y') #=> "02/25/2012"
     end
 
     def track_user_identity(confirmation_number); end
