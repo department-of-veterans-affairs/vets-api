@@ -48,14 +48,6 @@ module ClaimsApi
       end
     end
 
-    def set_error_message(response, power_of_attorney_id)
-      if response&.[](:return_code)
-        "BGS Error: update_birls_record failed with code #{response[:return_code]}"
-      else
-        "No POA code found in the form data for poa:#{power_of_attorney_id}"
-      end
-    end
-
     def enable_vbms_access?(poa_form:)
       poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
     end
