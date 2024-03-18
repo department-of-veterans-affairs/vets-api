@@ -7,7 +7,11 @@ module VAOS
   class UserService < VAOS::BaseService
     def session(user)
       cached = cached_by_account_uuid(user.account_uuid)
-      return cached.token if cached
+      if cached && !expiring_soon?(cached.token)
+        Rails.logger.info('VAOS token retrieved from cache',
+                          { request_id: RequestStore.store['request_id'] })
+        return cached.token
+      end
 
       if Flipper.enabled?(:va_online_scheduling_sts_oauth_token, user)
         new_sts_session_token(user)
@@ -89,6 +93,14 @@ module VAOS
       token
     end
 
+    # Creates a new session token using the Security Token Service (STS).
+    #
+    # This method first retrieves a new token from the STS. It then logs the creation of the session,
+    # locks the session creation for the user, saves the session, and finally returns the token.
+    #
+    # @param user [User] The user for whom the session is being created.
+    #
+    # @return [String] The newly created session token.
     def new_sts_session_token(user)
       map_sts_rslt = MAP::SecurityToken::Service.new.token(application: :appointments, icn: user.icn)
       token = map_sts_rslt[:access_token]
@@ -120,6 +132,27 @@ module VAOS
     def ttl_duration_from_token(token)
       # token expiry with 45 second buffer to match SessionStore model TTL buffer
       Time.at(decoded_token(token)['exp']).utc.to_i - Time.now.utc.to_i - 45
+    end
+
+    # Checks if a given JWT token is expiring soon.
+    #
+    # @param token [String] The JWT token to check.
+    # @param leeway [Integer] The amount of time (in seconds) before the actual
+    #   expiration time that should still be considered as "expiring soon". Default is 2 minutes.
+    #
+    # @return [Boolean] Returns true if the token is expiring soon (or if there was an error
+    #   decoding the token), false otherwise.
+    def expiring_soon?(token, leeway = 2.minutes)
+      begin
+        decoded_token = decoded_token(token)
+      rescue JWT::DecodeError => e
+        Rails.logger.error "VAOS Error decoding JWT: #{e}"
+        return true
+      end
+
+      expiration_time = decoded_token['exp']
+
+      expiration_time <= Time.now.to_i + leeway
     end
 
     def decoded_token(token)

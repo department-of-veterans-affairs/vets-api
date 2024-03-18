@@ -246,13 +246,38 @@ describe VAOS::UserService do
     context 'when a request to the Mobile OAuth Secure Token Service fails' do
       before do
         allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token)
-            .and_raise(Common::Client::Errors::ClientError)
+          .and_raise(Common::Client::Errors::ClientError)
       end
 
       it 'raises a Common::Client::Errors::ClientError' do
         expect { subject.session(user) }.to raise_error(
           Common::Client::Errors::ClientError
         )
+      end
+    end
+  end
+
+  describe '#expiring_soon?' do
+    let(:valid_token) { JWT.encode({ exp: (Time.now.utc + 3.minutes).to_i }, nil) }
+    let(:expiring_token) { JWT.encode({ exp: (Time.now.utc + 1.minute).to_i }, nil) }
+    let(:falsely_encoded_token) { 'not a real token' }
+
+    context 'when the token is valid and not expiring soon' do
+      it 'returns false' do
+        expect(subject.send(:expiring_soon?, valid_token)).to eq false
+      end
+    end
+
+    context 'when the token is valid but expiring soon' do
+      it 'returns true' do
+        expect(subject.send(:expiring_soon?, expiring_token)).to eq true
+      end
+    end
+
+    context 'when the token is not valid' do
+      it 'logs an error and returns true' do
+        expect(Rails.logger).to receive(:error).with(/VAOS Error decoding JWT/)
+        expect(subject.send(:expiring_soon?, falsely_encoded_token)).to eq true
       end
     end
   end
