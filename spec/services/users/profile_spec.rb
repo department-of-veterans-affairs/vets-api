@@ -8,15 +8,35 @@ RSpec.describe Users::Profile do
   let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
   let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
 
+  let(:cassettes_good_vet_status) do
+    [
+      { name: 'profile/demographics' },
+      { name: 'va_profile/veteran_status/va_profile_veteran_status_200',
+        options: { match_requests_on: %i[method body] } }
+    ]
+  end
+
+  let(:cassettes_oid_blank) do
+    [
+      { name: 'profile/demographics' },
+      { name: 'va_profile/veteran_status/veteran_status_404_oid_blank',
+        options: { match_requests_on: %i[method body] } }
+    ]
+  end
+
   describe '.initialize' do
-    let(:users_profile) { Users::Profile.new(user) }
+    VCR.use_cassette('profile/demographics') do
+      let(:users_profile) { Users::Profile.new(user) }
+    end
 
     it 'sets #scaffold.status to 200' do
       expect(users_profile.scaffold.status).to eq 200
     end
 
     it 'sets #scaffold.errors to an empty array' do
-      expect(users_profile.scaffold.errors).to eq []
+      VCR.use_cassette('profile/demographics') do
+        expect(users_profile.scaffold.errors).to eq []
+      end
     end
 
     context 'when initialized with a non-User object' do
@@ -47,15 +67,13 @@ RSpec.describe Users::Profile do
     end
 
     it 'sets the status to 200' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
-                                                                                  allow_playback_repeats: true) do
+      VCR.use_cassettes(cassettes_good_vet_status) do
         expect(subject.status).to eq 200
       end
     end
 
     it 'sets the errors to nil' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
-                                                                                  allow_playback_repeats: true) do
+      VCR.use_cassettes(cassettes_good_vet_status) do
         expect(subject.errors).to be_nil
       end
     end
@@ -273,8 +291,7 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
-                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+          VCR.use_cassettes(cassettes_good_vet_status) do
             expect(subject.status).to eq 200
           end
         end
@@ -288,12 +305,13 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
-
-          expect(error[:external_service]).to eq 'MVI'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to include 'Not authorized'
-          expect(error[:status]).to eq 401
+          VCR.use_cassette('va_profile/demographics/demographics') do
+            error = subject.errors.first
+            expect(error[:external_service]).to eq 'MVI'
+            expect(error[:start_time]).to be_present
+            expect(error[:description]).to include 'Not authorized'
+            expect(error[:status]).to eq 401
+          end
         end
 
         it 'sets the status to 296' do
@@ -309,11 +327,13 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
-          expect(error[:external_service]).to eq 'MVI'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to include 'Record not found'
-          expect(error[:status]).to eq 404
+          VCR.use_cassette('profile/demographics') do
+            error = subject.errors.first
+            expect(error[:external_service]).to eq 'MVI'
+            expect(error[:start_time]).to be_present
+            expect(error[:description]).to include 'Record not found'
+            expect(error[:status]).to eq 404
+          end
         end
 
         it 'sets the status to 296' do
@@ -346,8 +366,7 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
-                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+          VCR.use_cassettes(cassettes_good_vet_status) do
             expect(subject.status).to eq 200
           end
         end
@@ -359,8 +378,7 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error' do
-          VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
-                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+          VCR.use_cassettes(cassettes_oid_blank) do
             error = subject.errors.first
             expect(error[:external_service]).to eq 'VAProfile'
             expect(error[:start_time]).to be_present
@@ -380,12 +398,14 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
+          VCR.use_cassette('profile/demographics') do
+            error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'VAProfile'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to be_present
-          expect(error[:status]).to eq 503
+            expect(error[:external_service]).to eq 'VAProfile'
+            expect(error[:start_time]).to be_present
+            expect(error[:description]).to be_present
+            expect(error[:status]).to eq 503
+          end
         end
 
         it 'sets the status to 296' do
@@ -401,8 +421,11 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
-                                                                                     allow_playback_repeats: true) do
+          VCR.use_cassettes([
+                              { name: 'va_profile/demographics/demographics' },
+                              { name: 'va_profile/veteran_status/veteran_status_401_oid_blank',
+                                options: { match_requests_on: %i[method body] } }
+                            ]) do
             vaprofile_error = subject.errors.last
 
             expect(vaprofile_error[:external_service]).to eq 'VAProfile'
@@ -446,8 +469,11 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
-                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+          VCR.use_cassettes([
+                              { name: 'va_profile/demographics/demographics' },
+                              { name: 'va_profile/veteran_status/va_profile_veteran_status_200',
+                                options: { match_requests_on: %i[method body] } }
+                            ]) do
             expect(subject.status).to eq 200
           end
         end
@@ -464,13 +490,15 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          results = Users::Profile.new(user).pre_serialize
-          error   = results.errors.first
+          VCR.use_cassette('profile/demographics') do
+            results = Users::Profile.new(user).pre_serialize
+            error   = results.errors.first
 
-          expect(error[:external_service]).to eq 'VAProfile'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to be_present
-          expect(error[:status]).to eq 503
+            expect(error[:external_service]).to eq 'VAProfile'
+            expect(error[:start_time]).to be_present
+            expect(error[:description]).to be_present
+            expect(error[:status]).to eq 503
+          end
         end
 
         it 'sets the status to 296' do
@@ -513,6 +541,26 @@ RSpec.describe Users::Profile do
       it 'with a transaction in the Session shows a SSOe authentication' do
         expect(scaffold_with_ssoe.session)
           .to eq({ auth_broker: SAML::URLService::BROKER_CODE, ssoe: true, transactionid: 'a' })
+      end
+    end
+
+    describe 'Demographics' do
+      let(:demographics) { subject.demographics }
+
+      it 'No demographics' do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                         match_requests_on: %i[method body]) do
+          expect(demographics).to be_nil
+          expect(subject.errors).to be_present
+          expect(subject.errors.select { |error| error[:external_service] == 'VAProfile' }).not_to be_empty
+        end
+      end
+
+      it 'demographics exist' do
+        VCR.use_cassettes(cassettes_good_vet_status) do
+          expect(demographics[:preferred_name]).to eq('ABE')
+          expect(subject.errors).not_to be_present
+        end
       end
     end
   end
