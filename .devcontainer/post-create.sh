@@ -36,6 +36,9 @@ redis:
 
 betamocks:
   cache_dir: ../vets-api-mockdata
+
+# Allow access from localhost and shared github URLs.
+virtual_hosts: ["127.0.0.1", "localhost", !ruby/regexp /.*\.app\.github\.dev/]
 EOT
 fi
 
