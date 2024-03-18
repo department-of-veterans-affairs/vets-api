@@ -15,10 +15,10 @@ module Vye
                :del_date,
                :date_last_certified,
                :payment_amt,
-               :indicator
+               :indicator,
+               :verification_required?
 
     has_many :awards, serializer: Vye::AwardSerializer
     has_many :pending_documents, serializer: Vye::PendingDocumentSerializer
-    has_many :verifications, serializer: Vye::VerificationSerializer
   end
 end
