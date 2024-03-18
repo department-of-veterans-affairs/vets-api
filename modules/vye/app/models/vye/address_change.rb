@@ -17,7 +17,10 @@ module Vye
 
     validates(*REQUIRED_ATTRIBUTES, presence: true)
 
-    scope :created_today, -> { includes(:user_info).where('created_at >= ?', Time.zone.now.beginning_of_day) }
+    scope :created_today, lambda {
+      includes(user_info: :user_profile)
+        .where('created_at >= ?', Time.zone.now.beginning_of_day)
+    }
 
     def self.todays_records
       created_today.each_with_object([]) do |record, result|

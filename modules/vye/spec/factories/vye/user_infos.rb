@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  digit = proc { rand(0..9).to_s }
+
   factory :vye_user_info, class: 'Vye::UserInfo' do
-    Faker::Number.number(digits: 9).tap do |v|
-      v = v.to_s
-      ssn { v }
-      file_number { v }
-    end
+    association :user_profile, factory: :vye_user_profile
+
+    ssn { (1..9).map(&digit).join }
+    file_number { (1..9).map(&digit).join }
+
     suffix { Faker::Name.suffix }
     full_name { Faker::Name.name }
     address_line2 { Faker::Address.secondary_address }
