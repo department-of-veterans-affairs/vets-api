@@ -5,7 +5,6 @@ module SimpleFormsApi
     include Virtus.model(nullify_blank: true)
 
     attribute :data
-    attr_accessor :data
 
     def initialize(data)
       @data = data
@@ -34,7 +33,7 @@ module SimpleFormsApi
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
+        'fileNumber' => @data.dig('veteran', 'ssn'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
@@ -95,18 +94,19 @@ module SimpleFormsApi
 
     def veteran_payload
       full_name = data.dig('veteran', 'full_name')
-      {
-        address: veteran_address_payload,
-        ssn: data.dig('veteran', 'ssn'),
-        vaFileNumber: data.dig('veteran', 'va_file_number'),
-        fullName: {
-          first: full_name['first']&.[](0..29),
-          middle: full_name['middle']&.[](0..29),
-          last: full_name['last']&.[](0..29),
-          suffix: full_name['suffix']
-        },
-        dateOfBirth: data.dig('veteran', 'date_of_birth')
-      }
+      if full_name
+        {
+          address: veteran_address_payload,
+          ssn: data.dig('veteran', 'ssn')&.tr('-', ''),
+          fullName: {
+            first: full_name['first']&.[](0..29),
+            middle: full_name['middle']&.[](0..29),
+            last: full_name['last']&.[](0..29),
+            suffix: full_name['suffix']
+          },
+          dateOfBirth: data.dig('veteran', 'date_of_birth')
+        }
+      end
     end
 
     def veteran_address_payload
