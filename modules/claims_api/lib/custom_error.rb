@@ -67,10 +67,13 @@ module ClaimsApi
 
     def get_code
       @code = if @error.respond_to?(:va900?)
-                'VA900'
+                ClaimsApi::Logger.log('526_docker_container',
+                                      detail: "Custom error- error.va900: #{@error.va900?}")
               elsif @error.respond_to?(:status_code)
                 @error.status_code
               else
+                ClaimsApi::Logger.log('526_docker_container',
+                                      detail: "Custom error- error.status_code: #{@error.status_code}")
                 @status
               end
     end
@@ -78,10 +81,16 @@ module ClaimsApi
     def get_source
       if (@error.respond_to?(:key) && @error.key.present?) ||
          (@error.respond_to?(:backtrace) && @error.backtrace.present?)
-        matches = if @error.backtrace.nil?
+        ClaimsApi::Logger.log('526_docker_container',
+                              detail: "Custom error: error.key: #{@error.key}, error.backtrace: #{@error.backtrace}")
+        matches = if @error&.backtrace.nil? && @error.key.is_a?(Array)
                     @error.key[0].match(/vets-api(\S*) (.*)/)
-                  else
+                  elsif @error.backtrace.is_a?(Array)
                     @error.backtrace[0].match(/vets-api(\S*) (.*)/)
+                  else
+                    ClaimsApi::Logger.log('526_docker_container',
+                                          detail: "Custom error: error.key: #{@error.key},
+                                          error.backtrace: #{@error.backtrace}")
                   end
         spliters = matches[0].split(':')
         @source = spliters[0]
