@@ -175,14 +175,20 @@ module MyHealth
         zero_date = Date.new(0, 1, 1)
 
         data.select do |item|
-          disp_status = item.disp_status
-          sorted_dispensed_date = item.sorted_dispensed_date.to_date
-
-          next true if ['Active', 'Active: Submitted'].include?(disp_status)
+          disp_status = item[:disp_status]
+          refill_history_expired_date = item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
+          expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
+          dispensed_date = item[:sorted_dispensed_date]&.to_date || item[:dispensed_date]&.to_date
           next true if item.is_refillable
-          next true if %w[Expired Discontinued].include?(disp_status) &&
-                       sorted_dispensed_date >= six_months_from_today &&
-                       sorted_dispensed_date != zero_date
+          next true if ['Active', 'Active: On Hold', 'Unknown', 'Discontinued'].include?(disp_status)
+          next true if disp_status == 'Active: Parked' && item[:refill_remaining].positive?
+          next true if disp_status == 'Expired' && expired_date.present? &&
+                       expired_date >= six_months_from_today
+          next true if ['Active: Submitted', 'Active: Refill in Process'].include?(disp_status) &&
+                       item[:refill_remaining].zero? &&
+                       dispensed_date.present? &&
+                       dispensed_date != zero_date &&
+                       dispensed_date >= six_months_from_today
 
           false
         end

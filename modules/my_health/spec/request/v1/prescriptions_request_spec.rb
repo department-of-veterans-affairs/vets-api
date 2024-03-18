@@ -139,12 +139,20 @@ RSpec.describe 'prescriptions', type: :request do
 
         response_data = JSON.parse(response.body)['data']
         response_data.each do |prescription|
-          sorted_dispensed_date = prescription['rxRfRecords']&.dig(0, 1, 0) || prescription['dispensedDate']
-          if prescription['isRefillable'] || ['Active', 'Active: Submitted'].include?(prescription['dispStatus']) ||
-             (%w[Expired Discontinued].include?(prescription['dispStatus']) &&
-             sorted_dispensed_date >= six_months_from_today &&
-             sorted_dispensed_date != zero_date)
-
+          disp_status = prescription['dispStatus']
+          refill_history_expired_date = prescription['rxRfRecords']&.dig(0, 1, 0)
+          expired_date = refill_history_expired_date || prescription['expirationDate']
+          dispensed_date = prescription['sortedDispensedDate'] || prescription['dispensedDate']
+          if prescription['isRefillable'] ||
+             ['Active', 'Active: On Hold', 'Unknown', 'Discontinued'].include?(disp_status) ||
+             (disp_status == 'Active: Parked' && prescription['refillRemaining'].to_i.positive?) ||
+             (disp_status == 'Expired' && expired_date.present? &&
+              expired_date >= six_months_from_today) ||
+             (['Active: Submitted', 'Active: Refill in Process'].include?(disp_status) &&
+              prescription['refillRemaining'].to_i.zero? &&
+              dispensed_date.present? &&
+              dispensed_date >= six_months_from_today &&
+              dispensed_date != zero_date)
             expect(prescription).to be_included
           end
         end
