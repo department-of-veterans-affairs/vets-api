@@ -62,10 +62,7 @@ FactoryBot/ConsistentParenthesesStyle:
     - 'spec/models/va_profile_redis/cache_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
     - 'spec/rakelib/form526_spec.rb'
-    - 'spec/requests/alternate_phone_request_spec.rb'
-    - 'spec/requests/email_request_spec.rb'
     - 'spec/requests/form1095_b_spec.rb'
-    - 'spec/requests/primary_phone_request_spec.rb'
     - 'spec/requests/service_history_request_spec.rb'
     - 'spec/requests/va_profile/transactions_request_spec.rb'
     - 'spec/serializers/category_serializer_spec.rb'
@@ -747,6 +744,7 @@ RSpec/PendingWithoutReason:
     - 'spec/requests/authentication/standard_authentication_spec.rb'
     - 'spec/requests/breakers_integration_spec.rb'
     - 'spec/sidekiq/facilities/mental_health_reload_job_spec.rb'
+    - 'modules/claims_api/spec/requests/v1/disability_compensation_request_spec.rb'
 
 # Offense count: 630
 # This cop supports unsafe autocorrection (--autocorrect-all).
