@@ -14,6 +14,7 @@ module ClaimsApi
       def validate_claimant
         return if form_attributes['claimant'].blank?
 
+        validate_claimant_id_included
         validate_address
         validate_relationship
       end
@@ -90,6 +91,30 @@ module ClaimsApi
             detail: "If claimant is present 'relationship' must be filled in"
           )
         end
+      end
+
+      def validate_claimant_id_included
+        claimant_icn = form_attributes.dig('claimant', 'claimantId')
+        address = form_attributes.dig('claimant', 'address')
+        phone = form_attributes.dig('claimant', 'phone')
+        relationship = form_attributes.dig('claimant', 'relationship')
+        return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
+
+        collect_error_messages(
+          source: '/claimant/claimantId/',
+          detail: "If claimant is present 'claimantId' must be filled in"
+        )
+      end
+
+      def check_claimant_id_found
+        user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
+                                                                identifier_type: MPI::Constants::ICN)
+        return if user_profile
+
+        collect_error_messages(
+          source: 'claimant/claimantId',
+          detail: "The 'claimantId' must be valid"
+        )
       end
 
       def errors_array
