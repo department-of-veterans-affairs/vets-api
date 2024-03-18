@@ -27,6 +27,8 @@ describe Mobile::V0::UserAccessibleServices, aggregate_failures: true, type: :mo
 
     describe 'appointments' do
       context 'when feature flag is off' do
+        before { Flipper.disable(:va_online_scheduling) }
+
         it 'is false' do
           expect(user_services.service_auth_map[:appointments]).to be(false)
         end
