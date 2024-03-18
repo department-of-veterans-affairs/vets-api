@@ -866,4 +866,8 @@
   :endpoints:
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
-      :file_path: "vet360/demographics/default"
+      :file_path: "vet360/demographics"
+      :cache_multiple_responses:
+        :uid_location: url
+        # Supports UIDs with or without dashes
+        :uid_locator: '\/demographics\/demographics\/v1\/[0-9.]+\/([0-9A-Fa-f-]+)'
