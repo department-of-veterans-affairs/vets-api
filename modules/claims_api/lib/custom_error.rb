@@ -14,7 +14,6 @@ module ClaimsApi
       get_source
       if @error.is_a?(Faraday::ConnectionFailed) || @error.is_a?(Faraday::ParsingError) ||
          @error.is_a?(Faraday::NilStatusError) || @error.is_a?(Faraday::TimeoutError) ||
-         @error.is_a?(::Common::Exceptions::BackendServiceException) ||
          @error.is_a?(::Common::Exceptions::ExternalServerInternalServerError) ||
          @error.is_a?(::Common::Exceptions::BadGateway) || @error.is_a?(Faraday::SSLError) ||
          @error.is_a?(Faraday::ServerError)
@@ -26,6 +25,7 @@ module ClaimsApi
         raise ::Common::Exceptions::ServiceError, errors
 
       elsif @error.is_a?(StandardError) || @error.is_a?(Faraday::BadRequestError) ||
+            @error.is_a?(::Common::Exceptions::BackendServiceException) ||
             @error.is_a?(Faraday::ConflictError) || @error.is_a?(Faraday::ForbiddenError) ||
             @error.is_a?(Faraday::ProxyAuthError) || @error.is_a?(Faraday::ResourceNotFound) ||
             @error.is_a?(Faraday::UnauthorizedError) || @error.is_a?(Faraday::UnprocessableEntityError) ||
