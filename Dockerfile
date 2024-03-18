@@ -50,7 +50,7 @@ WORKDIR /srv/vets-api/src
 COPY config/clamd.conf /etc/clamav/clamd.conf
 
 RUN mkdir -p /clamav_tmp && \
-    chown -R nonroot:nonroot /clamav_tmp && \
+    chown -R vets-api:vets-api /clamav_tmp && \
     chmod 777 /clamav_tmp
 
 ###
