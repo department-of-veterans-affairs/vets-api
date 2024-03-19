@@ -95,6 +95,8 @@ module ClaimsApi
 
       def validate_claimant_id_included
         claimant_icn = form_attributes.dig('claimant', 'claimantId')
+        check_claimant_id_found(claimant_icn)
+
         address = form_attributes.dig('claimant', 'address')
         phone = form_attributes.dig('claimant', 'phone')
         relationship = form_attributes.dig('claimant', 'relationship')
@@ -106,11 +108,16 @@ module ClaimsApi
         )
       end
 
-      def check_claimant_id_found
+      def check_claimant_id_found(claimant_icn)
         user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
-                                                                identifier_type: MPI::Constants::ICN)
+                                                              identifier_type: MPI::Constants::ICN)
         return if user_profile
 
+        collect_error_messages(
+          source: 'claimant/claimantId',
+          detail: "The 'claimantId' must be valid"
+        )
+      rescue ArgumentError
         collect_error_messages(
           source: 'claimant/claimantId',
           detail: "The 'claimantId' must be valid"

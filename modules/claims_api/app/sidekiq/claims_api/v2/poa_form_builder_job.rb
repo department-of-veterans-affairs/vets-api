@@ -128,7 +128,7 @@ module ClaimsApi
       end
 
       def veteran_or_claimant_signature(power_of_attorney)
-        claimant_icn = power_of_attorney.form_data['claimant']['claimantId']
+        claimant_icn = power_of_attorney.form_data.dig('claimant', 'claimantId')
         if claimant_icn.present?
           user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
                                                                 identifier_type: MPI::Constants::ICN)

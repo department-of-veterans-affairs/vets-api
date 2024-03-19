@@ -91,7 +91,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number)
+            ClaimsApi::V2::PoaFormBuilderJob.new.perform(power_of_attorney.id, form_number)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
