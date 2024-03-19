@@ -10,6 +10,11 @@ RSpec.describe 'PPIU' do
 
   before { sign_in(user) }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                        .and_return(false)
+  end
+
   def self.test_unauthorized(verb)
     context 'with an unauthorized user' do
       let(:user) { create(:user) }
@@ -248,6 +253,23 @@ RSpec.describe 'PPIU' do
           expect(response).to match_camelized_response_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
         end
+      end
+    end
+  end
+
+  describe 'feature flag' do
+    context 'when feature flag enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                            .and_return(true)
+      end
+
+      it 'returns a status of 403' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          get '/v0/ppiu/payment_information', headers: inflection_header
+        end
+
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
