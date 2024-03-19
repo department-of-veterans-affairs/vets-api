@@ -55,7 +55,8 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
-      scaffold.demographics = demographics_data
+      # Temporarily disabled call to demographcis to investigate possible bad IDs - cfelix 3/19/2024
+      # scaffold.demographics = demographics_data
     end
 
     def account
