@@ -348,7 +348,8 @@ module PdfFill
           key: 'form1[0].#subform[37].FederalCemeteryNo[0]'
         },
         'name' => {
-          key: 'form1[0].#subform[37].FederalCemeteryName[0]'
+          key: 'form1[0].#subform[37].FederalCemeteryName[0]',
+          limit: 50
         },
         'cemetaryLocationQuestionCemetery' => {
           key: 'form1[0].#subform[37].HasStateCemetery[2]'
@@ -360,7 +361,8 @@ module PdfFill
           key: 'form1[0].#subform[37].NoStateCemetery[2]'
         },
         'stateCemeteryOrTribalTrustName' => {
-          key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustName[2]'
+          key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustName[2]',
+          limit: 33
         },
         'stateCemeteryOrTribalTrustZip' => {
           key: 'form1[0].#subform[37].StateCemeteryOrTribalTrustZip[2]'
@@ -415,7 +417,7 @@ module PdfFill
             question_num: 20,
             question_suffix: 'B',
             question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
-            limit: 50
+            limit: 32
           }
         },
         'hasPreviouslyReceivedAllowance' => {
@@ -454,7 +456,7 @@ module PdfFill
         'wantClaimFDCProcessedNo' => {
           key: 'form1[0].#subform[83].WantClaimFDCProcessedNo[0]'
         },
-        'claimantSignature' => {
+        'signature' => {
           key: 'form1[0].#subform[83].CLAIMANT_SIGNATURE[0]',
           limit: 45,
           question_num: 25,
