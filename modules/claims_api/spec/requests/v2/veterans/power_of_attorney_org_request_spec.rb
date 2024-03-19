@@ -213,18 +213,20 @@ RSpec.describe 'Power Of Attorney', type: :request do
                     }
                   }
                 end
-                let(:error_msg) { 'Must provide claimant.claimantId if claimant information is provided.' }
+                let(:error_msg) { "If claimant is present 'claimantId' must be filled in" }
 
                 it 'returns a meaningful 422' do
-                  mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                    json = JSON.parse(request_body)
-                    json['data']['attributes']['claimant'] = claimant
-                    request_body = json.to_json
-                    post validate2122_path, params: request_body, headers: auth_header
+                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                      json = JSON.parse(request_body)
+                      json['data']['attributes']['claimant'] = claimant
+                      request_body = json.to_json
+                      post validate2122_path, params: request_body, headers: auth_header
 
-                    response_body = JSON.parse(response.body)['errors'][0]
-                    expect(response).to have_http_status(:unprocessable_entity)
-                    expect(response_body['detail']).to eq(error_msg)
+                      response_body = JSON.parse(response.body)['errors'][0]
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      expect(response_body['detail']).to eq(error_msg)
+                    end
                   end
                 end
               end
