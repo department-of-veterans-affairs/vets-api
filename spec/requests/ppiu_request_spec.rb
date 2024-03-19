@@ -8,9 +8,8 @@ RSpec.describe 'PPIU' do
   let(:user) { create(:user, :loa3) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
-  before { sign_in(user) }
-
   before do
+    sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
                                         .and_return(false)
   end
