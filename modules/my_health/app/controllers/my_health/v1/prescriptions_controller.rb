@@ -4,8 +4,8 @@ module MyHealth
   module V1
     class PrescriptionsController < RxController
       include Filterable
-      include MyHealth::PrescriptionsHelpers::Filtering
-      include MyHealth::PrescriptionsHelpers::Imaging
+      include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::PrescriptionHelper::Imaging
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on

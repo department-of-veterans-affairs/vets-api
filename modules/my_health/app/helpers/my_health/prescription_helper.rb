@@ -3,7 +3,7 @@
 require 'common/exceptions'
 
 module MyHealth
-  module PrescriptionsHelpers
+  module PrescriptionHelper
     module Filtering
       def collection_resource
         case params[:refill_status]
@@ -140,6 +140,5 @@ module MyHealth
                       :get_cmop_value,
                       :get_image_uri
     end
-
   end
 end
