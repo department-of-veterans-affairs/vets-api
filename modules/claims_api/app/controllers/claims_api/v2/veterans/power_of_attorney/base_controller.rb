@@ -4,11 +4,13 @@ require 'bgs/power_of_attorney_verifier'
 require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
+require 'claims_api/v2/power_of_attorney_validation'
 
 module ClaimsApi
   module V2
     module Veterans
       class PowerOfAttorney::BaseController < ClaimsApi::V2::Veterans::Base
+        include ClaimsApi::V2::PowerOfAttorneyValidation
         include ClaimsApi::PoaVerification
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
@@ -43,8 +45,17 @@ module ClaimsApi
 
         def shared_form_validation(form_number)
           target_veteran
+          # Custom validations for POA submission, we must check this first
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values
+          # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
           @rep_id = validate_registration_number!(form_number)
+
+          # if we get here there were only validations file errors
+          if @claims_api_forms_validation_errors
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+                  @claims_api_forms_validation_errors
+          end
         end
 
         def validate_registration_number!(form_number)

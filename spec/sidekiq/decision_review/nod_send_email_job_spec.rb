@@ -14,7 +14,7 @@ RSpec.describe DecisionReview::NodSendEmailJob, type: :job do
 
   let(:email_address) { Faker::Internet.email }
   let(:template_id) { Faker::Internet.uuid }
-  let(:customisation) { { 'full_name' => Faker::Name.name } }
+  let(:personalisation) { { 'full_name' => Faker::Name.name } }
   let(:line_num) { 5 }
 
   before do
@@ -24,9 +24,9 @@ RSpec.describe DecisionReview::NodSendEmailJob, type: :job do
   describe 'perform' do
     context 'with correct job parameters' do
       it 'sends email using VANotify service' do
-        expect(service).to receive(:send_email).with({ email_address:, template_id:, customisation: })
+        expect(service).to receive(:send_email).with({ email_address:, template_id:, personalisation: })
 
-        subject.perform_async(email_address, template_id, customisation, line_num)
+        subject.perform_async(email_address, template_id, personalisation, line_num)
       end
     end
 
@@ -44,7 +44,7 @@ RSpec.describe DecisionReview::NodSendEmailJob, type: :job do
           expect(args[:params][:exception_message]).to eq error_message
         end
 
-        expect { job.perform(email_address, template_id, customisation, line_num) }.not_to raise_exception
+        expect { job.perform(email_address, template_id, personalisation, line_num) }.not_to raise_exception
       end
     end
   end

@@ -15,6 +15,14 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  accredited_representative_portal_frontend:
+    actor_type: user
+    description: Enables the frontend of the accredited representative portal
+    enable_in_development: true
+  accredited_representative_portal_api:
+    actor_type: user
+    description: Enables the endpoints of the accredited representative portal
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -322,6 +330,9 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
+  decision_review_use_appeal_submitted_job:
+    actor_type: user
+    description: Uses the revised AppealSubmittedJob instead of AppealReceivedJob to send emails for newly submitted Decision Reviews
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -541,6 +552,9 @@ features:
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
+  form2010207:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 20-10207
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
@@ -747,21 +761,9 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  omni_channel_link:
-    actor_type: user
-    description: This determines the visibility of the OmniChannel link in the claim status tool
-    enable_in_development: true
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
-  reactivation_experiment_initial_gate:
-    actor_type: user
-    description:
-      Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
-      enabled for one (1) week at the longest, starting 20JULY2023 or 21JULY2023 depending on deployment timing.
-  reactivation_experiment_rate_limit:
-    actor_type: user
-    description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
@@ -877,14 +879,6 @@ features:
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
-    enable_in_development: true
-  representatives_portal_frontend:
-    actor_type: user
-    description: Enables the frontend of the representatives portal
-    enable_in_development: true
-  representatives_portal_api:
-    actor_type: user
-    description: Enables the representatives endpoint
     enable_in_development: true
   schema_contract_appointments_index:
     actor_type: user
@@ -1135,6 +1129,14 @@ features:
     actor_type: user
     description: Enables datadog Real User Monitoring.
     enable_in_development: true
+  va_online_scheduling_use_vpg:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
+  va_online_scheduling_appointment_details_redesign:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for redesigning the appointment details page.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
