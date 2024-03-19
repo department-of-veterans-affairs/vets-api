@@ -7,5 +7,6 @@ FactoryBot.define do
     city { Faker::Address.city }
     state { Faker::Address.state_abbr }
     zip_code { Faker::Address.zip_code }
+    origin { Vye::AddressChange.origins['frontend'] }
   end
 end

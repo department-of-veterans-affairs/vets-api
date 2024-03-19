@@ -4,18 +4,24 @@ module Vye
   class Vye::AddressChange < ApplicationRecord
     belongs_to :user_info
 
-    ENCRYPTED_ATTRIBUTES = %i[
-      veteran_name address1 address2 address3 address4 city state zip_code
-    ].freeze
-
     has_kms_key
-    has_encrypted(*ENCRYPTED_ATTRIBUTES, key: :kms_key, **lockbox_options)
 
-    REQUIRED_ATTRIBUTES = %i[
-      veteran_name address1 city state
-    ].freeze
+    has_encrypted(
+      :veteran_name,
+      :address1, :address2, :address3, :address4, :address5,
+      :city, :state, :zip_code,
+      key: :kms_key, **lockbox_options
+    )
 
-    validates(*REQUIRED_ATTRIBUTES, presence: true)
+    validates(
+      :veteran_name, :address1, :city, :state,
+      presence: true, if: :frontend_origination?
+    )
+
+    validates(
+      :veteran_name, :address1,
+      presence: true, if: :backend_origination?
+    )
 
     enum origin: { frontend: 'f', backend: 'b' }
 
@@ -23,6 +29,14 @@ module Vye
       includes(user_info: :user_profile)
         .where('created_at >= ?', Time.zone.now.beginning_of_day)
     }
+
+    def backend_origination?
+      origin == 'backend'
+    end
+
+    def frontend_origination?
+      origin == 'frontend'
+    end
 
     def self.todays_records
       created_today.each_with_object([]) do |record, result|
