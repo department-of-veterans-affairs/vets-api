@@ -62,6 +62,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
+        allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
         @vbms_client = FakeVBMS.new
         allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
       end
@@ -159,6 +160,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         subject
       end
     end
+
   end
 
   describe '#regional_office' do
