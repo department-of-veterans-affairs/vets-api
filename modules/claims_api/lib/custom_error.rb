@@ -69,32 +69,26 @@ module ClaimsApi
       @code = if @error.respond_to?(:va900?)
                 ClaimsApi::Logger.log('526_docker_container',
                                       detail: "Custom error- error.va900: #{@error.va900?}")
-              elsif @error.respond_to?(:status_code)
-                @error.status_code
               else
                 ClaimsApi::Logger.log('526_docker_container',
-                                      detail: "Custom error- error.status_code: #{@error.status_code}")
-                @status
+                                      detail: "Custom error- error: #{@error}")
+                nil
               end
     end
 
     def get_source
-      if (@error.respond_to?(:key) && @error.key.present?) ||
-         (@error.respond_to?(:backtrace) && @error.backtrace.present?)
+      if @error.respond_to?(:key) && @error.key.present?
+        ClaimsApi::Logger.log('526_docker_container', detail: "Custom error: error.key: #{@error.key}")
+        @source = @error.key[0].match(/vets-api(\S*) (.*)/)[0].split(':')[0] if @error.key.is_a?(Array)
+      elsif (@error.respond_to?(:backtrace) && @error.backtrace.present?) && @error.backtrace.is_a?(Array)
+        ClaimsApi::Logger.log('526_docker_container', detail: "Custom error: error.backtrace: #{@error.backtrace}")
+        @source = @error.backtrace[0].match(/vets-api(\S*) (.*)/)[0].split(':')[0] if @error.backtrace.is_a?(Array)
+      else
         ClaimsApi::Logger.log('526_docker_container',
-                              detail: "Custom error: error.key: #{@error.key}, error.backtrace: #{@error.backtrace}")
-        matches = if @error&.backtrace.nil? && @error.key.is_a?(Array)
-                    @error.key[0].match(/vets-api(\S*) (.*)/)
-                  elsif @error.backtrace.is_a?(Array)
-                    @error.backtrace[0].match(/vets-api(\S*) (.*)/)
-                  else
-                    ClaimsApi::Logger.log('526_docker_container',
-                                          detail: "Custom error: error.key: #{@error.key},
-                                          error.backtrace: #{@error.backtrace}")
-                  end
-        spliters = matches[0].split(':')
-        @source = spliters[0]
+                              detail: "Custom error: The error does not have a key or a backtrace, #{@error}")
+        @source = nil
       end
+      @source
     end
   end
 end
