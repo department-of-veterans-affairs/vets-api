@@ -2,7 +2,6 @@
 
 require 'common/exceptions'
 require 'common/client/concerns/service_status'
-require 'va_profile/demographics/service'
 
 module Users
   class Profile
@@ -55,29 +54,12 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
-      scaffold.demographics = demographics_data
     end
 
     def account
       { account_uuid: user.account_uuid }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'Account').serialize_error
-      nil
-    end
-
-    # Get the preferred named from the user's demographics. See scaffold.errors for any errors.
-    #
-    # @return the user's preferred name or nil if the user has no preferred name or there was an
-    # error fetching the name.
-    #
-    def demographics_data
-      demographic_svc = VAProfile::Demographics::Service.new @user
-      demographics = demographic_svc.get_demographics.demographics
-      {
-        preferred_name: demographics.preferred_name.text
-      }
-    rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error
       nil
     end
 
