@@ -11,6 +11,7 @@ MebApi::Engine.routes.draw do
     get 'enrollment', to: 'education_benefits#enrollment'
     get 'exclusion_periods', to: 'education_benefits#exclusion_periods'
 
+    post 'send_confirmation_email', to: 'education_benefits#send_confirmation_email'
     post 'submit_enrollment_verification', to: 'education_benefits#submit_enrollment_verification'
 
     post 'duplicate_contact_info', to: 'education_benefits#duplicate_contact_info'
