@@ -4,7 +4,11 @@ module Vye
   class Vye::UserInfo < ApplicationRecord
     INCLUDES = %i[address_changes awards pending_documents verifications].freeze
 
-    self.ignored_columns += %i[icn ssn_digest]
+    self.ignored_columns += %i[
+      address_line2_ciphertext address_line3_ciphertext address_line4_ciphertext
+      address_line5_ciphertext address_line6_ciphertext
+      full_name_ciphertext icn ssn_digest suffix zip_ciphertext
+    ]
 
     belongs_to :user_profile
 
@@ -24,10 +28,7 @@ module Vye
     delegate :icn, to: :user_profile, allow_nil: true
     delegate :pending_documents, to: :user_profile, allow_nil: true
 
-    %i[
-      address_line2 address_line3 address_line4 address_line5 address_line6 dob
-      file_number full_name ssn stub_nm zip
-    ].freeze.tap do |attributes|
+    %i[dob file_number ssn stub_nm].freeze.tap do |attributes|
       has_kms_key
       has_encrypted(*attributes, key: :kms_key, **lockbox_options)
 
@@ -36,11 +37,11 @@ module Vye
 
     validates(
       :cert_issue_date, :date_last_certified, :del_date, :fac_code, :indicator,
-      :mr_status, :payment_amt, :rem_ent, :rpo_code, :suffix,
+      :mr_status, :payment_amt, :rem_ent, :rpo_code,
       presence: true
     )
 
-    def verification_required?
+    def verification_required
       verifications.empty?
     end
 
