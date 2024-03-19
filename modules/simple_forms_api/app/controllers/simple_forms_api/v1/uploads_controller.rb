@@ -43,9 +43,9 @@ module SimpleFormsApi
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
-          confirmation_number = response.body['reference_number']
+          reference_number = response.body['reference_number']
           status = response.body['status']
-          render json: { confirmation_number:, status: }, status: response.status
+          render json: { reference_number:, status: }, status: response.status
         else
           submit_form_to_central_mail
         end
@@ -88,8 +88,10 @@ module SimpleFormsApi
 
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
+        form = SimpleFormsApi::VBA210966.new(JSON.parse(params.to_json))
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
+        form.track_user_identity(confirmation_number)
 
         render json: {
           confirmation_number:,
@@ -108,10 +110,8 @@ module SimpleFormsApi
         if IVC_FORM_NUMBER_MAP.value?(form_id)
           status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
-          status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+          status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata, form_id)
           form.track_user_identity(confirmation_number)
-
-          SimpleFormsApi::PdfStamper.stamp4010007_uuid(confirmation_number) if form_id == 'vba_40_10007'
 
           Rails.logger.info(
             'Simple forms api - sent to benefits intake',
@@ -178,8 +178,12 @@ module SimpleFormsApi
         [file_path, maybe_add_file_paths, metadata, form]
       end
 
-      def get_upload_location_and_uuid(lighthouse_service)
+      def get_upload_location_and_uuid(lighthouse_service, form_id)
         upload_location = lighthouse_service.get_upload_location.body
+        if form_id == 'vba_40_10007'
+          uuid = upload_location.dig('data', 'id')
+          SimpleFormsApi::PdfStamper.stamp4010007_uuid(uuid)
+        end
         {
           uuid: upload_location.dig('data', 'id'),
           location: upload_location.dig('data', 'attributes', 'location')
@@ -197,9 +201,9 @@ module SimpleFormsApi
         end
       end
 
-      def upload_pdf_to_benefits_intake(file_path, metadata)
+      def upload_pdf_to_benefits_intake(file_path, metadata, form_id)
         lighthouse_service = SimpleFormsApiSubmission::Service.new
-        uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
+        uuid_and_location = get_upload_location_and_uuid(lighthouse_service, form_id)
         form_submission = FormSubmission.create(
           form_type: params[:form_number],
           benefits_intake_uuid: uuid_and_location[:uuid],

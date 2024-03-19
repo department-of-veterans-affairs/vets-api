@@ -5,6 +5,7 @@ require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 require 'claims_api/v2/power_of_attorney_validation'
+require 'claims_api/v2/power_of_attorney_validation'
 
 module ClaimsApi
   module V2
@@ -70,6 +71,11 @@ module ClaimsApi
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'Must provide claimant.claimantId if claimant information is provided.'
           )
+          # if we get here there were only validations file errors
+          if @claims_api_forms_validation_errors
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+                  @claims_api_forms_validation_errors
+          end
         end
 
         def submit_power_of_attorney(poa_code, form_number)
