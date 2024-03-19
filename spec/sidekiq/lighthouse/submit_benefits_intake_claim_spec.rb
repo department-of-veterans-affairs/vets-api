@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CentralMail::SubmitBenefitsIntakeClaim, uploader_helpers: true do
+RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:veteran_readiness_employment_claim) }
@@ -36,7 +36,7 @@ RSpec.describe CentralMail::SubmitBenefitsIntakeClaim, uploader_helpers: true do
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)
-      expect { job.perform(claim.id) }.to raise_error(CentralMail::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
+      expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
       expect(response.success?).to eq(false)
     end
     # perform
@@ -65,7 +65,7 @@ RSpec.describe CentralMail::SubmitBenefitsIntakeClaim, uploader_helpers: true do
 
   describe 'sidekiq_retries_exhausted block' do
     it 'logs a distinct error when retries are exhausted' do
-      CentralMail::SubmitBenefitsIntakeClaim.within_sidekiq_retries_exhausted_block do
+      Lighthouse::SubmitBenefitsIntakeClaim.within_sidekiq_retries_exhausted_block do
         expect(Rails.logger).to receive(:error).exactly(:once)
         expect(StatsD).to receive(:increment).with('worker.central_mail.submit_benefits_intake_claim.exhausted')
       end

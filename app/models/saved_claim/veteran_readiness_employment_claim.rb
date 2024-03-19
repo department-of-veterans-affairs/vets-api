@@ -223,7 +223,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files.find_each { |f| f.update(saved_claim_id: id) }
 
     if Flipper.enable?(:central_mail_benefits_intake_submission, user)
-      CentralMail::SubmitBenefitsIntakeClaim.new.perform(id)
+      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
     else
       CentralMail::SubmitSavedClaimJob.new.perform(id)
     end

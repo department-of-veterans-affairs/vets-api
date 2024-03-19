@@ -7,7 +7,7 @@ require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
 
-module CentralMail
+module Lighthouse
   class SubmitBenefitsIntakeClaim
     include Sidekiq::Job
     include SentryLogging
