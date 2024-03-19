@@ -29,7 +29,8 @@ module SimpleFormsApi
 
       IVC_FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
-        '10-7959F-1' => 'vha_10_7959f_1'
+        '10-7959F-1' => 'vha_10_7959f_1',
+        '10-7959F-2' => 'vha_10_7959f_2'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -43,9 +44,9 @@ module SimpleFormsApi
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
-          confirmation_number = response.body['reference_number']
+          reference_number = response.body['reference_number']
           status = response.body['status']
-          render json: { confirmation_number:, status: }, status: response.status
+          render json: { reference_number:, status: }, status: response.status
         else
           submit_form_to_central_mail
         end
@@ -88,8 +89,10 @@ module SimpleFormsApi
 
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(icn, params)
+        form = SimpleFormsApi::VBA210966.new(JSON.parse(params.to_json))
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
+        form.track_user_identity(confirmation_number)
 
         render json: {
           confirmation_number:,
@@ -106,6 +109,7 @@ module SimpleFormsApi
         file_path, ivc_file_paths, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
         if IVC_FORM_NUMBER_MAP.value?(form_id)
+          Datadog::Tracing.active_trace&.set_tag('ivc_form_id', form_id)
           status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata, form_id)

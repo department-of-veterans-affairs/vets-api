@@ -859,3 +859,15 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
+
+# VA Profile / Vet360
+- :name: "VA Profile"
+  :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/demographics/demographics/v1/*/*"
+      :file_path: "vet360/demographics"
+      :cache_multiple_responses:
+        :uid_location: url
+        # Supports UIDs with or without dashes
+        :uid_locator: '\/demographics\/demographics\/v1\/[0-9.]+\/([0-9A-Fa-f-]+)'

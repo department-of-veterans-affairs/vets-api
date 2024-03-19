@@ -37,7 +37,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.3'
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -112,7 +112,6 @@ gem 'okcomputer'
 gem 'olive_branch'
 gem 'operating_hours'
 gem 'ox'
-gem 'paper_trail'
 gem 'parallel'
 gem 'pdf-forms'
 gem 'pdf-reader'
