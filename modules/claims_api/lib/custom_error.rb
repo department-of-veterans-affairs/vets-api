@@ -44,7 +44,12 @@ module ClaimsApi
                                           "need to be modified. original_error: #{@error}.", status: @status,
                               code: @code }] }
         log_outcome_for_claims_api(errors)
-        raise ::Common::Exceptions::ServiceError, errors
+        raise ::Common::Exceptions::BackendServiceException.new(
+          '526_400',
+          { source: @source.to_s },
+          @error&.original_status,
+          @error&.original_body
+        )
       end
     end
 

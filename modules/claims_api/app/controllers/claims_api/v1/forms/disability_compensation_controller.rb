@@ -252,7 +252,7 @@ module ClaimsApi
 
         def format_526_errors(errors)
           errors.map do |error|
-            { status: 422, detail: "#{error['key']} #{error['detail']}", source: error['key'] }
+            { status: 422, detail: "#{error[:key]} #{error[:detail]}", source: error[:key] }
           end
         end
 
