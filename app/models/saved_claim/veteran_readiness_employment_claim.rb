@@ -222,7 +222,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    if Flipper.enable?(:central_mail_benefits_intake_submission, user)
+    if Flipper.enabled?(:central_mail_benefits_intake_submission, user)
       Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
     else
       CentralMail::SubmitSavedClaimJob.new.perform(id)
