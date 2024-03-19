@@ -9,14 +9,6 @@ FactoryBot.define do
     ssn { (1..9).map(&digit).join }
     file_number { (1..9).map(&digit).join }
 
-    suffix { Faker::Name.suffix }
-    full_name { Faker::Name.name }
-    address_line2 { Faker::Address.secondary_address }
-    address_line3 { Faker::Address.community }
-    address_line4 { Faker::Address.city }
-    address_line5 { Faker::Address.state }
-    address_line6 { Faker::Address.zip }
-    zip { Faker::Address.zip }
     dob { Faker::Date.birthday }
     stub_nm { Faker::Name.name }
     mr_status { Vye::UserInfo.mr_statuses.values.sample }
