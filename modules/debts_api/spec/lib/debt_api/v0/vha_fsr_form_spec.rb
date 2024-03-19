@@ -4,16 +4,17 @@ require 'rails_helper'
 require 'debts_api/v0/fsr_form_builder'
 require 'debts_api/v0/vha_fsr_form'
 RSpec.describe DebtsApi::V0::VhaFsrForm, type: :service do
-  describe '#persist_form_submission' do 
+  describe '#persist_form_submission' do
     let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
     let(:vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
-    context 'given an InProgressForm can be found' do 
+    context 'given an InProgressForm can be found' do
       let(:builder) { DebtsApi::V0::FsrFormBuilder.new(combined_form_data, '123', user) }
-      let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: user.uuid)}
+      let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: user.uuid) }
+
       it 'saves ipf data' do
         in_progress_form
         vha_form = builder.vha_forms.first
@@ -22,8 +23,9 @@ RSpec.describe DebtsApi::V0::VhaFsrForm, type: :service do
       end
     end
 
-    context 'given an InProgressForm can not be found' do 
+    context 'given an InProgressForm can not be found' do
       let(:builder) { DebtsApi::V0::FsrFormBuilder.new(combined_form_data, '123', user) }
+
       it 'leaves ipf data nil' do
         vha_form = builder.vha_forms.first
         submission = vha_form.persist_form_submission

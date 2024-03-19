@@ -23,7 +23,7 @@ module DebtsApi
       metadata = { debts: @debts }.to_json
       public_metadata = build_public_metadata
       ipf = in_progress_form(@user.uuid)
-      ipf_data = ipf ? ipf.form_data: nil
+      ipf_data = ipf&.form_data
 
       DebtsApi::V0::Form5655Submission.create(
         form_json: @form_data.to_json,
