@@ -48,7 +48,7 @@ jobs:
       - name: Setup Database
         run: |
              docker-compose -f docker-compose.test.yml run vets-api bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 13 -e 'bin/rails db:reset'"
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Get changed files
         run: |
