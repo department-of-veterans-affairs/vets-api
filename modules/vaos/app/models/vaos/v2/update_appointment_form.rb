@@ -19,6 +19,16 @@ module VAOS
 
         attributes.compact
       end
+
+      def json_patch_op
+        raise Common::Exceptions::ValidationErrors, self unless valid?
+
+        {
+          op: 'replace',
+          path: '/status',
+          value: status
+        }
+      end
     end
   end
 end

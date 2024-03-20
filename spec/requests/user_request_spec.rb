@@ -47,6 +47,7 @@ RSpec.describe 'Fetching user data' do
           BackendServices::USER_PROFILE,
           BackendServices::RX,
           BackendServices::MESSAGING,
+          BackendServices::MEDICAL_RECORDS,
           BackendServices::HEALTH_RECORDS,
           BackendServices::ID_CARD,
           # BackendServices::MHV_AC, this will be false if mhv account is premium
@@ -176,7 +177,7 @@ RSpec.describe 'Fetching user data' do
       it 'returns meta.errors information', :aggregate_failures do
         error = body.dig('meta', 'errors').first
 
-        expect(error['external_service']).to eq 'Vet360'
+        expect(error['external_service']).to eq 'VAProfile'
         expect(error['description']).to be_present
         expect(error['status']).to eq 502
       end

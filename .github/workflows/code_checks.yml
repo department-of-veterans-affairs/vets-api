@@ -12,13 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Lock back to an @v1-version once https://github.com/ruby/setup-ruby/pull/491 is merged
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@22fdc77bf4148f810455b226c90fb81b5cbc00a7
         with:
           bundler-cache: true
 
       - name: Run bundle-audit (checks gems for CVE issues)
-        run:  bundle exec bundle-audit check --update --ignore CVE-2023-26141
+        run:  bundle exec bundle-audit check --update --ignore CVE-2024-27456
 
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format github

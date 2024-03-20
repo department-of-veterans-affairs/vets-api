@@ -24,6 +24,10 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
+        before_action only: %i[generate_pdf] do
+          permit_scopes(%w[system/526-pdf.override], actions: [:generate_pdf])
+        end
+
         def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
@@ -149,13 +153,13 @@ module ClaimsApi
 
         def shared_validation
           # Custom validations for 526 submission, we must check this first
-          @disability_compensation_validation_errors = validate_form_526_submission_values!(target_veteran)
+          @claims_api_forms_validation_errors = validate_form_526_submission_values!(target_veteran)
           # JSON validations for 526 submission, will combine with previously captured errors and raise
           validate_json_schema
           # if we get here there were only validations file errors
-          if @disability_compensation_validation_errors
+          if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
-                  @disability_compensation_validation_errors
+                  @claims_api_forms_validation_errors
           end
         end
 

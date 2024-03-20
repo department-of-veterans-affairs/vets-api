@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'claims_api/vbms_uploader'
 require 'claims_api/poa_vbms_sidekiq'
 
 module ClaimsApi
-  class PoaVBMSUploadJob
-    include Sidekiq::Job
+  class PoaVBMSUploadJob < ClaimsApi::ServiceBase
     include ClaimsApi::PoaVbmsSidekiq
 
     # Uploads a 21-22 or 21-22a form for a given POA request to VBMS.

@@ -19,9 +19,9 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
   # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
   mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
-  mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
   # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
+  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
   # Daily report of appeals submissions
   mgr.register('0 23 * * 1-5', 'AppealsApi::DailyErrorReport')
@@ -68,9 +68,6 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
   # Deletes old, completed AsyncTransaction records
 
-  mgr.register('30 3 * * 1', 'EVSS::FailedClaimsReport')
-  # Notify developers about EVSS claims which could not be uploaded
-
   mgr.register('0 4 * * *', 'EducationForm::CreateDailyFiscalYearToDateReport')
   # Send the daily report to VA stakeholders about Education Benefits submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
@@ -99,6 +96,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
   # Weekly logs of maintenance windows
   mgr.register('0 20 * * *', 'ClaimsApi::ClaimAuditor')
+  # Hourly slack alert of errored claim submissions
+  mgr.register('0 * * * *', 'ClaimsApi::ReportHourlyUnsuccessfulSubmissions')
   # Daily alert of pending claims longer than acceptable threshold
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
@@ -157,7 +156,10 @@ PERIODIC_JOBS = lambda { |mgr|
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
   mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
-  # Updates veteran representatives address attributes (including lat, long, location, address fields, email address)
-  mgr.register('0 3 * * *', 'RepAddresses::QueueAddressUpdates')
+  # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
+  mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+
+  # Updates veteran service organization names
+  mgr.register('0 5 * * *', 'Organizations::UpdateNames')
 }
 # rubocop:enable Metrics/BlockLength
