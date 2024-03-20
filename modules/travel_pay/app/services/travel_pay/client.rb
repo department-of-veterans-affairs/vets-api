@@ -48,6 +48,27 @@ module TravelPay
       end
     end
 
+    ##
+    # HTTP GET call to the BTSSS 'claims' endpoint
+    # API responds with travel pay claims including status
+    #
+    # @return [TravelPay::Claim]
+    #
+    def get_claims(veis_token, btsss_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['BTSSS-Access-Token'] = "#{btsss_token}"
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+      end
+
+      symbolized_body = response.body.deep_symbolize_keys
+      parse_claim_date = lambda {|c| Date.parse(c[:modified_on])}
+      symbolized_body[:data].sort_by(&parse_claim_date).reverse!
+    end
+
     private
 
     def veis_params
