@@ -39,6 +39,7 @@ describe SimpleFormsApi::PdfFiller do
   # IVC CHAMPVA Forms
   test_pdf_fill 'vha_10_10d'
   test_pdf_fill 'vha_10_7959f_1'
+  test_pdf_fill 'vha_10_7959f_2'
 
   def self.test_json_valid(mapping_file)
     it 'validates json is parseable' do
@@ -60,4 +61,5 @@ describe SimpleFormsApi::PdfFiller do
   # IVC CHAMPVA Forms
   test_json_valid 'vha_10_10d.json.erb'
   test_json_valid 'vha_10_7959f_1.json.erb'
+  test_json_valid 'vha_10_7959f_2.json.erb'
 end

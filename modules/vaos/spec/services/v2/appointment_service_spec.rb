@@ -416,6 +416,7 @@ describe VAOS::V2::AppointmentsService do
         context 'using VPG' do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+            Flipper.enable(:va_online_scheduling_use_vpg)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
