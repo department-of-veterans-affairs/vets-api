@@ -31,7 +31,7 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless self.class == SavedClaim::Burial
+    self.form_id = self.class::FORM.upcase unless (Flipper.enabled?(:va_burial_v2) && self.class == SavedClaim::Burial)
   end
 
   def self.add_form_and_validation(form_id)

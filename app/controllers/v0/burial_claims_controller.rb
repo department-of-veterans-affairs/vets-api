@@ -8,7 +8,12 @@ module V0
 
     def create
      PensionBurial::TagSentry.tag_sentry
-      claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params["form"])["formV2"])
+     
+      if Flipper.enabled?(:va_burial_v2)
+        claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params["form"])["formV2"])
+      else
+        claim = claim_class.new(form: filtered_params[:form])
+      end
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")

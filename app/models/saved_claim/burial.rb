@@ -9,7 +9,11 @@ class SavedClaim::Burial < CentralMailClaim
   attr_accessor :formV2
 
   after_initialize do
-    self.form_id = (self.formV2 || self.form_id == '21P-530V2') ? '21P-530V2' : self.class::FORM.upcase
+    if Flipper.enabled?(:va_burial_v2)
+      self.form_id = (self.formV2 || self.form_id == '21P-530V2') ? '21P-530V2' : self.class::FORM.upcase
+    else
+      self.form_id = self.class::Form.upcase
+    end
   end
 
   def process_attachments!
