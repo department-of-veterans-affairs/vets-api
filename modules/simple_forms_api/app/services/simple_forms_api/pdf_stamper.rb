@@ -5,176 +5,28 @@ require 'central_mail/datestamp_pdf'
 module SimpleFormsApi
   class PdfStamper
     FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972 20-10207 10-7959F-1].freeze
-    SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
+    SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at'
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
     class << self
       def stamp_pdf(stamped_template_path, form, current_loa)
-        form_number = form.data['form_number']
-        if FORM_REQUIRES_STAMP.include? form_number
-          stamp_method = "stamp#{form_number.gsub('-', '')}".downcase
-          send(stamp_method, stamped_template_path, form)
-        end
+        instance = new(stamped_template_path, form, current_loa)
+        form_number = form.data['form_number'].gsub('-', '').downcase
 
-        current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
-        auth_text = case current_loa
-                    when 3
-                      'Signee signed with an identity-verified account.'
-                    when 2
-                      'Signee signed in but hasn’t verified their identity.'
-                    else
-                      'Signee not signed in.'
-                    end
-        stamp_text = SUBMISSION_TEXT + current_time
+        instance.stamp if FORM_REQUIRES_STAMP.include? form_number
+
+        current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
+        stamp_text = "#{SUBMISSION_TEXT} #{current_time} "
         desired_stamps = [[10, 10, stamp_text]]
-        verified_stamp(stamped_template_path, desired_stamps, auth_text, text_only: false)
+        verified_stamp(stamped_template_path, desired_stamps, instance.auth_text, text_only: false)
 
         stamp_submission_date(stamped_template_path, form.submission_date_config)
       end
 
-      def stamp107959f1(stamped_template_path, form)
-        desired_stamps = [[26, 82.5, form.data['statement_of_truth_signature']]]
-        append_to_stamp = false
-        verified_stamp(stamped_template_path, desired_stamps, append_to_stamp)
-      end
-
-      def stamp264555(stamped_template_path, form)
-        desired_stamps = []
-        desired_stamps.append([73, 390, 'X']) unless form.data['previous_sah_application']['has_previous_sah_application']
-        desired_stamps.append([73, 355, 'X']) unless form.data['previous_hi_application']['has_previous_hi_application']
-        desired_stamps.append([73, 320, 'X']) unless form.data['living_situation']['is_in_care_facility']
-        append_to_stamp = false
-        verified_stamp(stamped_template_path, desired_stamps, append_to_stamp)
-      end
-
-      def stamp214142(stamped_template_path, form)
-        desired_stamps = [[50, 560]]
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] },
-          { type: :new_page }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-
-        # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
-        if form.data['in_progress_form_created_at']
-          date_title = 'Application Submitted:'
-          date_text = form.data['in_progress_form_created_at']
-          stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
-        end
-      end
-
-      def stamp214142_date_stamp_for_resubmission(stamped_template_path, date_title, date_text)
-        date_title_stamp_position = [440, 710]
-        date_text_stamp_position = [440, 690]
-        page_configuration = [
-          { type: :text, position: date_title_stamp_position },
-          { type: :new_page },
-          { type: :new_page }
-        ]
-
-        verified_stamp(stamped_template_path, date_title, page_configuration, 12, multiple: true)
-
-        page_configuration = [
-          { type: :text, position: date_text_stamp_position },
-          { type: :new_page },
-          { type: :new_page }
-        ]
-
-        verified_stamp(stamped_template_path, date_text, page_configuration, 12, multiple: true)
-      end
-
-      def stamp2110210(stamped_template_path, form)
-        desired_stamps = [[50, 160]]
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-      end
-
-      def stamp210845(stamped_template_path, form)
-        desired_stamps = [[50, 240]]
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-      end
-
-      def stamp21p0847(stamped_template_path, form)
-        desired_stamps = [[50, 190]]
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-      end
-
-      def stamp210972(stamped_template_path, form)
-        desired_stamps = [[50, 465]]
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-      end
-
-      def stamp210966(stamped_template_path, form)
-        desired_stamps = [[50, 415]]
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-      end
-
-      def stamp2010207(stamped_template_path, form)
-        desired_stamps = if form.data['preparer_type'] == 'veteran'
-                           [[50, 690]]
-                         elsif form.data['third_party_type'] == 'power-of-attorney'
-                           [[50, 445]]
-                         elsif form.data['preparer_type'] == 'third-party-veteran' ||
-                               form.data['preparer_type'] == 'third-party-non-veteran' ||
-                               form.data['preparer_type'] == 'non-veteran'
-                           [[50, 570]]
-                         end
-        signature_text = form.data['statement_of_truth_signature']
-        page_configuration = [
-          { type: :new_page },
-          { type: :new_page },
-          { type: :new_page },
-          { type: :new_page },
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
-      end
-
       def stamp4010007_uuid(uuid)
-        uuid = "UUID: #{uuid}"
-        stamped_template_path = 'tmp/vba_40_10007-tmp.pdf'
-        desired_stamps = [[410, 20]]
-        page_configuration = [
-          { type: :text, position: desired_stamps[0] }
-        ]
-
-        verified_stamp(stamped_template_path, uuid, page_configuration, 7, multiple: true)
+        form = { data: { form_number: '4010007_uuid' } }
+        instance = new('tmp/vba_40_10007-tmp.pdf', form, current_loa)
+        instance.multistamp(instance.stamped_template_path, uuid, instance.page_configuration, 7, multiple: true)
       end
 
       def verified_stamp(stamped_template_path, *, multiple: false, **)
@@ -251,6 +103,125 @@ module SimpleFormsApi
           { type: :new_page },
           { type: :new_page }
         ]
+      end
+    end
+
+    attr_accessor :auth_text
+
+    def initialize(stamped_template_path, form, current_loa)
+      @stamped_template_path = stamped_template_path
+      @form = form
+      @form_number = form.data['form_number'].gsub('-', '').downcase
+      @auth_text = generate_auth_text(current_loa)
+    end
+
+    def stamp
+      self.class.verified_stamp(stamped_template_path, desired_stamps[form_number], append_to_stamp)
+    end
+
+    def multistamp
+      self.class.verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
+
+      handle_214142_resubmit if form_number == '214142' && form.data['in_progress_form_created_at']
+    end
+
+    private
+
+    attr_accessor :stamped_template_path, :form, :form_number
+
+    def generate_auth_text(current_loa)
+      case current_loa
+      when 3
+        'Signee signed with an identity-verified account.'
+      when 2
+        'Signee signed in but hasn’t verified their identity.'
+      else
+        'Signee not signed in.'
+      end
+    end
+
+    def desired_stamps
+      {
+        default: build_default_stamps,
+        '210845': [[50, 240]],
+        '210966': [[50, 415]],
+        '210972': [[50, 465]],
+        '214142': [[50, 560]],
+        '264555': build_264555_stamps,
+        '2010207': build_2010207_stamps,
+        '2110210': [[50, 160]],
+        '107959f1': [[26, 82.5, signature_text]],
+        '214142_date_title': [[440, 710]],
+        '214142_date_text': [[440, 690]],
+        '4010007_uuid': [[410, 20]]
+      }
+    end
+
+    def page_configuration
+      return self.class.default_page_configuration if form_number == 'default'
+
+      new_page_count = {
+        '2110210': { prepend: 2, append: 0 },
+        '210845': { prepend: 2, append: 0 },
+        '210972': { prepend: 2, append: 0 },
+        '21p0847': { prepend: 1, append: 0 },
+        '210966': { prepend: 1, append: 0 },
+        '214142': { prepend: 1, append: 1 },
+        '2010207': { prepend: 4, append: 0 },
+        '214142_date_title': { prepend: 0, append: 2 },
+        '214142_date_text': { prepend: 0, append: 2 },
+        '4010007_uuid': { prepend: 0, append: 0 }
+      }
+
+      [].tap do |config|
+        new_page_count[form_number][:prepend].times { config << { type: :new_page } }
+        config << { type: :text, position: desired_stamps[form_number][0] }
+        new_page_count[form_number][:append].times { config << { type: :new_page } }
+      end
+    end
+
+    def append_to_stamp
+      %w[107959f1 264555].exclude? form_number
+    end
+
+    def signature_text
+      return unless %w[2110210 210845 21p0847 210972 210966 2010207 214142].include? form_number
+
+      form.data['statement_of_truth_signature']
+    end
+
+    def build_default_stamps
+      current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
+      stamp_text = "#{SUBMISSION_TEXT} #{current_time} "
+      [[10, 10, stamp_text]]
+    end
+
+    def build_264555_stamps
+      [].tap do |desired_stamps|
+        desired_stamps << [73, 390, 'X'] unless form.data['previous_sah_application']['has_previous_sah_application']
+        desired_stamps << [73, 355, 'X'] unless form.data['previous_hi_application']['has_previous_hi_application']
+        desired_stamps << [73, 320, 'X'] unless form.data['living_situation']['is_in_care_facility']
+      end
+    end
+
+    def build_2010207_stamps
+      if form.data['preparer_type'] == 'veteran'
+        [[50, 690]]
+      elsif form.data['third_party_type'] == 'power-of-attorney'
+        [[50, 445]]
+      elsif %w[third-party-veteran third-party-non-veteran non-veteran].include? form.data['preparer_type']
+        [[50, 570]]
+      end
+    end
+
+    def handle_214142_resubmit
+      submissions = [
+        { form_number: '214142_date_title', signature_text: self.class.SUBMISSION_DATE_TITLE },
+        { form_number: '214142_date_text', signature_text: form.data['in_progress_form_created_at'] }
+      ]
+      submissions.each do |form_number, signature_text|
+        @form_number = form_number
+        self.class.verified_stamp(stamped_template_path, signature_text, page_configuration, 12, multiple: true)
       end
     end
   end
