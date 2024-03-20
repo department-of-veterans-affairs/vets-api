@@ -34,7 +34,6 @@ jobs:
           echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
   release:
     needs: [prepare-values]
-    if: github.ref == 'refs/heads/k8s'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
