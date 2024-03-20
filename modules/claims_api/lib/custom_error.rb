@@ -8,48 +8,17 @@ module ClaimsApi
       @method = method
     end
 
-    def build_error # rubocop:disable Metrics/MethodLength
-      get_status
-      get_code
-      get_source
-      if @error.is_a?(Faraday::ConnectionFailed) || @error.is_a?(Faraday::ParsingError) ||
-         @error.is_a?(Faraday::NilStatusError) || @error.is_a?(Faraday::TimeoutError) ||
-         @error.is_a?(::Common::Exceptions::ExternalServerInternalServerError) ||
-         @error.is_a?(::Common::Exceptions::BadGateway) || @error.is_a?(Faraday::SSLError) ||
-         @error.is_a?(Faraday::ServerError)
-        errors = { errors: [{ 'title' => 'Service Exception',
-                              'key' => @source,
-                              'detail' => 'A re-tryable error has occurred, original_error: ' \
-                                          "#{@error}.", status: @status, code: @code }] }
-        log_outcome_for_claims_api(errors)
-        raise ::Common::Exceptions::ServiceError, errors
+    def handle_errors
+      case @error
+      when Faraday::ParsingError
+        raise_backend_exception('EVSS502', self.class)
+      when ::Common::Exceptions::BackendServiceException
+        raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
 
-      elsif @error.is_a?(StandardError) || @error.is_a?(Faraday::BadRequestError) ||
-            @error.is_a?(::Common::Exceptions::BackendServiceException) ||
-            @error.is_a?(Faraday::ConflictError) || @error.is_a?(Faraday::ForbiddenError) ||
-            @error.is_a?(Faraday::ProxyAuthError) || @error.is_a?(Faraday::ResourceNotFound) ||
-            @error.is_a?(Faraday::UnauthorizedError) || @error.is_a?(Faraday::UnprocessableEntityError) ||
-            @error.is_a?(Faraday::ClientError)
-
-        errors = { errors: [{ 'title' => 'Client error',
-                              'key' => @source,
-                              'detail' => 'A client exception has occurred, job will not be re-tried. ' \
-                                          "original_error: #{@error}.", status: '400', code: '400' }] }
-        log_outcome_for_claims_api(errors)
-        raise ::Common::Exceptions::BadRequest, errors
+        raise_backend_exception('EVSS400', self.class, @error) if @error&.original_status == 400
+        raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
       else
-        errors = { errors: [{ 'title' => 'Unknown error',
-                              'key' => @source,
-                              'detail' => 'An unknown error has occurred, and the custom_error file may ' \
-                                          "need to be modified. original_error: #{@error}.", status: @status,
-                              code: @code }] }
-        log_outcome_for_claims_api(errors)
-        raise ::Common::Exceptions::BackendServiceException.new(
-          '526_400',
-          { source: @source.to_s },
-          @error&.original_status,
-          @error&.original_body
-        )
+        raise @error
       end
     end
 
@@ -60,40 +29,13 @@ module ClaimsApi
                             detail: "claims_api-526-#{@method},  errors: #{errors}", claim: @claim&.id)
     end
 
-    def get_status
-      @status = if @error.respond_to?(:status)
-                  @error.status
-                elsif @error.respond_to?(:status_code)
-                  @error.status_code
-                else
-                  '500'
-                end
-    end
-
-    def get_code
-      @code = if @error.respond_to?(:va900?)
-                ClaimsApi::Logger.log('526_docker_container',
-                                      detail: "Custom error- error.va900: #{@error.va900?}")
-              else
-                ClaimsApi::Logger.log('526_docker_container',
-                                      detail: "Custom error- error: #{@error}")
-                nil
-              end
-    end
-
-    def get_source
-      if @error.respond_to?(:key) && @error.key.present?
-        ClaimsApi::Logger.log('526_docker_container', detail: "Custom error: error.key: #{@error.key}")
-        @source = @error.key[0].match(/vets-api(\S*) (.*)/)[0].split(':')[0] if @error.key.is_a?(Array)
-      elsif (@error.respond_to?(:backtrace) && @error.backtrace.present?) && @error.backtrace.is_a?(Array)
-        ClaimsApi::Logger.log('526_docker_container', detail: "Custom error: error.backtrace: #{@error.backtrace}")
-        @source = @error.backtrace[0].match(/vets-api(\S*) (.*)/)[0].split(':')[0] if @error.backtrace.is_a?(Array)
-      else
-        ClaimsApi::Logger.log('526_docker_container',
-                              detail: "Custom error: The error does not have a key or a backtrace, #{@error}")
-        @source = nil
-      end
-      @source
+    def raise_backend_exception(key, source, error = nil)
+      raise ::Common::Exceptions::BackendServiceException.new(
+        key,
+        { source: source.to_s },
+        error&.original_status,
+        error&.original_body
+      )
     end
   end
 end
