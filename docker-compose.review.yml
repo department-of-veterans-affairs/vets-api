@@ -6,6 +6,7 @@ x-app: &common
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
     context: .
   environment:
+    RAILS_ENV: development
     BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
     "Settings.database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
     "Settings.test_database_url": "postgis://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_test}"
@@ -51,6 +52,7 @@ services:
       - ./data:/var/lib/postgresql/data:cached
   web:
     <<: *common
+    command: bash -c "bundle exec rake db:migrate || bundle exec rake db:reset db:migrate && bundle exec rails s -b 0.0.0.0"
     ports:
       - 3000:3000
   worker:
