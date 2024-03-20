@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/forms/va21p530ez'
+require 'pdf_fill/forms/va21p530v2'
 
 def basic_class
-  PdfFill::Forms::Va21p530.new({})
+  PdfFill::Forms::Va21p530v2.new({})
 end
 
-describe PdfFill::Forms::Va21p530 do
+describe PdfFill::Forms::Va21p530v2 do
   let(:form_data) do
     {}
   end
