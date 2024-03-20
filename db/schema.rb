@@ -523,7 +523,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_unique_constraint_fields", unique: true
-    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
@@ -885,7 +884,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
     t.string "type"
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
-    t.string "uploaded_forms", array: true
+    t.string "uploaded_forms", default: [], array: true
     t.datetime "itf_datetime"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
