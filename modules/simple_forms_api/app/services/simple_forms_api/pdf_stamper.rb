@@ -4,7 +4,7 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972].freeze
+    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972 20-10207 10-7959F-1].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
@@ -19,7 +19,7 @@ module SimpleFormsApi
       auth_text = case current_loa
                   when 3
                     'Signee signed with an identity-verified account.'
-                  when 1
+                  when 2
                     'Signee signed in but hasn’t verified their identity.'
                   else
                     'Signee not signed in.'
@@ -29,6 +29,12 @@ module SimpleFormsApi
       stamp(desired_stamps, stamped_template_path, auth_text, text_only: false)
 
       stamp_submission_date(stamped_template_path, form.submission_date_config)
+    end
+
+    def self.stamp107959f1(stamped_template_path, form)
+      desired_stamps = [[26, 82.5, form.data['statement_of_truth_signature']]]
+      append_to_stamp = false
+      stamp(desired_stamps, stamped_template_path, append_to_stamp)
     end
 
     def self.stamp264555(stamped_template_path, form)
@@ -135,6 +141,39 @@ module SimpleFormsApi
       ]
 
       multistamp(stamped_template_path, signature_text, page_configuration)
+    end
+
+    def self.stamp2010207(stamped_template_path, form)
+      desired_stamps = if form.data['preparer_type'] == 'veteran'
+                         [[50, 690]]
+                       elsif form.data['third_party_type'] == 'power-of-attorney'
+                         [[50, 445]]
+                       elsif form.data['preparer_type'] == 'third-party-veteran' ||
+                             form.data['preparer_type'] == 'third-party-non-veteran' ||
+                             form.data['preparer_type'] == 'non-veteran'
+                         [[50, 570]]
+                       end
+      signature_text = form.data['statement_of_truth_signature']
+      page_configuration = [
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      multistamp(stamped_template_path, signature_text, page_configuration)
+    end
+
+    def self.stamp4010007_uuid(uuid)
+      uuid = "UUID: #{uuid}"
+      stamped_template_path = 'tmp/vba_40_10007-tmp.pdf'
+      desired_stamps = [[410, 20]]
+      page_configuration = [
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      multistamp(stamped_template_path, uuid, page_configuration, 7)
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)

@@ -6,7 +6,7 @@ require 'evss_service/base'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationDockerContainerUpload < DisabilityCompensationClaimServiceBase
+    class DisabilityCompensationDockerContainerUpload < ClaimsApi::ServiceBase
       LOG_TAG = '526_v2_Docker_Container_job'
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength

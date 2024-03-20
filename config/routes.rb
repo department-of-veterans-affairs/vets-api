@@ -289,19 +289,9 @@ Rails.application.routes.draw do
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
-    resource :address, only: %i[show update] do
-      collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-      end
-    end
-
     namespace :profile do
-      resource :alternate_phone, only: %i[show create]
-      resource :email, only: %i[show create]
       resource :full_name, only: :show
       resource :personal_information, only: :show
-      resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
@@ -438,6 +428,8 @@ Rails.application.routes.draw do
     end
     resources :notice_of_disagreements, only: %i[create show]
 
+    resource :post911_gi_bill_status, only: [:show]
+
     namespace :supplemental_claims do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
@@ -461,6 +453,7 @@ Rails.application.routes.draw do
   end
 
   # Modules
+  mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
@@ -469,6 +462,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'

@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require 'claims_api/ews_vbms_sidekiq'
 require 'claims_api/evidence_waiver_pdf/pdf'
 
 module ClaimsApi
-  class EvidenceWaiverBuilderJob
-    include Sidekiq::Job
+  class EvidenceWaiverBuilderJob < ClaimsApi::ServiceBase
     include ClaimsApi::EwsVBMSSidekiq
 
     # Generate a 5103 "form" for a given veteran.
@@ -21,6 +19,8 @@ module ClaimsApi
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)
 
       ::Common::FileHelpers.delete_file_if_exists(output_path)
+    rescue VBMS::ClientError => e
+      rescue_invalid_filename(evidence_waiver_submission, e)
     rescue VBMS::Unknown
       rescue_vbms_error(evidence_waiver_submission)
       raise VBMS::Unknown # for sidekiq retries

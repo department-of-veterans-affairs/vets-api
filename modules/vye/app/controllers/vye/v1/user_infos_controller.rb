@@ -4,6 +4,7 @@ module Vye
   module V1
     class UserInfosController < Vye::V1::ApplicationController
       include Pundit::Authorization
+
       service_tag 'vye'
 
       def show
@@ -13,15 +14,14 @@ module Vye
                serializer: Vye::UserInfoSerializer,
                key_transform: :camel_lower,
                adapter: :json,
-               include: %i[awards pending_documents verifications]
+               include: %i[awards address_changes pending_documents].freeze
       end
 
       private
 
       def load_user_info
-        @user_info = Vye::UserInfo
-                     .includes(:awards, :pending_documents, :verifications)
-                     .find_and_update_icn(user: current_user)
+        user_profile = Vye::UserProfile.find_and_update_icn(user: current_user)
+        @user_info = Vye::UserInfo.with_assos.find_by(user_profile:)
       end
     end
   end

@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'bgs/services'
 require 'mpi/service'
-require 'evss/service'
 
 RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
   describe '#get /metadata' do
@@ -41,7 +40,6 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
     %w[v1].each do |version|
       context version do
         it 'returns correct response and status when healthy' do
-          allow(EVSS::Service).to receive(:service_is_up?).and_return(true)
           allow(MPI::Service).to receive(:service_is_up?).and_return(true)
           allow_any_instance_of(BGS::Services).to receive(:vet_record).and_return(Struct.new(:healthy?).new(true))
           allow_any_instance_of(BGS::Services).to receive(:contention).and_return(Struct.new(:healthy?).new(true))
@@ -52,12 +50,11 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
           expect(response).to have_http_status(:ok)
         end
 
-        required_upstream_services = %w[evss mpi]
+        required_upstream_services = %w[mpi]
         optional_upstream_services = %w[vbms bgs-vet_record bgs-corporate_update bgs-contention
                                         localbgs-healthcheck]
         (required_upstream_services + optional_upstream_services).each do |upstream_service|
           it "returns correct status when #{upstream_service} is not healthy" do
-            allow(EVSS::Service).to receive(:service_is_up?).and_return(upstream_service != 'evss')
             allow(MPI::Service).to receive(:service_is_up?).and_return(upstream_service != 'mpi')
             allow_any_instance_of(BGS::Services).to receive(:vet_record)
               .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-vet_record'))

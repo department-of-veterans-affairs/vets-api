@@ -54,10 +54,12 @@ module DebtsApi
       facility_form['facilityNum'] = @facility_num
       facility_form['personalIdentification']['fileNumber'] = @user.ssn
       add_compromise_amounts(facility_form, @copays)
+      aggregate_fsr_reasons(facility_form, @copays)
       facility_form.delete(DEBTS_KEY)
       facility_form = remove_form_delimiters(facility_form)
       combined_adjustments(facility_form)
       streamline_adjustments(facility_form)
+      station_adjustments(facility_form)
       facility_form
     end
 
@@ -76,6 +78,18 @@ module DebtsApi
           val
         end
       end
+    end
+
+    def station_adjustments(form)
+      stations = []
+      @copays.each do |copay|
+        stations << 'vista' if copay['pHDfnNumber'].to_i.positive?
+        if copay['pHCernerPatientId'].instance_of?(String) && copay['pHCernerPatientId'].strip.length.positive?
+          stations << 'cerner'
+        end
+      end
+      stations.uniq!
+      form['station_type'] = stations.include?('cerner') && stations.include?('vista') ? 'both' : stations[0]
     end
 
     def combined_adjustments(form)

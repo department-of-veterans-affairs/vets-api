@@ -50,6 +50,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'version.rb'
 
     # Modules
+    add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'
@@ -61,6 +62,7 @@ unless ENV['NOCOVERAGE']
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'HealthQuest', 'modules/health_quest/'
     add_group 'IncomeLimits', 'modules/income_limits/'
@@ -185,16 +187,6 @@ RSpec.configure do |config|
 
   config.after(:all, :enable_csrf_protection) do
     ActionController::Base.allow_forgery_protection = @original_allow_forgery_protection
-  end
-
-  # Disable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
-  config.before(:each, csrf: false) do
-    ActionController::Base.allow_forgery_protection = false
-  end
-
-  # Enable CSRF protection for FlagAccreditedRepresentativesController specs in the Veteran module
-  config.after(:each, csrf: false) do
-    ActionController::Base.allow_forgery_protection = true
   end
 
   config.after do

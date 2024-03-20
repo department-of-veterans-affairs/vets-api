@@ -37,6 +37,7 @@ Mobile::Engine.routes.draw do
     get '/disability-rating', to: 'disability_rating#index'
     get '/facilities-info', to: 'facilities_info#index'
     get '/facilities-info/:sort', to: 'facilities_info#schedulable'
+    post '/financial-status-reports/download', to: 'financial_status_reports#download'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/locations/:id', to: 'locations#show'
     scope :health do
@@ -48,7 +49,27 @@ Mobile::Engine.routes.draw do
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
     get '/maintenance_windows', to: 'maintenance_windows#index'
+    get '/messaging/health/folders', to: 'folders#index'
+    post '/messaging/health/folders', to: 'folders#create'
+    get '/messaging/health/folders/:folder_id/messages', to: 'messages#index'
+    get '/messaging/health/folders/:folder_id/threads', to: 'threads#index'
+    get '/messaging/health/folders/:id', to: 'folders#show', as: 'folder'
+    delete '/messaging/health/folders/:id', to: 'folders#destroy'
+    post '/messaging/health/messages', to: 'messages#create'
+    get '/messaging/health/messages/categories', to: 'messages#categories'
     get '/messaging/health/messages/signature', to: 'messages#signature'
+    delete '/messaging/health/messages/:id', to: 'messages#destroy'
+    get '/messaging/health/messages/:id', to: 'messages#show', as: 'message'
+    patch '/messaging/health/messages/:id/move', to: 'messages#move'
+    post '/messaging/health/messages/:id/reply', to: 'messages#reply'
+    get '/messaging/health/messages/:id/thread', to: 'messages#thread'
+    get '/messaging/health/messages/:message_id/attachments/:id', to: 'attachments#show', as: 'message_attachment'
+    post '/messaging/health/message_drafts/:reply_id/replydraft', to: 'message_drafts#create_reply_draft'
+    put '/messaging/health/message_drafts/:reply_id/replydraft/:draft_id', to: 'message_drafts#update_reply_draft'
+    post '/messaging/health/message_drafts', to: 'message_drafts#create'
+    patch '/messaging/health/message_drafts/:id', to: 'message_drafts#update'
+    put '/messaging/health/message_drafts/:id', to: 'message_drafts#update'
+    get '/messaging/health/recipients', to: 'triage_teams#index'
     get '/military-service-history', to: 'military_information#get_service_history'
     get '/payment-history', to: 'payment_history#index'
     get '/payment-information/benefits', to: 'payment_information#index'
@@ -79,43 +100,12 @@ Mobile::Engine.routes.draw do
     get '/health/rx/prescriptions', to: 'prescriptions#index'
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
-
-    scope :messaging do
-      scope :health do
-        resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
-
-        resources :folders, only: %i[index show create destroy], defaults: { format: :json } do
-          resources :messages, only: [:index], defaults: { format: :json }
-          resources :threads, only: %i[index]
-        end
-
-        resources :messages, only: %i[show create destroy], defaults: { format: :json } do
-          get :thread, on: :member
-          get :categories, on: :collection
-          patch :move, on: :member
-          post :reply, on: :member
-          resources :attachments, only: [:show], defaults: { format: :json }
-        end
-
-        resources :message_drafts, only: %i[create update], defaults: { format: :json } do
-          post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
-          put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
-        end
-      end
-    end
   end
 
   namespace :v1 do
     get '/health/immunizations', to: 'immunizations#index'
+    get '/messaging/health/messages/:id/thread', to: 'messages#thread'
     get '/user', to: 'users#show'
-
-    scope :messaging do
-      scope :health do
-        resources :messages, only: %i[], defaults: { format: :json } do
-          get :thread, on: :member
-        end
-      end
-    end
   end
 
   namespace :v2 do

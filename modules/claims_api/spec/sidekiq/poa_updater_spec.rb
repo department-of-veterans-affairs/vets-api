@@ -17,6 +17,36 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   end
 
   context "when call to BGS 'update_birls_record' is successful" do
+    context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
+      it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+        create_mock_lighthouse_service
+        expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
+
+        poa = create_poa
+        poa.form_data = {
+          representative: {
+            poaCode: '072',
+            firstName: 'my',
+            lastName: 'name',
+            type: 'ATTORNEY',
+            address: {
+              numberAndStreet: '123',
+              city: 'city',
+              country: 'US',
+              zipFirstFive: '12345'
+            }
+          },
+          recordConsent: true,
+          consentLimits: []
+        }
+        poa.save!
+
+        subject.new.perform(poa.id)
+        poa.reload
+        expect(poa.status).to eq('updated')
+      end
+    end
+
     context 'and record consent is granted' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
         create_mock_lighthouse_service
@@ -78,6 +108,25 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
       subject.new.perform(poa.id)
       poa.reload
       expect(poa.status).to eq('errored')
+    end
+  end
+
+  context 'when an errored job has exhausted its retries' do
+    it 'logs to the ClaimsApi Logger' do
+      poa = create_poa
+      error_msg = 'An error occurred in the POA Updater Job'
+      msg = { 'args' => [poa.id],
+              'class' => subject,
+              'error_message' => error_msg }
+
+      described_class.within_sidekiq_retries_exhausted_block(msg) do
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          'claims_api_retries_exhausted',
+          record_id: poa.id,
+          detail: "Job retries exhausted for #{subject}",
+          error: error_msg
+        )
+      end
     end
   end
 

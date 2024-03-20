@@ -43,6 +43,7 @@ RSpec.describe BGS::DependentService do
         service = BGS::DependentService.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
+        allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
 
         service.submit_686c_form(claim)
       end
@@ -57,7 +58,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, true,
             true
           )
@@ -77,7 +78,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, true,
             true
           )
@@ -95,7 +96,7 @@ RSpec.describe BGS::DependentService do
           user.uuid, user.icn, claim.id,
           encrypted_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info,
           true, true
         )
@@ -104,59 +105,62 @@ RSpec.describe BGS::DependentService do
     end
 
     context 'BGS returns file number longer than nine digits' do
-      it 'still submits a PDF, but raises an error and does not enqueue the SubmitForm686cJob' do
+      it 'still submits a PDF and enqueues the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567890' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567890'
+        enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:log_exception_to_sentry).with(
-          an_instance_of(RuntimeError).and(having_attributes(message: 'Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (XXXXXXXXXX)')), # rubocop:disable Layout/LineLength
-          { icn: user.icn, uuid: user.uuid },
-          anything
+        expect(service).not_to receive(:log_exception_to_sentry)
+
+        expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
+          user.uuid, user.icn, claim.id,
+          enc_vet_info
         )
-        expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
-          claim.id, encrypted_vet_info,
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+          claim.id, enc_vet_info,
           true, true
         )
-        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
+        service.submit_686c_form(claim)
       end
     end
 
     context 'BGS returns file number shorter than eight digits' do
-      it 'still submits a PDF, but raises an error and does not enqueue the SubmitForm686cJob' do
+      it 'still submits a PDF and enqueues the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567'
+        enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:log_exception_to_sentry).with(
-          an_instance_of(RuntimeError).and(having_attributes(message: 'Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (XXXXXXX)')), # rubocop:disable Layout/LineLength
-          { icn: user.icn, uuid: user.uuid },
-          anything
+        expect(service).not_to receive(:log_exception_to_sentry)
+
+        expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
+          user.uuid, user.icn, claim.id,
+          enc_vet_info
         )
-        expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
-          claim.id, encrypted_vet_info,
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+          claim.id, enc_vet_info,
           true, true
         )
-        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
+        service.submit_686c_form(claim)
       end
     end
 
     context 'BGS returns nine-digit file number that does not match the veteran\'s SSN' do
-      it 'still submits a PDF, but raises an error and does not enqueue the SubmitForm686cJob' do
+      it 'still submits a PDF and enqueue the SubmitForm686cJob' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '123456789'
+        enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:log_exception_to_sentry).with(
-          an_instance_of(RuntimeError).and(having_attributes(message: 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!')), # rubocop:disable Layout/LineLength
-          { icn: user.icn, uuid: user.uuid },
-          anything
+        expect(service).not_to receive(:log_exception_to_sentry)
+
+        expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(
+          user.uuid, user.icn, claim.id,
+          enc_vet_info
         )
-        expect(BGS::SubmitForm686cJob).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
-          claim.id, encrypted_vet_info,
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+          claim.id, enc_vet_info,
           true, true
         )
-        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
+        service.submit_686c_form(claim)
       end
     end
   end
@@ -187,6 +191,7 @@ RSpec.describe BGS::DependentService do
     end
 
     it 'calls find_person_by_participant_id' do
+      allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
@@ -205,7 +210,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, false,
             true
           )
@@ -225,7 +230,7 @@ RSpec.describe BGS::DependentService do
             user.uuid, user.icn, claim.id,
             encrypted_vet_info
           )
-          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
             claim.id, encrypted_vet_info, false,
             true
           )
@@ -243,7 +248,7 @@ RSpec.describe BGS::DependentService do
           user.uuid, user.icn, claim.id,
           encrypted_vet_info
         )
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
           claim.id, encrypted_vet_info, false,
           true
         )
@@ -252,59 +257,62 @@ RSpec.describe BGS::DependentService do
     end
 
     context 'BGS returns file number longer than nine digits' do
-      it 'still submits a PDF, but raises an error and does not enqueue the SubmitForm674Job' do
+      it 'still submits a PDF and enqueues the SubmitForm674Job' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567890' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567890'
+        enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:log_exception_to_sentry).with(
-          an_instance_of(RuntimeError).and(having_attributes(message: 'Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (XXXXXXXXXX)')), # rubocop:disable Layout/LineLength
-          { icn: user.icn, uuid: user.uuid },
-          anything
+        expect(service).not_to receive(:log_exception_to_sentry)
+
+        expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
+          user.uuid, user.icn, claim.id,
+          enc_vet_info
         )
-        expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
-          claim.id, encrypted_vet_info, false,
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+          claim.id, enc_vet_info, false,
           true
         )
-        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
+        service.submit_686c_form(claim)
       end
     end
 
     context 'BGS returns file number shorter than eight digits' do
-      it 'still submits a PDF, but raises an error and does not enqueue the SubmitForm674Job' do
+      it 'still submits a PDF and enqueues the SubmitForm674Job' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '1234567' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '1234567'
+        enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:log_exception_to_sentry).with(
-          an_instance_of(RuntimeError).and(having_attributes(message: 'Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (XXXXXXX)')), # rubocop:disable Layout/LineLength
-          { icn: user.icn, uuid: user.uuid },
-          anything
+        expect(service).not_to receive(:log_exception_to_sentry)
+
+        expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
+          user.uuid, user.icn, claim.id,
+          enc_vet_info
         )
-        expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
-          claim.id, encrypted_vet_info, false,
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+          claim.id, enc_vet_info, false,
           true
         )
-        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
+        service.submit_686c_form(claim)
       end
     end
 
     context 'BGS returns nine-digit file number that does not match the veteran\'s SSN' do
-      it 'still submits a PDF, but raises an error and does not enqueue the SubmitForm674Job' do
+      it 'still submits a PDF and enqueues the SubmitForm674Job' do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '123456789' }) # rubocop:disable Layout/LineLength
         vet_info['veteran_information']['va_file_number'] = '123456789'
+        enc_vet_info = KmsEncrypted::Box.new.encrypt(vet_info.to_json)
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:log_exception_to_sentry).with(
-          an_instance_of(RuntimeError).and(having_attributes(message: 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!')), # rubocop:disable Layout/LineLength
-          { icn: user.icn, uuid: user.uuid },
-          anything
+        expect(service).not_to receive(:log_exception_to_sentry)
+
+        expect(BGS::SubmitForm674Job).to receive(:perform_async).with(
+          user.uuid, user.icn, claim.id,
+          enc_vet_info
         )
-        expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
-          claim.id, encrypted_vet_info, false,
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync).with(
+          claim.id, enc_vet_info, false,
           true
         )
-        expect { service.submit_686c_form(claim) }.to raise_error(RuntimeError)
+        service.submit_686c_form(claim)
       end
     end
   end

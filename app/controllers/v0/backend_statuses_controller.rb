@@ -12,8 +12,9 @@ module V0
     # show only looks at GI bill scheduled downtime (and gets no data from PagerDuty)
     def index
       statuses = ExternalServicesRedis::Status.new.fetch_or_cache
+      maintenance_windows = MaintenanceWindow.end_after(Time.zone.now)
 
-      render json: statuses, serializer: BackendStatusesSerializer
+      render json: statuses, maintenance_windows:, serializer: BackendStatusesSerializer
     end
 
     # GET /v0/backend_statuses/:service

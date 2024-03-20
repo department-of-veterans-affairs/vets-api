@@ -11,7 +11,7 @@ describe PdfFill::Forms::Va21p527ez do
   include SchemaMatchers
 
   let(:form_data) do
-    get_fixture('pdf_fill/21P-527EZ/kitchen_sink')
+    VetsJsonSchema::EXAMPLES.fetch('21P-527EZ-KITCHEN_SINK')
   end
 
   describe '#merge_fields' do
@@ -56,6 +56,36 @@ describe PdfFill::Forms::Va21p527ez do
                                                                                   'part_one' => '777',
                                                                                   'part_cents' => '66'
                                                                                 })
+    end
+  end
+
+  describe '#expand_dependent_children' do
+    it 'handles partially removed dependents' do
+      form_data = {
+        'dependents' => [
+          {
+            'childAddress' => {
+              'country' => 'US',
+              'city' => 'Cityville',
+              'street' => '100 Main St',
+              'state' => 'PA',
+              'postalCode' => '11111'
+            },
+            'personWhoLivesWithChild' => {
+              'last' => 'John',
+              'first' => 'Smith'
+            },
+            'monthlyPayment' => 1200
+          }
+        ]
+      }
+      form = described_class.new(form_data)
+      form.expand_dependent_children
+      updated_data = form.instance_variable_get('@form_data')
+      expect(updated_data['dependents'].length).to eq(1)
+      expect(updated_data['custodians'].length).to eq(1)
+      expect(updated_data['dependentChildrenInHousehold']).to eq('0')
+      expect(updated_data['dependentsNotWithYouAtSameAddress']).to eq(0)
     end
   end
 end
