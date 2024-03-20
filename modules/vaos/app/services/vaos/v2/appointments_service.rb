@@ -101,8 +101,8 @@ module VAOS
 
       def update_appointment(appt_id, status)
         with_monitoring do
-          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS) &&
-                        Flipper.enabled?(APPOINTMENTS_USE_VPG)
+          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
+                        Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
                        update_appointment_vpg(appt_id, status)
                      else
                        update_appointment_vaos(appt_id, status)
