@@ -176,6 +176,24 @@ module SimpleFormsApi
       verified_stamp(stamped_template_path, uuid, page_configuration, 7, multiple: true)
     end
 
+    def self.verified_stamp(stamped_template_path, *, multiple: false, **)
+      orig_size = File.size(stamped_template_path)
+      command = multiple ? 'multistamp' : 'stamp'
+      send(command, stamped_template_path, *, **)
+      stamped_size = File.size(stamped_template_path)
+
+      raise StandardError, 'PDF stamping failed.' unless stamped_size > orig_size
+    end
+
+    def self.stamp(stamped_template_path, desired_stamps, append_to_stamp, text_only: true)
+      current_file_path = stamped_template_path
+      desired_stamps.each do |x, y, text|
+        datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
+        current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
+      end
+      File.rename(current_file_path, stamped_template_path)
+    end
+
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
       stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
@@ -195,25 +213,6 @@ module SimpleFormsApi
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
-    end
-
-    def self.stamp(stamped_template_path, desired_stamps, append_to_stamp, text_only: true)
-      current_file_path = stamped_template_path
-      desired_stamps.each do |x, y, text|
-        out_path = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:).run(text:, x:, y:, text_only:,
-                                                                                          size: 9)
-        current_file_path = out_path
-      end
-      File.rename(current_file_path, stamped_template_path)
-    end
-
-    def self.verified_stamp(stamped_template_path, *, multiple: false, **)
-      orig_size = File.size(stamped_template_path)
-      command = multiple ? 'multistamp' : 'stamp'
-      send(command, stamped_template_path, *, **)
-      stamped_size = File.size(stamped_template_path)
-
-      raise StandardError, 'PDF stamping failed.' unless stamped_size > orig_size
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
