@@ -92,7 +92,7 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530 21P-527EZ 21P-530v2],
+    pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
