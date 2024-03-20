@@ -19,6 +19,7 @@ x-app: &common
     GIT_URL:             "${GIT_URL}"
     JENKINS_URL:         "${JENKINS_URL}"
     DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
+    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
   image: vets-api:${DOCKER_IMAGE:-latest}
   volumes:
     - "../vets-api-mockdata:/cache"
