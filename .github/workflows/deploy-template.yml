@@ -80,7 +80,7 @@ jobs:
           envs=( ${{ needs.prepare-values.outputs.environments }} )
           for env in ${envs[*]};
           do
-            yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
+            docker run --rm -v "${PWD}":/workdir mikefarah/yq e -i '(.vets-api.image.tag) |= "${{ github.sha }}"' $env/values.yaml
           done
           git diff
 
