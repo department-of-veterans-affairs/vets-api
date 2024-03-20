@@ -22,7 +22,7 @@ module SimpleFormsApiSubmission
         client.put_object({
                             bucket: Settings.ivc_forms.s3.bucket,
                             key:,
-                            body: File.open(file),
+                            body: File.open(file, &:read), # rubocop:disable Style/FileRead
                             metadata:,
                             acl: 'public-read'
                           })
