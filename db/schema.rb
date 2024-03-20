@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_18_190237) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -376,18 +376,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
-  end
-
-  create_table "credential_adoption_email_records", force: :cascade do |t|
-    t.string "icn", null: false
-    t.string "email_address", null: false
-    t.string "email_template_id", null: false
-    t.datetime "email_triggered_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
-    t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
-    t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -1172,17 +1160,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
-  create_table "versions", force: :cascade do |t|
-    t.string "item_type", null: false
-    t.bigint "item_id", null: false
-    t.string "event", null: false
-    t.string "whodunnit"
-    t.text "object"
-    t.datetime "created_at"
-    t.text "object_changes"
-    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
-  end
-
   create_table "veteran_device_records", force: :cascade do |t|
     t.bigint "device_id", null: false
     t.boolean "active", default: true, null: false
@@ -1287,6 +1264,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "origin"
+    t.text "address5_ciphertext"
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1338,6 +1317,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
     t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
   end
 
@@ -1368,8 +1348,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_12_194623) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
     t.index ["icn"], name: "index_vye_user_infos_on_icn"
     t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
+  end
+
+  create_table "vye_user_profiles", force: :cascade do |t|
+    t.binary "ssn_digest"
+    t.binary "file_number_digest"
+    t.string "icn"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_number_digest"], name: "index_vye_user_profiles_on_file_number_digest", unique: true
+    t.index ["icn"], name: "index_vye_user_profiles_on_icn", unique: true
+    t.index ["ssn_digest"], name: "index_vye_user_profiles_on_ssn_digest", unique: true
   end
 
   create_table "vye_verifications", force: :cascade do |t|
