@@ -171,6 +171,9 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_central_mail!' do
     subject { claim.send_to_central_mail!(user_object) }
+    before do
+      allow_any_instance_of(Flipper::DSL).to receive(:enabled?).and_return(false)
+    end
 
     it 'adds `veteranFullName` key to db so that SavedClaimJob can use it' do
       Sidekiq::Testing.inline! do
