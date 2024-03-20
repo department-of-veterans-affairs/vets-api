@@ -28,7 +28,7 @@ module SimpleFormsApiSubmission
                           })
         { success: true }
       rescue => e
-        { success: false, error_message: "S3 Upload failure for #{file}: #{e.message}" }
+        { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
       end
     end
 
@@ -40,10 +40,6 @@ module SimpleFormsApiSubmission
         access_key_id: Settings.ivc_forms.s3.aws_access_key_id,
         secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key
       )
-    end
-
-    def resource
-      @resource ||= Aws::S3::Resource.new(client:)
     end
   end
 end
