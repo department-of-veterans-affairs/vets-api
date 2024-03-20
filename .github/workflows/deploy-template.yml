@@ -84,12 +84,12 @@ jobs:
           done
           git diff
 
-      - name: Add and Commit file
-        uses: EndBug/add-and-commit@v9
-        with:
-          branch: main
-          add: "*"
-          cwd: vsp-infra-application-manifests/apps
-          author_name: va-vsp-bot
-          author_email: devops@va.gov
-          message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
+      # - name: Add and Commit file
+      #   uses: EndBug/add-and-commit@v9
+      #   with:
+      #     branch: main
+      #     add: "*"
+      #     cwd: vsp-infra-application-manifests/apps
+      #     author_name: va-vsp-bot
+      #     author_email: devops@va.gov
+      #     message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}}."
