@@ -28,6 +28,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
       job.perform(claim.id)
       expect(response.success?).to eq(true)
       expect(claim.form_submissions).not_to eq(nil)
+      expect(claim.business_line).not_to eq(nil)
     end
 
     it 'submits and gets a response error' do

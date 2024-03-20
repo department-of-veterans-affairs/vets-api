@@ -77,7 +77,7 @@ module Lighthouse
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => "#{@claim.class} va.gov",
         'docType' => @claim.form_id,
-        'businessLine' => business_line
+        'businessLine' => @claim.business_line
       }
 
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
@@ -96,19 +96,6 @@ module Lighthouse
 
     def split_file_and_path(path)
       { file: path, file_name: path.split('/').last }
-    end
-
-    def business_line
-      case @claim.class
-      when SavedClaim::VeteranReadinessEmploymentClaim
-        'VRE'
-      when SavedClaim::EducationCareerCounselingClaim
-        'EDU'
-      when SavedClaim::Burial
-        'NCA'
-      else
-        ''
-      end
     end
 
     private

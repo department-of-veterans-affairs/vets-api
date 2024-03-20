@@ -229,6 +229,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
+  def business_line
+    'VRE'
+  end
+
   private
 
   def check_office_location
