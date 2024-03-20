@@ -181,8 +181,8 @@ describe VAOS::V2::AppointmentsService do
                          allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
           response = subject.get_appointments(start_date3, end_date3)
           expect(response[:data].size).to eq(163)
-          expect(Rails.logger).not_to have_received(:info).with("Compensation and Pension count on an appointment list retrieval",
-          { CompPenCount: 0 }.to_json)
+          expect(Rails.logger).not_to have_received(:info).with('Compensation and Pension count on an
+          appointment list retrieval', { CompPenCount: 0 }.to_json)
         end
       end
 
@@ -192,8 +192,8 @@ describe VAOS::V2::AppointmentsService do
                          allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
           response = subject.get_appointments(start_date3, end_date3)
           expect(response[:data].size).to eq(163)
-          expect(Rails.logger).to have_received(:info).with("Compensation and Pension count on an appointment list retrieval",
-          { CompPenCount: 2 }.to_json)
+          expect(Rails.logger).to have_received(:info).with('Compensation and Pension count on an
+          appointment list retrieval', { CompPenCount: 2 }.to_json)
         end
       end
     end

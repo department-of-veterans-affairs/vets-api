@@ -20,6 +20,7 @@ module VAOS
       CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
 
+      # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
@@ -44,19 +45,20 @@ module VAOS
             # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
-            # TODO: log count of C&P appointments in the appointments list, per GH#78141
+            # track count of C&P appointments in the appointments list, per GH#78141
             cnp_count += 1 if cnp?(appt)
 
             convert_appointment_time(appt)
-
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
           end
-          log_cnp_appt_count(cnp_count) if cnp_count > 0
+          # log count of C&P appointments in the appointments list, per GH#78141
+          log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
             data: deserialized_appointments(response.body[:data]),
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
+        # rubocop:enable Metrics/MethodLength
       end
 
       def get_appointment(appointment_id)
@@ -166,8 +168,8 @@ module VAOS
       end
 
       def log_cnp_appt_count(cnp_count)
-        Rails.logger.info("Compensation and Pension count on an appointment list retrieval",
-         { CompPenCount: cnp_count }.to_json)
+        Rails.logger.info('Compensation and Pension count on an appointment list retrieval',
+                          { CompPenCount: cnp_count }.to_json)
       end
 
       # Extracts the station number and appointment IEN from an Appointment.
