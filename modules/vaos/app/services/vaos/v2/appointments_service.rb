@@ -18,6 +18,8 @@ module VAOS
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
+      ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
+      APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
@@ -27,6 +29,7 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
           response.body[:data].each do |appt|
             # for Lovell appointments set cancellable to false per GH#75512
             set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
@@ -97,10 +100,14 @@ module VAOS
       end
 
       def update_appointment(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
-          response = perform(:put, url_path, params, headers)
+          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS) &&
+                        Flipper.enabled?(APPOINTMENTS_USE_VPG)
+                       update_appointment_vpg(appt_id, status)
+                     else
+                       update_appointment_vaos(appt_id, status)
+                     end
+
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
@@ -235,9 +242,9 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        # Testing AVS error message using the below id - remove after testing is complete
+        # Testing AVS empty state using the below id - remove after testing is complete
         if appt[:id] == AVS_APPT_TEST_ID
-          appt[:avs_path] = AVS_ERROR_MESSAGE
+          appt[:avs_path] = nil
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
@@ -513,6 +520,18 @@ module VAOS
 
       def date_format(date)
         date.strftime('%Y-%m-%dT%TZ')
+      end
+
+      def update_appointment_vpg(appt_id, status)
+        url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        body = JSON.generate([VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op])
+        perform(:patch, url_path, body, headers)
+      end
+
+      def update_appointment_vaos(appt_id, status)
+        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
+        perform(:put, url_path, params, headers)
       end
     end
   end
