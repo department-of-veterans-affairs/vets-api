@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'lighthouse/auth/client_credentials/service'
 
 module BenefitsEducation
   ##
