@@ -146,6 +146,8 @@ module V0
           :debt_type,
           :deduction_code,
           :p_h_amt_due,
+          :p_h_dfn_number,
+          :p_h_cerner_patient_id,
           :resolution_comment,
           :resolution_option,
           { station: [:facilit_y_num] }
