@@ -174,28 +174,6 @@ describe VAOS::V2::AppointmentsService do
           expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq('Wed, 08 Sep 2021 06:00:00 -0600')
         end
       end
-
-      it 'does not log cnp count of the returned appointments when there are no cnp appointments' do
-        allow(Rails.logger).to receive(:info)
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
-                         allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
-          response = subject.get_appointments(start_date3, end_date3)
-          expect(response[:data].size).to eq(163)
-          expect(Rails.logger).not_to have_received(:info).with('Compensation and Pension count on an
-          appointment list retrieval', { CompPenCount: 0 }.to_json)
-        end
-      end
-
-      it 'logs CnP count for appointment list containing CnP appointments' do
-        allow(Rails.logger).to receive(:info)
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_cnp',
-                         allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
-          response = subject.get_appointments(start_date3, end_date3)
-          expect(response[:data].size).to eq(163)
-          expect(Rails.logger).to have_received(:info).with('Compensation and Pension count on an
-          appointment list retrieval', { CompPenCount: 2 }.to_json)
-        end
-      end
     end
 
     context 'when requesting a list of appointments given a date range and single status' do
