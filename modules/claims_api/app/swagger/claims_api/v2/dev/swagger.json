@@ -8753,6 +8753,14 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
@@ -8815,7 +8823,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/individual_controller.rb:35:in `validate_individual_poa_code!'"
                       }
@@ -9136,6 +9144,7 @@
                             "additionalProperties": false,
                             "required": [
                               "poaCode",
+                              "registrationNumber",
                               "firstName",
                               "lastName",
                               "type"
@@ -9145,6 +9154,11 @@
                                 "description": "The POA code of the representative.",
                                 "type": "string",
                                 "example": "A1Q"
+                              },
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
+                                "type": "string",
+                                "example": "12345"
                               },
                               "firstName": {
                                 "description": "First Name of the representative.",
@@ -9267,6 +9281,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
+                        "registrationNumber": "67890",
                         "firstName": "my",
                         "lastName": "name",
                         "type": "ATTORNEY",
@@ -9466,10 +9481,26 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
                         "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
                       }
                     }
                   ]
@@ -9528,7 +9559,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not retrieve Power of Attorney with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
                       }
@@ -10097,6 +10128,14 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /representative did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/representative"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
@@ -10159,7 +10198,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not find an Accredited Representative with code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/individual_controller.rb:35:in `validate_individual_poa_code!'"
                       }
@@ -10480,6 +10519,7 @@
                             "additionalProperties": false,
                             "required": [
                               "poaCode",
+                              "registrationNumber",
                               "firstName",
                               "lastName",
                               "type"
@@ -10489,6 +10529,11 @@
                                 "description": "The POA code of the representative.",
                                 "type": "string",
                                 "example": "A1Q"
+                              },
+                              "registrationNumber": {
+                                "description": "Registration Number of representative.",
+                                "type": "string",
+                                "example": "12345"
                               },
                               "firstName": {
                                 "description": "First Name of the representative.",
@@ -10611,6 +10656,7 @@
                       },
                       "representative": {
                         "poaCode": "083",
+                        "registrationNumber": "67890",
                         "firstName": "my",
                         "lastName": "name",
                         "type": "ATTORNEY",
@@ -10801,10 +10847,26 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
                         "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
                       }
                     }
                   ]
@@ -10863,7 +10925,7 @@
                     {
                       "title": "Resource not found",
                       "status": "404",
-                      "detail": "Could not retrieve Power of Attorney with registration number: 67890 and poa code: 083",
+                      "detail": "Could not find an Accredited Representative with registration number: 67890 and poa code: 083",
                       "source": {
                         "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/organization_controller.rb:35:in `validate_org_poa_code!'"
                       }

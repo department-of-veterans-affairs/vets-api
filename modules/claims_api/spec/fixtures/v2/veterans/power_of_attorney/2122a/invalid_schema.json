@@ -6,7 +6,7 @@
         "lastName": "name",
         "type": "ATTORNEY",
         "address": {
-          "addressLine1":  "123",
+          "addressLine1": "123",
           "city": "city",
           "country":  "US",
           "zipCode": "12345"

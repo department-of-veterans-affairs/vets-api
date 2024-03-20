@@ -515,7 +515,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            Veteran::Service::Representative.new(representative_id: '12345',
+            Veteran::Service::Representative.new(representative_id: '67890',
                                                  poa_codes: [poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
