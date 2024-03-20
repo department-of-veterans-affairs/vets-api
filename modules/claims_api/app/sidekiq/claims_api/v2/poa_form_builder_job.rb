@@ -18,7 +18,7 @@ module ClaimsApi
       def perform(power_of_attorney_id, form_number, rep_id = nil)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         unless rep_id.nil?
-          rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(updated_at: :desc).first
+          rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
         end
 
         output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, rep),
