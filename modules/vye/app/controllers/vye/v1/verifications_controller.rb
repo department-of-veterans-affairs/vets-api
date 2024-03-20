@@ -32,7 +32,7 @@ module Vye
       def load_user_info
         case ivr_key?
         when true
-          @user_info = UserInfo.find_from_digested_ssn(ivr_params[:ssn])
+          @user_info = Vye::UserProfile.find_from_digested_ssn(ivr_params[:ssn])&.active_user_info
         else
           super
         end

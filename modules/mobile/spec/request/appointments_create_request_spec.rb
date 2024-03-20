@@ -41,6 +41,38 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       FactoryBot.build(:appointment_form_v2, :va_proposed_clinic).attributes
     end
 
+    describe 'authorization' do
+      context 'when feature flag is off' do
+        before { Flipper.disable('va_online_scheduling') }
+
+        it 'returns forbidden' do
+          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when user does not have access' do
+        let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
+
+        it 'returns forbidden' do
+          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when feature flag is on and user has access' do
+        it 'returns created' do
+          VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M',
+                           match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              post '/mobile/v0/appointment', params: {}, headers: sis_headers
+              expect(response).to have_http_status(:created)
+            end
+          end
+        end
+      end
+    end
+
     it 'clears the cache' do
       expect(Mobile::V0::Appointment).to receive(:clear_cache).once
 

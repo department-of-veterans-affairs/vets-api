@@ -15,9 +15,9 @@ module DecisionReview
       user_uuid: nil
     }.freeze
 
-    def perform(email_address, template_id, customisation, line_num)
+    def perform(email_address, template_id, personalisation, line_num)
       notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
-      notify_client.send_email({ email_address:, template_id:, customisation: })
+      notify_client.send_email({ email_address:, template_id:, personalisation: })
 
       log_formatted(**LOG_PARAMS, is_success: true, params: { line_num: })
     rescue => e

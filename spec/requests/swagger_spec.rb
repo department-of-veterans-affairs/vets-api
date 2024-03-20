@@ -1182,6 +1182,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'PPIU' do
       let(:mhv_user) { create(:user, :loa3) }
 
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                            .and_return(false)
+      end
+
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do

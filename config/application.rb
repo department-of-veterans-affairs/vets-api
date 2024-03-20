@@ -30,7 +30,7 @@ module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     # https://guides.rubyonrails.org/configuring.html#default-values-for-target-version-7-0
-    config.load_defaults 7.0
+    config.load_defaults 7.1
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -41,6 +41,11 @@ module VetsAPI
     # config.eager_load_paths << Rails.root.join("extras")
 
     # RAILS 7 CONFIG START
+    # 7.1
+    config.add_autoload_paths_to_load_path = true
+    config.active_record.raise_on_assign_to_attr_readonly = false
+
+    # 7.0
     config.action_controller.raise_on_open_redirects = false
 
     # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and

@@ -27,6 +27,16 @@ RSpec.describe 'user', type: :request do
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
+    before do
+      Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
+      VCR.insert_cassette('sm_client/session')
+    end
+
+    after do
+      Timecop.return
+      VCR.eject_cassette
+    end
+
     context 'with no upstream errors' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
@@ -173,6 +183,7 @@ RSpec.describe 'user', type: :request do
             paymentHistory
             preferredName
             scheduleAppointments
+            secureMessaging
             userProfileUpdate
           ]
         )

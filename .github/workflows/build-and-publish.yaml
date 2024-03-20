@@ -1,5 +1,5 @@
-name: build-and-publish
-run-name: Build And Publish
+name: Build And Publish Preview Environment
+run-name: Build And Publish Preview Environment
 on: [push]
 jobs:
   build-and-publish:

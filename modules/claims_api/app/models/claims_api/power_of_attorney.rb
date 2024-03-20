@@ -6,9 +6,9 @@ require 'common/file_helpers'
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
     include FileData
-    serialize :auth_headers, JsonMarshal::Marshaller
-    serialize :form_data, JsonMarshal::Marshaller
-    serialize :source_data, JsonMarshal::Marshaller
+    serialize :auth_headers, coder: JsonMarshal::Marshaller
+    serialize :form_data, coder: JsonMarshal::Marshaller
+    serialize :source_data, coder: JsonMarshal::Marshaller
     has_kms_key
     has_encrypted :auth_headers, :form_data, :source_data, key: :kms_key, **lockbox_options
 

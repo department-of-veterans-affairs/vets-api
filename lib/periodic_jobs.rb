@@ -19,9 +19,9 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
   # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
   mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
-  mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
   # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('30 * * * *', 'AppealsApi::EvidenceSubmissionBackup')
+  # Ensures that appeal evidence received "late" (after the appeal has reached "success") is submitted to Central Mail
   mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
   # Daily report of appeals submissions
   mgr.register('0 23 * * 1-5', 'AppealsApi::DailyErrorReport')

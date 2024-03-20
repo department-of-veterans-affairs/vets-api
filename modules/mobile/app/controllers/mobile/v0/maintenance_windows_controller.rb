@@ -24,10 +24,12 @@ module Mobile
         %i[lighthouse disability_rating],
         %i[lighthouse letters_and_documents],
         %i[lighthouse immunizations],
-        %i[mhv secure_messaging],
+        %i[mhv_platform mhv_sm],
+        %i[mhv_platform mhv_meds],
+        %i[mhv_sm secure_messaging],
+        %i[mhv_meds rx_refill],
         %i[vaos appointments],
         %i[vet360 user_profile_update],
-        %i[mhv rx_refill],
         %i[eoas preneed_burial]
       )
 

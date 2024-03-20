@@ -31,4 +31,22 @@ RSpec.describe 'SimpleFormsApi::VBA264555' do
       expect(form.as_payload[:veteran][:fullName][:last]).to eq shortened_name
     end
   end
+
+  describe 'veteran ssn' do
+    it 'strips dashes out' do
+      ssn = '987-65-4321'
+      stripped_ssn = '987654321'
+
+      form = SimpleFormsApi::VBA264555.new(
+        {
+          'veteran' => {
+            'full_name' => {},
+            'ssn' => ssn
+          }
+        }
+      )
+
+      expect(form.as_payload[:veteran][:ssn]).to eq stripped_ssn
+    end
+  end
 end

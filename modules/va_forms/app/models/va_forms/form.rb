@@ -13,8 +13,6 @@ module VAForms
                              } },
                     order_within_rank: 'va_forms_forms.ranking ASC, va_forms_forms.language ASC'
 
-    has_paper_trail only: ['sha256']
-
     validates :title, presence: true
     validates :form_name, presence: true
     validates :row_id, uniqueness: true
@@ -22,6 +20,7 @@ module VAForms
     validates :valid_pdf, inclusion: { in: [true, false] }
 
     before_save :set_revision
+    before_save :set_sha256_history
 
     FORM_BASE_URL = 'https://www.va.gov'
 
@@ -59,6 +58,21 @@ module VAForms
 
     def set_revision
       self.last_revision_on = first_issued_on if last_revision_on.blank?
+    end
+
+    def set_sha256_history
+      if sha256.present? && sha256_changed?
+        self.last_sha256_change = Time.zone.today
+
+        current_history = change_history&.dig('versions')
+        new_history = { sha256:, revision_on: last_sha256_change.strftime('%Y-%m-%d') }
+
+        if current_history.present? && current_history.is_a?(Array)
+          change_history['versions'] << new_history
+        else
+          self.change_history = { versions: [new_history] }
+        end
+      end
     end
   end
 end

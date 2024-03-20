@@ -95,7 +95,7 @@ module Mobile
             facility_id:,
             sta6aid: facility_id,
             healthcare_provider: appointment[:healthcare_provider],
-            healthcare_service:,
+            healthcare_service: nil, # set to nil until we decide what the purpose of this field was meant to be
             location:,
             physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),

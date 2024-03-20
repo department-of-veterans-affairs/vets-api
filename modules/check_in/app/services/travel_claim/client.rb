@@ -63,11 +63,8 @@ module TravelClaim
         req.body = claims_data.merge({ ClaimantID: patient_icn, Appointment:
           { AppointmentDateTime: appointment_date } }).to_json
       end
-    rescue Faraday::TimeoutError => e
-      log_exception_to_sentry(e,
-                              { uuid: check_in.uuid },
-                              { external_service: service_name, team: 'check-in' },
-                              :error)
+    rescue Faraday::TimeoutError
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
       Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,
@@ -88,10 +85,8 @@ module TravelClaim
                                        Appointment: { AppointmentDateTime: opts[:appointment_date] }
                                      }).to_json
       end
-    rescue Faraday::TimeoutError => e
-      log_exception_to_sentry(e, { uuid: check_in.uuid },
-                              { external_service: service_name, team: 'check-in' },
-                              :error)
+    rescue Faraday::TimeoutError
+      Rails.logger.error(message: 'BTSSS Timeout Error', uuid: check_in.uuid)
       Faraday::Response.new(response_body: 'BTSSS timeout error', status: 408)
     rescue => e
       log_message_to_sentry(e.original_body, :error,

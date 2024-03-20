@@ -10,6 +10,7 @@ module SimpleFormsApi
 
     def initialize(data)
       @data = data
+      @uuid = SecureRandom.uuid
     end
 
     def metadata
@@ -21,12 +22,13 @@ module SimpleFormsApi
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
-        'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin')
+        'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
+        'uuid' => @uuid
       }
     end
 
     def handle_attachments(file_path)
-      uuid = SecureRandom.uuid # Generate the UUID inline
+      uuid = @uuid # Generate the UUID as an instance variable
       file_path_uuid = file_path.gsub('vha_10_10d-tmp', "#{uuid}_vha_10_10d-tmp")
       File.rename(file_path, file_path_uuid)
       attachments = get_attachments

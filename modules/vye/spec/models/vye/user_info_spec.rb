@@ -4,32 +4,11 @@ require 'rails_helper'
 
 RSpec.describe Vye::UserInfo, type: :model do
   describe 'create' do
-    it 'creates a new record' do
-      expect do
-        attributes = FactoryBot.attributes_for(:vye_user_info)
-        described_class.create!(attributes)
-      end.to change(described_class, :count).by(1)
-    end
-  end
+    let(:user_profile) { FactoryBot.create(:vye_user_profile) }
 
-  describe 'find_by_user after ICN is recorded' do
-    let!(:user) { create(:evss_user, :loa3) }
-    let!(:user_info) { FactoryBot.create(:vye_user_info, icn: user.icn) }
-
-    it 'finds the user info by icn' do
-      u = described_class.find_and_update_icn(user:)
-      expect(u).to eq(user_info)
-    end
-  end
-
-  describe 'find_by_user before ICN is recorded' do
-    let!(:user) { create(:evss_user, :loa3) }
-    let!(:user_info) { FactoryBot.create(:vye_user_info, icn: nil, ssn: user.ssn) }
-
-    it 'finds the user info by ssn' do
-      u = described_class.find_and_update_icn(user:)
-      expect(u).to eq(user_info)
-      expect(u.icn_in_database).to eq(user.icn)
+    it 'creates a record' do
+      attributes = FactoryBot.attributes_for(:vye_user_info).merge(user_profile:)
+      expect { described_class.create!(attributes) }.to change(described_class, :count).by(1)
     end
   end
 end
