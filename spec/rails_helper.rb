@@ -104,7 +104,7 @@ end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_path = Rails.root.join('spec', 'fixtures')
+  config.fixture_paths = Array(Rails.root / 'spec/fixtures')
 
   config.include(ValidationHelpers, type: :model)
   %i[controller model].each do |type|
