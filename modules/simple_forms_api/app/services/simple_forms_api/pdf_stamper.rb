@@ -26,7 +26,7 @@ module SimpleFormsApi
                   end
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
-      stamp(desired_stamps, stamped_template_path, auth_text, text_only: false)
+      verified_stamp(stamped_template_path, desired_stamps, auth_text, text_only: false)
 
       stamp_submission_date(stamped_template_path, form.submission_date_config)
     end
@@ -34,7 +34,7 @@ module SimpleFormsApi
     def self.stamp107959f1(stamped_template_path, form)
       desired_stamps = [[26, 82.5, form.data['statement_of_truth_signature']]]
       append_to_stamp = false
-      stamp(desired_stamps, stamped_template_path, append_to_stamp)
+      verified_stamp(stamped_template_path, desired_stamps, append_to_stamp)
     end
 
     def self.stamp264555(stamped_template_path, form)
@@ -43,7 +43,7 @@ module SimpleFormsApi
       desired_stamps.append([73, 355, 'X']) unless form.data['previous_hi_application']['has_previous_hi_application']
       desired_stamps.append([73, 320, 'X']) unless form.data['living_situation']['is_in_care_facility']
       append_to_stamp = false
-      stamp(desired_stamps, stamped_template_path, append_to_stamp)
+      verified_stamp(stamped_template_path, desired_stamps, append_to_stamp)
     end
 
     def self.stamp214142(stamped_template_path, form)
@@ -55,7 +55,7 @@ module SimpleFormsApi
         { type: :new_page }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
 
       # This is a one-off case where we need to stamp a date on the first page of 21-4142 when resubmitting
       if form.data['in_progress_form_created_at']
@@ -74,7 +74,7 @@ module SimpleFormsApi
         { type: :new_page }
       ]
 
-      multistamp(stamped_template_path, date_title, page_configuration, 12)
+      verified_stamp(stamped_template_path, date_title, page_configuration, 12, multiple: true)
 
       page_configuration = [
         { type: :text, position: date_text_stamp_position },
@@ -82,7 +82,7 @@ module SimpleFormsApi
         { type: :new_page }
       ]
 
-      multistamp(stamped_template_path, date_text, page_configuration, 12)
+      verified_stamp(stamped_template_path, date_text, page_configuration, 12, multiple: true)
     end
 
     def self.stamp2110210(stamped_template_path, form)
@@ -94,7 +94,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
     end
 
     def self.stamp210845(stamped_template_path, form)
@@ -106,7 +106,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
     end
 
     def self.stamp21p0847(stamped_template_path, form)
@@ -117,7 +117,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
     end
 
     def self.stamp210972(stamped_template_path, form)
@@ -129,7 +129,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
     end
 
     def self.stamp210966(stamped_template_path, form)
@@ -140,7 +140,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
     end
 
     def self.stamp2010207(stamped_template_path, form)
@@ -162,7 +162,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, signature_text, page_configuration)
+      verified_stamp(stamped_template_path, signature_text, page_configuration, multiple: true)
     end
 
     def self.stamp4010007_uuid(uuid)
@@ -173,7 +173,7 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(stamped_template_path, uuid, page_configuration, 7)
+      verified_stamp(stamped_template_path, uuid, page_configuration, 7, multiple: true)
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
@@ -197,7 +197,7 @@ module SimpleFormsApi
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
-    def self.stamp(desired_stamps, stamped_template_path, append_to_stamp, text_only: true)
+    def self.stamp(stamped_template_path, desired_stamps, append_to_stamp, text_only: true)
       current_file_path = stamped_template_path
       desired_stamps.each do |x, y, text|
         out_path = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:).run(text:, x:, y:, text_only:,
@@ -205,6 +205,15 @@ module SimpleFormsApi
         current_file_path = out_path
       end
       File.rename(current_file_path, stamped_template_path)
+    end
+
+    def self.verified_stamp(stamped_template_path, *, multiple: false, **)
+      orig_size = File.size(stamped_template_path)
+      command = multiple ? 'multistamp' : 'stamp'
+      send(command, stamped_template_path, *, **)
+      stamped_size = File.size(stamped_template_path)
+
+      raise StandardError, 'PDF stamping failed.' unless stamped_size > orig_size
     end
 
     def self.perform_multistamp(stamped_template_path, stamp_path)
@@ -225,13 +234,13 @@ module SimpleFormsApi
         page_configuration = default_page_configuration
         page_configuration[config[:page_number]] = { type: :text, position: date_title_stamp_position }
 
-        multistamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12)
+        verified_stamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12, multiple: true)
 
         page_configuration = default_page_configuration
         page_configuration[config[:page_number]] = { type: :text, position: date_text_stamp_position }
 
-        multistamp(stamped_template_path, Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'), page_configuration,
-                   12)
+        current_time = Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D')
+        verified_stamp(stamped_template_path, current_time, page_configuration, 12, multiple: true)
       end
     end
 
