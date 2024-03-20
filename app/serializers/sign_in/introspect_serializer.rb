@@ -2,38 +2,64 @@
 
 module SignIn
   class IntrospectSerializer < ActiveModel::Serializer
-    attributes :uuid, :first_name, :middle_name, :last_name, :birth_date,
-               :email, :gender, :birls_id, :authn_context,
-               :icn, :edipi, :active_mhv_ids, :sec_id, :vet360_id,
-               :participant_id, :cerner_id, :cerner_facility_ids, :idme_uuid,
-               :vha_facility_ids, :id_theft_flag, :verified, :logingov_uuid
+    attributes :active, :anti_csrf_token, :aud, :client_id, :exp, :iat, :iss, :jti,
+               :last_regeneration_time, :parent_refresh_token_hash, :refresh_token_hash,
+               :session_handle, :sub, :user_attributes, :version
 
+    delegate :anti_csrf_token, to: :object
+    delegate :audience, to: :object
+    delegate :client_id, to: :object
+    delegate :created_time, to: :object
+    delegate :expiration_time, to: :object
+    delegate :parent_refresh_token_hash, to: :object
+    delegate :refresh_token_hash, to: :object
+    delegate :session_handle, to: :object
+    delegate :user_uuid, to: :object
     delegate :uuid, to: :object
-    delegate :first_name, to: :object
-    delegate :middle_name, to: :object
-    delegate :last_name, to: :object
-    delegate :birth_date, to: :object
-    delegate :logingov_uuid, to: :object
-    delegate :idme_uuid, to: :object
-    delegate :email, to: :object
-    delegate :gender, to: :object
-    delegate :birls_id, to: :object
-    delegate :icn, to: :object
-    delegate :edipi, to: :object
-    delegate :active_mhv_ids, to: :object
-    delegate :sec_id, to: :object
-    delegate :vet360_id, to: :object
-    delegate :participant_id, to: :object
-    delegate :cerner_id, to: :object
-    delegate :cerner_facility_ids, to: :object
-    delegate :vha_facility_ids, to: :object
-    delegate :id_theft_flag, to: :object
-    delegate :authn_context, to: :object
+    delegate :version, to: :object
 
-    def id; end
+    def active
+      expiration_time > Time.zone.now
+    end
 
-    def verified
-      object.loa3?
+    def aud
+      audience
+    end
+
+    def exp
+      expiration_time.to_i
+    end
+
+    def iat
+      created_time.to_i
+    end
+
+    def id
+      nil
+    end
+
+    def iss
+      SignIn::Constants::AccessToken::ISSUER
+    end
+
+    def jti
+      uuid
+    end
+
+    def last_regeneration_time
+      object.last_regeneration_time.to_i
+    end
+
+    def sub
+      user_uuid
+    end
+
+    def read_attribute_for_serialization(attr)
+      send(attr)
+    end
+
+    def user_attributes
+      object.user_attributes.presence
     end
   end
 end
