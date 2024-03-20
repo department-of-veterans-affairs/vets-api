@@ -134,11 +134,6 @@ module ClaimsApi
           format_representative(individuals.first)
         end
 
-        def organization
-          poa = form_attributes.dig('serviceOrganization', 'poaCode')
-          @organization ||= ::Veteran::Service::Organization.find_by(poa:)
-        end
-
         def format_representative(representative)
           {
             name: "#{representative.first_name} #{representative.last_name}",
