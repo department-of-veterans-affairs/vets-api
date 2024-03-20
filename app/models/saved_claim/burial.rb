@@ -28,5 +28,4 @@ class SavedClaim::Burial < CentralMailClaim
   def business_line
     'NCA'
   end
-
 end
