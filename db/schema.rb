@@ -1162,17 +1162,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
-  create_table "versions", force: :cascade do |t|
-    t.string "item_type", null: false
-    t.bigint "item_id", null: false
-    t.string "event", null: false
-    t.string "whodunnit"
-    t.text "object"
-    t.datetime "created_at", precision: nil
-    t.text "object_changes"
-    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
-  end
-
   create_table "veteran_device_records", force: :cascade do |t|
     t.bigint "device_id", null: false
     t.boolean "active", default: true, null: false

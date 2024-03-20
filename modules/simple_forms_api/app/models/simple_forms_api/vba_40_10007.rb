@@ -54,6 +54,14 @@ module SimpleFormsApi
       end
     end
 
+    def format_date(date)
+      if date == ''
+        date
+      else
+        Date.strptime(date, '%Y-%m-%d').strftime('%m/%d/%Y') #=> "02/25/2012"
+      end
+    end
+
     SERVICE_LABELS = {
       'AC' => 'U.S. Army Air Corps',
       'AF' => 'U.S. Air Force',

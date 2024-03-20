@@ -19,6 +19,7 @@ module VAOS
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
+      APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
@@ -100,7 +101,8 @@ module VAOS
 
       def update_appointment(appt_id, status)
         with_monitoring do
-          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS)
+          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS) &&
+                        Flipper.enabled?(APPOINTMENTS_USE_VPG)
                        update_appointment_vpg(appt_id, status)
                      else
                        update_appointment_vaos(appt_id, status)
