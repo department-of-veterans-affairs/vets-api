@@ -55,13 +55,6 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      # - name: Install yq if needed
-      #   run: |
-      #     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-      #     sudo add-apt-repository ppa:rmescandon/yq
-      #     sudo apt update
-      #     sudo apt install yq -y
-
       - name: Check out Manifest Repo
         uses: actions/checkout@v3
         with:
