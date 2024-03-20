@@ -5,7 +5,6 @@ require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 require 'claims_api/v2/power_of_attorney_validation'
-require 'claims_api/v2/power_of_attorney_validation'
 
 module ClaimsApi
   module V2
@@ -46,31 +45,11 @@ module ClaimsApi
 
         def shared_form_validation(form_number)
           target_veteran
+          @user_profile = fetch_claimant
           # Custom validations for POA submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(@user_profile)
           # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
-          # if we get here there were only validations file errors
-          if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
-                  @claims_api_forms_validation_errors
-          end
-          validate_claimant_included
-        end
-
-        def validate_claimant_included
-          claimant_data = form_attributes&.dig('claimant')
-          return if claimant_data.blank?
-
-          claimant_icn = claimant_data&.dig('claimantId')
-          address = claimant_data&.dig('address')
-          phone = claimant_data&.dig('phone')
-          relationship = claimant_data&.dig('relationship')
-          return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
-
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Must provide claimant.claimantId if claimant information is provided.'
-          )
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
@@ -91,7 +70,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.new.perform(power_of_attorney.id, form_number)
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @user_profile)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
@@ -188,6 +167,16 @@ module ClaimsApi
                                 body: e.message)
 
           nil
+        end
+
+        def fetch_claimant
+          claimant_icn = form_attributes.dig('claimant', 'claimantId')
+          if claimant_icn.present?
+            user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
+                                                                  identifier_type: MPI::Constants::ICN)
+          end
+        rescue ArgumentError
+          user_profile
         end
       end
     end

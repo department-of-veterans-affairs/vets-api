@@ -15,10 +15,10 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number)
+      def perform(power_of_attorney_id, form_number, user_profile)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
-        output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number),
+        output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, user_profile),
                                                              id: power_of_attorney.id)
         upload_to_vbms(power_of_attorney, output_path)
         ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
@@ -43,7 +43,7 @@ module ClaimsApi
       # @param form_number [String] Either 2122 or 2122A
       #
       # @return [Hash] All data to be inserted into pdf
-      def data(power_of_attorney, form_number)
+      def data(power_of_attorney, form_number, user_profile)
         res = power_of_attorney
               .form_data.deep_merge({
                                       'veteran' => {
@@ -55,19 +55,19 @@ module ClaimsApi
                                     })
 
         signatures = if form_number == '2122A'
-                       individual_signatures(power_of_attorney)
+                       individual_signatures(power_of_attorney, user_profile)
                      else
-                       organization_signatures(power_of_attorney)
+                       organization_signatures(power_of_attorney, user_profile)
                      end
 
         res.merge!({ 'text_signatures' => signatures })
         res
       end
 
-      def organization_signatures(power_of_attorney)
+      def organization_signatures(power_of_attorney, user_profile)
         rep_first_name = power_of_attorney.form_data['serviceOrganization']['firstName']
         rep_last_name = power_of_attorney.form_data['serviceOrganization']['lastName']
-        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney, user_profile)
         {
           'page2' => [
             {
@@ -85,12 +85,12 @@ module ClaimsApi
         }
       end
 
-      def individual_signatures(power_of_attorney)
+      def individual_signatures(power_of_attorney, user_profile)
         first_name = power_of_attorney.form_data['representative']['firstName']
         last_name = power_of_attorney.form_data['representative']['lastName']
         {
           'page1' => individual_page1_signatures(power_of_attorney, first_name, last_name),
-          'page2' => individual_page2_signatures(power_of_attorney, first_name, last_name)
+          'page2' => individual_page2_signatures(power_of_attorney, first_name, last_name, user_profile)
         }
       end
 
@@ -110,8 +110,8 @@ module ClaimsApi
         ]
       end
 
-      def individual_page2_signatures(power_of_attorney, rep_first_name, rep_last_name)
-        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
+      def individual_page2_signatures(power_of_attorney, rep_first_name, rep_last_name, user_profile)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney, user_profile)
         [
           {
             'signature' => "#{first_name} " \
@@ -127,11 +127,8 @@ module ClaimsApi
         ]
       end
 
-      def veteran_or_claimant_signature(power_of_attorney)
-        claimant_icn = power_of_attorney.form_data.dig('claimant', 'claimantId')
-        if claimant_icn.present?
-          user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
-                                                                identifier_type: MPI::Constants::ICN)
+      def veteran_or_claimant_signature(power_of_attorney, user_profile)
+        if user_profile&.status == :ok
           first_name = user_profile.profile.given_names.first
           last_name = user_profile.profile.family_name
         else

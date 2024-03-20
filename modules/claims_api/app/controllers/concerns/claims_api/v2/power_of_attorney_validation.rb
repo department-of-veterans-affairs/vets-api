@@ -3,18 +3,18 @@
 module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
-      def validate_form_2122_and_2122a_submission_values
-        validate_claimant
+      def validate_form_2122_and_2122a_submission_values(user_profile)
+        validate_claimant(user_profile)
         # collect errors and pass back to the controller
         raise_error_collection if @errors
       end
 
       private
 
-      def validate_claimant
+      def validate_claimant(user_profile)
         return if form_attributes['claimant'].blank?
 
-        validate_claimant_id_included
+        validate_claimant_id_included(user_profile)
         validate_address
         validate_relationship
       end
@@ -93,35 +93,24 @@ module ClaimsApi
         end
       end
 
-      def validate_claimant_id_included
+      def validate_claimant_id_included(user_profile)
         claimant_icn = form_attributes.dig('claimant', 'claimantId')
-        check_claimant_id_found(claimant_icn)
+        if (user_profile.blank? || user_profile&.status == :not_found) && claimant_icn
+          collect_error_messages(
+            source: 'claimant/claimantId',
+            detail: "The 'claimantId' must be valid"
+          )
+        else
+          address = form_attributes.dig('claimant', 'address')
+          phone = form_attributes.dig('claimant', 'phone')
+          relationship = form_attributes.dig('claimant', 'relationship')
+          return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
 
-        address = form_attributes.dig('claimant', 'address')
-        phone = form_attributes.dig('claimant', 'phone')
-        relationship = form_attributes.dig('claimant', 'relationship')
-        return if claimant_icn.present? && (address.present? || phone.present? || relationship.present?)
-
-        collect_error_messages(
-          source: '/claimant/claimantId/',
-          detail: "If claimant is present 'claimantId' must be filled in"
-        )
-      end
-
-      def check_claimant_id_found(claimant_icn)
-        user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
-                                                              identifier_type: MPI::Constants::ICN)
-        return if user_profile
-
-        collect_error_messages(
-          source: 'claimant/claimantId',
-          detail: "The 'claimantId' must be valid"
-        )
-      rescue ArgumentError
-        collect_error_messages(
-          source: 'claimant/claimantId',
-          detail: "The 'claimantId' must be valid"
-        )
+          collect_error_messages(
+            source: '/claimant/claimantId/',
+            detail: "If claimant is present 'claimantId' must be filled in"
+          )
+        end
       end
 
       def errors_array
