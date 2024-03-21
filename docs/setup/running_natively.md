@@ -33,3 +33,16 @@ they would be when running rails directly.
 ### Running a rails interactive console
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
+
+
+
+
+Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
+
+### Options
+#### Option 1: Run ONLY clamav via Docker
+
+You can either run:
+`docker-compose -f docker-compose-clamav.yml up` - this will run ONLY clamav via docker
+
+After that, follow the native instructions and run `foreman start -m all=1`
