@@ -32,5 +32,18 @@ module ClaimsApi
         error&.original_body
       )
     end
+
+    def get_source
+      if (@error.respond_to?(:key) && @error.key.present?) ||
+         (@error.respond_to?(:backtrace) && @error.backtrace.present?)
+        matches = if @error.backtrace.nil?
+                    @error.key[0].match(/vets-api(\S*) (.*)/)
+                  else
+                    @error.backtrace[0].match(/vets-api(\S*) (.*)/)
+                  end
+        spliters = matches[0].split(':')
+        @source = spliters[0]
+      end
+    end
   end
 end
