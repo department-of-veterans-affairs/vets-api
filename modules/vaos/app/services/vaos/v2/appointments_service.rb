@@ -477,7 +477,14 @@ module VAOS
       end
 
       def partial_errors(response)
-        if response.status == 200 && response.body[:failures]&.any?
+        return { failures: [] } if response.body[:failures].blank?
+
+        response.body[:failures].each do |failure|
+          detail = failure[:detail]
+          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
+        end
+
+        if response.status == 200
           log_message_to_sentry(
             'VAOS::V2::AppointmentService#get_appointments has response errors.',
             :info,
@@ -486,7 +493,7 @@ module VAOS
         end
 
         {
-          failures: response.body[:failures] || [] # VAMF drops null valued keys; ensure we always return empty array
+          failures: response.body[:failures]
         }
       end
 
