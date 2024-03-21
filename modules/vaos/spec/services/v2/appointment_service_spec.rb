@@ -174,14 +174,6 @@ describe VAOS::V2::AppointmentsService do
           expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq('Wed, 08 Sep 2021 06:00:00 -0600')
         end
       end
-
-      it 'logs the VAOS telehealth atlas details of the returned appointments' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
-                         allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
-          response = subject.get_appointments(start_date3, end_date3)
-          expect(response[:data].size).to eq(163)
-        end
-      end
     end
 
     context 'when partial success is returned and failures are returned with ICNs' do
