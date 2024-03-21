@@ -13,9 +13,11 @@ module ClaimsApi
       when Faraday::ParsingError
         raise_backend_exception('EVSS502', self.class)
       when ::Common::Exceptions::BackendServiceException
+        log_outcome_for_claims_api(@error) if @error&.original_status == 403
         raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
 
         raise_backend_exception('EVSS400', self.class, @error) if @error&.original_status == 400
+        log_outcome_for_claims_api(@error) if @error&.original_status == 401
         raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
       else
         raise @error
