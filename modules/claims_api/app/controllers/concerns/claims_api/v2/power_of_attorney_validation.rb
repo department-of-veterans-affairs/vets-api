@@ -1,5 +1,7 @@
 # frozen_string_literal: false
 
+# rubocop:disable Metrics/ModuleLength
+
 module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
@@ -130,3 +132,4 @@ module ClaimsApi
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
