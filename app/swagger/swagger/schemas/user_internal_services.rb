@@ -99,9 +99,6 @@ module Swagger
               property :ssoe, type: :boolean
               property :transactionid, type: %i[string null]
             end
-            property :demographics, type: :object do
-              property :preferred_name, type: :string, example: 'Jay'
-            end
           end
         end
       end
