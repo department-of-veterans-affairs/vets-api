@@ -213,6 +213,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         expect(Form526JobStatus.last.status).to eq 'success'
       end
 
+      it 'transitions to delivered_to_primary' do
+        subject.perform_async(submission.id)
+        described_class.drain
+        submission.reload
+        expect(submission.aasm_state).to eq('delivered_to_primary')
+      end
+
       it 'submits successfully without calling classification service' do
         subject.perform_async(submission.id)
         expect do
@@ -604,6 +611,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+        end
+      end
+    end
+
+    describe 'form526 state transitioning' do
+      context 'with a non-retryable error' do
+        it 'transitions the submission to failure state' do
+          allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_raise(StandardError)
+          subject.perform_async(submission.id)
+          described_class.drain
+          submission.reload
+          expect(submission.aasm_state).to eq 'failed_primary_delivery'
         end
       end
     end
