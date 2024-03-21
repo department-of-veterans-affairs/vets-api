@@ -7,5 +7,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
         post :accept
       end
     end
+
+    get 'user', to: 'representative_users#show'
   end
 end
