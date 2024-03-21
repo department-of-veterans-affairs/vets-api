@@ -318,10 +318,8 @@ module V0
       user_attributes = auth_service(state_payload.type,
                                      state_payload.client_id).normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes:).perform
-      user_code_map = SignIn::UserCreator.new(user_attributes:,
-                                              state_payload:,
-                                              verified_icn:,
-                                              request_ip: request.ip).perform
+      user_code_map = create_user_code_map(user_attributes, state_payload, verified_icn, request.remote_ip)
+
       context = {
         type: state_payload.type,
         client_id: state_payload.client_id,
@@ -345,6 +343,16 @@ module V0
                                                     terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
                                                     params_hash:).perform,
              content_type: 'text/html'
+    end
+
+    def create_user_code_map(user_attributes, state_payload, verified_icn, request_ip)
+      klass = if state_payload.client_id == Settings.sign_in.arp_client_id
+                AccreditedRepresentativePortal::RepresentativeUserCreator
+              else
+                SignIn::UserCreator
+              end
+
+      klass.new(user_attributes:, state_payload:, verified_icn:, request_ip:).perform
     end
 
     def refresh_token_param
