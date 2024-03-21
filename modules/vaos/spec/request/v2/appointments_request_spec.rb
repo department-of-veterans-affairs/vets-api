@@ -247,6 +247,34 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
         end
 
+        it 'returns va appointments and logs CnP appointment count' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_cnp',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow(Rails.logger).to receive(:info)
+            get '/vaos/v2/appointments', params:, headers: inflection_header
+            expect(Rails.logger).to have_received(:info).with(
+              'Compensation and Pension count on an appointment list retrieval', { CompPenCount: 2 }.to_json
+            )
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'does not log cnp count of the returned appointments when there are no cnp appointments' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_pap_comp',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow(Rails.logger).to receive(:info)
+            get '/vaos/v2/appointments', params:, headers: inflection_header
+            expect(Rails.logger).not_to have_received(:info).with(
+              'Compensation and Pension count on an appointment list retrieval', { CompPenCount: 0 }.to_json
+            )
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
         it 'has access and returns a va appointments with no location id' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_no_location_id',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do

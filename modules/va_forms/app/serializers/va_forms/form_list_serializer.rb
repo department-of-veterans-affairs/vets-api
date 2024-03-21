@@ -13,9 +13,5 @@ module VAForms
     def id
       object.row_id
     end
-
-    def last_sha256_change
-      object.versions.last.created_at&.strftime('%Y-%m-%d') if object&.versions&.last&.created_at
-    end
   end
 end
