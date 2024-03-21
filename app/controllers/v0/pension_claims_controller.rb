@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pension_21p527ez/tag_sentry'
+
 module V0
   class PensionClaimsController < ClaimsBaseController
     service_tag 'pension-application'
