@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/validation_errors'
-require 'evss/pciu/service'
 
 module Mobile
   module V0

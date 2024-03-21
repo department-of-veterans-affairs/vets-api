@@ -10,6 +10,9 @@ development: &defaults
   user_b_store:
     namespace: users_b
     each_ttl: 1800
+  representative_user_store:
+    namespace: representative_users
+    each_ttl: 1800
   user_identity_store:
     namespace: user_identities
     each_ttl: 1800
@@ -194,6 +197,9 @@ test:
   <<: *defaults
   redis:
     inherit_socket: true
+    url: <%= Settings.redis.app_data.url %>
+  sidekiq:
+    url: <%= Settings.redis.sidekiq.url %>
 
 production:
   <<: *defaults

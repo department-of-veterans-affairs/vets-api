@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class ClaimsController < ApplicationController
-    ##
-    # For now, index is integrated with PING endpoint until
-    # upstream API is more complete.
-    def index
+  class PingsController < ApplicationController
+    def ping
       veis_response = client.request_veis_token
 
       veis_token = veis_response.body['access_token']
