@@ -4,46 +4,69 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamperConfig
-    PAGE_CONFIGS = {
-      '2110210': { prepend: 2, append: 0 },
-      '210845': { prepend: 2, append: 0 },
-      '210972': { prepend: 2, append: 0 },
-      '21p0847': { prepend: 1, append: 0 },
-      '210966': { prepend: 1, append: 0 },
-      '214142': { prepend: 1, append: 1 },
-      '2010207': { prepend: 4, append: 0 },
-      '214142_date_title': { prepend: 0, append: 2 },
-      '214142_date_text': { prepend: 0, append: 2 },
-      '4010007_uuid': { prepend: 0, append: 0 }
-    }.freeze
+    class << self
+      def generate_config(stamped_template_path, form, current_loa)
+        new(stamped_template_path, form, current_loa).to_h
+      end
 
-    attr_accessor :auth_text, :form_number, :stamps, :page_config, :template_path
+      def generate_stamps(form_number)
+        form = OpenStruct.new(data: { form_number: })
+        new(nil, form, nil).stamps
+      end
+    end
+
+    attr_accessor :stamps
 
     def initialize(stamped_template_path, form, current_loa)
       @template_path = stamped_template_path
       @form = form
-      @form_number = form.data['form_number'].gsub('-', '').downcase.to_sym
-      @stamps = desired_stamps[form_number]
-      @page_config = generate_page_configuration
-      @auth_text = generate_auth_text(current_loa)
+      @current_loa = current_loa
+      @form_number = form.data.stringify_keys['form_number'].gsub('-', '').downcase.to_sym
+      @stamps = desired_stamps[form_number] || build_default_stamps
+      @font_size = FONT_SIZES[form_number] || 16
     end
 
-    def stamp
-      PdfStamper.verified_stamp(template_path, stamps, append_to_stamp)
-    end
-
-    def multistamp
-      PdfStamper.verified_stamp(template_path, signature_text, page_config, multiple: true)
-
-      handle_214142_resubmit if form_number == '214142' && form.data['in_progress_form_created_at']
+    def to_h
+      {
+        append_to_stamp:,
+        font_size:,
+        form_number:,
+        form:,
+        multistamp:,
+        page_config:,
+        signature_text:,
+        stamps:,
+        template_path:
+      }
     end
 
     private
 
-    attr_accessor :form
+    attr_accessor :form, :form_number, :template_path, :font_size
 
-    def generate_auth_text(current_loa)
-      case current_loa
+    PAGE_CONFIGURATIONS = {
+      '2110210': { page_count: 3, page_index: 2 },
+      '210845': { page_count: 3, page_index: 2 },
+      '210972': { page_count: 3, page_index: 2 },
+      '21p0847': { page_count: 2, page_index: 1 },
+      '210966': { page_count: 2, page_index: 1 },
+      '214142': { page_count: 3, page_index: 1 },
+      '2010207': { page_count: 5, page_index: 4 },
+      '214142_date_title': { page_count: 3, page_index: 0 },
+      '214142_date_text': { page_count: 3, page_index: 0 },
+      '4010007_uuid': { page_count: 1, page_index: 0 }
+    }.freeze
+
+    FONT_SIZES = {
+      '214142_date_title': 12,
+      '214142_date_text': 12,
+      '4010007_uuid': 7
+    }.freeze
+
+    def append_to_stamp
+      return false if %w[107959f1 264555].include? form_number
+
+      case @current_loa
       when 3
         'Signee signed with an identity-verified account.'
       when 2
@@ -53,9 +76,14 @@ module SimpleFormsApi
       end
     end
 
+    def signature_text
+      return unless %w[2110210 210845 21p0847 210972 210966 2010207 214142].include? form_number
+
+      form.data['statement_of_truth_signature']
+    end
+
     def desired_stamps
       {
-        default: build_default_stamps,
         '210845': [[50, 240]],
         '210966': [[50, 415]],
         '210972': [[50, 465]],
@@ -70,26 +98,19 @@ module SimpleFormsApi
       }
     end
 
-    def generate_page_configuration
-      return default_page_configuration if form_number == 'default'
+    def page_config
+      return default_page_configuration unless PAGE_CONFIGURATIONS[form_number]
 
-      return unless PAGE_CONFIGS[form_number]
+      page_data = PAGE_CONFIGURATIONS[form_number]
 
-      [].tap do |config|
-        PAGE_CONFIGS[form_number][:prepend].times { config << { type: :new_page } }
-        config << { type: :text, position: stamps&.dig(0) }
-        PAGE_CONFIGS[form_number][:append].times { config << { type: :new_page } }
+      @page_config ||= [].tap do |config|
+        page_data[:page_count].times { config << { type: :new_page } }
+        config[page_data[:page_index]] = { type: :text, position: stamps&.dig(0) }
       end
     end
 
-    def append_to_stamp
+    def multistamp
       %w[107959f1 264555].exclude? form_number
-    end
-
-    def signature_text
-      return unless %w[2110210 210845 21p0847 210972 210966 2010207 214142].include? form_number
-
-      form.data['statement_of_truth_signature']
     end
 
     def build_default_stamps
@@ -101,10 +122,10 @@ module SimpleFormsApi
     def build_264555_stamps
       return [] unless form.data
 
-      [].tap do |desired_stamps|
-        desired_stamps << [73, 390, 'X'] unless form.data.dig('previous_sah_application', 'has_previous_sah_application')
-        desired_stamps << [73, 355, 'X'] unless form.data.dig('previous_hi_application', 'has_previous_hi_application')
-        desired_stamps << [73, 320, 'X'] unless form.data.dig('living_situation', 'is_in_care_facility')
+      [].tap do |stamps|
+        stamps << [73, 390, 'X'] unless form.data.dig('previous_sah_application', 'has_previous_sah_application')
+        stamps << [73, 355, 'X'] unless form.data.dig('previous_hi_application', 'has_previous_hi_application')
+        stamps << [73, 320, 'X'] unless form.data.dig('living_situation', 'is_in_care_facility')
       end
     end
 
@@ -120,15 +141,13 @@ module SimpleFormsApi
       end
     end
 
-    def handle_214142_resubmit
-      submissions = [
-        { form_number: '214142_date_title', signature_text: PdfStamper.SUBMISSION_DATE_TITLE },
-        { form_number: '214142_date_text', signature_text: form.data['in_progress_form_created_at'] }
+    def default_page_configuration
+      [
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page }
       ]
-      submissions.each do |form_number, signature_text|
-        @form_number = form_number
-        PdfStamper.verified_stamp(template_path, signature_text, page_config, 12, multiple: true)
-      end
     end
   end
 end

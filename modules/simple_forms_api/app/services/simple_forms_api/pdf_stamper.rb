@@ -10,48 +10,48 @@ module SimpleFormsApi
 
     class << self
       def stamp_pdf(stamped_template_path, form, current_loa)
-        config = PdfStamperConfig.new(stamped_template_path, form, current_loa)
+        config = PdfStamperConfig.generate_config(stamped_template_path, form, current_loa)
 
-        if FORM_REQUIRES_STAMP.include? config.form_number
-          verified_stamp(config.template_path, config.stamps, config.auth_text, text_only: false)
-        end
+        verified_stamp(config) if FORM_REQUIRES_STAMP.include? config[:form_number]
+        handle_214142_resubmit(config) if config[:form_number] == '214142' && form.data['in_progress_form_created_at']
 
-        current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
-        stamp_text = "#{SUBMISSION_TEXT} #{current_time} "
-        desired_stamps = [[10, 10, stamp_text]]
-        verified_stamp(config.template_path, desired_stamps, config.auth_text, text_only: false)
+        form.data['form_number'] = 'default'
+        default_config = PdfStamperConfig.generate_config(stamped_template_path, form, current_loa)
+        verified_stamp(**default_config)
 
-        stamp_submission_date(config.template_path, form.submission_date_config)
+        stamp_submission_date(config[:template_path], form.submission_date_config)
       end
 
       def stamp4010007_uuid(uuid)
-        form = { data: { form_number: '4010007_uuid' } }
-        config = PdfStamperConfig.new('tmp/vba_40_10007-tmp.pdf', form, current_loa)
-        config.multistamp(config.template_path, uuid, config.page_config, 7, multiple: true)
+        form = OpenStruct.new(data: { form_number: '4010007_uuid' })
+        config = PdfStamperConfig.generate_config('tmp/vba_40_10007-tmp.pdf', form, current_loa)
+        verified_stamp(config.template_path, uuid, config.page_config, 7, multistamp: config.multistamp)
       end
 
-      def verified_stamp(stamped_template_path, *, multiple: false, **)
-        orig_size = File.size(stamped_template_path)
-        command = multiple ? 'multistamp' : 'stamp'
-        send(command, stamped_template_path, *, **)
-        stamped_size = File.size(stamped_template_path)
+      private
+
+      def verified_stamp(template_path:, multistamp:, **)
+        orig_size = File.size(template_path)
+        command = multistamp ? 'multistamp' : 'stamp'
+        send(command, template_path:, **)
+        stamped_size = File.size(template_path)
 
         raise StandardError, 'PDF stamping failed.' unless stamped_size > orig_size
       end
 
-      def stamp(stamped_template_path, desired_stamps, append_to_stamp, text_only: true)
-        current_file_path = stamped_template_path
-        desired_stamps.each do |x, y, text|
+      def stamp(template_path:, stamps:, append_to_stamp:, text_only: true, **)
+        current_file_path = template_path
+        stamps.each do |x, y, text|
           datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
           current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         end
-        File.rename(current_file_path, stamped_template_path)
+        File.rename(current_file_path, template_path)
       end
 
-      def multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
+      def multistamp(template_path:, signature_text:, page_config:, font_size: 16, **)
         stamp_path = Common::FileHelpers.random_file_path
         Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-          page_configuration.each do |config|
+          page_config.each do |config|
             case config[:type]
             when :text
               pdf.draw_text signature_text, at: config[:position], size: font_size
@@ -61,7 +61,7 @@ module SimpleFormsApi
           end
         end
 
-        perform_multistamp(stamped_template_path, stamp_path)
+        perform_multistamp(template_path, stamp_path)
       rescue => e
         Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
         raise
@@ -80,20 +80,34 @@ module SimpleFormsApi
         raise
       end
 
-      def stamp_submission_date(stamped_template_path, config)
+      def stamp_submission_date(template_path, config)
         if config[:should_stamp_date?]
           date_title_stamp_position = config[:title_coords]
+          page_config = default_page_configuration
+          page_config[config[:page_number]] = { type: :text, position: date_title_stamp_position }
+          signature_text = SUBMISSION_DATE_TITLE
+
+          verified_stamp(template_path:, signature_text:, page_config:, font_size: 12, multistamp: true)
+
           date_text_stamp_position = config[:text_coords]
-          page_configuration = default_page_configuration
-          page_configuration[config[:page_number]] = { type: :text, position: date_title_stamp_position }
+          page_config = default_page_configuration
+          page_config[config[:page_number]] = { type: :text, position: date_text_stamp_position }
+          signature_text = Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D')
 
-          verified_stamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12, multiple: true)
+          verified_stamp(template_path:, signature_text:, page_config:, font_size: 12, multistamp: true)
+        end
+      end
 
-          page_configuration = default_page_configuration
-          page_configuration[config[:page_number]] = { type: :text, position: date_text_stamp_position }
-
-          current_time = Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D')
-          verified_stamp(stamped_template_path, current_time, page_configuration, 12, multiple: true)
+      def handle_214142_resubmit(template_path:, current_loa:, **)
+        submissions = [
+          { form_number: '214142_date_title', signature_text: PdfStamper.SUBMISSION_DATE_TITLE },
+          { form_number: '214142_date_text', signature_text: form.data['in_progress_form_created_at'] }
+        ]
+        submissions.each do |form_number, signature_text|
+          form = OpenStruct.new(data: { form_number: })
+          config = PdfStamperConfig.generate_config(template_path, form, current_loa)
+          config[:signature_text] = signature_text
+          verified_stamp(config)
         end
       end
 
