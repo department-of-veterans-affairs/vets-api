@@ -1029,6 +1029,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports getting separation_locations' do
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
         VCR.use_cassette('evss/reference_data/get_intake_sites_500') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
