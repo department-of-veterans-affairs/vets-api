@@ -78,6 +78,7 @@ sign_in:
   mockdata_sync_api_key: ~
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
+  arp_client_id: arp
 
 terms_of_use:
   current_version: v1

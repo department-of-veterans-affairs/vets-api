@@ -112,3 +112,15 @@ chatbot.update!(
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
   certificates: [File.read('spec/fixtures/sign_in/sample_service_account.crt')]
 )
+
+# Create config for accredited_representative_portal
+arp = SignIn::ClientConfig.find_or_initialize_by(client_id: 'arp')
+arp.update!(authentication: SignIn::Constants::Auth::COOKIE,
+            anti_csrf: true,
+            pkce: true,
+            description: 'Accredited Representative Portal',
+            redirect_uri: 'http://localhost:3001/auth/login/callback',
+            access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+            access_token_attributes: %w[first_name last_name email],
+            refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
+            logout_redirect_uri: 'http://localhost:3001/representatives')
