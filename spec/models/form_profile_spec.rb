@@ -659,7 +659,6 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'gender' => user.gender,
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
