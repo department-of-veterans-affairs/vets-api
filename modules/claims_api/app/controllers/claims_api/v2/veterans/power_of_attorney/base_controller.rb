@@ -50,6 +50,7 @@ module ClaimsApi
           @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(@user_profile)
           # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
+          add_claimant_data_to_form(@user_profile)
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
@@ -70,7 +71,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @user_profile)
+            ClaimsApi::V2::PoaFormBuilderJob.new.perform(power_of_attorney.id, form_number)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
@@ -177,6 +178,15 @@ module ClaimsApi
           end
         rescue ArgumentError
           user_profile
+        end
+
+        def add_claimant_data_to_form(user_profile)
+          byebug
+          if user_profile&.status == :ok
+            first_name = user_profile.profile.given_names.first
+            last_name = user_profile.profile.family_name
+            form_attributes['claimant'].merge!(firstName: first_name, lastName: last_name)
+          end
         end
       end
     end
