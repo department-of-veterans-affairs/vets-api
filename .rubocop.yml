@@ -88,6 +88,7 @@ Rails:
 Rails/Output:
   Exclude:
     - 'lib/tasks/**/*'
+    - 'bin/lib/vets-api/**/*'
 
 Metrics/MethodLength:
   Max: 20
