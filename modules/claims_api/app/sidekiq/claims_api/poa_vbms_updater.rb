@@ -4,8 +4,9 @@ require 'bgs'
 
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
-    def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
+    def perform(power_of_attorney_id, form = 2122) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
+      rep_or_org = form.to_s == '2122A' ? 'representative' : 'serviceOrganization'
       service = BGS::Services.new(
         external_uid: poa_form.external_uid,
         external_key: poa_form.external_key
@@ -15,13 +16,12 @@ module ClaimsApi
         'poa_vbms_updater',
         poa_id: power_of_attorney_id,
         detail: 'Updating Access',
-        poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode')
+        poa_code: poa_form.form_data.dig(rep_or_org, 'poaCode')
       )
-
       # allow_poa_c_add reports 'No Data' if sent lowercase
       response = service.corporate_update.update_poa_access(
         participant_id: poa_form.auth_headers['va_eauth_pid'],
-        poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
+        poa_code: poa_form.form_data.dig(rep_or_org, 'poaCode'),
         allow_poa_access: 'y',
         allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'Y' : 'N'
       )
