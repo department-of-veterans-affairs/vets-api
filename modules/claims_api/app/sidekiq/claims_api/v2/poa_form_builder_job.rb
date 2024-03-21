@@ -138,10 +138,6 @@ module ClaimsApi
         end
         [first_name, last_name]
       end
-
-      def mpi_service
-        @service ||= MPI::Service.new
-      end
     end
   end
 end

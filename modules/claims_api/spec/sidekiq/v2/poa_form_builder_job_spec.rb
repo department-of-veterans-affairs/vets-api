@@ -34,6 +34,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             }
           },
           claimant: {
+            claimantId: '1012830872V584140',
             email: 'lillian@disney.com',
             relationship: 'Spouse',
             address: {
@@ -46,7 +47,9 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            }
+            },
+            firstName: 'JESSE',
+            lastName: 'GRAY'
           },
           representative: {
             poaCode: poa_code.to_s,
@@ -174,7 +177,9 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            }
+            },
+            firstName: 'Mitchell',
+            lastName: 'Jenkins'
           },
           representative: {
             poaCode: poa_code.to_s,
@@ -282,7 +287,9 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            }
+            },
+            firstName: 'JESSE',
+            lastName: 'GRAY'
           },
           serviceOrganization: {
             poaCode: poa_code.to_s,
@@ -395,7 +402,9 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             phone: {
               areaCode: '555',
               phoneNumber: '5551337'
-            }
+            },
+            firstName: 'Mitchell',
+            lastName: 'Jenkins'
           },
           serviceOrganization: {
             poaCode: poa_code.to_s,
