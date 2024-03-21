@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Pension
+module Pension21p527ez
   module TagSentry
     module_function
 
