@@ -78,6 +78,7 @@ sign_in:
   mockdata_sync_api_key: ~
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
+  arp_client_id: arp
 
 terms_of_use:
   current_version: v1
@@ -1284,6 +1285,12 @@ vanotify:
         fsr_streamlined_confirmation_email: fake_template_id
     check_in:
       api_key: fake_secret
+      sms_sender_id: fake_secret
+      template_id:
+        claim_submission_success_text: fake_template_id
+        claim_submission_duplicate_text: fake_template_id
+        claim_submission_error_text: fake_template_id
+    oracle_health:
       sms_sender_id: fake_secret
       template_id:
         claim_submission_success_text: fake_template_id

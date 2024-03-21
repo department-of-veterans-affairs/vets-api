@@ -21,13 +21,17 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
                          "\nThe following submissions have encountered errors in *#{environment}*. \n\n*Disability " \
                          "Compensation Errors* \nTotal: 2 \n```123456 \n789101112 \n```  \n\n*Power of " \
                          "Attorney Errors* \nTotal: 2 \n```1314151617 \n181920212223 \n```  \n\n*Intent to " \
-                         "File Errors* \nTotal: 1 \n```24252627 \n```  \n\n*Evidence Waiver Errors* \nTotal: 2 " \
+                         "File Errors* \nTotal: 1 \n\n*Evidence Waiver Errors* \nTotal: 2 " \
                          "\n```32333435 \n36373839 \n```  \n\n"
 
       expect(message).to include("#{claims.count} \n")
+      expect(message).to include("123456 \n789101112 \n")
       expect(message).to include("#{poa.count} \n")
+      expect(message).to include("1314151617 \n181920212223 \n")
       expect(message).to include("#{itf.count} \n")
+      expect(message).not_to include("24252627 \n")
       expect(message).to include("#{ews.count} \n")
+      expect(message).to include("32333435 \n36373839 \n")
 
       expect(message).to eq(expected_message)
     end

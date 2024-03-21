@@ -756,6 +756,10 @@ features:
     actor_type: user
     description: Logs decision letter info on both claims and decision letter endpoint
     enable_in_development: true
+  mobile_sm_session_policy:
+    actor_type: user
+    description: changes secure messaging policy to use sm sessions endpoint for authorization
+    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -774,6 +778,9 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  profile_ppiu_reject_requests:
+    actor_type: user
+    description: When enabled, requests to the PPIU controller will return a routing error.
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
@@ -1085,10 +1092,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for VAOS direct scheduling & appointment request clinic filtering
-  va_online_scheduling_appointment_list:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the new appointment List feature
   va_online_scheduling_breadcrumb_url_update:
     actor_type: user
     enable_in_development: true
@@ -1137,6 +1140,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
+  va_online_scheduling_appointment_details_redesign:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for redesigning the appointment details page.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -1256,6 +1263,9 @@ features:
   disability_compensation_remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
+  disability_compensation_lighthouse_brd:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Reference Data service
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
