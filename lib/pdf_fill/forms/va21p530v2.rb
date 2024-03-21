@@ -29,13 +29,22 @@ module PdfFill
             question_text: "DECEASED VETERAN'S FIRST NAME"
           },
           'middle' => {
-            key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]'
+            key: 'form1[0].#subform[82].VeteransMiddleInitial1[0]',
+            question_num: 1,
+            limit: 1,
+            question_text: "DECEASED VETERAN'S MIDDLE INITIAL"
           },
           'last' => {
             key: 'form1[0].#subform[82].VeteransLastName[0]',
             limit: 18,
             question_num: 1,
             question_text: "DECEASED VETERAN'S LAST NAME"
+          }, 
+          'suffix' => {
+            key: 'form1[0].#subform[82].Suffix[0]',
+            question_num: 1,
+            limit: 0,
+            question_text: "DECEASED VETERAN'S SUFFIX"
           }
         },
         'veteranSocialSecurityNumber' => {
@@ -137,6 +146,12 @@ module PdfFill
             limit: 18,
             question_num: 7,
             question_text: "CLAIMANT'S LAST NAME"
+          },
+          'suffix' => {
+            key: 'form1[0].#subform[82].ClaimantSuffix[0]',
+            question_num: 7,
+            limit: 0,
+            question_text: "CLAIMANT'S SUFFIX"
           }
         },
         'claimantSocialSecurityNumber' => {
@@ -229,6 +244,12 @@ module PdfFill
           'third' => {
             key: 'form1[0].#subform[82].TelephoneNumber_LastFourNumbers[0]'
           }
+        },
+        'claimantIntPhone' => {
+          key: 'form1[0].#subform[82].IntTelephoneNumber[0]',
+          question_num: 11,
+          question_text: "CLAIMANT'S INTERNATIONAL PHONE NUMBER",
+          limit: 0, #this will force this value that is not on the pdf to appear in the overflow
         },
         'claimantEmail' => {
           key: 'form1[0].#subform[82].E-Mail_Address[0]',
@@ -554,16 +575,16 @@ module PdfFill
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
-      def expand_firm
-        if @form_data['relationshipToVeteran'].try(:[], 'isEntity')
-          combine_name_addr(
-            @form_data,
-            name_key: 'firmName',
-            address_key: 'claimantAddress',
-            combined_key: 'firmNameAndAddr'
-          )
-        end
-      end
+      # def expand_firm
+      #   if @form_data['relationshipToVeteran'].try(:[], 'isEntity')
+      #     combine_name_addr(
+      #       @form_data,
+      #       name_key: 'firmName',
+      #       address_key: 'claimantAddress',
+      #       combined_key: 'firmNameAndAddr'
+      #     )
+      #   end
+      # end
 
       def expand_burial_allowance
         burial_allowance = @form_data['burialAllowanceRequested']
