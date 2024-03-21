@@ -13,8 +13,6 @@ module VAForms
                              } },
                     order_within_rank: 'va_forms_forms.ranking ASC, va_forms_forms.language ASC'
 
-    has_paper_trail only: ['sha256']
-
     validates :title, presence: true
     validates :form_name, presence: true
     validates :row_id, uniqueness: true

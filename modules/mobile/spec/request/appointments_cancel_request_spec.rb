@@ -8,9 +8,43 @@ RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }
+  let(:cancel_id) { '70060' }
 
   before do
+    Flipper.enable('va_online_scheduling')
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+  end
+
+  describe 'authorization' do
+    context 'when feature flag is off' do
+      before { Flipper.disable('va_online_scheduling') }
+
+      it 'returns forbidden' do
+        put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user does not have access' do
+      let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
+
+      it 'returns forbidden' do
+        put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when feature flag is on and user has access' do
+      it 'returns no content' do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+
+            expect(response).to have_http_status(:no_content)
+          end
+        end
+      end
+    end
   end
 
   context 'using vaos-service' do
@@ -19,8 +53,6 @@ RSpec.describe 'appointments', type: :request do
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
-      let(:cancel_id) { '70060' }
-
       it 'returns a no content code' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
@@ -64,11 +96,10 @@ RSpec.describe 'appointments', type: :request do
   context 'using vpg' do
     before do
       Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+      Flipper.enable(:va_online_scheduling_use_vpg)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
-      let(:cancel_id) { '70060' }
-
       it 'returns a no content code' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_vpg_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
