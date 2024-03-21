@@ -21,11 +21,14 @@ module VAOS
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
 
+      # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
                  .compact
+
+        cnp_count = 0
 
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
@@ -43,15 +46,20 @@ module VAOS
             # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
-            convert_appointment_time(appt)
+            # track count of C&P appointments in the appointments list, per GH#78141
+            cnp_count += 1 if cnp?(appt)
 
+            convert_appointment_time(appt)
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
           end
+          # log count of C&P appointments in the appointments list, per GH#78141
+          log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
             data: deserialized_appointments(response.body[:data]),
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
+        # rubocop:enable Metrics/MethodLength
       end
 
       def get_appointment(appointment_id)
@@ -159,6 +167,11 @@ module VAOS
       def avs_service
         @avs_service ||=
           Avs::V0::AvsService.new
+      end
+
+      def log_cnp_appt_count(cnp_count)
+        Rails.logger.info('Compensation and Pension count on an appointment list retrieval',
+                          { CompPenCount: cnp_count }.to_json)
       end
 
       # Extracts the station number and appointment IEN from an Appointment.
@@ -477,7 +490,14 @@ module VAOS
       end
 
       def partial_errors(response)
-        if response.status == 200 && response.body[:failures]&.any?
+        return { failures: [] } if response.body[:failures].blank?
+
+        response.body[:failures].each do |failure|
+          detail = failure[:detail]
+          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
+        end
+
+        if response.status == 200
           log_message_to_sentry(
             'VAOS::V2::AppointmentService#get_appointments has response errors.',
             :info,
@@ -486,7 +506,7 @@ module VAOS
         end
 
         {
-          failures: response.body[:failures] || [] # VAMF drops null valued keys; ensure we always return empty array
+          failures: response.body[:failures]
         }
       end
 
