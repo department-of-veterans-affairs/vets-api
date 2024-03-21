@@ -22,9 +22,9 @@ describe TravelPay::Client do
       end
 
       client = TravelPay::Client.new
-      response = client.request_veis_token
+      token = client.request_veis_token
 
-      expect(JSON.parse(response.body)['access_token']).to eq('fake_veis_token')
+      expect(token).to eq('fake_veis_token')
       @stubs.verify_stubbed_calls
     end
   end
@@ -47,6 +47,8 @@ describe TravelPay::Client do
 
   context '/claims' do
     it 'returns a list of claims sorted by most recently updated' do
+      tenant_id = Settings.travel_pay.veis.tenant_id
+
       @stubs.get('/api/v1/claims') do
         [
           200,
