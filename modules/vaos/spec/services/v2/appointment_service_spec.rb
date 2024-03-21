@@ -176,6 +176,16 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
+    context 'when partial success is returned and failures are returned with ICNs' do
+      it 'anonymizes the ICNs' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_appointments(start_date3, end_date3)
+          expect(response.dig(:meta, :failures).to_json).not_to match(/\d{10}V\d{6}/)
+        end
+      end
+    end
+
     context 'when requesting a list of appointments given a date range and single status' do
       it 'returns a 200 status with list of appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',

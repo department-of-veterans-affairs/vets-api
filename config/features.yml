@@ -1092,10 +1092,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for VAOS direct scheduling & appointment request clinic filtering
-  va_online_scheduling_appointment_list:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the new appointment List feature
   va_online_scheduling_breadcrumb_url_update:
     actor_type: user
     enable_in_development: true
@@ -1263,6 +1259,9 @@ features:
   disability_compensation_remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
+  disability_compensation_lighthouse_brd:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Reference Data service
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
