@@ -253,7 +253,8 @@ module ClaimsApi
         def format_526_errors(errors)
           errors.map do |error|
             e = error.deep_symbolize_keys
-            { status: 422, detail: "#{e[:key]} #{e[:detail]}", source: e[:key] }
+            details = e[:text].presence || e[:detail]
+            { status: 422, detail: "#{e[:key]}, #{details}", source: e[:key] }
           end
         end
 
