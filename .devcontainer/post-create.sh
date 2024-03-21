@@ -25,6 +25,7 @@ if [ ! -f config/settings.local.yml ]; then
   cp config/settings.local.yml.example config/settings.local.yml
   cat <<EOT >> config/settings.local.yml
 database_url: postgis://postgres:password@localhost:5432/vets_api_development?pool=4
+test_database_url: postgis://postgres:password@localhost:5432/vets_api_test?pool=4
 
 redis:
   host: localhost
