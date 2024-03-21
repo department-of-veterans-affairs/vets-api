@@ -47,34 +47,34 @@ describe TravelPay::Client do
 
   context '/claims' do
     it 'returns a list of claims sorted by most recently updated' do
-      tenant_id = Settings.travel_pay.veis.tenant_id
-
       @stubs.get('/api/v1/claims') do
         [
           200,
           {},
-          {'data' => [
-            {
-              'id' => 'uuid1',
-              'modified_on' => '2024-01-01'
-            },
-            {
-              'id' => 'uuid2',
-              'modified_on' => '2024-03-01'
-            },
-            {
-              'id' => 'uuid3',
-              'modified_on' => '2024-02-01'
-            }
-          ]}
+          {
+            'data' => [
+              {
+                'id' => 'uuid1',
+                'modified_on' => '2024-01-01'
+              },
+              {
+                'id' => 'uuid2',
+                'modified_on' => '2024-03-01'
+              },
+              {
+                'id' => 'uuid3',
+                'modified_on' => '2024-02-01'
+              }
+            ]
+          }
         ]
       end
 
-      expected_ordered_ids = ['uuid2', 'uuid3', 'uuid1']
+      expected_ordered_ids = %w[uuid2 uuid3 uuid1]
 
       client = TravelPay::Client.new
       claims = client.get_claims('veis_token', 'btsss_token')
-      actual_claim_ids = claims.map { |c| c[:id] }
+      actual_claim_ids = claims.pluck(:id)
 
       expect(actual_claim_ids).to eq(expected_ordered_ids)
       @stubs.verify_stubbed_calls

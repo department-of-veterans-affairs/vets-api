@@ -7,11 +7,11 @@ module TravelPay
     include ActiveModel::Serializers::JSON
 
     # will likely be a UUID
-    attribute :id, String 
+    attribute :id, String
 
     def initialize(id)
+      super
       self.id = id
     end
   end
 end
-

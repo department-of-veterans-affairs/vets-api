@@ -64,12 +64,12 @@ module TravelPay
 
       response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = "#{btsss_token}"
+        req.headers['BTSSS-Access-Token'] = btsss_token
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
       end
 
       symbolized_body = response.body.deep_symbolize_keys
-      parse_claim_date = lambda {|c| Date.parse(c[:modified_on])}
+      parse_claim_date = ->(c) { Date.parse(c[:modified_on]) }
       symbolized_body[:data].sort_by(&parse_claim_date).reverse!
     end
 

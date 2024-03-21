@@ -13,7 +13,7 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
         allow_any_instance_of(TravelPay::Client).to receive(:get_claims).and_return([])
         sign_in(user)
 
-        get '/travel_pay/claims', params: nil, headers: {'Authorization' => 'Bearer token' }
+        get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer token' }
 
         expect(response).to have_http_status(:ok)
       end
