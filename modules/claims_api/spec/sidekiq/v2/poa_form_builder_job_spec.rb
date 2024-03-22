@@ -8,6 +8,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
   let(:poa_code) { 'ABC' }
+  let(:rep) { create(:representative, first_name: 'Bob', last_name: 'Representative') }
 
   before do
     Sidekiq::Job.clear_all
@@ -107,7 +108,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           .with(final_data, id: power_of_attorney.id)
           .and_call_original
 
-        subject.new.perform(power_of_attorney.id, '2122A')
+        subject.new.perform(power_of_attorney.id, '2122A', rep.id)
       end
 
       it 'Calls the POA updater job upon successful upload to VBMS' do
@@ -123,7 +124,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
         expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-        subject.new.perform(power_of_attorney.id, '2122A')
+        subject.new.perform(power_of_attorney.id, '2122A', rep.id)
       end
     end
 
@@ -212,7 +213,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             }
           }
         )
-        rep = create(:representative, first_name: 'Bob', last_name: 'Representative')
 
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         expect_any_instance_of(ClaimsApi::V2::PoaPdfConstructor::Organization)
@@ -229,7 +229,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
-        rep = create(:representative)
 
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
         allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_18_190237) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -609,6 +609,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_18_190237) do
     t.jsonb "public_metadata"
     t.integer "state", default: 0
     t.string "error_message"
+    t.text "ipf_data_ciphertext"
     t.index ["user_account_id"], name: "index_form5655_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_form5655_submissions_on_user_uuid"
   end
@@ -1158,17 +1159,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_18_190237) do
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
-  end
-
-  create_table "versions", force: :cascade do |t|
-    t.string "item_type", null: false
-    t.bigint "item_id", null: false
-    t.string "event", null: false
-    t.string "whodunnit"
-    t.text "object"
-    t.datetime "created_at"
-    t.text "object_changes"
-    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_device_records", force: :cascade do |t|
