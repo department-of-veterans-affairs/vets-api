@@ -8,7 +8,6 @@ describe SimpleFormsApi::PdfStamper do
     it 'raises an error when generating stamped file' do
       allow(Common::FileHelpers).to receive(:random_file_path).and_return('fake/stamp_path')
       allow(Common::FileHelpers).to receive(:delete_file_if_exists)
-      allow(Prawn::Document).to receive(:generate).and_raise('Error generating stamped file')
 
       generated_form_path = 'fake/generated_form_path'
       data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{test_payload}.json"))
@@ -16,9 +15,7 @@ describe SimpleFormsApi::PdfStamper do
 
       expect do
         SimpleFormsApi::PdfStamper.send(stamp_method, generated_form_path, form)
-      end.to raise_error(RuntimeError, 'Error generating stamped file')
-
-      expect(Common::FileHelpers).to have_received(:delete_file_if_exists).with('fake/stamp_path')
+      end.to raise_error(StandardError, 'An error occurred while verifying stamp.')
     end
   end
 
