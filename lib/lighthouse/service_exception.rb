@@ -90,7 +90,6 @@ module Lighthouse
     def self.send_error_logs(error, service_name, lighthouse_client_id, url)
       base_key_string = "#{lighthouse_client_id} #{url} Lighthouse Error"
       Rails.logger.error(
-        error.response,
         base_key_string
       )
 

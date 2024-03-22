@@ -166,10 +166,6 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
-  cst_use_lighthouse:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API instead of EVSS
-    enable_in_development: true
   cst_use_lighthouse_5103:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
@@ -189,10 +185,6 @@ features:
   cst_include_ddl_5103_letters:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes 5103 letters
-    enable_in_development: true
-  cst_use_new_claim_cards:
-    actor_type: user
-    description: When enabled, claims status tool uses the new claim card designs
     enable_in_development: true
   cst_use_claim_details_v2:
     actor_type: user
