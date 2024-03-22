@@ -167,6 +167,6 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
 
   it 'includes the rx_rf_records' do
     expect(attributes['rx_rf_records']).to be_an(Array)
-    expect(attributes['rx_rf_records']).to all(be_a(Hash)) if attributes['rx_rf_records'].present?
+    expect(attributes['rx_rf_records']).to all(be_a(Hash))
   end
 end
