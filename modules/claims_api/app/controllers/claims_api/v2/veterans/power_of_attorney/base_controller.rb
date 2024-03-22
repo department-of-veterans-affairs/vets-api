@@ -176,11 +176,11 @@ module ClaimsApi
         def fetch_claimant
           claimant_icn = form_attributes.dig('claimant', 'claimantId')
           if claimant_icn.present?
-            user_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
-                                                                  identifier_type: MPI::Constants::ICN)
+            mpi_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
+                                                                 identifier_type: MPI::Constants::ICN)
           end
         rescue ArgumentError
-          user_profile
+          mpi_profile
         end
 
         def add_claimant_data_to_form
