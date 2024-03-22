@@ -19,6 +19,7 @@ module TravelPay
     end
 
     private
+
     def client
       @client ||= TravelPay::Client.new
     end

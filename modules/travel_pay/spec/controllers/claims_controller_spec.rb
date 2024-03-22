@@ -27,7 +27,7 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
-    
+
     context 'unsuccessful response from API' do
       it 'responds with a 404 if the API endpoint is not found' do
         allow_any_instance_of(TravelPay::Client)
