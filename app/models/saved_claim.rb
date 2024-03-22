@@ -102,6 +102,10 @@ class SavedClaim < ApplicationRecord
     self.form = JSON.generate(application)
   end
 
+  def business_line
+    ''
+  end
+
   private
 
   def attachment_keys

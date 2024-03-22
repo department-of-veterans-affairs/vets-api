@@ -43,4 +43,8 @@ class SavedClaim::Burial < CentralMailClaim
       errors.add(:form, v.to_s)
     end
   end
+
+  def business_line
+    'NCA'
+  end
 end
