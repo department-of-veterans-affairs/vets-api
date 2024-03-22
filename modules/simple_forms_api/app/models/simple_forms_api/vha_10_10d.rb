@@ -5,6 +5,7 @@ require 'securerandom'
 module SimpleFormsApi
   class VHA1010d
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.1010d'
 
     attribute :data
 
@@ -50,7 +51,11 @@ module SimpleFormsApi
       { should_stamp_date?: false }
     end
 
-    def track_user_identity(confirmation_number); end
+    def track_user_identity(confirmation_number)
+      identity = "#{data['claimant_type']} #{data['claim_ownership']}"
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 1010d submission user identity', identity:, confirmation_number:)
+    end
 
     private
 
