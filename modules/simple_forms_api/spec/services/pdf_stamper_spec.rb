@@ -28,8 +28,8 @@ describe SimpleFormsApi::PdfStamper do
     end
   end
 
-  describe '.verified_stamp' do
-    subject(:verified_stamp) { described_class.verified_stamp('template_path') { double } }
+  describe '.verify' do
+    subject(:verify) { described_class.verify('template_path') { double } }
 
     before { allow(File).to receive(:size).and_return(orig_size, stamped_size) }
 
@@ -40,7 +40,7 @@ describe SimpleFormsApi::PdfStamper do
         let(:stamped_size) { orig_size + 1 }
 
         it 'succeeds' do
-          expect { verified_stamp }.not_to raise_error
+          expect { verify }.not_to raise_error
         end
       end
 
@@ -48,7 +48,7 @@ describe SimpleFormsApi::PdfStamper do
         let(:stamped_size) { orig_size }
 
         it 'raises an error message' do
-          expect { verified_stamp }.to raise_error('An error occurred while verifying stamp.')
+          expect { verify }.to raise_error('An error occurred while verifying stamp.')
         end
       end
 
@@ -56,7 +56,7 @@ describe SimpleFormsApi::PdfStamper do
         let(:stamped_size) { orig_size - 1 }
 
         it 'raises an error message' do
-          expect { verified_stamp }.to raise_error('An error occurred while verifying stamp.')
+          expect { verify }.to raise_error('An error occurred while verifying stamp.')
         end
       end
     end
