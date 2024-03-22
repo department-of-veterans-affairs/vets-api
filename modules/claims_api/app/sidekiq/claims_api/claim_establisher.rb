@@ -42,7 +42,7 @@ module ClaimsApi
 
       queue_flash_updater(auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
-    rescue ::Common::Exceptions::ServiceError, ::Common::Exceptions::BackendServiceException => e
+    rescue ::Common::Exceptions::BackendServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.errors || e.detailed_message
       auto_claim.form_data = orig_form_data

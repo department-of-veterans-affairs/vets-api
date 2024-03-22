@@ -9,14 +9,13 @@ module ClaimsApi
     end
 
     def handle_errors
-      get_source
       case @error
       when Faraday::ParsingError
-        raise_backend_exception('EVSS502', @error)
+        raise_backend_exception('EVSS502', @error.class, @error)
       when ::Common::Exceptions::BackendServiceException
         raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
 
-        raise_backend_exception('EVSS400', @error) if @error&.original_status == 400
+        raise_backend_exception('EVSS400', @error.class, @error) if @error&.original_status == 400
         raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
       else
         raise @error
@@ -25,25 +24,13 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(key, error = nil)
+    def raise_backend_exception(key, source, error = nil)
       raise ::Common::Exceptions::BackendServiceException.new(
         key,
-        { source: @source.to_s },
+        { source: source.to_s },
         error&.original_status,
         error&.original_body
       )
-    end
-
-    def get_source
-      if (@error.respond_to?(:key) && @error.key.present?) ||
-         (@error.respond_to?(:backtrace) && @error.backtrace.present?)
-        matches = if @error.backtrace.nil? && @error.key.present?
-                    @error.key[0].match(/vets-api(\S*) (.*)/)
-                  elsif @error.backtrace.present?
-                    @error.backtrace[0].match(/vets-api(\S*) (.*)/)
-                  end
-        @source = matches[0].split(':')[0] || self.class
-      end
     end
   end
 end
