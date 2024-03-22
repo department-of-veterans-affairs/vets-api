@@ -6,8 +6,6 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
-      REMOVE_LOVELL = :va_online_scheduling_booking_exclusion
-
       # Retrieves information about a VA clinic from the VAOS Service.
       #
       # @param station_id [String] the ID of the VA facility where the clinic is located
@@ -88,10 +86,8 @@ module VAOS
         with_monitoring do
           options = { params_encoder: Faraday::FlatParamsEncoder }
           response = perform(:get, facilities_url, params, headers, options)
-          # prevent Lovell sites from being scheduled for appointments GH#75460
-          filtered_facilities = remove_lovell_sites(response.body[:data]) if Flipper.enabled?(REMOVE_LOVELL, user)
           {
-            data: deserialized_facilities(filtered_facilities || response.body[:data]),
+            data: deserialized_facilities(response.body[:data]),
             meta: pagination(pagination_params)
           }
         end
@@ -180,12 +176,6 @@ module VAOS
       end
 
       private
-
-      def remove_lovell_sites(facilities)
-        return [] if facilities.blank?
-
-        facilities.reject { |facility| facility[:id].start_with?('556') }
-      end
 
       # Reads cached facilities from Rails cache. It reads the cache for each id
       # provided in the array, maps them into a new array and returns the new array
