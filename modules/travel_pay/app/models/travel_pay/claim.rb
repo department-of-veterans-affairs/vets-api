@@ -8,6 +8,7 @@ module TravelPay
 
     # will likely be a UUID
     attribute :id, String
+    attribute :modified_on, String
 
     def initialize(id)
       super

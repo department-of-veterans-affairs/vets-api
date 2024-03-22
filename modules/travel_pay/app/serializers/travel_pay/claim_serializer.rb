@@ -2,6 +2,6 @@
 
 module TravelPay
   class ClaimSerializer < ActiveModel::Serializer
-    attributes :id
+    attributes :id, :modified_on
   end
 end
