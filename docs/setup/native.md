@@ -99,11 +99,6 @@ clamav:
   port: '33100'
 ```
 
-1. In another terminal window, navigate to the project directory and run 
-```
-docker-compose -f docker-compose-clamav.yml up
-```
-
 #### Mock ClamAV
 
 If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/lib/common/virus_scan.rb#L14-L23). 

@@ -5,14 +5,13 @@ To run vets-api and its redis and postgres dependencies run the following comman
 in the above steps.
 
 ```
-foreman start -m all=1,clamd=0,freshclam=0
+foreman start -m all=1
 ```
 
 You should then be able to navigate to [http://localhost:3000/v0/status](http://localhost:3000/v0/status) in your
 browser and start interacting with the API. Changes to the source in your local
 directory will be reflected automatically via a docker volume mount, just as
 they would be when running rails directly.
-
 
 ### Running tests
 
@@ -34,15 +33,15 @@ they would be when running rails directly.
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
 
+### ClamAV
 
+If you want to run vets-api with 
 
+1. In another terminal window, navigate to the project directory and run 
+```
+docker-compose -f docker-compose-clamav.yml up
+```
 
-Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
-
-### Options
-#### Option 1: Run ONLY clamav via Docker
-
-You can either run:
-`docker-compose -f docker-compose-clamav.yml up` - this will run ONLY clamav via docker
-
-After that, follow the native instructions and run `foreman start -m all=1`
+1. In the original terminal run the following command
+```foreman start -m all=1
+```
