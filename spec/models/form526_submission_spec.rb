@@ -33,6 +33,39 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe 'state' do
+    let(:submission) { create(:form526_submission) }
+
+    it 'transitions states' do
+      expect(submission).to transition_from(:unprocessed)
+        .to(:delivered_to_primary).on_event(:deliver_to_primary)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:failed_primary_delivery).on_event(:fail_primary_delivery)
+      expect(submission).to transition_from(:failed_primary_delivery)
+        .to(:delivered_to_backup).on_event(:deliver_to_backup)
+      expect(submission).to transition_from(:rejected_by_primary)
+        .to(:delivered_to_backup).on_event(:deliver_to_backup)
+      expect(submission).to transition_from(:failed_primary_delivery)
+        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
+      expect(submission).to transition_from(:rejected_by_primary)
+        .to(:failed_backup_delivery).on_event(:reject_from_backup)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:rejected_by_primary).on_event(:reject_from_primary)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:delivered_to_backup).on_event(:deliver_to_backup)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:failed_backup_delivery).on_event(:fail_backup_delivery)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:failed_backup_delivery).on_event(:reject_from_backup)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:finalized_as_successful).on_event(:finalize_success)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:unprocessable).on_event(:mark_as_unprocessable)
+      expect(submission).to transition_from(:unprocessed)
+        .to(:in_remediation).on_event(:begin_remediation)
+    end
+  end
+
   describe '#start' do
     context 'the submission is for hypertension' do
       let(:form_json) do
