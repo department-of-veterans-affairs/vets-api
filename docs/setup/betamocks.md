@@ -12,7 +12,7 @@ cd ~/Documents
 git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
 ```
 
-2. Set the cache dir to the relative path of the mock data repo in 
+2. Set the cache dir to the relative path of the mock data repo in
 config/development.yml file.
 ```yaml
 betamocks:
@@ -32,21 +32,21 @@ only M. Webb (vets.gov.user+228@gmail.com) will work for the other services unle
 
 
 ## Mocking a Service
-If a service class implements response middleware, it is important to consider the order in which the middleware is stacked. For further details, refer to the [Faraday API documentation](https://www.rubydoc.info/gems/faraday#Advanced_middleware_usage). 
+If a service class implements response middleware, it is important to consider the order in which the middleware is stacked. For further details, refer to the [Faraday API documentation](https://www.rubydoc.info/gems/faraday#Advanced_middleware_usage).
 
-In the following example, Betamocks will only record the raw response from the backing service, and will not record any transformations applied by the `::FacilityParser` or `::FacilityValidator` middlewares.  
+In the following example, Betamocks will only record the raw response from the backing service, and will not record any transformations applied by the `::FacilityParser` or `::FacilityValidator` middlewares.
 
 ```ruby
 def connection
   Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
     conn.use :breakers
     conn.request :json
-    
+
     conn.response :raise_error, error_prefix: service_name
     conn.response :facility_parser
     conn.response :facility_validator
     conn.response :betamocks if Settings.locators.mock_gis
-    
+
     conn.adapter Faraday.default_adapter
   end
 end
@@ -61,6 +61,15 @@ Each service description has a `base_uri` (pulled from Settings)
 ```yaml
 :services:
 
+# VAProfile::ContactInformation is replacing PCIU service
+# VAProfile::ContactInformation
+- :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/demographics/demographics/v1/*/*"
+    :file_path: "vet360/demographics/default"
+
+# EVSS::PCIUAddress will be removed after service has been depreciated.
 # EVSS::PCIUAddress
 - :base_uri: <%= URI(Settings.evss.url).host %>
   :endpoints:
@@ -149,6 +158,6 @@ XML request bodies to the same directory:
     :file_path: "mvi/profiles"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?' 
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
       extension=
 ```
