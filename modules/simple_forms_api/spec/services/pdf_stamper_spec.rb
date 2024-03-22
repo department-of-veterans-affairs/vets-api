@@ -15,20 +15,14 @@ describe SimpleFormsApi::PdfStamper do
       allow(Common::FileHelpers).to receive(:delete_file_if_exists)
     end
 
-    context 'when generating stamped file' do
-      [
-        %w[stamp214142 vba_21_4142],
-        %w[stamp2110210 vba_21_10210],
-        %w[stamp21p0847 vba_21p_0847]
-      ].each do |stamp_method, test_payload|
-        context "when #{stamp_method} receives #{test_payload} payload" do
-          let(:test_payload) { test_payload }
-          let(:stamp_method) { stamp_method }
-          let(:generated_form_path) { 'fake/generated_form_path' }
+    %w[21-4142 21-10210 21p-0847].each do |form_number|
+      context "when generating a stamped form #{form_number}" do
+        let(:stamp_method) { "stamp#{form_number.gsub('-', '')}" }
+        let(:test_payload) { "vba_#{form_number.gsub('-', '_')}" }
+        let(:generated_form_path) { 'fake/generated_form_path' }
 
-          it 'raises an error' do
-            expect { stamp }.to raise_error(StandardError, 'An error occurred while verifying stamp.')
-          end
+        it 'raises an error' do
+          expect { stamp }.to raise_error(StandardError, 'An error occurred while verifying stamp.')
         end
       end
     end
