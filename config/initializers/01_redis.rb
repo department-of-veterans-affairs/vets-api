@@ -9,5 +9,5 @@ $redis =
     require 'mock_redis'
     MockRedis.new(url: REDIS_CONFIG[:redis][:url])
   else
-    Redis.new(REDIS_CONFIG[:redis].to_hash)
+    Redis.new(REDIS_CONFIG[:redis].to_h)
   end
