@@ -94,7 +94,7 @@ module TravelPay
 
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if use_fakes?
         conn.response :json
 

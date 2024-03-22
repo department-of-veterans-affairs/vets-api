@@ -19,11 +19,35 @@ RSpec.describe TravelPay::ClaimsController, type: :request do
 
         allow_any_instance_of(TravelPay::Client)
           .to receive(:get_claims).and_return([])
+
         sign_in(user)
 
         get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:ok)
+      end
+    end
+    
+    context 'unsuccessful response from API' do
+      it 'responds with a 404 if the API endpoint is not found' do
+        allow_any_instance_of(TravelPay::Client)
+          .to receive(:request_veis_token)
+          .and_return('veis_token')
+
+        allow_any_instance_of(TravelPay::Client)
+          .to receive(:request_btsss_token)
+          .with('veis_token', 'vagov_token')
+          .and_return('btsss_token')
+
+        allow_any_instance_of(TravelPay::Client)
+          .to receive(:get_claims)
+          .and_raise(Faraday::ResourceNotFound)
+
+        sign_in(user)
+
+        get '/travel_pay/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
