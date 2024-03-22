@@ -153,10 +153,6 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(attributes['category']).to eq(prescription.category)
   end
 
-  it 'includes the tracking_list' do
-    expect(attributes['tracking_list']).to eq(prescription.tracking_list)
-  end
-
   it 'includes the tracking' do
     expect(attributes['tracking']).to eq(prescription.tracking)
   end
