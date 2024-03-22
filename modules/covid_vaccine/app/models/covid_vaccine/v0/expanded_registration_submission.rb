@@ -48,9 +48,9 @@ module CovidVaccine
         reg.form_data&.symbolize_keys!
       end
 
-      serialize :eligibility_info, JsonMarshal::Marshaller
-      serialize :form_data, JsonMarshal::Marshaller
-      serialize :raw_form_data, JsonMarshal::Marshaller
+      serialize :eligibility_info, coder: JsonMarshal::Marshaller
+      serialize :form_data, coder: JsonMarshal::Marshaller
+      serialize :raw_form_data, coder: JsonMarshal::Marshaller
       has_kms_key
       has_encrypted :eligibility_info, :form_data, :raw_form_data, key: :kms_key, **lockbox_options
     end
