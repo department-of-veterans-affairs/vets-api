@@ -471,10 +471,10 @@ module PdfFill
         'noTransportation' => {
           key: 'form1[0].#subform[83].ResponsibleForTransportationNo[0]'
         },
-        'wantClaimFDCProcessedYes' => {
+        'hasProcessOption' => {
           key: 'form1[0].#subform[83].WantClaimFDCProcessedYes[0]'
         },
-        'wantClaimFDCProcessedNo' => {
+        'noProcessOption' => {
           key: 'form1[0].#subform[83].WantClaimFDCProcessedNo[0]'
         },
         'signature' => {
@@ -692,6 +692,13 @@ module PdfFill
         plotExpenseResponsibility = @form_data['plotExpenseResponsibility']
         @form_data['hasPlotExpenseResponsibility'] = plotExpenseResponsibility ? "On" : nil
         @form_data['noPlotExpenseResponsibility'] = plotExpenseResponsibility ? nil : "On"
+
+        # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
+        processOption = @form_data['processOption']
+        @form_data['hasProcessOption'] = processOption ? "On" : nil
+        @form_data['noProcessOption'] = processOption ? nil : "On"
+
+
 
         expand_confirmation_question
         expand_location_question
