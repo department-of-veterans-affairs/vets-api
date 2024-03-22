@@ -2425,44 +2425,47 @@ RSpec.describe V0::SignInController, type: :controller do
   end
 
   describe 'GET introspect' do
-    subject { get(:introspect) }
+    subject(:send_request) { get(:introspect) }
 
     context 'when successfully authenticated' do
-      let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-      let(:authorization) { "Bearer #{access_token}" }
-      let(:access_token_object) { create(:access_token) }
-      let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
-      let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
-      let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
-      let(:expected_status) { :ok }
+      let(:access_token) { create(:access_token) }
+      let(:user_serializer) { SignIn::IntrospectSerializer.new(access_token) }
 
       before do
-        request.headers['Authorization'] = authorization
+        encoded_access_token = SignIn::AccessTokenJwtEncoder.new(access_token:).perform
+        request.headers['Authorization'] = "Bearer #{encoded_access_token}"
         allow(Rails.logger).to receive(:info)
       end
 
       it 'renders expected user data' do
-        expect(JSON.parse(subject.body)['data']['attributes']).to eq(expected_introspect_response)
+        send_request
+        expected_attributes = JSON.parse(user_serializer.to_json)
+        actual_attributes = JSON.parse(response.body)['data']['attributes']
+        expect(actual_attributes).to eq(expected_attributes)
       end
 
       it 'returns ok status' do
-        expect(subject).to have_http_status(:ok)
+        send_request
+        expect(response).to have_http_status(:ok)
       end
 
       context 'and some arbitrary Sign In Error is raised' do
         let(:expected_error) { SignIn::Errors::StandardError }
-        let(:rendered_error) { { errors: expected_error.to_s } }
 
         before do
           allow(SignIn::IntrospectSerializer).to receive(:new).and_raise(expected_error.new(message: expected_error))
         end
 
         it 'renders error' do
-          expect(JSON.parse(subject.body)).to eq(rendered_error.as_json)
+          send_request
+          actual_response_json = JSON.parse(response.body)
+          expected_response_json = { errors: expected_error.to_s }.as_json
+          expect(actual_response_json).to eq(expected_response_json)
         end
 
         it 'returns unauthorized status' do
-          expect(subject).to have_http_status(:unauthorized)
+          send_request
+          expect(response).to have_http_status(:unauthorized)
         end
       end
     end
