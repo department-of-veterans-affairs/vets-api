@@ -5,14 +5,13 @@ To run vets-api and its redis and postgres dependencies run the following comman
 in the above steps.
 
 ```
-foreman start -m all=1,clamd=0,freshclam=0
+foreman start -m all=1
 ```
 
 You should then be able to navigate to [http://localhost:3000/v0/status](http://localhost:3000/v0/status) in your
 browser and start interacting with the API. Changes to the source in your local
 directory will be reflected automatically via a docker volume mount, just as
 they would be when running rails directly.
-
 
 ### Running tests
 
@@ -33,3 +32,22 @@ they would be when running rails directly.
 ### Running a rails interactive console
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
+
+### ClamAV
+
+If you want to run vets-api with clamav 
+
+1. In `settings.local.yml` turn mocking off:
+```
+clamav:
+  mock: false
+```
+
+1. In another terminal window, navigate to the project directory and run 
+```
+docker-compose -f docker-compose-clamav.yml up
+```
+
+1. In the original terminal run the following command
+```foreman start -m all=1
+```
