@@ -45,12 +45,11 @@ module ClaimsApi
 
         def shared_form_validation(form_number)
           target_veteran
-          @user_profile = fetch_claimant
           # Custom validations for POA submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(@user_profile)
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
           # JSON validations for POA submission, will combine with previously captured errors and raise
           validate_json_schema(form_number.upcase)
-          add_claimant_data_to_form(@user_profile)
+          add_claimant_data_to_form if user_profile
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
@@ -170,6 +169,10 @@ module ClaimsApi
           nil
         end
 
+        def user_profile
+          @user_profile ||= fetch_claimant
+        end
+
         def fetch_claimant
           claimant_icn = form_attributes.dig('claimant', 'claimantId')
           if claimant_icn.present?
@@ -180,7 +183,7 @@ module ClaimsApi
           user_profile
         end
 
-        def add_claimant_data_to_form(user_profile)
+        def add_claimant_data_to_form
           if user_profile&.status == :ok
             first_name = user_profile.profile.given_names.first
             last_name = user_profile.profile.family_name
