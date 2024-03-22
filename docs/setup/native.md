@@ -144,17 +144,14 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 3. Install binary dependencies:
     ```bash
     brew bundle
-    ```
+    ```	 
 
-4. Among other things, the above `brew bundle` command installs ClamAV, but does not enable it. To enable ClamAV: See "Option 3: Run Clamav Natively (OSX) above"
-	 
-
-5. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
+4. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
 
    - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
    - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
 
-6. continue with [Base setup](native.md#base-setup)
+5. continue with [Base setup](native.md#base-setup)
 
 ### Alternative (Ubuntu 20.04 LTS)
 
@@ -198,13 +195,11 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - `sudo apt install -y imagemagick`
 5. Install Poppler
    - `sudo apt install -y poppler-utils`
-6. Install ClamAV
-   - `sudo apt install -y clamav`
-7. Install pdftk
+6. Install pdftk
    - `sudo apt install -y pdftk`
-8. continue with [Base setup](native.md#base-setup)
+7. continue with [Base setup](native.md#base-setup)
 
-9. Updating Postgres and PostGIS if you already have them installed
+8. Updating Postgres and PostGIS if you already have them installed
 
    Backup your existing database
    ```bash

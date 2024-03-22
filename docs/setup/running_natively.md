@@ -35,7 +35,13 @@ they would be when running rails directly.
 
 ### ClamAV
 
-If you want to run vets-api with 
+If you want to run vets-api with clamav 
+
+1. In `settings.local.yml` turn mocking off:
+```
+clamav:
+  mock: false
+```
 
 1. In another terminal window, navigate to the project directory and run 
 ```
