@@ -63,9 +63,9 @@ describe PdfFill::Forms::Va21p530v2 do
     ]
   )
 
-  describe '#expand_place_of_death' do
+  describe '#convert_location_of_death' do
     subject do
-      new_form_class.expand_place_of_death
+      new_form_class.convert_location_of_death
     end
 
     context 'with no location of death' do
@@ -78,59 +78,34 @@ describe PdfFill::Forms::Va21p530v2 do
       let(:form_data) do
         {
           'locationOfDeath' => {
-            'location' => 'vaMedicalCenter'
+            'location' => 'nursingHomeUnpaid'
           }
         }
       end
 
-      it 'returns the translated location' do
-        expect(subject).to eq('VA MEDICAL CENTER')
+      it 'returns the directly mapped location' do
+        subject
+        expect(class_form_data["locationOfDeath"]["checkbox"]).to eq({'nursingHomeUnpaid' => 'On'})
       end
     end
 
-    context 'with a custom location of death' do
+    context 'with a location needed for translation' do 
       let(:form_data) do
         {
           'locationOfDeath' => {
-            'location' => 'other',
-            'other' => 'foo'
+            'location' => 'atHome'
           }
         }
       end
 
-      it 'returns the translated location' do
-        expect(subject).to eq('foo')
-      end
-    end
-  end
-
-  describe '#expand_burial_allowance' do
-    subject do
-      new_form_class.expand_burial_allowance
-    end
-
-    context 'with no burial allowance' do
-      it 'returns nil' do
-        expect(subject).to eq(nil)
-      end
-    end
-
-    context 'with a burial allowance' do
-      let(:form_data) do
-        {
-          'burialAllowanceRequested' => 'foo'
-        }
-      end
-
-      it 'expands the checkbox' do
+      it 'returns the directly mapped location' do
         subject
-
-        expect(class_form_data).to eq(
-          'burialAllowanceRequested' => { 'value' => 'foo', 'checkbox' => { 'foo' => true } }
-        )
+        expect(class_form_data["locationOfDeath"]["checkbox"]).to eq({'nursingHomeUnpaid' => 'On'})
       end
     end
+
   end
+
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do

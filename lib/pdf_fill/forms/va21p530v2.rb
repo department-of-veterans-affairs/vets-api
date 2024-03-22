@@ -575,17 +575,6 @@ module PdfFill
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
-      # def expand_firm
-      #   if @form_data['relationshipToVeteran'].try(:[], 'isEntity')
-      #     combine_name_addr(
-      #       @form_data,
-      #       name_key: 'firmName',
-      #       address_key: 'claimantAddress',
-      #       combined_key: 'firmNameAndAddr'
-      #     )
-      #   end
-      # end
-
       def expand_burial_allowance
         burial_allowance = @form_data['burialAllowanceRequested']
         return if burial_allowance.blank?

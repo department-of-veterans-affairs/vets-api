@@ -12,7 +12,7 @@ class SavedClaim::Burial < CentralMailClaim
     if Flipper.enabled?(:va_burial_v2)
       self.form_id = (self.formV2 || self.form_id == '21P-530V2') ? '21P-530V2' : self.class::FORM.upcase
     else
-      self.form_id = self.class::Form.upcase
+      self.form_id = self.class::FORM.upcase
     end
   end
 
