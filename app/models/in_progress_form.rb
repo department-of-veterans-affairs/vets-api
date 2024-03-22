@@ -32,14 +32,14 @@ class InProgressForm < ApplicationRecord
   scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
   scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
   attribute :user_uuid, CleanUUID.new
-  serialize :form_data, JsonMarshal::Marshaller
+  serialize :form_data, coder: JsonMarshal::Marshaller
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
   before_save :serialize_form_data
-  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ].include?(form.form_id) }
+  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 5655].include?(form.form_id) }
   before_save :set_expires_at, unless: :skip_exipry_update
   after_save :log_hca_email_diff
 

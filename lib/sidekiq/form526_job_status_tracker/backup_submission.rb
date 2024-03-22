@@ -16,11 +16,10 @@ module Sidekiq
         # Does not have a backup submission ID (protect against dup submissions)
         # Does not have a submission ID (protect against dup submissions)
         # Does not have additional birls it is going to try and submit with
+        submission_obj = Form526Submission.find(form526_submission_id)
         send_backup_submission = Settings.form526_backup.enabled && Flipper.enabled?(flipper_sym) &&
                                  job_class == 'SubmitForm526AllClaim' &&
-                                 (submission_obj ||=
-                                    Form526Submission.find(form526_submission_id)
-                                 ).submitted_claim_id.nil? &&
+                                 submission_obj.submitted_claim_id.nil? &&
                                  (additional_birls = submission_obj.birls_ids_that_havent_been_tried_yet).empty? &&
                                  submission_obj.backup_submitted_claim_id.nil? &&
                                  submission_obj.submitted_claim_id.nil?

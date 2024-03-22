@@ -4,7 +4,12 @@ require_relative '../../../../rails_helper'
 
 RSpec.describe Vye::V1::AddressChangesController, type: :request do
   let!(:current_user) { create(:user) }
-  let(:params) { FactoryBot.attributes_for(:vye_address_change) }
+
+  let(:params) do
+    FactoryBot
+      .attributes_for(:vye_address_change)
+      .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+  end
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
@@ -35,7 +40,8 @@ RSpec.describe Vye::V1::AddressChangesController, type: :request do
     end
 
     describe 'where current_user is in VYE' do
-      let!(:user_info) { FactoryBot.create(:vye_user_info, icn: current_user.icn) }
+      let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
+      let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
 
       it 'creates a new address' do
         post('/vye/v1/address', params:)

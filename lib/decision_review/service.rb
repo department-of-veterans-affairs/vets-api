@@ -61,7 +61,10 @@ module DecisionReview
           key: :overall_claim_submission,
           form_id: '10182',
           user_uuid: user.uuid,
-          downstream_system: 'Lighthouse'
+          downstream_system: 'Lighthouse',
+          params: {
+            version_number: 'v1'
+          }
         }
         begin
           response = perform :post, 'notice_of_disagreements', request_body, headers

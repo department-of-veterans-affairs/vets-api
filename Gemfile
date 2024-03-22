@@ -2,10 +2,11 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.2.2'
+ruby '~> 3.2.3'
 
 # Modules
 path 'modules' do
+  gem 'accredited_representative_portal'
   gem 'appeals_api'
   gem 'apps_api'
   gem 'ask_va_api'
@@ -23,6 +24,7 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
+  gem 'representation_management'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'travel_pay'
@@ -35,7 +37,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.3'
 
 gem 'aasm'
 gem 'active_model_serializers'
@@ -69,7 +71,7 @@ gem 'faraday-multipart'
 gem 'faraday-retry'
 gem 'faraday-typhoeus'
 gem 'fastimage'
-gem 'fhir_client', git: 'https://github.com/adhocteam/fhir_client.git', tag: 'v6.0.1'
+gem 'fhir_client', git: 'https://github.com/department-of-veterans-affairs/fhir_client.git', tag: 'v6.0.0'
 gem 'fitbit_api'
 gem 'flipper'
 gem 'flipper-active_record'
@@ -81,7 +83,7 @@ gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
-gem 'govdelivery-tms', git: 'https://github.com/adhocteam/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
+gem 'govdelivery-tms', git: 'https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
 gem 'httpclient' # for lib/evss/base_service.rb
@@ -110,7 +112,6 @@ gem 'okcomputer'
 gem 'olive_branch'
 gem 'operating_hours'
 gem 'ox'
-gem 'paper_trail'
 gem 'parallel'
 gem 'pdf-forms'
 gem 'pdf-reader'

@@ -38,7 +38,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       end
     end
 
-    context 'when the session is authorized with DOB' do
+    context 'when the session is authorized' do
       let(:next_of_kin1) do
         {
           'name' => 'Joe',
@@ -156,6 +156,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         {
           'id' => id,
           'payload' => {
+            'address' => nil,
             'demographics' => demographics,
             'appointments' => [appointment1],
             'patientDemographicsStatus' => patient_demographic_status,
@@ -191,6 +192,65 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
       context 'when check_in_experience_45_minute_reminder feature flag is on' do
         before do
           allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(true)
+        end
+
+        context 'for OH sites' do
+          let(:appointment) do
+            {
+              'appointmentIEN' => '4822366',
+              'clinicCreditStopCodeName' => '',
+              'clinicFriendlyName' => 'Endoscopy',
+              'clinicIen' => '32216049',
+              'clinicLocation' => '',
+              'clinicName' => 'Endoscopy',
+              'clinicPhoneNumber' => '909-825-7084',
+              'clinicStopCodeName' => 'Mental Health, Primary Care',
+              'doctorName' => 'Dr. Jones',
+              'edipi' => '1000000105',
+              'facility' => 'Jerry L. Pettis Memorial Veterans Hospital',
+              'facilityAddress' => {
+                'city' => 'Loma Linda',
+                'state' => 'CA',
+                'street1' => '',
+                'street2' => '',
+                'street3' => '',
+                'zip' => '92357-1000'
+              },
+              'icn' => '1013220078V743173',
+              'kind' => 'clinic',
+              'startTime' => '2024-02-14T22:10:00.000+00:00',
+              'stationNo' => '530',
+              'status' => 'Confirmed',
+              'timezone' => 'America/Los_Angeles'
+            }
+          end
+          let(:resp) do
+            {
+              'id' => id,
+              'payload' => {
+                'address' => '1166 6th Avenue 22, New York, NY 23423 US',
+                'demographics' => {},
+                'appointments' => [appointment],
+                'patientDemographicsStatus' => {},
+                'setECheckinStartedCalled' => nil
+              }
+            }
+          end
+
+          it 'does not call set_echeckin_started' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', **session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_oracle_health_200', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/token/token_200' do
+                get "/check_in/v2/patient_check_ins/#{id}?facilityType=oh"
+              end
+            end
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to eq(resp)
+          end
         end
 
         context 'when set_echeckin_started call succeeds' do
@@ -271,7 +331,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
   describe 'POST `create`' do
     let(:post_params) { { patient_check_ins: { uuid: id, appointment_ien: '123-abc' } } }
 
-    context 'when session is authorized with DOB' do
+    context 'when session is authorized' do
       let(:session_params) do
         {
           params: {

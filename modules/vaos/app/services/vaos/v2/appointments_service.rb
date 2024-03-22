@@ -12,26 +12,27 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
-      VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       AVS_APPT_TEST_ID = '192308'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
-      CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
+      ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
+      APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
 
+      # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
                  .merge(page_params(pagination_params))
                  .merge(status_params(statuses))
                  .compact
 
+        cnp_count = 0
+
         with_monitoring do
           response = perform(:get, appointments_base_path, params, headers)
+          SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
           response.body[:data].each do |appt|
-            # for Lovell appointments set cancellable to false per GH#75512
-            set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
-
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
@@ -41,16 +42,20 @@ module VAOS
             # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
-            log_telehealth_data(appt) unless appt[:telehealth].nil?
-            convert_appointment_time(appt)
+            # track count of C&P appointments in the appointments list, per GH#78141
+            cnp_count += 1 if cnp?(appt)
 
+            convert_appointment_time(appt)
             fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
           end
+          # log count of C&P appointments in the appointments list, per GH#78141
+          log_cnp_appt_count(cnp_count) if cnp_count.positive?
           {
             data: deserialized_appointments(response.body[:data]),
             meta: pagination(pagination_params).merge(partial_errors(response))
           }
         end
+        # rubocop:enable Metrics/MethodLength
       end
 
       def get_appointment(appointment_id)
@@ -58,11 +63,6 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
-
-          # for Lovell appointments set cancellable to false per GH#75512
-          if lovell_appointment?(response.body[:data]) && Flipper.enabled?(CANCEL_EXCLUSION, user)
-            set_cancellable_false(response.body[:data])
-          end
 
           # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
           set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
@@ -91,7 +91,6 @@ module VAOS
         with_monitoring do
           response = perform(:post, appointments_base_path, params, headers)
           convert_appointment_time(response.body)
-          log_telehealth_data(response.body) unless response.body[:telehealth].nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
@@ -100,10 +99,14 @@ module VAOS
       end
 
       def update_appointment(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
-          response = perform(:put, url_path, params, headers)
+          response = if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS) &&
+                        Flipper.enabled?(APPOINTMENTS_USE_VPG)
+                       update_appointment_vpg(appt_id, status)
+                     else
+                       update_appointment_vaos(appt_id, status)
+                     end
+
           convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
@@ -155,6 +158,11 @@ module VAOS
       def avs_service
         @avs_service ||=
           Avs::V0::AvsService.new
+      end
+
+      def log_cnp_appt_count(cnp_count)
+        Rails.logger.info('Compensation and Pension count on an appointment list retrieval',
+                          { CompPenCount: cnp_count }.to_json)
       end
 
       # Extracts the station number and appointment IEN from an Appointment.
@@ -238,9 +246,9 @@ module VAOS
       #
       # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
       def fetch_avs_and_update_appt_body(appt)
-        # Testing AVS error message using the below id - remove after testing is complete
+        # Testing AVS empty state using the below id - remove after testing is complete
         if appt[:id] == AVS_APPT_TEST_ID
-          appt[:avs_path] = AVS_ERROR_MESSAGE
+          appt[:avs_path] = nil
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
@@ -285,12 +293,6 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
-      end
-
-      def lovell_appointment?(appt)
-        return false if appt.nil? || appt[:location_id].nil?
-
-        appt[:location_id].start_with?('556')
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
@@ -455,76 +457,6 @@ module VAOS
         }
       end
 
-      def log_telehealth_data(appt)
-        atlas = atlas_details(appt)
-        gfe = gfe_details(appt)
-        misc = misc_details(appt)
-        message = { VAOS_TELEHEALTH_DATA_KEY => atlas.merge(gfe).merge(misc) }
-        Rails.logger.info('VAOS telehealth atlas details', message.to_json)
-      rescue => e
-        Rails.logger.warn("Error logging VAOS telehealth atlas details: #{e.message}")
-      end
-
-      def atlas_details(appt)
-        {
-          siteCode: appt.dig(:telehealth, :atlas, :site_code),
-          address: appt.dig(:telehealth, :atlas, :address)
-        }
-      end
-
-      def gfe_details(appt)
-        {
-          hasMobileGfe: appt.dig(:extension, :patient_has_mobile_gfe)
-        }
-      end
-
-      def misc_details(appt)
-        {
-          vvsKind: appt.dig(:telehealth, :vvs_kind),
-          siteId: appt[:location_id],
-          clinicId: appt[:clinic],
-          provider: extract_names(appt[:practitioners])
-        }
-      end
-
-      # Extracts the full names from each practitioner.
-      #
-      # @param [Array<Hash>] practitioners An array of Hash objects, each having practitioner information.
-      #   A practitioner hash should have a +:name+ key which itself is a hash with +:given+ and +:family+ keys.
-      #   The +:given+ key should point to an array of strings (first and middle names),
-      #   and +:family+ key should point to a single string (last name).
-      #
-      # @return [String] Returns the names of the practitioners as a comma separated string.
-      #   If the +practitioners+ array is empty or does not contain a +:name+, then it returns nil.
-      #
-      def extract_names(practitioners)
-        return nil unless non_empty_array_of_hashes?(practitioners)
-
-        names = []
-        practitioners.each do |practitioner|
-          given_names = practitioner.dig(:name, :given)&.join(' ')
-          family_name = practitioner.dig(:name, :family)
-          full_name = "#{given_names} #{family_name}"
-          names << full_name if full_name.present?
-        end
-        name_str = names.join(', ').strip
-        name_str.presence
-      end
-
-      # Checks if the provided argument is a non-empty array of Hash objects.
-      #
-      # This method checks whether the specified argument is of Array type,
-      # is not empty, and all of its elements are hashes.
-      #
-      # @param arg [Array] The argument to be checked
-      #
-      # @return [Boolean] true if the argument is a non-empty array and all
-      #   its elements are OpenStruct instances, false otherwise
-      #
-      def non_empty_array_of_hashes?(arg)
-        arg.is_a?(Array) && !arg.empty? && arg.all? { |elem| elem.is_a?(Hash) }
-      end
-
       def deserialized_appointments(appointment_list)
         return [] unless appointment_list
 
@@ -543,7 +475,14 @@ module VAOS
       end
 
       def partial_errors(response)
-        if response.status == 200 && response.body[:failures]&.any?
+        return { failures: [] } if response.body[:failures].blank?
+
+        response.body[:failures].each do |failure|
+          detail = failure[:detail]
+          failure[:detail] = VAOS::Anonymizers.anonymize_icns(detail) if detail.present?
+        end
+
+        if response.status == 200
           log_message_to_sentry(
             'VAOS::V2::AppointmentService#get_appointments has response errors.',
             :info,
@@ -552,7 +491,7 @@ module VAOS
         end
 
         {
-          failures: response.body[:failures] || [] # VAMF drops null valued keys; ensure we always return empty array
+          failures: response.body[:failures]
         }
       end
 
@@ -586,6 +525,18 @@ module VAOS
 
       def date_format(date)
         date.strftime('%Y-%m-%dT%TZ')
+      end
+
+      def update_appointment_vpg(appt_id, status)
+        url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        body = JSON.generate([VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op])
+        perform(:patch, url_path, body, headers)
+      end
+
+      def update_appointment_vaos(appt_id, status)
+        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
+        perform(:put, url_path, params, headers)
       end
     end
   end

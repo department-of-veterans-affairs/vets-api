@@ -15,7 +15,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
     let(:long) { -77.0369 }
 
     before do
-      Flipper.enable(:find_a_representative_enabled)
+      Flipper.enable(:find_a_representative_enable_api)
       # Create representatives
       create(:representative, representative_id: '111', poa_codes: %w[A12 A13], user_types: ['veteran_service_officer'],
                               long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
@@ -134,7 +134,7 @@ RSpec.describe 'VSOAccreditedRepresentativesController', type: :request do
 
       parsed_response = JSON.parse(response.body)
 
-      expect(parsed_response['data'].pluck('id')).to eq(%w[111 113])
+      expect(parsed_response['data'].pluck('id')).to eq(%w[111])
     end
 
     it 'serializes with the correct model and distance' do

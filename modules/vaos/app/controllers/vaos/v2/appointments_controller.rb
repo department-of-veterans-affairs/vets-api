@@ -11,7 +11,6 @@ module VAOS
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
-      PID = 'PID'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
       APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
@@ -32,7 +31,6 @@ module VAOS
 
         appointments[:data].each do |appt|
           scrape_appt_comments_and_log_details(appt, APPT_INDEX, PAP_COMPLIANCE_TELE)
-          scrape_appt_comments_and_log_details(appt, APPT_INDEX, PID)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
@@ -62,7 +60,6 @@ module VAOS
         appointment[:location] = get_facility_memoized(appointment[:location_id]) unless appointment[:location_id].nil?
 
         scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PAP_COMPLIANCE_TELE)
-        scrape_appt_comments_and_log_details(appointment, APPT_SHOW, PID)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointment, 'appointments')
@@ -86,7 +83,6 @@ module VAOS
         end
 
         scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PAP_COMPLIANCE_TELE)
-        scrape_appt_comments_and_log_details(new_appointment, APPT_CREATE, PID)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointments')
