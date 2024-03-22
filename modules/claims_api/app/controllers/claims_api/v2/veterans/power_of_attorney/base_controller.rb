@@ -170,6 +170,8 @@ module ClaimsApi
         end
 
         def user_profile
+          return @user_profile if defined? @user_profile
+
           @user_profile ||= fetch_claimant
         end
 
