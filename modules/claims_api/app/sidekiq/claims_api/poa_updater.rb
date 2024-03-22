@@ -27,6 +27,7 @@ module ClaimsApi
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
+
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
