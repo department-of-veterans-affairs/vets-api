@@ -24,6 +24,20 @@ RSpec.describe EvssGeneratePdfProvider do
 
   it_behaves_like 'generate pdf service provider'
 
+  it 'creates a breakered evss service' do
+    provider = EvssGeneratePdfProvider.new(auth_headers)
+    expect(provider.instance_variable_get(:@service).class).to equal(EVSS::DisabilityCompensationForm::Service)
+
+    provider = EvssGeneratePdfProvider.new(auth_headers, breakered: true)
+    expect(provider.instance_variable_get(:@service).class).to equal(EVSS::DisabilityCompensationForm::Service)
+  end
+
+  it 'creates a non-breakered evss service' do
+    provider = EvssGeneratePdfProvider.new(auth_headers, breakered: false)
+    expect(provider.instance_variable_get(:@service).class)
+      .to equal(EVSS::DisabilityCompensationForm::NonBreakeredService)
+  end
+
   it 'retrieves a generated 526 pdf from the EVSS API' do
     VCR.use_cassette('form526_backup/200_evss_get_pdf', match_requests_on: %i[uri method]) do
       provider = EvssGeneratePdfProvider.new(auth_headers)
