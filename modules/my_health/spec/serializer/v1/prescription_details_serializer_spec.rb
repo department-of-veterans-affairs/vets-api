@@ -174,7 +174,7 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(rx_rf_record['facility_name']).to eq('DAYT29')
     expect(rx_rf_record['is_refillable']).to eq(false)
     expect(rx_rf_record['is_trackable']).to eq(false)
-    expect(rx_rf_record['prescription_id']).to eq(22332828)
+    expect(rx_rf_record['prescription_id']).to eq(223_328_28)
     expect(rx_rf_record['sig']).to be_nil
     expect(rx_rf_record['quantity']).to be_nil
     expect(rx_rf_record['expiration_date']).to be_nil
@@ -186,8 +186,8 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(rx_rf_record['not_refillable_display_message']).to be_nil
     expect(rx_rf_record['cmop_division_phone']).to be_nil
     expect(rx_rf_record['cmop_ndc_number']).to be_nil
-    expect(rx_rf_record['id']).to eq(22332828)
-    expect(rx_rf_record['user_id']).to eq(16955936)
+    expect(rx_rf_record['id']).to eq(223_328_28)
+    expect(rx_rf_record['user_id']).to eq(169_559_36)
     expect(rx_rf_record['provider_first_name']).to be_nil
     expect(rx_rf_record['provider_last_name']).to be_nil
     expect(rx_rf_record['remarks']).to be_nil
