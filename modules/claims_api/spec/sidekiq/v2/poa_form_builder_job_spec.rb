@@ -87,18 +87,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           final_data = data.merge(
             {
               'text_signatures' => {
-                'page1' => [
-                  {
-                    'signature' => 'JESSE GRAY - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 73
-                  },
-                  {
-                    'signature' => 'Bob Representative - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 100
-                  }
-                ],
                 'page2' => [
                   {
                     'signature' => 'JESSE GRAY - signed via api.va.gov',
@@ -217,21 +205,9 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           final_data = data.merge(
             {
               'text_signatures' => {
-                'page1' => [
-                  {
-                    'signature' => 'JESSE GRAY - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 73
-                  },
-                  {
-                    'signature' => 'Bob Representative - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 100
-                  }
-                ],
                 'page2' => [
                   {
-                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                    'signature' => 'JESSE GRAY - signed via api.va.gov',
                     'x' => 35,
                     'y' => 306
                   },
