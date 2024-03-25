@@ -92,7 +92,7 @@ module V0
     def track_create_error(in_progress_form, claim, e)
       Rails.logger.error('21P-527EZ submission to Sidekiq failed',
                          { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
-                           in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors, 
+                           in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
                            message: e&.message })
       StatsD.increment("#{stats_key}.failure")
     end
