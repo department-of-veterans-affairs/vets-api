@@ -68,7 +68,13 @@ describe VAProfile::Profile::V3::Service do
         expect(response.status).to eq(200)
         expect(response.contacts.size).to eq(4)
         types = response.contacts.map(&:contact_type)
-        expect(types).to match_array(VAProfile::Models::AssociatedPerson::CONTACT_TYPES)
+        valid_contact_types = [
+          VAProfile::Models::AssociatedPerson::EMERGENCY_CONTACT,
+          VAProfile::Models::AssociatedPerson::OTHER_EMERGENCY_CONTACT,
+          VAProfile::Models::AssociatedPerson::PRIMARY_NEXT_OF_KIN,
+          VAProfile::Models::AssociatedPerson::OTHER_NEXT_OF_KIN
+        ]
+        expect(types).to match_array(valid_contact_types)
       end
     end
 
