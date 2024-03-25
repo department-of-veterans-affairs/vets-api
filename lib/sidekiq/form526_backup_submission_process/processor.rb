@@ -467,7 +467,6 @@ module Sidekiq
     end
 
     class NonBreakeredForm526BackgroundLoader
-
       extend ActiveSupport::Concern
       include Sidekiq::Job
       sidekiq_options retry: false
