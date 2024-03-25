@@ -21,14 +21,6 @@ module V1
 
       payload = JSON.parse(request.body.string)
 
-      log_params = {
-        key: :callbacks,
-        form_id: '21P-527EZ',
-        user_uuid: nil,
-        upstream_system: 'VANotify',
-        body: payload.merge('to' => '<FILTERED>') # scrub PII from logs
-      }
-
       # save encrypted request body in database table for non-successful notifications
       payload_status = payload['status']&.downcase
       if STATUSES_TO_IGNORE.exclude? payload_status
@@ -66,6 +58,16 @@ module V1
 
     def bearer_token_secret
       Settings.dig(:pension_ipf_vanotify_status_callback, :bearer_token)
+    end
+
+    def log_params
+      {
+        key: :callbacks,
+        form_id: '21P-527EZ',
+        user_uuid: nil,
+        upstream_system: 'VANotify',
+        body: payload.merge('to' => '<FILTERED>') # scrub PII from logs
+      }
     end
   end
 end
