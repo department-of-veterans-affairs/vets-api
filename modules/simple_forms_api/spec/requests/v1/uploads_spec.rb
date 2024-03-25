@@ -62,19 +62,13 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
 
-    let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
-
-    before do
-      allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
-    end
-
     ivc_forms.each do |form|
       fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
 
       it 'uploads a PDF file to S3' do
         allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-        allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
