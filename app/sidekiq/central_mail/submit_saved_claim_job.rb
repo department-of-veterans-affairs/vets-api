@@ -59,7 +59,7 @@ module CentralMail
 
     def send_claim_to_central_mail(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
-      @pdf_path = process_record(@claim)
+      @pdf_path = @claim.form_id == '21P-530V2' ? process_record(@claim, @claim.created_at, @claim.form_id) : process_record(@claim)
 
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
@@ -97,15 +97,29 @@ module CentralMail
       )
     end
 
-    def process_record(record)
+    def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
-      CentralMail::DatestampPdf.new(stamped_path1).run(
+      stamped_path2 = CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 429,
         y: 770,
         text_only: true
       )
+      if form_id.present? && ['21P-530V2'].include?(form_id)
+        processed_pdf = CentralMail::DatestampPdf.new(stamped_path2).run(
+          text: 'Application Submitted on va.gov',
+          x: form_id == '21P-530V2' ? 400 : 300,
+          y: form_id == '21P-530V2' ? 675 : 775,
+          text_only: true, # passing as text only because we override how the date is stamped in this instance
+          timestamp:,
+          page_number: form_id == '21P-530V2' ? 6 : 0,
+          template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+          multistamp: true
+        )
+      else
+        stamped_path2
+      end
     end
 
     def get_hash_and_pages(file_path)

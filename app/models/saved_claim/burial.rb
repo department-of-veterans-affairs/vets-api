@@ -44,6 +44,22 @@ class SavedClaim::Burial < CentralMailClaim
     end
   end
 
+  def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
+      text: 'Application Submitted on va.gov',
+      x: form_id == '21P-530V2' ? 400 : 300,
+      y: form_id == '21P-530V2' ? 675 : 775,
+      text_only: true, # passing as text only because we override how the date is stamped in this instance
+      timestamp:,
+      page_number: form_id == '21P-530V2' ? 6 : 0,
+      template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+      multistamp: true
+    )
+    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    File.rename(processed_pdf, renamed_path) # rename for vbms upload
+    renamed_path # return the renamed path
+  end
+
   def business_line
     'NCA'
   end
