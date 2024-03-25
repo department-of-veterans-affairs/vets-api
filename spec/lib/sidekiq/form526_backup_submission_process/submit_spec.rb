@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 require 'sidekiq/form526_backup_submission_process/submit'
-require 'disability_compensation/factories/api_provider_factory.rb'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }

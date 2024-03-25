@@ -466,8 +466,8 @@ module Sidekiq
       service.get_form526(form_json)
     end
 
-
     class NonBreakeredForm526BackgroundLoader
+
       extend ActiveSupport::Concern
       include Sidekiq::Job
       sidekiq_options retry: false

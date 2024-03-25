@@ -18,7 +18,6 @@ require 'disability_compensation/providers/brd/lighthouse_brd_provider'
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
-require 'disability_compensation/providers/brd/lighthouse_brd_provider'
 require 'logging/third_party_transaction'
 
 class ApiProviderFactory
