@@ -178,5 +178,19 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
     end
   end
 
+  describe '#cleanup_file_paths' do
+    before do
+      job.instance_variable_set(:@form_path, 'path/file.pdf')
+      job.instance_variable_set(:@attachment_paths, '/invalid_path/should_be_an_array.failure')
+    end
+
+    it 'returns expected hash' do
+      expect(Rails.logger).to receive(:error).with('Lighthouse::PensionBenefitIntakeJob cleanup failed',
+                                                   hash_including(:error, :claim_id, :confirmation_number,
+                                                                  :benefits_intake_uuid))
+      expect { job.cleanup_file_paths }.to raise_error(NoMethodError)
+    end
+  end
+
   # Rspec.describe
 end
