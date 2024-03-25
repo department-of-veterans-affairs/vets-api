@@ -1139,6 +1139,9 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
+  va_burial_v2:
+    actor_type: user
+    description: Allows us to toggle between 21-P530 and 21-P530V2
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1284,10 +1287,6 @@ features:
   nod_callbacks_endpoint:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
-    enable_in_development: true
-  pension_ipf_callbacks_endpoint:
-    actor_type: user
-    description: Pension IPF VANotify notification callbacks endpoint
     enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
