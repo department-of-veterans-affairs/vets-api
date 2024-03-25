@@ -17,7 +17,8 @@ module ClaimsApi
     def get_fault_info
       @fault_code = @hash&.dig('Envelope', 'Body', 'Fault', 'faultcode')&.split(':')&.dig(1)
       @fault_string = @hash&.dig('Envelope', 'Body', 'Fault', 'faultstring')
-      @fault_message = @hash&.dig('Envelope', 'Body', 'Fault', 'detail', 'MessageException')
+      @fault_message = @hash&.dig('Envelope', 'Body', 'Fault', 'detail', 'MessageException') ||
+                       @hash&.dig('Envelope', 'Body', 'Fault', 'detail', 'MessageFaultException')
       return {} if @fault_string.include?('IntentToFileWebService') && @fault_string.include?('not found')
 
       get_exception
