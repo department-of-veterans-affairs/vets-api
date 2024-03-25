@@ -2713,6 +2713,31 @@ components:
               example: Rx Medication
             trackingList:
               type: array
+              items:
+                type: object
+                properties:
+                  carrier:
+                    type: string
+                  completeDateTime:
+                    type: datetime
+                  dateLoaded:
+                    type: datetime
+                  dialDivisionPhone:
+                    type: string
+                  divisionPhone:
+                    type: string
+                  ndc:
+                    type: string
+                  othersInSamePackage:
+                    type: boolean
+                  rxNumber:
+                    type: string
+                  stationNumber:
+                    type: string
+                  trackingNumber:
+                    type: string
+                  viewImageDisplayed:
+                    type: boolean
               example: []
             rxRfRecords:
               type: array
