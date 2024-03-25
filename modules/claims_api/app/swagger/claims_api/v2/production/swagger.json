@@ -28,7 +28,7 @@
     },
     {
       "name": "Power of Attorney",
-      "description": "Allows authenticated and authorized users to retrieve the active power of attorney for a Veteran\n"
+      "description": "Allows authenticated and authorized users to automatically establish power of attorney appointments to an organization or an individual. Organizations and individuals must be VA accredited representatives.\n"
     }
   ],
   "components": {
@@ -5720,7 +5720,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c7b75fee-a58e-42ac-9003-a23ea5715817",
+                    "id": "39672566-b4c8-4e92-9b2d-de2cceafa013",
                     "type": "forms/526",
                     "attributes": {
                       "veteran": {
@@ -7804,8 +7804,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-03-20",
-                      "expirationDate": "2025-03-20",
+                      "creationDate": "2024-03-25",
+                      "expirationDate": "2025-03-25",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8524,7 +8524,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:111:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:112:in `representative'"
                       }
                     }
                   ]
