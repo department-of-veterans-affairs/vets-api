@@ -417,3 +417,17 @@ ask_va:
 
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
+
+travel_pay:
+  veis:
+    client_id: 'client_id'
+    client_secret: 'client_secret'
+    resource: 'resource_id'
+    tenant_id: 'tenant_id'
+    auth_url: 'https://auth.veis.gov'
+  subscription_key: 'api_key'
+  base_url: 'https://btsss.gov'
+  service_name: 'BTSSS-API'
+
+pension_ipf_vanotify_status_callback:
+  bearer_token: bearer_token_secret
