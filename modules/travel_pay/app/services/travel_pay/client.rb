@@ -11,10 +11,12 @@ module TravelPay
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
 
-      connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
+      response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
         req.headers[:content_type] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form(veis_params)
       end
+
+      JSON.parse(response.body)['access_token']
     end
 
     ##
@@ -31,6 +33,8 @@ module TravelPay
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.body = { authJwt: vagov_token }
       end
+
+      JSON.parse(response.body)['access_token']
     end
 
     ##
@@ -46,6 +50,27 @@ module TravelPay
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
       end
+    end
+
+    ##
+    # HTTP GET call to the BTSSS 'claims' endpoint
+    # API responds with travel pay claims including status
+    #
+    # @return [TravelPay::Claim]
+    #
+    def get_claims(veis_token, btsss_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      response = connection(server_url: btsss_url).get('api/v1/claims') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['BTSSS-Access-Token'] = btsss_token
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+      end
+
+      symbolized_body = response.body.deep_symbolize_keys
+      parse_claim_date = ->(c) { Date.parse(c[:modified_on]) }
+      symbolized_body[:data].sort_by(&parse_claim_date).reverse!
     end
 
     private
@@ -69,7 +94,7 @@ module TravelPay
 
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if use_fakes?
         conn.response :json
 

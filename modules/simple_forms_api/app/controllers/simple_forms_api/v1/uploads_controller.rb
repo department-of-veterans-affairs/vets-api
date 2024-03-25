@@ -29,7 +29,8 @@ module SimpleFormsApi
 
       IVC_FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
-        '10-7959F-1' => 'vha_10_7959f_1'
+        '10-7959F-1' => 'vha_10_7959f_1',
+        '10-7959F-2' => 'vha_10_7959f_2'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -108,6 +109,7 @@ module SimpleFormsApi
         file_path, ivc_file_paths, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
         if IVC_FORM_NUMBER_MAP.value?(form_id)
+          Datadog::Tracing.active_trace&.set_tag('ivc_form_id', form_id)
           status, error_message = handle_ivc_uploads(form_id, metadata, ivc_file_paths)
         else
           status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata, form_id)
@@ -135,7 +137,7 @@ module SimpleFormsApi
         pdf_results =
           pdf_file_paths.map do |pdf_file_path|
             pdf_file_name = pdf_file_path.gsub('tmp/', '').gsub('-tmp', '')
-            upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+            upload_to_ivc_s3(pdf_file_name, pdf_file_path, metadata)
           end
 
         all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
@@ -190,8 +192,8 @@ module SimpleFormsApi
         }
       end
 
-      def upload_to_ivc_s3(file_name, file_path)
-        case ivc_s3_client.upload_file(file_name, file_path)
+      def upload_to_ivc_s3(file_name, file_path, metadata = {})
+        case ivc_s3_client.put_object(file_name, file_path, metadata)
         in { success: true }
           [200]
         in { success: false, error_message: error_message }

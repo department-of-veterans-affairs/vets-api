@@ -164,13 +164,6 @@
             },
             "vet360_contact_information": {
               "type": ["object", "null"]
-            },
-            "demographics": {
-              "type": "object",
-              "required": ["preferred_name"],
-              "properties": {
-                "preferred_name": { "type": [ "string", null ] }
-              }
             }
           }
         }
