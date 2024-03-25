@@ -23,7 +23,8 @@ module DecisionReview
       def self.base_request_headers
         # Can use regular Decision Reviews API key in lower environments
         return super unless Rails.env.production?
-        # Since we're using the `uploads/validate_document` endpoint under Benefits Intake API, 
+
+        # Since we're using the `uploads/validate_document` endpoint under Benefits Intake API,
         # we need to use their API key. This is pulled from BenefitsIntakeService::Configuration
         api_key = Settings.benefits_intake_service.api_key || Settings.form526_backup.api_key
         super.merge('apiKey' => api_key)
