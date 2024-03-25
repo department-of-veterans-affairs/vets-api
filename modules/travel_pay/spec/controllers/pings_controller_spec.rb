@@ -9,12 +9,18 @@ RSpec.describe TravelPay::PingsController, type: :request do
   before do
     allow(TravelPay::Client).to receive(:new).and_return(client)
     veis_response = double
-    allow(veis_response).to receive(:body).and_return({ 'access_token' => 'sample_token' })
+    allow(veis_response).to receive(:body).and_return('sample_token')
     allow(client).to receive(:request_veis_token).and_return(veis_response)
     btsss_ping_response = double
     allow(btsss_ping_response).to receive(:status).and_return(200)
-    allow(client).to receive(:ping).and_return(btsss_ping_response)
+
+    allow(client)
+      .to receive(:ping)
+      .with('sample_token')
+      .and_return(btsss_ping_response)
+
     sign_in(user)
+
     Flipper.disable :travel_pay_power_switch
   end
 
