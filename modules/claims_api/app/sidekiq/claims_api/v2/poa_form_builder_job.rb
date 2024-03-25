@@ -58,19 +58,20 @@ module ClaimsApi
         signatures = if form_number == '2122A'
                        individual_signatures(power_of_attorney)
                      else
-                       organization_signatures(rep)
+                       organization_signatures(power_of_attorney, rep)
                      end
 
         res.merge!({ 'text_signatures' => signatures })
         res
       end
 
-      def organization_signatures(rep)
+      def organization_signatures(power_of_attorney, rep)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         {
           'page2' => [
             {
-              'signature' => "#{rep.first_name} " \
-                             "#{rep.last_name} - signed via api.va.gov",
+              'signature' => "#{first_name} " \
+                             "#{last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 240
             },

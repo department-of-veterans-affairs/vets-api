@@ -327,7 +327,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             'text_signatures' => {
               'page2' => [
                 {
-                  'signature' => 'Bob Representative - signed via api.va.gov',
+                  'signature' => 'JESSE GRAY - signed via api.va.gov',
                   'x' => 35,
                   'y' => 240
                 },
@@ -442,7 +442,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             'text_signatures' => {
               'page2' => [
                 {
-                  'signature' => 'Bob Representative - signed via api.va.gov',
+                  'signature' => 'Mitchell Jenkins - signed via api.va.gov',
                   'x' => 35,
                   'y' => 240
                 },
