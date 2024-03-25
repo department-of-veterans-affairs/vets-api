@@ -4,7 +4,7 @@ StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
 
 unless Rails.env.test?
 
-  Rails.application.reloader.to_prepare do
+  Rails.application.config.after_initialize do
     # duration/success/fail of GET, POST calls for controllers
     CheckIn::V2::SessionsController.extend(StatsD::Instrument)
     CheckIn::V2::PatientCheckInsController.extend(StatsD::Instrument)

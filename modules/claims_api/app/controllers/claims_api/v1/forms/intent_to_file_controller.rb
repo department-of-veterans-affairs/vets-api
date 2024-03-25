@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/intent_to_file/service'
-require 'bgs_service/local_bgs'
 
 module ClaimsApi
   module V1

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  UPLOADED_PDF_PROPS = {
+  uploaded_pdf_props = {
     source: nil, total_documents: 2, total_pages: 2,
     content: {
       page_count: 1,
@@ -36,13 +36,13 @@ FactoryBot.define do
     trait :status_uploaded do
       status { 'uploaded' }
       updated_at { Time.now.utc }
-      uploaded_pdf { UPLOADED_PDF_PROPS }
+      uploaded_pdf { uploaded_pdf_props }
     end
 
     trait :status_uploaded_11_min_ago do
       status { 'uploaded' }
       updated_at { 11.minutes.ago }
-      uploaded_pdf { UPLOADED_PDF_PROPS }
+      uploaded_pdf { uploaded_pdf_props }
     end
 
     trait :status_error do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs_service/local_bgs'
-
 # Veteran model
 module Veteran
   class User < Base
