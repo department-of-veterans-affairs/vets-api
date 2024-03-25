@@ -24,16 +24,7 @@ module Mobile
       end
 
       def facility_slots
-        if !params[:clinic_id] && !params[:clinical_service]
-          render status: :bad_request, json: {
-            errors: [
-              {
-                status: 400,
-                detail: 'clinic_id or clinical_service is required.'
-              }
-            ]
-          }
-        else
+        if params[:clinic_id] || params[:clinical_service]
           start_date = params[:start_date] || now.iso8601
           end_date = params[:end_date] || two_months_from_now.iso8601
 
@@ -44,6 +35,15 @@ module Mobile
                                                          end_dt: end_date)
 
           render json: Mobile::V0::ClinicSlotsSerializer.new(response)
+        else
+          render status: :bad_request, json: {
+            errors: [
+              {
+                status: 400,
+                detail: 'clinic_id or clinical_service is required.'
+              }
+            ]
+          }
         end
       end
 
