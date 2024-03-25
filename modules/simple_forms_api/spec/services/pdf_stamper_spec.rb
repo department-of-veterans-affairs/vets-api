@@ -23,7 +23,7 @@ describe SimpleFormsApi::PdfStamper do
         let(:generated_form_path) { 'fake/generated_form_path' }
 
         it 'raises an error' do
-          expect { stamp }.to raise_error(StandardError, 'An error occurred while verifying stamp.')
+          expect { stamp }.to raise_error(StandardError, /An error occurred while verifying stamp/)
         end
       end
     end
@@ -117,7 +117,9 @@ describe SimpleFormsApi::PdfStamper do
         let(:stamped_size) { orig_size }
 
         it 'raises an error message' do
-          expect { verify }.to raise_error('An error occurred while verifying stamp.')
+          expect { verify }.to raise_error(
+            'An error occurred while verifying stamp: The PDF remained unchanged upon stamping.'
+          )
         end
       end
 
@@ -125,7 +127,9 @@ describe SimpleFormsApi::PdfStamper do
         let(:stamped_size) { orig_size - 1 }
 
         it 'raises an error message' do
-          expect { verify }.to raise_error('An error occurred while verifying stamp.')
+          expect { verify }.to raise_error(
+            'An error occurred while verifying stamp: The PDF remained unchanged upon stamping.'
+          )
         end
       end
     end
@@ -142,7 +146,7 @@ describe SimpleFormsApi::PdfStamper do
       let(:config) { nil }
 
       it 'raises an error' do
-        expect { verified_multistamp }.to raise_error('Provided signature was empty')
+        expect { verified_multistamp }.to raise_error('The provided stamp content was empty.')
       end
     end
   end

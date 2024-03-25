@@ -43,7 +43,7 @@ module SimpleFormsApi
       desired_stamps.append([73, 355, 'X']) unless form.data['previous_hi_application']['has_previous_hi_application']
       desired_stamps.append([73, 320, 'X']) unless form.data['living_situation']['is_in_care_facility']
       append_to_stamp = false
-      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, append_to_stamp) }
+      stamp(desired_stamps, stamped_template_path, append_to_stamp)
     end
 
     def self.stamp214142(stamped_template_path, form)
@@ -239,15 +239,15 @@ module SimpleFormsApi
       yield
       stamped_size = File.size(template_path)
 
-      raise StandardError, 'PDF stamping failed.' unless stamped_size > orig_size
-    rescue
-      raise StandardError, 'An error occurred while verifying stamp.'
+      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
+    rescue => e
+      raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
 
-    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration)
-      raise StandardError, 'Provided text to stamp was empty' unless stamp_text
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
+      raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
 
-      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration) }
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
     end
 
     def self.default_page_configuration
