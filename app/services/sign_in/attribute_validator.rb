@@ -15,9 +15,10 @@ module SignIn
                 :ssn,
                 :mhv_icn,
                 :edipi,
-                :mhv_correlation_id
+                :mhv_correlation_id,
+                :representative
 
-    def initialize(user_attributes:)
+    def initialize(user_attributes:, representative: nil)
       @idme_uuid = user_attributes[:idme_uuid]
       @logingov_uuid = user_attributes[:logingov_uuid]
       @auto_uplevel = user_attributes[:auto_uplevel]
@@ -32,13 +33,14 @@ module SignIn
       @mhv_icn = user_attributes[:mhv_icn]
       @edipi = user_attributes[:edipi]
       @mhv_correlation_id = user_attributes[:mhv_correlation_id]
+      @representative = representative
     end
 
     def perform
       return unless verified_credential?
 
       validate_credential_attributes
-
+      validate_representative if representative.present?
       if mhv_auth?
         mhv_set_user_attributes_from_mpi
         add_mpi_user
@@ -104,6 +106,12 @@ module SignIn
       attribute_mismatch_check(:last_name, last_name, mpi_response_profile.family_name)
       attribute_mismatch_check(:birth_date, birth_date, mpi_response_profile.birth_date)
       attribute_mismatch_check(:ssn, ssn, mpi_response_profile.ssn, prevent_auth: true)
+    end
+
+    def validate_representative
+      Veteran::Service::Representative.for_user(first_name:, last_name:, ssn:, dob: birth_date)
+    rescue StandardError => e
+      handle_error('Error validating representative', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE, error: e)
     end
 
     def validate_credential_attributes
