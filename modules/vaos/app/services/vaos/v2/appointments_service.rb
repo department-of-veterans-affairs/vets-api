@@ -17,7 +17,6 @@ module VAOS
       AVS_APPT_TEST_ID = '192308'
 
       AVS_FLIPPER = :va_online_scheduling_after_visit_summary
-      CANCEL_EXCLUSION = :va_online_scheduling_cancellation_exclusion
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
 
@@ -34,9 +33,6 @@ module VAOS
           response = perform(:get, appointments_base_path, params, headers)
           SchemaContract::ValidationInitiator.call(user:, response:, contract_name: 'appointments_index')
           response.body[:data].each do |appt|
-            # for Lovell appointments set cancellable to false per GH#75512
-            set_cancellable_false(appt) if lovell_appointment?(appt) && Flipper.enabled?(CANCEL_EXCLUSION, user)
-
             # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
             set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
@@ -67,11 +63,6 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
-
-          # for Lovell appointments set cancellable to false per GH#75512
-          if lovell_appointment?(response.body[:data]) && Flipper.enabled?(CANCEL_EXCLUSION, user)
-            set_cancellable_false(response.body[:data])
-          end
 
           # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
           set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
@@ -302,12 +293,6 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
-      end
-
-      def lovell_appointment?(appt)
-        return false if appt.nil? || appt[:location_id].nil?
-
-        appt[:location_id].start_with?('556')
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
