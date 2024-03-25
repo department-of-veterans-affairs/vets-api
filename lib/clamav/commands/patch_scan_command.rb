@@ -27,6 +27,7 @@ module ClamAV
       def initialize(path, path_finder = Util)
         @path = path
         @path_finder = path_finder
+        super()
       end
 
       def call(conn)

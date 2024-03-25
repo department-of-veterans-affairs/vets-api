@@ -33,9 +33,6 @@ Style/Documentation:
 Style/ClassAndModuleChildren:
   Enabled: false
 
-Lint/MissingSuper:
-  Enabled: false
-
 Style/GlobalVars:
   AllowedVariables:
     - $redis
