@@ -1,0 +1,10 @@
+version: '3.4'
+services:
+  clamav:
+    volumes:
+     - shared-vol:/vets-api
+    image: clamav/clamav
+    ports:
+      - 33100:3310
+volumes:
+ shared-vol:
