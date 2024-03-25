@@ -19,8 +19,8 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
                 'requestId' => pending_document_upload.lighthouse_document_request_id,
                 'status' => 'SUCCESS',
                 'time' => {
-                  'startTime' => '499152030',
-                  'endTime' => '499152060'
+                  'startTime' => 499152030,
+                  'endTime' => 499152060
                 },
                 'steps' => [
                   {
@@ -35,7 +35,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
               }
             ]
           }
-        }.to_json
+        }
       end
 
       it 'transitions that document to the complete state' do
@@ -62,8 +62,8 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
                 'requestId' => pending_document_upload.lighthouse_document_request_id,
                 'status' => 'FAILED',
                 'time' => {
-                  'startTime' => '499152030',
-                  'endTime' => '499152060'
+                  'startTime' => 499152030,
+                  'endTime' => 499152060
                 },
                 'steps' => [
                   {
@@ -82,7 +82,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
               }
             ]
           }
-        }.to_json
+        }
       end
 
       it 'transitions the document to the failed state' do
@@ -110,7 +110,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
                 'requestId' => pending_document_upload.lighthouse_document_request_id,
                 'status' => 'IN_PROGRESS',
                 'time' => {
-                  'startTime' => lighthouse_processing_start_time.to_time.to_i.to_s,
+                  'startTime' => lighthouse_processing_start_time.to_time.to_i,
                   'endTime' => nil
                 },
                 'steps' => [
@@ -126,7 +126,7 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
               }
             ]
           }
-        }.to_json
+        }
       end
 
       context 'when it has been more than 24 hours since Lighthouse started processing the document' do
@@ -164,13 +164,13 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
                 'requestId' => request_id,
                 'status' => 'SUCCESS',
                 'time' => {
-                  'startTime' => '499152030',
-                  'endTime' => '499152060'
+                  'startTime' => 499152030,
+                  'endTime' => 499152060
                 }
               }
             ]
           }
-        }.to_json
+        }
       end
 
       before do

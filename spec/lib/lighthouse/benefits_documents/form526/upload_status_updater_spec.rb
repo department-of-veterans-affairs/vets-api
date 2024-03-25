@@ -13,15 +13,15 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
     context 'when the document is completed' do
       # Lighthouse returns datetimes as UNIX timestamps
-      let(:start_time) { '499152060' }
-      let(:end_time) { '499153000' }
+      let(:unix_start_time) { 499152060 }
+      let(:unix_end_time) { 499153000 }
 
       let(:completed_document_status) do
         {
           'status' => 'SUCCESS',
           'time' => {
-            'startTime' => start_time,
-            'endTime' => end_time
+            'startTime' => unix_start_time,
+            'endTime' => unix_end_time
           },
           'steps' => [
             {
@@ -41,7 +41,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
         expect { status_updater.update_status }.to change(
           lighthouse526_document_upload, :lighthouse_processing_started_at
-        ).to(DateTime.strptime(start_time, '%s'))
+        ).to(Time.at(unix_start_time).utc.to_datetime)
       end
 
       it 'saves a lighthouse_processing_ended_at time' do
@@ -49,7 +49,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
         expect { status_updater.update_status }.to change(
           lighthouse526_document_upload, :lighthouse_processing_ended_at
-        ).to(DateTime.strptime(end_time, '%s'))
+        ).to(Time.at(unix_end_time).utc.to_datetime)
       end
 
       it 'transitions the document to a complete state' do
@@ -79,19 +79,28 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
           status_updater.update_status
         end
       end
+
+      it 'updates the status_last_polled_at time on the document' do
+        Timecop.freeze(DateTime.new(1985, 10, 26)) do
+          status_updater = described_class.new(completed_document_status, lighthouse526_document_upload)
+          status_updater.update_status
+
+          expect(lighthouse526_document_upload.status_last_polled_at).to eq(DateTime.new(1985, 10, 26))
+        end
+      end
     end
 
     context 'when the document has failed' do
       # Lighthouse returns datetimes as UNIX timestamps
-      let(:start_time) { '499152060' }
-      let(:end_time) { '499153000' }
+      let(:unix_start_time) { 499152060 }
+      let(:unix_end_time) { 499153000 }
 
       let(:failed_document_status) do
         {
           'status' => 'FAILED',
           'time' => {
-            'startTime' => start_time,
-            'endTime' => end_time
+            'startTime' => unix_start_time,
+            'endTime' => unix_end_time
           },
           'steps' => [
             {
@@ -115,7 +124,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
         expect { status_updater.update_status }.to change(
           lighthouse526_document_upload, :lighthouse_processing_started_at
-        ).to(DateTime.strptime(start_time, '%s'))
+        ).to(Time.at(unix_start_time).utc.to_datetime)
       end
 
       it 'saves a lighthouse_processing_ended_at time' do
@@ -123,7 +132,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
         expect { status_updater.update_status }.to change(
           lighthouse526_document_upload, :lighthouse_processing_ended_at
-        ).to(DateTime.strptime(end_time, '%s'))
+        ).to(Time.at(unix_end_time).utc.to_datetime)
       end
 
       it 'transitions the document to a failed state' do
@@ -165,6 +174,15 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
           status_updater.update_status
         end
       end
+
+      it 'updates the status_last_polled_at time on the document' do
+        Timecop.freeze(DateTime.new(1985, 10, 26)) do
+          status_updater = described_class.new(failed_document_status, lighthouse526_document_upload)
+          status_updater.update_status
+
+          expect(lighthouse526_document_upload.status_last_polled_at).to eq(DateTime.new(1985, 10, 26))
+        end
+      end
     end
 
     context 'when the document is in progress' do
@@ -177,13 +195,13 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
       end
 
       # Lighthouse returns datetimes as UNIX timestamps
-      let(:start_time) { '499152060' }
+      let(:unix_start_time) { 499152060 }
 
       let(:in_progress_document_status) do
         {
           'status' => 'IN_PROGRESS',
           'time' => {
-            'startTime' => start_time,
+            'startTime' => unix_start_time,
             'endTime' => nil
           },
           'steps' => [
@@ -212,7 +230,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
         expect { status_updater.update_status }.to change(
           lighthouse526_new_document_upload, :lighthouse_processing_started_at
-        ).to(DateTime.strptime(start_time, '%s'))
+        ).to(Time.at(unix_start_time).utc.to_datetime)
       end
 
       it 'saves the last_status_response' do
@@ -243,8 +261,8 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
       {
         'status' => 'FAILED',
         'time' => {
-          'startTime' => '499152060',
-          'endTime' => '499153000'
+          'startTime' => 499152060,
+          'endTime' => 499153000
         },
         'steps' => [
           {
@@ -272,14 +290,14 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
   describe '#processing_timeout?' do
     context 'when the document has been in progress for more than 24 hours' do
       it 'returns true' do
-        Timecop.freeze(DateTime.new(1985, 10, 26)) do
+        Timecop.freeze(DateTime.new(1985, 10, 26).utc) do
           # Lighthouse returns datetimes as UNIX timestamps
-          start_time = DateTime.new(1985, 10, 23).to_time.to_i.to_s
+          unix_start_time = DateTime.new(1985, 10, 23).to_time.to_i
 
           delayed_document_status = {
             'status' => 'IN_PROGRESS',
             'time' => {
-              'startTime' => start_time,
+              'startTime' => unix_start_time,
               'endTime' => nil
             },
             'steps' => [
@@ -302,14 +320,14 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
     context 'when the document has been in progress for less than 24 hours' do
       it 'returns false' do
-        Timecop.freeze(DateTime.new(1985, 10, 26)) do
+        Timecop.freeze(DateTime.new(1985, 10, 26).utc) do
           # Lighthouse returns datetimes as UNIX timestamps
-          start_time = DateTime.new(1985, 10, 25, 20).to_time.to_i.to_s
+          unix_start_time = DateTime.new(1985, 10, 25, 20).utc.to_time.to_i
 
           in_progress_document_status = {
             'status' => 'IN_PROGRESS',
             'time' => {
-              'startTime' => start_time,
+              'startTime' => unix_start_time,
               'endTime' => nil
             },
             'steps' => [

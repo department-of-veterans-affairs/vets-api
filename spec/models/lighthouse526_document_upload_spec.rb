@@ -7,26 +7,26 @@ RSpec.describe Lighthouse526DocumentUpload do
   # https://dev-developer.va.gov/explore/api/benefits-documents/docs?version=current
   let(:lighthouse_status_response) do
     {
-      data: {
-        statuses: [
+      'data' =>  {
+        'statuses' => [
           {
-            requestId: '600000001',
-            time: {
-              startTime: '1502199000',
-              endTime: '1502199000'
+            'requestId' => 600000001,
+            'time' => {
+              'startTime' => 1502199000,
+              'endTime' => nil
             },
-            status: 'IN_PROGRESS',
-            steps: [
+            'status' => 'IN_PROGRESS',
+            'steps' => [
               {
-                name: 'BENEFITS_GATEWAY_SERVICE',
-                nextStepName: 'BENEFITS_GATEWAY_SERVICE',
-                description: 'string',
-                status: 'NOT_STARTED'
+                'name' => 'BENEFITS_GATEWAY_SERVICE',
+                'nextStepName' => 'BENEFITS_GATEWAY_SERVICE',
+                'description' => 'string',
+                'status' => 'NOT_STARTED'
               }
             ],
-            error: {
-              detail: 'string',
-              step: 'BENEFITS_GATEWAY_SERVICE'
+            'error' => {
+              'detail' => 'string',
+              'step' => 'BENEFITS_GATEWAY_SERVICE'
             }
           }
         ]
@@ -80,15 +80,21 @@ RSpec.describe Lighthouse526DocumentUpload do
     end
 
     describe 'state transtions' do
-      let(:lighthouse526_document_upload) { create(:lighthouse526_document_upload) }
+      # Both completed and failed uploads have an end time in Lighthouse
+      let(:finished_lighthouse526_document_upload) do
+        create(
+          :lighthouse526_document_upload,
+          lighthouse_processing_ended_at: DateTime.now
+        )
+      end
 
       it 'transitions to a completed state' do
-        expect(lighthouse526_document_upload)
+        expect(finished_lighthouse526_document_upload)
           .to transition_from(:pending).to(:completed).on_event(:complete!)
       end
 
       it 'transitions to a failed state' do
-        expect(lighthouse526_document_upload)
+        expect(finished_lighthouse526_document_upload)
           .to transition_from(:pending).to(:failed).on_event(:fail!)
       end
 
@@ -117,7 +123,12 @@ RSpec.describe Lighthouse526DocumentUpload do
           end
 
           it 'transitions if an error message is saved' do
-            upload = create(:lighthouse526_document_upload, error_message: {status: 'Something broke'}.to_json)
+            upload = create(
+              :lighthouse526_document_upload,
+              lighthouse_processing_ended_at: DateTime.now,
+              error_message: { status: 'Something broke' }.to_json
+            )
+
             expect { upload.fail! }.not_to raise_error(AASM::InvalidTransition)
           end
 

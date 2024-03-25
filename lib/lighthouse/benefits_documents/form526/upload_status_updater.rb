@@ -72,7 +72,7 @@ module BenefitsDocuments
           'BenefitsDocuments::Form526::UploadStatusUpdater',
           status: @lighthouse526_document_status['status'],
           status_response: @lighthouse526_document_status,
-          updated_at: DateTime.now
+          updated_at: DateTime.now.utc
         )
 
         if completed? || failed?
@@ -85,6 +85,8 @@ module BenefitsDocuments
             @lighthouse526_document_upload.fail!
           end
         end
+
+        @lighthouse526_document_upload.update!(status_last_polled_at: DateTime.now.utc)
       end
 
       def get_failure_step
@@ -98,7 +100,7 @@ module BenefitsDocuments
       def processing_timeout?
         return false if @lighthouse526_document_status.dig('time', 'endTime')
 
-        start_time < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago
+        start_time < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
       end
 
       private
@@ -107,16 +109,15 @@ module BenefitsDocuments
         @lighthouse526_document_status != @lighthouse526_document_upload.last_status_response
       end
 
+      # Lighthouse returns date times as UNIX timestamps in milliseconds
       def start_time
-        # Lighthouse returns date times as UNIX timestamps
         unix_start_time = @lighthouse526_document_status.dig('time', 'startTime')
-        DateTime.strptime(unix_start_time, '%s')
+        Time.at(unix_start_time).utc.to_datetime
       end
 
       def end_time
-        # Lighthouse returns date times as UNIX timestamps
         unix_end_time = @lighthouse526_document_status.dig('time', 'endTime')
-        DateTime.strptime(unix_end_time, '%s')
+        Time.at(unix_end_time).utc.to_datetime
       end
 
       def failed?

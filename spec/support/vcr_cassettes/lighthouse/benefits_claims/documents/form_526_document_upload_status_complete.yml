@@ -5,7 +5,7 @@ http_interactions:
     uri: https://dev-api.va.gov/oauth2/benefits-documents/system/v1/token
     body:
       encoding: US-ASCII
-      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInN1YiI6IjBvYXAxOHFvZnVjY2FXUVVSMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzaTN1aTgzZkxhNjhJSnYycDcvdjEvdG9rZW4iLCJpYXQiOjE3MTAzNjcwMTMsImV4cCI6MTcxMDM2NzMxM30.X-f3YkYfz0oLGKGly-_HgOTZDivDvjStBlF77zjhonwo9SpSuoojz1BhO0vALmyR5rwdWX31bqpcN2xeQrcd40czrhzbp2-Ju-HHoQ6Io8Dw0cP0Uwk6FLP8QqVlex0koXwTFjOX6U9aLbRsznk8Wufe3FBLYYpOhNfqqnLuhA1LEjOQ6f_1xQyUoEWYDZ3WaKvDZNOBzmoqr8gRFobKzX-MFz9SwVqNbqDgudhXRGXF8lWs50wSWHtda4cbWYXEIBy3yUQYxSbAlRrH_-kwGbjkt-dG0jz7UwgFEq2C1g7oxDuvA2UETiGa4dBnH-YuPOWSHvbAHy_MTCjJYN5jdw&scope=documents.read+documents.write
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInN1YiI6IjBvYXAxOHFvZnVjY2FXUVVSMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzaTN1aTgzZkxhNjhJSnYycDcvdjEvdG9rZW4iLCJpYXQiOjE3MTEzOTMwNjIsImV4cCI6MTcxMTM5MzM2Mn0.mTYpXCJqEOmqQ6J-BE25kY_a80_mj-TlXsmyuFk_cDEG4T2__VSOkZ__Z2B_E03Cky42KiZ4fegmEOucq7HPT9FbwODYdWQIXYLYAV8-RdsoZUAIGtPKi3J63_ZfapwS9psh0SpI46Jc9rS4LuV4fSSRtBTHwgTyZBGoqQJN_DMIoVjvmvxruoqLrL_BoacIOfx24i7Ty5AUz1qmuUw2hr3UvFbhhQEgw_RIlQlT0swIPSvOBFOQG8vPq_gjy0d6GfK7MMHsNjt6S0UqMYKj3LRPJorGeYH8nA9Q1uFjaf2L9BWepV1H9qlvTRM2Nluh-Z4zpxdluChvYcw5CUpz_w&scope=documents.read+documents.write
     headers:
       Accept:
       - application/json
@@ -21,21 +21,21 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 13 Mar 2024 21:56:54 GMT
+      - Mon, 25 Mar 2024 18:57:43 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
-      Ratelimit-Reset:
-      - '7'
-      X-Ratelimit-Limit-Minute:
-      - '60'
       X-Ratelimit-Remaining-Minute:
-      - '59'
+      - '56'
       Ratelimit-Limit:
       - '60'
       Ratelimit-Remaining:
-      - '59'
+      - '56'
+      Ratelimit-Reset:
+      - '17'
+      X-Ratelimit-Limit-Minute:
+      - '60'
       Vary:
       - Origin
       Cache-Control:
@@ -43,19 +43,19 @@ http_interactions:
       Pragma:
       - no-cache
       Etag:
-      - W/"406-LuO8TljdH/cgynlxi6tMmjUOqJw"
+      - W/"406-4Qz4UveJtQlT86H1Qda91rrNIXw"
       Access-Control-Allow-Origin:
       - "*"
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"eyJraWQiOiJ5c3RTeC0xTmFRRTY2em5hNGNHb1ptQTVWV3R2TzdkQS11U3ZQV3QzaXFvIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULm8zSWZNRk1uWTBtUC1FTVUzMklwcGtMcFJJQnBQeDJQa0tubEtZcng3c0EiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpM3VpODNmTGE2OElKdjJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2JlbmVmaXRzLWRvY3VtZW50cyIsImlhdCI6MTcxMDM2NzAxNCwiZXhwIjoxNzEwMzY3NjE0LCJjaWQiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInNjcCI6WyJkb2N1bWVudHMud3JpdGUiLCJkb2N1bWVudHMucmVhZCJdLCJzdWIiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsImxhYmVsIjoiQ29mb3JtYUJ1cmdlc3MtMTY5NTgzMjQ0NyJ9.OCJAx6wbxyY7lcgL9bj1AqIoePACMt762-cXM-Z9aZgm36sp5VS62c-Aqwa7C2WWoUyirQtuMpmsfYmfHFIqVPNF8nprLaKmgAQdFbnn36H0_R15GurnmwyPNNe-Cqatx5nLy-zH-oTyM20HryTH4riTL20kO7t34NLM7Rn6_elXCUapOH3k3Wu5rm_ZoN8_EBuM0YJLSIK8jgYUyeLe3IaG-eJt5U4MGmZnGvSt1EFKDO3sHawowRO_ICD0eiY__Fh8XMXD5gkr1t_56T3VFQHFWMC4snaaNXQEuiP_xSdQ42Dl9hu-JKWzKA37xxuvdmAzOCWA6dcLlxev-579_g","token_type":"Bearer","scope":"documents.write
+      string: '{"access_token":"eyJraWQiOiJ5c3RTeC0xTmFRRTY2em5hNGNHb1ptQTVWV3R2TzdkQS11U3ZQV3QzaXFvIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmZGa0RXRG5LbEpHWjVLQmx3TVhoX2VIWWNRQ1A0UnppcTdHZXVOLXFCZ2ciLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpM3VpODNmTGE2OElKdjJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2JlbmVmaXRzLWRvY3VtZW50cyIsImlhdCI6MTcxMTM5MzA2MywiZXhwIjoxNzExMzkzNjYzLCJjaWQiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsInNjcCI6WyJkb2N1bWVudHMud3JpdGUiLCJkb2N1bWVudHMucmVhZCJdLCJzdWIiOiIwb2FwMThxb2Z1Y2NhV1FVUjJwNyIsImxhYmVsIjoiQ29mb3JtYUJ1cmdlc3MtMTY5NTgzMjQ0NyJ9.lKTMv_JuUFj137vfk0Dy2PsRaknfAa1ZrYjaRTGPpz_HQ1dPF9NJn9bspWLl9aUCtTn6wiqz5el5TItWsk-PifsN2t60bn-vJ3YDUkGCFCkC12hal2OdYbBIJLMvq9-YEGlOw7BRHuqafDB48mq5IUpPxqyzYQep0ZuMc52pL_ihmp4_DtJCNqIA5rHVeLlM7gIJQ7S9xO73BNgRmm9SFCa8CIsABdgZirD4aa7sYjnj012-vbesnQm9FEMFrpRCc86yG6FVc08PLAYlKhXkERpcZoXEWKEVvhYAIij7I7MduCvhsyxo_RpqTIrCiK76Ii0oMqg8oBrqH3SrBgJP6A","token_type":"Bearer","scope":"documents.write
         documents.read","expires_in":600,"state":null}'
-  recorded_at: Wed, 13 Mar 2024 21:56:54 GMT
+  recorded_at: Mon, 25 Mar 2024 18:57:43 GMT
 - request:
     method: post
-    uri: https://dev-api.va.gov/services/benefits-documents/uploads/status
+    uri: https://dev-api.va.gov/services/benefits-documents/v1/uploads/status
     body:
       encoding: UTF-8
       string: '{"data":{"requestIds":["18559"]}}'
@@ -63,7 +63,7 @@ http_interactions:
       Accept:
       - application/json
       Content-Type:
-      - 'Content-Type: application/json'
+      - application/json
       User-Agent:
       - Vets.gov Agent
       Authorization: Bearer <TOKEN>
@@ -71,27 +71,43 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 404
-      message: Not Found
+      code: 200
+      message: ''
     headers:
       Date:
-      - Wed, 13 Mar 2024 21:56:54 GMT
+      - Mon, 25 Mar 2024 18:57:43 GMT
       Content-Type:
-      - application/json; charset=utf-8
+      - application/json
       Connection:
       - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '17'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Cache-Control:
       - ''
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
+      - no-cache, no-store
       X-Frame-Options:
       - SAMEORIGIN
+      Pragma:
+      - no-cache
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"message":"no Route matched with those values"}'
-  recorded_at: Wed, 13 Mar 2024 21:56:54 GMT
+      string: '{"data":{"statuses":[{"requestId":18559,"time":{"startTime":1710177589613,"endTime":1710177592131},"status":"SUCCESS","steps":[{"name":"CLAIMS_EVIDENCE","nextStepName":"BENEFITS_GATEWAY_SERVICE","description":"The
+        workflow step that uploads the document to Claims Evidence","status":"SUCCESS"},{"name":"BENEFITS_GATEWAY_SERVICE","description":"The
+        workflow step that uploads the document to Benefits Gateway Service","status":"SUCCESS"}]}]}}'
+  recorded_at: Mon, 25 Mar 2024 18:57:43 GMT
 recorded_with: VCR 6.2.0

@@ -54,7 +54,7 @@ module BenefitsDocuments
       private
 
       def update_documents_status
-        JSON.parse(@lighthouse_status_response).dig('data', 'statuses').each do |document_progress|
+        @lighthouse_status_response.dig('data', 'statuses').each do |document_progress|
           update_document_status(document_progress)
         end
       end

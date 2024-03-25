@@ -18,6 +18,7 @@ module BenefitsDocuments
     DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
     DOCUMENTS_STATUS_PATH = 'services/benefits-documents/v1/uploads/status'
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
+    QA_TESTING_DOMAIN = 'https://dev-api.va.gov'
 
     ##
     # @return [Config::Options] Settings for benefits_claims API.
@@ -96,8 +97,10 @@ module BenefitsDocuments
     end
 
     def get_documents_status(lighthouse_document_request_ids)
-      headers = { 'Authorization' => "Bearer #{access_token}",
-      'Content-Type' => 'Content-Type: application/json' }
+      headers = {
+        'Authorization' => "Bearer #{documents_status_access_token}",
+        'Content-Type' => 'application/json',
+      }
 
       body = {
         data: {
@@ -105,7 +108,17 @@ module BenefitsDocuments
         }
       }.to_json
 
-      connection.post(DOCUMENTS_STATUS_PATH, body, headers)
+      document_status_api_connection.post(DOCUMENTS_STATUS_PATH, body, headers)
+    end
+
+    def documents_status_access_token
+      # Lighthouse is having us test the documents status endpoint on the QA testing domain
+      ENV['RAILS_ENV'] == 'test' ? access_token(nil, nil, { host:  QA_TESTING_DOMAIN }) : access_token
+    end
+
+    def document_status_api_connection
+      # Lighthouse is having us test the documents status endpoint on the QA testing domain
+      ENV['RAILS_ENV'] == 'test' ? connection(QA_TESTING_DOMAIN) : connection
     end
 
     ##
@@ -113,8 +126,8 @@ module BenefitsDocuments
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
-    def connection
-      @conn ||= Faraday.new(base_api_path, headers: base_request_headers, request: request_options) do |faraday|
+    def connection(api_path = base_api_path)
+      @conn ||= Faraday.new(api_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
 

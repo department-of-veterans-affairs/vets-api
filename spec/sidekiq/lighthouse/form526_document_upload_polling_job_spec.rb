@@ -19,110 +19,110 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
   end
 
   describe '#perform' do
-    # TODO: RESOLVING ISSUES WITH QA ENDPOINT WITH LIGHTHOUSE,
-    # NEED TO ADDRESS BEFORE WE CAN RECORD VCR CASSETES FOR THESE TESTS
-
     # End-to-end integration test - completion
-    # context 'for a document that has completed' do
-    #   around do |example|
-    #     VCR.use_cassette('lighthouse/benefits_claims/documents/form_526_document_upload_status_complete') do
-    #       example.run
-    #     end
-    #   end
+    context 'for a document that has completed' do
+      around do |example|
+        VCR.use_cassette('lighthouse/benefits_claims/documents/form_526_document_upload_status_complete') do
+          example.run
+        end
+      end
 
-    #   let!(:lighthouse_complete_document) do
-    #     create(
-    #       :lighthouse526_document_upload,
-    #       document_type: 'Veteran Upload',
-    #       aasm_state: 'pending',
-    #       # Completed Lighthouse QA environment document requestId provided to us by Lighthouse for end-to-end testing
-    #       lighthouse_document_request_id: '18559',
-    #       lighthouse_processing_ended_at: nil,
-    #       last_status_response: nil,
-    #       status_last_polled_at: nil
-    #     )
-    #   end
+      let!(:lighthouse_complete_document) do
+        create(
+          :lighthouse526_document_upload,
+          document_type: 'Veteran Upload',
+          aasm_state: 'pending',
+          # Completed Lighthouse QA environment document requestId provided to us by Lighthouse for end-to-end testing
+          lighthouse_document_request_id: '18559',
+          lighthouse_processing_ended_at: nil,
+          last_status_response: nil,
+          status_last_polled_at: nil
+        )
+      end
 
-    #   it 'marks the document as completed' do
-    #     expect { described_class.new.perform }.to change(lighthouse_complete_document, :aasm_state).to('completed')
-    #   end
+      it 'marks the document as completed' do
+        described_class.new.perform
+        expect(lighthouse_complete_document.reload.aasm_state).to eq('completed')
+      end
 
-    #   it 'increments a StatsD completion counter for the document type' do
-    #     expect { described_class.new.perform }.to trigger_statsd_increment(
-    #       'api.form_526.lighthouse_document_upload_processing_status.veteran_upload.complete'
-    #     )
-    #   end
+      it 'increments a StatsD completion counter for the document type' do
+        expect { described_class.new.perform }.to trigger_statsd_increment(
+          'api.form_526.lighthouse_document_upload_processing_status.veteran_upload.complete'
+        )
+      end
 
-    #   it 'updates the completion time on the document' do
-    #     described_class.new.perform
-    #     expect(lighthouse_complete_document.lighthouse_processing_ended_at).not_to be_nil
-    #   end
+      it 'updates the completion time on the document' do
+        described_class.new.perform
+        expect(lighthouse_complete_document.reload.lighthouse_processing_ended_at).not_to be_nil
+      end
 
-    #   it 'saves the last_status_response' do
-    #     described_class.new.perform
-    #     expect(lighthouse_complete_document.last_status_response).not_to be_nil
-    #   end
+      it 'saves the last_status_response' do
+        described_class.new.perform
+        expect(lighthouse_complete_document.reload.last_status_response).not_to be_nil
+      end
 
-    #   it 'saves the status_last_polled_at time' do
-    #     polling_time = DateTime.new(1985, 10, 26).utc
+      it 'saves the status_last_polled_at time' do
+        polling_time = DateTime.new(1985, 10, 26).utc
 
-    #     Timecop.freeze(polling_time) do
-    #       described_class.new.perform
-    #       expect(lighthouse_complete_document.status_last_polled_at).to eq(polling_time)
-    #     end
-    #   end
-    # end
+        Timecop.freeze(polling_time) do
+          described_class.new.perform
+          expect(lighthouse_complete_document.reload.status_last_polled_at).to eq(polling_time)
+        end
+      end
+    end
 
-    # context 'for a document that has failed' do
-    #   let!(:lighthouse_failed_document) do
-    #     create(
-    #       :lighthouse526_document_upload,
-    #       document_type: 'Veteran Upload',
-    #       aasm_state: 'pending',
-    #       # Failed Lighthouse QA environment document requestId provided to us by Lighthouse for end-to-end testing
-    #       lighthouse_document_request_id: '16819',
-    #       lighthouse_processing_ended_at: nil,
-    #       last_status_response: nil,
-    #       status_last_polled_at: nil
-    #     )
-    #   end
+    context 'for a document that has failed' do
+      let!(:lighthouse_failed_document) do
+        create(
+          :lighthouse526_document_upload,
+          document_type: 'Veteran Upload',
+          aasm_state: 'pending',
+          # Failed Lighthouse QA environment document requestId provided to us by Lighthouse for end-to-end testing
+          lighthouse_document_request_id: '16819',
+          lighthouse_processing_ended_at: nil,
+          last_status_response: nil,
+          status_last_polled_at: nil
+        )
+      end
 
-    #   around do |example|
-    #     VCR.use_cassette('lighthouse/benefits_claims/documents/form_526_document_upload_status_failed') do
-    #       example.run
-    #     end
-    #   end
+      around do |example|
+        VCR.use_cassette('lighthouse/benefits_claims/documents/form_526_document_upload_status_failed') do
+          example.run
+        end
+      end
 
-    #   it 'marks the document as failed' do
-    #     expect { described_class.new.perform }.to change(lighthouse_failed_document, :aasm_state).to('failed')
-    #   end
+      it 'marks the document as failed' do
+        described_class.new.perform
+        expect(lighthouse_failed_document.reload.aasm_state).to eq('failed')
+      end
 
-    #   it 'increments a StatsD completion counter for the document type' do
-    #     # TODO: STATUS KEY MUST MATCH STEP THAT FAILED IN LIGHTHOUSE; NEED TO GET ENDPOINT WORKING FIRST
-    #     expect { described_class.new.perform }.to trigger_statsd_increment(
-    #       'api.form_526.lighthouse_document_upload_processing_status.veteran_upload.failed.<FAILING STEP>'
-    #     )
-    #   end
+      it 'increments a StatsD completion counter for the document type' do
+        expect { described_class.new.perform }.to trigger_statsd_increment(
+          # NOTE: end of key should be .claims_evidence because 16819 failed document
+          # provided by Lighthouse failed on that step
+          'api.form_526.lighthouse_document_upload_processing_status.veteran_upload.failed.claims_evidence'
+        )
+      end
 
-    #   it 'updates the completion time on the document' do
-    #     described_class.new.perform
-    #     expect(lighthouse_failed_document.lighthouse_processing_ended_at).not_to be_nil
-    #   end
+      it 'updates the completion time on the document' do
+        described_class.new.perform
+        expect(lighthouse_failed_document.reload.lighthouse_processing_ended_at).not_to be_nil
+      end
 
-    #   it 'saves the last_status_response' do
-    #     described_class.new.perform
-    #     expect(lighthouse_failed_document.last_status_response).not_to be_nil
-    #   end
+      it 'saves the last_status_response' do
+        described_class.new.perform
+        expect(lighthouse_failed_document.reload.last_status_response).not_to be_nil
+      end
 
-    #   it 'saves the status_last_polled_at time' do
-    #     polling_time = DateTime.new(1985, 10, 26).utc
+      it 'saves the status_last_polled_at time' do
+        polling_time = DateTime.new(1985, 10, 26).utc
 
-    #     Timecop.freeze(polling_time) do
-    #       described_class.new.perform
-    #       expect(lighthouse_failed_document.status_last_polled_at).to eq(polling_time)
-    #     end
-    #   end
-    # end
+        Timecop.freeze(polling_time) do
+          described_class.new.perform
+          expect(lighthouse_failed_document.reload.status_last_polled_at).to eq(polling_time)
+        end
+      end
+    end
 
     context 'retries exhausted' do
       it 'updates the exhaustion StatsD counter' do
@@ -157,9 +157,12 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
     end
 
     describe 'Documents Polling' do
+      let(:faraday_response) { instance_double(Faraday::Response) }
+
       before do
+        allow(faraday_response).to receive(:body).and_return({})
         # We aren't stressing either of these services, just verifying we pass the right info to them
-        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call)
+        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(faraday_response)
         allow(BenefitsDocuments::Form526::UpdateDocumentsStatusService).to receive(:call)
       end
 
@@ -188,11 +191,6 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
 
             described_class.new.perform
           end
-
-          it 'updates the status_last_polled_at time on the document' do
-            described_class.new.perform
-            expect(unpolled_document.reload.status_last_polled_at).to eq(polling_time)
-          end
         end
 
         context 'For a document that has not been polled in the last 24 hours' do
@@ -210,11 +208,6 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
             )
 
             described_class.new.perform
-          end
-
-          it 'updates the status_last_polled_at time on the document' do
-            described_class.new.perform
-            expect(pending_repoll_document.reload.status_last_polled_at).to eq(polling_time)
           end
         end
 

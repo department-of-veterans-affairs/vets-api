@@ -36,16 +36,8 @@ module Lighthouse
       ) do |document_batch|
         lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
         response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
-        # TODO: CATCH POLLING SERVICE TIMEOUT AND FAILURE RESPONSES
 
-        # TODO: RESOLVING ISSUES WITH QA ENDPOINT WITH LIGHTHOUSE,
-        # NEED TO ADDRESS BEFORE WE CAN RECORD VCR CASSETES FOR THESE TESTS,
-        # CALLER MAY BE DIFFERENT HERE
-        BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response)
-
-        document_batch.update_all(
-          status_last_polled_at: DateTime.now
-        )
+        BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
       end
     end
   end
