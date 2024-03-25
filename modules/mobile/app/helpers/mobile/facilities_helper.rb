@@ -76,15 +76,6 @@ module Mobile
       # and optional extension (until the end of the string) (?:\sx(\d*))?$
       phone_captures = phone.match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
 
-      if phone_captures.nil?
-        Rails.logger.warn(
-          'mobile appointments failed to parse facility phone number',
-          facility_id: facility.id,
-          facility_phone: facility.phone
-        )
-        return nil
-      end
-
       Mobile::V0::AppointmentPhone.new(
         area_code: phone_captures[1].presence,
         number: phone_captures[2].presence,
@@ -104,7 +95,6 @@ module Mobile
     # Returns the distance between these two
     # points in either miles or kilometers
     def haversine_distance(geo_a, geo_b, miles: true)
-      Rails.logger.info('haversine_distance coords', geo_a, geo_b)
       # Get latitude and longitude
       lat1, lon1 = geo_a
       lat2, lon2 = geo_b
