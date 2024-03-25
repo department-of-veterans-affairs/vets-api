@@ -110,6 +110,8 @@ RSpec.describe 'clinics', type: :request do
 
       before do
         Timecop.freeze(Time.zone.parse(current_time))
+        Flipper.disable(:va_online_scheduling_use_vpg)
+        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
       end
 
       after do
@@ -221,6 +223,8 @@ RSpec.describe 'clinics', type: :request do
 
       before do
         Timecop.freeze(Time.zone.parse(current_time))
+        Flipper.disable(:va_online_scheduling_use_vpg)
+        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
       end
 
       after do
