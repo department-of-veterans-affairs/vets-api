@@ -244,10 +244,10 @@ module SimpleFormsApi
       raise StandardError, 'An error occurred while verifying stamp.'
     end
 
-    def self.verified_multistamp(stamped_template_path, signature_text, page_configuration)
-      raise StandardError, 'Provided signature was empty' unless signature_text
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration)
+      raise StandardError, 'Provided text to stamp was empty' unless stamp_text
 
-      verify(stamped_template_path) { multistamp(stamped_template_path, signature_text, page_configuration) }
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration) }
     end
 
     def self.default_page_configuration
