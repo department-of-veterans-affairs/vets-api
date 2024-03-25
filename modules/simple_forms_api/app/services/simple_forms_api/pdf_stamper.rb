@@ -26,7 +26,7 @@ module SimpleFormsApi
                   end
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
-      verified_stamp(desired_stamps, stamped_template_path, auth_text, text_only: false)
+      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, auth_text, text_only: false) }
 
       stamp_submission_date(stamped_template_path, form.submission_date_config)
     end
@@ -34,7 +34,7 @@ module SimpleFormsApi
     def self.stamp107959f1(stamped_template_path, form)
       desired_stamps = [[26, 82.5, form.data['statement_of_truth_signature']]]
       append_to_stamp = false
-      verified_stamp(desired_stamps, stamped_template_path, append_to_stamp)
+      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, append_to_stamp) }
     end
 
     def self.stamp264555(stamped_template_path, form)
@@ -43,7 +43,7 @@ module SimpleFormsApi
       desired_stamps.append([73, 355, 'X']) unless form.data['previous_hi_application']['has_previous_hi_application']
       desired_stamps.append([73, 320, 'X']) unless form.data['living_situation']['is_in_care_facility']
       append_to_stamp = false
-      verified_stamp(desired_stamps, stamped_template_path, append_to_stamp)
+      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, append_to_stamp) }
     end
 
     def self.stamp214142(stamped_template_path, form)
@@ -242,12 +242,6 @@ module SimpleFormsApi
       raise StandardError, 'PDF stamping failed.' unless stamped_size > orig_size
     rescue
       raise StandardError, 'An error occurred while verifying stamp.'
-    end
-
-    def self.verified_stamp(desired_stamps, stamped_template_path, auth_text, **)
-      # raise StandardError, 'No stamps were provided' if desired_stamps.empty?
-
-      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, auth_text, **) }
     end
 
     def self.verified_multistamp(stamped_template_path, signature_text, page_configuration)
