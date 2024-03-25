@@ -10,7 +10,7 @@ module VAProfile
     module V3
       # NOTE: This controller is used for discovery purposes.
       # Please contact the Authenticated Experience Profile team before using.
-      class Service < VAProfile::Service
+      class Service < Common::Client::Base
         configuration VAProfile::Profile::V3::Configuration
 
         OID = '2.16.840.1.113883.3.42.10001.100001.12'
@@ -20,7 +20,7 @@ module VAProfile
 
         def initialize(user)
           @user = user
-          super(user)
+          super()
         end
 
         def get_health_benefit_bio
@@ -28,8 +28,6 @@ module VAProfile
           path = "#{oid}/#{ERB::Util.url_encode(icn_with_aaid)}"
           response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
           VAProfile::Profile::V3::HealthBenefitBioResponse.new(response)
-        rescue => e
-          handle_error(e)
         end
 
         def get_military_info
