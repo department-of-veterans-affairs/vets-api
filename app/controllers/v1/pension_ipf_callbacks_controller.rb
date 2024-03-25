@@ -27,12 +27,12 @@ module V1
         begin
           PensionIpfNotification.create!(payload:)
         rescue ActiveRecord::RecordInvalid => e
-          log_formatted(**log_params.merge(is_success: false), params: { exception_message: e.message })
+          log_formatted(**log_params(payload).merge(is_success: false), params: { exception_message: e.message })
           return render json: { message: 'failed' }
         end
       end
 
-      log_formatted(**log_params.merge(is_success: true))
+      log_formatted(**log_params(payload).merge(is_success: true))
       render json: { message: 'success' }
     end
 
@@ -60,7 +60,7 @@ module V1
       Settings.dig(:pension_ipf_vanotify_status_callback, :bearer_token)
     end
 
-    def log_params
+    def log_params(payload)
       {
         key: :callbacks,
         form_id: '21P-527EZ',
