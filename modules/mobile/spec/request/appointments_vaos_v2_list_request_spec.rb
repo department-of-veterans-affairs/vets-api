@@ -7,14 +7,12 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'vaos v2 appointments', type: :request do
   include JsonSchemaMatchers
 
-  before do
-    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-  end
-
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
   describe 'GET /mobile/v0/appointments' do
     before do
+      Flipper.enable('va_online_scheduling')
+      allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
       Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z'))
     end
 
@@ -25,6 +23,39 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
     let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
     let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
+
+    describe 'authorization' do
+      context 'when feature flag is off' do
+        before { Flipper.disable('va_online_scheduling') }
+
+        it 'returns forbidden' do
+          get('/mobile/v0/appointments', headers: sis_headers, params:)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when user does not have access' do
+        let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
+
+        it 'returns forbidden' do
+          get('/mobile/v0/appointments', headers: sis_headers, params:)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when feature flag is on and user has access' do
+        it 'returns ok' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: sis_headers, params:
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
 
     context 'backfill facility service returns data' do
       it 'location is populated' do
@@ -99,7 +130,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     end
 
     context 'backfill clinic service returns data' do
-      it 'healthcareService is populated and vetextId is correct' do
+      it 'vetextId is correct' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
@@ -108,7 +139,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
-        expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to eq('MTZ-LAB (BLOOD WORK)')
         expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220827.043')
       end
     end

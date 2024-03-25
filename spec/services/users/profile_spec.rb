@@ -164,6 +164,42 @@ RSpec.describe Users::Profile do
         end
       end
 
+      describe 'form 526 required identifiers' do
+        context 'when the user has the form_526_required_identifiers_in_user_object feature flag on' do
+          before do
+            Flipper.enable(:form_526_required_identifiers_in_user_object)
+          end
+
+          context 'when a user is missing an identifier required by the 526 form' do
+            it 'has a value of false in the [:claims][:form526_required_identifier_presence] hash' do
+              allow(user).to receive(:participant_id).and_return(nil)
+
+              identifiers = profile[:claims][:form526_required_identifier_presence]
+              expect(identifiers['participant_id']).to eq(false)
+            end
+          end
+
+          context 'when a user is not missing an identifier required by the 526 form' do
+            it 'has a value of true in the [:claims][:form526_required_identifier_presence] hash' do
+              allow(user).to receive(:participant_id).and_return('8675309')
+
+              identifiers = profile[:claims][:form526_required_identifier_presence]
+              expect(identifiers['participant_id']).to eq(true)
+            end
+          end
+        end
+
+        context 'when the user has the form_526_required_identifiers_in_user_object feature flag off' do
+          before do
+            Flipper.disable(:form_526_required_identifiers_in_user_object)
+          end
+
+          it 'does not include the identifiers in the claims section of the user profile' do
+            expect(profile[:claims][:form526_required_identifier_presence]).to eq(nil)
+          end
+        end
+      end
+
       it 'includes email' do
         expect(profile[:email]).to eq(user.email)
       end

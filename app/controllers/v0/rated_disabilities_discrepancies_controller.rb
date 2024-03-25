@@ -9,7 +9,7 @@ module V0
     before_action { authorize :evss, :access? }
     before_action { authorize :lighthouse, :access? }
 
-    DECISION_ALLOWLIST = ['1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
+    DECISION_ALLOWLIST = ['1151 Denied', '1151 Granted', 'Not Service Connected', 'Service Connected'].freeze
 
     def show
       lh_response = get_lh_rated_disabilities
@@ -33,7 +33,7 @@ module V0
 
       ::Rails.logger.info(message, {
                             message_type: 'lh.rated_disabilities.length_discrepancy',
-                            revision: 3
+                            revision: 4
                           })
     end
 
@@ -73,7 +73,11 @@ module V0
     end
 
     def active?(rating)
-      rating['rating_end_date'].nil?
+      date = rating['rating_end_date']
+
+      # In order for the rating to be considered active,
+      # the date should be either nil or in the future
+      date.nil? || Date.parse(date).future?
     end
 
     def service

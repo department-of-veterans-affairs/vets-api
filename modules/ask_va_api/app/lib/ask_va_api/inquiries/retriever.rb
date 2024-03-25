@@ -2,7 +2,7 @@
 
 module AskVAApi
   module Inquiries
-    ENDPOINT = 'get_inquiries_mock_data'
+    ENDPOINT = 'inquiries'
 
     class Retriever
       attr_reader :service, :icn
@@ -18,14 +18,19 @@ module AskVAApi
         data = fetch_data(payload: { id: })
         return {} if data.blank?
 
-        Entity.new(data.first, reply)
+        Entity.new(data, reply)
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
 
       def fetch_by_icn
         validate_input(icn, 'Invalid ICN')
-        fetch_data(payload: { icn: }).map { |inq| Entity.new(inq) }
+        data = fetch_data(payload: { icn: })
+        if data.empty?
+          data
+        else
+          data.map { |inq| Entity.new(inq) }
+        end
       rescue => e
         ErrorHandler.handle_service_error(e)
       end
@@ -37,7 +42,7 @@ module AskVAApi
       end
 
       def fetch_data(payload: {})
-        service.call(endpoint: ENDPOINT, payload:)
+        service.call(endpoint: ENDPOINT, payload:)[:Data]
       end
 
       def validate_input(input, error_message)

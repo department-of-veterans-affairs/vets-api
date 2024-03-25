@@ -1,0 +1,38 @@
+{
+  "form_number": "20-10207",
+  "preparer_type": "veteran",
+  "veteran_full_name": {
+    "first": "John",
+    "last": "Veteran"
+  },
+  "veteran_date_of_birth": "1980-01-01",
+  "veteran_id": {
+    "ssn": "321540987"
+  },
+  "living_situation": {
+    "NONE": true
+  },
+  "mailing_address_yes_no": true,
+  "veteran_mailing_address": {
+    "country": "USA",
+    "street": "123 Any St",
+    "city": "Anytown",
+    "state": "CA",
+    "postal_code": "12345"
+  },
+  "veteran_phone": "1234567890",
+  "other_reasons": {
+    "FINANCIAL_HARDSHIP": true,
+    "ALS": true,
+    "TERMINAL_ILLNESS": true,
+    "VSI_SI": true,
+    "FORMER_POW": true,
+    "MEDAL_AWARD": true
+  },
+  "pow_confinement_start_date": "2018-01-01",
+  "pow_confinement_end_date": "2018-02-03",
+  "pow_multiple_confinements": true,
+  "pow_confinement2start_date": "2018-11-01",
+  "pow_confinement2end_date": "2018-11-12",
+  "statement_of_truth_signature": "John Veteran"
+}

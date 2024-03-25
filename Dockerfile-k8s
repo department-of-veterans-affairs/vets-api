@@ -1,4 +1,4 @@
-FROM ruby:3.2.2-slim-bullseye AS rubyimg
+FROM ruby:3.2.3-slim-bullseye AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
