@@ -8,7 +8,7 @@ module V0
 
     skip_before_action :verify_authenticity_token, only: [:update_provisioning]
     skip_before_action :authenticate
-    before_action :terms_authenticate
+    # before_action :terms_authenticate
 
     def latest
       terms_of_use_agreement = get_terms_of_use_agreements_for_version(params[:version]).last
@@ -78,9 +78,7 @@ module V0
     end
 
     def terms_authenticate
-      params[:terms_code].present? ? authenticate_one_time_terms_code : load_user(skip_terms_check: true)
-
-      raise Common::Exceptions::Unauthorized unless @current_user
+      load_user(skip_terms_check: true)
     end
 
     def render_success(terms_of_use_agreement, status)

@@ -866,4 +866,4 @@
   :endpoints:
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
-      :file_path: "vet360/demographics/default"
+      :file_path: "va_profile/contact_information"

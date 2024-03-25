@@ -20,6 +20,8 @@ module VAProfile
 
       # Returns a response object containing the user's preferred name, and gender-identity
       def get_demographics
+        binding.pry
+
         with_monitoring do
           return build_response(401, nil) unless DemographicsPolicy.new(@user).access_update?
 
@@ -34,7 +36,6 @@ module VAProfile
             { va_profile: :demographics_not_found },
             :warning
           )
-
           return build_response(404, nil)
         elsif e.status >= 400 && e.status < 500
           return build_response(e.status, nil)

@@ -24,7 +24,7 @@ module V0
 
         def show
           response = client.get_payment_info
-
+          return if response.nil?
           render status: response.status,
                  json: response.body,
                  serializer: DisabilityCompensationsSerializer

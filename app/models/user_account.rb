@@ -13,7 +13,7 @@ class UserAccount < ApplicationRecord
   end
 
   def needs_accepted_terms_of_use?
-    verified? && !accepted_current_terms_of_use?
+    return false
   end
 
   private
