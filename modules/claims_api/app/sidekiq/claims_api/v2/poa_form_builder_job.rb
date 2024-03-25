@@ -65,18 +65,19 @@ module ClaimsApi
       end
 
       def organization_signatures(power_of_attorney)
-        first_name = power_of_attorney.form_data['serviceOrganization']['firstName']
-        last_name = power_of_attorney.form_data['serviceOrganization']['lastName']
+        rep_first_name = power_of_attorney.form_data['serviceOrganization']['firstName']
+        rep_last_name = power_of_attorney.form_data['serviceOrganization']['lastName']
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => "#{first_name} " \
+                             "#{last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 240
             },
             {
-              'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
+              'signature' => "#{rep_first_name} #{rep_last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 200
             }
@@ -109,20 +110,33 @@ module ClaimsApi
         ]
       end
 
-      def individual_page2_signatures(power_of_attorney, first_name, last_name)
+      def individual_page2_signatures(power_of_attorney, rep_first_name, rep_last_name)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         [
           {
-            'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                           "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+            'signature' => "#{first_name} " \
+                           "#{last_name} - signed via api.va.gov",
             'x' => 35,
             'y' => 306
           },
           {
-            'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
+            'signature' => "#{rep_first_name} #{rep_last_name} - signed via api.va.gov",
             'x' => 35,
             'y' => 200
           }
         ]
+      end
+
+      def veteran_or_claimant_signature(power_of_attorney)
+        claimant = power_of_attorney.form_data['claimant'].present?
+        if claimant
+          first_name = power_of_attorney.form_data['claimant']['firstName']
+          last_name = power_of_attorney.form_data['claimant']['lastName']
+        else
+          first_name = power_of_attorney.auth_headers['va_eauth_firstName']
+          last_name = power_of_attorney.auth_headers['va_eauth_lastName']
+        end
+        [first_name, last_name]
       end
     end
   end

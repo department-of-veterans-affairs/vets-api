@@ -3,9 +3,7 @@
 module TravelPay
   class PingsController < ApplicationController
     def ping
-      veis_response = client.request_veis_token
-
-      veis_token = veis_response.body['access_token']
+      veis_token = client.request_veis_token
 
       btsss_ping_response = client.ping(veis_token)
 
