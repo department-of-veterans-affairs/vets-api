@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'fakeredis/rspec'
 require 'i18n'
 require 'support/spec_builders'
 require 'support/matchers'
@@ -14,7 +15,6 @@ require 'pundit/rspec'
 require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
-require 'mock_redis'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -191,9 +191,5 @@ RSpec.configure do |config|
 
   config.after do
     Timecop.return
-  end
-
-  config.before do
-    $redis.flushdb
   end
 end

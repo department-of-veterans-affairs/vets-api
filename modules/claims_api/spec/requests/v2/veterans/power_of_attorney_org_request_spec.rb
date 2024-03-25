@@ -213,6 +213,47 @@ RSpec.describe 'Power Of Attorney', type: :request do
                   end
                 end
               end
+
+              context 'when no claimantId is provided and other claimant data is present' do
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122', 'valid.json').read
+                end
+
+                let(:claimant) do
+                  {
+                    email: 'lillian@disney.com',
+                    relationship: 'Spouse',
+                    address: {
+                      addressLine1: '2688 S Camino Real',
+                      city: 'Palm Springs',
+                      stateCode: 'CA',
+                      country: 'US',
+                      zipCode: '92264'
+                    },
+                    phone: {
+                      areaCode: '555',
+                      phoneNumber: '5551337'
+                    }
+                  }
+                end
+                let(:error_msg) { "If claimant is present 'claimantId' must be filled in" }
+
+                it 'returns a meaningful 422' do
+                  VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                      json = JSON.parse(request_body)
+                      json['data']['attributes']['claimant'] = claimant
+                      request_body = json.to_json
+                      post validate2122_path, params: request_body, headers: auth_header
+
+                      response_body = JSON.parse(response.body)['errors'][0]
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      expect(response_body['detail']).to eq(error_msg)
+                    end
+                  end
+                end
+              end
             end
           end
         end

@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::RedisClient do
-  let(:redis_client) { AskVAApi::RedisClient.new }
+RSpec.describe RedisClient do
+  let(:redis_client) { RedisClient.new }
   let(:token) { 'some-access-token' }
 
   describe '#fetch' do
