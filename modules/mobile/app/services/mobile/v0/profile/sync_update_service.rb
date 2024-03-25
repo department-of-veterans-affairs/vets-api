@@ -125,7 +125,7 @@ module Mobile
           VAProfile::ContactInformation::Service.new @user
         end
 
-        def raise_timeout_error(elapsed, try)
+        def raise_timeout_error(_elapsed, _try)
           raise Common::Exceptions::GatewayTimeout
         end
       end

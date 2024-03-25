@@ -175,15 +175,15 @@ module Mobile
 
         def timezone
           @timezone ||= begin
-                          time_zone = appointment.dig(:location, :time_zone, :time_zone_id)
-                          return time_zone if time_zone
+            time_zone = appointment.dig(:location, :time_zone, :time_zone_id)
+            return time_zone if time_zone
 
-                          return nil unless facility_id
+            return nil unless facility_id
 
-                          # not always correct if clinic is different time zone than parent
-                          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
-                          facility ? facility[:time_zone] : nil
-                        end
+            # not always correct if clinic is different time zone than parent
+            facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
+            facility ? facility[:time_zone] : nil
+          end
         end
 
         def cancel_id
@@ -205,6 +205,7 @@ module Mobile
         def cancellation_reason(cancellation_reason)
           if cancellation_reason.nil?
             return CANCELLATION_REASON[:prov] if status == STATUSES[:cancelled]
+
             return nil
           end
 
@@ -244,34 +245,36 @@ module Mobile
 
         def requested_periods
           @requested_periods ||= begin
-                                   if reason_code_contains_embedded_data?
-                                     date_string = embedded_data[:preferred_dates]
-                                     return date_string&.split(',')
-                                   end
+            if reason_code_contains_embedded_data?
+              date_string = embedded_data[:preferred_dates]
+              return date_string&.split(',')
+            end
 
-                                   appointment[:requested_periods]
-                                 end
+            appointment[:requested_periods]
+          end
         end
 
         def start_date_utc
           @start_date_utc ||= begin
-                                start = appointment[:start]
-                                if start.nil?
-                                  sorted_dates = requested_periods.map { |period| time_to_datetime(period[:start]) }.sort
-                                  future_dates = sorted_dates.select { |period| period > DateTime.now }
-                                  future_dates.any? ? future_dates.first : sorted_dates.first
-                                else
-                                  time_to_datetime(start)
-                                end
-                              end
+            start = appointment[:start]
+            if start.nil?
+              sorted_dates = requested_periods.map do |period|
+                time_to_datetime(period[:start])
+              end.sort
+              future_dates = sorted_dates.select { |period| period > DateTime.now }
+              future_dates.any? ? future_dates.first : sorted_dates.first
+            else
+              time_to_datetime(start)
+            end
+          end
         end
 
         def start_date_local
           @start_date_local ||= begin
-                                  DateTime.parse(appointment[:local_start_time])
-                                rescue
-                                  start_date_utc&.in_time_zone(timezone)
-                                end
+            DateTime.parse(appointment[:local_start_time])
+          rescue
+            start_date_utc&.in_time_zone(timezone)
+          end
         end
 
         def appointment_type
@@ -302,90 +305,90 @@ module Mobile
         # rubocop:disable Metrics/MethodLength
         def location
           @location ||= begin
-                          location = {
-                            id: nil,
-                            name: nil,
-                            address: {
-                              street: nil,
-                              city: nil,
-                              state: nil,
-                              zip_code: nil
-                            },
-                            lat: nil,
-                            long: nil,
-                            phone: {
-                              area_code: nil,
-                              number: nil,
-                              extension: nil
-                            },
-                            url: nil,
-                            code: nil
-                          }
+            location = {
+              id: nil,
+              name: nil,
+              address: {
+                street: nil,
+                city: nil,
+                state: nil,
+                zip_code: nil
+              },
+              lat: nil,
+              long: nil,
+              phone: {
+                area_code: nil,
+                number: nil,
+                extension: nil
+              },
+              url: nil,
+              code: nil
+            }
 
-                          case appointment_type
-                          when APPOINTMENT_TYPES[:cc]
-                            cc_location = appointment.dig(:extension, :cc_location)
+            case appointment_type
+            when APPOINTMENT_TYPES[:cc]
+              cc_location = appointment.dig(:extension, :cc_location)
 
-                            if cc_location.present?
-                              location[:name] = cc_location[:practice_name]
-                              location[:address] = {
-                                street: cc_location.dig(:address, :line)&.join(' ')&.strip,
-                                city: cc_location.dig(:address, :city),
-                                state: cc_location.dig(:address, :state),
-                                zip_code: cc_location.dig(:address, :postal_code)
-                              }
-                              if cc_location[:telecom].present?
-                                phone_number = cc_location[:telecom]&.find do |contact|
-                                  contact[:system] == CONTACT_TYPE[:phone]
-                                end&.dig(:value)
+              if cc_location.present?
+                location[:name] = cc_location[:practice_name]
+                location[:address] = {
+                  street: cc_location.dig(:address, :line)&.join(' ')&.strip,
+                  city: cc_location.dig(:address, :city),
+                  state: cc_location.dig(:address, :state),
+                  zip_code: cc_location.dig(:address, :postal_code)
+                }
+                if cc_location[:telecom].present?
+                  phone_number = cc_location[:telecom]&.find do |contact|
+                    contact[:system] == CONTACT_TYPE[:phone]
+                  end&.dig(:value)
 
-                                location[:phone] = parse_phone(phone_number)
-                              end
+                  location[:phone] = parse_phone(phone_number)
+                end
 
-                            end
-                          when APPOINTMENT_TYPES[:va_video_connect_atlas],
-                            APPOINTMENT_TYPES[:va_video_connect_home],
-                            APPOINTMENT_TYPES[:va_video_connect_gfe]
+              end
+            when APPOINTMENT_TYPES[:va_video_connect_atlas],
+              APPOINTMENT_TYPES[:va_video_connect_home],
+              APPOINTMENT_TYPES[:va_video_connect_gfe]
 
-                            location[:name] = appointment.dig(:location, :name)
-                            location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
-                            telehealth = appointment[:telehealth]
+              location[:name] = appointment.dig(:location, :name)
+              location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
+              telehealth = appointment[:telehealth]
 
-                            if telehealth
-                              address = telehealth.dig(:atlas, :address)
+              if telehealth
+                address = telehealth.dig(:atlas, :address)
 
-                              if address
-                                location[:address] = {
-                                  street: address[:street_address],
-                                  city: address[:city],
-                                  state: address[:state],
-                                  zip_code: address[:zip_code],
-                                  country: address[:country]
-                                }
-                              end
-                              location[:url] = telehealth[:url]
-                              location[:code] = telehealth.dig(:atlas, :confirmation_code)
-                            end
-                          else
-                            location[:id] = appointment.dig(:location, :id)
-                            location[:name] = appointment.dig(:location, :name)
+                if address
+                  location[:address] = {
+                    street: address[:street_address],
+                    city: address[:city],
+                    state: address[:state],
+                    zip_code: address[:zip_code],
+                    country: address[:country]
+                  }
+                end
+                location[:url] = telehealth[:url]
+                location[:code] = telehealth.dig(:atlas, :confirmation_code)
+              end
+            else
+              location[:id] = appointment.dig(:location, :id)
+              location[:name] = appointment.dig(:location, :name)
 
-                            address = appointment.dig(:location, :physical_address)
-                            if address.present?
-                              location[:address] = {
-                                street: address[:line]&.join(' ')&.strip,
-                                city: address[:city],
-                                state: address[:state],
-                                zip_code: address[:postal_code]
-                              }
-                            end
-                            location[:lat] = appointment.dig(:location, :lat)
-                            location[:long] = appointment.dig(:location, :long)
-                            location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
-                          end
+              address = appointment.dig(:location, :physical_address)
+              if address.present?
+                location[:address] = {
+                  street: address[:line]&.join(' ')&.strip,
+                  city: address[:city],
+                  state: address[:state],
+                  zip_code: address[:postal_code]
+                }
+              end
+              location[:lat] = appointment.dig(:location, :lat)
+              location[:long] = appointment.dig(:location, :long)
+              location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
+            end
 
-                          location
-                        end
+            location
+          end
         end
 
         # rubocop:enable Metrics/MethodLength
