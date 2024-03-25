@@ -18,7 +18,9 @@ module Vye
           profile = Vye::UserProfile.build(parsed.attributes[:profile])
           info = profile.user_infos.build(parsed.attributes[:info])
           info.address_changes.build({ origin: 'backend' }.merge(parsed.attributes[:address]))
-
+          parsed.attributes[:awards].each do |award|
+            info.awards.build(award)
+          end
           profile.save!
         end
       end
