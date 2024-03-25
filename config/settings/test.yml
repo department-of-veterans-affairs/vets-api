@@ -428,3 +428,6 @@ travel_pay:
   subscription_key: 'api_key'
   base_url: 'https://btsss.gov'
   service_name: 'BTSSS-API'
+
+pension_ipf_vanotify_status_callback:
+  bearer_token: bearer_token_secret
