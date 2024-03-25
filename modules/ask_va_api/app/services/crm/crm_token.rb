@@ -16,7 +16,7 @@ module Crm
 
     def initialize
       @settings = Settings.ask_va_api.crm_api
-      @cache_client = RedisClient.new
+      @cache_client = AskVAApi::RedisClient.new
       @logger = LogService.new
     end
 
