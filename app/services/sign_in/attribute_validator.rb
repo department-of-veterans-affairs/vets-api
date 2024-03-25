@@ -114,7 +114,7 @@ module SignIn
       if representative.blank?
         handle_error('User is not a VA representative',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     error: Errors::AccessDeniedError)
+                     error: Errors::RepresentativeRecordNotFoundError)
       end
     end
 
