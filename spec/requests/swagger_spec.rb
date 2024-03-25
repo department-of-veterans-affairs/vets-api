@@ -968,6 +968,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
       end
 
       let(:form526v2) do
@@ -1029,7 +1030,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports getting separation_locations' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
         VCR.use_cassette('evss/reference_data/get_intake_sites_500') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
@@ -1881,13 +1881,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'Lighthouse Benefits Reference Data' do
-      it 'gets data from endpoint' do
-        VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
+      it 'gets disabilities data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_disabilities_response') do
           expect(subject).to validate(
             :get,
             '/v0/benefits_reference_data/{path}',
             200,
             headers.merge('path' => 'disabilities')
+          )
+        end
+      end
+
+      it 'gets intake-sites data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_intake_sites_response') do
+          expect(subject).to validate(
+            :get,
+            '/v0/benefits_reference_data/{path}',
+            200,
+            headers.merge('path' => 'intake-sites')
           )
         end
       end
