@@ -40,14 +40,6 @@ module ClaimsApi
 
     private
 
-    def extract_poa_code(poa_form_data)
-      if poa_form_data.key?('serviceOrganization')
-        poa_form_data['serviceOrganization']['poaCode']
-      elsif poa_form_data.key?('representative') # V2 2122a
-        poa_form_data['representative']['poaCode']
-      end
-    end
-
     def enable_vbms_access?(poa_form:)
       poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
     end

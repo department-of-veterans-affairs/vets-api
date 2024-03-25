@@ -111,10 +111,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre(user)
-    if user&.participant_id.blank?
-      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
-      send_to_central_mail!(user)
-    else
+    if user&.participant_id
       begin
         upload_to_vbms
         send_vbms_confirmation_email(user)
@@ -129,6 +126,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           log_exception_to_sentry(e, { uuid: user.uuid })
         end
       end
+    else
+      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
+      send_to_central_mail!(user)
     end
 
     send_vre_email_form(user)
@@ -156,11 +156,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
     update!(form: form_copy.to_json)
-
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     @sent_to_cmp = true
     log_to_statsd('cmp') do
-      process_attachments!
+      process_attachments!(user)
     end
 
     send_central_mail_confirmation_email(user)
@@ -218,12 +217,20 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
   end
 
-  def process_attachments!
+  def process_attachments!(user)
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
-    CentralMail::SubmitSavedClaimJob.new.perform(id)
+    if Flipper.enabled?(:central_mail_benefits_intake_submission, user)
+      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+    else
+      CentralMail::SubmitSavedClaimJob.new.perform(id)
+    end
+  end
+
+  def business_line
+    'VRE'
   end
 
   private

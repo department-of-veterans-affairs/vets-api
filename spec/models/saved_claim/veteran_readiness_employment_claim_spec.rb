@@ -62,6 +62,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
+        allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
         @vbms_client = FakeVBMS.new
         allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
       end
@@ -169,6 +170,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_central_mail!' do
     subject { claim.send_to_central_mail!(user_object) }
+
+    before do
+      allow_any_instance_of(Flipper::DSL).to receive(:enabled?).and_return(false)
+    end
 
     it 'adds `veteranFullName` key to db so that SavedClaimJob can use it' do
       Sidekiq::Testing.inline! do
