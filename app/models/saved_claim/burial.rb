@@ -24,4 +24,8 @@ class SavedClaim::Burial < CentralMailClaim
   def email
     parsed_form['claimantEmail']
   end
+
+  def business_line
+    'NCA'
+  end
 end
