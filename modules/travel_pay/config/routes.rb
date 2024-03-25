@@ -2,4 +2,5 @@
 
 TravelPay::Engine.routes.draw do
   get '/pings/ping', to: 'pings#ping'
+  resources :claims
 end
