@@ -9453,10 +9453,26 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
                         "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
                       }
                     }
                   ]
@@ -10765,10 +10781,26 @@
                     },
                     {
                       "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization did not contain the required key registrationNumber",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
                       "detail": "The property / did not contain the required key veteran",
                       "status": "422",
                       "source": {
                         "pointer": "data/attributes/"
+                      }
+                    },
+                    {
+                      "title": "Unprocessable entity",
+                      "detail": "The property /serviceOrganization/withoutPoaCode is not defined on the schema. Additional properties are not allowed",
+                      "status": "422",
+                      "source": {
+                        "pointer": "data/attributes/serviceOrganization/withoutPoaCode"
                       }
                     }
                   ]

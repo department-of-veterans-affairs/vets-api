@@ -251,7 +251,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney.id, '2122A')
+          subject.new.perform(power_of_attorney.id, '2122A', rep.id)
         end
       end
     end
@@ -327,7 +327,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             'text_signatures' => {
               'page2' => [
                 {
-                  'signature' => 'JESSE GRAY - signed via api.va.gov',
+                  'signature' => 'Bob Representative - signed via api.va.gov',
                   'x' => 35,
                   'y' => 240
                 },
@@ -365,7 +365,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-          subject.new.perform(power_of_attorney.id, '2122')
+          subject.new.perform(power_of_attorney.id, '2122', rep.id)
         end
       end
     end
@@ -442,7 +442,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             'text_signatures' => {
               'page2' => [
                 {
-                  'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                  'signature' => 'Bob Representative - signed via api.va.gov',
                   'x' => 35,
                   'y' => 240
                 },
@@ -463,7 +463,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney.id, '2122')
+          subject.new.perform(power_of_attorney.id, '2122', rep.id)
         end
       end
     end
