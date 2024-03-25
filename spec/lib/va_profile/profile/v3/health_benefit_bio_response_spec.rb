@@ -55,7 +55,7 @@ describe VAProfile::Profile::V3::HealthBenefitBioResponse do
   describe 'Invalid contact type' do
     let(:contact_type) { 'Invalid type' }
 
-    it 'includes contact' do
+    it 'does not include contact' do
       expect(subject.contacts).to be_empty
     end
   end
