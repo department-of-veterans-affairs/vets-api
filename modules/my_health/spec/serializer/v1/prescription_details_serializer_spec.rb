@@ -168,5 +168,44 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
   it 'includes the rx_rf_records' do
     expect(attributes['rx_rf_records']).to be_an(Array)
     expect(attributes['rx_rf_records']).to all(be_a(Hash))
+    rx_rf_record = attributes['rx_rf_records'][0]
+    expect(rx_rf_record['refill_status']).to eq('suspended')
+    expect(rx_rf_record['refill_remaining']).to eq(4)
+    expect(rx_rf_record['facility_name']).to eq('DAYT29')
+    expect(rx_rf_record['is_refillable']).to eq(false)
+    expect(rx_rf_record['is_trackable']).to eq(false)
+    expect(rx_rf_record['prescription_id']).to eq(22332828)
+    expect(rx_rf_record['sig']).to be_nil
+    expect(rx_rf_record['quantity']).to be_nil
+    expect(rx_rf_record['expiration_date']).to be_nil
+    expect(rx_rf_record['prescription_number']).to eq('2720542')
+    expect(rx_rf_record['prescription_name']).to eq('ONDANSETRON 8 MG TAB')
+    expect(rx_rf_record['dispensed_date']).to eq('Thu, 21 Apr 2016 00:00:00 EDT')
+    expect(rx_rf_record['station_number']).to eq('989')
+    expect(rx_rf_record['in_cerner_transition']).to eq(false)
+    expect(rx_rf_record['not_refillable_display_message']).to be_nil
+    expect(rx_rf_record['cmop_division_phone']).to be_nil
+    expect(rx_rf_record['cmop_ndc_number']).to be_nil
+    expect(rx_rf_record['id']).to eq(22332828)
+    expect(rx_rf_record['user_id']).to eq(16955936)
+    expect(rx_rf_record['provider_first_name']).to be_nil
+    expect(rx_rf_record['provider_last_name']).to be_nil
+    expect(rx_rf_record['remarks']).to be_nil
+    expect(rx_rf_record['division_name']).to be_nil
+    expect(rx_rf_record['modified_date']).to be_nil
+    expect(rx_rf_record['institution_id']).to be_nil
+    expect(rx_rf_record['dial_cmop_division_phone']).to eq('')
+    expect(rx_rf_record['disp_status']).to eq('Suspended')
+    expect(rx_rf_record['ndc']).to be_nil
+    expect(rx_rf_record['reason']).to be_nil
+    expect(rx_rf_record['prescription_number_index']).to eq('RF1')
+    expect(rx_rf_record['prescription_source']).to eq('RF')
+    expect(rx_rf_record['disclaimer']).to be_nil
+    expect(rx_rf_record['indication_for_use']).to be_nil
+    expect(rx_rf_record['indication_for_use_flag']).to be_nil
+    expect(rx_rf_record['category']).to eq('Rx Medication')
+    expect(rx_rf_record['tracking_list']).to be_nil
+    expect(rx_rf_record['rx_rf_records']).to be_nil
+    expect(rx_rf_record['tracking']).to eq(false)
   end
 end

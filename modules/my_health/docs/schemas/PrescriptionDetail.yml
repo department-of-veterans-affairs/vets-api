@@ -178,7 +178,55 @@ properties:
         example: []
       rxRfRecords:
         type: array
-        example: []
+        example:
+          - refillStatus: "suspended"
+            refillSubmitDate: "Wed, 20 Mar 2024 13:43:06 EDT"
+            refillDate: "Mon, 11 Mar 2024 00:00:00 EDT"
+            refillRemaining: 4
+            facilityName: "SLC10 TEST LAB"
+            facilityApiName: null
+            isRefillable: false
+            isTrackable: false
+            prescriptionId: 23301817
+            sig: null
+            orderedDate: "Sun, 31 Mar 2024 00:00:00 EDT"
+            quantity: null
+            expirationDate: null
+            prescriptionNumber: "3637019"
+            prescriptionName: "SALMETEROL 50MCG/BLSTR PO INHL DISKUS 60"
+            dispensedDate: "Mon, 18 Mar 2024 00:00:00 EDT"
+            stationNumber: "979"
+            inCernerTransition: false
+            notRefillableDisplayMessage: null
+            cmopDivisionPhone: "(410)999-7019"
+            cmopNdcNumber: "00093721410"
+            id: 23301817
+            userId: 16955936
+            providerFirstName: null
+            providerLastName: null
+            remarks: null
+            divisionName: null
+            modifiedDate: null
+            institutionId: null
+            dialCmopDivisionPhone: "4109997019"
+            dispStatus: "Suspended"
+            ndc: "00173-0521-00"
+            reason: null
+            prescriptionNumberIndex: "RF1"
+            prescriptionSource: "RF"
+            disclaimer: null
+            indicationForUse: null
+            indicationForUseFlag: null
+            category: "Rx Medication"
+            orderableItem: null
+            shape: "OVAL"
+            color: "WHITE"
+            frontImprint: "9,3"
+            backImprint: "72,14"
+            dataSourceSystem: "VISTA"
+            trackingList: null
+            rxRfRecords: null
+            tracking: false
       tracking:
         type: boolean
         example: false
