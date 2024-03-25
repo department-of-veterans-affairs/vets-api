@@ -28,20 +28,20 @@ describe PdfFill::Forms::Va21p530v2 do
         [
           true, 'GovtContribution'
         ],
-        { "hasGovtContribution" => "YES", "noGovtContribution" => nil }
+        { 'hasGovtContribution' => 'YES', 'noGovtContribution' => nil }
       ],
       [
         [
           false, 'GovtContribution'
         ],
-        { "hasGovtContribution" => nil, "noGovtContribution" => "NO" }
+        { 'hasGovtContribution' => nil, 'noGovtContribution' => 'NO' }
       ],
       [
         [
           nil, 'GovtContribution'
         ],
-        { "hasGovtContribution" => nil, "noGovtContribution" => nil }
-      ],
+        { 'hasGovtContribution' => nil, 'noGovtContribution' => nil }
+      ]
     ]
   )
 
@@ -85,11 +85,11 @@ describe PdfFill::Forms::Va21p530v2 do
 
       it 'returns the directly mapped location' do
         subject
-        expect(class_form_data["locationOfDeath"]["checkbox"]).to eq({'nursingHomeUnpaid' => 'On'})
+        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
       end
     end
 
-    context 'with a location needed for translation' do 
+    context 'with a location needed for translation' do
       let(:form_data) do
         {
           'locationOfDeath' => {
@@ -100,12 +100,10 @@ describe PdfFill::Forms::Va21p530v2 do
 
       it 'returns the directly mapped location' do
         subject
-        expect(class_form_data["locationOfDeath"]["checkbox"]).to eq({'nursingHomeUnpaid' => 'On'})
+        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
       end
     end
-
   end
-
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do

@@ -7,13 +7,13 @@ module V0
     service_tag 'burial-application'
 
     def create
-     PensionBurial::TagSentry.tag_sentry
-     
-      if Flipper.enabled?(:va_burial_v2)
-        claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params["form"])["formV2"])
-      else
-        claim = claim_class.new(form: filtered_params[:form])
-      end
+      PensionBurial::TagSentry.tag_sentry
+
+      claim = if Flipper.enabled?(:va_burial_v2)
+                claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params['form'])['formV2'])
+              else
+                claim_class.new(form: filtered_params[:form])
+              end
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
