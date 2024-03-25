@@ -73,6 +73,10 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
+  ezr_tera_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
   cerner_transition_556_t30:
     actor_type: user
     description: This will control the content that will be in effect 30 days prior to transition.
