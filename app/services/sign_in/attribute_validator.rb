@@ -109,9 +109,13 @@ module SignIn
     end
 
     def validate_representative
-      Veteran::Service::Representative.for_user(first_name:, last_name:, ssn:, dob: birth_date)
-    rescue StandardError => e
-      handle_error('Error validating representative', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE, error: e)
+      representative = Veteran::Service::Representative.for_user(first_name:, last_name:, ssn:, dob: birth_date)
+
+      if representative.blank?
+        handle_error('User is not a VA representative',
+                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                     error: Errors::AccessDeniedError)
+      end
     end
 
     def validate_credential_attributes
