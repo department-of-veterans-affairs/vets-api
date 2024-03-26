@@ -1120,6 +1120,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_enable_OH_slots_search:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_datadog_RUM:
     actor_type: user
     description: Enables datadog Real User Monitoring.
@@ -1283,6 +1287,10 @@ features:
   nod_callbacks_endpoint:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
+  pension_ipf_callbacks_endpoint:
+    actor_type: user
+    description: Pension IPF VANotify notification callbacks endpoint
     enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user

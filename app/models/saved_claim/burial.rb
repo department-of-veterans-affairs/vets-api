@@ -3,17 +3,17 @@
 require 'pension_burial/processing_office'
 
 class SavedClaim::Burial < CentralMailClaim
-
   FORM = '21P-530'
 
-  attr_accessor :formV2
+  # attribute name is passed from the FE as a flag, maintaining camel case
+  attr_accessor :formV2 # rubocop:disable Naming/MethodName
 
   after_initialize do
-    if Flipper.enabled?(:va_burial_v2)
-      self.form_id = (self.formV2 || self.form_id == '21P-530V2') ? '21P-530V2' : self.class::FORM.upcase
-    else
-      self.form_id = self.class::FORM.upcase
-    end
+    self.form_id = if Flipper.enabled?(:va_burial_v2)
+                     formV2 || form_id == '21P-530V2' ? '21P-530V2' : self.class::FORM.upcase
+                   else
+                     self.class::FORM.upcase
+                   end
   end
 
   def process_attachments!
@@ -39,7 +39,7 @@ class SavedClaim::Burial < CentralMailClaim
   def form_matches_schema
     return unless form_is_string
 
-    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.form_id], parsed_form).each do |v|
+    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
       errors.add(:form, v.to_s)
     end
   end

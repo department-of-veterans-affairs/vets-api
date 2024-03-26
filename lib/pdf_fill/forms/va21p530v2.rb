@@ -39,7 +39,7 @@ module PdfFill
             limit: 18,
             question_num: 1,
             question_text: "DECEASED VETERAN'S LAST NAME"
-          }, 
+          },
           'suffix' => {
             key: 'form1[0].#subform[82].Suffix[0]',
             question_num: 1,
@@ -60,7 +60,7 @@ module PdfFill
         },
         'vaFileNumber' => {
           key: 'form1[0].#subform[82].VAFileNumber[0]',
-          question_num: 3,
+          question_num: 3
         },
         'veteranDateOfBirth' => {
           'month' => {
@@ -130,8 +130,8 @@ module PdfFill
             question_suffix: 'C',
             question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S DATE OF BURIAL (MM-DD-YYYY)'
           }
-        }, #end veteran information
-        'claimantFullName' => { #start claimant information
+        }, # end veteran information
+        'claimantFullName' => { # start claimant information
           'first' => {
             key: 'form1[0].#subform[82].ClaimantsFirstName[0]',
             limit: 12,
@@ -249,7 +249,7 @@ module PdfFill
           key: 'form1[0].#subform[82].IntTelephoneNumber[0]',
           question_num: 11,
           question_text: "CLAIMANT'S INTERNATIONAL PHONE NUMBER",
-          limit: 0, #this will force this value that is not on the pdf to appear in the overflow
+          limit: 0 # this will force this value that is not on the pdf to appear in the overflow
         },
         'claimantEmail' => {
           key: 'form1[0].#subform[82].E-Mail_Address[0]',
@@ -340,7 +340,7 @@ module PdfFill
             key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_LastFourNumbers[1]'
           }
         },
-        'finalRestingPlace' => { #break into yes/nos
+        'finalRestingPlace' => { # break into yes/nos
           'location' => {
             'cemetery' => {
               key: 'form1[0].#subform[83].#subform[84].RestingPlaceCemetery[5]'
@@ -353,7 +353,7 @@ module PdfFill
             },
             'other' => {
               key: 'form1[0].#subform[83].#subform[84].RestingPlaceOther[5]'
-            },
+            }
           },
           'other' => {
             limit: 58,
@@ -515,8 +515,7 @@ module PdfFill
           'third' => {
             key: 'form1[0].#subform[83].#subform[84].VeteransSocialSecurityNumber_LastFourNumbers[2]'
           }
-        },
-        
+        }
       }.freeze
       # rubocop:enable Layout/LineLength
 
@@ -541,11 +540,11 @@ module PdfFill
         }
       end
 
-      #override for how this pdf works, it needs the strings of yes/no
+      # override for how this pdf works, it needs the strings of yes/no
       def expand_checkbox(value, key)
         {
-          "has#{key}" => value == true ? "YES" : nil,
-          "no#{key}" => value == false ? "NO" : nil
+          "has#{key}" => value == true ? 'YES' : nil,
+          "no#{key}" => value == false ? 'NO' : nil
         }
       end
 
@@ -571,7 +570,7 @@ module PdfFill
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
-        location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == "atHome"
+        location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
@@ -580,21 +579,20 @@ module PdfFill
         return if burial_allowance.blank?
 
         burial_allowance.each do |key, value|
-          burial_allowance[key] = value.present? ? "On" : nil
+          burial_allowance[key] = value.present? ? 'On' : nil
         end
 
         @form_data['burialAllowanceRequested'] = {
           'checkbox' => burial_allowance
         }
-
       end
 
-      def expandCemeteryLocation
-        cemeteryLocation = @form_data['cemeteryLocation']
-        return if cemeteryLocation.blank?
+      def expand_cemetery_location
+        cemetery_location = @form_data['cemeteryLocation']
+        return if cemetery_location.blank?
 
-        @form_data['stateCemeteryOrTribalTrustName'] = cemeteryLocation['name'] if cemeteryLocation['name'].present?
-        @form_data['stateCemeteryOrTribalTrustZip'] = cemeteryLocation['zip'] if cemeteryLocation['zip'].present?
+        @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
+        @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
       end
 
       # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
@@ -615,8 +613,9 @@ module PdfFill
       def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
         return if value.blank?
+
         hash['checkbox'] = {
-          value => "On"
+          value => 'On'
         }
       end
 
@@ -639,7 +638,7 @@ module PdfFill
         return if previous_names.blank?
 
         previous_names.map do |previous_name|
-          "#{combine_full_name(previous_name)} (#{previous_name["serviceBranch"]})"
+          "#{combine_full_name(previous_name)} (#{previous_name['serviceBranch']})"
         end.join('; ')
       end
 
@@ -654,7 +653,6 @@ module PdfFill
         %w[veteranDateOfBirth deathDate burialDate claimantDateOfBirth].each do |attr|
           @form_data[attr] = split_date(@form_data[attr])
         end
-       
 
         ssn = @form_data['veteranSocialSecurityNumber']
         ['', '2', '3'].each do |suffix|
@@ -670,39 +668,36 @@ module PdfFill
           'executor' => select_checkbox(relationship_to_veteran == 'executor'),
           'parent' => select_checkbox(relationship_to_veteran == 'parent'),
           'funeralHome' => select_checkbox(relationship_to_veteran == 'funeralHome'),
-          'other' => select_checkbox(relationship_to_veteran == 'other'),
+          'other' => select_checkbox(relationship_to_veteran == 'other')
         }
 
         final_resting_place = @form_data.dig('finalRestingPlace', 'location')
         @form_data['finalRestingPlace']['location'] = {
           'cemetery' => select_checkbox(final_resting_place == 'cemetery'),
-          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'), 
+          'privateResidence' => select_checkbox(final_resting_place == 'privateResidence'),
           'mausoleum' => select_checkbox(final_resting_place == 'mausoleum'),
           'other' => select_checkbox(final_resting_place == 'other')
         }
 
-        expandCemeteryLocation
+        expand_cemetery_location
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-        burialExpenseResponsibility = @form_data['burialExpenseResponsibility']
-        @form_data['hasBurialExpenseResponsibility'] = burialExpenseResponsibility ? "On" : nil
-        @form_data['noBurialExpenseResponsibility'] = burialExpenseResponsibility ? nil : "On"
+        burial_expense_responsibility = @form_data['burialExpenseResponsibility']
+        @form_data['hasBurialExpenseResponsibility'] = burial_expense_responsibility ? 'On' : nil
+        @form_data['noBurialExpenseResponsibility'] = burial_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-        plotExpenseResponsibility = @form_data['plotExpenseResponsibility']
-        @form_data['hasPlotExpenseResponsibility'] = plotExpenseResponsibility ? "On" : nil
-        @form_data['noPlotExpenseResponsibility'] = plotExpenseResponsibility ? nil : "On"
+        plot_expense_responsibility = @form_data['plotExpenseResponsibility']
+        @form_data['hasPlotExpenseResponsibility'] = plot_expense_responsibility ? 'On' : nil
+        @form_data['noPlotExpenseResponsibility'] = plot_expense_responsibility ? nil : 'On'
 
         # special case: these fields were built as checkboxes instead of radios, so usual radio logic can't be used.
-        processOption = @form_data['processOption']
-        @form_data['hasProcessOption'] = processOption ? "On" : nil
-        @form_data['noProcessOption'] = processOption ? nil : "On"
-
-
+        process_option = @form_data['processOption']
+        @form_data['hasProcessOption'] = process_option ? 'On' : nil
+        @form_data['noProcessOption'] = process_option ? nil : 'On'
 
         expand_confirmation_question
         expand_location_question
-
 
         split_phone(@form_data, 'claimantPhone')
 
@@ -717,7 +712,6 @@ module PdfFill
         expand_burial_allowance
 
         convert_location_of_death
-        
 
         %w[
           nationalOrFederal
@@ -728,7 +722,6 @@ module PdfFill
         ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
-        puts @form_data
 
         @form_data
       end

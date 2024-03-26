@@ -29,7 +29,7 @@ RSpec.describe SavedClaim::Burial do
   end
 
   context 'a record is processed through v1' do
-    before do 
+    before do
       Flipper.disable(:va_burial_v2)
     end
 
@@ -59,14 +59,14 @@ RSpec.describe SavedClaim::Burial do
   end
 
   context 'a record is processed through v2' do
-    before do 
+    before do
       Flipper.enable(:va_burial_v2)
     end
 
-    let(:subject_v2) { described_class.new(formV2: true)}
-    
+    let(:subject_v2) { described_class.new(formV2: true) }
+
     it 'inherits init callsbacks from saved_claim' do
-      expect(subject_v2.form_id).to eq("21P-530V2")
+      expect(subject_v2.form_id).to eq('21P-530V2')
       expect(subject_v2.guid).not_to be_nil
       expect(subject_v2.type).to eq(described_class.to_s)
     end

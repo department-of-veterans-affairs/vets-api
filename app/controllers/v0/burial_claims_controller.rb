@@ -7,13 +7,15 @@ module V0
     service_tag 'burial-application'
 
     def create
-     PensionBurial::TagSentry.tag_sentry
-     
-      if Flipper.enabled?(:va_burial_v2)
-        claim = claim_class.new(form: filtered_params[:form], formV2: JSON.parse(filtered_params["form"])["formV2"])
-      else
-        claim = claim_class.new(form: filtered_params[:form])
-      end
+      PensionBurial::TagSentry.tag_sentry
+
+      claim = if Flipper.enabled?(:va_burial_v2)
+                # cannot parse a nil form, to pass unit tests do a check for form presence
+                form = filtered_params[:form]
+                claim_class.new(form:, formV2: form.present? ? JSON.parse(form)['formV2'] : nil)
+              else
+                claim_class.new(form: filtered_params[:form])
+              end
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
