@@ -59,7 +59,11 @@ module CentralMail
 
     def send_claim_to_central_mail(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
-      @pdf_path = @claim.form_id == '21P-530V2' ? process_record(@claim, @claim.created_at, @claim.form_id) : process_record(@claim) # rubocop:disable Layout/LineLength
+      @pdf_path = if @claim.form_id == '21P-530V2'
+                    process_record(@claim, @claim.created_at, @claim.form_id)
+                  else
+                    process_record(@claim)
+                  end
 
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
