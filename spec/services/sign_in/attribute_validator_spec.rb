@@ -4,10 +4,9 @@ require 'rails_helper'
 
 RSpec.describe SignIn::AttributeValidator do
   describe '#perform' do
-    subject { SignIn::AttributeValidator.new(user_attributes:, representative:).perform }
+    subject { SignIn::AttributeValidator.new(user_attributes:).perform }
 
     let(:user_attributes) { { current_ial: } }
-    let(:representative) { nil }
     let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
     context 'when credential is not verified' do
@@ -65,7 +64,6 @@ RSpec.describe SignIn::AttributeValidator do
       let(:country) { nil }
       let(:mhv_icn) { nil }
       let(:auto_uplevel) { false }
-      let(:representative_attributes) { { first_name: 'some-other-first-name', last_name: 'some-other-last-name' } }
       let(:add_person_response) { 'some-add-person-response' }
       let(:find_profile_response) { 'some-find-profile-response' }
       let(:update_profile_response) { 'some-update-profile-response' }
@@ -75,7 +73,6 @@ RSpec.describe SignIn::AttributeValidator do
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
         allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(update_profile_response)
         allow(Rails.logger).to receive(:info)
-        create(:representative, representative_attributes)
       end
 
       shared_examples 'error response' do
@@ -685,25 +682,6 @@ RSpec.describe SignIn::AttributeValidator do
 
         context 'and credential is not missing any required attributes' do
           it_behaves_like 'credential mpi verification'
-        end
-
-        context 'and credential is a Representative user' do
-          let(:representative) { true }
-
-          context 'and credential does not match a representative' do
-            let(:expected_error) { SignIn::Errors::RepresentativeRecordNotFoundError }
-            let(:expected_error_message) { 'User is not a VA representative' }
-
-            it 'blocks authentication and raises an error' do
-              expect { subject }.to raise_error(expected_error, expected_error_message)
-            end
-          end
-
-          context 'and credential matches a representative' do
-            let(:representative_attributes) { { first_name:, last_name:, ssn:, dob: birth_date } }
-
-            it_behaves_like 'credential mpi verification'
-          end
         end
       end
 
