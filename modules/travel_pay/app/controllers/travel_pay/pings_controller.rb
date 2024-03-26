@@ -16,7 +16,9 @@ module TravelPay
       btsss_token = client.request_btsss_token(veis_token, vagov_token)
 
       btsss_authorized_ping_response = client.authorized_ping(veis_token, btsss_token)
-      render json: { data: "Received authorized ping from upstream server with status #{btsss_authorized_ping_response.status}." }
+      render json: {
+        data: "Received authorized ping from upstream server with status #{btsss_authorized_ping_response.status}."
+      }
     end
 
     def client

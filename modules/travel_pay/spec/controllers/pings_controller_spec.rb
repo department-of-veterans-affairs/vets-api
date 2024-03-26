@@ -8,7 +8,6 @@ RSpec.describe TravelPay::PingsController, type: :request do
 
   before do
     allow(TravelPay::Client).to receive(:new).and_return(client)
-    veis_response = double
     allow(client).to receive(:request_veis_token).and_return('sample_token')
     btsss_ping_response = double
     allow(btsss_ping_response).to receive(:status).and_return(200)
