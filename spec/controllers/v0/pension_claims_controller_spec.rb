@@ -16,7 +16,7 @@ RSpec.describe V0::PensionClaimsController, type: :controller do
     let(:user) { create(:user) }
 
     it('logs a success') do
-      expect(Rails.logger).to receive(:info).with('Begin 21P-527EZ Submission', hash_including(:guid, :user_uuid))
+      expect(Rails.logger).to receive(:info).with('21P-527EZ submission to Sidekiq begun', hash_including(:confirmation_number, :user_uuid))
       expect(Rails.logger).to receive(:info).with('21P-527EZ submission to Sidekiq success',
                                                   hash_including(:confirmation_number, :user_uuid,
                                                                  :in_progress_form_id))
