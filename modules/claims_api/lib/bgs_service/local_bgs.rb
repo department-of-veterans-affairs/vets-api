@@ -337,11 +337,4 @@ module ClaimsApi
       claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
   end
-
-  def validate_required_keys(required_keys, provided_hash, call)
-    required_keys.each do |key|
-      raise(ArgumentError, "#{key} is a required key in #{call}") unless provided_hash.key?(key)
-      raise(ArgumentError, "#{key} cannot be empty or nil") if provided_hash[key].blank?
-    end
-  end
 end
