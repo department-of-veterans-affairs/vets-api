@@ -106,7 +106,7 @@ bgs:
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
-  url: https://internal-dsva-vagov-staging-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
   # To create a new VCR cassette:
   # 1. Uncomment these lines
   # 2. Create an empty cassette file
