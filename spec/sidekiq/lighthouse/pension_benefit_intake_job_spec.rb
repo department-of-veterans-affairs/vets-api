@@ -170,10 +170,46 @@ RSpec.describe Lighthouse::PensionBenefitIntakeJob, uploader_helpers: true do
   end
 
   describe 'sidekiq_retries_exhausted block' do
-    it 'logs a distrinct error when retries are exhausted' do
-      Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
-        expect(Rails.logger).to receive(:error).exactly(:once)
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+    context 'when retries are exhausted' do
+      it 'logs a distrinct error when no claim_id provided' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: nil, user_uuid: nil, claim_id: nil)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
+      end
+
+      it 'logs a distrinct error when only claim_id provided' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: claim.confirmation_number,
+                                     user_uuid: nil, claim_id: claim.id)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
+      end
+
+      it 'logs a distrinct error when claim_id and user_uuid provided' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: claim.confirmation_number, user_uuid: 2, claim_id: claim.id)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
+      end
+
+      it 'logs a distrinct error when claim is not found' do
+        Lighthouse::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+          expect(Rails.logger).to receive(:error).exactly(:once).with(
+            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+            hash_including(:message, confirmation_number: nil, user_uuid: 2, claim_id: claim.id - 1)
+          )
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+        end
       end
     end
   end
