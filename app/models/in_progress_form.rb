@@ -31,6 +31,8 @@ class InProgressForm < ApplicationRecord
   scope :for_form, ->(form_id) { where(form_id:) }
   scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
   scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
+  enum :status, %w[pending processing], prefix: :submission, default: :pending
+  scope :submission_pending, -> { where(status: [nil, 'pending']) } # override to include nil
   attribute :user_uuid, CleanUUID.new
   serialize :form_data, coder: JsonMarshal::Marshaller
   has_kms_key
