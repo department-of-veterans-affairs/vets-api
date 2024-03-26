@@ -13,6 +13,7 @@ module IvcChampva
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
+        'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn'),
         'zipCode' => @data.dig('veteran', 'mailing_address', 'postal_code') || '00000',
