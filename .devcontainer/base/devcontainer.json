@@ -1,0 +1,60 @@
+{
+	"name": "base",
+	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
+
+	"features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+        "version": "latest"
+    },
+		"ghcr.io/devcontainers-contrib/features/neovim-homebrew:1": { },
+		"ghcr.io/devcontainers-contrib/features/tmux-homebrew:1": { }
+	},
+
+	"forwardPorts": [
+		3000,
+		9293,
+		5432,
+		6379
+	],
+	"portsAttributes": {
+		"3000": {
+			"label": "vets-api",
+			"onAutoForward": "notify",
+			"requireLocalPort": true
+		},
+		"9293": {
+			"label": "vets-api-healthcheck",
+			"onAutoForward": "silent",
+			"requireLocalPort": true
+		},
+		"5432": {
+			"label": "postgres",
+			"onAutoForward": "silent",
+			"requireLocalPort": true
+		},
+		"6379": {
+			"label": "redis",
+			"onAutoForward": "silent",
+			"requireLocalPort": true
+		}
+	},
+
+	"postCreateCommand": "sh .devcontainer/base/post-create.sh",
+	"postStartCommand": "sh .devcontainer/base/post-start.sh",
+
+	"customizations": {
+		"codespaces": {
+			"repositories": {
+				"department-of-veterans-affairs/vets-api-mockdata": {
+					"permissions": {
+						"contents": "read",
+						"pull_requests": "write"
+					}
+				}
+			}
+		},
+	    "vscode": {
+			"extensions": ["ms-azuretools.vscode-docker", "Shopify.ruby-lsp"]
+		}
+	}
+}
