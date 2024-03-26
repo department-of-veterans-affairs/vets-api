@@ -9856,16 +9856,6 @@
                                 "type": "string",
                                 "example": "12345"
                               },
-                              "firstName": {
-                                "description": "First Name of the representative.",
-                                "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
-                              },
                               "jobTitle": {
                                 "description": "Job title of the representative.",
                                 "type": "string",
@@ -11198,16 +11188,6 @@
                                 "description": "Registration Number of representative.",
                                 "type": "string",
                                 "example": "12345"
-                              },
-                              "firstName": {
-                                "description": "First Name of the representative.",
-                                "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
                               },
                               "jobTitle": {
                                 "description": "Job title of the representative.",
