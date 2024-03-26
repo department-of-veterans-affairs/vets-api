@@ -21,8 +21,6 @@ module VBADocuments
     sidekiq_options unique_for: 30.days
 
     def perform(guid, caller_data, retries = 0)
-      return if cancelled?
-
       response = nil
       brt = Benchmark.realtime do
         # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
@@ -44,20 +42,6 @@ module VBADocuments
                                              "time: #{brt.round(5)}}"])
 
       response&.success? ? true : false
-    end
-
-    def cancelled?
-      Sidekiq.redis do |c|
-        if c.respond_to? :exists?
-          c.exists?("cancelled-#{jid}")
-        else
-          c.exists("cancelled-#{jid}")
-        end
-      end
-    end
-
-    def self.cancel!(jid)
-      Sidekiq.redis { |c| c.setex("cancelled-#{jid}", 86_400, 1) }
     end
 
     private
