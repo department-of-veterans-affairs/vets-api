@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   redis:
-    image: redis:5.0-alpine
+    image: redis:6.2-alpine
     restart: unless-stopped
   postgres:
     image: mdillon/postgis:11-alpine
