@@ -59,7 +59,7 @@ module CentralMail
 
     def send_claim_to_central_mail(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
-      @pdf_path = @claim.form_id == '21P-530V2' ? process_record(@claim, @claim.created_at, @claim.form_id) : process_record(@claim)
+      @pdf_path = @claim.form_id == '21P-530V2' ? process_record(@claim, @claim.created_at, @claim.form_id) : process_record(@claim) # rubocop:disable Layout/LineLength
 
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
@@ -97,6 +97,7 @@ module CentralMail
       )
     end
 
+    # rubocop:disable Metrics/MethodLength
     def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
@@ -122,6 +123,7 @@ module CentralMail
         stamped_path2
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def get_hash_and_pages(file_path)
       {
