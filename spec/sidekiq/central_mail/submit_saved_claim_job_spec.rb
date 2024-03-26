@@ -69,6 +69,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
 
   describe '#process_record' do
     let(:path) { 'tmp/pdf_path' }
+
     it 'processes a record and add stamps' do
       record = double
       datestamp_double1 = double
@@ -119,7 +120,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
         multistamp: true
       ).and_return(path)
 
-      expect(described_class.new.process_record(record, timestamp, '21P-530V2')).to eq(path)
+      expect(described_class.new.process_record(record, timestamp, form_id)).to eq(path)
     end
 
     describe '#get_hash_and_pages' do
