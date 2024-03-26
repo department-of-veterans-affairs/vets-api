@@ -137,7 +137,7 @@ module SimpleFormsApi
         pdf_results =
           pdf_file_paths.map do |pdf_file_path|
             pdf_file_name = pdf_file_path.gsub('tmp/', '').gsub('-tmp', '')
-            upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+            upload_to_ivc_s3(pdf_file_name, pdf_file_path, metadata)
           end
 
         all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
@@ -192,8 +192,8 @@ module SimpleFormsApi
         }
       end
 
-      def upload_to_ivc_s3(file_name, file_path)
-        case ivc_s3_client.upload_file(file_name, file_path)
+      def upload_to_ivc_s3(file_name, file_path, metadata = {})
+        case ivc_s3_client.put_object(file_name, file_path, metadata)
         in { success: true }
           [200]
         in { success: false, error_message: error_message }
