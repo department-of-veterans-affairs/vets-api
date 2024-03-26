@@ -143,7 +143,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a', production: false do
+  path '/veterans/{veteranId}/2122a' do
     post 'Appoint an individual Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
       operationId 'post2122a'
@@ -312,7 +312,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122', production: false do
+  path '/veterans/{veteranId}/2122' do
     post 'Appoint an organization Power of Attorney for a Veteran.' do
       description 'Updates current Power of Attorney for Veteran.'
       tags 'Power of Attorney'
@@ -468,7 +468,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a/validate', production: false do
+  path '/veterans/{veteranId}/2122a/validate' do
     post 'Validates a 2122a form submission.' do
       tags 'Power of Attorney'
       operationId 'post2122aValidate'
@@ -638,7 +638,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122/validate', production: false do
+  path '/veterans/{veteranId}/2122/validate' do
     post 'Validates a 2122 form submission.' do
       tags 'Power of Attorney'
       operationId 'post2122Validate'
@@ -796,7 +796,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney/{id}', production: false do
+  path '/veterans/{veteranId}/power-of-attorney/{id}' do
     get 'Checks status of Power of Attorney appointment form submission' do
       description 'Gets the Power of Attorney appointment request status (21-22/21-22a)'
       tags 'Power of Attorney'
