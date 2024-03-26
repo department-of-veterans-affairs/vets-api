@@ -1928,3 +1928,7 @@ spec/requests/va_profile/contacts_request_spec.rb @department-of-veterans-affair
 /.github/workflows/build-and-publish.yaml @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal @department-of-veterans-affairs/benefits-accredited-rep-facing @department-of-veterans-affairs/backend-review-group
 README.md @department-of-veterans-affairs/backend-review-group
+/Dockerfile-k8s @department-of-veterans-affairs/dsva-prt-build-deploy
+/.github/workflows/build-and-publish.yml @department-of-veterans-affairs/dsva-prt-build-deploy
+/helmCharts/ @department-of-veterans-affairs/dsva-prt-build-deploy
+
