@@ -25,7 +25,7 @@ module CheckIn
       DOB_REGEX = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
       LAST_NAME_REGEX = /^.{1,600}$/
 
-      attr_reader :uuid, :dob, :last_name, :settings, :jwt, :check_in_type, :handoff
+      attr_reader :uuid, :dob, :last_name, :settings, :jwt, :check_in_type, :handoff, :facility_type
 
       def_delegators :settings, :redis_session_prefix
 
@@ -46,6 +46,7 @@ module CheckIn
         @last_name = opts.dig(:data, :last_name)
         @check_in_type = opts.dig(:data, :check_in_type)
         @handoff = opts.dig(:data, :handoff)
+        @facility_type = opts.dig(:data, :facility_type)
       end
 
       #
