@@ -5,18 +5,21 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
   def self.test_pdf_fill(form_number, test_payload = form_number)
-    it 'fills out a PDF from a templated JSON file' do
-      expected_pdf_path = "tmp/#{form_number}-tmp.pdf"
+    form_name = form_number.split(Regexp.union(%w[vba_ vha_]))[1].gsub('_', '-')
+    context "when filling the pdf for form #{form_name} given template #{test_payload}" do
+      it 'fills out a PDF from a templated JSON file' do
+        expected_pdf_path = "tmp/#{form_number}-tmp.pdf"
 
-      # remove the pdf if it already exists
-      FileUtils.rm_f(expected_pdf_path)
+        # remove the pdf if it already exists
+        FileUtils.rm_f(expected_pdf_path)
 
-      # fill the PDF
-      data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{test_payload}.json"))
-      form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-      filler = SimpleFormsApi::PdfFiller.new(form_number:, form:)
-      filler.generate
-      expect(File.exist?(expected_pdf_path)).to eq(true)
+        # fill the PDF
+        data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{test_payload}.json"))
+        form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        filler = SimpleFormsApi::PdfFiller.new(form_number:, form:)
+        filler.generate
+        expect(File.exist?(expected_pdf_path)).to eq(true)
+      end
     end
   end
 
