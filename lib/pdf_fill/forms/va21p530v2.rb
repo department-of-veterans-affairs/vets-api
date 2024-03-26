@@ -360,7 +360,7 @@ module PdfFill
             question_num: 16,
             question_text: "PLACE OF BURIAL PLOT, INTERMENT SITE, OR FINAL RESTING PLACE OF DECEASED VETERAN'S REMAINS",
             key: 'form1[0].#subform[83].#subform[84].PLACE_OF_DEATH[0]'
-          }
+          },
         },
         'hasNationalOrFederal' => {
           key: 'form1[0].#subform[37].FederalCemeteryYES[0]'
@@ -439,6 +439,12 @@ module PdfFill
             question_suffix: 'B',
             question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
             limit: 32
+          },
+          'placeAndLocation' => {
+            limit: 75,
+            question_num: 16,
+            question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY.",
+            key: 'form1[0].#subform[37].DeathOccurredPlaceAndLocation[1]'
           }
         },
         'hasPreviouslyReceivedAllowance' => {
@@ -570,7 +576,14 @@ module PdfFill
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
-        location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
+        if location_of_death[location_of_death['location']].present? && location_of_death['location'] != 'other'
+          location_of_death['placeAndLocation'] = "#{location_of_death[location_of_death['location']]["facilityName"]} - #{location_of_death[location_of_death['location']]["facilityLocation"]}"
+        end
+
+        if location_of_death['location'] == 'atHome'
+          location_of_death['location'] = 'nursingHomeUnpaid'
+        end
+
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
