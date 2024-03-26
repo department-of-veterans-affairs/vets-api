@@ -111,6 +111,10 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                     'y' => 200
                   }
                 ]
+              },
+              'serviceOrganization' => {
+                'firstName' => 'Bob',
+                'lastName' => 'Representative'
               }
             }
           )
@@ -241,6 +245,10 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                     'y' => 200
                   }
                 ]
+              },
+              'serviceOrganization' => {
+                'firstName' => 'Bob',
+                'lastName' => 'Representative'
               }
             }
           )
