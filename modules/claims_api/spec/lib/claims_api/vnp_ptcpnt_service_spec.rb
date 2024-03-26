@@ -14,7 +14,7 @@ describe ClaimsApi::VnpPtcpntService do
       options[:vnp_proc_id] = '3854437'
       options[:vnp_ptcpnt_id] = nil
       options[:fraud_ind] = nil
-      options[:jrn_dt] = Time.zone.now
+      options[:jrn_dt] = '2020-07-16T18:20:17Z'
       options[:jrn_lctn_id] = 281
       options[:jrn_obj_id] = 'VAgovAPI'
       options[:jrn_status_type_cd] = 'U'
@@ -30,7 +30,7 @@ describe ClaimsApi::VnpPtcpntService do
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_ptcpnt_service') do
         response = subject.vnp_ptcpnt_create(options)
         expect(response).to include(
-          { vnp_ptcpnt_id: '181911',
+          { vnp_ptcpnt_id: '181913',
             vnp_proc_id: '3854437',
             jrn_dt: '2020-07-16T18:20:17Z',
             jrn_lctn_id: '281',

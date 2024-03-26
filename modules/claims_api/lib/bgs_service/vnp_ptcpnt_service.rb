@@ -4,9 +4,9 @@ module ClaimsApi
   class VnpPtcpntService < ClaimsApi::LocalBGS
     # vnpPtcpntCreate - This service is used to create VONAPP participant information
     def vnp_ptcpnt_create(options)
-      convert_nil_values(options)
+      arg_strg = convert_nil_values(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        # {arg_strg}
+        #{arg_strg}
       EOXML
 
       make_request(endpoint: 'VnpPtcpntWebServiceBean/VnpPtcpntService', action: 'vnpPtcpntCreate', body:,
@@ -19,7 +19,7 @@ module ClaimsApi
       arg_strg = '<arg0>'
       options.each do |option|
         arg = option[0].to_s.camelize(:lower)
-        arg_strg += (option[1].nil? ? "<#{arg} xsi:nil=true/>" : "<#{arg}>#{option[1]}</#{arg}>")
+        arg_strg += (option[1].nil? ? "<#{arg} xsi:nil='true'/>" : "<#{arg}>#{option[1]}</#{arg}>")
       end
       arg_strg += '</arg0>'
     end
