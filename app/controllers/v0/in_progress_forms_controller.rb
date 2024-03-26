@@ -8,7 +8,7 @@ module V0
     def index
       # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
       # see https://github.com/department-of-veterans-affairs/va.gov-team/issues/17595 for more details
-      render json: InProgressForm.for_user(@current_user), key_transform: :unaltered
+      render json: InProgressForm.submission_pending.for_user(@current_user), key_transform: :unaltered
     end
 
     def show
@@ -37,7 +37,7 @@ module V0
     private
 
     def form_for_user
-      @form_for_user ||= InProgressForm.form_for_user(form_id, @current_user)
+      @form_for_user ||= InProgressForm.submission_pending.form_for_user(form_id, @current_user)
     end
 
     def form_id
