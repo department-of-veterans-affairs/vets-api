@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# S3 Module for simple form submission
+# S3 Module for ivc form submission
 # Return
 #   { success: Boolean, [error_message: String] }
 module IvcChampva
@@ -12,6 +12,24 @@ module IvcChampva
       @access_key_id = access_key_id
       @secret_access_key = secret_access_key
       @bucket_name = bucket_name
+    end
+
+    def put_object(key, file, metadata = {})
+      Datadog::Tracing.trace('S3 Put File(s)') do
+        # Convert nil values to empty strings in the metadata
+        metadata&.transform_values! { |value| value || '' }
+
+        client.put_object({
+                            bucket: Settings.ivc_forms.s3.bucket,
+                            key:,
+                            body: File.read(file),
+                            metadata:,
+                            acl: 'public-read'
+                          })
+        { success: true }
+      rescue => e
+        { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
+      end
     end
 
     def upload_file(key, file)

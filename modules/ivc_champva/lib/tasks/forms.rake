@@ -5,6 +5,7 @@ PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk'
 MODELS_PATH = 'modules/ivc_champva/app/models/ivc_champva'
 MAPPINGS_PATH = 'modules/ivc_champva/app/form_mappings'
 
+# rubocop:disable Metrics/BlockLength
 namespace :ivc_champva do
   task :generate, [:form_path] => :environment do |_, args|
     file_path = args[:form_path]
@@ -37,6 +38,24 @@ namespace :ivc_champva do
     end
     METADATA
 
+    submission_date_config_method = <<-SUB_DATE_CONFIG
+      def submission_date_config
+        { should_stamp_date?: false }
+      end
+    SUB_DATE_CONFIG
+
+    method_missing_method = <<-METHOD_MISSING
+    def method_missing(_, *args, _)
+      args
+    end
+    METHOD_MISSING
+
+    respond_to_missing_method = <<-RESPOND_METHOD_MISSING
+    def respond_to_missing?(method)
+      method == :handle_attachments || super
+    end
+    RESPOND_METHOD_MISSING
+
     File.open(new_model_file, 'w') do |f|
       f.puts '# frozen_string_literal: true'
       f.puts ''
@@ -61,6 +80,12 @@ namespace :ivc_champva do
 
       f.puts metadata_method
 
+      f.puts submission_date_config_method
+
+      f.puts method_missing_method
+
+      f.puts respond_to_missing_method
+
       f.puts '  end'
       f.puts 'end'
     end
@@ -82,3 +107,4 @@ namespace :ivc_champva do
     puts "Created #{mapping_file}"
   end
 end
+# rubocop:enable Metrics/BlockLength

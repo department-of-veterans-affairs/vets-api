@@ -54,7 +54,13 @@ module IvcChampva
       { should_stamp_date?: false }
     end
 
-    def track_user_identity(confirmation_number); end
+    def method_missing(_, *args, _)
+      args
+    end
+
+    def respond_to_missing?(method)
+      method == :handle_attachments || super
+    end
 
     private
 

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# spec/models/simple_forms_api/vha1010d_spec.rb
-
 require 'rails_helper'
 
 folder_path = 'modules/ivc_champva/spec/fixtures/test_file/'

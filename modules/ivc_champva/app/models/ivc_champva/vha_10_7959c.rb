@@ -30,5 +30,13 @@ module IvcChampva
         text_coords: [440, 670]
       }
     end
+
+    def method_missing(_, *args, _)
+      args
+    end
+
+    def respond_to_missing?(method)
+      method == :handle_attachments || super
+    end
   end
 end

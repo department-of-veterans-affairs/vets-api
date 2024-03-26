@@ -22,5 +22,5 @@ describe IvcChampva::PdfStamper do
     end
   end
 
-  #test_pdf_stamp_error 'stamp214142', 'vba_21_4142'
+  test_pdf_stamp_error 'stamp107959f1', 'vha_10_7959f_1'
 end

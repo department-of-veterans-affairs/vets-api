@@ -5,6 +5,8 @@ require 'ddtrace'
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
+      skip_before_action :authenticate
+      before_action :authenticate, if: :should_authenticate
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -13,18 +15,21 @@ module IvcChampva
         '10-7959F-2' => 'vha_10_7959f_2'
       }.freeze
 
+      UNAUTHENTICATED_FORMS = %w[].freeze
+
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
-        file_path, file_paths, metadata, form = get_file_paths_and_metadata(parsed_form_data)
-
+        file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
         status, error_message = handle_uploads(form_id, metadata, file_paths)
 
-        render json: get_json(form_id, error_message || nil)
-
-      rescue => e
-        raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
+        render json: {
+          error_message:,
+          status:
+        }
+      rescue
+        puts 'A default error occurred while uploading a document.'
       end
 
       def submit_supporting_documents
@@ -38,7 +43,33 @@ module IvcChampva
         end
       end
 
+      def authenticate
+        super
+      rescue Common::Exceptions::Unauthorized
+        Rails.logger.info(
+          'IVC Champva - unauthenticated user submitting form',
+          { form_number: params[:form_number] }
+        )
+      end
+
       private
+
+      def get_file_paths_and_metadata(parsed_form_data)
+        form_id = get_form_id
+        form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        filler = IvcChampva::PdfFiller.new(form_number: form_id, form:)
+
+        file_path = if @current_user
+                      filler.generate(@current_user.loa[:current])
+                    else
+                      filler.generate
+                    end
+
+        metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+        file_paths = form.handle_attachments(file_path)
+
+        [file_paths, metadata]
+      end
 
       def handle_uploads(form_id, metadata, pdf_file_paths)
         meta_file_name = "#{form_id}_metadata.json"
@@ -67,29 +98,6 @@ module IvcChampva
         end
       end
 
-      def get_file_paths_and_metadata(parsed_form_data)
-        form_id = get_form_id
-        form = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
-        filler = IvcChampva::PdfFiller.new(form_number: form_id, form:)
-
-        file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
-                    else
-                      filler.generate
-                    end
-        metadata = IvcChampva::MetadataValidator.validate(form.metadata)
-
-        maybe_add_file_paths =
-          case form_id
-          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007'
-            form.handle_attachments(file_path)
-          else
-            [file_path]
-          end
-
-        [file_path, maybe_add_file_paths, metadata, form]
-      end
-
       def upload_to_ivc_s3(file_name, file_path, metadata = {})
         case ivc_s3_client.put_object(file_name, file_path, metadata)
         in { success: true }
@@ -108,12 +116,8 @@ module IvcChampva
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id, error_message)
-        json = { confirmation_number: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-        json[:error_message] = error_message
-
-        json
+      def should_authenticate
+        true unless UNAUTHENTICATED_FORMS.include? params[:form_number]
       end
 
       def ivc_s3_client
