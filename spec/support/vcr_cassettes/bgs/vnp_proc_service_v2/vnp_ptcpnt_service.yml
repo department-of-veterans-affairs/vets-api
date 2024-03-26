@@ -19,7 +19,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 25 Mar 2024 21:20:13 GMT
+      - Tue, 26 Mar 2024 19:13:14 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -39,14 +39,20 @@ http_interactions:
         <xsd:import namespace="http://ptcpntService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpPtcpntWebServiceBean/VnpPtcpntService?xsd=1"/>
         </xsd:schema>
         </types>
+        <message name="findAllAsArray">
+        <part name="parameters" element="tns:findAllAsArray"/>
+        </message>
+        <message name="findAllAsArrayResponse">
+        <part name="parameters" element="tns:findAllAsArrayResponse"/>
+        </message>
+        <message name="MessageFaultException">
+        <part name="fault" element="tns:MessageFaultException"/>
+        </message>
         <message name="vnpPtcpntCreate">
         <part name="parameters" element="tns:vnpPtcpntCreate"/>
         </message>
         <message name="vnpPtcpntCreateResponse">
         <part name="parameters" element="tns:vnpPtcpntCreateResponse"/>
-        </message>
-        <message name="MessageFaultException">
-        <part name="fault" element="tns:MessageFaultException"/>
         </message>
         <message name="vnpPtcpntUpdate">
         <part name="parameters" element="tns:vnpPtcpntUpdate"/>
@@ -60,12 +66,6 @@ http_interactions:
         <message name="vnpPtcpntRemoveResponse">
         <part name="parameters" element="tns:vnpPtcpntRemoveResponse"/>
         </message>
-        <message name="findAllAsArray">
-        <part name="parameters" element="tns:findAllAsArray"/>
-        </message>
-        <message name="findAllAsArrayResponse">
-        <part name="parameters" element="tns:findAllAsArrayResponse"/>
-        </message>
         <message name="vnpPtcpntFindByPrimaryKey">
         <part name="parameters" element="tns:vnpPtcpntFindByPrimaryKey"/>
         </message>
@@ -73,6 +73,11 @@ http_interactions:
         <part name="parameters" element="tns:vnpPtcpntFindByPrimaryKeyResponse"/>
         </message>
         <portType name="VnpPtcpntService">
+        <operation name="findAllAsArray">
+        <input wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
+        <output wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/findAllAsArray/Fault/MessageFaultException"/>
+        </operation>
         <operation name="vnpPtcpntCreate">
         <input wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/vnpPtcpntCreateRequest" message="tns:vnpPtcpntCreate"/>
         <output wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/vnpPtcpntCreateResponse" message="tns:vnpPtcpntCreateResponse"/>
@@ -88,11 +93,6 @@ http_interactions:
         <output wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/vnpPtcpntRemoveResponse" message="tns:vnpPtcpntRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/vnpPtcpntRemove/Fault/MessageFaultException"/>
         </operation>
-        <operation name="findAllAsArray">
-        <input wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
-        <output wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/findAllAsArray/Fault/MessageFaultException"/>
-        </operation>
         <operation name="vnpPtcpntFindByPrimaryKey">
         <input wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/vnpPtcpntFindByPrimaryKeyRequest" message="tns:vnpPtcpntFindByPrimaryKey"/>
         <output wsam:Action="http://ptcpntService.services.vonapp.vba.va.gov/VnpPtcpntService/vnpPtcpntFindByPrimaryKeyResponse" message="tns:vnpPtcpntFindByPrimaryKeyResponse"/>
@@ -101,6 +101,18 @@ http_interactions:
         </portType>
         <binding name="VnpPtcpntServicePortBinding" type="tns:VnpPtcpntService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <operation name="findAllAsArray">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
         <operation name="vnpPtcpntCreate">
         <soap:operation soapAction=""/>
         <input>
@@ -126,18 +138,6 @@ http_interactions:
         </fault>
         </operation>
         <operation name="vnpPtcpntRemove">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -168,7 +168,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Mon, 25 Mar 2024 21:20:14 GMT
+  recorded_at: Tue, 26 Mar 2024 19:13:14 GMT
 - request:
     method: post
     uri: https://internal-dsva-vagov-staging-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpPtcpntWebServiceBean/VnpPtcpntService
@@ -195,24 +195,22 @@ http_interactions:
           <env:Body>
             <tns:vnpPtcpntCreate>
               <arg0>
-          <VnpProcDTO>
-            <ptcpntTypeNm>Person</ptcpntTypeNm>
-            <vnpPtcpntId/>
-            <vnpProcId>3830249</vnpProcId>
-            <fraudInd/>
-            <jrnDt/>
-            <jrnLctnId/>
-            <jrnObjId/>
-            <jrnStatusTypeCd/>
-            <jrnUserId/>
-            <legacyPoaCd/>
-            <miscVendorInd/>
-            <ptcpntShortNm/>
-            <taxIdfctnNbr/>
-            <tinWaiverReasonTypeCd/>
-            <ptcpntFkPtcpntId/>
-            <corpPtcpntId/>
-          </VnpProcDTO>
+        <vnpPtcpntId xsi:nil="true"/>
+        <vnpProcId>3854437</vnpProcId>
+        <fraudInd xsi:nil="true"/>
+        <jrnDt>2020-07-16T18:20:17Z</jrnDt>
+        <jrnLctnId>281</jrnLctnId>
+        <jrnObjId>VAgovAPI</jrnObjId>
+        <jrnStatusTypeCd>U</jrnStatusTypeCd>
+        <jrnUserId>VAgovAPI</jrnUserId>
+        <legacyPoaCd xsi:nil="true"/>
+        <miscVendorInd xsi:nil="true"/>
+        <ptcpntShortNm xsi:nil="true"/>
+        <ptcpntTypeNm>Person</ptcpntTypeNm>
+        <taxIdfctnNbr xsi:nil="true"/>
+        <tinWaiverReasonTypeCd xsi:nil="true"/>
+        <ptcpntFkPtcpntId xsi:nil="true"/>
+        <corpPtcpntId xsi:nil="true"/>
         </arg0>
 
             </tns:vnpPtcpntCreate>
@@ -233,11 +231,11 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Mon, 25 Mar 2024 21:20:14 GMT
+      - Tue, 26 Mar 2024 19:13:14 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -250,10 +248,9 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Header><WorkContext
-        xmlns="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</WorkContext></S:Header><S:Body><ns0:Fault
-        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>VnpPtcpntService</faultstring><detail><ns0:MessageFaultException
-        xmlns:ns0="http://ptcpntService.services.vonapp.vba.va.gov/"><faultExceptions><errorCode>101</errorCode><errorMessage>VnpPtcpntWebServiceBean----->---->vnpProcId
-        is a required field and cannot be null or blank</errorMessage><variables>vnpPtcpntDTO</variables></faultExceptions></ns0:MessageFaultException></detail></ns0:Fault></S:Body></S:Envelope>
-  recorded_at: Mon, 25 Mar 2024 21:20:15 GMT
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntCreateResponse
+        xmlns:ns0="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>181911</vnpPtcpntId><vnpProcId>3854437</vnpProcId><jrnDt>2020-07-16T18:20:17Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><ptcpntTypeNm>Person</ptcpntTypeNm></return></ns0:vnpPtcpntCreateResponse></S:Body></S:Envelope>
+  recorded_at: Tue, 26 Mar 2024 19:13:15 GMT
 recorded_with: VCR 6.2.0

@@ -10,34 +10,34 @@ describe ClaimsApi::VnpPtcpntService do
     let(:options) { {} }
 
     it 'responds with attributes' do
-      options[:vnp_proc_id] = '3830249' # '3830252' # '3854437'
-      #   options[:vnp_ptcpnt_id] = nil
-      #   options[:fraud_ind] = nil
-      #   options[:jrn_dt] = nil
-      #   options[:jrn_lctn_id] = nil
-      #   options[:jrn_obj_id] = nil
-      #   options[:jrn_status_type_cd] = nil
-      #   options[:jrn_user_id] = nil
-      #   options[:legacy_poa_cd] = nil
-      #   options[:misc_vendor_ind] = nil
-      #   options[:ptcpnt_short_nm] = nil
-      #   options[:ptcpnt_type_nm] = nil
-      #   options[:tax_idfctn_nbr] = nil
-      #   options[:tin_waiver_reason_type_cd] = nil
-      #   options[:ptcpnt_fk_ptcpnt_id] = nil
-      #   options[:corp_ptcpnt_id] = nil
+      # bgs-ext cassesttes >'3830249' # '3830252' #  # sandbox> '3854457' #
+      options[:vnp_proc_id] = '3854437'
+      options[:vnp_ptcpnt_id] = nil
+      options[:fraud_ind] = nil
+      options[:jrn_dt] = Time.zone.now
+      options[:jrn_lctn_id] = 281
+      options[:jrn_obj_id] = 'VAgovAPI'
+      options[:jrn_status_type_cd] = 'U'
+      options[:jrn_user_id] = 'VAgovAPI'
+      options[:legacy_poa_cd] = nil
+      options[:misc_vendor_ind] = nil
+      options[:ptcpnt_short_nm] = nil
+      options[:ptcpnt_type_nm] = 'Person'
+      options[:tax_idfctn_nbr] = nil
+      options[:tin_waiver_reason_type_cd] = nil
+      options[:ptcpnt_fk_ptcpnt_id] = nil
+      options[:corp_ptcpnt_id] = nil
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_ptcpnt_service') do
         response = subject.vnp_ptcpnt_create(options)
         expect(response).to include(
-          {
-            vnp_bnft_claim_id: '426090',
-            atchms_ind: 'N',
-            bnft_claim_type_cd: '130DPNEBNADJ',
-            ptcpnt_clmant_id: '150191',
-            ptcpnt_mail_addrs_id: '116942',
-            vnp_ptcpnt_vet_id: '150191',
-            vnp_proc_id: '29637'
-          }
+          { vnp_ptcpnt_id: '181911',
+            vnp_proc_id: '3854437',
+            jrn_dt: '2020-07-16T18:20:17Z',
+            jrn_lctn_id: '281',
+            jrn_obj_id: 'VAgovAPI',
+            jrn_status_type_cd: 'U',
+            jrn_user_id: 'VAgovAPI',
+            ptcpnt_type_nm: 'Person' }
         )
       end
     end
