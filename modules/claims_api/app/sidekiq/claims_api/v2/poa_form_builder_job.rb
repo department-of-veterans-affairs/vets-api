@@ -61,6 +61,10 @@ module ClaimsApi
                        organization_signatures(power_of_attorney, rep)
                      end
 
+        res.deep_merge!({ 'serviceOrganization' => {
+                          'firstName' => rep.first_name,
+                          'lastName' => rep.last_name
+                        } })
         res.merge!({ 'text_signatures' => signatures })
         res
       end
