@@ -68,6 +68,7 @@ module TravelPay
       end
     end
 
+    ##
     # HTTP GET call to the BTSSS 'claims' endpoint
     # API responds with travel pay claims including status
     #
