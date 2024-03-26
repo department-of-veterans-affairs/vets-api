@@ -1,21 +1,17 @@
 #!/bin/sh
 
-# Add welcome message
-sudo cp .devcontainer/welcome.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
-
 # Switch to vets-api ruby version
 export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
-asdf install ruby $( cat .ruby-version )
-asdf global ruby $( cat .ruby-version )
+# asdf install ruby $( cat .ruby-version )
+# asdf global ruby $( cat .ruby-version )
 
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata
 
-sudo apt update
-sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
+# sudo apt update
+# sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
 
 # Add tmux config
-if [ ! -f $HOME/.tmux.conf ]; then
-  cat <<EOT >> $HOME/.tmux.conf
+cat <<EOT >> $HOME/.tmux.conf
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'dreamsofcode-io/catppuccin-tmux'
@@ -25,7 +21,6 @@ run '~/.tmux/plugins/tpm/tpm'
 if "test ! -d ~/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
 EOT
-fi
 
 gem install bundler
 NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
@@ -62,4 +57,4 @@ nohup bash -c '/home/linuxbrew/.linuxbrew/opt/redis@6.2/bin/redis-server /home/l
 sudo /etc/init.d/postgresql restart
 pg_isready -t 60
 sudo -u root sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
-./bin/setup
+#./bin/setup

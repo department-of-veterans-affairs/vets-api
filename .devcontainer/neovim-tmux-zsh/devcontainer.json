@@ -49,8 +49,8 @@
 		}
 	},
 
-	"postCreateCommand": "sh .devcontainer/post-create.sh",
-	"postStartCommand": "sh .devcontainer/post-start.sh",
+	"postCreateCommand": "sh .devcontainer/neovim-tmux-zsh/post-create.sh",
+	"postStartCommand": "sh .devcontainer/neovim-tmux-zsh/post-start.sh",
 
 	"customizations": {
 		"codespaces": {
