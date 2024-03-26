@@ -35,7 +35,7 @@ services:
     volumes:
      - shared-vol:/vets-api
   redis:
-    image: redis:5.0-alpine
+    image: redis:6.2-alpine
     ports:
       - 63790:6379
   postgres:
