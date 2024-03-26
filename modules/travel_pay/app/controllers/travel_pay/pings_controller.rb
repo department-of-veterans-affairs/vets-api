@@ -11,15 +11,12 @@ module TravelPay
     end
 
     def authorized_ping
-      veis_response = client.request_veis_token
-      veis_token = veis_response.body['access_token']
-
       vagov_token = request.headers['Authorization'].split[1]
-
-      btsss_response = client.request_btsss_token(veis_token, vagov_token)
-      btsss_token = JSON.parse(btsss_response.body)['access_token']
+      veis_token = client.request_veis_token
+      btsss_token = client.request_btsss_token(veis_token, vagov_token)
 
       btsss_authorized_ping_response = client.authorized_ping(veis_token, btsss_token)
+      render json: { data: "Received authorized ping from upstream server with status #{btsss_authorized_ping_response.status}." }
     end
 
     def client
