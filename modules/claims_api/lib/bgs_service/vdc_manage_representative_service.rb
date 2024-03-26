@@ -19,7 +19,7 @@ module ClaimsApi
       EOXML
 
       make_request(
-        endpoint: 'ManageRepresentativeService', 
+        endpoint: 'VDC/ManageRepresentativeService', 
         action: 'updatePOARequest', 
         body:
       )
