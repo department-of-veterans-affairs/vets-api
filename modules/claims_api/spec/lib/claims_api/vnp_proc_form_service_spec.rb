@@ -17,7 +17,6 @@ describe ClaimsApi::VnpProcFormService do
       #   options[:jrn_status_type_cd] = nil
       #   options[:jrn_user_id] = nil
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_proc_form_service') do
-        byebug
         response = subject.vnp_proc_form_create(options)
         expect(response[:vnp_proc_id]).to eq '29637'
       end
