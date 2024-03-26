@@ -889,9 +889,18 @@ RSpec.describe V0::SignInController, type: :controller do
                       loa: { current: LOA::THREE, highest: LOA::THREE }
                     }
                   end
+                  let(:representative_attributes) do
+                    {
+                      first_name: user_info.given_name,
+                      last_name: user_info.family_name,
+                      ssn: user_info.social_security_number,
+                      dob: user_info.birthdate
+                    }
+                  end
 
                   before do
                     allow(Settings.sign_in).to receive(:arp_client_id).and_return(client_id)
+                    create(:representative, representative_attributes)
                   end
 
                   it 'creates a RepresentativeUser' do
@@ -1091,9 +1100,18 @@ RSpec.describe V0::SignInController, type: :controller do
                       loa: { current: LOA::THREE, highest: LOA::THREE }
                     }
                   end
+                  let(:representative_attributes) do
+                    {
+                      first_name: user_info.fname,
+                      last_name: user_info.lname,
+                      ssn: user_info.social,
+                      dob: user_info.birth_date
+                    }
+                  end
 
                   before do
                     allow(Settings.sign_in).to receive(:arp_client_id).and_return(client_id)
+                    create(:representative, representative_attributes)
                   end
 
                   it 'creates a RepresentativeUser' do
