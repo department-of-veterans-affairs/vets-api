@@ -13,6 +13,20 @@ git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.gi
 sudo apt update
 sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
 
+# Add tmux config
+if [ ! -f $HOME/.tmux.conf ]; then
+  cat <<EOT >> $HOME/.tmux.conf
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'dreamsofcode-io/catppuccin-tmux'
+
+run '~/.tmux/plugins/tpm/tpm'
+
+if "test ! -d ~/.tmux/plugins/tpm" \
+   "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
+EOT
+fi
+
 gem install bundler
 NUM_CORES=$( cat /proc/cpuinfo | grep '^processor'|wc -l )
 bundle config --global jobs `expr $NUM_CORES - 1`
