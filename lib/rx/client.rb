@@ -123,10 +123,7 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rxs(ids)
-      if (result = perform(:post, 'prescription/rxrefill', ids, token_headers))
-        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
-      end
-      result
+      perform(:post, 'prescription/rxrefill', ids, token_headers)
     end
 
     ##
@@ -136,10 +133,7 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rx(id)
-      if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
-        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
-      end
-      result
+      perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
     end
 
     ##
