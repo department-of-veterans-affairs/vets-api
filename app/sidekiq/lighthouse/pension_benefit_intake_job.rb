@@ -3,6 +3,7 @@
 require 'benefits_intake_service/service'
 require 'central_mail/datestamp_pdf'
 require 'simple_forms_api_submission/metadata_validator'
+require 'pension_21p527ez/tag_sentry'
 
 module Lighthouse
   class PensionBenefitIntakeJob
@@ -33,6 +34,8 @@ module Lighthouse
     # @param [Integer] saved_claim_id
     # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
+      Pension21p527ez::TagSentry.tag_sentry
+
       @saved_claim_id = saved_claim_id
       @claim = SavedClaim::Pension.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim

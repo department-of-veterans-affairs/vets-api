@@ -11,6 +11,7 @@ Gemfile @department-of-veterans-affairs/backend-review-group
 Gemfile.lock @department-of-veterans-affairs/backend-review-group
 Jenkinsfile @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
+.devcontainer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller_v1.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -777,6 +778,7 @@ docs/setup/native.md @department-of-veterans-affairs/backend-review-group @depar
 docs/setup/rswag_setup.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+docs/setup/codespaces.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 docs/setup/va_forms.md @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/virtual_machine_access.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 .github @department-of-veterans-affairs/backend-review-group
