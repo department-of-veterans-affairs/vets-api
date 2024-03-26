@@ -55,30 +55,60 @@ describe VAProfile::Profile::V3::Service do
   describe '#get_health_benefit_bio' do
     let(:user) { build(:user, :loa3, idme_uuid:) }
 
+    around do |ex|
+      VCR.use_cassette(cassette) { ex.run }
+    end
+
     context '200 response' do
       let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
 
       it 'returns the contacts (aka associated_persons) for a user, sorted' do
-        VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_200') do
-          response = subject.get_health_benefit_bio
-          expect(response.status).to eq(200)
-          expect(response.contacts.size).to eq(4)
-          types = response.contacts.map(&:contact_type)
-          expect(types).to match_array(VAProfile::Models::AssociatedPerson::CONTACT_TYPES)
-        end
+        response = subject.get_health_benefit_bio
+        expect(response.status).to eq(200)
+        expect(response.contacts.size).to eq(4)
+        types = response.contacts.map(&:contact_type)
+        valid_contact_types = [
+          VAProfile::Models::AssociatedPerson::EMERGENCY_CONTACT,
+          VAProfile::Models::AssociatedPerson::OTHER_EMERGENCY_CONTACT,
+          VAProfile::Models::AssociatedPerson::PRIMARY_NEXT_OF_KIN,
+          VAProfile::Models::AssociatedPerson::OTHER_NEXT_OF_KIN
+        ]
+        expect(types).to match_array(valid_contact_types)
       end
     end
 
     context '404 response' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
+
+      it 'includes messages received from the api' do
+        response = subject.get_health_benefit_bio
+        expect(response.status).to eq(404)
+        expect(response.contacts.size).to eq(0)
+        expect(response.messages.size).to eq(1)
+      end
+    end
+
+    context '500 response' do
+      let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
 
       it 'includes messages recieved from the api' do
-        VCR.use_cassette('va_profile/profile/v3/health_benefit_bio_404') do
-          response = subject.get_health_benefit_bio
-          expect(response.status).to eq(404)
-          expect(response.contacts.size).to eq(0)
-          expect(response.messages.size).to eq(1)
-        end
+        response = subject.get_health_benefit_bio
+        expect(response.status).to eq(500)
+        expect(response.contacts.size).to eq(0)
+        expect(response.messages.size).to eq(1)
+      end
+    end
+
+    context 'api timeout' do
+      let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
+
+      it 'raises an error' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect { subject.get_health_benefit_bio }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
   end
