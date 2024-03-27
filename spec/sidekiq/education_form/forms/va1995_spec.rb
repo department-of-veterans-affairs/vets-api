@@ -32,5 +32,4 @@ RSpec.describe EducationForm::Forms::VA1995 do
       test_spool_file('1995', test_application)
     end
   end
-
 end
