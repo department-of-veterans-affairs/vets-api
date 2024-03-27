@@ -53,6 +53,22 @@ module TravelPay
     end
 
     ##
+    # HTTP GET call to the BTSSS 'authorized-ping' endpoint to test liveness
+    #
+    # @return [Faraday::Response]
+    #
+    def authorized_ping(veis_token, btsss_token)
+      btsss_url = Settings.travel_pay.base_url
+      api_key = Settings.travel_pay.subscription_key
+
+      connection(server_url: btsss_url).get('api/v1/Sample/authorized-ping') do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['BTSSS-Access-Token'] = btsss_token
+        req.headers['Ocp-Apim-Subscription-Key'] = api_key
+      end
+    end
+
+    ##
     # HTTP GET call to the BTSSS 'claims' endpoint
     # API responds with travel pay claims including status
     #
