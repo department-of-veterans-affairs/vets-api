@@ -1,13 +1,11 @@
 {
 	"name": "base",
-	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
+	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
     "ghcr.io/devcontainers/features/sshd:1": {
         "version": "latest"
-    },
-		"ghcr.io/devcontainers-contrib/features/neovim-homebrew:1": { },
-		"ghcr.io/devcontainers-contrib/features/tmux-homebrew:1": { }
+    }
 	},
 
 	"forwardPorts": [
