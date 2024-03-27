@@ -11,7 +11,8 @@ describe ClaimsApi::VnpPtcpntService do
 
     it 'responds with attributes' do
       # sandbox: 3854457'
-      # staging: [3831414, 3831394, 3831475, 3829360, 3829671, 21874, 21875, 3829729, 3854437, 3828033, 3830249, 3830252]
+      # staging: [3831414, 3831394, 3831475, 3829360, 3829671,
+      # 21874, 21875, 3829729, 3854437, 3828033, 3830249, 3830252]
       options[:vnp_proc_id] = '3854437'
       options[:vnp_ptcpnt_id] = nil
       options[:fraud_ind] = nil
