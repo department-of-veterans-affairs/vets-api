@@ -23,8 +23,7 @@ module Lighthouse
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.send(
-        :error,
+      Rails.logger.error(
         "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
@@ -37,14 +36,9 @@ module Lighthouse
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
-      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim job starting', {
-                          claim_id: @claim.id,
-                          benefits_intake_uuid: @lighthouse_service.uuid,
-                          confirmation_number: @claim.confirmation_number
-                        })
 
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
-      create_form_submission_attempt(@lighthouse_service.uuid)
+      create_form_submission_attempt
 
       payload = {
         upload_url: @lighthouse_service.location,
@@ -56,14 +50,13 @@ module Lighthouse
       response = @lighthouse_service.upload_doc(**payload)
 
       if response.success?
-        log_message_to_sentry('Lighthouse::SubmitBenefitsIntakeClaim succeeded', :info, generate_sentry_details)
+        Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_sentry_details)
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
-      log_message_to_sentry('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', :warn,
-                            generate_sentry_details(e))
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_sentry_details(e))
       raise
     ensure
       cleanup_file_paths
@@ -115,11 +108,16 @@ module Lighthouse
       details
     end
 
-    def create_form_submission_attempt(intake_uuid)
+    def create_form_submission_attempt
+      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim job starting', {
+                          claim_id: @claim.id,
+                          benefits_intake_uuid: @lighthouse_service.uuid,
+                          confirmation_number: @claim.confirmation_number
+                        })
       form_submission = FormSubmission.create(
         form_type: @claim.form_id,
         form_data: @claim.to_json,
-        benefits_intake_uuid: intake_uuid,
+        benefits_intake_uuid: @lighthouse_service.uuid,
         saved_claim: @claim
       )
       @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
