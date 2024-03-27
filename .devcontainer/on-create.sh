@@ -14,7 +14,9 @@ export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
   echo ". $HOME/.asdf/asdf.sh"
   echo ". $HOME/.asdf/completions/asdf.bash"
 } >> ~/.bashrc
-{ echo ". $HOME/.asdf/asdf.sh" } >> ~/.zshrc
+{
+  echo ". $HOME/.asdf/asdf.sh"
+} >> ~/.zshrc
 asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
 
