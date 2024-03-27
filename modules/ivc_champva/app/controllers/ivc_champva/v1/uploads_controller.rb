@@ -16,15 +16,17 @@ module IvcChampva
       }.freeze
 
       def submit
-        Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
-        form_id = get_form_id
-        parsed_form_data = JSON.parse(params.to_json)
-        file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-        status, error_message = FileUploader.new(form_id, metadata, file_paths).handle_uploads
+        Datadog::Tracing.trace('Start IVC File Submission') do
+          Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
+          form_id = get_form_id
+          parsed_form_data = JSON.parse(params.to_json)
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          status, error_message = FileUploader.new(form_id, metadata, file_paths).handle_uploads
 
-        render json: build_json(Array(status), error_message)
-      rescue
-        puts 'An unkown error occurred while uploading document(s).'
+          render json: build_json(Array(status), error_message)
+        rescue
+          puts 'An unkown error occurred while uploading document(s).'
+        end
       end
 
       def submit_supporting_documents
