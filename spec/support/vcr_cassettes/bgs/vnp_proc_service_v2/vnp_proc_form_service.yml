@@ -19,7 +19,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 27 Mar 2024 13:51:27 GMT
+      - Wed, 27 Mar 2024 18:49:03 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -145,7 +145,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Wed, 27 Mar 2024 13:51:27 GMT
+  recorded_at: Wed, 27 Mar 2024 18:49:03 GMT
 - request:
     method: post
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
@@ -173,10 +173,11 @@ http_interactions:
             <tns:vnpProcFormCreate>
               <arg0>
           <compId>
-                <vnpProcId>3830249</vnpProcId>
-                <formTypeCd>21-22</formTypeCd>
+            <vnpProcId>3831394</vnpProcId>
+            <formTypeCd>21-22</formTypeCd>
           </compId>
-        <vnpPtcpntId/>true/<jrnDt/>true/<jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></arg0>
+        <vnpPtcpntId xsi:nil="true"/><jrnDt xsi:nil="true"/><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+        </arg0>
 
             </tns:vnpProcFormCreate>
           </env:Body>
@@ -200,7 +201,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 27 Mar 2024 13:51:28 GMT
+      - Wed, 27 Mar 2024 18:49:04 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -216,6 +217,6 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcFormCreateResponse
-        xmlns:ns0="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3830249</vnpProcId><formTypeCd>21-22</formTypeCd></compId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns0:vnpProcFormCreateResponse></S:Body></S:Envelope>
-  recorded_at: Wed, 27 Mar 2024 13:51:29 GMT
+        xmlns:ns0="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3831394</vnpProcId><formTypeCd>21-22</formTypeCd></compId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns0:vnpProcFormCreateResponse></S:Body></S:Envelope>
+  recorded_at: Wed, 27 Mar 2024 18:49:04 GMT
 recorded_with: VCR 6.2.0
