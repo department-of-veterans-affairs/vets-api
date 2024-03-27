@@ -968,6 +968,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
       end
 
       let(:form526v2) do
@@ -1181,6 +1182,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'PPIU' do
       let(:mhv_user) { create(:user, :loa3) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                            .and_return(false)
+      end
 
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
@@ -1849,52 +1855,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports posting EVSS Letters' do
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
-
-      it 'supports getting EVSS PCIUAddress states' do
-        expect(subject).to validate(:get, '/v0/address/states', 401)
-        VCR.use_cassette('evss/pciu_address/states') do
-          expect(subject).to validate(:get, '/v0/address/states', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS PCIUAddress countries' do
-        expect(subject).to validate(:get, '/v0/address/countries', 401)
-        VCR.use_cassette('evss/pciu_address/countries') do
-          expect(subject).to validate(:get, '/v0/address/countries', 200, headers)
-        end
-      end
-
-      it 'supports getting EVSS PCIUAddress' do
-        expect(subject).to validate(:get, '/v0/address', 401)
-        VCR.use_cassette('evss/pciu_address/address_domestic') do
-          expect(subject).to validate(:get, '/v0/address', 200, headers)
-        end
-      end
-
-      it 'supports putting EVSS PCIUAddress' do
-        expect(subject).to validate(:put, '/v0/address', 401)
-        VCR.use_cassette('evss/pciu_address/address_update') do
-          expect(subject).to validate(
-            :put,
-            '/v0/address',
-            200,
-            headers.update(
-              '_data' => {
-                'type' => 'DOMESTIC',
-                'address_effective_date' => '2017-08-07T19:43:59.383Z',
-                'address_one' => '225 5th St',
-                'address_two' => '',
-                'address_three' => '',
-                'city' => 'Springfield',
-                'state_code' => 'OR',
-                'country_name' => 'USA',
-                'zip_code' => '97477',
-                'zip_suffix' => ''
-              }
-            )
-          )
-        end
-      end
     end
 
     it 'supports getting the 200 user data' do
@@ -1921,13 +1881,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'Lighthouse Benefits Reference Data' do
-      it 'gets data from endpoint' do
-        VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
+      it 'gets disabilities data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_disabilities_response') do
           expect(subject).to validate(
             :get,
             '/v0/benefits_reference_data/{path}',
             200,
             headers.merge('path' => 'disabilities')
+          )
+        end
+      end
+
+      it 'gets intake-sites data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_intake_sites_response') do
+          expect(subject).to validate(
+            :get,
+            '/v0/benefits_reference_data/{path}',
+            200,
+            headers.merge('path' => 'intake-sites')
           )
         end
       end
@@ -2343,27 +2314,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'profiles' do
       let(:mhv_user) { create(:user, :loa3) }
 
-      it 'supports getting email address data' do
-        expect(subject).to validate(:get, '/v0/profile/email', 401)
-        VCR.use_cassette('evss/pciu/email') do
-          expect(subject).to validate(:get, '/v0/profile/email', 200, headers)
-        end
-      end
-
-      it 'supports getting primary phone number data' do
-        expect(subject).to validate(:get, '/v0/profile/primary_phone', 401)
-        VCR.use_cassette('evss/pciu/primary_phone') do
-          expect(subject).to validate(:get, '/v0/profile/primary_phone', 200, headers)
-        end
-      end
-
-      it 'supports getting alternate phone number data' do
-        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 401)
-        VCR.use_cassette('evss/pciu/alternate_phone') do
-          expect(subject).to validate(:get, '/v0/profile/alternate_phone', 200, headers)
-        end
-      end
-
       it 'supports getting service history data' do
         expect(subject).to validate(:get, '/v0/profile/service_history', 401)
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
@@ -2377,51 +2327,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           VCR.use_cassette('va_profile/demographics/demographics') do
             expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
           end
-        end
-      end
-
-      it 'supports posting primary phone number data' do
-        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
-
-        VCR.use_cassette('evss/pciu/post_primary_phone') do
-          phone = build(:phone_number, :nil_effective_date)
-
-          expect(subject).to validate(
-            :post,
-            '/v0/profile/primary_phone',
-            200,
-            headers.merge('_data' => phone.as_json)
-          )
-        end
-      end
-
-      it 'supports posting alternate phone number data' do
-        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
-
-        VCR.use_cassette('evss/pciu/post_alternate_phone') do
-          phone = build(:phone_number, :nil_effective_date)
-
-          expect(subject).to validate(
-            :post,
-            '/v0/profile/alternate_phone',
-            200,
-            headers.merge('_data' => phone.as_json)
-          )
-        end
-      end
-
-      it 'supports posting email address data' do
-        expect(subject).to validate(:post, '/v0/profile/email', 401)
-
-        VCR.use_cassette('evss/pciu/post_email_address') do
-          email_address = build(:email_address)
-
-          expect(subject).to validate(
-            :post,
-            '/v0/profile/email',
-            200,
-            headers.merge('_data' => email_address.as_json)
-          )
         end
       end
 
@@ -2740,8 +2645,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports the address validation api' do
-        expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
-
         address = build(:va_profile_address, :multiple_matches)
         VCR.use_cassette(
           'va_profile/address_validation/validate_match',
@@ -3011,20 +2914,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             )
           )
         end
-      end
-    end
-
-    describe 'when EVSS authorization requirements are not met' do
-      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
-      let(:headers) { { '_headers' => { 'Cookie' => sign_in(unauthorized_evss_user, nil, true) } } }
-
-      it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
-        expect(subject).to validate(:get, '/v0/profile/email', 403, headers)
-        expect(subject).to validate(:get, '/v0/profile/primary_phone', 403, headers)
-        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 403, headers)
-        expect(subject).to validate(:post, '/v0/profile/email', 403, headers)
-        expect(subject).to validate(:post, '/v0/profile/primary_phone', 403, headers)
-        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 403, headers)
       end
     end
 

@@ -92,7 +92,7 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530 21P-527EZ],
+    pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
@@ -100,7 +100,8 @@ class FormProfile
     vre_counseling: ['28-8832'],
     vre_readiness: ['28-1900'],
     coe: ['26-1880'],
-    adapted_housing: ['26-4555']
+    adapted_housing: ['26-4555'],
+    intent_to_file: ['21-0966']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -120,6 +121,7 @@ class FormProfile
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
+    '21P-530V2' => ::FormProfiles::VA21p530v2,
     '21-686C' => ::FormProfiles::VA21686c,
     '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
@@ -135,7 +137,8 @@ class FormProfile
     '28-1900' => ::FormProfiles::VA281900,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
-    '26-4555' => ::FormProfiles::VA264555
+    '26-4555' => ::FormProfiles::VA264555,
+    '21-0966' => ::FormProfiles::VA210966
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

@@ -61,6 +61,7 @@ class StatsdMiddleware
     avs
     burial-poc-v6
     burials
+    burials-v2
     check-in
     claims-status
     coe

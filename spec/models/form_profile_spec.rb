@@ -659,7 +659,6 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'gender' => user.gender,
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
@@ -870,6 +869,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_0966_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        }
+      }
+    }
+  end
+
   let(:initialize_va_profile_prefill_military_information_expected) do
     expected_service_episodes_by_date = [
       {
@@ -1054,8 +1077,7 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
-    # TODO: Platform Product Team 8/2023: rename this function.
-    def can_prefill_emis(yes)
+    def can_prefill_vaprofile(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(yes)
     end
 
@@ -1327,7 +1349,7 @@ RSpec.describe FormProfile, type: :model do
       it 'returns default values' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
-          can_prefill_emis(true)
+          can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
           expect(output['currently_active_duty']).to eq(false)
           expect(output['currently_active_duty_hash']).to eq({ yes: false })
@@ -1404,7 +1426,7 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with emis prefill for 0994' do
+      context 'with VA Profile prefill for 0994' do
         before do
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
@@ -1419,9 +1441,9 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with emis and ppiu prefill for 0994' do
+      context 'with VA Profile and ppiu prefill for 0994' do
         before do
-          can_prefill_emis(true)
+          can_prefill_vaprofile(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_0994_expected['bankAccount'] = {
@@ -1432,7 +1454,7 @@ RSpec.describe FormProfile, type: :model do
           }
         end
 
-        it 'prefills 0994 with emis and payment information' do
+        it 'prefills 0994 with VA Profile and payment information' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1446,7 +1468,7 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with emis and vet360 prefill for 0873' do
+      context 'with VA Profile prefill for 0873' do
         it 'prefills 0873' do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
@@ -1455,9 +1477,9 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with emis prefill for 10203' do
+      context 'with VA Profile prefill for 10203' do
         before do
-          can_prefill_emis(true)
+          can_prefill_vaprofile(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
 
@@ -1469,9 +1491,9 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with emis and GiBillStatus prefill for 10203' do
+      context 'with VA Profile and GiBillStatus prefill for 10203' do
         before do
-          can_prefill_emis(true)
+          can_prefill_vaprofile(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
             'months' => 0,
@@ -1483,7 +1505,7 @@ RSpec.describe FormProfile, type: :model do
           v22_10203_expected['schoolCountry'] = 'USA'
         end
 
-        it 'prefills 10203 with emis and entitlement information' do
+        it 'prefills 10203 with VA Profile and entitlement information' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
@@ -1502,9 +1524,9 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with a user that can prefill emis' do
+      context 'with a user that can prefill VA Profile' do
         before do
-          can_prefill_emis(true)
+          can_prefill_vaprofile(true)
         end
 
         context 'with a user with no vet360_id' do

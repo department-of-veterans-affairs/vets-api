@@ -1,45 +1,65 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module SimpleFormsApi
   class VHA1010d
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.1010d'
 
     attribute :data
 
     def initialize(data)
       @data = data
+      @uuid = SecureRandom.uuid
     end
 
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
+        'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
+        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
+        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
-        'businessLine' => 'CMP'
+        'businessLine' => 'CMP',
+        'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
+        'uuid' => @uuid
       }
     end
 
     def handle_attachments(file_path)
+      uuid = @uuid # Generate the UUID as an instance variable
+      file_path_uuid = file_path.gsub('vha_10_10d-tmp', "#{uuid}_vha_10_10d-tmp")
+      File.rename(file_path, file_path_uuid)
       attachments = get_attachments
-      if attachments.count.positive?
-        combined_pdf = CombinePDF.new
-        combined_pdf << CombinePDF.load(file_path)
-        attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment)
-        end
+      file_paths = [file_path_uuid]
 
-        combined_pdf.save file_path
+      if attachments.count.positive?
+        attachments.each_with_index do |attachment, index|
+          new_file_name = "#{uuid}_vha_10_10d-tmp#{index + 1}.pdf"
+          new_file_path = File.join(File.dirname(attachment), new_file_name)
+          File.rename(attachment, new_file_path)
+          file_paths << new_file_path
+        end
       end
+
+      file_paths
     end
 
     def submission_date_config
       { should_stamp_date?: false }
     end
 
-    def track_user_identity; end
+    def track_user_identity(confirmation_number)
+      identity = "#{data['claimant_type']} #{data['claim_ownership']}"
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 1010d submission user identity', identity:, confirmation_number:)
+    end
 
     private
 

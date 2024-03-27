@@ -10,7 +10,7 @@
     "second": "22",
     "third": "4444"
   },
-  "vaClaimsHistory": 0,
+  "vaClaimsHistory": 1,
   "vaFileNumber": "12345678",
   "veteranDateOfBirth": {
     "month": "01",
@@ -55,29 +55,29 @@
       "year": "1973"
     }
   },
-  "socialSecurityDisability": 1,
-  "medicalCondition": 1,
-  "nursingHome": 0,
+  "socialSecurityDisability": 2,
+  "medicalCondition": 2,
+  "nursingHome": 1,
   "medicaidCoverage": false,
-  "medicaidStatus": 0,
-  "specialMonthlyPension": 1,
-  "vaTreatmentHistory": 0,
+  "medicaidStatus": 1,
+  "specialMonthlyPension": 2,
+  "vaTreatmentHistory": 1,
   "vaMedicalCenters": [
     {
       "medicalCenter": "Dallas VA Medical Center"
     }
   ],
-  "federalTreatmentHistory": 0,
+  "federalTreatmentHistory": 1,
   "federalMedicalCenters": [
     {
       "medicalCenter": "Memphis Health Care"
     }
   ],
-  "currentEmployment": 0,
+  "currentEmployment": 1,
   "currentEmployers": [
     {
       "jobType": "Customer service",
-      "jobHoursWeek": 20,
+      "jobHoursWeek": "20",
       "jobTitle": "Manager"
     }
   ],
@@ -89,23 +89,23 @@
         "middle": "Middle",
         "last": "Doe"
       },
+      "reasonForSeparation": 2,
+      "otherExplanation": "Other reason",
       "dateOfMarriage": {
         "month": "03",
         "day": "02",
         "year": "1989"
       },
-      "locationOfMarriage": "Dallas",
-      "reasonForSeparation": 2,
-      "otherExplanation": "Other reason",
       "dateOfSeparation": {
         "month": "03",
         "day": "02",
         "year": "1990"
       },
+      "locationOfMarriage": "Dallas",
       "locationOfSeparation": "San Antonio, TX",
       "spouseFullNameOverflow": "Jessica Middle Doe",
       "dateRangeOfMarriageOverflow": "03-02-1989 - 03-02-1990",
-      "reasonForSeparationOverflow": "other"
+      "reasonForSeparationOverflow": "Other"
     },
     {
       "spouseFullName": {
@@ -113,22 +113,22 @@
         "middle": "Middle",
         "last": "Doe"
       },
+      "reasonForSeparation": 0,
       "dateOfMarriage": {
         "month": "03",
         "day": "02",
         "year": "1989"
       },
-      "locationOfMarriage": "Dallas",
-      "reasonForSeparation": 0,
       "dateOfSeparation": {
         "month": "03",
         "day": "02",
         "year": "1990"
       },
+      "locationOfMarriage": "Dallas",
       "locationOfSeparation": "San Antonio, TX",
       "spouseFullNameOverflow": "Jane Middle Doe",
       "dateRangeOfMarriageOverflow": "03-02-1989 - 03-02-1990",
-      "reasonForSeparationOverflow": "spouse’s death"
+      "reasonForSeparationOverflow": "Death"
     }
   ],
   "spouseDateOfBirth": {
@@ -141,7 +141,7 @@
     "second": "22",
     "third": "4444"
   },
-  "spouseIsVeteran": 0,
+  "spouseIsVeteran": 1,
   "spouseVaFileNumber": "23423444",
   "spouseAddress": {
     "street": "123 7th st",
@@ -161,7 +161,7 @@
     "part_two": "2",
     "part_one": "444"
   },
-  "currentSpouseMaritalHistory": "Yes",
+  "currentSpouseMaritalHistory": "YES",
   "spouseMarriages": [
     {
       "dateOfMarriage": {
@@ -185,7 +185,7 @@
       "locationOfSeparation": "Tacoma, WA",
       "spouseFullNameOverflow": "Joe F Generic Jr.",
       "dateRangeOfMarriageOverflow": "03-02-1980 - 03-02-1990",
-      "reasonForSeparationOverflow": "death"
+      "reasonForSeparationOverflow": "Death"
     },
     {
       "dateOfMarriage": {
@@ -210,7 +210,7 @@
       "locationOfSeparation": "Tacoma, WA",
       "spouseFullNameOverflow": "John F Person Jr.",
       "dateRangeOfMarriageOverflow": "03-02-1995 - 03-02-2005",
-      "reasonForSeparationOverflow": "other"
+      "reasonForSeparationOverflow": "Other"
     }
   ],
   "dependents": [
@@ -247,22 +247,22 @@
       "previouslyMarried": 1,
       "married": true,
       "fullName": {
-        "first": "Bobby",
-        "middle": "Middle",
+        "first": "Emily",
+        "middle": "Anne",
         "last": "Doe"
       },
       "childDateOfBirth": {
         "month": "03",
-        "day": "02",
-        "year": "1997"
+        "day": "03",
+        "year": "2000"
       },
-      "fullNameOverflow": "Bobby Middle Doe",
-      "childDateOfBirthOverflow": "03-02-1997",
+      "fullNameOverflow": "Emily Anne Doe",
+      "childDateOfBirthOverflow": "03-03-2000",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
       "attendingCollege": "Off",
       "childNotInHousehold": 1,
-      "childStatusOverflow": "biological, previously married, does not live with you but contributes",
+      "childStatusOverflow": "Biological, previously married, does not live with you but contributes",
       "monthlyPaymentOverflow": "$3,444.00"
     },
     {
@@ -279,39 +279,34 @@
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
+      "attendingCollege": 1,
       "fullName": {
-        "first": "Emily",
-        "middle": "Middle",
+        "first": "Bobby",
+        "middle": "Nolan",
         "last": "Doe"
       },
       "childDateOfBirth": {
-        "month": "03",
-        "day": "02",
-        "year": "1993"
+        "month": "09",
+        "day": "22",
+        "year": "2005"
       },
-      "fullNameOverflow": "Emily Middle Doe",
-      "childDateOfBirthOverflow": "03-02-1993",
+      "fullNameOverflow": "Bobby Nolan Doe",
+      "childDateOfBirthOverflow": "09-22-2005",
       "childSocialSecurityNumberOverflow": "333224444",
       "disabled": "Off",
-      "attendingCollege": "Off",
       "childNotInHousehold": "Off",
-      "childStatusOverflow": "adopted",
+      "childStatusOverflow": "Adopted, 18-23 years old (in school)",
       "monthlyPayment": {},
       "monthlyPaymentOverflow": null
     },
     {
-      "childInHousehold": false,
+      "childInHousehold": true,
       "childAddress": {
         "street": "123 8th st",
         "city": "Hadley",
         "country": "USA",
         "state": "ME",
         "postalCode": "01050"
-      },
-      "personWhoLivesWithChild": {
-        "first": "Joe",
-        "middle": "Middle",
-        "last": "Smith"
       },
       "monthlyPayment": {
         "part_cents": "00",
@@ -330,27 +325,27 @@
         "stepchild": "Off"
       },
       "previouslyMarried": "Off",
+      "disabled": 1,
       "fullName": {
         "first": "Jack",
-        "middle": "Middle",
+        "middle": "Sawyer",
         "last": "Doe"
       },
       "childDateOfBirth": {
         "month": "04",
         "day": "01",
-        "year": "1992"
+        "year": "2010"
       },
-      "fullNameOverflow": "Jack Middle Doe",
-      "childDateOfBirthOverflow": "04-01-1992",
+      "fullNameOverflow": "Jack Sawyer Doe",
+      "childDateOfBirthOverflow": "04-01-2010",
       "childSocialSecurityNumberOverflow": "333224444",
-      "disabled": "Off",
       "attendingCollege": "Off",
-      "childNotInHousehold": 1,
-      "childStatusOverflow": "biological, does not live with you but contributes",
+      "childNotInHousehold": "Off",
+      "childStatusOverflow": "Biological, seriously disabled",
       "monthlyPaymentOverflow": "$2,300.00"
     }
   ],
-  "totalNetWorth": 1,
+  "totalNetWorth": 2,
   "netWorthEstimation": {
     "part_cents": "00",
     "part_two": "1",
@@ -453,7 +448,7 @@
         "part_two": "22",
         "part_one": "500"
       },
-      "recipientsOverflow": "Child",
+      "recipientsOverflow": "Dependent",
       "careTypeOverflow": "Care facility",
       "ratePerHourOverflow": "$200.00",
       "careDateRangeOverflow": "08-01-2020 - No End Date",
@@ -499,7 +494,7 @@
         "part_two": "10",
         "part_one": "000"
       },
-      "recipientsOverflow": "Child",
+      "recipientsOverflow": "Dependent",
       "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$10,000.00"
@@ -539,7 +534,7 @@
         "part_two": "5",
         "part_one": "000"
       },
-      "recipientsOverflow": "Child",
+      "recipientsOverflow": "Dependent",
       "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONCE_YEAR",
       "paymentAmountOverflow": "$5,000.00"
@@ -578,21 +573,21 @@
         "part_cents": "00",
         "part_one": "100"
       },
-      "recipientsOverflow": "Child",
+      "recipientsOverflow": "Dependent",
       "paymentDateOverflow": "07-01-2023",
       "paymentFrequencyOverflow": "ONE_TIME",
       "paymentAmountOverflow": "$100.00"
     }
   ],
-  "transferredAssets": 0,
-  "homeOwnership": 0,
-  "homeAcreageMoreThanTwo": 0,
+  "transferredAssets": 1,
+  "homeOwnership": 1,
+  "homeAcreageMoreThanTwo": 1,
   "homeAcreageValue": {
     "part_cents": "00",
     "part_two": "75",
     "part_one": "000"
   },
-  "landMarketable": 0,
+  "landMarketable": 1,
   "receivesIncome": true,
   "incomeSources": [
     {
@@ -678,7 +673,7 @@
   "noRapidProcessing": 1,
   "statementOfTruthCertified": true,
   "statementOfTruthSignature": "John Edmund Doe",
-  "pow": 0,
+  "pow": 1,
   "placeOfSeparationLineOne": "West Brookfield, M",
   "placeOfSeparationLineTwo": "A",
   "previousEmployers": null,
@@ -697,10 +692,10 @@
     "marriageType": 1,
     "otherExplanation": "Other reason"
   },
-  "additionalMarriages": 1,
-  "additionalSpouseMarriages": 1,
-  "dependentChildrenInHousehold": "1",
-  "dependentsNotWithYouAtSameAddress": 0,
+  "additionalMarriages": 2,
+  "additionalSpouseMarriages": 2,
+  "dependentChildrenInHousehold": "2",
+  "dependentsNotWithYouAtSameAddress": 1,
   "custodians": [
     {
       "first": "Joe",
@@ -717,11 +712,11 @@
         }
       },
       "custodianAddressOverflow": "123 8th st\nHadley, ME, USA, 01050",
-      "dependentsWithCustodianOverflow": "Bobby Middle Doe, Jack Middle Doe"
+      "dependentsWithCustodianOverflow": "Emily Anne Doe"
     }
   ],
-  "moreThanFourIncomeSources": 1,
-  "hasAnyExpenses": 0,
+  "moreThanFourIncomeSources": 2,
+  "hasAnyExpenses": 1,
   "signatureDate": {
     "month": "12",
     "day": "31",

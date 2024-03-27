@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe AskVAApi::Attachments::Serializer do
   let(:info) do
     {
-      id: '1',
-      fileContent: 'SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==',
-      fileName: 'testfile.txt'
+      Id: '1',
+      FileContent: 'SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IGZpbGUgZm9yIGRvd25sb2FkaW5nIQ==',
+      FileName: 'testfile.txt'
     }
   end
   let(:attachment) { AskVAApi::Attachments::Entity.new(info) }
@@ -16,8 +16,8 @@ RSpec.describe AskVAApi::Attachments::Serializer do
   let(:expected_response) do
     { data: { id: '1',
               type: :attachment,
-              attributes: { file_content: info[:fileContent],
-                            file_name: info[:fileName] } } }
+              attributes: { file_content: info[:FileContent],
+                            file_name: info[:FileName] } } }
   end
 
   context 'when successful' do

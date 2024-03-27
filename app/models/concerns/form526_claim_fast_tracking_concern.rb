@@ -15,7 +15,7 @@ module Form526ClaimFastTrackingConcern
 
   DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
-  EP_MERGE_SPECIAL_ISSUE = 'EP400 Merge Project'
+  EP_MERGE_SPECIAL_ISSUE = 'EMP'
   OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)

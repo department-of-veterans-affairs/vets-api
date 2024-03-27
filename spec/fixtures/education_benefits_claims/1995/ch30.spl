@@ -7,7 +7,11 @@ TESTER
 V1995
 
 
+<<<<<<< HEAD
 Chapter1606
+=======
+chapter35
+>>>>>>> master
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074
@@ -44,6 +48,16 @@ Routing/Transit #:    Account #:
                   -----------------------------------------
 
 Benefit Most Recently Received: Chapter30
+<<<<<<< HEAD
+=======
+
+Select Another Benefit: Yes
+
+Benefit Being Applied For: chapter35
+
+Type of Education or Training:
+Education or Career Goal:
+>>>>>>> master
 
 Select Another Benefit: Yes
 

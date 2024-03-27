@@ -33,8 +33,11 @@ module ClaimsApi
       url = Settings.bgs.url
       path = URI.parse(url).path
       host = URI.parse(url).host
+      port = URI.parse(url).port
       matcher = proc do |request_env|
-        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+        request_env.url.host == host &&
+          request_env.url.port == port &&
+          request_env.url.path =~ /^#{path}/
       end
 
       Breakers::Service.new(
@@ -326,7 +329,7 @@ module ClaimsApi
     end
 
     def transform_bgs_claims_to_evss(claims)
-      claims_array = [claims[:benefit_claims_dto][:benefit_claim]]&.flatten
+      claims_array = [claims[:benefit_claims_dto][:benefit_claim]].flatten
       claims_array&.map do |claim|
         bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
         bgs_claim.map_and_build_object
