@@ -74,7 +74,7 @@ describe IvcChampva::S3 do
 
       it 'returns error response' do
         expect(s3_instance.upload_file(key, file_path))
-          .to eq({ success: false, error_message: "S3 Upload failure for #{file_path}: upload failed" })
+          .to eq({ success: false, error_message: "S3 UploadFile failure for #{file_path}: upload failed" })
       end
     end
   end
