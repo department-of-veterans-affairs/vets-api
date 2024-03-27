@@ -37,6 +37,11 @@ module Lighthouse
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
+      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim job starting', {
+                          claim_id: @claim.id,
+                          benefits_intake_uuid: @lighthouse_service.uuid,
+                          confirmation_number: @claim.confirmation_number
+                        })
 
       @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       create_form_submission_attempt(@lighthouse_service.uuid)
