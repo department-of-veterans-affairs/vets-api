@@ -208,4 +208,12 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(rx_rf_record['rx_rf_records']).to be_nil
     expect(rx_rf_record['tracking']).to eq(false)
   end
+
+  it 'includes the tracking_list records as an array' do
+    tracking_list = attributes['tracking_list']
+    expect(tracking_list).to be_an(Array)
+    tracking_item = tracking_list[0]
+    expect(tracking_item).to be_a(Hash)
+    expect(tracking_list[0]).to include({ 'carrier' => 'UPS', 'complete_date_time' => '2023-03-28T04:39:11-04:00' })
+  end
 end

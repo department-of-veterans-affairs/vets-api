@@ -176,8 +176,7 @@ properties:
       trackingList:
         type: array
         items:
-          type: object
-        example: []
+          $ref: "./PrescriptionTrackingItem.yml"
       rxRfRecords:
         type: array
         items:
