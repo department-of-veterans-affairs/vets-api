@@ -9,10 +9,6 @@
   "burialDate": "2012-06-28",
   "locationOfDeath": {
     "location": "vaMedicalCenter",
-    "vaMedicalCenter": {
-      "facilityName": "name of facility",
-      "facilityLocation": "washington, dc"
-    },
     "other": "other"
   },
   "previousNames": [
