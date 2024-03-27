@@ -100,6 +100,3 @@ node_modules
 
 # Ignore public folder (used for local document uploads)
 public
-
-# Ignore Vets API Mockdata
-vets-api-mockdata/
