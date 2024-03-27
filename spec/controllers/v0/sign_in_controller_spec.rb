@@ -876,6 +876,34 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
                 end
 
+                context 'when the client is the representative client' do
+                  let(:expected_user_attributes) do
+                    {
+                      authn_context: SignIn::Constants::Auth::LOGIN_GOV_IAL2,
+                      email: user_info.email,
+                      first_name: user_info.given_name,
+                      last_name: user_info.family_name,
+                      icn: mpi_profile.icn,
+                      logingov_uuid:,
+                      fingerprint: request.remote_ip,
+                      loa: { current: LOA::THREE, highest: LOA::THREE }
+                    }
+                  end
+
+                  before do
+                    allow(Settings.sign_in).to receive(:arp_client_id).and_return(client_id)
+                  end
+
+                  it 'creates a RepresentativeUser' do
+                    subject
+
+                    user_uuid = UserVerification.last.credential_identifier
+                    user = AccreditedRepresentativePortal::RepresentativeUser.find(user_uuid)
+                    expect(user).to be_a(AccreditedRepresentativePortal::RepresentativeUser)
+                    expect(user).to have_attributes(expected_user_attributes)
+                  end
+                end
+
                 it 'creates a user with expected attributes' do
                   subject
 
@@ -1048,6 +1076,34 @@ RSpec.describe V0::SignInController, type: :controller do
                 it 'logs the successful callback' do
                   expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
                   expect { subject }.to trigger_statsd_increment(statsd_callback_success, tags: statsd_tags)
+                end
+
+                context 'when the client is the representative client' do
+                  let(:expected_user_attributes) do
+                    {
+                      authn_context: SignIn::Constants::Auth::IDME_LOA3,
+                      email: user_info.email,
+                      first_name: user_info.fname,
+                      last_name: user_info.lname,
+                      icn: mpi_profile.icn,
+                      idme_uuid:,
+                      fingerprint: request.remote_ip,
+                      loa: { current: LOA::THREE, highest: LOA::THREE }
+                    }
+                  end
+
+                  before do
+                    allow(Settings.sign_in).to receive(:arp_client_id).and_return(client_id)
+                  end
+
+                  it 'creates a RepresentativeUser' do
+                    subject
+
+                    user_uuid = UserVerification.last.credential_identifier
+                    user = AccreditedRepresentativePortal::RepresentativeUser.find(user_uuid)
+                    expect(user).to be_a(AccreditedRepresentativePortal::RepresentativeUser)
+                    expect(user).to have_attributes(expected_user_attributes)
+                  end
                 end
 
                 it 'creates a user with expected attributes' do

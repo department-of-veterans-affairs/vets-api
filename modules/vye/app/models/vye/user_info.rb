@@ -2,78 +2,60 @@
 
 module Vye
   class Vye::UserInfo < ApplicationRecord
-    class Vye::UserInfo::DobSerializer
-      def self.load(v)
-        Date.parse(v) if v.present?
-      end
+    INCLUDES = %i[address_changes awards pending_documents verifications].freeze
 
-      def self.dump(v)
-        v.to_s if v.present?
-      end
-    end
+    self.ignored_columns +=
+      [
+        :ssn_digest, :icn, # moved to UserProfile
 
-    include GenDigest
+        :suffix, # not needed
+
+        :address_line2_ciphertext, :address_line3_ciphertext,             # moved to AddressChange
+        :address_line4_ciphertext, :address_line5_ciphertext,             # moved to AddressChange
+        :address_line6_ciphertext, :full_name_ciphertext, :zip_ciphertext # moved to AddressChange
+      ]
+
+    belongs_to :user_profile
 
     has_many :address_changes, dependent: :destroy
     has_many :awards, dependent: :destroy
     has_many :direct_deposit_changes, dependent: :destroy
-    has_many :pending_documents, dependent: :destroy,
-                                 primary_key: :ssn_digest,
-                                 foreign_key: :ssn_digest,
-                                 inverse_of: :user_info
     has_many :verifications, dependent: :destroy
 
-    accepts_nested_attributes_for(
-      :address_changes,
-      :awards,
-      :direct_deposit_changes,
-      :pending_documents,
-      :verifications
-    )
+    accepts_nested_attributes_for :address_changes, :awards, :direct_deposit_changes, :verifications
 
-    # A: Active
-    # E: Expired?
     enum mr_status: { active: 'A', expired: 'E' }
 
     enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
 
-    ENCRYPTED_ATTRIBUTES = %i[
-      address_line2 address_line3 address_line4 address_line5 address_line6 dob file_number full_name ssn stub_nm zip
-    ].freeze
+    serialize :dob, coder: DobSerializer
+
+    delegate :icn, to: :user_profile, allow_nil: true
+    delegate :pending_documents, to: :user_profile, allow_nil: true
 
     has_kms_key
-    has_encrypted(*ENCRYPTED_ATTRIBUTES, key: :kms_key, **lockbox_options)
+    has_encrypted(:file_number, :ssn, :dob, :stub_nm, key: :kms_key, **lockbox_options)
 
-    REQUIRED_ATTRIBUTES = [
-      *ENCRYPTED_ATTRIBUTES,
-      *%i[
-        cert_issue_date date_last_certified del_date fac_code indicator
-        mr_status payment_amt rem_ent rpo_code ssn_digest suffix
-      ].freeze
-    ].freeze
+    validates :dob, :stub_nm, presence: true
 
-    validates(*REQUIRED_ATTRIBUTES, presence: true)
+    validate :ssn_or_file_number_present
 
-    serialize :dob, DobSerializer
+    validates(
+      :cert_issue_date, :date_last_certified, :del_date, :fac_code, :indicator,
+      :mr_status, :payment_amt, :rem_ent, :rpo_code,
+      presence: true
+    )
 
-    before_validation :digest_ssn
-
-    def self.find_and_update_icn(user:) =
-      if user.blank?
-        nil
-      else
-        find_by(icn: user.icn) || find_from_digested_ssn(user.ssn).tap do |user_info|
-          user_info&.update!(icn: user.icn)
-        end
-      end
-
-    def self.find_from_digested_ssn(ssn) =
-      find_by(ssn_digest: gen_digest(ssn))
-
-    private
-
-    def digest_ssn
-      self.ssn_digest = gen_digest(ssn) if ssn_changed?
+    def verification_required
+      verifications.empty?
     end
+
+    def ssn_or_file_number_present
+      return true if ssn.present? || file_number.present?
+
+      errors.add(:base, 'Either SSN or file number must be present.')
+    end
+
+    scope :with_assos, -> { includes(:address_changes, :awards, user_profile: :pending_documents) }
   end
 end

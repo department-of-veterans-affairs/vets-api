@@ -94,6 +94,16 @@ module MebApi
         end
       end
 
+      def send_confirmation_email
+        return unless Flipper.enabled?(:form1990meb_confirmation_email)
+
+        status = params[:claim_status]
+        email = params[:email] || @current_user.email
+        first_name = params[:first_name]&.upcase || @current_user.first_name&.upcase
+
+        MebApi::V0::Submit1990mebFormConfirmation.perform_async(status, email, first_name) if email.present?
+      end
+
       def submit_enrollment_verification
         claimant_response = claimant_service.get_claimant_info
         claimant_id = claimant_response['claimant_id']

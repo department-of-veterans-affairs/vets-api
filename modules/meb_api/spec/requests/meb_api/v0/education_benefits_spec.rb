@@ -147,5 +147,40 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         end
       end
     end
+
+    describe 'POST /meb_api/v0/send_confirmation_email' do
+      context 'delegates to submit_0994_form_confirmation job' do
+        it 'with name and email params' do
+          allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+
+          post '/meb_api/v0/send_confirmation_email', params: {
+            claim_status: 'ELIGIBLE', email: 'test@test.com', first_name: 'test'
+          }
+
+          expect(MebApi::V0::Submit1990mebFormConfirmation).to have_received(:perform_async)
+            .with('ELIGIBLE', 'test@test.com', 'TEST')
+        end
+
+        it 'without name and email params uses current user' do
+          allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+
+          post '/meb_api/v0/send_confirmation_email', params: { claim_status: 'DENIED' }
+
+          expect(MebApi::V0::Submit1990mebFormConfirmation).to have_received(:perform_async)
+            .with('DENIED', 'abraham.lincoln@vets.gov', 'HERBERT')
+        end
+
+        it 'does not delegate when feature is disabled' do
+          allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
+          Flipper.disable(:form1990meb_confirmation_email)
+
+          post '/meb_api/v0/send_confirmation_email', params: {}
+
+          expect(MebApi::V0::Submit1990mebFormConfirmation).not_to have_received(:perform_async)
+
+          Flipper.enable(:form1990meb_confirmation_email)
+        end
+      end
+    end
   end
 end
