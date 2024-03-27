@@ -71,7 +71,7 @@
       }
     },
       "vscode": {
-      "extensions": ["ms-azuretools.vscode-docker", "Shopify.ruby-lsp"]
+      "extensions": ["Shopify.ruby-lsp"]
     }
   }
 }
