@@ -46,11 +46,7 @@
   "benefit": "transferOfEntitlement",
   "benefitUpdate": "transferOfEntitlement",
   "changeAnotherBenefit": "Yes",
-<<<<<<< HEAD
   "benefitAppliedFor": "chapter30",
-=======
-  "benefitAppliedFor": "chapter35",
->>>>>>> master
   "educationType": "tuitionTopUp",
   "educationTypeUpdate": "prepCourseForLoC",
   "educationObjective": "bachelor's degree",
