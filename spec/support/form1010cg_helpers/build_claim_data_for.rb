@@ -31,7 +31,7 @@ module Form1010cgHelpers
 
     # Required property for :veteran
     if form_subject == :veteran
-      data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
+      data['ssnOrTin'] = Faker::IdNumber.valid.remove('-')
       data['plannedClinic'] = '568A4'
     end
 
