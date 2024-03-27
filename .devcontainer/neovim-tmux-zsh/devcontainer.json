@@ -16,6 +16,7 @@
         "version": "latest"
     },
 		"ghcr.io/devcontainers/features/common-utils:2": { },
+    "ghcr.io/audacioustux/devcontainers/common-utils-extras:1": { },
 		"ghcr.io/devcontainers-contrib/features/neovim-homebrew:1": { },
 		"ghcr.io/devcontainers-contrib/features/tmux-homebrew:1": { }
 	},
