@@ -29,6 +29,7 @@ asdf global ruby $( cat .ruby-version )
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git /workspaces/vets-api-mockdata
 
 # Install dependencies
+sudo apt-get update
 sudo apt-get install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3 tmux xclip
 
 # only run apt upgrade on pre-build
