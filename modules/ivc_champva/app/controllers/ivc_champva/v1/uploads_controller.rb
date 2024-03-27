@@ -25,7 +25,7 @@ module IvcChampva
 
           render json: build_json(Array(status), error_message)
         rescue
-          puts 'An unkown error occurred while uploading document(s).'
+          puts 'An unknown error occurred while uploading document(s).'
         end
       end
 
