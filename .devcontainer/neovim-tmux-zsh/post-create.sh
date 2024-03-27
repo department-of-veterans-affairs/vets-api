@@ -2,13 +2,13 @@
 
 # Switch to vets-api ruby version
 export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
-# asdf install ruby $( cat .ruby-version )
-# asdf global ruby $( cat .ruby-version )
+asdf install ruby $( cat .ruby-version )
+asdf global ruby $( cat .ruby-version )
 
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata
 
-# sudo apt update
-# sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
+sudo apt update
+sudo apt install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
 
 # Add tmux config
 cat <<EOT >> $HOME/.tmux.conf
@@ -57,4 +57,4 @@ nohup bash -c '/home/linuxbrew/.linuxbrew/opt/redis@6.2/bin/redis-server /home/l
 sudo /etc/init.d/postgresql restart
 pg_isready -t 60
 sudo -u root sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
-#./bin/setup
+/bin/setup
