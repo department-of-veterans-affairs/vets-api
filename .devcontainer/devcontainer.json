@@ -1,6 +1,6 @@
 {
   "name": "native",
-  "image": "mcr.microsoft.com/devcontainers/ruby:3",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.2",
 
   "features": {
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
