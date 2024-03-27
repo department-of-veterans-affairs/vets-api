@@ -10,18 +10,24 @@ sudo cp .devcontainer/welcome.txt /usr/local/etc/vscode-dev-containers/first-run
 
 # Switch to vets-api ruby version
 export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
+{
+  echo ". $HOME/.asdf/asdf.sh"
+  echo ". $HOME/.asdf/completions/asdf.bash"
+} >> ~/.bashrc
 asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
 
 # Clone needed repos
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git /workspaces/vets-api-mockdata
 
+# Install dependencies
+sudo apt-get install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3 tmux xclip
+
 # only run apt upgrade on pre-build
 if [ "$CODESPACE_NAME" = "null" ]
 then
     sudo apt-get update
     sudo apt-get upgrade -y
-    sudo apt-get install -y libpq-dev pdftk shared-mime-info postgresql-15-postgis-3
     sudo apt-get autoremove -y
     sudo apt-get clean -y
 fi
