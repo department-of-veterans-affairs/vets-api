@@ -23,7 +23,7 @@
   "portsAttributes": {
     "3000": {
       "label": "vets-api",
-      "onAutoForward": "openPreview",
+      "onAutoForward": "notify",
       "requireLocalPort": true
     },
     "9293": {
