@@ -35,7 +35,6 @@ module SignIn
     end
 
     def perform
-      binding.pry
       return unless verified_credential?
 
       validate_credential_attributes

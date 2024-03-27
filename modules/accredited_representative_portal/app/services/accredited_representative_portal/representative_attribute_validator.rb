@@ -36,7 +36,7 @@ module AccreditedRepresentativePortal
       return unless verified_credential?
 
       validate_credential_attributes
-      validate_representative
+      validate_representative unless auto_uplevel
       if mpi_record_exists?
         validate_existing_mpi_attributes
         update_mpi_correlation_record
@@ -51,8 +51,10 @@ module AccreditedRepresentativePortal
     private
 
     def validate_existing_mpi_attributes
-      check_lock_flag(mpi_response_profile.id_theft_flag, 'Theft Flag', SignIn::Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
-      check_lock_flag(mpi_response_profile.deceased_date, 'Death Flag', SignIn::Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
+      check_lock_flag(mpi_response_profile.id_theft_flag, 'Theft Flag',
+                      SignIn::Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
+      check_lock_flag(mpi_response_profile.deceased_date, 'Death Flag',
+                      SignIn::Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
       check_id_mismatch(mpi_response_profile.edipis, 'EDIPI', SignIn::Constants::ErrorCode::MULTIPLE_EDIPI)
       check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', SignIn::Constants::ErrorCode::MULTIPLE_MHV_IEN)
       check_id_mismatch(mpi_response_profile.participant_ids, 'CORP_ID', SignIn::Constants::ErrorCode::MULTIPLE_CORP_ID)
@@ -66,12 +68,11 @@ module AccreditedRepresentativePortal
                                                                    email: credential_email,
                                                                    address:,
                                                                    idme_uuid:,
-                                                                   logingov_uuid:,
-                                                                   edipi:)
+                                                                   logingov_uuid:)
       unless add_person_response.ok?
         handle_error('User MPI record cannot be created',
                      SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     error: Errors::MPIUserCreationFailedError)
+                     error: SignIn::Errors::MPIUserCreationFailedError)
       end
     end
 
@@ -103,11 +104,12 @@ module AccreditedRepresentativePortal
 
     def validate_representative
       representative = Veteran::Service::Representative.for_user(first_name:, last_name:, ssn:, dob: birth_date)
-      binding.pry
 
-      handle_error('User is not a VA representative',
-                   SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                   error: Errors::RepresentativeRecordNotFoundError) if representative.blank?
+      if representative.blank?
+        handle_error('User is not a VA representative',
+                     SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
+                     error: Errors::RepresentativeRecordNotFoundError)
+      end
     end
 
     def validate_credential_attributes
@@ -125,7 +127,7 @@ module AccreditedRepresentativePortal
 
       handle_error("Missing attribute in credential: #{type}",
                    SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                   error: Errors::CredentialMissingAttributeError)
+                   error: SignIn::Errors::CredentialMissingAttributeError)
     end
 
     def attribute_mismatch_check(type, credential_attribute, mpi_attribute, prevent_auth: false)
