@@ -10,15 +10,15 @@ describe ClaimsApi::VnpProcFormService do
     let(:options) { {} }
 
     it 'responds with a vnc_proc_id' do
-      # options[:vnp_proc_id] = '3830252' # '3854437''3830249' #
-      #   options[:vnp_ptcpnt_id] = nil
-      #   options[:jrn_dt] = nil
-      #   options[:jrn_obj_id] = nil
-      #   options[:jrn_status_type_cd] = nil
-      #   options[:jrn_user_id] = nil
+      options[:vnp_proc_id] = '3830249' #'3830252' '3854437' #
+      options[:vnp_ptcpnt_id] = nil
+      options[:jrn_dt] = nil
+      options[:jrn_obj_id] = 'VAgovAPI'
+      options[:jrn_status_type_cd] = 'U'
+      options[:jrn_user_id] = 'VAgovAPI'
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_proc_form_service') do
         response = subject.vnp_proc_form_create(options)
-        expect(response[:vnp_proc_id]).to eq '29637'
+        expect(response[:comp_id][:vnp_proc_id]).to eq '3830249'
       end
     end
   end

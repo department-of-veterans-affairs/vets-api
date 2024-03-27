@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://localhost:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -19,7 +19,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 26 Mar 2024 18:20:34 GMT
+      - Wed, 27 Mar 2024 13:51:27 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -48,12 +48,6 @@ http_interactions:
         <message name="MessageFaultException">
         <part name="fault" element="tns:MessageFaultException"/>
         </message>
-        <message name="vnpProcFormFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpProcFormFindByPrimaryKey"/>
-        </message>
-        <message name="vnpProcFormFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpProcFormFindByPrimaryKeyResponse"/>
-        </message>
         <message name="vnpProcFormRemove">
         <part name="parameters" element="tns:vnpProcFormRemove"/>
         </message>
@@ -66,16 +60,17 @@ http_interactions:
         <message name="vnpProcFormCreateResponse">
         <part name="parameters" element="tns:vnpProcFormCreateResponse"/>
         </message>
+        <message name="vnpProcFormFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpProcFormFindByPrimaryKey"/>
+        </message>
+        <message name="vnpProcFormFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpProcFormFindByPrimaryKeyResponse"/>
+        </message>
         <portType name="VnpProcFormService">
         <operation name="findAllAsArray">
         <input wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
         <output wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/findAllAsArray/Fault/MessageFaultException"/>
-        </operation>
-        <operation name="vnpProcFormFindByPrimaryKey">
-        <input wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormFindByPrimaryKeyRequest" message="tns:vnpProcFormFindByPrimaryKey"/>
-        <output wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormFindByPrimaryKeyResponse" message="tns:vnpProcFormFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormFindByPrimaryKey/Fault/MessageFaultException"/>
         </operation>
         <operation name="vnpProcFormRemove">
         <input wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormRemoveRequest" message="tns:vnpProcFormRemove"/>
@@ -86,6 +81,11 @@ http_interactions:
         <input wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormCreateRequest" message="tns:vnpProcFormCreate"/>
         <output wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormCreateResponse" message="tns:vnpProcFormCreateResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormCreate/Fault/MessageFaultException"/>
+        </operation>
+        <operation name="vnpProcFormFindByPrimaryKey">
+        <input wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormFindByPrimaryKeyRequest" message="tns:vnpProcFormFindByPrimaryKey"/>
+        <output wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormFindByPrimaryKeyResponse" message="tns:vnpProcFormFindByPrimaryKeyResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procFormService.services.vonapp.vba.va.gov/VnpProcFormService/vnpProcFormFindByPrimaryKey/Fault/MessageFaultException"/>
         </operation>
         </portType>
         <binding name="VnpProcFormServicePortBinding" type="tns:VnpProcFormService">
@@ -102,18 +102,6 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="vnpProcFormFindByPrimaryKey">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
         <operation name="vnpProcFormRemove">
         <soap:operation soapAction=""/>
         <input>
@@ -127,6 +115,18 @@ http_interactions:
         </fault>
         </operation>
         <operation name="vnpProcFormCreate">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="vnpProcFormFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -145,10 +145,10 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Tue, 26 Mar 2024 18:20:34 GMT
+  recorded_at: Wed, 27 Mar 2024 13:51:27 GMT
 - request:
     method: post
-    uri: https://localhost:4447/VnpProcFormWebServiceBean/VnpProcFormService
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcFormWebServiceBean/VnpProcFormService
     body:
       encoding: UTF-8
       string: |
@@ -172,18 +172,11 @@ http_interactions:
           <env:Body>
             <tns:vnpProcFormCreate>
               <arg0>
-          <VnpProcFormDTO>
-            <compId>
-               <vnpProcId/>
-               <formTypeCd>21-22</formTypeCd>
-            </compId>
-            <jrnDt/>
-            <jrnLctnId/>
-            <jrnObjId/>
-            <jrnStatusTypeCd/>
-            <jrnUserId/>
-          </VnpProcFormDTO>
-        </arg0>
+          <compId>
+                <vnpProcId>3830249</vnpProcId>
+                <formTypeCd>21-22</formTypeCd>
+          </compId>
+        <vnpPtcpntId/>true/<jrnDt/>true/<jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></arg0>
 
             </tns:vnpProcFormCreate>
           </env:Body>
@@ -203,19 +196,15 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Tue, 26 Mar 2024 18:20:35 GMT
+      - Wed, 27 Mar 2024 13:51:28 GMT
       Server:
       - Apache
       X-Frame-Options:
       - SAMEORIGIN
-      X-Oracle-Dms-Ecid:
-      - 2816874f-ef7b-4a50-9f2b-bd3cee82a6db-000bb5a3
-      X-Oracle-Dms-Rid:
-      - '0'
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -224,75 +213,9 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: "<?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\"><S:Header><WorkContext
-        xmlns=\"http://oracle.com/weblogic/soap/workarea/\">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</WorkContext></S:Header><S:Body><ns0:Fault
-        xmlns:ns0=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ns1=\"http://www.w3.org/2003/05/soap-envelope\"><faultcode>ns0:Server</faultcode><faultstring>EJB
-        Exception: : java.lang.NullPointerException\n\tat gov.va.vba.vonapp.services.procFormService.VnpProcFormWebServiceBean.vnpProcFormCreate(Unknown
-        Source)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat
-        sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat
-        sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
-        java.lang.reflect.Method.invoke(Method.java:498)\n\tat com.bea.core.repackaged.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)\n\tat
-        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)\n\tat
-        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\n\tat
-        com.oracle.pitchfork.intercept.MethodInvocationInvocationContext.proceed(MethodInvocationInvocationContext.java:101)\n\tat
-        com.oracle.pitchfork.intercept.JeeInterceptorInterceptor.invoke(JeeInterceptorInterceptor.java:101)\n\tat
-        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\n\tat
-        com.oracle.pitchfork.intercept.MethodInvocationInvocationContext.proceed(MethodInvocationInvocationContext.java:101)\n\tat
-        org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor.aroundInvoke(AbstractEJBRequestScopeActivationInterceptor.java:73)\n\tat
-        org.jboss.weld.ejb.SessionBeanInterceptor.aroundInvoke(SessionBeanInterceptor.java:52)\n\tat
-        sun.reflect.GeneratedMethodAccessor30057.invoke(Unknown Source)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
-        java.lang.reflect.Method.invoke(Method.java:498)\n\tat com.oracle.pitchfork.intercept.JeeInterceptorInterceptor.invoke(JeeInterceptorInterceptor.java:94)\n\tat
-        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\n\tat
-        com.bea.core.repackaged.springframework.aop.support.DelegatingIntroductionInterceptor.doProceed(DelegatingIntroductionInterceptor.java:136)\n\tat
-        com.bea.core.repackaged.springframework.aop.support.DelegatingIntroductionInterceptor.invoke(DelegatingIntroductionInterceptor.java:124)\n\tat
-        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\n\tat
-        com.bea.core.repackaged.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:212)\n\tat
-        com.sun.proxy.$Proxy2450.vnpProcFormCreate(Unknown Source)\n\tat gov.va.vba.vonapp.services.procFormService.VnpProcFormWebServiceBean_b3ox9c_WSOImpl.__WL_invoke(Unknown
-        Source)\n\tat weblogic.ejb.container.internal.WSOMethodInvoker.invoke(WSOMethodInvoker.java:24)\n\tat
-        gov.va.vba.vonapp.services.procFormService.VnpProcFormWebServiceBean_b3ox9c_WSOImpl.__WL_vnpProcFormCreate_WS(Unknown
-        Source)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat
-        sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat
-        sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
-        java.lang.reflect.Method.invoke(Method.java:498)\n\tat weblogic.wsee.server.ejb.WsEjb.invoke(WsEjb.java:55)\n\tat
-        weblogic.wsee.jaxws.WLSEjbInstanceResolver$WLSEjbInvoker.invoke(WLSEjbInstanceResolver.java:196)\n\tat
-        weblogic.wsee.jaxws.WLSInstanceResolver$WLSInvoker.invoke(WLSInstanceResolver.java:93)\n\tat
-        com.sun.xml.ws.server.InvokerTube$2.invoke(InvokerTube.java:149)\n\tat com.sun.xml.ws.server.sei.SEIInvokerTube.processRequest(SEIInvokerTube.java:88)\n\tat
-        com.sun.xml.ws.api.pipe.Fiber.__doRun(Fiber.java:1136)\n\tat com.sun.xml.ws.api.pipe.Fiber._doRun(Fiber.java:1050)\n\tat
-        com.sun.xml.ws.api.pipe.Fiber.doRun(Fiber.java:1019)\n\tat com.sun.xml.ws.api.pipe.Fiber.runSync(Fiber.java:877)\n\tat
-        com.sun.xml.ws.server.WSEndpointImpl$2.process(WSEndpointImpl.java:419)\n\tat
-        com.sun.xml.ws.transport.http.HttpAdapter$HttpToolkit.handle(HttpAdapter.java:868)\n\tat
-        com.sun.xml.ws.transport.http.HttpAdapter.handle(HttpAdapter.java:422)\n\tat
-        com.sun.xml.ws.transport.http.servlet.ServletAdapter.handle(ServletAdapter.java:169)\n\tat
-        weblogic.wsee.jaxws.WLSServletAdapter.handle(WLSServletAdapter.java:246)\n\tat
-        weblogic.wsee.jaxws.HttpServletAdapter$AuthorizedInvoke.run(HttpServletAdapter.java:667)\n\tat
-        weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:386)\n\tat
-        weblogic.security.service.SecurityManager.runAs(SecurityManager.java:163)\n\tat
-        weblogic.wsee.util.ServerSecurityHelper.authenticatedInvoke(ServerSecurityHelper.java:108)\n\tat
-        weblogic.wsee.jaxws.HttpServletAdapter$3.run(HttpServletAdapter.java:286)\n\tat
-        weblogic.wsee.jaxws.HttpServletAdapter.post(HttpServletAdapter.java:295)\n\tat
-        weblogic.wsee.jaxws.JAXWSServlet.doRequest(JAXWSServlet.java:128)\n\tat weblogic.servlet.http.AbstractAsyncServlet.service(AbstractAsyncServlet.java:103)\n\tat
-        javax.servlet.http.HttpServlet.service(HttpServlet.java:790)\n\tat weblogic.servlet.internal.StubSecurityHelper$ServletServiceAction.run(StubSecurityHelper.java:295)\n\tat
-        weblogic.servlet.internal.StubSecurityHelper$ServletServiceAction.run(StubSecurityHelper.java:260)\n\tat
-        weblogic.servlet.internal.StubSecurityHelper.invokeServlet(StubSecurityHelper.java:137)\n\tat
-        weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:353)\n\tat
-        weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:250)\n\tat
-        weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.wrapRun(WebAppServletContext.java:3796)\n\tat
-        weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.run(WebAppServletContext.java:3766)\n\tat
-        weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:344)\n\tat
-        weblogic.security.service.SecurityManager.runAsForUserCode(SecurityManager.java:197)\n\tat
-        weblogic.servlet.provider.WlsSecurityProvider.runAsForUserCode(WlsSecurityProvider.java:203)\n\tat
-        weblogic.servlet.provider.WlsSubjectHandle.run(WlsSubjectHandle.java:71)\n\tat
-        weblogic.servlet.internal.WebAppServletContext.doSecuredExecute(WebAppServletContext.java:2454)\n\tat
-        weblogic.servlet.internal.WebAppServletContext.securedExecute(WebAppServletContext.java:2302)\n\tat
-        weblogic.servlet.internal.WebAppServletContext.execute(WebAppServletContext.java:2280)\n\tat
-        weblogic.servlet.internal.ServletRequestImpl.runInternal(ServletRequestImpl.java:1739)\n\tat
-        weblogic.servlet.internal.ServletRequestImpl.run(ServletRequestImpl.java:1699)\n\tat
-        weblogic.servlet.provider.ContainerSupportProviderImpl$WlsRequestExecutor.run(ContainerSupportProviderImpl.java:272)\n\tat
-        weblogic.invocation.ComponentInvocationContextManager._runAs(ComponentInvocationContextManager.java:352)\n\tat
-        weblogic.invocation.ComponentInvocationContextManager.runAs(ComponentInvocationContextManager.java:337)\n\tat
-        weblogic.work.LivePartitionUtility.doRunWorkUnderContext(LivePartitionUtility.java:57)\n\tat
-        weblogic.work.PartitionUtility.runWorkUnderContext(PartitionUtility.java:41)\n\tat
-        weblogic.work.SelfTuningWorkManagerImpl.runWorkUnderContext(SelfTuningWorkManagerImpl.java:655)\n\tat
-        weblogic.work.ExecuteThread.execute(ExecuteThread.java:420)\n\tat weblogic.work.ExecuteThread.run(ExecuteThread.java:360)\n</faultstring></ns0:Fault></S:Body></S:Envelope>"
-  recorded_at: Tue, 26 Mar 2024 18:20:35 GMT
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcFormCreateResponse
+        xmlns:ns0="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3830249</vnpProcId><formTypeCd>21-22</formTypeCd></compId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns0:vnpProcFormCreateResponse></S:Body></S:Envelope>
+  recorded_at: Wed, 27 Mar 2024 13:51:29 GMT
 recorded_with: VCR 6.2.0
