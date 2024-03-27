@@ -65,9 +65,6 @@ sudo /etc/init.d/postgresql restart
 pg_isready -t 60
 sudo -u root sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
 
-# Ruby-lsp extension thinks we're using rbenv but we're not
-sudo rbenv implode --force
-
 # Install gems and setup DB
 ./bin/setup
 

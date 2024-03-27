@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Ruby-lsp extension thinks we're using rbenv but we're not
+sudo rbenv implode --force
+
 echo "Starting redis..."
 nohup /home/linuxbrew/.linuxbrew/opt/redis@6.2/bin/redis-server /home/linuxbrew/.linuxbrew/etc/redis.conf >> log/redis.log 2>&1 &
 
