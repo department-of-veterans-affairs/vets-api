@@ -14,7 +14,7 @@ module Lighthouse
     class BenefitsIntakeClaimError < StandardError; end
 
     FOREIGN_POSTALCODE = '00000'
-    STATSD_KEY_PREFIX = 'worker.central_mail.submit_benefits_intake_claim'
+    STATSD_KEY_PREFIX = 'worker.lighthouse.submit_benefits_intake_claim'
 
     # Sidekiq has built in exponential back-off functionality for retries
     # A max retry attempt of 14 will result in a run time of ~25 hours
