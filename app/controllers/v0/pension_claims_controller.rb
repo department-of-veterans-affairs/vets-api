@@ -7,8 +7,6 @@ module V0
   class PensionClaimsController < ClaimsBaseController
     service_tag 'pension-application'
 
-    MONITOR = ::Pension21p527ez::Monitor.new
-
     def short_name
       'pension_claim'
     end
@@ -18,7 +16,7 @@ module V0
     end
 
     def show
-      claim = claim_class.find_by!({ guid: params[:id] }) # will raise ActiveRecord::NotFound
+      claim = claim_class.find_by!(guid: params[:id]) # will raise ActiveRecord::NotFound
       form_submission = claim.form_submissions&.order(id: :asc)&.last
       submission_attempt = form_submission&.form_submission_attempts&.order(created_at: :asc)&.last
       if submission_attempt
@@ -28,10 +26,10 @@ module V0
       end
       render(json: response)
     rescue ActiveRecord::RecordNotFound => e
-      MONITOR.track_show404(params[:id], current_user, e)
+      pension_monitor.track_show404(params[:id], current_user, e)
       render(json: { error: e.to_s }, status: :not_found)
     rescue => e
-      MONITOR.track_show_error(params[:id], current_user, e)
+      pension_monitor.track_show_error(params[:id], current_user, e)
       raise e
     end
 
@@ -41,25 +39,25 @@ module V0
       Pension21p527ez::TagSentry.tag_sentry
 
       claim = claim_class.new(form: filtered_params[:form])
-      MONITOR.track_create_attempt(claim, current_user)
+      pension_monitor.track_create_attempt(claim, current_user)
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.itf_datetime = in_progress_form.created_at if in_progress_form
 
       unless claim.save
-        MONITOR.track_create_error(in_progress_form, claim, current_user)
+        pension_monitor.track_create_error(in_progress_form, claim, current_user)
         log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
       claim.upload_to_lighthouse
 
-      MONITOR.track_create_success(in_progress_form, claim, current_user)
+      pension_monitor.track_create_success(in_progress_form, claim, current_user)
 
       clear_saved_form(claim.form_id)
       render(json: claim)
     rescue => e
-      MONITOR.track_create_error(in_progress_form, claim, current_user, e)
+      pension_monitor.track_create_error(in_progress_form, claim, current_user, e)
       raise e
     end
 
@@ -88,6 +86,10 @@ module V0
           }
         }
       }
+    end
+
+    def pension_monitor
+      Pension21p527ez::Monitor.new
     end
   end
 end
