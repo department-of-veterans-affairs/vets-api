@@ -572,20 +572,19 @@ module PdfFill
         end
       end
 
-      # rubocop:disable Layout/LineLength
       def convert_location_of_death
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
         if location_of_death[location_of_death['location']].present? && location_of_death['location'] != 'other'
-          location_of_death['placeAndLocation'] = "#{location_of_death[location_of_death['location']]['facilityName']} - #{location_of_death[location_of_death['location']]['facilityLocation']}"
+          options = location_of_death[location_of_death['location']]
+          location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
         end
 
         location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
-      # rubocop:enable Layout/LineLength
 
       def expand_burial_allowance
         burial_allowance = @form_data['burialAllowanceRequested']
