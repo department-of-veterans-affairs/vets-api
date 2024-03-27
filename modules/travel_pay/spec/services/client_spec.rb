@@ -77,6 +77,23 @@ describe TravelPay::Client do
       actual_claim_ids = claims.pluck(:id)
 
       expect(actual_claim_ids).to eq(expected_ordered_ids)
+    end
+  end
+
+  context 'authorized_ping' do
+    it 'receives response from authorized-ping endpoint' do
+      allow(Settings.travel_pay.veis).to receive(:auth_url).and_return('sample_url')
+      allow(Settings.travel_pay.veis).to receive(:tenant_id).and_return('sample_id')
+      @stubs.get('/api/v1/Sample/authorized-ping') do
+        [
+          200,
+          { 'Content-Type': 'application/json' }
+        ]
+      end
+      client = TravelPay::Client.new
+      response = client.authorized_ping('veis_token', 'btsss_token')
+
+      expect(response).to be_success
       @stubs.verify_stubbed_calls
     end
   end

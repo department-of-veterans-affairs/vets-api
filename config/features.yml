@@ -73,12 +73,6 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  cerner_transition_556_t30:
-    actor_type: user
-    description: This will control the content that will be in effect 30 days prior to transition.
-  cerner_transition_556_t5:
-    actor_type: user
-    description: This will control the content that will be in effect 5 days prior to transition.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -1257,6 +1251,9 @@ features:
   disability_compensation_lighthouse_brd:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Reference Data service
+  disability_compensation_lighthouse_generate_pdf:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
