@@ -10,7 +10,7 @@ describe ClaimsApi::VnpProcFormService do
     let(:options) { {} }
 
     it 'responds with a vnc_proc_id' do
-      options[:vnp_proc_id] = '3830249' #'3830252' '3854437' #
+      options[:vnp_proc_id] = '3830249' # '3830252' '3854437' #
       options[:vnp_ptcpnt_id] = nil
       options[:jrn_dt] = nil
       options[:jrn_obj_id] = 'VAgovAPI'
