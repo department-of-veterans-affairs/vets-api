@@ -2,6 +2,14 @@
   "name": "native",
   "image": "mcr.microsoft.com/devcontainers/ruby:3.2",
 
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "docs/setup/codespaces.md",
+        "README.md"
+      ]
+    }
+  },
   "features": {
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
       "version": "15"
