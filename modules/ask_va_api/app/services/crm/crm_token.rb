@@ -52,7 +52,7 @@ module Crm
     def conn(url:)
       Faraday.new(url:) do |f|
         f.use :breakers
-        f.response :raise_error, error_prefix: service_name
+        f.response :raise_error, error_prefix: service_name, include_request: false
         f.adapter Faraday.default_adapter
       end
     end

@@ -28,7 +28,7 @@ module GI
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :raise_error, error_prefix: service_name, include_request: false
         conn.response :gids_errors
         conn.response :json_parser
 

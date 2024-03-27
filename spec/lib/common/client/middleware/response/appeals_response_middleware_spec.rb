@@ -11,7 +11,7 @@ describe Common::Client::Middleware::Response do
   subject(:appeals_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'CaseflowStatus'
+      conn.response :raise_error, error_prefix: 'CaseflowStatus', include_request: false
       conn.response :caseflow_errors
       conn.response :json_parser
 
