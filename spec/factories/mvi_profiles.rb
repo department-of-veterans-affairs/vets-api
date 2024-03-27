@@ -43,7 +43,7 @@ FactoryBot.define do
     gender { %w[M F].sample }
     birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
     deceased_date { nil }
-    ssn { Faker::IDNumber.valid.delete('-') }
+    ssn { Faker::IdNumber.valid.delete('-') }
     address { build(:mpi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     person_types { ['PAT'] }
