@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pension_21p527ez/tag_sentry'
+
 module V0
   class PensionClaimsController < ClaimsBaseController
     service_tag 'pension-application'
@@ -45,7 +47,7 @@ module V0
     # Creates and validates an instance of the class, removing any copies of
     # the form that had been previously saved by the user.
     def create
-      PensionBurial::TagSentry.tag_sentry
+      Pension21p527ez::TagSentry.tag_sentry
 
       claim = claim_class.new(form: filtered_params[:form])
       user_uuid = current_user&.uuid
