@@ -41,5 +41,6 @@
     "guardianMobilePhone":"9999999999",
     "guardianHomePhone":"8888888888",
     "guardianEmail":"test84@test.com"
-  }
+  },
+  "applicantServed": "No"
 }

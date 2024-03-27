@@ -63,6 +63,7 @@
     "married": true,
     "parentDependent": false
   },
+  "applicantServed": "Yes",
   "toursOfDuty": [{
     "dateRange": {
       "from": "2012-06-26",

@@ -108,12 +108,27 @@ Reason for Change: <%= @applicant.reasonForChange %>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
+<% unless Settings.vsp_environment.eql?('production') -%>
 
+Served in the armed forces?: <%= @applicant.applicantServed %>
+
+Are You Now On Active Duty?: <%= yesno(@applicant.isActiveDuty) %>
+
+Do you have any new periods of service to record since you last applied for
+education benefits? <%= yesno(@applicant.toursOfDutyNewPeriods.present?) %>
+
+Date Entered   Date Separated     Service Component
+<% @applicant&.toursOfDuty&.each do |tour| -%>
+<%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
+<% end -%>
+
+<% else -%>
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
 <% end %>
 
+<% end -%>
 <% unless Settings.vsp_environment.eql?('production') -%>
 <% if @applicant.minorHighSchoolQuestions -%>
           GUARDIAN INFORMATION
@@ -167,7 +182,8 @@ Signature of Applicant                                               Date
 Signature/Title/Branch of Armed Forces Education Service Officer     Date
 <% else -%>
 <% if @applicant.isActiveDuty -%>
-As an active-duty service member, you have consulted with an Education Service Officer (ESO) regarding your education program.
+As an active-duty service member, you have consulted with an Education Service
+Officer (ESO) regarding your education program.
 <% else -%>
       Certification and Signature of Applicant
 Signature of Applicant                                               Date

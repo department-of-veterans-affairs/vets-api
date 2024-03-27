@@ -46,5 +46,33 @@
     "guardianMobilePhone":"9999999999",
     "guardianHomePhone":"8888888888",
     "guardianEmail":"test84@test.com"
-  }
+  },
+  "applicantServed": "Yes",
+  "isActiveDuty": true,
+  "toursOfDuty": [{
+    "dateRange": {
+      "from": "2010-06-26",
+      "to": "2011-04-10"
+    },
+    "serviceBranch": "Army Reserve"
+  }, {
+    "dateRange": {
+      "from": "2010-04-22",
+      "to": "2011-06-14"
+    },
+    "serviceBranch": "navy"
+  }],
+  "toursOfDutyNewPeriods": [{
+    "dateRange": {
+      "from": "2012-06-26",
+      "to": "2013-04-10"
+    },
+    "serviceBranch": "Army Reserve"
+  }, {
+    "dateRange": {
+      "from": "2013-04-22",
+      "to": "2013-06-14"
+    },
+    "serviceBranch": "navy"
+  }]
 }
