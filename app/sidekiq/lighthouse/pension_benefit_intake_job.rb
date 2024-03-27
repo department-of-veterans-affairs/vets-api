@@ -173,6 +173,15 @@ module Lighthouse
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
+    rescue => e
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
+                         {
+                           error: e.message,
+                           claim_id: @claim&.id,
+                           benefits_intake_uuid: @lighthouse_service&.uuid,
+                           confirmation_number: @claim&.confirmation_number
+                         })
+      raise e
     end
   end
 end
