@@ -25,7 +25,7 @@ module Lighthouse
     sidekiq_retries_exhausted do |msg, _ex|
       Rails.logger.send(
         :error,
-        "Failed all retries on CentralMail::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
+        "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
@@ -51,13 +51,13 @@ module Lighthouse
       response = @lighthouse_service.upload_doc(**payload)
 
       if response.success?
-        log_message_to_sentry('CentralMail::SubmitSavedClaimJob succeeded', :info, generate_sentry_details)
+        log_message_to_sentry('Lighthouse::SubmitBenefitsIntakeClaim succeeded', :info, generate_sentry_details)
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
-      log_message_to_sentry('CentralMail::SubmitBenefitsIntakeClaim failed, retrying...', :warn,
+      log_message_to_sentry('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', :warn,
                             generate_sentry_details(e))
       raise
     ensure
