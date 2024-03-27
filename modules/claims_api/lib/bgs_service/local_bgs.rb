@@ -227,9 +227,7 @@ module ClaimsApi
           >
           #{header}
           <env:Body>
-            <tns:#{action}>
-              #{body}
-            </tns:#{action}>
+            <tns:#{action}>#{body}</tns:#{action}>
           </env:Body>
           </env:Envelope>
       EOXML
