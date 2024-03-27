@@ -8,18 +8,6 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 # Add welcome message
 sudo cp .devcontainer/welcome.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt
 
-# Switch to vets-api ruby version
-export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
-{
-  echo ". $HOME/.asdf/asdf.sh"
-  echo ". $HOME/.asdf/completions/asdf.bash"
-} >> ~/.bashrc
-{
-  echo ". $HOME/.asdf/asdf.sh"
-} >> ~/.zshrc
-asdf install ruby $( cat .ruby-version )
-asdf global ruby $( cat .ruby-version )
-
 # Homebrew path to zsh
 {
   echo "export PATH=\"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:\$PATH\""
