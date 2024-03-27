@@ -20,14 +20,11 @@ module IvcChampva
         form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
         file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-        status, error_message = IvcChampva::FileUploader.new(form_id, metadata, file_paths).handle_uploads
+        status, error_message = FileUploader.new(form_id, metadata, file_paths).handle_uploads
 
-        render json: {
-          error_message:,
-          status:
-        }
+        render json: build_json(Array(status), error_message)
       rescue
-        puts 'A default error occurred while uploading a document.'
+        puts 'An unkown error occurred while uploading document(s).'
       end
 
       def submit_supporting_documents
@@ -74,6 +71,24 @@ module IvcChampva
         raise 'missing form_number in params' unless form_number
 
         FORM_NUMBER_MAP[form_number]
+      end
+
+      def build_json(status, error_message)
+        if status.all? { |s| s == 200 }
+          {
+            status: 200
+          }
+        elsif status.all? { |s| s == 400 }
+          {
+            error_message:,
+            status: 400
+          }
+        else
+          {
+            error_message: 'Partial upload failure',
+            status: 206
+          }
+        end
       end
 
       def should_authenticate
