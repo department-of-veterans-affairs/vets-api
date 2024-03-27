@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# spec/models/simple_forms_api/vha1010d_spec.rb
-
 require 'rails_helper'
 
 folder_path = 'modules/simple_forms_api/spec/fixtures/test_file/'
@@ -16,7 +14,7 @@ RSpec.describe SimpleFormsApi::VHA1010d do
         'va_claim_number' => '123456789',
         'address' => { 'postal_code' => '12345' }
       },
-      'form_number' => 'VHA1010d',
+      'form_number' => '10-10D',
       'veteran_supporting_documents' => [
         { 'confirmation_code' => 'abc123' },
         { 'confirmation_code' => 'def456' }
@@ -35,7 +33,7 @@ RSpec.describe SimpleFormsApi::VHA1010d do
         'fileNumber' => '123456789',
         'zipCode' => '12345',
         'source' => 'VA Platform Digital Forms',
-        'docType' => 'VHA1010d',
+        'docType' => '10-10D',
         'businessLine' => 'CMP'
       )
     end
