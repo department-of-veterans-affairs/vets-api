@@ -13,7 +13,7 @@ git -C /workspaces/vets-api pull
 {
   "rubyLsp.rubyVersionManager": "none"
 }
-} >> /home/vscode/.vscode/settings.json
+} >> /workspaces/vets-api/.vscode/settings.json
 
 bundle install
 
