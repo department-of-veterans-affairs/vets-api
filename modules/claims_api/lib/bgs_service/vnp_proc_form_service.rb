@@ -7,7 +7,6 @@ module ClaimsApi
     def vnp_proc_form_create(options)
       vnp_proc_id = options[:vnp_proc_id]
       options.delete(:vnp_proc_id)
-      vnp_proc_id = '<vnpProcId xis:nil=true/>' if vnp_proc_id.blank?
       arg_strg = convert_nil_values(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <arg0>
