@@ -29,7 +29,7 @@ After a successful upload, a submission status can be tracked using the GET /upl
 Detailed descriptions of what each status means are found in this table.
 | Status        | What it means |
 | ---           |     ---     |
-| **Pending**   | - This is the initial status.Indicates no document submission has been uploaded yet.<br /><br />- Date of Receipt is not yet established with this status |
+| **Pending**   | - This is the initial status. Indicates no document submission has been uploaded yet.<br /><br />- Date of Receipt is not yet established with this status. |
 | **Uploaded**  | - Indicates document submission has been successfully uploaded (PUT) to the API server.<br /><br />- Submission has not yet been validated.<br /><br />- Date of Receipt is not yet established with this status.<br /><br />- Any errors with the document submission, such as having an unreadable PDF, may cause an Error status. |
 | **Received**  | - Indicates document submission has been received downstream of the API and is awaiting processing.<br /><br />- The VA Date of Receipt is set when this status is achieved.<br /><br />- Any errors with the document submission, such as having an unreadable PDF, may cause an Error status.<br /><br />- This is the final status in the sandbox environment unless further progress is simulated by the user. |
 | **Processing**| - Indicates the document package is being validated, processed, and made ready to route and work.<br /><br />- Any errors with the document submission, such as having an unreadable PDF, may cause an Error status.|
@@ -43,8 +43,8 @@ In the sandbox environment:
 * Progress beyond the `received` status can be simulated for testing. A `Status-Override` header can be passed on the `/uploads/{id}` endpoint to change the status of a submission to simulate the various status scenarios.
 
 In the production environment: 
-* The date that the Benefits Intake API submits the documents downstream(indicated by the `received` status)  is used as the official VA date of receipt. This is usually the same day as when the documents are submitted by users, but not always.
-* If the document's final destination is VBMS, it can fall into an `error` state until the status of vbms is returned.
+* The date that the Benefits Intake API submits the documents downstream (indicated by the `received` status)  is used as the official VA date of receipt. This is usually the same day as when the documents are submitted by users, but not always.
+* If the document's final destination is VBMS, it can fall into an `error` state until the status of VBMS is returned.
 * If the document's final destination is another VA system besides VBMS, it can fall into an `error` state until the status of `success` is returned.
 
 
