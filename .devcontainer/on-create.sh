@@ -14,8 +14,14 @@ export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
   echo ". $HOME/.asdf/asdf.sh"
   echo ". $HOME/.asdf/completions/asdf.bash"
 } >> ~/.bashrc
+{ echo ". $HOME/.asdf/asdf.sh" } >> ~/.zshrc
 asdf install ruby $( cat .ruby-version )
 asdf global ruby $( cat .ruby-version )
+
+# Homebrew path to zsh
+{
+  echo "export PATH=\"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:\$PATH\""
+} >> ~/.zshrc
 
 # Clone needed repos
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git /workspaces/vets-api-mockdata
@@ -73,6 +79,9 @@ sudo -u root sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
 
 # Install gems and setup DB
 ./bin/setup
+
+# Prewarm Bootsnap
+bundle exec bootsnap precompile --gemfile app/ lib/
 
 echo "on-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"
