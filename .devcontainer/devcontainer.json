@@ -1,6 +1,6 @@
 {
   "name": "native",
-  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3",
 
   "features": {
     "ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
