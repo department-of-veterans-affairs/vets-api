@@ -90,7 +90,7 @@ describe PdfFill::Forms::Va21p530v2 do
       it 'returns the directly mapped location' do
         subject
         expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
-        expect(class_form_data['locationOfDeath']['placeAndLocation']).to eq("facility name - Washington, DC")
+        expect(class_form_data['locationOfDeath']['placeAndLocation']).to eq('facility name - Washington, DC')
       end
     end
 
