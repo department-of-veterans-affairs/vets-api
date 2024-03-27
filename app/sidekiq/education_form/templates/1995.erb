@@ -115,7 +115,7 @@ Served in the armed forces?: <%= @applicant.applicantServed %>
 Are You Now On Active Duty?: <%= yesno(@applicant.isActiveDuty) %>
 
 Do you have any new periods of service to record since you last applied for
-education benefits? <%= yesno(@applicant.toursOfDutyNewPeriods.present?) %>
+education benefits? <%= yesno(@applicant.toursOfDuty.present?) %>
 
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
