@@ -10,6 +10,60 @@ module SimpleFormsApi
       @data = data
     end
 
+    def currently_homeless?
+      (0..2).include? homeless_living_situation
+    end
+
+    def homeless_living_situation
+      if @data['living_situation']['SHELTER']
+        0
+      elsif @data['living_situation']['FRIEND_OR_FAMILY']
+        1
+      elsif @data['living_situation']['OVERNIGHT']
+        2
+      end
+    end
+
+    def at_risk_of_being_homeless?
+      (0..2).include? risk_homeless_living_situation
+    end
+
+    def risk_homeless_living_situation
+      if @data['living_situation']['LOSING_HOME']
+        0
+      elsif @data['living_situation']['LEAVING_SHELTER']
+        1
+      elsif @data['living_situation']['OTHER_RISK']
+        2
+      end
+    end
+
+    def facility_name(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      "#{facility&.[]('facility_name')}\n#{facility_address(index)}"
+    end
+
+    def facility_address(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      address = facility&.[]('facility_address')
+      "#{address&.[]('street')}\n#{address&.[]('city')}, #{address&.[]('state')} #{address&.[]('postal_code')}\n#{address&.[]('country')}"
+    end
+
+    def facility_month(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      facility&.[]('start_date')&.[](5..6)
+    end
+
+    def facility_day(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      facility&.[]('start_date')&.[](8..9)
+    end
+
+    def facility_year(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      facility&.[]('start_date')&.[](0..3)
+    end
+
     def requester_signature
       @data['statement_of_truth_signature'] if @data['preparer_type'] == 'veteran'
     end
@@ -21,6 +75,10 @@ module SimpleFormsApi
 
     def power_of_attorney_signature
       @data['statement_of_truth_signature'] if @data['third_party_type'] == 'power-of-attorney'
+    end
+
+    def former_pow
+      byebug
     end
 
     def metadata
