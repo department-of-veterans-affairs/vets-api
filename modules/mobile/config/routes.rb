@@ -19,6 +19,7 @@ Mobile::Engine.routes.draw do
     post '/appointment', to: 'appointments#create'
     get '/appointments/check-in/demographics', to: 'check_in_demographics#show'
     get '/awards', to: 'awards#index'
+    get '/pensions', to: 'pensions#index'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claims/decision-letters', to: 'decision_letters#index'
     get '/claims/decision-letters/:document_id/download', to: 'decision_letters#download'
