@@ -353,6 +353,21 @@ contacts:
 integrations: {}
 ---
 schema-version: v2.1
+dd-service: mhv-appointments
+team: mhv-appointments
+application: health
+tier: '1'
+description: Veteran medical appointment scheduling service.
+lifecycle: production
+contacts:
+  - name: "#appointments-team"
+    type: slack
+    contact: https://dsva.slack.com/archives/CMNQT72LX
+type: web
+languages:
+  - ruby
+---
+schema-version: v2.1
 dd-service: mhv-messaging
 team: vfs-myhealth
 application: health
