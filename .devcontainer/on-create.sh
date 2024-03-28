@@ -8,7 +8,7 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 # Homebrew/asdf paths to zsh
 {
   echo "export PATH=\"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:\$PATH\""
-  echo "export PATH=\"\$HOME/.asdf/shims:\$HOME/.asdf/bin:\$PATH\""
+  echo "source \"\$HOME/.asdf/asdf.sh\""
 } >> ~/.zshrc
 
 export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
