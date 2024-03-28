@@ -118,15 +118,21 @@ module MedicalRecords
       # loinc_codes =
       #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,
-                           search: { parameters: { patient: patient_fhir_id, category: 'vital-signs',
-                                                   'status:not': 'entered-in-error' } })
+                           {
+                             search: { parameters: { patient: patient_fhir_id, category: 'vital-signs',
+                                                     'status:not': 'entered-in-error' } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def list_conditions
       bundle = fhir_search(FHIR::Condition,
-                           search: { parameters: { patient: patient_fhir_id,
-                                                   'verification-status:not': 'entered-in-error' } })
+                           {
+                             search: { parameters: { patient: patient_fhir_id,
+                                                     'verification-status:not': 'entered-in-error' } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
@@ -168,7 +174,10 @@ module MedicalRecords
 
     def get_diagnostic_report(record_id)
       fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { _id: record_id, _include: '*', 'status:not': 'entered-in-error' } })
+                  {
+                    search: { parameters: { _id: record_id, _include: '*', 'status:not': 'entered-in-error' } },
+                    headers: { 'Cache-Control': 'no-cache' }
+                  })
     end
 
     ##
@@ -225,8 +234,11 @@ module MedicalRecords
     #
     def list_labs_chemhem_diagnostic_report
       fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_fhir_id, category: 'LAB',
-                                          'status:not': 'entered-in-error' } })
+                  {
+                    search: { parameters: { patient: patient_fhir_id, category: 'LAB',
+                                            'status:not': 'entered-in-error' } },
+                    headers: { 'Cache-Control': 'no-cache' }
+                  })
     end
 
     ##
@@ -238,8 +250,11 @@ module MedicalRecords
     def list_labs_other_diagnostic_report
       loinc_codes = "#{MICROBIOLOGY},#{PATHOLOGY}"
       fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
-                                          'status:not': 'entered-in-error' } })
+                  {
+                    search: { parameters: { patient: patient_fhir_id, code: loinc_codes,
+                                            'status:not': 'entered-in-error' } },
+                    headers: { 'Cache-Control': 'no-cache' }
+                  })
     end
 
     ##
@@ -251,8 +266,10 @@ module MedicalRecords
     def list_labs_document_reference
       loinc_codes = "#{EKG},#{RADIOLOGY}"
       fhir_search(FHIR::DocumentReference,
-                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
-                                          'status:not': 'entered-in-error' } })
+                  {
+                    search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
+                                            'status:not': 'entered-in-error' } }
+                  })
     end
 
     ##
