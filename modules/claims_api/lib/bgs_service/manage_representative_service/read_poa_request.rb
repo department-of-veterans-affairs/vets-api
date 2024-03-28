@@ -8,7 +8,7 @@ module ClaimsApi
         Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
           # Need to declare an arbitrary root element with placeholder
           # namespace in order to leverage namespaced tag building. The root
-          # element is later ignored and only used for its contents.
+          # element itself is later ignored and only used for its contents.
           #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
           xml.root('xmlns:data' => 'placeholder') do
             if statuses
