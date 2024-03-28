@@ -217,7 +217,12 @@ module ClaimsApi
     def full_body(action:, body:, namespace:)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tns="#{namespace}"
+            xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          >
           #{header}
           <env:Body>
             <tns:#{action}>
@@ -266,16 +271,18 @@ module ClaimsApi
         wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
           connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
         end
-        target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+
+        url = "#{Settings.bgs.url}/#{endpoint}"
+        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+        body = full_body(action:, body:, namespace:)
+        headers = {
+          'Content-Type' => 'text/xml;charset=UTF-8',
+          'Host' => "#{@env}.vba.va.gov",
+          'Soapaction' => %{"#{action}"}
+        }
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                       body:,
-                                                                       namespace: target_namespace),
-                          {
-                            'Content-Type' => 'text/xml;charset=UTF-8',
-                            'Host' => "#{@env}.vba.va.gov",
-                            'Soapaction' => "\"#{action}\""
-                          })
+          connection.post(url, body, headers)
         end
       rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
         ClaimsApi::Logger.log('local_bgs',
