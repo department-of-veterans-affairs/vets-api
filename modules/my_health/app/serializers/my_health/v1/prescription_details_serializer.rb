@@ -30,6 +30,16 @@ module MyHealth
       attribute :tracking
       attribute :orderable_item
       attribute :sorted_dispensed_date
+
+      def rx_rf_records
+        records = object&.rx_rf_records
+        records&.dig(0, 1) || []
+      end
+
+      def tracking_list
+        tracking_list = object&.tracking_list
+        tracking_list&.dig(0, 1) || []
+      end
     end
   end
 end

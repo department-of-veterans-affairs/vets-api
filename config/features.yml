@@ -73,12 +73,6 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  cerner_transition_556_t30:
-    actor_type: user
-    description: This will control the content that will be in effect 30 days prior to transition.
-  cerner_transition_556_t5:
-    actor_type: user
-    description: This will control the content that will be in effect 5 days prior to transition.
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -1020,10 +1014,6 @@ features:
     actor_type: user
     description: Allows veterans to cancel VA appointments
     enable_in_development: true
-  va_online_scheduling_clinic_filtering:
-    actor_type: user
-    description: Allows clinic selection filtering by stop codes
-    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
@@ -1120,6 +1110,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_enable_OH_slots_search:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_datadog_RUM:
     actor_type: user
     description: Enables datadog Real User Monitoring.
@@ -1135,6 +1129,9 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
+  va_burial_v2:
+    actor_type: user
+    description: Allows us to toggle between 21-P530 and 21-P530V2
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1254,6 +1251,9 @@ features:
   disability_compensation_lighthouse_brd:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Reference Data service
+  disability_compensation_lighthouse_generate_pdf:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
@@ -1280,6 +1280,10 @@ features:
   nod_callbacks_endpoint:
     actor_type: user
     description: NOD VANotify notification callbacks endpoint
+    enable_in_development: true
+  pension_ipf_callbacks_endpoint:
+    actor_type: user
+    description: Pension IPF VANotify notification callbacks endpoint
     enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
@@ -1310,6 +1314,9 @@ features:
   pension_claim_submission_to_lighthouse:
     actor_type: user
     description: Pension claim submission uses Lighthouse API
+  central_mail_benefits_intake_submission:
+    actor_type: user
+    description: Enable central mail claims submission uses Benefits Intake API
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
@@ -1324,12 +1331,6 @@ features:
     description: >-
       Master toggle for the VYE (Verify Your Enrollment) project.
       If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
-  yellow_ribbon_degree_filter:
-    actor_type: user
-    description: Enable the degree type filter for the Find a Yellow Ribbon school search
-  yellow_ribbon_search_enhancement:
-    actor_type: user
-    description: Enable changes to Find a Yellow Ribbon school search functionality
   travel_pay_power_switch:
     actor_type: user
     description: >-
