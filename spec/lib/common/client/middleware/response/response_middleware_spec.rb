@@ -12,7 +12,7 @@ describe Common::Client::Middleware::Response do
   subject(:faraday_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'RX'
+      conn.response :raise_error, error_prefix: 'RX', include_request: false
       conn.response :mhv_errors
       conn.response :mhv_xml_html_errors
       conn.response :json_parser

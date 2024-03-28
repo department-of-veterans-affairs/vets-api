@@ -11,7 +11,7 @@ describe Common::Client::Middleware::Response do
   subject(:gi_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'GI'
+      conn.response :raise_error, error_prefix: 'GI', include_request: false
       conn.response :gids_errors
       conn.response :json_parser
 

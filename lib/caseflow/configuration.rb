@@ -42,7 +42,7 @@ module Caseflow
         faraday.use :breakers
         faraday.request :json
 
-        faraday.response :raise_error, error_prefix: service_name
+        faraday.response :raise_error, error_prefix: service_name, include_request: false
         faraday.response :caseflow_errors
         faraday.response :betamocks if mock_enabled?
         faraday.response :json
