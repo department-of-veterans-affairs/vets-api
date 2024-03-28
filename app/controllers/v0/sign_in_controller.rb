@@ -5,7 +5,7 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+                       only: %i[authorize callback token introspect refresh revoke logout logingov_logout_proxy]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -224,7 +224,8 @@ module V0
     end
 
     def introspect
-      render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
+      access_token = authenticate_access_token(with_validation: false)
+      render json: access_token, serializer: SignIn::IntrospectSerializer, status: :ok
     rescue SignIn::Errors::StandardError => e
       render json: { errors: e }, status: :unauthorized
     end
