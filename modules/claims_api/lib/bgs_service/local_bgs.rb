@@ -214,15 +214,20 @@ module ClaimsApi
       header.to_s
     end
 
-    def full_body(action:, body:, namespace:)
+    def full_body(action:, body:, namespace:, namespaces:)
+      namespaces = namespaces.map { |k, v| %(xmlns:#{k}="#{v}") }.join("\n")
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tns="#{namespace}"
+            xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+            #{namespaces}
+          >
           #{header}
           <env:Body>
-            <tns:#{action}>
-              #{body}
-            </tns:#{action}>
+            <tns:#{action}>#{body}</tns:#{action}>
           </env:Body>
           </env:Envelope>
       EOXML
@@ -253,6 +258,10 @@ module ClaimsApi
       end
     end
 
+    def namespaces
+      {}
+    end
+
     def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
@@ -266,16 +275,18 @@ module ClaimsApi
         wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
           connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
         end
-        target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+
+        url = "#{Settings.bgs.url}/#{endpoint}"
+        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+        body = full_body(action:, body:, namespace:, namespaces:)
+        headers = {
+          'Content-Type' => 'text/xml;charset=UTF-8',
+          'Host' => "#{@env}.vba.va.gov",
+          'Soapaction' => %("#{action}")
+        }
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                       body:,
-                                                                       namespace: target_namespace),
-                          {
-                            'Content-Type' => 'text/xml;charset=UTF-8',
-                            'Host' => "#{@env}.vba.va.gov",
-                            'Soapaction' => "\"#{action}\""
-                          })
+          connection.post(url, body, headers)
         end
       rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
         ClaimsApi::Logger.log('local_bgs',
