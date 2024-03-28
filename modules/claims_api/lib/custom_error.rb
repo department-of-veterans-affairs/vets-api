@@ -24,9 +24,10 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(key, source, error = nil)
+    def raise_backend_exception(_key, source, error = nil)
+      formatted_key = @error.key ? @error.key.gsub('.', '/') : @error.key
       raise ::Common::Exceptions::BackendServiceException.new(
-        key,
+        formatted_key,
         { source: source.to_s },
         error&.original_status,
         error&.original_body
