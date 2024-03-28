@@ -11,7 +11,7 @@ describe ClaimsApi::VdcManageRepresentativeService do
 
     it 'responds with attributes' do
       VCR.use_cassette('bgs/vdc_manage_representative_service/update_poa') do
-        # Formatting this to show the difference in thedate returned in response and the date sent in request
+        # Formatting this to show the difference between the date returned in response and the date sent in request
         date = Time.parse('2024-03-27T13:05:01Z').getlocal('-05:00').strftime('%Y-%m-%dT%H:%M:%S%:z')
 
         response = subject.update_poa
