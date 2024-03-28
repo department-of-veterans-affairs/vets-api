@@ -249,8 +249,8 @@ http_interactions:
           <env:Body>
             <tns:updatePOARequest>
               <data:POARequestUpdate>
-          <VSOUserFirstName>Test</VSOUserFirstName>
-          <VSOUserLastName>User</VSOUserLastName>
+          <VSOUserFirstName>abraham</VSOUserFirstName>
+          <VSOUserLastName>lincoln</VSOUserLastName>
           <dateRequestActioned>2024-03-27T13:05:01Z</dateRequestActioned>
           <procId>8675309</procId>
 
@@ -295,6 +295,6 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><S:Body><ns0:updatePOARequestResponse
         xmlns:ns1="http://gov.va.vba.benefits.vdc/webfault" xmlns:ns0="http://gov.va.vba.benefits.vdc/services"
-        xmlns:ns2="http://gov.va.vba.benefits.vdc/data"><ns2:POARequestUpdate><VSOUserEmail></VSOUserEmail><VSOUserFirstName>Test</VSOUserFirstName><VSOUserLastName>User</VSOUserLastName><dateRequestActioned>2024-03-27T08:05:01-05:00</dateRequestActioned><declinedReason></declinedReason><procId>8675309</procId><secondaryStatus>OBS</secondaryStatus></ns2:POARequestUpdate></ns0:updatePOARequestResponse></S:Body></S:Envelope>
+        xmlns:ns2="http://gov.va.vba.benefits.vdc/data"><ns2:POARequestUpdate><VSOUserEmail></VSOUserEmail><VSOUserFirstName>abraham</VSOUserFirstName><VSOUserLastName>lincoln</VSOUserLastName><dateRequestActioned>2024-03-27T08:05:01-05:00</dateRequestActioned><declinedReason></declinedReason><procId>8675309</procId><secondaryStatus>OBS</secondaryStatus></ns2:POARequestUpdate></ns0:updatePOARequestResponse></S:Body></S:Envelope>
   recorded_at: Wed, 27 Mar 2024 18:05:53 GMT
 recorded_with: VCR 6.2.0

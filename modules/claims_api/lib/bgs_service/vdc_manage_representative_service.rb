@@ -6,8 +6,9 @@ module ClaimsApi
       'VDC/ManageRepresentativeService'
     end
 
-    def update_poa
-      body = get_update_poa_body
+    def update_poa(rep, proc_id)
+      body = get_update_poa_body(rep, proc_id)
+
       make_request(
         endpoint: bean_name,
         action: 'updatePOARequest',
@@ -24,18 +25,13 @@ module ClaimsApi
       EOXML
     end
 
-    def get_update_poa_body
-      # TEMP VALUES
-      rep_first_name = 'Tamara'
-      rep_last_name = 'Ellis'
-      proc_id = '3854457'
-      # END TEMP VALUES
+    def get_update_poa_body(rep, proc_id)
       current_date = Time.zone.now.strftime('%Y-%m-%dT%H:%M:%SZ')
 
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <data:POARequestUpdate>
-          <VSOUserFirstName>#{rep_first_name}</VSOUserFirstName>
-          <VSOUserLastName>#{rep_last_name}</VSOUserLastName>
+          <VSOUserFirstName>#{rep.first_name}</VSOUserFirstName>
+          <VSOUserLastName>#{rep.last_name}</VSOUserLastName>
           <dateRequestActioned>#{current_date}</dateRequestActioned>
           <procId>#{proc_id}</procId>
 
