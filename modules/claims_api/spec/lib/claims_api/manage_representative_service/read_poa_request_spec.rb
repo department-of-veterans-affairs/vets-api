@@ -5,12 +5,11 @@ require 'bgs_service/manage_representative_service'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
 
 metadata = {
-  type: :bgs_client,
-  bgs_client: {
+  bgs: {
     service: 'manage_representative_service',
     operation: 'read_poa_request',
-  }.freeze,
-}.freeze
+  }
+}
 
 describe ClaimsApi::ManageRepresentativeService, metadata do
   subject do
@@ -20,14 +19,14 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
 
   describe '#read_poa_request' do
     describe 'with no arguments' do
-      let(:arguments) { {} }
+      let(:arguments) do
+        {}
+      end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
-          expect { subject }.to raise_error(
-            ::Common::Exceptions::ServiceError
-          )
-        end
+        expect { subject }.to raise_error(
+          ::Common::Exceptions::ServiceError
+        )
       end
     end
 
@@ -39,11 +38,9 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
-          expect { subject }.to raise_error(
-            ::Common::Exceptions::ServiceError
-          )
-        end
+        expect { subject }.to raise_error(
+          ::Common::Exceptions::ServiceError
+        )
       end
     end
 
@@ -56,11 +53,9 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
-          expect { subject }.to raise_error(
-            ::Common::Exceptions::ServiceError
-          )
-        end
+        expect { subject }.to raise_error(
+          ::Common::Exceptions::ServiceError
+        )
       end
     end
 
@@ -72,11 +67,9 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
-          expect { subject }.to raise_error(
-            ::Common::Exceptions::ServiceError
-          )
-        end
+        expect { subject }.to raise_error(
+          ::Common::Exceptions::ServiceError
+        )
       end
     end
 
@@ -89,11 +82,9 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
-          expect { subject }.to raise_error(
-            ::Common::Exceptions::ServiceError
-          )
-        end
+        expect { subject }.to raise_error(
+          ::Common::Exceptions::ServiceError
+        )
       end
     end
 
@@ -106,34 +97,32 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'returns poa requests' do
-        use_bgs_cassette do
-          expect(subject).to eq({
-            poa_request_respond_return_vo_list: {
-              vso_user_email: nil,
-              vso_user_first_name: "VDC USER",
-              vso_user_last_name: nil,
-              change_address_auth: "Y",
-              claimant_city: "SEASIDE",
-              claimant_country: "USA",
-              claimant_military_po: nil,
-              claimant_military_postal_code: nil,
-              claimant_state: "MT",
-              claimant_zip: "95102",
-              date_request_actioned: "2015-08-05T11:33:20-05:00",
-              date_request_received: "2015-08-05T11:33:20-05:00",
-              declined_reason: nil,
-              health_info_auth: "N",
-              poa_code: "091",
-              proc_id: "52095",
-              secondary_status: "New",
-              vet_first_name: "Wallace",
-              vet_last_name: "Webb",
-              vet_middle_name: "R",
-              vet_ptcpnt_id: "600043200"
-            },
-            total_nbr_of_records: "1"
-          })
-        end
+        expect(subject).to eq({
+          poa_request_respond_return_vo_list: {
+            vso_user_email: nil,
+            vso_user_first_name: "VDC USER",
+            vso_user_last_name: nil,
+            change_address_auth: "Y",
+            claimant_city: "SEASIDE",
+            claimant_country: "USA",
+            claimant_military_po: nil,
+            claimant_military_postal_code: nil,
+            claimant_state: "MT",
+            claimant_zip: "95102",
+            date_request_actioned: "2015-08-05T11:33:20-05:00",
+            date_request_received: "2015-08-05T11:33:20-05:00",
+            declined_reason: nil,
+            health_info_auth: "N",
+            poa_code: "091",
+            proc_id: "52095",
+            secondary_status: "New",
+            vet_first_name: "Wallace",
+            vet_last_name: "Webb",
+            vet_middle_name: "R",
+            vet_ptcpnt_id: "600043200"
+          },
+          total_nbr_of_records: "1"
+        })
       end
     end
   end
