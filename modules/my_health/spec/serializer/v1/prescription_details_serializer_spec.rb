@@ -169,52 +169,49 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
     expect(attributes['rx_rf_records']).to be_an(Array)
     expect(attributes['rx_rf_records']).to all(be_a(Hash))
     rx_rf_record = attributes['rx_rf_records'][0]
-    expect(rx_rf_record['refill_status']).to eq('suspended')
-    expect(rx_rf_record['refill_remaining']).to eq(4)
-    expect(rx_rf_record['facility_name']).to eq('DAYT29')
-    expect(rx_rf_record['is_refillable']).to eq(false)
-    expect(rx_rf_record['is_trackable']).to eq(false)
-    expect(rx_rf_record['prescription_id']).to eq(223_328_28)
-    expect(rx_rf_record['sig']).to be_nil
-    expect(rx_rf_record['quantity']).to be_nil
-    expect(rx_rf_record['expiration_date']).to be_nil
-    expect(rx_rf_record['prescription_number']).to eq('2720542')
-    expect(rx_rf_record['prescription_name']).to eq('ONDANSETRON 8 MG TAB')
-    expect(rx_rf_record['dispensed_date']).to eq('Thu, 21 Apr 2016 00:00:00 EDT')
-    expect(rx_rf_record['station_number']).to eq('989')
-    expect(rx_rf_record['in_cerner_transition']).to eq(false)
-    expect(rx_rf_record['not_refillable_display_message']).to be_nil
-    expect(rx_rf_record['cmop_division_phone']).to be_nil
-    expect(rx_rf_record['cmop_ndc_number']).to be_nil
-    expect(rx_rf_record['id']).to eq(223_328_28)
-    expect(rx_rf_record['user_id']).to eq(169_559_36)
-    expect(rx_rf_record['provider_first_name']).to be_nil
-    expect(rx_rf_record['provider_last_name']).to be_nil
-    expect(rx_rf_record['remarks']).to be_nil
-    expect(rx_rf_record['division_name']).to be_nil
-    expect(rx_rf_record['modified_date']).to be_nil
-    expect(rx_rf_record['institution_id']).to be_nil
-    expect(rx_rf_record['dial_cmop_division_phone']).to eq('')
-    expect(rx_rf_record['disp_status']).to eq('Suspended')
-    expect(rx_rf_record['ndc']).to be_nil
-    expect(rx_rf_record['reason']).to be_nil
-    expect(rx_rf_record['prescription_number_index']).to eq('RF1')
-    expect(rx_rf_record['prescription_source']).to eq('RF')
-    expect(rx_rf_record['disclaimer']).to be_nil
-    expect(rx_rf_record['indication_for_use']).to be_nil
-    expect(rx_rf_record['indication_for_use_flag']).to be_nil
-    expect(rx_rf_record['category']).to eq('Rx Medication')
-    expect(rx_rf_record['tracking_list']).to be_nil
-    expect(rx_rf_record['rx_rf_records']).to be_nil
-    expect(rx_rf_record['tracking']).to eq(false)
-  end
-
-  it 'includes the tracking_list records as an array' do
-    tracking_list = attributes['tracking_list']
-    expect(tracking_list).to be_an(Array)
-    tracking_item = tracking_list[0]
-    expect(tracking_item).to be_a(Hash)
-    expect(tracking_list[0]).to include({ 'carrier' => 'UPS', 'complete_date_time' => '2023-03-28T04:39:11-04:00' })
+    expected_values = {
+      'refill_status' => 'suspended',
+      'refill_remaining' => 4,
+      'facility_name' => 'DAYT29',
+      'is_refillable' => false,
+      'is_trackable' => false,
+      'prescription_id' => 223_328_28,
+      'sig' => nil,
+      'quantity' => nil,
+      'expiration_date' => nil,
+      'prescription_number' => '2720542',
+      'prescription_name' => 'ONDANSETRON 8 MG TAB',
+      'dispensed_date' => 'Thu, 21 Apr 2016 00:00:00 EDT',
+      'station_number' => '989',
+      'in_cerner_transition' => false,
+      'not_refillable_display_message' => nil,
+      'cmop_division_phone' => nil,
+      'cmop_ndc_number' => nil,
+      'id' => 223_328_28,
+      'user_id' => 169_559_36,
+      'provider_first_name' => nil,
+      'provider_last_name' => nil,
+      'remarks' => nil,
+      'division_name' => nil,
+      'modified_date' => nil,
+      'institution_id' => nil,
+      'dial_cmop_division_phone' => '',
+      'disp_status' => 'Suspended',
+      'ndc' => nil,
+      'reason' => nil,
+      'prescription_number_index' => 'RF1',
+      'prescription_source' => 'RF',
+      'disclaimer' => nil,
+      'indication_for_use' => nil,
+      'indication_for_use_flag' => nil,
+      'category' => 'Rx Medication',
+      'tracking_list' => nil,
+      'rx_rf_records' => nil,
+      'tracking' => false
+    }
+    expected_values.each do |key, value|
+      expect(rx_rf_record[key]).to eq(value)
+    end
   end
 
   it 'includes the tracking_list records as an array' do
