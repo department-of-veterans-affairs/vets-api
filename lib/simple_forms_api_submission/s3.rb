@@ -24,7 +24,6 @@ module SimpleFormsApiSubmission
                             key:,
                             body: File.read(file),
                             metadata:,
-                            acl: 'public-read'
                           })
         { success: true }
       rescue => e
