@@ -11,11 +11,11 @@ module ClaimsApi
     def handle_errors
       case @error
       when Faraday::ParsingError
-        raise_backend_exception('EVSS502', @error.class, @error)
+        raise_backend_exception('EVSS502', @error)
       when ::Common::Exceptions::BackendServiceException
         raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
 
-        raise_backend_exception('EVSS400', @error.class, @error) if @error&.original_status == 400
+        raise_backend_exception('EVSS400', @error) if @error&.original_status == 400
         raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
       else
         raise @error
@@ -24,11 +24,18 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(_key, source, error = nil)
-      formatted_key = @error.key ? @error.key.gsub('.', '/') : @error.key
+    def raise_backend_exception(_key, error = nil)
+      org_body = @error.original_body.deep_symbolize_keys if @error.original_body
+      formatted_key = if org_body[:messages][0][:key].present?
+                        org_body[:messages][0][:key].gsub('.', '/')
+                      elsif org_body[0].present?
+                        org_body[0][:key].gsub('.', '/')
+                      else
+                        @error.key
+                      end
       raise ::Common::Exceptions::BackendServiceException.new(
-        formatted_key,
-        { source: source.to_s },
+        key,
+        { source: formatted_key },
         error&.original_status,
         error&.original_body
       )
