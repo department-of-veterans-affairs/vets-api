@@ -8,12 +8,12 @@ RSpec.configure do |config|
     if service.blank? || operation.blank?
       raise ArgumentError, <<~HEREDOC
         Must provide spec metadata of the form:
-          {bgs: {service: 'service', operation: 'operation'}}
+          { bgs: { service: 'service', operation: 'operation' } }
       HEREDOC
     end
 
     name = File.join('bgs', service, operation, example.full_description)
-    options = {match_requests_on: [:method, :uri, :xml_body]}
+    options = { match_requests_on: %i[method uri xml_body] }
 
     VCR.use_cassette(name, options) do
       example.run

@@ -215,7 +215,7 @@ module ClaimsApi
     end
 
     def full_body(action:, body:, namespace:, namespaces:)
-      namespaces = namespaces.map { |k, v| %{xmlns:#{k}="#{v}"} }.join("\n")
+      namespaces = namespaces.map { |k, v| %(xmlns:#{k}="#{v}") }.join("\n")
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
           <env:Envelope
@@ -282,7 +282,7 @@ module ClaimsApi
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
           'Host' => "#{@env}.vba.va.gov",
-          'Soapaction' => %{"#{action}"}
+          'Soapaction' => %("#{action}")
         }
 
         response = log_duration(event: 'connection_post', endpoint:, action:) do

@@ -2,6 +2,7 @@
 
 module ClaimsApi
   class ManageRepresentativeService < ClaimsApi::LocalBGS
+    # rubocop:disable Metrics/MethodLength
     def read_poa_request(poa_codes: nil, statuses: nil)
       builder =
         Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
@@ -9,31 +10,32 @@ module ClaimsApi
           # namespace in order to leverage namespaced tag building. The root
           # element is later ignored and only used for its contents.
           #   https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#method-i-5B-5D
-          xml.root('xmlns:data' => 'placeholder') {
+          xml.root('xmlns:data' => 'placeholder') do
             if statuses
-              xml['data'].SecondaryStatusList {
+              xml['data'].SecondaryStatusList do
                 statuses.each do |status|
                   xml.SecondaryStatus(status)
                 end
-              }
+              end
             end
 
             if poa_codes
-              xml['data'].POACodeList {
-                poa_codes.each { |poa_code|
+              xml['data'].POACodeList do
+                poa_codes.each do |poa_code|
                   xml.POACode(poa_code)
-                }
-              }
+                end
+              end
             end
-          }
+          end
         end
 
       make_request(
         endpoint: 'VDC/ManageRepresentativeService',
         action: 'readPOARequest',
         body: builder.doc.at('root').children.to_xml,
-        key: 'POARequestRespondReturnVO',
+        key: 'POARequestRespondReturnVO'
       )
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

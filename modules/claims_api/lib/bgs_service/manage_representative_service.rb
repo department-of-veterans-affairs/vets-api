@@ -6,7 +6,7 @@ module ClaimsApi
   class ManageRepresentativeService < ClaimsApi::LocalBGS
     def namespaces
       {
-        'data' => 'http://gov.va.vba.benefits.vdc/data',
+        'data' => 'http://gov.va.vba.benefits.vdc/data'
       }
     end
   end
