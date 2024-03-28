@@ -6,8 +6,8 @@ RSpec.describe 'Claim Document Attachment', type: :request do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
-    allow(ClamScan::Client).to receive(:scan)
-      .and_return(instance_double('ClamScan::Response', safe?: true))
+    allow(Common::VirusScan).to receive(:scan).and_return(true)
+    allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
   end
 
   context 'with a valid file' do

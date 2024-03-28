@@ -1,0 +1,2 @@
+# This command should be integrated into bin/setup
+docker-compose run --rm --service-ports -e RAILS_ENV=test web bash -c "bin/rails db:setup db:migrate"
