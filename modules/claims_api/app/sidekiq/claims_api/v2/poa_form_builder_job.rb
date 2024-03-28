@@ -56,12 +56,12 @@ module ClaimsApi
                                     })
 
         signatures = if form_number == '2122A'
-                       individual_signatures(power_of_attorney)
+                       individual_signatures(power_of_attorney, rep)
                      else
                        organization_signatures(power_of_attorney, rep)
                      end
 
-        res.deep_merge!({ 'serviceOrganization' => {
+        res.deep_merge!({ (form_number == '2122A' ? 'representative' : 'serviceOrganization') => {
                           'firstName' => rep.first_name,
                           'lastName' => rep.last_name
                         } })
@@ -88,9 +88,7 @@ module ClaimsApi
         }
       end
 
-      def individual_signatures(power_of_attorney)
-        first_name = power_of_attorney.form_data['representative']['firstName']
-        last_name = power_of_attorney.form_data['representative']['lastName']
+      def individual_signatures(power_of_attorney, rep)
         {
           'page2' => [
             {
@@ -100,7 +98,7 @@ module ClaimsApi
               'y' => 306
             },
             {
-              'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
+              'signature' => "#{rep.first_name} #{rep.last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 200
             }

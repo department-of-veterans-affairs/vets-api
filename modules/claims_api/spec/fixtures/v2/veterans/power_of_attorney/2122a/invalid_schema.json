@@ -2,8 +2,6 @@
   "data": {
     "attributes": {
       "representative": {
-        "firstName": "my",
-        "lastName": "name",
         "type": "ATTORNEY",
         "address": {
           "addressLine1": "123",

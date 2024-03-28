@@ -9132,8 +9132,6 @@
                             "required": [
                               "poaCode",
                               "registrationNumber",
-                              "firstName",
-                              "lastName",
                               "type"
                             ],
                             "properties": {
@@ -9146,16 +9144,6 @@
                                 "description": "Registration Number of representative.",
                                 "type": "string",
                                 "example": "12345"
-                              },
-                              "firstName": {
-                                "description": "First Name of the representative.",
-                                "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
                               },
                               "type": {
                                 "description": "Type of individual representative",
@@ -9269,8 +9257,6 @@
                       "representative": {
                         "poaCode": "083",
                         "registrationNumber": "67890",
-                        "firstName": "my",
-                        "lastName": "name",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",
@@ -10474,8 +10460,6 @@
                             "required": [
                               "poaCode",
                               "registrationNumber",
-                              "firstName",
-                              "lastName",
                               "type"
                             ],
                             "properties": {
@@ -10488,16 +10472,6 @@
                                 "description": "Registration Number of representative.",
                                 "type": "string",
                                 "example": "12345"
-                              },
-                              "firstName": {
-                                "description": "First Name of the representative.",
-                                "type": "string",
-                                "example": "John"
-                              },
-                              "lastName": {
-                                "description": "Last Name of the representative",
-                                "type": "string",
-                                "example": "Doe"
                               },
                               "type": {
                                 "description": "Type of individual representative",
@@ -10611,8 +10585,6 @@
                       "representative": {
                         "poaCode": "083",
                         "registrationNumber": "67890",
-                        "firstName": "my",
-                        "lastName": "name",
                         "type": "ATTORNEY",
                         "address": {
                           "addressLine1": "123",

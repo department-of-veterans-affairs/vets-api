@@ -40,8 +40,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
               representative: {
                 poaCode: individual_poa_code,
                 registrationNumber: '12345',
-                firstName: 'my',
-                lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -71,8 +69,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
               representative: {
                 poaCode: individual_poa_code,
                 registrationNumber: '12345',
-                firstName: 'my',
-                lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -261,8 +257,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',

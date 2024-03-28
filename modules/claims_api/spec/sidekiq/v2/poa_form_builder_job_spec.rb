@@ -55,8 +55,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           representative: {
             poaCode: poa_code.to_s,
             type: 'ATTORNEY',
-            firstName: 'Bob',
-            lastName: 'Representative',
             organizationName: 'I Help Vets LLC',
             address: {
               numberAndStreet: '2719 Hyperion Ave',
@@ -84,7 +82,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
-          final_data = data.merge(
+          final_data = data.deep_merge(
             {
               'text_signatures' => {
                 'page2' => [
@@ -100,7 +98,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                   }
                 ]
               },
-              'serviceOrganization' => {
+              'representative' => {
                 'firstName' => 'Bob',
                 'lastName' => 'Representative'
               }
@@ -206,7 +204,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
-          final_data = data.merge(
+          final_data = data.deep_merge(
             {
               'text_signatures' => {
                 'page2' => [
@@ -222,7 +220,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                   }
                 ]
               },
-              'serviceOrganization' => {
+              'representative' => {
                 'firstName' => 'Bob',
                 'lastName' => 'Representative'
               }
@@ -306,7 +304,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
-        final_data = data.merge(
+        final_data = data.deep_merge(
           {
             'text_signatures' => {
               'page2' => [
@@ -321,7 +319,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                   'y' => 200
                 }
               ]
-            }
+            },
+            'serviceOrganization' => { 'firstName' => 'Bob', 'lastName' => 'Representative' }
           }
         )
 
@@ -421,7 +420,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
-        final_data = data.merge(
+        final_data = data.deep_merge(
           {
             'text_signatures' => {
               'page2' => [
@@ -436,7 +435,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                   'y' => 200
                 }
               ]
-            }
+            },
+            'serviceOrganization' => { 'firstName' => 'Bob', 'lastName' => 'Representative' }
           }
         )
 
