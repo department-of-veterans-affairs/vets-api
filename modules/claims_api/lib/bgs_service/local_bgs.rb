@@ -340,5 +340,14 @@ module ClaimsApi
     def to_camelcase(claim:)
       claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
+
+    def convert_nil_values(options)
+      arg_strg = ''
+      options.each do |option|
+        arg = option[0].to_s.camelize(:lower)
+        arg_strg += (option[1].nil? ? "<#{arg} xsi:nil='true'/>" : "<#{arg}>#{option[1]}</#{arg}>")
+      end
+      arg_strg
+    end
   end
 end
