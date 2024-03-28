@@ -1695,3 +1695,9 @@ vye:
 schema_contract:
   appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
   test_index: 'spec/fixtures/schema_contract/test_schema.json'
+
+# Settings for Representation Management
+representation_management:
+  power_of_attorney:
+    hostname: 'sandbox-api.va.gov'
+    api_key: '<POA_KEY>'
