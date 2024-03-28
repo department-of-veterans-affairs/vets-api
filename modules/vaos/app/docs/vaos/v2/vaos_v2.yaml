@@ -611,6 +611,78 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/locations/{location_id}/slots":
+    get:
+      tags:
+        - appointments
+      summary: Returns a list of available appointment slots for a given facility
+      operationId: getFacilityAppointmentSlots
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: location_id
+          description: The facility division ID
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: clinic_id
+          description: The clinic IEN. Required if clinical_service not provided.
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: clinical_service
+          description: The clinical service (type of care) to find appointment slots for. Required if clinic_id not provided.
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: start
+          description: The start date for the query
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: end
+          description: The end date for the query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves a list of available appointment slots for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Slot"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/eligibility":
     parameters:
      - in: query

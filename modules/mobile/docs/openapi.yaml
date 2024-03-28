@@ -623,6 +623,73 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
+  /v0/appointments/facilities/{facility_id}/slots:
+    get:
+      description: Accepts date range for a va facility and returns available slots for a a direct schedule appointment.
+      parameters:
+        - description: The start date for the range of appointments slots in ISO 8601 UTC
+            format. If not provided the start date will be considered now.
+          example: 2020-10-29T07:00:00Z
+          in: query
+          name: startDate
+          schema:
+            format: date-time
+            type: string
+        - description: The end date for the range of appointments slots in ISO 8601 UTC format.
+            If not provided the end date will be 2 months from today's date
+          example: 2021-11-29T08:00:00Z
+          in: query
+          name: endDate
+          schema:
+            format: date-time
+            type: string
+        - description: The facility division ID
+          in: path
+          required: true
+          name: location_id
+          schema:
+            type: string
+        - description: The clinic IEN. Required if clinical_service not provided.
+          in: query
+          required: false
+          name: clinic_id
+          schema:
+            type: string
+        - description: The clinical service (type of care) to find appointment slots for. Required if clinic_id not provided.
+          in: query
+          required: false
+          name: clinical_service
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClinicSlots.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
   /v0/appointments/preferences:
     get:
       description: Returns VAOS appointment contact preferences
