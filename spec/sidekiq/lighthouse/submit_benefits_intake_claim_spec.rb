@@ -68,7 +68,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
     it 'logs a distinct error when retries are exhausted' do
       Lighthouse::SubmitBenefitsIntakeClaim.within_sidekiq_retries_exhausted_block do
         expect(Rails.logger).to receive(:error).exactly(:once)
-        expect(StatsD).to receive(:increment).with('worker.central_mail.submit_benefits_intake_claim.exhausted')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.exhausted')
       end
     end
   end
