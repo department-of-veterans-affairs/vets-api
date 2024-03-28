@@ -46,9 +46,9 @@ module SimpleFormsApi
     def facility_address(index)
       facility = @data['medical_treatments']&.[](index - 1)
       address = facility&.[]('facility_address')
-      "#{address&.[]('street')}\n
-        #{address&.[]('city')}, #{address&.[]('state')} #{address&.[]('postal_code')}\n
-        #{address&.[]('country')}"
+      "#{address&.[]('street')}\n" \
+        "#{address&.[]('city')}, #{address&.[]('state')} #{address&.[]('postal_code')}\n" \
+        "#{address&.[]('country')}"
     end
 
     def facility_month(index)
