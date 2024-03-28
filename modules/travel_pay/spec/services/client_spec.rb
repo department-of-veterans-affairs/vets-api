@@ -5,7 +5,12 @@ require 'rails_helper'
 describe TravelPay::Client do
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
-    conn = Faraday.new { |b| b.adapter(:test, @stubs) }
+
+    conn = Faraday.new do |c| 
+      c.adapter(:test, @stubs)
+      c.response :json
+    end
+
     allow_any_instance_of(TravelPay::Client).to receive(:connection).and_return(conn)
   end
 
