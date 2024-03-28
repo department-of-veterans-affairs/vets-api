@@ -29,4 +29,8 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
 
     CentralMail::SubmitSavedClaimJob.new.perform(id)
   end
+
+  def business_line
+    'EDU'
+  end
 end

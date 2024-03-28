@@ -25,8 +25,7 @@ module StructuredData
       ensure
         @claim.process_attachments! # upload claim and attachments to Central Mail
 
-        send_confirmation_email if @claim.form_id == '21P-530'
-
+        send_confirmation_email if %w[21P-530 21P-530V2].include?(@claim.form_id)
         # veteran lookup for hit/miss metrics in support of Automation work
         StatsD.increment("#{stats_key}.success",
                          tags: %W[relationship:#{relationship_type} veteranInMVI:#{veteran&.participant_id}])
