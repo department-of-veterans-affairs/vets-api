@@ -39,8 +39,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
+                registrationNumber: '12345',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -69,8 +68,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
+                registrationNumber: '12345',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -259,8 +257,6 @@ RSpec.describe 'Power Of Attorney', type: :request do
               },
               representative: {
                 poaCode: individual_poa_code,
-                firstName: 'my',
-                lastName: 'name',
                 type: 'ATTORNEY',
                 address: {
                   addressLine1: '123',
@@ -350,10 +346,10 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                     it 'returns a meaningful 404' do
                       mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                        detail = 'Could not find an Accredited Representative with code: aaa'
+                        detail = 'Could not find an Accredited Representative with registration number: 67890 ' \
+                                 'and poa code: aaa'
 
                         post validate2122a_path, params: request_body, headers: auth_header
-
                         response_body = JSON.parse(response.body)['errors'][0]
 
                         expect(response).to have_http_status(:not_found)

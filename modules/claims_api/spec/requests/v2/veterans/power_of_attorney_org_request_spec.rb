@@ -181,7 +181,8 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
                 it 'returns a meaningful 404' do
                   mock_ccg(%w[claim.write claim.read]) do |auth_header|
-                    detail = 'Could not retrieve Power of Attorney with registration number: 67890 and poa code: aaa'
+                    detail = 'Could not find an Accredited Representative with registration number: 67890 ' \
+                             'and poa code: aaa'
 
                     post validate2122_path, params: request_body, headers: auth_header
 
