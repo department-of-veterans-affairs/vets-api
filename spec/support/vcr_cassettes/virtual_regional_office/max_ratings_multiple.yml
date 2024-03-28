@@ -5,7 +5,7 @@ http_interactions:
     uri: http://localhost:8120/employee-experience/max-ratings
     body:
       encoding: UTF-8
-      string: '{"diagnostic_codes":[6260]}'
+      string: '{"diagnostic_codes":[6260,7101,6204]}'
     headers:
       Accept:
       - application/json
@@ -32,6 +32,6 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"ratings":[{"diagnostic_code":6260,"max_rating":10.0}]}'
+      string: '{"ratings":[{"diagnostic_code":7101, "max_rating": 60.0},{"diagnostic_code":6260,"max_rating":10.0}]}'
   recorded_at: Thu, 10 Aug 2023 19:52:24 GMT
 recorded_with: VCR 6.2.0
