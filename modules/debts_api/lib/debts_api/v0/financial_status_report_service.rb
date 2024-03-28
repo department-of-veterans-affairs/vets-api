@@ -73,6 +73,7 @@ module DebtsApi
       Rails.logger.info('Submitting Combined FSR')
       create_vba_fsr(fsr_builder)
       create_vha_fsr(fsr_builder)
+      fsr_builder.destroy_related_form
       user_form = fsr_builder.user_form.form_data
 
       {
