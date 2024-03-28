@@ -73,6 +73,10 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
+  ezr_tera_enabled:
+    actor_type: user
+    description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
