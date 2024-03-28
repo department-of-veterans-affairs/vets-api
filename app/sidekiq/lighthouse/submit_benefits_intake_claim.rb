@@ -50,13 +50,13 @@ module Lighthouse
       response = @lighthouse_service.upload_doc(**payload)
 
       if response.success?
-        Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_sentry_details)
+        Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
         @claim.send_confirmation_email if @claim.respond_to?(:send_confirmation_email)
       else
         raise BenefitsIntakeClaimError, response.body
       end
     rescue => e
-      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_sentry_details(e))
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
       raise
     ensure
       cleanup_file_paths
@@ -98,11 +98,11 @@ module Lighthouse
 
     private
 
-    def generate_sentry_details(e = nil)
+    def generate_log_details(e = nil)
       details = {
-        'guid' => @claim&.guid,
-        'docType' => @claim&.form_id,
-        'savedClaimId' => @saved_claim_id
+        claim_id: @claim.id,
+        benefits_intake_uuid: @lighthouse_service.uuid,
+        confirmation_number: @claim.confirmation_number
       }
       details['error'] = e.message if e
       details
