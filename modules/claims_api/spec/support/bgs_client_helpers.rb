@@ -3,7 +3,7 @@
 module BGSClientHelpers
   # If one finds this request matcher useful elsewhere in the future,
   # Rather than using a callable custom request matcher:
-  #   https://benoittgt.github.io/vcr/#/request_matching/custom_matcher?id=use-a-callable-as-a-custom-request-matcher 
+  #   https://benoittgt.github.io/vcr/#/request_matching/custom_matcher?id=use-a-callable-as-a-custom-request-matcher
   # This could instead be registered as a named custom request matcher:
   #   https://benoittgt.github.io/vcr/#/request_matching/custom_matcher?id=register-a-named-custom-matcher
   # Called `:body_as_xml` as inspired by `:body_as_json`:
@@ -20,6 +20,7 @@ module BGSClientHelpers
   VCR_OPTIONS = {
     erb: true,
     match_requests_on: [
+      # Consider matching on `:headers` too?
       :method, :uri,
       body_as_xml_matcher.freeze
     ].freeze
