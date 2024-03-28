@@ -2,8 +2,17 @@
 
 require 'rails_helper'
 require 'bgs_service/manage_representative_service'
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
 
-describe ClaimsApi::ManageRepresentativeService do
+metadata = {
+  type: :bgs_client,
+  bgs_client: {
+    service: 'manage_representative_service',
+    operation: 'read_poa_request',
+  }.freeze,
+}.freeze
+
+describe ClaimsApi::ManageRepresentativeService, metadata do
   subject do
     service = described_class.new(external_uid: 'xUid', external_key: 'xKey')
     service.read_poa_request(**arguments)
@@ -14,9 +23,9 @@ describe ClaimsApi::ManageRepresentativeService do
       let(:arguments) { {} }
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_cassette('manage_representative_service', 'read_poa_request') do
-          expect { subject }.to(
-            raise_error(::Common::Exceptions::ServiceError)
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            ::Common::Exceptions::ServiceError
           )
         end
       end
@@ -30,9 +39,9 @@ describe ClaimsApi::ManageRepresentativeService do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_cassette('manage_representative_service', 'read_poa_request') do
-          expect { subject }.to(
-            raise_error(::Common::Exceptions::ServiceError)
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            ::Common::Exceptions::ServiceError
           )
         end
       end
@@ -47,9 +56,9 @@ describe ClaimsApi::ManageRepresentativeService do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_cassette('manage_representative_service', 'read_poa_request') do
-          expect { subject }.to(
-            raise_error(::Common::Exceptions::ServiceError)
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            ::Common::Exceptions::ServiceError
           )
         end
       end
@@ -63,9 +72,9 @@ describe ClaimsApi::ManageRepresentativeService do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_cassette('manage_representative_service', 'read_poa_request') do
-          expect { subject }.to(
-            raise_error(::Common::Exceptions::ServiceError)
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            ::Common::Exceptions::ServiceError
           )
         end
       end
@@ -80,9 +89,9 @@ describe ClaimsApi::ManageRepresentativeService do
       end
 
       it 'raises ::Common::Exceptions::ServiceError' do
-        use_cassette('manage_representative_service', 'read_poa_request') do
-          expect { subject }.to(
-            raise_error(::Common::Exceptions::ServiceError)
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            ::Common::Exceptions::ServiceError
           )
         end
       end
@@ -97,7 +106,7 @@ describe ClaimsApi::ManageRepresentativeService do
       end
 
       it 'returns poa requests' do
-        use_cassette('manage_representative_service', 'read_poa_request') do
+        use_bgs_cassette do
           expect(subject).to eq({
             poa_request_respond_return_vo_list: {
               vso_user_email: nil,
@@ -128,21 +137,4 @@ describe ClaimsApi::ManageRepresentativeService do
       end
     end
   end
-
-  # TODO-BEGIN: Move to spec helpers.
-  def use_cassette(service, operation, &)
-    scenario = RSpec.current_example.full_description
-    file_path = ['bgs', service, operation, scenario].join('/')
-    options = {match_requests_on: [:method, :uri, :xml_body]}
-    VCR.use_cassette(file_path, options, &)
-  end
-
-  VCR.configure do |config|
-    config.register_request_matcher :xml_body do |req_a, req_b|
-      xml_a = Nokogiri::XML(req_a.body, &:noblanks).canonicalize
-      xml_b = Nokogiri::XML(req_b.body, &:noblanks).canonicalize
-      xml_a == xml_b
-    end
-  end
-  # TODO-END:
 end
