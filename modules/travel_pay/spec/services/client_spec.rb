@@ -6,7 +6,7 @@ describe TravelPay::Client do
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
-    conn = Faraday.new do |c| 
+    conn = Faraday.new do |c|
       c.adapter(:test, @stubs)
       c.response :json
     end
