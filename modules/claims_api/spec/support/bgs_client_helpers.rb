@@ -18,6 +18,7 @@ module BGSClientHelpers
     end
 
   VCR_OPTIONS = {
+    erb: true,
     match_requests_on: [
       :method, :uri,
       body_as_xml_matcher.freeze
