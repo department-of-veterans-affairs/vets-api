@@ -30,12 +30,12 @@ module Users
       @list << BackendServices::IDENTITY_PROOFED if user.loa3?
       @list << BackendServices::VET360 if user.can_access_vet360?
 
-      if Flipper.enabled?(:mhv_sm_session_policy, current_user)
+      if Flipper.enabled?(:mhv_sm_session_policy, user)
         @list << BackendServices::MESSAGING if user.authorize :mhv_messaging, :access?
       else
         @list << BackendServices::MESSAGING if user.authorize :legacy_mhv_messaging, :access?
       end
-      
+
       @list
     end
 
