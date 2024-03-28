@@ -1,6 +1,6 @@
 {
   "name": "native",
-  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
 
   "customizations": {
     "codespaces": {
