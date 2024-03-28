@@ -12,27 +12,56 @@ RSpec.describe CheckIn::Utils::Logger do
   end
 
   describe '#before' do
-    let(:controller) do
-      double('FooController',
-             controller_name: 'sessions',
-             action_name: 'show',
-             response: { body: '' },
-             params: { id: '123' },
-             permitted_params: {})
-    end
-    let(:resp) do
-      {
-        workflow: 'Min-Auth',
-        uuid: '123',
-        controller: 'sessions',
-        action: 'show',
-        initiated_by: '',
-        filter: :before_action
-      }
+    context 'when endpoint called without facility_type' do
+      let(:controller) do
+        double('FooController',
+               controller_name: 'sessions',
+               action_name: 'show',
+               response: { body: '' },
+               params: { id: '123' },
+               permitted_params: {})
+      end
+      let(:resp) do
+        {
+          workflow: 'Min-Auth',
+          uuid: '123',
+          controller: 'sessions',
+          action: 'show',
+          initiated_by: '',
+          facility_type: nil,
+          filter: :before_action
+        }
+      end
+
+      it 'returns the before info hash with nil facility_type' do
+        expect(described_class.build(controller).before).to eq(resp)
+      end
     end
 
-    it 'returns the before info hash' do
-      expect(described_class.build(controller).before).to eq(resp)
+    context 'when endpoint called with facility_type' do
+      let(:controller) do
+        double('FooController',
+               controller_name: 'sessions',
+               action_name: 'show',
+               response: { body: '' },
+               params: { id: '123', facility_type: 'oh' },
+               permitted_params: {})
+      end
+      let(:resp) do
+        {
+          workflow: 'Min-Auth',
+          uuid: '123',
+          controller: 'sessions',
+          action: 'show',
+          initiated_by: '',
+          facility_type: 'oh',
+          filter: :before_action
+        }
+      end
+
+      it 'returns the before info hash with nil facility_type' do
+        expect(described_class.build(controller).before).to eq(resp)
+      end
     end
   end
 
@@ -49,7 +78,7 @@ RSpec.describe CheckIn::Utils::Logger do
         }
       end
 
-      context 'when set_e_checkin_started_called = false' do
+      context 'when set_e_checkin_started_called = false without facility_type' do
         let(:controller) do
           double('FooController',
                  controller_name: 'patient_check_ins',
@@ -59,7 +88,7 @@ RSpec.describe CheckIn::Utils::Logger do
                  permitted_params: { uuid: '345' })
         end
         let(:resp_with_initiated_by_vetext) do
-          resp.merge(initiated_by: 'vetext')
+          resp.merge(initiated_by: 'vetext', facility_type: nil)
         end
 
         it 'returns the after info hash with initiated_by set with vetext' do
@@ -67,7 +96,7 @@ RSpec.describe CheckIn::Utils::Logger do
         end
       end
 
-      context 'when set_e_checkin_started_called = true' do
+      context 'when set_e_checkin_started_called = true without facility_type' do
         let(:controller) do
           double('FooController',
                  controller_name: 'patient_check_ins',
@@ -77,7 +106,25 @@ RSpec.describe CheckIn::Utils::Logger do
                  permitted_params: { uuid: '123' })
         end
         let(:resp_with_initiated_by_veteran) do
-          resp.merge(initiated_by: 'veteran')
+          resp.merge(initiated_by: 'veteran', facility_type: nil)
+        end
+
+        it 'returns the after info hash with initiated_by set with vetext' do
+          expect(described_class.build(controller).after).to eq(resp_with_initiated_by_veteran)
+        end
+      end
+
+      context 'when set_e_checkin_started_called = true with oh facility_type' do
+        let(:controller) do
+          double('FooController',
+                 controller_name: 'patient_check_ins',
+                 action_name: 'show',
+                 response: double('ResponseBody', body: '{"a":"b", "status":"success 200", "c":"d"}'),
+                 params: { id: '123', set_e_checkin_started_called: true, facility_type: 'oh' },
+                 permitted_params: { uuid: '123' })
+        end
+        let(:resp_with_initiated_by_veteran) do
+          resp.merge(initiated_by: 'veteran', facility_type: 'oh')
         end
 
         it 'returns the after info hash with initiated_by set with vetext' do
@@ -94,6 +141,7 @@ RSpec.describe CheckIn::Utils::Logger do
           controller: 'patient_check_ins',
           action: 'create',
           api_status: 'success 200',
+          facility_type: nil,
           filter: :after_action
         }
       end

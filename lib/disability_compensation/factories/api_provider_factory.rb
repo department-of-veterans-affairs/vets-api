@@ -15,6 +15,9 @@ require 'disability_compensation/providers/claims_service/lighthouse_claims_serv
 require 'disability_compensation/providers/brd/brd_provider'
 require 'disability_compensation/providers/brd/evss_brd_provider'
 require 'disability_compensation/providers/brd/lighthouse_brd_provider'
+require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
+require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
+require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
 require 'logging/third_party_transaction'
 
 class ApiProviderFactory
@@ -31,7 +34,8 @@ class ApiProviderFactory
     intent_to_file: :intent_to_file,
     ppiu: :ppiu,
     claims: :claims,
-    brd: :brd
+    brd: :brd,
+    generate_pdf: :generate_pdf
   }.freeze
 
   # Splitting the rated disabilities functionality into two use cases:
@@ -47,6 +51,7 @@ class ApiProviderFactory
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
   FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
+  FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
 
   attr_reader :type
 
@@ -56,6 +61,7 @@ class ApiProviderFactory
     :ppiu_service_provider,
     :claims_service_provider,
     :brd_service_provider,
+    :generate_pdf_service_provider,
     additional_class_logs: {
       action: 'disability compensation factory choosing API Provider'
     },
@@ -91,6 +97,8 @@ class ApiProviderFactory
       claims_service_provider
     when FACTORIES[:brd]
       brd_service_provider
+    when FACTORIES[:generate_pdf]
+      generate_pdf_service_provider
     else
       raise UndefinedFactoryTypeError
     end
@@ -150,6 +158,23 @@ class ApiProviderFactory
       LighthouseBRDProvider.new(@current_user)
     else
       raise NotImplementedError, 'No known BRD Api Provider type provided'
+    end
+  end
+
+  def generate_pdf_service_provider
+    case api_provider
+    when API_PROVIDER[:evss]
+      if @options[:auth_headers].nil? || @options[:auth_headers]&.empty?
+        raise StandardError, 'options[:auth_headers] is required to create a generate an EVSS pdf provider'
+      end
+
+      # provide options[:breakered] = false if this needs to use the non-breakered configuration
+      # for instance, in the backup process
+      EvssGeneratePdfProvider.new(@options[:auth_headers], breakered: @options[:breakered])
+    when API_PROVIDER[:lighthouse]
+      LighthouseGeneratePdfProvider.new({})
+    else
+      raise NotImplementedError, 'No known Generate Pdf Api Provider type provided'
     end
   end
 
