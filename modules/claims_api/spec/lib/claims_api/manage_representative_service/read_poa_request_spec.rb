@@ -125,5 +125,43 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
         })
       end
     end
+
+    describe 'with existent and nonexistent poa_code argument' do
+      let(:arguments) do
+        {
+          poa_codes: ['091', '1'],
+          statuses: ['new'],
+        }
+      end
+
+      it 'returns the existent poa requests' do
+        expect(subject).to eq({
+          poa_request_respond_return_vo_list: {
+            vso_user_email: nil,
+            vso_user_first_name: "VDC USER",
+            vso_user_last_name: nil,
+            change_address_auth: "Y",
+            claimant_city: "SEASIDE",
+            claimant_country: "USA",
+            claimant_military_po: nil,
+            claimant_military_postal_code: nil,
+            claimant_state: "MT",
+            claimant_zip: "95102",
+            date_request_actioned: "2015-08-05T11:33:20-05:00",
+            date_request_received: "2015-08-05T11:33:20-05:00",
+            declined_reason: nil,
+            health_info_auth: "N",
+            poa_code: "091",
+            proc_id: "52095",
+            secondary_status: "New",
+            vet_first_name: "Wallace",
+            vet_last_name: "Webb",
+            vet_middle_name: "R",
+            vet_ptcpnt_id: "600043200"
+          },
+          total_nbr_of_records: "1"
+        })
+      end
+    end
   end
 end
