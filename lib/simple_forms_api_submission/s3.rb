@@ -23,8 +23,7 @@ module SimpleFormsApiSubmission
                             bucket: Settings.ivc_forms.s3.bucket,
                             key:,
                             body: File.read(file),
-                            metadata:,
-                            acl: 'public-read'
+                            metadata:
                           })
         { success: true }
       rescue => e
