@@ -69,15 +69,6 @@ module RepresentationManagement
         )
       end
 
-      def raise_invalid_body(e, source)
-        raise Common::Exceptions::BackendServiceException.new(
-          'REPRESENTATION_MANAGEMENT_POA_502',
-          { source: source.to_s },
-          502,
-          e&.body
-        )
-      end
-
       def log_error(e)
         Sentry.set_extras(
           message: e.message,
@@ -86,6 +77,15 @@ module RepresentationManagement
         )
 
         Sentry.set_tags(representation_management: 'general_client_error')
+      end
+
+      def raise_invalid_body(e, source)
+        raise Common::Exceptions::BackendServiceException.new(
+          'REPRESENTATION_MANAGEMENT_POA_502',
+          { source: source.to_s },
+          502,
+          e&.body
+        )
       end
     end
   end
