@@ -24,9 +24,11 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        expect { subject }.to raise_error(
-          Common::Exceptions::ServiceError
-        )
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            Common::Exceptions::ServiceError
+          )
+        end
       end
     end
 
@@ -38,9 +40,11 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        expect { subject }.to raise_error(
-          Common::Exceptions::ServiceError
-        )
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            Common::Exceptions::ServiceError
+          )
+        end
       end
     end
 
@@ -53,9 +57,11 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        expect { subject }.to raise_error(
-          Common::Exceptions::ServiceError
-        )
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            Common::Exceptions::ServiceError
+          )
+        end
       end
     end
 
@@ -67,9 +73,11 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        expect { subject }.to raise_error(
-          Common::Exceptions::ServiceError
-        )
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            Common::Exceptions::ServiceError
+          )
+        end
       end
     end
 
@@ -82,9 +90,11 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        expect { subject }.to raise_error(
-          Common::Exceptions::ServiceError
-        )
+        use_bgs_cassette do
+          expect { subject }.to raise_error(
+            Common::Exceptions::ServiceError
+          )
+        end
       end
     end
 
@@ -126,7 +136,9 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'returns poa requests' do
-        expect(subject).to eq(expected)
+        use_bgs_cassette do
+          expect(subject).to eq(expected)
+        end
       end
 
       describe 'and nonexistent poa_code argument' do
@@ -138,7 +150,9 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
         end
 
         it 'returns the existent poa requests' do
-          expect(subject).to eq(expected)
+          use_bgs_cassette do
+            expect(subject).to eq(expected)
+          end
         end
       end
     end
