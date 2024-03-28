@@ -1,6 +1,6 @@
 {
   "name": "native",
-  "image": "mcr.microsoft.com/devcontainers/ruby:3.2",
+  "image": "mcr.microsoft.com/devcontainers/base:debian",
 
   "customizations": {
     "codespaces": {
@@ -11,6 +11,9 @@
     }
   },
   "features": {
+    "ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
+ 			"version": "3.2.3"
+ 		},
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
       "version": "15"
     },

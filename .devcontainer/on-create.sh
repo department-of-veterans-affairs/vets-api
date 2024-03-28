@@ -5,10 +5,15 @@
 echo "on-create start"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 
-# Homebrew path to zsh
+# Homebrew/asdf paths to zsh
 {
   echo "export PATH=\"/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:\$PATH\""
+  echo "export PATH=\"\$HOME/.asdf/shims:\$HOME/.asdf/bin:\$PATH\""
 } >> ~/.zshrc
+
+export PATH="${HOME}/.asdf/shims:${HOME}/.asdf/bin:${PATH}"
+asdf install ruby $( cat .ruby-version )
+asdf global ruby $( cat .ruby-version )
 
 # Clone needed repos
 git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git /workspaces/vets-api-mockdata
