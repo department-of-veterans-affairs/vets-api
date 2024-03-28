@@ -1,6 +1,6 @@
 {
   "name": "native",
-  "image": "mcr.microsoft.com/devcontainers/base:debian",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
   "customizations": {
     "codespaces": {
