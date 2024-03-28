@@ -153,6 +153,7 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
           type: :appointment_data,
           attributes: {
             payload: {
+              address: nil,
               demographics: {
                 mailingAddress: {
                   street1: '123 Turtle Trail',
@@ -279,6 +280,142 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
       appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
 
       expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+    end
+
+    context 'when demographics and demographics status are nil' do
+      let(:appointment_data) do
+        {
+          id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          payload: {
+            appointments: [
+              {
+                appointmentIEN: '460'
+              }
+            ]
+          }
+        }
+      end
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_data,
+            attributes: {
+              payload: {
+                address: nil,
+                demographics: {},
+                appointments: [
+                  {
+                    appointmentIEN: '460'
+                  }
+                ],
+                patientDemographicsStatus: {},
+                setECheckinStartedCalled: nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'return empty hash' do
+        appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'for OH data' do
+      let(:appointment_data_oh) do
+        {
+          id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+          scope: 'read.full',
+          payload: {
+            address: '1166 6th Avenue 22, New York, NY 23423 US',
+            appointments: [
+              {
+                appointmentIEN: '4822366',
+                clinicCreditStopCodeName: '',
+                clinicFriendlyName: 'Endoscopy',
+                clinicIen: '32216049',
+                clinicLocation: '',
+                clinicName: 'Endoscopy',
+                clinicPhoneNumber: '909-825-7084',
+                clinicStopCodeName: 'Mental Health, Primary Care',
+                doctorName: 'Dr. Jones',
+                edipi: '1000000105',
+                facility: 'Jerry L. Pettis Memorial Veterans Hospital',
+                facilityAddress: {
+                  city: 'Loma Linda',
+                  state: 'CA',
+                  street1: '',
+                  street2: '',
+                  street3: '',
+                  zip: '92357-1000'
+                },
+                icn: '1013220078V743173',
+                kind: 'clinic',
+                startTime: '2024-02-14T22:10:00.000+00:00',
+                stationNo: '530',
+                status: 'Confirmed',
+                timezone: 'America/Los_Angeles'
+              }
+            ],
+            patientCellPhone: '4445556666',
+            facilityType: 'OH'
+          }
+        }
+      end
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_data,
+            attributes: {
+              payload: {
+                address: '1166 6th Avenue 22, New York, NY 23423 US',
+                demographics: {},
+                appointments: [
+                  {
+                    appointmentIEN: '4822366',
+                    clinicCreditStopCodeName: '',
+                    clinicFriendlyName: 'Endoscopy',
+                    clinicIen: '32216049',
+                    clinicLocation: '',
+                    clinicName: 'Endoscopy',
+                    clinicPhoneNumber: '909-825-7084',
+                    clinicStopCodeName: 'Mental Health, Primary Care',
+                    doctorName: 'Dr. Jones',
+                    facility: 'Jerry L. Pettis Memorial Veterans Hospital',
+                    facilityAddress: {
+                      city: 'Loma Linda',
+                      state: 'CA',
+                      street1: '',
+                      street2: '',
+                      street3: '',
+                      zip: '92357-1000'
+                    },
+                    kind: 'clinic',
+                    startTime: '2024-02-14T22:10:00.000+00:00',
+                    stationNo: '530',
+                    status: 'Confirmed',
+                    timezone: 'America/Los_Angeles'
+                  }
+                ],
+                patientDemographicsStatus: {},
+                setECheckinStartedCalled: nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash' do
+        appt_struct = OpenStruct.new(appointment_data_oh)
+        appt_serializer = CheckIn::V2::AppointmentDataSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
     end
   end
 end

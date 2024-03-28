@@ -33,8 +33,11 @@ module ClaimsApi
       url = Settings.bgs.url
       path = URI.parse(url).path
       host = URI.parse(url).host
+      port = URI.parse(url).port
       matcher = proc do |request_env|
-        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+        request_env.url.host == host &&
+          request_env.url.port == port &&
+          request_env.url.path =~ /^#{path}/
       end
 
       Breakers::Service.new(
@@ -335,6 +338,15 @@ module ClaimsApi
 
     def to_camelcase(claim:)
       claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
+    end
+
+    def convert_nil_values(options)
+      arg_strg = ''
+      options.each do |option|
+        arg = option[0].to_s.camelize(:lower)
+        arg_strg += (option[1].nil? ? "<#{arg} xsi:nil='true'/>" : "<#{arg}>#{option[1]}</#{arg}>")
+      end
+      arg_strg
     end
   end
 end

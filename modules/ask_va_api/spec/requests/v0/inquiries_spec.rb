@@ -9,9 +9,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:icn) { YAML.load_file('./modules/ask_va_api/config/locales/constants.yml')['test_users']['test_user_228_icn'] }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn:) }
   let(:mock_inquiries) do
-    JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
+    JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['Data']
   end
-  let(:valid_id) { mock_inquiries.first['id'] }
+  let(:valid_id) { mock_inquiries.first['Id'] }
   let(:invalid_id) { 'invalid-id' }
 
   before do
@@ -43,7 +43,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             'type' => 'inquiry',
             'attributes' =>
                { 'inquiry_number' => 'A-1',
-                 'attachments' => [{ 'id' => '1', 'name' => 'testfile.txt' }],
+                 'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
                  'correspondences' => nil,
                  'has_attachments' => true,
                  'has_been_split' => true,
@@ -108,7 +108,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           'type' => 'inquiry',
           'attributes' =>
           { 'inquiry_number' => 'A-1',
-            'attachments' => [{ 'id' => '1', 'name' => 'testfile.txt' }],
+            'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
             'correspondences' => { 'data' => [{
               'id' => '1',
               'type' => 'correspondence',
@@ -121,8 +121,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                 'enable_reply' => true,
                 'attachments' => [
                   {
-                    'id' => '12',
-                    'name' => 'correspondence_1_attachment.pdf'
+                    'Id' => '12',
+                    'Name' => 'correspondence_1_attachment.pdf'
                   }
                 ]
               }
@@ -264,12 +264,12 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       let(:id) { 'not_valid' }
 
       it 'responds with 500' do
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
 
-  describe 'GET /profile' do
+  describe 'GET #profile' do
     context 'when a user is signed in' do
       before do
         sign_in(authorized_user)
@@ -312,6 +312,29 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                       'AskVAApi::Profile::InvalidInquiryError: No Contact found'
+    end
+  end
+
+  describe 'GET #status' do
+    before do
+      allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+      allow_any_instance_of(Crm::Service)
+        .to receive(:call).and_return({
+                                        Status: 'Reopened',
+                                        Message: nil,
+                                        ExceptionOccurred: false,
+                                        ExceptionMessage: nil,
+                                        MessageId: 'c6252e77-cf7f-48b6-96be-1b43d8e9905c'
+                                      })
+      sign_in(authorized_user)
+      get "/ask_va_api/v0/inquiries/#{valid_id}/status"
+    end
+
+    it 'returns the status for the given inquiry id' do
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']).to eq({ 'id' => nil,
+                                                        'type' => 'inquiry_status',
+                                                        'attributes' => { 'status' => 'Reopened' } })
     end
   end
 end

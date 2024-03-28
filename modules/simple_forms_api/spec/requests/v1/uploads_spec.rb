@@ -14,11 +14,15 @@ RSpec.describe 'Forms uploader', type: :request do
     'vba_40_0247.json',
     'vba_21_0966.json',
     'vba_20_10206.json',
-    'vba_40_10007.json'
+    'vba_40_10007.json',
+    'vba_20_10207-veteran.json',
+    'vba_20_10207-non-veteran.json'
   ]
 
   ivc_forms = [
-    'vha_10_10d.json'
+    'vha_10_10d.json',
+    'vha_10_7959f_1.json',
+    'vha_10_7959f_2.json'
   ]
 
   describe '#submit' do
@@ -58,19 +62,13 @@ RSpec.describe 'Forms uploader', type: :request do
       end
     end
 
-    let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
-
-    before do
-      allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
-    end
-
     ivc_forms.each do |form|
       fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
 
       it 'uploads a PDF file to S3' do
         allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-        allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -110,22 +108,20 @@ RSpec.describe 'Forms uploader', type: :request do
       end
 
       describe 'request with intent to file' do
-        describe 'veteran or surviving dependent' do
-          %w[VETERAN SURVIVING_DEPENDENT].each do |identification|
-            it 'makes the request with an intent to file' do
-              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
-                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
-                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
-                    VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-                      fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                                     'vba_21_0966-min.json')
-                      data = JSON.parse(fixture_path.read)
-                      data['preparer_identification'] = identification
+        describe 'veteran' do
+          it 'makes the request with an intent to file' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
+              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+                VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
+                  VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+                    fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                                   'vba_21_0966-min.json')
+                    data = JSON.parse(fixture_path.read)
+                    data['preparer_identification'] = 'VETERAN'
 
-                      post '/simple_forms_api/v1/simple_forms', params: data
+                    post '/simple_forms_api/v1/simple_forms', params: data
 
-                      expect(response).to have_http_status(:ok)
-                    end
+                    expect(response).to have_http_status(:ok)
                   end
                 end
               end

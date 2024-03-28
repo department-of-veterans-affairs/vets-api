@@ -25,10 +25,13 @@ module DebtsApi
     def persist_form_submission
       metadata = { copays: @copays }.to_json
       public_metadata = build_public_metadata
+      ipf = in_progress_form(@user.uuid)
+      ipf_data = ipf&.form_data
 
       DebtsApi::V0::Form5655Submission.create(
         form_json: @form_data.to_json,
         metadata:,
+        ipf_data:,
         user_uuid: @user.uuid,
         user_account: @user.user_account,
         public_metadata:,
@@ -59,6 +62,7 @@ module DebtsApi
       facility_form = remove_form_delimiters(facility_form)
       combined_adjustments(facility_form)
       streamline_adjustments(facility_form)
+      station_adjustments(facility_form)
       facility_form
     end
 
@@ -77,6 +81,18 @@ module DebtsApi
           val
         end
       end
+    end
+
+    def station_adjustments(form)
+      stations = []
+      @copays.each do |copay|
+        stations << 'vista' if copay['pHDfnNumber'].to_i.positive?
+        if copay['pHCernerPatientId'].instance_of?(String) && copay['pHCernerPatientId'].strip.length.positive?
+          stations << 'cerner'
+        end
+      end
+      stations.uniq!
+      form['station_type'] = stations.include?('cerner') && stations.include?('vista') ? 'both' : stations[0]
     end
 
     def combined_adjustments(form)

@@ -33,7 +33,11 @@ RSpec.describe BenefitsEducation::Service do
           # https://developer.va.gov/explore/api/education-benefits
           VCR.use_cassette('lighthouse/benefits_education/200_response') do
             response = @service.get_gi_bill_status
-            expect(response.body.keys).to include 'chapter33EducationInfo'
+
+            # assertions that the data returned will match our test user
+            expect(response['first_name']).to eq('Tamara')
+            expect(response['last_name']).to eq('Ellis')
+            expect(response['date_of_birth']).to start_with('1967-06-19')
           end
         end
       end

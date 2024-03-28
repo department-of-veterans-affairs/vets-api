@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -378,18 +378,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
-  create_table "credential_adoption_email_records", force: :cascade do |t|
-    t.string "icn", null: false
-    t.string "email_address", null: false
-    t.string "email_template_id", null: false
-    t.datetime "email_triggered_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
-    t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
-    t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
-  end
-
   create_table "deprecated_user_accounts", force: :cascade do |t|
     t.uuid "user_account_id"
     t.bigint "user_verification_id"
@@ -603,6 +591,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
     t.string "backup_submitted_claim_id", comment: "*After* a SubmitForm526 Job has exhausted all attempts, a paper submission is generated and sent to Central Mail Portal.This column will be nil for all submissions where a backup submission is not generated.It will have the central mail id for submissions where a backup submission is submitted."
+    t.string "aasm_state", default: "unprocessed"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -620,6 +609,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.jsonb "public_metadata"
     t.integer "state", default: 0
     t.string "error_message"
+    t.text "ipf_data_ciphertext"
     t.index ["user_account_id"], name: "index_form5655_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_form5655_submissions_on_user_uuid"
   end
@@ -737,6 +727,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.text "form_data_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.integer "status", default: 0
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
     t.index ["user_account_id"], name: "index_in_progress_forms_on_user_account_id"
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
@@ -824,6 +815,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "pension_ipf_notifications", force: :cascade do |t|
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -892,6 +890,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+  end
+
+  create_table "schema_contract_validations", force: :cascade do |t|
+    t.string "contract_name", null: false
+    t.string "user_uuid", null: false
+    t.jsonb "response", null: false
+    t.integer "status", null: false
+    t.string "error_details"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "service_account_configs", force: :cascade do |t|
@@ -1101,6 +1109,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.integer "row_id"
     t.float "ranking"
     t.string "tags"
+    t.date "last_sha256_change"
+    t.jsonb "change_history"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -1150,17 +1160,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
-  end
-
-  create_table "versions", force: :cascade do |t|
-    t.string "item_type", null: false
-    t.bigint "item_id", null: false
-    t.string "event", null: false
-    t.string "whodunnit"
-    t.text "object"
-    t.datetime "created_at"
-    t.text "object_changes"
-    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_device_records", force: :cascade do |t|
@@ -1267,6 +1266,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "origin"
+    t.text "address5_ciphertext"
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1318,6 +1319,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
     t.index ["ssn_digest"], name: "index_vye_pending_documents_on_ssn_digest"
   end
 
@@ -1348,8 +1350,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_183025) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_profile_id"
     t.index ["icn"], name: "index_vye_user_infos_on_icn"
     t.index ["ssn_digest"], name: "index_vye_user_infos_on_ssn_digest"
+  end
+
+  create_table "vye_user_profiles", force: :cascade do |t|
+    t.binary "ssn_digest"
+    t.binary "file_number_digest"
+    t.string "icn"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_number_digest"], name: "index_vye_user_profiles_on_file_number_digest", unique: true
+    t.index ["icn"], name: "index_vye_user_profiles_on_icn", unique: true
+    t.index ["ssn_digest"], name: "index_vye_user_profiles_on_ssn_digest", unique: true
   end
 
   create_table "vye_verifications", force: :cascade do |t|
