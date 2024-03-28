@@ -82,17 +82,21 @@ module ClaimFastTracking
       max_rated_disabilities.map { |dis| dis['diagnosticCode'] || dis['diagnostic_code'] }
     end
 
+    def diagnostic_codes_for_logging_metrics
+      ClaimFastTracking::DiagnosticCodesForMetrics::DC.intersection(max_rated_disabilities_diagnostic_codes)
+    end
+
     private
 
     def log_init_metric
       StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{flipper_enabled_state}.526_started")
-      max_rated_disabilities_diagnostic_codes.each do |dc|
+      diagnostic_codes_for_logging_metrics.each do |dc|
         StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{flipper_enabled_state}.526_started.#{dc}")
       end
     end
 
     def log_cfi_metric
-      max_rated_disabilities_diagnostic_codes.each do |dc|
+      diagnostic_codes_for_logging_metrics.each do |dc|
         StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{flipper_enabled_state}.rated_disabilities.#{dc}")
       end
     end
