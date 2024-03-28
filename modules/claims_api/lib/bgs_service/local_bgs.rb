@@ -214,7 +214,8 @@ module ClaimsApi
       header.to_s
     end
 
-    def full_body(action:, body:, namespace:)
+    def full_body(action:, body:, namespace:, namespaces:)
+      namespaces = namespaces.map { |k, v| %{xmlns:#{k}="#{v}"} }.join("\n")
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
           <env:Envelope
@@ -222,6 +223,7 @@ module ClaimsApi
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tns="#{namespace}"
             xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+            #{namespaces}
           >
           #{header}
           <env:Body>
@@ -258,6 +260,10 @@ module ClaimsApi
       end
     end
 
+    def namespaces
+      {}
+    end
+
     def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
@@ -274,7 +280,7 @@ module ClaimsApi
 
         url = "#{Settings.bgs.url}/#{endpoint}"
         namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
-        body = full_body(action:, body:, namespace:)
+        body = full_body(action:, body:, namespace:, namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
           'Host' => "#{@env}.vba.va.gov",
