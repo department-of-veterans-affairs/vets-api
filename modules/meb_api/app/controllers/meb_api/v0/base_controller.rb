@@ -16,10 +16,6 @@ module MebApi
         authorize(current_user, :access?, policy_class: MebPolicy)
       end
 
-      def check_forms_flipper
-        routing_error unless Flipper.enabled?(:show_forms_app)
-      end
-
       def claim_status_service
         MebApi::DGI::Status::Service.new(@current_user)
       end
