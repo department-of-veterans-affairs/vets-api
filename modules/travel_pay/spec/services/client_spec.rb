@@ -36,7 +36,7 @@ describe TravelPay::Client do
 
   context 'request_btsss_token' do
     it 'returns btsss token from proper endpoint' do
-      @stubs.post("/api/v1/Auth/access-token") do
+      @stubs.post('/api/v1/Auth/access-token') do
         [
           200,
           { 'Content-Type': 'application/json' },
