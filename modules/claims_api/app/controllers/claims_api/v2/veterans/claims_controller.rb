@@ -323,7 +323,7 @@ module ClaimsApi
             return 'NO_STATUS_PROVIDED'
           end
 
-          phase_data = if data[:claim_status].present?
+          phase_data = if data[:claim_status] == 'CAN'
                          data[:claim_status]
                        elsif data[:phase_type].present?
                          data[:phase_type]
