@@ -20,6 +20,7 @@ path 'modules' do
   gem 'facilities_api'
   gem 'health_quest'
   gem 'income_limits'
+  gem 'ivc_champva'
   gem 'meb_api'
   gem 'mobile'
   gem 'mocked_authentication'
