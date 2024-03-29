@@ -35,8 +35,11 @@ describe TravelPay::Client do
   end
 
   context 'request_btsss_token' do
+    let(:vagov_token) { 'fake_vagov_token' }
+    let(:request_body) { { authJwt: vagov_token } }
+
     it 'returns btsss token from proper endpoint' do
-      @stubs.post('/api/v1/Auth/access-token') do
+      @stubs.post('/api/v1/Auth/access-token', request_body) do
         [
           200,
           { 'Content-Type': 'application/json' },
@@ -45,7 +48,7 @@ describe TravelPay::Client do
       end
 
       client = TravelPay::Client.new
-      token = client.request_btsss_token('fake_veis_token', 'fake_vagov_token')
+      token = client.request_btsss_token('fake_veis_token', vagov_token)
 
       expect(token).to eq('fake_btsss_token')
       @stubs.verify_stubbed_calls
