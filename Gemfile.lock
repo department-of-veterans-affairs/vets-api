@@ -104,7 +104,6 @@ PATH
     facilities_api (0.1.0)
     health_quest (0.1.0)
     income_limits (0.1.0)
-    ivc_champva (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
@@ -1158,7 +1157,6 @@ DEPENDENCIES
   ice_nine
   income_limits!
   iso_country_codes
-  ivc_champva!
   json
   json-schema
   json_schemer
