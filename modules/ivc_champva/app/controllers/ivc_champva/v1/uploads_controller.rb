@@ -5,8 +5,6 @@ require 'ddtrace'
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
-      skip_before_action :authenticate
-      before_action :authenticate, if: :should_authenticate
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -39,15 +37,6 @@ module IvcChampva
           attachment.save
           render json: attachment
         end
-      end
-
-      def authenticate
-        super
-      rescue Common::Exceptions::Unauthorized
-        Rails.logger.info(
-          'IVC Champva - unauthenticated user submitting form',
-          { form_number: params[:form_number] }
-        )
       end
 
       private
@@ -92,6 +81,15 @@ module IvcChampva
             status: 206
           }
         end
+      end
+
+      def authenticate
+        super
+      rescue Common::Exceptions::Unauthorized
+        Rails.logger.info(
+          'IVC Champva - unauthenticated user submitting form',
+          { form_number: params[:form_number] }
+        )
       end
 
       def should_authenticate
