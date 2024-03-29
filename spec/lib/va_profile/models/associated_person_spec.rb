@@ -24,19 +24,19 @@ describe VAProfile::Models::AssociatedPerson do
   end
 
   context 'Virtus::Attribute, Common::TitlecaseString type attributes' do
-    it 'titlecases given_name' do
+    it 'titlecases given_name when uppercase' do
       expect(subject.given_name).to eq('Deborah')
     end
 
-    it 'titlecases middle_name' do
+    it 'titlecases middle_name when uppercase' do
       expect(subject.middle_name).to eq('Lynn')
     end
 
-    it 'titlecases family_name' do
+    it 'titlecases family_name when uppercase' do
       expect(subject.family_name).to eq('Williams')
     end
 
-    it 'titlecases relationship' do
+    it 'titlecases relationship when uppercase' do
       expect(subject.relationship).to eq('Unrelated Friend')
     end
   end

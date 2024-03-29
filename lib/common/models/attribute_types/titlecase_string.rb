@@ -2,6 +2,6 @@
 
 class Common::TitlecaseString < Virtus::Attribute
   def coerce(value)
-    value&.downcase&.titlecase
+    value&.downcase&.titlecase if value.upcase == value
   end
 end
