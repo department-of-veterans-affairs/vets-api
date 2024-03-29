@@ -40,7 +40,7 @@ describe TravelPay::Client do
     let(:json_request_body) { { authJwt: 'fake_vagov_token' }.to_json }
 
     it 'returns btsss token from proper endpoint' do
-      @stubs.post('/api/v1/Auth/access-token', request_body) do
+      @stubs.post('/api/v1/Auth/access-token', json_request_body) do
         [
           200,
           { 'Content-Type': 'application/json' },
