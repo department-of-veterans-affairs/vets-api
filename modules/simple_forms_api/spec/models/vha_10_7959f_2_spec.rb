@@ -2,10 +2,6 @@
 
 require 'rails_helper'
 
-folder_path = 'modules/simple_forms_api/spec/fixtures/test_file/'
-file_name = 'test_file.pdf'
-file_path = File.join(folder_path, file_name)
-
 RSpec.describe SimpleFormsApi::VHA107959f2 do
   let(:data) do
     {
