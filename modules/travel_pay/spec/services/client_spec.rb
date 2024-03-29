@@ -34,6 +34,24 @@ describe TravelPay::Client do
     end
   end
 
+  context 'request_btsss_token' do
+    it 'returns btsss token from proper endpoint' do
+      @stubs.post("/api/v1/Auth/access-token") do
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          '{"access_token": "fake_btsss_token"}'
+        ]
+      end
+
+      client = TravelPay::Client.new
+      token = client.request_btsss_token('fake_veis_token', 'fake_vagov_token')
+
+      expect(token).to eq('fake_btsss_token')
+      @stubs.verify_stubbed_calls
+    end
+  end
+
   context 'ping' do
     it 'receives response from ping endpoint' do
       @stubs.get('/api/v1/Sample/ping') do

@@ -28,12 +28,11 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
+      response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.body = { authJwt: vagov_token }
       end
-
       response.body['access_token']
     end
 
