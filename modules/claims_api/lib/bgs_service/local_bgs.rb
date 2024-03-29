@@ -281,16 +281,17 @@ module ClaimsApi
           connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
         end
         target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                       body:,
-                                                                       namespace: target_namespace,
-                                                                       additional_namespace:),
-                          {
-                            'Content-Type' => 'text/xml;charset=UTF-8',
-                            'Host' => "#{@env}.vba.va.gov",
-                            'Soapaction' => "\"#{action}\""
-                          })
+          post_body = full_body(action:, body:, namespace: target_namespace, additional_namespace:)
+          post_headers = {
+            'Content-Type' => 'text/xml;charset=UTF-8',
+            'Host' => "#{@env}.vba.va.gov",
+            'Soapaction' => "\"#{action}\""
+
+          }
+
+          connection.post("#{Settings.bgs.url}/#{endpoint}", post_body, post_headers)
         end
       rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
         ClaimsApi::Logger.log('local_bgs',
