@@ -35,6 +35,11 @@ module MyHealth
         records = object&.rx_rf_records
         records&.dig(0, 1) || []
       end
+
+      def tracking_list
+        tracking_list = object&.tracking_list
+        tracking_list&.dig(0, 1) || []
+      end
     end
   end
 end

@@ -3,7 +3,7 @@
 require 'json_marshal/marshaller'
 
 class PensionIpfNotification < ApplicationRecord
-  serialize :payload, JsonMarshal::Marshaller
+  serialize :payload, coder: JsonMarshal::Marshaller
 
   has_kms_key
   has_encrypted :payload, key: :kms_key, **lockbox_options
