@@ -166,7 +166,7 @@
         },
         "tracking": { "type": ["boolean", "null"] },
         "orderable_item": { "type": ["string", "null"] },
-        "sorted_dispensed_date": { "type": "string", "format": "date" },
+        "sorted_dispensed_date": { "type": ["string", "null"], "format": "date" },
         "prescription_image": { "type": ["string", "null"] }
       }
     },
