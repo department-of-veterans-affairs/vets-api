@@ -18,6 +18,14 @@ RSpec.describe Vye::AddressChange, type: :model do
   describe 'creates a report' do
     let!(:address_changes) { FactoryBot.create(:vye_address_change, user_info:) }
 
+    before do
+      ssn = '123456789'
+      profile = double(ssn:)
+      find_profile_by_identifier = double(profile:)
+      service = double(find_profile_by_identifier:)
+      allow(MPI::Service).to receive(:new).and_return(service)
+    end
+
     it 'shows todays verifications' do
       expect(described_class.todays_records.length).to eq(1)
     end

@@ -6,9 +6,9 @@ module Vye
 
     self.ignored_columns +=
       [
-        :ssn_digest, :icn, # moved to UserProfile
+        :icn, :ssn_ciphertext, :ssn_digest,                               # moved to UserProfile
 
-        :suffix, # not needed
+        :suffix,                                                          # not needed
 
         :address_line2_ciphertext, :address_line3_ciphertext,             # moved to AddressChange
         :address_line4_ciphertext, :address_line5_ciphertext,             # moved to AddressChange
@@ -22,27 +22,20 @@ module Vye
     has_many :direct_deposit_changes, dependent: :destroy
     has_many :verifications, dependent: :destroy
 
-    accepts_nested_attributes_for :address_changes, :awards, :direct_deposit_changes, :verifications
-
     enum mr_status: { active: 'A', expired: 'E' }
-
     enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
-
-    serialize :dob, coder: DobSerializer
 
     delegate :icn, to: :user_profile, allow_nil: true
     delegate :pending_documents, to: :user_profile, allow_nil: true
 
     has_kms_key
-    has_encrypted(:file_number, :ssn, :dob, :stub_nm, key: :kms_key, **lockbox_options)
+    has_encrypted(:dob, :file_number, :stub_nm, key: :kms_key, **lockbox_options)
 
-    validates :dob, :stub_nm, presence: true
-
-    validate :ssn_or_file_number_present
+    serialize :dob, coder: DateAttributeSerializer
 
     validates(
-      :cert_issue_date, :date_last_certified, :del_date, :fac_code, :indicator,
-      :mr_status, :payment_amt, :rem_ent, :rpo_code,
+      :cert_issue_date, :date_last_certified, :del_date, :dob, :fac_code, :indicator,
+      :mr_status, :payment_amt, :rem_ent, :rpo_code, :stub_nm,
       presence: true
     )
 
@@ -50,12 +43,14 @@ module Vye
       verifications.empty?
     end
 
-    def ssn_or_file_number_present
-      return true if ssn.present? || file_number.present?
-
-      errors.add(:base, 'Either SSN or file number must be present.')
+    def ssn
+      mpi_profile&.ssn
     end
 
-    scope :with_assos, -> { includes(:address_changes, :awards, user_profile: :pending_documents) }
+    private
+
+    def mpi_profile
+      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: icn)&.profile
+    end
   end
 end
