@@ -96,7 +96,7 @@
                 "inherited_proof_verified": { "type": "boolean" },
                 "icn": { "type": "string" },
                 "birls_id": { "type": [ "string", null ] },
-                "edipi": { "type": [ "array", null ] },
+                "edipi": { "type": [ "string", null ] },
                 "sec_id": { "type": [ "string", null ] },
                 "logingov_uuid": { "type": [ "string", null ] },
                 "idme_uuid": { "type": [ "string", null ] },

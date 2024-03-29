@@ -210,7 +210,7 @@
                 },
                 "edipi": {
                   "type": [
-                    "array",
+                    "string",
                     null
                   ]
                 },

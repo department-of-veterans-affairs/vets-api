@@ -83,7 +83,7 @@ module Users
         claims:,
         icn: user.icn,
         birls_id: user.birls_id,
-        edipi: user.mpi_edipis,
+        edipi: user.edipi,
         sec_id: user.sec_id,
         logingov_uuid: user.logingov_uuid,
         idme_uuid: user.idme_uuid,

@@ -245,7 +245,7 @@ RSpec.describe Users::Profile do
       end
 
       it 'includes edipi' do
-        expect(profile[:edipi]).to eq(user.mpi_edipis)
+        expect(profile[:edipi]).to eq(user.edipi)
       end
 
       it 'includes sec_id' do
