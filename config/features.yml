@@ -723,22 +723,6 @@ features:
     actor_type: user
     description: Enables/disables refill-related content for Medications on VA.gov
     enable_in_development: true
-  mhv_to_logingov_account_transition:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_modal:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer modal experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_banner:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer banner experience (Identity)
-    enable_in_development: false
-  mhv_to_logingov_account_transition_urgent:
-    actor_type: cookie_id
-    description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
-    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -759,9 +743,6 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  organic_conversion_experiment:
-    actor_type: user
-    description: Toggle to enable login.gov create account experiment
   pdf_warning_banner:
     description: When enabled, will allow display of PDF cert warnings in find-a-form
     actor_type: user
