@@ -67,3 +67,10 @@ Rails.application.configure do
     config.log_level = :fatal
   end
 end
+
+# Unlogged tables lead to a faster test suite:
+#   https://guides.rubyonrails.org/v7.1.3.2/configuring.html#activerecord-connectionadapters-postgresqladapter-create-unlogged-tables
+#   https://github.com/rails/rails/pull/47499
+ActiveSupport.on_load(:active_record_postgresqladapter) do
+  self.create_unlogged_tables = true
+end
