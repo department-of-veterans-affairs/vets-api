@@ -18,6 +18,7 @@ module Users
     #
     def authorizations
       @list << BackendServices::RX if user.authorize :mhv_prescriptions, :access?
+      @list << BackendServices::MESSAGING if user.authorize messaging_service, :access?
       @list << BackendServices::MEDICAL_RECORDS if user.authorize :mhv_medical_records, :access?
       @list << BackendServices::HEALTH_RECORDS if user.authorize :mhv_health_records, :access?
       @list << BackendServices::EVSS_CLAIMS if user.authorize :evss, :access?
@@ -30,11 +31,6 @@ module Users
       @list << BackendServices::IDENTITY_PROOFED if user.loa3?
       @list << BackendServices::VET360 if user.can_access_vet360?
 
-      if Flipper.enabled?(:mhv_sm_session_policy, user)
-        @list << BackendServices::MESSAGING if user.authorize :mhv_messaging, :access?
-      else
-        @list << BackendServices::MESSAGING if user.authorize :legacy_mhv_messaging, :access?
-      end
 
       @list
     end
@@ -50,5 +46,9 @@ module Users
         BackendServices::FORM_PREFILL
       ]
     end
+
+    def messaging_service
+      Flipper.enabled?(:mhv_sm_session_policy, user) ? :mhv_messaging : :legacy_mhv_messaging
+    end 
   end
 end
