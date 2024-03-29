@@ -45,14 +45,14 @@ namespace :ivc_champva do
     SUB_DATE_CONFIG
 
     method_missing_method = <<-METHOD_MISSING
-    def method_missing(_, *args, _)
-      args
+    def method_missing(_, *args)
+      args&.first
     end
     METHOD_MISSING
 
     respond_to_missing_method = <<-RESPOND_METHOD_MISSING
-    def respond_to_missing?(method)
-      method == :handle_attachments || super
+    def respond_to_missing?(_)
+      true
     end
     RESPOND_METHOD_MISSING
 

@@ -5,13 +5,13 @@
 #   { success: Boolean, [error_message: String] }
 module IvcChampva
   class S3
-    attr_reader :region, :access_key_id, :secret_access_key, :bucket_name
+    attr_reader :region, :access_key_id, :secret_access_key, :bucket
 
-    def initialize(region:, access_key_id:, secret_access_key:, bucket_name:)
+    def initialize(region:, access_key_id:, secret_access_key:, bucket:)
       @region = region
       @access_key_id = access_key_id
       @secret_access_key = secret_access_key
-      @bucket_name = bucket_name
+      @bucket = bucket
     end
 
     def put_object(key, file, metadata = {})
@@ -20,11 +20,10 @@ module IvcChampva
         metadata&.transform_values! { |value| value || '' }
 
         client.put_object({
-                            bucket: @bucket_name,
+                            bucket:,
                             key:,
                             body: File.read(file),
-                            metadata:,
-                            acl: 'public-read'
+                            metadata:
                           })
         { success: true }
       rescue => e
@@ -34,7 +33,7 @@ module IvcChampva
 
     def upload_file(key, file)
       Datadog::Tracing.trace('S3 Upload File(s)') do
-        obj = resource.bucket(bucket_name).object(key)
+        obj = resource.bucket(bucket).object(key)
         obj.upload_file(file)
 
         { success: true }
@@ -47,9 +46,9 @@ module IvcChampva
 
     def client
       @client ||= Aws::S3::Client.new(
-        region: @region,
-        access_key_id: @access_key_id,
-        secret_access_key: @secret_access_key
+        region:,
+        access_key_id:,
+        secret_access_key:
       )
     end
 

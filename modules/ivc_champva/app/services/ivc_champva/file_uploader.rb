@@ -60,7 +60,7 @@ module IvcChampva
         region: Settings.ivc_forms.s3.region,
         access_key_id: Settings.ivc_forms.s3.aws_access_key_id,
         secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
-        bucket_name: Settings.ivc_forms.s3.bucket
+        bucket: Settings.ivc_forms.s3.bucket
       )
     end
   end

@@ -27,12 +27,12 @@ module IvcChampva
       { should_stamp_date?: false }
     end
 
-    def method_missing(_, *args, _)
-      args
+    def method_missing(_, *args)
+      args&.first
     end
 
-    def respond_to_missing?(method)
-      method == :handle_attachments || super
+    def respond_to_missing?(_)
+      true
     end
   end
 end

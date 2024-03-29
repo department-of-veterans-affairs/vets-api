@@ -26,7 +26,7 @@ module IvcChampva
                   end
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
-      stamp(desired_stamps, stamped_template_path, auth_text, text_only: false)
+      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, auth_text, text_only: false) }
 
       stamp_submission_date(stamped_template_path, form.submission_date_config)
     end
@@ -34,7 +34,7 @@ module IvcChampva
     def self.stamp107959f1(stamped_template_path, form)
       desired_stamps = [[26, 82.5, form.data['statement_of_truth_signature']]]
       append_to_stamp = false
-      stamp(desired_stamps, stamped_template_path, append_to_stamp)
+      verify(stamped_template_path) { stamp(desired_stamps, stamped_template_path, append_to_stamp) }
     end
 
     def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
@@ -61,9 +61,8 @@ module IvcChampva
     def self.stamp(desired_stamps, stamped_template_path, append_to_stamp, text_only: true)
       current_file_path = stamped_template_path
       desired_stamps.each do |x, y, text|
-        out_path = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:).run(text:, x:, y:, text_only:,
-                                                                                          size: 9)
-        current_file_path = out_path
+        datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
+        current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
       end
       File.rename(current_file_path, stamped_template_path)
     end
@@ -86,14 +85,30 @@ module IvcChampva
         page_configuration = default_page_configuration
         page_configuration[config[:page_number]] = { type: :text, position: date_title_stamp_position }
 
-        multistamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12)
+        verified_multistamp(stamped_template_path, SUBMISSION_DATE_TITLE, page_configuration, 12)
 
         page_configuration = default_page_configuration
         page_configuration[config[:page_number]] = { type: :text, position: date_text_stamp_position }
 
-        multistamp(stamped_template_path, Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'), page_configuration,
-                   12)
+        current_time = Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D')
+        verified_multistamp(stamped_template_path, current_time, page_configuration, 12)
       end
+    end
+
+    def self.verify(template_path)
+      orig_size = File.size(template_path)
+      yield
+      stamped_size = File.size(template_path)
+
+      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
+    rescue => e
+      raise StandardError, "An error occurred while verifying stamp: #{e}"
+    end
+
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
+      raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
+
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
     end
 
     def self.default_page_configuration

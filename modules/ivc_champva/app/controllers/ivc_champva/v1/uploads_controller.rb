@@ -12,7 +12,8 @@ module IvcChampva
       FORM_NUMBER_MAP = {
         '10-10D' => 'vha_10_10d',
         '10-7959F-1' => 'vha_10_7959f_1',
-        '10-7959F-2' => 'vha_10_7959f_2'
+        '10-7959F-2' => 'vha_10_7959f_2',
+        '10-7959C' => 'vha_10_7959c'
       }.freeze
 
       def submit

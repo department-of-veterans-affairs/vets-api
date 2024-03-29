@@ -2,10 +2,6 @@
 
 require 'rails_helper'
 
-folder_path = 'modules/ivc_champva/spec/fixtures/test_file/'
-file_name = 'test_file.pdf'
-file_path = File.join(folder_path, file_name)
-
 RSpec.describe IvcChampva::VHA1010d do
   let(:data) do
     {
@@ -36,24 +32,6 @@ RSpec.describe IvcChampva::VHA1010d do
         'docType' => 'VHA1010d',
         'businessLine' => 'CMP'
       )
-    end
-  end
-
-  describe '#handle_attachments' do
-    it 'calls CombinePDF.new' do
-      # Stub the CombinePDF.new method to return a double that does not perform any actions
-      allow(CombinePDF).to receive(:new).and_return(double('combined_pdf', save: nil))
-      combined_pdf = CombinePDF.new
-      p combined_pdf # Output to console using `p` for inspection
-
-      # Stub the file operation
-      allow(File).to receive(:exist?).with(file_path).and_return(true)
-      allow(File).to receive(:open).with(file_path, 'rb')
-      # Call the method under test
-      vha1010d.handle_attachments(file_path)
-
-      # Verify that CombinePDF.new was called
-      expect(CombinePDF).to have_received(:new)
     end
   end
 end

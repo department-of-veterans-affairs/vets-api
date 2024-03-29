@@ -17,7 +17,7 @@ describe IvcChampva::S3 do
       region: region,
       access_key_id: access_key_id,
       secret_access_key: secret_access_key,
-      bucket_name: bucket_name
+      bucket: bucket_name
     )
   end
   # rubocop:enable Style/HashSyntax

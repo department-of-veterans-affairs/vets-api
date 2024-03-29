@@ -6,7 +6,8 @@ RSpec.describe 'Forms uploader', type: :request do
   forms = [
     'vha_10_10d.json',
     'vha_10_7959f_1.json',
-    'vha_10_7959f_2.json'
+    'vha_10_7959f_2.json',
+    'vha_10_7959c.json'
   ]
 
   describe '#submit' do
