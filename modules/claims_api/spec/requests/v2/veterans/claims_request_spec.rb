@@ -316,7 +316,8 @@ RSpec.describe 'Claims', type: :request do
                     {
                       base_end_prdct_type_cd: '400',
                       benefit_claim_id: '111111111',
-                      claim_status: 'Preparation for notification'
+                      claim_status: 'PEND',
+                      phase_type: 'Gathering of Evidence'
                     }
                   ]
                 }
@@ -327,7 +328,7 @@ RSpec.describe 'Claims', type: :request do
               lighthouse_claim = create(
                 :auto_established_claim,
                 id: '0958d973-36fb-43ef-8801-2718bd33c825',
-                status: 'Preparation for notification',
+                status: 'pending',
                 evss_id: '111111111'
               )
 
@@ -351,7 +352,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
                   expect(claim['attributes']['baseEndProductCode']).to eq('400')
-                  expect(claim['attributes']['status']).to eq('PREPARATION_FOR_NOTIFICATION')
+                  expect(claim['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 end
