@@ -169,10 +169,10 @@ RSpec.describe 'Claims', type: :request do
         end
 
         it 'are listed' do
-          lighthouse_claim = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+          lighthouse_claim = create(:auto_established_claim, status: 'established', veteran_icn: veteran_id,
                                                              evss_id: '600098193')
-          lighthouse_claim_two = create(:auto_established_claim, status: 'CAN', veteran_icn: veteran_id,
-                                                                 evss_id: '600098194')
+          lighthouse_claim_two = create(:auto_established_claim, status: 'pending', veteran_icn: veteran_id,
+                                                                 evss_id: nil)
 
           lh_claims = ClaimsApi::AutoEstablishedClaim.where(id: [lighthouse_claim.id, lighthouse_claim_two.id])
 
@@ -189,8 +189,8 @@ RSpec.describe 'Claims', type: :request do
               expect(response.status).to eq(200)
               claim = json_response['data'].first
               claim_two = json_response['data'][1]
-              expect(claim['attributes']['status']).to eq('PENDING')
-              expect(claim_two['attributes']['status']).to eq('CANCELED')
+              expect(claim['attributes']['status']).to eq('COMPLETE')
+              expect(claim_two['attributes']['status']).to eq('PENDING')
               expect(claim['attributes']['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
             end
           end
