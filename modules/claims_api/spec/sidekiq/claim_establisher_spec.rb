@@ -61,9 +61,12 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     it 'sets the status of the claim to an error if it raises an Common::Exceptions::BackendServiceException error' do
       evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
-      allow(evss_service_stub).to receive(:submit).and_raise(
-        ::Common::Exceptions::BackendServiceException
-      )
+      allow(evss_service_stub).to receive(:submit).and_raise(::Common::Exceptions::BackendServiceException.new(
+                                                               'EVSS400',
+                                                               'source',
+                                                               '400',
+                                                               errors
+                                                             ))
       subject.new.perform(claim.id)
       claim.reload
       expect(claim.evss_id).to be_nil

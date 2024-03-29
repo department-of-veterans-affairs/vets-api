@@ -11,11 +11,11 @@ module ClaimsApi
     def handle_errors
       case @error
       when Faraday::ParsingError
-        raise_backend_exception('EVSS502', @error)
+        raise_backend_exception('EVSS502', @error.class, @error)
       when ::Common::Exceptions::BackendServiceException
         raise ::Common::Exceptions::Forbidden if @error&.original_status == 403
 
-        raise_backend_exception('EVSS400', @error) if @error&.original_status == 400
+        raise_backend_exception('EVSS400', @error.class, @error) if @error&.original_status == 400
         raise ::Common::Exceptions::Unauthorized if @error&.original_status == 401
       else
         raise @error
@@ -24,20 +24,33 @@ module ClaimsApi
 
     private
 
-    def raise_backend_exception(_key, error = nil)
-      org_body = @error.original_body.deep_symbolize_keys if @error.original_body
-      formatted_key = if org_body[:messages][0][:key].present?
-                        org_body[:messages][0][:key].gsub('.', '/')
-                      elsif org_body[0].present?
-                        org_body[0][:key].gsub('.', '/')
-                      else
-                        @error.key
-                      end
+    def get_error_details(key)
+      @all_errors = []
+      @error.original_body.each do |err|
+        symbolized_error = err.deep_symbolize_keys
+        severity = symbolized_error[:severity] || nil
+        detail = symbolized_error[:detail] || nil
+        text = symbolized_error[:text] || nil
+
+        formatted_error = {
+          key:,
+          severity:,
+          detail:,
+          text:
+        }
+
+        @all_errors << formatted_error
+      end
+    end
+
+    def raise_backend_exception(key, source, error = nil)
+      get_error_details(key)
+
       raise ::Common::Exceptions::BackendServiceException.new(
         key,
-        { source: formatted_key },
+        { source: },
         error&.original_status,
-        error&.original_body
+        @all_errors
       )
     end
   end
