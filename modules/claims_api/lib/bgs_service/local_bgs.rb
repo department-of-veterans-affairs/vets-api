@@ -15,8 +15,18 @@ module ClaimsApi
     attr_accessor :external_uid, :external_key
 
     def initialize(external_uid:, external_key:)
+      @client_ip =
+        if Rails.env.test?
+          # For all intents and purposes, BGS behaves identically no matter what
+          # IP we provide it. So in a test environment, let's just give it a
+          # fake so that cassette matching isn't defeated on CI and everyone's
+          # computer.
+          '127.0.0.1'
+        else
+          Socket.ip_address_list.detect(&:ipv4_private?).ip_address
+        end
+
       @application = Settings.bgs.application
-      @client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
       @client_station_id = Settings.bgs.client_station_id
       @client_username = Settings.bgs.client_username
       @env = Settings.bgs.env
