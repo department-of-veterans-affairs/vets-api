@@ -16,7 +16,7 @@ module TravelPay
         req.body = URI.encode_www_form(veis_params)
       end
 
-      JSON.parse(response.body)['access_token']
+      response.body['access_token']
     end
 
     ##
@@ -34,7 +34,7 @@ module TravelPay
         req.body = { authJwt: vagov_token }
       end
 
-      JSON.parse(response.body)['access_token']
+      response.body['access_token']
     end
 
     ##
