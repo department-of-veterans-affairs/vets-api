@@ -727,6 +727,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_19_141429) do
     t.text "form_data_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.integer "status", default: 0
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
     t.index ["user_account_id"], name: "index_in_progress_forms_on_user_account_id"
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
