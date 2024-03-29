@@ -215,9 +215,11 @@ module ClaimsApi
     end
 
     def full_body(action:, body:, namespace:, additional_namespace: nil)
+      ans = additional_namespace ? construct_additional_namespace(namespace, additional_namespace) : nil
+
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" #{additional_namespace} xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" #{ans} xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
           #{header}
           <env:Body>
             <tns:#{action}>
@@ -227,6 +229,18 @@ module ClaimsApi
           </env:Envelope>
       EOXML
       body.to_s
+    end
+
+    def construct_additional_namespace(namespace, additional_namespace)
+      host_name = extract_hostname(namespace)
+      Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        xmlns:#{additional_namespace}="#{host_name}/#{additional_namespace.strip}"
+      EOXML
+    end
+
+    def extract_hostname(namespace)
+      uri = URI.parse(namespace)
+      "#{uri.scheme}://#{uri.host}#{uri.path.split('/')[0..-2].join('/')}"
     end
 
     def parsed_response(res, action, key = nil)

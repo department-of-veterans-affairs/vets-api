@@ -20,9 +20,10 @@ module ClaimsApi
     private
 
     def additional_namespace
-      Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        xmlns:data='http://gov.va.vba.benefits.vdc/data'
+      ans = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        data
       EOXML
+      ans.to_s
     end
 
     def get_update_poa_body(rep, proc_id)
