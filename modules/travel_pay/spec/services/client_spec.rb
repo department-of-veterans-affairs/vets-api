@@ -9,6 +9,7 @@ describe TravelPay::Client do
     conn = Faraday.new do |c|
       c.adapter(:test, @stubs)
       c.response :json
+      c.request :json
     end
 
     allow_any_instance_of(TravelPay::Client).to receive(:connection).and_return(conn)
@@ -36,10 +37,10 @@ describe TravelPay::Client do
 
   context 'request_btsss_token' do
     let(:vagov_token) { 'fake_vagov_token' }
-    let(:request_body) { { authJwt: vagov_token } }
+    let(:json_request_body) { { authJwt:"fake_vagov_token" }.to_json }
 
     it 'returns btsss token from proper endpoint' do
-      @stubs.post('/api/v1/Auth/access-token', request_body) do
+      @stubs.post("/api/v1/Auth/access-token", request_body) do
         [
           200,
           { 'Content-Type': 'application/json' },
