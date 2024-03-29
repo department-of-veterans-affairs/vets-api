@@ -31,7 +31,6 @@ module Users
       @list << BackendServices::IDENTITY_PROOFED if user.loa3?
       @list << BackendServices::VET360 if user.can_access_vet360?
 
-
       @list
     end
 
@@ -49,6 +48,6 @@ module Users
 
     def messaging_service
       Flipper.enabled?(:mhv_sm_session_policy, user) ? :mhv_messaging : :legacy_mhv_messaging
-    end 
+    end
   end
 end
