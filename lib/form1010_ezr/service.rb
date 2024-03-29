@@ -50,8 +50,7 @@ module Form1010Ezr
     def submit_form(parsed_form)
       # Log the 'veteranDateOfBirth' to ensure the frontend validation is working as intended
       # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
-      cloned_form = parsed_form.clone
-      @unprocessed_user_dob = cloned_form['veteranDateOfBirth']
+      @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
       if Flipper.enabled?(:ezr_async, @user)
