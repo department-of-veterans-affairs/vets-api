@@ -1,0 +1,76 @@
+{
+  "form_number": "10-7959C",
+  "applicants": {
+    "address": {
+      "country": "USA",
+      "street": "2 Second St",
+      "city": "Town",
+      "state": "LA",
+      "postal_code": "16542"
+    },
+    "full_name": {
+      "first": "Applicant",
+      "middle": "C",
+      "last": "Onceler"
+    },
+    "ssn_or_tin": "123456644",
+    "home_phone": "6543219877"
+  },
+
+  "is_new_address": "T",
+  "male_or_female": "M",
+
+  "part_a": {
+    "has_part_a": "T",
+    "part_a_effective_date": "2010-05-05",
+    "part_a_carrier": "United Health"
+  },
+  "part_b": {
+    "has_part_b": "F",
+    "part_b_effective_date": "2010-05-05",
+    "part_d_carrier": "United Health"
+  },
+  "part_d": {
+    "has_part_d": "F",
+    "part_b_effective_date": "2010-05-05",
+    "part_d_carrier": "United Health"
+  },
+  "has_pharmacy_benefits": "F",
+  "has_medicare_advantage": "F",
+  "has_other_health_insurance": "F",
+
+  "other_health_insurance1": {
+    "name_of_health_insurance": "Blue Cross",
+    "date_health_insurance": "2010-02-02",
+    "terminate_date_health_insurance": "2012-09-09",
+    "does_insurance": "F",
+    "does_prescription": "F",
+    "does_explain": "F",
+    "is_hmo": true,
+    "is_ppo": false,
+    "is_medicaid": false,
+    "is_rx_discount": false,
+    "is_medigap": false,
+    "is_medigap_type": "A",
+    "is_other_type": false,
+    "comments": "many stuff to say. Mary had a little lamb. Gingerbread man ate my muffins"
+  },
+
+  "other_health_insurance2": {
+    "name_of_health_insurance": "Aetna",
+    "date_health_insurance": "2010-02-02",
+    "terminate_date_health_insurance": "2012-09-09",
+    "does_insurance": "F",
+    "does_prescription": "F",
+    "does_explain": "F",
+    "is_hmo": true,
+    "is_ppo": false,
+    "is_medicaid": false,
+    "is_rx_discount": false,
+    "is_medigap": false,
+    "is_medigap_type": "A",
+    "is_other_type": false,
+    "comments": "Row row row your boat gently down the stream. Oh McDonald had a farm eee yaaa"
+  },
+  "statement_of_truth_signature": "Veteran B Surname"
+}
