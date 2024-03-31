@@ -12,12 +12,12 @@ metadata = {
 }
 
 describe ClaimsApi::ManageRepresentativeService, metadata do
-  subject do
-    service = described_class.new(external_uid: 'xUid', external_key: 'xKey')
-    service.read_poa_request(**arguments)
-  end
-
   describe '#read_poa_request' do
+    subject do
+      service = described_class.new(external_uid: 'xUid', external_key: 'xKey')
+      service.read_poa_request(**arguments)
+    end
+
     describe 'with no arguments' do
       let(:arguments) do
         {}
