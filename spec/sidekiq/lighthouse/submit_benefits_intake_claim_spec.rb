@@ -100,6 +100,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, uploader_helpers: true do
       expect(described_class.new.process_record(record, timestamp, form_id)).to eq(path)
     end
   end
+
   describe 'sidekiq_retries_exhausted block' do
     it 'logs a distinct error when retries are exhausted' do
       Lighthouse::SubmitBenefitsIntakeClaim.within_sidekiq_retries_exhausted_block do

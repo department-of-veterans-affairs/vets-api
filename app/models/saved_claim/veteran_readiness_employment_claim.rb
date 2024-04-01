@@ -217,7 +217,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
   end
 
-  def process_attachments!(user)
+  def process_attachments!(_user)
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }

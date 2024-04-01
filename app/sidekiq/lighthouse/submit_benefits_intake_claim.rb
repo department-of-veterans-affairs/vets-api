@@ -86,6 +86,7 @@ module Lighthouse
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
@@ -112,6 +113,7 @@ module Lighthouse
       end
     end
 
+    # rubocop:enable Metrics/MethodLength
     def split_file_and_path(path)
       { file: path, file_name: path.split('/').last }
     end
