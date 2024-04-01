@@ -25,6 +25,11 @@ module SimpleFormsApi
       }
     end
 
+    def zip_code_is_us_based
+      # TODO: Implement this
+      true
+    end
+
     def handle_attachments(file_path)
       uuid = @uuid # Generate the UUID as an instance variable
       file_path_uuid = file_path.gsub('vha_10_7959f_2-tmp', "#{uuid}_vha_10_7959f_2-tmp")

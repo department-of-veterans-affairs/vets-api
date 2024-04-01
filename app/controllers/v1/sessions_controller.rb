@@ -231,8 +231,7 @@ module V1
         url_service.login_url(
           'logingov',
           [IAL::LOGIN_GOV_IAL2, AAL::LOGIN_GOV_AAL2],
-          AuthnContext::LOGIN_GOV,
-          AuthnContext::MINIMUM
+          AuthnContext::LOGIN_GOV
         )
       when 'logingov_signup'
         url_service.logingov_signup_url([IAL::LOGIN_GOV_IAL1, AAL::LOGIN_GOV_AAL2])
