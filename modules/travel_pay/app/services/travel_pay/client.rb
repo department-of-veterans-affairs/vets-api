@@ -16,7 +16,7 @@ module TravelPay
         req.body = URI.encode_www_form(veis_params)
       end
 
-      JSON.parse(response.body)['access_token']
+      response.body['access_token']
     end
 
     ##
@@ -28,13 +28,12 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       api_key = Settings.travel_pay.subscription_key
 
-      connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
+      response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['Ocp-Apim-Subscription-Key'] = api_key
         req.body = { authJwt: vagov_token }
       end
-
-      JSON.parse(response.body)['access_token']
+      response.body['access_token']
     end
 
     ##
@@ -113,6 +112,7 @@ module TravelPay
         conn.response :raise_error, error_prefix: service_name, include_request: true
         conn.response :betamocks if use_fakes?
         conn.response :json
+        conn.request :json
 
         conn.adapter Faraday.default_adapter
       end

@@ -236,13 +236,37 @@ RSpec.describe Users::Profile do
         expect(profile[:inherited_proof_verified]).to eq(user.inherited_proof_verified)
       end
 
+      it 'includes icn' do
+        expect(profile[:icn]).to eq(user.icn)
+      end
+
+      it 'includes birls_id' do
+        expect(profile[:birls_id]).to eq(user.birls_id)
+      end
+
+      it 'includes edipi' do
+        expect(profile[:edipi]).to eq(user.edipi)
+      end
+
+      it 'includes sec_id' do
+        expect(profile[:sec_id]).to eq(user.sec_id)
+      end
+
+      it 'includes logingov_uuid' do
+        expect(profile[:logingov_uuid]).to eq(user.logingov_uuid)
+      end
+
+      it 'includes idme_uuid' do
+        expect(profile[:idme_uuid]).to eq(user.idme_uuid)
+      end
+
+      it 'includes id_theft_flag' do
+        expect(profile[:id_theft_flag]).to eq(user.id_theft_flag)
+      end
+
       # --- negative tests ---
       it 'does not include uuid in the profile' do
         expect(profile[:uuid]).to be_nil
-      end
-
-      it 'does not include edipi in the profile' do
-        expect(profile[:edipi]).to be_nil
       end
 
       it 'does not include participant_id in the profile' do
@@ -277,6 +301,18 @@ RSpec.describe Users::Profile do
                            match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(subject.status).to eq 200
           end
+        end
+
+        it 'includes cerner_id' do
+          expect(va_profile[:cerner_id]).to eq(user.cerner_id)
+        end
+
+        it 'includes cerner_facility_ids' do
+          expect(va_profile[:cerner_facility_ids]).to eq(user.cerner_facility_ids)
+        end
+
+        it 'includes active_mhv_ids' do
+          expect(va_profile[:active_mhv_ids]).to eq(user.active_mhv_ids)
         end
       end
 
@@ -434,6 +470,7 @@ RSpec.describe Users::Profile do
 
         it 'is populated', :aggregate_failures do
           expect(user.vet360_contact_info).not_to be_nil
+          expect(vet360_info[:vet360_id]).to be_present
           expect(vet360_info[:email]).to be_present
           expect(vet360_info[:residential_address]).to be_present
           expect(vet360_info[:mailing_address]).to be_present
