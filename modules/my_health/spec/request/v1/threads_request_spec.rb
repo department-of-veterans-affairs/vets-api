@@ -18,7 +18,6 @@ RSpec.describe 'Threads Integration', type: :request do
     sign_in_as(current_user)
   end
 
-
   after do
     Flipper.disable(:mhv_sm_session_policy)
     Timecop.return

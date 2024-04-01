@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'Message Attachments Integration', type: :request do
-
   let(:current_user) { build(:user, :mhv) }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
@@ -14,7 +13,6 @@ RSpec.describe 'Message Attachments Integration', type: :request do
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
     sign_in_as(current_user)
   end
-
 
   after do
     Flipper.disable(:mhv_sm_session_policy)

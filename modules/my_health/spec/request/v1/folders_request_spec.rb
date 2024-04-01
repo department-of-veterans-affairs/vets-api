@@ -17,7 +17,6 @@ RSpec.describe 'Folders Integration', type: :request do
     sign_in_as(current_user)
   end
 
-
   after do
     Flipper.disable(:mhv_sm_session_policy)
     Timecop.return
@@ -26,7 +25,7 @@ RSpec.describe 'Folders Integration', type: :request do
   context 'when NOT authorized' do
     before do
       VCR.insert_cassette('sm_client/session_error')
-      get '/my_health/v1/messaging/folders' 
+      get '/my_health/v1/messaging/folders'
     end
 
     after do

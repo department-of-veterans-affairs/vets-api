@@ -14,7 +14,6 @@ RSpec.describe 'Triage Teams Integration', type: :request do
     sign_in_as(current_user)
   end
 
-
   after do
     Flipper.disable(:mhv_sm_session_policy)
     Timecop.return
@@ -23,7 +22,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
   context 'when NOT authorized' do
     before do
       VCR.insert_cassette('sm_client/session_error')
-      get '/my_health/v1/messaging/recipients' 
+      get '/my_health/v1/messaging/recipients'
     end
 
     after do

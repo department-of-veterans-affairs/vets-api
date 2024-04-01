@@ -13,14 +13,12 @@ RSpec.describe 'All Triage Teams Integration', type: :request do
     sign_in_as(current_user)
   end
 
-
   after do
     Flipper.disable(:mhv_sm_session_policy)
     Timecop.return
   end
 
   context 'when authorized' do
-
     before do
       VCR.insert_cassette('sm_client/session')
     end
