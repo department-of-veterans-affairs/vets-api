@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'SimpleFormsApi::VBA2010207' do
   describe 'zip_code_is_us_based' do
-    describe 'veteran address is present and in US' do
+    context 'veteran address is present and in US' do
       it 'returns true' do
         data = { 'veteran_mailing_address' => { 'country' => 'USA' } }
 
@@ -14,7 +14,7 @@ RSpec.describe 'SimpleFormsApi::VBA2010207' do
       end
     end
 
-    describe 'veteran address is present and not in US' do
+    context 'veteran address is present and not in US' do
       it 'returns false' do
         data = { 'veteran_mailing_address' => { 'country' => 'Canada' } }
 
@@ -24,7 +24,7 @@ RSpec.describe 'SimpleFormsApi::VBA2010207' do
       end
     end
 
-    describe 'non-veteran address is present and in US' do
+    context 'non-veteran address is present and in US' do
       it 'returns true' do
         data = { 'non_veteran_mailing_address' => { 'country' => 'USA' } }
 
@@ -34,9 +34,19 @@ RSpec.describe 'SimpleFormsApi::VBA2010207' do
       end
     end
 
-    describe 'non-veteran address is present and not in US' do
+    context 'non-veteran address is present and not in US' do
       it 'returns false' do
         data = { 'non_veteran_mailing_address' => { 'country' => 'Canada' } }
+
+        form = SimpleFormsApi::VBA2010207.new(data)
+
+        expect(form.zip_code_is_us_based).to eq(false)
+      end
+    end
+
+    context 'no valid address is given' do
+      it 'returns false' do
+        data = {}
 
         form = SimpleFormsApi::VBA2010207.new(data)
 
