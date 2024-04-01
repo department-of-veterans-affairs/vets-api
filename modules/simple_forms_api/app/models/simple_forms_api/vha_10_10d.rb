@@ -5,6 +5,7 @@ require 'securerandom'
 module SimpleFormsApi
   class VHA1010d
     include Virtus.model(nullify_blank: true)
+    STATS_KEY = 'api.simple_forms_api.1010d'
 
     attribute :data
 
@@ -16,7 +17,11 @@ module SimpleFormsApi
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
+        'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
+        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
+        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'source' => 'VA Platform Digital Forms',
@@ -50,7 +55,11 @@ module SimpleFormsApi
       { should_stamp_date?: false }
     end
 
-    def track_user_identity(confirmation_number); end
+    def track_user_identity(confirmation_number)
+      identity = "#{data['claimant_type']} #{data['claim_ownership']}"
+      StatsD.increment("#{STATS_KEY}.#{identity}")
+      Rails.logger.info('Simple forms api - 1010d submission user identity', identity:, confirmation_number:)
+    end
 
     private
 

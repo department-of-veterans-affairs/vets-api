@@ -30,6 +30,25 @@ module MyHealth
       attribute :tracking
       attribute :orderable_item
       attribute :sorted_dispensed_date
+
+      def rx_rf_records
+        records = object&.rx_rf_records
+        records&.dig(0, 1) || []
+      end
+
+      def tracking_list
+        tracking_list = object&.tracking_list
+        tracking_list&.dig(0, 1) || []
+      end
+
+      def sorted_dispensed_date
+        zero_date = Date.new(0, 1, 1)
+        if object&.sorted_dispensed_date.present? && object&.sorted_dispensed_date == zero_date
+          nil
+        else
+          object&.sorted_dispensed_date
+        end
+      end
     end
   end
 end

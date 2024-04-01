@@ -968,6 +968,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
       end
 
       let(:form526v2) do
@@ -1181,6 +1182,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'PPIU' do
       let(:mhv_user) { create(:user, :loa3) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_ppiu_reject_requests, instance_of(User))
+                                            .and_return(false)
+      end
 
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
@@ -1852,11 +1858,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports getting the 200 user data' do
-      VCR.use_cassettes([
-                          { name: 'va_profile/demographics/demographics' },
-                          { name: 'va_profile/veteran_status/va_profile_veteran_status_200',
-                            options: { match_requests_on: %i[method body] } }
-                        ]) do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+                                                                                  allow_playback_repeats: true) do
         expect(subject).to validate(:get, '/v0/user', 200, headers)
       end
     end
@@ -1873,20 +1876,29 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
       it 'supports getting user with some external errors', skip_mvi: true do
-        VCR.use_cassette('va_profile/demographics/demographics') do
-          expect(subject).to validate(:get, '/v0/user', 296, headers)
-        end
+        expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end
 
     describe 'Lighthouse Benefits Reference Data' do
-      it 'gets data from endpoint' do
-        VCR.use_cassette('lighthouse/benefits_reference_data/200_response') do
+      it 'gets disabilities data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_disabilities_response') do
           expect(subject).to validate(
             :get,
             '/v0/benefits_reference_data/{path}',
             200,
             headers.merge('path' => 'disabilities')
+          )
+        end
+      end
+
+      it 'gets intake-sites data from endpoint' do
+        VCR.use_cassette('lighthouse/benefits_reference_data/200_intake_sites_response') do
+          expect(subject).to validate(
+            :get,
+            '/v0/benefits_reference_data/{path}',
+            200,
+            headers.merge('path' => 'intake-sites')
           )
         end
       end

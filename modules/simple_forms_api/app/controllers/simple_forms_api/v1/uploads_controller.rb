@@ -55,7 +55,7 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 20-10207 10-10D 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 10-10D 40-10007 10-7959F-2].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -137,7 +137,7 @@ module SimpleFormsApi
         pdf_results =
           pdf_file_paths.map do |pdf_file_path|
             pdf_file_name = pdf_file_path.gsub('tmp/', '').gsub('-tmp', '')
-            upload_to_ivc_s3(pdf_file_name, pdf_file_path)
+            upload_to_ivc_s3(pdf_file_name, pdf_file_path, metadata)
           end
 
         all_pdf_success = pdf_results.all? { |(status, _)| status == 200 }
@@ -171,7 +171,7 @@ module SimpleFormsApi
 
         maybe_add_file_paths =
           case form_id
-          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007'
+          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007', 'vha_10_7959f_2'
             form.handle_attachments(file_path)
           else
             [file_path]
@@ -192,8 +192,8 @@ module SimpleFormsApi
         }
       end
 
-      def upload_to_ivc_s3(file_name, file_path)
-        case ivc_s3_client.upload_file(file_name, file_path)
+      def upload_to_ivc_s3(file_name, file_path, metadata = {})
+        case ivc_s3_client.put_object(file_name, file_path, metadata)
         in { success: true }
           [200]
         in { success: false, error_message: error_message }

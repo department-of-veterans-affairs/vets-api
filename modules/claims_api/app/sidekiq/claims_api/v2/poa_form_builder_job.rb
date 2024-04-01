@@ -15,10 +15,11 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number)
+      def perform(power_of_attorney_id, form_number, rep_id)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
+        rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
 
-        output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number),
+        output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, rep),
                                                              id: power_of_attorney.id)
         upload_to_vbms(power_of_attorney, output_path)
         ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
@@ -43,7 +44,7 @@ module ClaimsApi
       # @param form_number [String] Either 2122 or 2122A
       #
       # @return [Hash] All data to be inserted into pdf
-      def data(power_of_attorney, form_number)
+      def data(power_of_attorney, form_number, rep)
         res = power_of_attorney
               .form_data.deep_merge({
                                       'veteran' => {
@@ -57,26 +58,29 @@ module ClaimsApi
         signatures = if form_number == '2122A'
                        individual_signatures(power_of_attorney)
                      else
-                       organization_signatures(power_of_attorney)
+                       organization_signatures(power_of_attorney, rep)
                      end
 
+        res.deep_merge!({ 'serviceOrganization' => {
+                          'firstName' => rep.first_name,
+                          'lastName' => rep.last_name
+                        } })
         res.merge!({ 'text_signatures' => signatures })
         res
       end
 
-      def organization_signatures(power_of_attorney)
-        first_name = power_of_attorney.form_data['serviceOrganization']['firstName']
-        last_name = power_of_attorney.form_data['serviceOrganization']['lastName']
+      def organization_signatures(power_of_attorney, rep)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         {
           'page2' => [
             {
-              'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                             "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+              'signature' => "#{first_name} " \
+                             "#{last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 240
             },
             {
-              'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
+              'signature' => "#{rep.first_name} #{rep.last_name} - signed via api.va.gov",
               'x' => 35,
               'y' => 200
             }
@@ -109,20 +113,33 @@ module ClaimsApi
         ]
       end
 
-      def individual_page2_signatures(power_of_attorney, first_name, last_name)
+      def individual_page2_signatures(power_of_attorney, rep_first_name, rep_last_name)
+        first_name, last_name = veteran_or_claimant_signature(power_of_attorney)
         [
           {
-            'signature' => "#{power_of_attorney.auth_headers['va_eauth_firstName']} " \
-                           "#{power_of_attorney.auth_headers['va_eauth_lastName']} - signed via api.va.gov",
+            'signature' => "#{first_name} " \
+                           "#{last_name} - signed via api.va.gov",
             'x' => 35,
             'y' => 306
           },
           {
-            'signature' => "#{first_name} #{last_name} - signed via api.va.gov",
+            'signature' => "#{rep_first_name} #{rep_last_name} - signed via api.va.gov",
             'x' => 35,
             'y' => 200
           }
         ]
+      end
+
+      def veteran_or_claimant_signature(power_of_attorney)
+        claimant = power_of_attorney.form_data['claimant'].present?
+        if claimant
+          first_name = power_of_attorney.form_data['claimant']['firstName']
+          last_name = power_of_attorney.form_data['claimant']['lastName']
+        else
+          first_name = power_of_attorney.auth_headers['va_eauth_firstName']
+          last_name = power_of_attorney.auth_headers['va_eauth_lastName']
+        end
+        [first_name, last_name]
       end
     end
   end

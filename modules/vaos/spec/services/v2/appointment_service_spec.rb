@@ -174,12 +174,14 @@ describe VAOS::V2::AppointmentsService do
           expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq('Wed, 08 Sep 2021 06:00:00 -0600')
         end
       end
+    end
 
-      it 'logs the VAOS telehealth atlas details of the returned appointments' do
+    context 'when partial success is returned and failures are returned with ICNs' do
+      it 'anonymizes the ICNs' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
-                         allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+                         match_requests_on: %i[method path query]) do
           response = subject.get_appointments(start_date3, end_date3)
-          expect(response[:data].size).to eq(163)
+          expect(response.dig(:meta, :failures).to_json).not_to match(/\d{10}V\d{6}/)
         end
       end
     end
@@ -424,6 +426,7 @@ describe VAOS::V2::AppointmentsService do
         context 'using VPG' do
           before do
             Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
+            Flipper.enable(:va_online_scheduling_use_vpg)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -935,27 +938,6 @@ describe VAOS::V2::AppointmentsService do
 
         expect(result).to eq({ pageSize: 0 })
       end
-    end
-  end
-
-  describe 'lovell_appointment?' do
-    it 'returns false when the appointment is nil' do
-      expect(subject.send(:lovell_appointment?, nil)).to eq(false)
-    end
-
-    it 'returns false when the appointment location id is missing' do
-      appointment = { id: '123456' }
-      expect(subject.send(:lovell_appointment?, appointment)).to eq(false)
-    end
-
-    it 'returns true if the appointment is a Lovell appointment' do
-      appointment = { location_id: '556', id: '123456' }
-      expect(subject.send(:lovell_appointment?, appointment)).to eq(true)
-    end
-
-    it 'returns false if the appointment is not a Lovell appointment' do
-      appointment = { location_id: '983', id: '123456' }
-      expect(subject.send(:lovell_appointment?, appointment)).to eq(false)
     end
   end
 end

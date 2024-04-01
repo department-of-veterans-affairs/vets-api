@@ -6,7 +6,7 @@ FactoryBot.define do
     phone { Faker::PhoneNumber.phone_number }
     email { Faker::Internet.email }
     acct_no { Faker::Bank.account_number(digits: 10) }
-    acct_type { 'checking' }
+    acct_type { Vye::DirectDepositChange.acct_types.keys.sample }
     routing_no { Faker::Bank.routing_number }
     bank_name { Faker::Bank.name }
     bank_phone { Faker::PhoneNumber.phone_number }

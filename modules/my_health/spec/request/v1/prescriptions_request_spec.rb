@@ -134,19 +134,25 @@ RSpec.describe 'prescriptions', type: :request do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_refillable_prescriptions') do
           get '/my_health/v1/prescriptions/list_refillable_prescriptions'
         end
-        six_months_from_today = Time.zone.today - 6.months
-        zero_date = Date.new(0, 1, 1)
-
         response_data = JSON.parse(response.body)['data']
-        response_data.each do |prescription|
-          sorted_dispensed_date = prescription['rxRfRecords']&.dig(0, 1, 0) || prescription['dispensedDate']
-          if prescription['isRefillable'] || ['Active', 'Active: Submitted'].include?(prescription['dispStatus']) ||
-             (%w[Expired Discontinued].include?(prescription['dispStatus']) &&
-             sorted_dispensed_date >= six_months_from_today &&
-             sorted_dispensed_date != zero_date)
 
-            expect(prescription).to be_included
-          end
+        response_data.each do |p|
+          prescription = p['attributes']
+          disp_status = prescription['disp_status']
+          refill_history_item = prescription['rx_rf_records']&.first
+          expired_date = if refill_history_item && refill_history_item['expiration_date']
+                           refill_history_item['expiration_date']
+                         else
+                           prescription['expiration_date']
+                         end
+          cut_off_date = Time.zone.today - 120.days
+          zero_date = Date.new(0, 1, 1)
+          meets_criteria = ['Active', 'Active: Parked'].include?(disp_status) ||
+                           (disp_status == 'Expired' &&
+                           expired_date.present? &&
+                           DateTime.parse(expired_date) != zero_date &&
+                           DateTime.parse(expired_date) >= cut_off_date)
+          expect(meets_criteria).to eq(true)
         end
       end
 
@@ -246,8 +252,10 @@ RSpec.describe 'prescriptions', type: :request do
           end
 
           res = JSON.parse(response.body)
-
-          dates = res['data'].map { |d| DateTime.parse(d['attributes']['sortedDispensedDate']) }
+          dates = res['data'].map do |d|
+            sorted_date_str = d.dig('attributes', 'sortedDispensedDate')
+            sorted_date_str.present? ? Time.zone.parse(sorted_date_str) : Date.new(0, 1, 1)
+          end
           is_sorted = dates.each_cons(2).all? { |item1, item2| item1 >= item2 }
           expect(response).to be_successful
           expect(response.body).to be_a(String)

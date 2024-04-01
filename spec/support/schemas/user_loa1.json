@@ -56,7 +56,14 @@
                 "verified",
                 "sign_in",
                 "authn_context",
-                "inherited_proof_verified"
+                "inherited_proof_verified",
+                "icn",
+                "birls_id",
+                "edipi",
+                "sec_id",
+                "logingov_uuid",
+                "idme_uuid",
+                "id_theft_flag"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -87,6 +94,13 @@
                 },
                 "authn_context": { "type": "string" },
                 "inherited_proof_verified": { "type": "boolean" },
+                "icn": { "type": "string" },
+                "birls_id": { "type": [ "string", null ] },
+                "edipi": { "type": [ "string", null ] },
+                "sec_id": { "type": [ "string", null ] },
+                "logingov_uuid": { "type": [ "string", null ] },
+                "idme_uuid": { "type": [ "string", null ] },
+                "id_theft_flag": { "type": [ "boolean", null ] },
                 "claims": {
                   "type": "object",
                   "properties":  {
@@ -140,13 +154,6 @@
             },
             "vet360_contact_information": {
               "type": ["object", "null"]
-            },
-            "demographics": {
-              "type": "object",
-              "required": ["preferred_name"],
-              "properties": {
-                "preferred_name": { "type": [ "string", null ] }
-              }
             }
           }
         }
