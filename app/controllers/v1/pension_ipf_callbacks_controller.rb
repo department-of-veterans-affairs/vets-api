@@ -45,16 +45,20 @@ module V1
     def authenticate_user_with_token
       Rails.logger.info('pension-ipf-callbacks-69766 - Received request, authenticating')
       authenticate_with_http_token do |token|
+        # TODO: Temp logging for debugging Staging issue. Remove after testing
+        Rails.logger.info("pension-ipf-callbacks-69766 - Expecting #{bearer_token_secret}")
+        Rails.logger.info("pension-ipf-callbacks-69766 - Length: #{bearer_token_secret.length}")
+        Rails.logger.info("pension-ipf-callbacks-69766 - Received #{token}")
+        Rails.logger.info("pension-ipf-callbacks-69766 - Length: #{token.length}")
         return false if bearer_token_secret.nil?
 
+        Rails.logger.info("pension-ipf-callbacks-69766 - Is equal?: #{token == bearer_token_secret}")
         token == bearer_token_secret
       end
     end
 
     def authenticity_error
       Rails.logger.info('pension-ipf-callbacks-69766 - Failed to authenticate request')
-      # TODO: Temp logging for debugging Staging issue. Remove after testing
-      Rails.logger.info("pension-ipf-callbacks-69766 - Expected #{bearer_token_secret}")
       render json: { message: 'Invalid credentials' }, status: :unauthorized
     end
 
