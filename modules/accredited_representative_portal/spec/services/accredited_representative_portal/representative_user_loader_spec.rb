@@ -47,23 +47,51 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
             auth_broker:,
             client_id: }
         end
+        let(:ssn) { Faker::Number.leading_zero_number(digits: 9).to_s }
+        let(:birth_date) { '1987-10-17' }
+        let(:mpi_profile) { build(:mpi_profile, { given_names: [user.first_name], family_name: user.last_name, ssn:, birth_date: }) }
+        let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-        it 'reloads user object with expected attributes' do
-          reloaded_user = representative_user_loader.perform
+        before do
+          create(:representative, representative_attributes)
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
+        end
 
-          expect(reloaded_user).to be_a(AccreditedRepresentativePortal::RepresentativeUser)
-          expect(reloaded_user.uuid).to eq(user_uuid)
-          expect(reloaded_user.email).to eq(email)
-          expect(reloaded_user.first_name).to eq(session.user_attributes_hash['first_name'])
-          expect(reloaded_user.last_name).to eq(session.user_attributes_hash['last_name'])
-          expect(reloaded_user.icn).to eq(user_icn)
-          expect(reloaded_user.idme_uuid).to eq(idme_uuid)
-          expect(reloaded_user.logingov_uuid).to eq(nil)
-          expect(reloaded_user.fingerprint).to eq(request_ip)
-          expect(reloaded_user.last_signed_in).to eq(session.created_at)
-          expect(reloaded_user.authn_context).to eq(authn_context)
-          expect(reloaded_user.loa).to eq(user_loa)
-          expect(reloaded_user.sign_in).to eq(sign_in)
+        context 'and user is not a VA representative' do
+          let(:representative_attributes) { {} }
+          let(:expected_error) { AccreditedRepresentativePortal::Errors::RepresentativeRecordNotFoundError }
+          let(:expected_error_message) { 'User is not a VA representative' }
+
+          it 'raises a representative record not found error' do
+            expect { representative_user_loader.perform }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and user is a VA representative' do
+          let(:representative_attributes) do
+            { first_name: session.user_attributes_hash['first_name'],
+              last_name: session.user_attributes_hash['last_name'],
+              ssn: ssn, 
+              dob: birth_date }
+          end
+
+          it 'reloads user object with expected attributes' do
+            reloaded_user = representative_user_loader.perform
+
+            expect(reloaded_user).to be_a(AccreditedRepresentativePortal::RepresentativeUser)
+            expect(reloaded_user.uuid).to eq(user_uuid)
+            expect(reloaded_user.email).to eq(email)
+            expect(reloaded_user.first_name).to eq(session.user_attributes_hash['first_name'])
+            expect(reloaded_user.last_name).to eq(session.user_attributes_hash['last_name'])
+            expect(reloaded_user.icn).to eq(user_icn)
+            expect(reloaded_user.idme_uuid).to eq(idme_uuid)
+            expect(reloaded_user.logingov_uuid).to eq(nil)
+            expect(reloaded_user.fingerprint).to eq(request_ip)
+            expect(reloaded_user.last_signed_in).to eq(session.created_at)
+            expect(reloaded_user.authn_context).to eq(authn_context)
+            expect(reloaded_user.loa).to eq(user_loa)
+            expect(reloaded_user.sign_in).to eq(sign_in)
+          end
         end
       end
     end

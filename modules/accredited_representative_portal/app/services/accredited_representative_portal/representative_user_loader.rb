@@ -21,11 +21,25 @@ module AccreditedRepresentativePortal
 
     def reload_user
       validate_account_and_session
+      validate_representative_status
       current_user
     end
 
     def validate_account_and_session
       raise SignIn::Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
+    end
+
+    def validate_representative_status
+      mpi_profile = mpi_service.find_profile_by_identifier(identifier: session.user_account.icn,
+                                                           identifier_type: MPI::Constants::ICN).profile
+      representative = Veteran::Service::Representative.for_user(first_name: session.user_attributes_hash['first_name'], 
+                                                                 last_name: session.user_attributes_hash['last_name'], 
+                                                                 ssn: mpi_profile.ssn,
+                                                                 dob: mpi_profile.birth_date)
+
+      if representative.blank?
+        raise Errors::RepresentativeRecordNotFoundError.new message: 'User is not a VA representative'
+      end
     end
 
     def loa
@@ -40,16 +54,8 @@ module AccreditedRepresentativePortal
     end
 
     def authn_context
-      case user_verification.credential_type
-      when  SignIn::Constants::Auth::IDME
-        user_is_verified? ?  SignIn::Constants::Auth::IDME_LOA3 : SignIn::Constants::Auth::IDME_LOA1
-      when  SignIn::Constants::Auth::DSLOGON
-        user_is_verified? ?  SignIn::Constants::Auth::IDME_DSLOGON_LOA3 : SignIn::Constants::Auth::IDME_DSLOGON_LOA1
-      when  SignIn::Constants::Auth::MHV
-        user_is_verified? ?  SignIn::Constants::Auth::IDME_MHV_LOA3 : SignIn::Constants::Auth::IDME_MHV_LOA1
-      when  SignIn::Constants::Auth::LOGINGOV
-        user_is_verified? ?  SignIn::Constants::Auth::LOGIN_GOV_IAL2 : SignIn::Constants::Auth::LOGIN_GOV_IAL1
-      end
+      user_verification.credential_type == SignIn::Constants::Auth::LOGINGOV ? SignIn::Constants::Auth::LOGIN_GOV_IAL2 :
+                                                                               SignIn::Constants::Auth::IDME_LOA3
     end
 
     def user_is_verified?
@@ -83,6 +89,10 @@ module AccreditedRepresentativePortal
       user.save
 
       @current_user = user
+    end
+
+    def mpi_service
+      @service ||= MPI::Service.new
     end
   end
 end

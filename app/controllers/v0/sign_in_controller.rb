@@ -317,11 +317,7 @@ module V0
     def create_login_code(state_payload, user_info, credential_level) # rubocop:disable Metrics/MethodLength
       user_attributes = auth_service(state_payload.type,
                                      state_payload.client_id).normalized_attributes(user_info, credential_level)
-      verified_icn = if user_is_representative(state_payload)
-                       AccreditedRepresentativePortal::RepresentativeAttributeValidator.new(user_attributes:).perform
-                     else
-                       SignIn::AttributeValidator.new(user_attributes:).perform
-                     end
+      verified_icn = SignIn::AttributeValidator.new(user_attributes:).perform
       user_code_map = create_user_code_map(user_attributes, state_payload, verified_icn, request.remote_ip)
 
       context = {
@@ -350,17 +346,13 @@ module V0
     end
 
     def create_user_code_map(user_attributes, state_payload, verified_icn, request_ip)
-      klass = if user_is_representative(state_payload)
+      klass = if state_payload.client_id == Settings.sign_in.arp_client_id
                 AccreditedRepresentativePortal::RepresentativeUserCreator
               else
                 SignIn::UserCreator
               end
 
       klass.new(user_attributes:, state_payload:, verified_icn:, request_ip:).perform
-    end
-
-    def user_is_representative(state_payload)
-      state_payload.client_id == Settings.sign_in.arp_client_id
     end
 
     def refresh_token_param
