@@ -18,7 +18,6 @@ module RepresentationManagement
       attribute :zip_code
       attribute :zip_suffix
       attribute :phone
-      attribute :email
     end
   end
 end
