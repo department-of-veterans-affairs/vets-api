@@ -1,59 +1,49 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'Threads Integration', type: :request do
-  include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 660_516 }
   let(:thread_id) { 660_515 }
-  let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
+  let(:current_user) { build(:user, :mhv) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
-    allow(SM::Client).to receive(:new).and_return(authenticated_client)
+    Flipper.enable(:mhv_sm_session_policy)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
     sign_in_as(current_user)
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
 
-    before { patch '/my_health/v1/messaging/threads/7259506/move?folder_id=0' }
-
-    include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+  after do
+    Flipper.disable(:mhv_sm_session_policy)
+    Timecop.return
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
+  context 'when NOT authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session_error')
+      get "/my_health/v1/messaging/folders/#{inbox_id}/threads"
+    end
 
-    before { patch '/my_health/v1/messaging/threads/7259506/move?folder_id=0' }
+    after do
+      VCR.eject_cassette
+    end
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
 
-    context 'not a va patient' do
-      before do
-        get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
-            params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
-      end
-
-      let(:va_patient) { false }
-      let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
-      end
-
-      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+    after do
+      VCR.eject_cassette
     end
 
     describe '#index' do

@@ -21,7 +21,7 @@ module MyHealth
     def mhv_messaging_authorized?
       if Flipper.enabled?(:mhv_sm_session_policy, current_user)
         Rails.logger.info('SMController Using new SM session policy')
-        current_user.authorize(:mhv_messaging, :mobile_access?)
+        current_user.authorize(:mhv_messaging, :access?)
       else
         Rails.logger.info('SMController Using Legacy SM session policy')
         current_user.authorize(:legacy_mhv_messaging, :access?)

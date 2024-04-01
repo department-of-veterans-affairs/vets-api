@@ -13,45 +13,41 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:created_draft_reply_id) { 674_944 }
   let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
-  let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
+  let(:current_user) { build(:user, :mhv) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
-    allow(SM::Client).to receive(:new).and_return(authenticated_client)
+    Flipper.enable(:mhv_sm_session_policy)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
     sign_in_as(current_user)
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
 
-    before { post '/my_health/v1/messaging/message_drafts', params: }
-
-    include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+  after do
+    Flipper.disable(:mhv_sm_session_policy)
+    Timecop.return
   end
 
-  context 'Advanced User' do
-    let(:mhv_account_type) { 'Advanced' }
+  context 'when NOT authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session_error')
+      post '/my_health/v1/messaging/message_drafts', params:
+    end
 
-    before { post '/my_health/v1/messaging/message_drafts', params: }
+    after do
+      VCR.eject_cassette
+    end
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+  context 'when authorized' do
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
 
-    context 'not a va patient' do
-      before { post '/my_health/v1/messaging/message_drafts', params: }
-
-      let(:va_patient) { false }
-      let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
-      end
-
-      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+    after do
+      VCR.eject_cassette
     end
 
     describe 'drafts' do

@@ -1,42 +1,32 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/sm_client_helpers'
-require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'All Triage Teams Integration', type: :request do
-  include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
+  let(:current_user) { build(:user, :mhv, va_patient:) }
 
   before do
-    allow(SM::Client).to receive(:new).and_return(authenticated_client)
+    Flipper.enable(:mhv_sm_session_policy)
+    Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
     sign_in_as(current_user)
   end
 
-  context 'Basic User' do
-    let(:mhv_account_type) { 'Basic' }
 
-    before { get '/my_health/v1/messaging/allrecipients' }
-
-    include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+  after do
+    Flipper.disable(:mhv_sm_session_policy)
+    Timecop.return
   end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+  context 'when authorized' do
 
-    context 'not a va patient' do
-      before { get '/my_health/v1/messaging/allrecipients' }
+    before do
+      VCR.insert_cassette('sm_client/session')
+    end
 
-      let(:va_patient) { false }
-      let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
-      end
-
-      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+    after do
+      VCR.eject_cassette
     end
 
     it 'responds to GET #index' do
