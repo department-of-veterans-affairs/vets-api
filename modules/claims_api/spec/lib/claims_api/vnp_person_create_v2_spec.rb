@@ -14,7 +14,20 @@ describe ClaimsApi::VnpPersonCreateV2 do
   let(:vnp_ptcpnt_id) { '182008' }
 
   describe 'vnp_person_create_v2' do
-    it 'validates data' do
+    before do |test|
+      unless test.metadata[:skip_name]
+        expect_any_instance_of(ClaimsApi::LocalBGS).to receive(:make_request).and_wrap_original do |orig, args|
+          body = Hash.from_xml(args[:body].to_s)['arg0']
+          expect(body['firstNm']).to eq 'Tamara'
+          expect(body['lastNm']).to eq 'Ellis'
+          expect(body['vnpProcId']).to eq vnp_proc_id
+          expect(body['vnpPtcpntId']).to eq vnp_ptcpnt_id
+          orig.call(**args)
+        end
+      end
+    end
+
+    it 'validates data', :skip_name do
       data = { asdf: 'qwerty' }
       e = an_instance_of(ArgumentError).and having_attributes(
         message: 'Missing required keys: vnpProcId, vnpPtcpntId, firstNm, lastNm'
