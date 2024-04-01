@@ -118,7 +118,6 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
       context 'Lighthouse when successful' do
         it 'returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
-
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
                                             ActionController::Parameters.new(dd_params_lighthouse),
                                             'toe')
