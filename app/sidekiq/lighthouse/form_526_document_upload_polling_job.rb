@@ -37,7 +37,21 @@ module Lighthouse
         lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
         response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
 
-        BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
+        if response.status == 200
+          BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
+        else
+          StatsD.increment("#{STATSD_KEY_PREFIX}.polling_error")
+
+          Rails.logger.warn(
+            'Lighthouse::Form526DocumentUploadPollingJob status endpoint failure',
+            {
+              response_status: response.status,
+              response_body: response.body,
+              lighthouse_document_request_ids:,
+              timestamp: Time.now.utc
+            }
+          )
+        end
       end
     end
   end

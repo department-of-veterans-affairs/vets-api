@@ -154,6 +154,71 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
           end
         end
       end
+
+      context 'non-200 failure response from Lighthouse' do
+        let!(:pending_document) do
+          create(
+            :lighthouse526_document_upload,
+            # document_type: 'Veteran Upload',
+            aasm_state: 'pending',
+            # Completed Lighthouse QA environment document requestId provided to us by Lighthouse for end-to-end testing
+            # lighthouse_document_request_id: '18559',
+            # lighthouse_processing_ended_at: nil,
+            # last_status_response: nil,
+            status_last_polled_at: nil
+          )
+        end
+
+        # Error body example https://dev-developer.va.gov/explore/api/benefits-documents/docs?version=current
+        let(:error_body) do
+          {
+            'errors' => [
+              {
+                'detail' => 'Code must match \'^[A-Z]{2}$\'',
+                'status' => 400,
+                'type' => 'https =>//example.net/validation-error',
+                'title' => 'Invalid field value',
+                'instance' => 'e6d1119e-dc91-4b4d-b583-0f309de0807b',
+                'diagnostics' => 'e6d1119edc914b4db5830f309de0807b'
+              }
+            ]
+          }
+        end
+
+        let(:lighthouse_error_response) do
+          Faraday::Response.new(
+            response_body: error_body,
+            status: 500
+          )
+        end
+
+        before do
+          allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(lighthouse_error_response)
+        end
+
+        it 'increments a StatsD counter' do
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.poll_form_526_document_uploads.polling_error')
+          described_class.new.perform
+        end
+
+        it 'logs the response message to the Rails logger' do
+          response_time = Time.new(1985, 10, 26).utc
+
+          Timecop.freeze(response_time) do
+            expect(Rails.logger).to receive(:warn).with(
+              'Lighthouse::Form526DocumentUploadPollingJob status endpoint failure',
+              {
+                response_status: 500,
+                response_body: error_body,
+                lighthouse_document_request_ids: [pending_document.lighthouse_document_request_id],
+                timestamp: response_time
+              }
+            )
+
+            described_class.new.perform
+          end
+        end
+      end
     end
 
     describe 'Documents Polling' do
@@ -164,6 +229,7 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
         # We aren't stressing either of these services, just verifying we pass the right info to them
         allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(faraday_response)
         allow(BenefitsDocuments::Form526::UpdateDocumentsStatusService).to receive(:call)
+        allow(faraday_response).to receive(:status).and_return(200)
       end
 
       context 'for a pending document' do
