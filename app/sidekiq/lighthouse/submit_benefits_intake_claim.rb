@@ -32,17 +32,17 @@ module Lighthouse
     # rubocop:disable Metrics/MethodLength
     def perform(saved_claim_id)
       @claim = SavedClaim.find(saved_claim_id)
+
+      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       @pdf_path = if @claim.form_id == '21P-530V2'
                     process_record(@claim, @claim.created_at, @claim.form_id)
                   else
                     process_record(@claim)
                   end
-
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
 
-      @lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
       create_form_submission_attempt
 
       payload = {
@@ -86,7 +86,6 @@ module Lighthouse
       SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def process_record(record, timestamp = nil, form_id = nil)
       pdf_path = record.to_pdf
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
