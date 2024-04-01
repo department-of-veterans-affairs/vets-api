@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/vnp_person_create_v2'
+require 'bgs_service/vnp_person_service'
 
-describe ClaimsApi::VnpPersonCreateV2 do
+describe ClaimsApi::VnpPersonService do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   # get a proc_id from vnp_proc_create
@@ -15,7 +15,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
       first_nm: 'Tamara', last_nm: 'Ellis' }
   end
 
-  describe 'vnp_person_create_v2' do
+  describe 'vnp_person_create' do
     before do |test|
       unless test.metadata[:skip_name]
         expect_any_instance_of(ClaimsApi::LocalBGS).to receive(:make_request).and_wrap_original do |orig, args|
@@ -42,7 +42,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
         first_nm: 'Tamara',
         last_nm: 'Ellis'
       }
-      VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
+      VCR.use_cassette('bgs/vnp_person_service/vnp_person_create') do
         result = subject.vnp_person_create(data)
         expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end
@@ -63,7 +63,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
           profile: OpenStruct.new(ssn: '796130115')
         )
       )
-      VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
+      VCR.use_cassette('bgs/vnp_person_service/vnp_person_create') do
         result = subject.vnp_person_create(data, target_veteran:)
         expect((data.to_a & result.to_a).to_h).to eq data
         expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
@@ -83,7 +83,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
 
       data = { vnp_proc_id: }
       icn = '1012667145V762142'
-      VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
+      VCR.use_cassette('bgs/vnp_person_service/vnp_person_create') do
         result = subject.vnp_person_create(data, icn:)
         expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end

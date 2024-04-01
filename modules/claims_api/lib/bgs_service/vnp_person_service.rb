@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class VnpPersonCreateV2 < ClaimsApi::LocalBGS
+  class VnpPersonService < ClaimsApi::LocalBGS
     # Takes an object with a minimum of (other fields are camelized and passed to BGS):
     # procId: BGS procID
     # ptcpntId: Veteran's participant id
