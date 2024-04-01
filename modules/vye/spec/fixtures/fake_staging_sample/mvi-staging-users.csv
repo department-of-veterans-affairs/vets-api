@@ -1,0 +1,3 @@
+first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password,icn,edipi,has_data_for, notes
+John,A,Doe,M,1932-02-05T00:00:00-08:00,111111111,800-827-1000,user1@email.com,xxx,xxx,xxx,,notes
+Jane,B,Smith,M,1933-04-05T00:00:00-08:00,222222222,800-827-1000,user2@email.com,xxx,xxx,xxx,,

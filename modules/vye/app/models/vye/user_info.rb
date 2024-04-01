@@ -26,6 +26,7 @@ module Vye
     enum indicator: { chapter1606: 'A', chapter1607: 'E', chapter30: 'B', D: 'D' }
 
     delegate :icn, to: :user_profile, allow_nil: true
+    delegate :ssn, to: :mpi_profile, allow_nil: true
     delegate :pending_documents, to: :user_profile, allow_nil: true
 
     has_kms_key
@@ -41,10 +42,6 @@ module Vye
 
     def verification_required
       verifications.empty?
-    end
-
-    def ssn
-      mpi_profile&.ssn
     end
 
     private
