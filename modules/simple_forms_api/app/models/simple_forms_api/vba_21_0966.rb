@@ -17,12 +17,16 @@ module SimpleFormsApi
         'veteranLastName' => @data.dig('veteran_full_name', 'last'),
         'fileNumber' => @data.dig('veteran_id', 'va_file_number').presence || @data.dig('veteran_id', 'ssn'),
         'zipCode' => @data.dig('veteran_mailing_address', 'postal_code') ||
-          @data.dig('surviving_dependent_mailing_address', 'postal_code') ||
-          '00000',
+          @data.dig('surviving_dependent_mailing_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('veteran_mailing_address',
+                'country') == 'USA' || @data.dig('surviving_dependent_mailing_address', 'country') == 'USA'
     end
 
     def relationship_to_veteran_radio
