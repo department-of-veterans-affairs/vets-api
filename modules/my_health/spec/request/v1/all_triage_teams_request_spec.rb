@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'All Triage Teams Integration', type: :request do
   include SchemaMatchers
 
-  let(:current_user) { build(:user, :mhv, va_patient:) }
+  let(:current_user) { build(:user, :mhv) }
 
   before do
     Flipper.enable(:mhv_sm_session_policy)
