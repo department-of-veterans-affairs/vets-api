@@ -9,13 +9,6 @@ echo "$(date)    post-create start" >> "$HOME/status"
 git -C /workspaces/vets-api-mockdata pull
 git -C /workspaces/vets-api pull
 
-mkdir /workspaces/vets-api/.vscode
-{
-{
-  "rubyLsp.rubyVersionManager": "none"
-}
-} >> /workspaces/vets-api/.vscode/settings.json
-
 bundle install
 
 echo "post-create complete"
