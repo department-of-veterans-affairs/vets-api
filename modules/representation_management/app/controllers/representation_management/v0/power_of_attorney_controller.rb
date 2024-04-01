@@ -11,7 +11,7 @@ module RepresentationManagement
         body = lighthouse_service.get_power_of_attorney
         type = body.dig(:data, :type)
         code = body.dig(:data, :attributes, :code)
-        render json: { poa: code.blank? ? {} : find_poa_by_code(type, code) }
+        render json: code.blank? ? {} : find_poa_by_code(type, code)
       end
 
       private
