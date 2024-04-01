@@ -206,7 +206,6 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
               'clinicPhoneNumber' => '909-825-7084',
               'clinicStopCodeName' => 'Mental Health, Primary Care',
               'doctorName' => 'Dr. Jones',
-              'edipi' => '1000000105',
               'facility' => 'Jerry L. Pettis Memorial Veterans Hospital',
               'facilityAddress' => {
                 'city' => 'Loma Linda',
@@ -216,7 +215,6 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
                 'street3' => '',
                 'zip' => '92357-1000'
               },
-              'icn' => '1013220078V743173',
               'kind' => 'clinic',
               'startTime' => '2024-02-14T22:10:00.000+00:00',
               'stationNo' => '530',
