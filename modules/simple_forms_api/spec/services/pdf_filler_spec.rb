@@ -4,8 +4,6 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
-  subject(:instance) { described_class.new(form_number:, form:) }
-
   ivc_champva_forms = %w[vha_10_10d vha_10_7959f_1 vha_10_7959f_2]
   other_forms = %w[
     vba_26_4555 vba_26_4555-min vba_21_4142 vba_21_4142-min vba_21_10210 vba_21_10210-min vba_21p_0847
@@ -15,8 +13,6 @@ describe SimpleFormsApi::PdfFiller do
   form_list = ivc_champva_forms + other_forms
 
   describe "#generate" do
-    subject(:generate) { instance.generate }
-
     form_list.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:expected_pdf_path) { map_pdf_data(file_name) }
