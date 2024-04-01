@@ -39,7 +39,6 @@ RSpec.describe 'Fetching user data' do
     end
 
     it 'gives me the list of available services' do
-      
       expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
         [
           BackendServices::FACILITIES,

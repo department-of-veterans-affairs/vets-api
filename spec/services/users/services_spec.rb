@@ -47,11 +47,12 @@ RSpec.describe Users::Services do
 
     context 'with an MHV Premium user' do
       let(:user) { build(:user, :mhv) }
+
       before do
         Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
         VCR.insert_cassette('sm_client/session')
       end
-  
+
       after do
         VCR.eject_cassette
         Timecop.return
