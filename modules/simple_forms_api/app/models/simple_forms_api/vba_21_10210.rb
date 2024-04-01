@@ -16,11 +16,15 @@ module SimpleFormsApi
         'veteranFirstName' => data.dig('veteran_full_name', 'first'),
         'veteranLastName' => data.dig('veteran_full_name', 'last'),
         'fileNumber' => data['veteran_va_file_number'].presence || data['veteran_ssn'],
-        'zipCode' => data.dig('veteran_mailing_address', 'postal_code') || '00000',
+        'zipCode' => data.dig('veteran_mailing_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('veteran_mailing_address', 'country') == 'USA'
     end
 
     def words_to_remove
