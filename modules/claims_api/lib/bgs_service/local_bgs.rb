@@ -14,6 +14,7 @@ module ClaimsApi
   class LocalBGS
     attr_accessor :external_uid, :external_key
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
         if Rails.env.test?
@@ -23,7 +24,17 @@ module ClaimsApi
           # computer.
           '127.0.0.1'
         else
-          Socket.ip_address_list.detect(&:ipv4_private?).ip_address
+          Socket
+            .ip_address_list
+            .detect(&:ipv4_private?)
+            .ip_address
+        end
+
+      @ssl_verify_mode =
+        if Settings.bgs.ssl_verify_mode == 'none'
+          OpenSSL::SSL::VERIFY_NONE
+        else
+          OpenSSL::SSL::VERIFY_PEER
         end
 
       @application = Settings.bgs.application
@@ -35,9 +46,9 @@ module ClaimsApi
       @external_uid = external_uid || Settings.bgs.external_uid
       @external_key = external_key || Settings.bgs.external_key
       @forward_proxy_url = Settings.bgs.url
-      @ssl_verify_mode = Settings.bgs.ssl_verify_mode == 'none' ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       @timeout = Settings.bgs.timeout || 120
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.breakers_service
       url = Settings.bgs.url
