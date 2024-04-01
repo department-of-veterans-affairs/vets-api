@@ -104,5 +104,9 @@ module DebtsApi
       form = DebtsApi::V0::VbaFsrForm.new(params)
       form.form_data.nil? ? nil : form
     end
+
+    def destroy_related_form
+      InProgressForm.form_for_user('5655', @user)&.destroy!
+    end
   end
 end
