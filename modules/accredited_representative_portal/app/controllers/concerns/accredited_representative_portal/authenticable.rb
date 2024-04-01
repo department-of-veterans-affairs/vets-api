@@ -12,6 +12,8 @@ module AccreditedRepresentativePortal
 
     def load_user_object
       RepresentativeUserLoader.new(access_token:, request_ip: request.remote_ip).perform
+    rescue AccreditedRepresentativePortal::Errors::StandardError => e
+      handle_authenticate_error(e)
     end
   end
 end

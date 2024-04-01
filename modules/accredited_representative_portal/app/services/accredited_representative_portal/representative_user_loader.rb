@@ -38,7 +38,7 @@ module AccreditedRepresentativePortal
                                                                  dob: mpi_profile.birth_date)
 
       if representative.blank?
-        raise Errors::RepresentativeRecordNotFoundError.new message: 'User is not a VA representative'
+        raise AccreditedRepresentativePortal::Errors::RepresentativeRecordNotFoundError.new(message: 'User is not a VA representative')
       end
     end
 

@@ -30,30 +30,59 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
     end
 
     context 'when authenticated' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:representative_attributes) { {} }
+
       before do
         cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
+        create(:representative, representative_attributes)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
       end
 
       context 'with a valid audience' do
-        it 'allows access' do
-          expect(subject).to have_http_status(:ok)
+        context 'when the representative is found' do
+          let(:session) { SignIn::OAuthSession.find_by(handle: valid_access_token.session_handle) }
+          let(:representative_attributes) do
+            { first_name: session.user_attributes_hash['first_name'],
+              last_name: session.user_attributes_hash['last_name'],
+              ssn: mpi_profile.ssn,
+              dob: mpi_profile.birth_date }
+          end
+
+          it 'allows access' do
+            expect(subject).to have_http_status(:ok)
+          end
+
+          context 'when the representatives_portal_api feature toggle' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_api).and_return(enabled)
+            end
+
+            context 'is enabled' do
+              let(:enabled) { true }
+
+              it { is_expected.to have_http_status(:ok) }
+            end
+
+            context 'is disabled' do
+              let(:enabled) { false }
+
+              it { is_expected.to have_http_status(:not_found) }
+            end
+          end
         end
 
-        context 'when the representatives_portal_api feature toggle' do
+        context 'when the representative is not found' do
+          let(:expected_error) { AccreditedRepresentativePortal::Errors::RepresentativeRecordNotFoundError }
+          let(:expected_error_message) { 'User is not a VA representative' }
+
           before do
-            allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_api).and_return(enabled)
+            allow(Rails.logger).to receive(:error)
           end
 
-          context 'is enabled' do
-            let(:enabled) { true }
-
-            it { is_expected.to have_http_status(:ok) }
-          end
-
-          context 'is disabled' do
-            let(:enabled) { false }
-
-            it { is_expected.to have_http_status(:not_found) }
+          it 'raises a representative record not found error' do
+            expect(subject).to have_http_status(:unauthorized)
           end
         end
       end
