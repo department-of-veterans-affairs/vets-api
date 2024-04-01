@@ -56,6 +56,16 @@ RSpec.describe BenefitsClaims::Service do
         end
       end
 
+      describe "when requesting a user's power of attorney" do
+        it 'retrieves the power of attorney from the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
+            body = @service.get_power_of_attorney
+            expect(body.dig(:data, :type)).to eq('individual') # update value to match cassette
+            expect(body.dig(:data, :attributes, :code)).to eq('600383363') # update value to match cassette
+          end
+        end
+      end
+
       describe 'when posting a form526' do
         it 'when given a full request body, posts to the Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
