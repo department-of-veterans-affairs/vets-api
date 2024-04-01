@@ -1,24 +1,39 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_claims/service'
+
 module RepresentationManagement
   module V0
     class PowerOfAttorneyController < ApplicationController
       service_tag 'representation-management'
 
       def index
-        poa_code = RepresentationManagement::PowerOfAttorney::Service.new(@current_user)
-                                                                     .get.dig(:data, :attributes, :code)
-        render json: { poa: poa_code.blank? ? {} : find_poa_by_code(poa_code) }
+        body = lighthouse_service.get_power_of_attorney
+        type = body.dig(:data, :type)
+        code = body.dig(:data, :attributes, :code)
+        render json: { poa: code.blank? ? {} : find_poa_by_code(type, code) }
       end
 
       private
 
-      def find_poa_by_code(code)
-        organization = find_organization(code)
-        return serialize_organization(organization) if organization.present?
+      def lighthouse_service
+        BenefitsClaims::Service.new(icn)
+      end
 
-        representative = find_representative(code)
-        representative.present? ? serialize_representative(representative) : {}
+      def icn
+        @current_user&.icn
+      end
+
+      def find_poa_by_code(type, code)
+        if type == 'organization'
+          organization = find_organization(code)
+          return serialize_organization(organization) if organization.present?
+        else
+          representative = find_representative(code)
+          return serialize_representative(representative) if representative.present?
+        end
+
+        {}
       end
 
       def find_organization(code)
