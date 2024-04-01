@@ -53,6 +53,8 @@ module V1
 
     def authenticity_error
       Rails.logger.info('pension-ipf-callbacks-69766 - Failed to authenticate request')
+      # TODO: Temp logging for debugging Staging issue. Remove after testing
+      Rails.logger.info("pension-ipf-callbacks-69766 - Expected #{bearer_token_secret}")
       render json: { message: 'Invalid credentials' }, status: :unauthorized
     end
 

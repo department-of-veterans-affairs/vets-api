@@ -46,6 +46,11 @@ module AskVAApi
         render json: serializer.serializable_hash, status: :ok
       end
 
+      def create_reply
+        response = Correspondences::Creator.new(message: params[:reply], inquiry_id: params[:id], service: nil).call
+        render json: response.to_json, status: :ok
+      end
+
       private
 
       def inquiry_params
