@@ -1,13 +1,13 @@
 *INIT*
 JOE
 
-TESTER2
-334445555
-334445555
+TESTER
+123456789
+223334444
 V1995
 
 
-Chapter30
+Chapter35
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074
@@ -20,14 +20,18 @@ FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 334445555    VA File Number: N/A
+SSN: 223334444    VA File Number: c12345679
+
+Applicant has graduated high school or received GED? true
+
+Date graduated: 2023-04-12
 
 Sex: F  Date of Birth: 1970-01-01
 
-Name:   Joe Tester2
+Name:   Joe Tester
 
 Address:
-1234 TEST ST
+123 TEST ST
 AUSTIN, TX, 73301
 USA
 
@@ -40,14 +44,23 @@ Preferred Method of Contact:
 Direct Deposit:     Type of Account:
 Routing/Transit #:    Account #:
 
+                         SERVICE MEMBER INFORMATION
+                         --------------------------
+
+Name:   John Smith
+
+SSN:   123456789
+
+VA File Number: c12345679
+
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit Most Recently Received: Chapter1606
+Benefit Most Recently Received: Chapter30
 
 Select Another Benefit: Yes
 
-Benefit Being Applied For: Chapter30
+Benefit Being Applied For: Chapter35
 
 Type of Education or Training:
 Education or Career Goal:
@@ -65,6 +78,25 @@ education benefits? YES
 Date Entered   Date Separated     Service Component
 2010-06-26     2011-04-10         Army Reserve
 2010-04-22     2011-06-14         navy
+
+          GUARDIAN INFORMATION
+          --------------------
+First name of Parent, Guardian or Custodian: Richard
+
+Middle name of Parent, Guardian or Custodian: D
+
+Last name of Parent, Guardian or Custodian: Van Dyke
+
+Address of Parent, Guardian or Custodian:
+  Country: USA
+  Street: 456 oak blvd
+  Street address line 2: apt 88
+  City: Phoenix
+  State: AZ
+  Postal code: 56432
+  Mobile phone number: 9999999999
+  Home phone number: 8888888888
+  Email address: test84@test.com
 
 
 As an active-duty service member, you have consulted with an Education Service
