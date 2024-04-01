@@ -22,7 +22,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
       expect { subject.vnp_person_create(data) }.to raise_error(e)
     end
 
-    it 'creates a new person' do
+    it 'creates a new person from data' do
       data = {
         vnp_proc_id:,
         vnp_ptcpnt_id:,
@@ -32,6 +32,30 @@ describe ClaimsApi::VnpPersonCreateV2 do
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
         result = subject.vnp_person_create(data)
         expect((data.to_a & result.to_a).to_h).to eq data
+      end
+    end
+
+    it 'creates a new person from data and target_veteran' do
+      data = { vnp_proc_id: }
+      target_veteran = OpenStruct.new(
+        icn: '1012667145V762142',
+        first_name: 'Tamara',
+        last_name: 'Ellis',
+        loa: { current: 3, highest: 3 },
+        edipi: '1005490754',
+        ssn: '796130115',
+        participant_id: vnp_ptcpnt_id,
+        mpi: OpenStruct.new(
+          icn: '1012832025V743496',
+          profile: OpenStruct.new(ssn: '796130115')
+        )
+      )
+      VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
+        result = subject.vnp_person_create(data, target_veteran:)
+        expect((data.to_a & result.to_a).to_h).to eq data
+        expect(result[:first_nm]).to eq 'Tamara'
+        expect(result[:last_nm]).to eq 'Ellis'
+        expect(result[:vnp_ptcpnt_id]).to eq vnp_ptcpnt_id
       end
     end
   end

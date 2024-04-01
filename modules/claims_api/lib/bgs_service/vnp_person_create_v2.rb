@@ -10,8 +10,9 @@ module ClaimsApi
     #
     # The target veteran can be passed in as an optional second argument
     # this overrides the ptcpntId, firstNm, and lastNm fields in the opts object.
-    def vnp_person_create(opts)
+    def vnp_person_create(opts, target_veteran: nil)
       opts = opts.dup
+      opts.merge!(target_veteran_opts(target_veteran)) if target_veteran
       opts.transform_keys! { |k| k.to_s.camelize(:lower) }
 
       validate_opts! opts
@@ -49,6 +50,14 @@ module ClaimsApi
       required_keys = %w[vnpProcId vnpPtcpntId firstNm lastNm]
       missing_keys = required_keys.reject { opts.key? _1 }
       raise ArgumentError, "Missing required keys: #{missing_keys.join(', ')}" if missing_keys.present?
+    end
+
+    def target_veteran_opts(target_veteran)
+      {
+        vnpPtcpntId: target_veteran.participant_id,
+        firstNm: target_veteran.first_name,
+        lastNm: target_veteran.last_name
+      }
     end
   end
 end
