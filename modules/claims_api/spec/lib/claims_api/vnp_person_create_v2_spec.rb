@@ -58,5 +58,27 @@ describe ClaimsApi::VnpPersonCreateV2 do
         expect(result[:vnp_ptcpnt_id]).to eq vnp_ptcpnt_id
       end
     end
+
+    it 'creates a new person from data and icn' do
+      profile = MPI::Responses::FindProfileResponse.new(
+        status: :ok,
+        profile: FactoryBot.build(:mpi_profile,
+                                  given_names: ['Tamara'],
+                                  family_name: 'Ellis',
+                                  participant_id: vnp_ptcpnt_id,
+                                  participant_ids: [vnp_ptcpnt_id])
+      )
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile)
+
+      data = { vnp_proc_id: }
+      icn = '1012667145V762142'
+      VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
+        result = subject.vnp_person_create(data, icn:)
+        expect((data.to_a & result.to_a).to_h).to eq data
+        expect(result[:first_nm]).to eq 'Tamara'
+        expect(result[:last_nm]).to eq 'Ellis'
+        expect(result[:vnp_ptcpnt_id]).to eq vnp_ptcpnt_id
+      end
+    end
   end
 end
