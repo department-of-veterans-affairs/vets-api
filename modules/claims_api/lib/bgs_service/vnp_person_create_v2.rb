@@ -15,8 +15,8 @@ module ClaimsApi
     # this does an MPI lookup to override the ptcpntId, firstNm, and lastNm fields in the opts.
     def vnp_person_create(opts, target_veteran: nil, icn: nil)
       opts = opts.dup
-      opts.merge!(icn_opts(icn)) if icn
-      opts.merge!(target_veteran_opts(target_veteran)) if target_veteran
+      opts = icn_opts(icn).merge(opts) if icn
+      opts = target_veteran_opts(target_veteran).merge(opts) if target_veteran
       opts.transform_keys! { |k| k.to_s.camelize(:lower) }
 
       validate_opts! opts
