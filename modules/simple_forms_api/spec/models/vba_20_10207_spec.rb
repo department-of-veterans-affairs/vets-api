@@ -2,55 +2,47 @@
 
 require 'rails_helper'
 
-RSpec.describe 'SimpleFormsApi::VBA2010207' do
+RSpec.describe SimpleFormsApi::VBA2010207 do
   describe 'zip_code_is_us_based' do
+    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
+
     context 'veteran address is present and in US' do
+      let(:data) { { 'veteran_mailing_address' => { 'country' => 'USA' } } }
+
       it 'returns true' do
-        data = { 'veteran_mailing_address' => { 'country' => 'USA' } }
-
-        form = SimpleFormsApi::VBA2010207.new(data)
-
-        expect(form.zip_code_is_us_based).to eq(true)
+        expect(zip_code_is_us_based).to eq(true)
       end
     end
 
     context 'veteran address is present and not in US' do
+      let(:data) { { 'veteran_mailing_address' => { 'country' => 'Canada' } } }
+
       it 'returns false' do
-        data = { 'veteran_mailing_address' => { 'country' => 'Canada' } }
-
-        form = SimpleFormsApi::VBA2010207.new(data)
-
-        expect(form.zip_code_is_us_based).to eq(false)
+        expect(zip_code_is_us_based).to eq(false)
       end
     end
 
     context 'non-veteran address is present and in US' do
+      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'USA' } } }
+
       it 'returns true' do
-        data = { 'non_veteran_mailing_address' => { 'country' => 'USA' } }
-
-        form = SimpleFormsApi::VBA2010207.new(data)
-
-        expect(form.zip_code_is_us_based).to eq(true)
+        expect(zip_code_is_us_based).to eq(true)
       end
     end
 
     context 'non-veteran address is present and not in US' do
+      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'Canada' } } }
+
       it 'returns false' do
-        data = { 'non_veteran_mailing_address' => { 'country' => 'Canada' } }
-
-        form = SimpleFormsApi::VBA2010207.new(data)
-
-        expect(form.zip_code_is_us_based).to eq(false)
+        expect(zip_code_is_us_based).to eq(false)
       end
     end
 
     context 'no valid address is given' do
+      let(:data) { {} }
+
       it 'returns false' do
-        data = {}
-
-        form = SimpleFormsApi::VBA2010207.new(data)
-
-        expect(form.zip_code_is_us_based).to eq(false)
+        expect(zip_code_is_us_based).to eq(false)
       end
     end
   end
