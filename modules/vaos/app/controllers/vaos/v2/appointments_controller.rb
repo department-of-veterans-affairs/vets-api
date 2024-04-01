@@ -223,6 +223,28 @@ module VAOS
         end
       end
 
+      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
+      # contains cerner. If it does, it returns true. Otherwise, it returns false.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      def cerner?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        identifiers = appt[:identifier]
+
+        return false if identifiers.nil?
+
+        identifiers.each do |identifier|
+          system = identifier[:system]
+          return true if system.include?('cerner')
+        end
+
+        false
+      end
+
       def merge_clinics(appointments)
         appointments.each do |appt|
           unless appt[:clinic].nil? || appt[:location_id].nil?
@@ -243,7 +265,23 @@ module VAOS
       def merge_facilities(appointments)
         appointments.each do |appt|
           appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
+          log_appt_id_location_name(appt) if cerner?(appt) && appt[:location]['name'].include?('COL OR 1')
         end
+      end
+
+      def log_appt_id_location_name(appt)
+        Rails.logger.info("Details for Cerner 'COL OR 1' Appointment",
+                          appt_cerner_location_data(appt[:id],
+                                                    appt[:location]&.[]('id'),
+                                                    appt[:location]&.[]('name')).to_json)
+      end
+
+      def appt_cerner_location_data(appt_id, facility_location_id, facility_name)
+        {
+          appt_id:,
+          facility_location_id:,
+          facility_name:
+        }
       end
 
       def get_clinic_memoized(location_id, clinic_id)
