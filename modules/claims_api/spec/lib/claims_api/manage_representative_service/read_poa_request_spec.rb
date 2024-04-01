@@ -24,7 +24,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
+        use_bgs_cassette('no_args') do
           expect { subject }.to raise_error(
             Common::Exceptions::ServiceError
           )
@@ -40,7 +40,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
+        use_bgs_cassette('no_statuses') do
           expect { subject }.to raise_error(
             Common::Exceptions::ServiceError
           )
@@ -57,7 +57,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
+        use_bgs_cassette('invalid_status') do
           expect { subject }.to raise_error(
             Common::Exceptions::ServiceError
           )
@@ -73,7 +73,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
+        use_bgs_cassette('no_poa_codes') do
           expect { subject }.to raise_error(
             Common::Exceptions::ServiceError
           )
@@ -90,7 +90,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'raises Common::Exceptions::ServiceError' do
-        use_bgs_cassette do
+        use_bgs_cassette('nonexistent_poa_code') do
           expect { subject }.to raise_error(
             Common::Exceptions::ServiceError
           )
@@ -136,7 +136,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
       end
 
       it 'returns poa requests' do
-        use_bgs_cassette do
+        use_bgs_cassette('existent_poa_code') do
           expect(subject).to eq(expected)
         end
       end
@@ -150,7 +150,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
         end
 
         it 'returns the existent poa requests' do
-          use_bgs_cassette do
+          use_bgs_cassette('existent_and_nonexistent_poa_code') do
             expect(subject).to eq(expected)
           end
         end

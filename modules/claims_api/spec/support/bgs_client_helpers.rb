@@ -30,9 +30,8 @@ module BGSClientHelpers
     ].freeze
   }.freeze
 
-  def use_bgs_cassette(&)
-    example = RSpec.current_example
-    metadata = example.metadata[:bgs].to_h
+  def use_bgs_cassette(name, &)
+    metadata = RSpec.current_example.metadata[:bgs].to_h
     service, operation = metadata.values_at(:service, :operation)
 
     if service.blank? || operation.blank?
@@ -42,7 +41,7 @@ module BGSClientHelpers
       HEREDOC
     end
 
-    name = File.join('bgs', service, operation, example.full_description)
+    name = File.join('bgs', service, operation, name)
     VCR.use_cassette(name, VCR_OPTIONS, &)
   end
 end
