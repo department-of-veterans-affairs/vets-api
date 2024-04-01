@@ -22,6 +22,11 @@ module SimpleFormsApi
       }
     end
 
+    def zip_code_is_us_based
+      # TODO: Implement this
+      true
+    end
+
     def submission_date_config
       { should_stamp_date?: false }
     end
