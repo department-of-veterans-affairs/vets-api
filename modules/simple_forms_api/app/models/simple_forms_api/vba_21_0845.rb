@@ -18,12 +18,15 @@ module SimpleFormsApi
         'fileNumber' => @data['veteran_va_file_number'].presence || @data['veteran_ssn'],
         'zipCode' => @data.dig('authorizer_address', 'postal_code') ||
           @data.dig('person_address', 'postal_code') ||
-          @data.dig('organization_address', 'postal_code') ||
-          '00000',
+          @data.dig('organization_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('authorizer_address', 'country') == 'USA'
     end
 
     def words_to_remove

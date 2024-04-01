@@ -3,6 +3,48 @@
 require 'rails_helper'
 
 RSpec.describe 'SimpleFormsApi::VBA2010207' do
+  describe 'zip_code_is_us_based' do
+    describe 'veteran address is present and in US' do
+      it 'returns true' do
+        data = { 'veteran_mailing_address' => { 'country' => 'USA' } }
+
+        form = SimpleFormsApi::VBA2010207.new(data)
+
+        expect(form.zip_code_is_us_based).to eq(true)
+      end
+    end
+
+    describe 'veteran address is present and not in US' do
+      it 'returns false' do
+        data = { 'veteran_mailing_address' => { 'country' => 'Canada' } }
+
+        form = SimpleFormsApi::VBA2010207.new(data)
+
+        expect(form.zip_code_is_us_based).to eq(false)
+      end
+    end
+
+    describe 'non-veteran address is present and in US' do
+      it 'returns true' do
+        data = { 'non_veteran_mailing_address' => { 'country' => 'USA' } }
+
+        form = SimpleFormsApi::VBA2010207.new(data)
+
+        expect(form.zip_code_is_us_based).to eq(true)
+      end
+    end
+
+    describe 'non-veteran address is present and not in US' do
+      it 'returns false' do
+        data = { 'non_veteran_mailing_address' => { 'country' => 'Canada' } }
+
+        form = SimpleFormsApi::VBA2010207.new(data)
+
+        expect(form.zip_code_is_us_based).to eq(false)
+      end
+    end
+  end
+
   describe 'currently_homeless?' do
     it 'returns true when the preparer is homeless' do
       data = { 'living_situation' => { 'SHELTER' => true } }
