@@ -93,9 +93,8 @@ module SimpleFormsApi
     end
 
     def zip_code_is_us_based
-      veteran_mailing_address = @data.dig('veteran_mailing_address', 'country')
-      non_veteran_mailing_address = @data.dig('non_veteran_mailing_address', 'country')
-      veteran_mailing_address ? veteran_mailing_address == 'USA' : non_veteran_mailing_address == 'USA'
+      @data.dig('veteran_mailing_address',
+                'country') == 'USA' || @data.dig('non_veteran_mailing_address', 'country') == 'USA'
     end
 
     def handle_attachments(file_path)
