@@ -19,8 +19,9 @@ module BGSClientHelpers
 
   VCR_OPTIONS = {
     erb: true,
+
+    # Consider matching on `:headers` too?
     match_requests_on: [
-      # Consider matching on `:headers` too?
       :method, :uri,
       body_as_xml_matcher.freeze
     ].freeze
