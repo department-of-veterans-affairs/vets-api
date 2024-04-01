@@ -18,7 +18,10 @@ module BGSClientHelpers
     end
 
   VCR_OPTIONS = {
-    erb: true,
+    # Allows the same cassette to match in different test environments when the
+    # base URL for BGS differs between them.
+    #   https://benoittgt.github.io/vcr/#/cassettes/dynamic_erb?id=pass-arguments-to-the-erb-using-gt-
+    erb: { bgs_base_url: Settings.bgs.url },
 
     # Consider matching on `:headers` too?
     match_requests_on: [
