@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/vnp_ptcpnt_service'
-require 'bgs_service/vnp_proc_service_v2'
 require 'bgs_service/vnp_person_create_v2'
 
 describe ClaimsApi::VnpPersonCreateV2 do
@@ -12,16 +10,18 @@ describe ClaimsApi::VnpPersonCreateV2 do
   # get a ptcpnt_id from vnp_ptcpnt_create (using the proc_id from the previous step)
   let(:vnp_proc_id) { '3854545' }
   let(:vnp_ptcpnt_id) { '182008' }
+  let(:expected_response) do
+    { vnp_proc_id:, vnp_ptcpnt_id:,
+      first_nm: 'Tamara', last_nm: 'Ellis' }
+  end
 
   describe 'vnp_person_create_v2' do
     before do |test|
       unless test.metadata[:skip_name]
         expect_any_instance_of(ClaimsApi::LocalBGS).to receive(:make_request).and_wrap_original do |orig, args|
           body = Hash.from_xml(args[:body].to_s)['arg0']
-          expect(body['firstNm']).to eq 'Tamara'
-          expect(body['lastNm']).to eq 'Ellis'
-          expect(body['vnpProcId']).to eq vnp_proc_id
-          expect(body['vnpPtcpntId']).to eq vnp_ptcpnt_id
+                     .transform_keys!(&:underscore).deep_symbolize_keys
+          expect((expected_response.to_a & body.to_a).to_h).to eq expected_response
           orig.call(**args)
         end
       end
@@ -44,7 +44,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
       }
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
         result = subject.vnp_person_create(data)
-        expect((data.to_a & result.to_a).to_h).to eq data
+        expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end
     end
 
@@ -66,9 +66,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
         result = subject.vnp_person_create(data, target_veteran:)
         expect((data.to_a & result.to_a).to_h).to eq data
-        expect(result[:first_nm]).to eq 'Tamara'
-        expect(result[:last_nm]).to eq 'Ellis'
-        expect(result[:vnp_ptcpnt_id]).to eq vnp_ptcpnt_id
+        expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end
     end
 
@@ -87,10 +85,7 @@ describe ClaimsApi::VnpPersonCreateV2 do
       icn = '1012667145V762142'
       VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_person_create') do
         result = subject.vnp_person_create(data, icn:)
-        expect((data.to_a & result.to_a).to_h).to eq data
-        expect(result[:first_nm]).to eq 'Tamara'
-        expect(result[:last_nm]).to eq 'Ellis'
-        expect(result[:vnp_ptcpnt_id]).to eq vnp_ptcpnt_id
+        expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end
     end
   end
