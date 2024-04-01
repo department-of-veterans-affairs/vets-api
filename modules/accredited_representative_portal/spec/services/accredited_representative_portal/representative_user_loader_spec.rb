@@ -49,7 +49,9 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
         end
         let(:ssn) { Faker::Number.leading_zero_number(digits: 9).to_s }
         let(:birth_date) { '1987-10-17' }
-        let(:mpi_profile) { build(:mpi_profile, { given_names: [user.first_name], family_name: user.last_name, ssn:, birth_date: }) }
+        let(:mpi_profile) do
+          build(:mpi_profile, { given_names: [user.first_name], family_name: user.last_name, ssn:, birth_date: })
+        end
         let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
         before do
@@ -71,7 +73,7 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
           let(:representative_attributes) do
             { first_name: session.user_attributes_hash['first_name'],
               last_name: session.user_attributes_hash['last_name'],
-              ssn: ssn, 
+              ssn:,
               dob: birth_date }
           end
 

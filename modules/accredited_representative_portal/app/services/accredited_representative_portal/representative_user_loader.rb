@@ -32,8 +32,8 @@ module AccreditedRepresentativePortal
     def validate_representative_status
       mpi_profile = mpi_service.find_profile_by_identifier(identifier: session.user_account.icn,
                                                            identifier_type: MPI::Constants::ICN).profile
-      representative = Veteran::Service::Representative.for_user(first_name: session.user_attributes_hash['first_name'], 
-                                                                 last_name: session.user_attributes_hash['last_name'], 
+      representative = Veteran::Service::Representative.for_user(first_name: session.user_attributes_hash['first_name'],
+                                                                 last_name: session.user_attributes_hash['last_name'],
                                                                  ssn: mpi_profile.ssn,
                                                                  dob: mpi_profile.birth_date)
 
@@ -54,8 +54,11 @@ module AccreditedRepresentativePortal
     end
 
     def authn_context
-      user_verification.credential_type == SignIn::Constants::Auth::LOGINGOV ? SignIn::Constants::Auth::LOGIN_GOV_IAL2 :
-                                                                               SignIn::Constants::Auth::IDME_LOA3
+      if user_verification.credential_type == SignIn::Constants::Auth::LOGINGOV
+        SignIn::Constants::Auth::LOGIN_GOV_IAL2
+      else
+        SignIn::Constants::Auth::IDME_LOA3
+      end
     end
 
     def user_is_verified?
