@@ -5,14 +5,36 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
   ivc_champva_forms = %w[vha_10_10d vha_10_7959f_1 vha_10_7959f_2]
-  other_forms = %w[
+  non_ivc_forms = %w[
     vba_26_4555 vba_26_4555-min vba_21_4142 vba_21_4142-min vba_21_10210 vba_21_10210-min vba_21p_0847
     vba_21p_0847-min vba_21_0972 vba_21_0972-min vba_21_0966 vba_21_0966-min vba_40_0247 vba_40_0247
     vba_40_0247-min vha_10_7959c
   ]
-  form_list = ivc_champva_forms + other_forms
+  form_list = ivc_champva_forms + non_ivc_forms
 
-  describe "#generate" do
+  describe '#initialize' do
+    context 'when the filler is instantiated without a form_number' do
+      it 'should throw an error' do
+        form_number = form_list.first
+        data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{form_number}.json"))
+        form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        expect do
+          described_class.new(form_number: nil, form:)
+        end.to raise_error(RuntimeError, 'form_number and form are required')
+      end
+    end
+
+    context 'when the filler is instantiated without a form' do
+      it 'should throw an error' do
+        form_number = form_list.first
+        expect do
+          described_class.new(form_number:, form: nil)
+        end.to raise_error(RuntimeError, 'form_number and form are required')
+      end
+    end
+  end
+
+  describe '#generate' do
     form_list.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:expected_pdf_path) { map_pdf_data(file_name) }
@@ -42,10 +64,11 @@ describe SimpleFormsApi::PdfFiller do
   end
 
   describe 'form mappings' do
-    form_list.each do |file_name|
+    list = form_list.map { |f| f.gsub('-min', '') }.uniq
+    list.each do |file_name|
       context "when mapping #{file_name} input" do
         it 'successfully parses resulting JSON' do
-          expect { read_form_mapping(file_name.gsub('-min', '')) }.not_to raise_error
+          expect { read_form_mapping(file_name) }.not_to raise_error
         end
       end
     end
