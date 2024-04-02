@@ -24,7 +24,7 @@ module Swagger::Schemas
       property(
         :contact_type,
         type: :string,
-        enum: VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPE
+        enum: VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
       )
       property :given_name, type: %i[string null]
       property :family_name, type: %i[string null]
