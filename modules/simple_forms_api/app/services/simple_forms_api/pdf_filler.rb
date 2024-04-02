@@ -9,7 +9,8 @@ module SimpleFormsApi
     TEMPLATE_BASE = Rails.root.join('modules', 'simple_forms_api', 'templates')
 
     def initialize(form_number:, form:, name: nil)
-      raise "form_number and form are required" if form_number.blank? || !form&.data
+      raise 'form_number is required' if form_number.blank?
+      raise 'form needs a data attribute' unless form&.data
 
       @form = form
       @form_number = form_number

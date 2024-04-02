@@ -14,22 +14,22 @@ describe SimpleFormsApi::PdfFiller do
 
   describe '#initialize' do
     context 'when the filler is instantiated without a form_number' do
-      it 'should throw an error' do
+      it 'throws an error' do
         form_number = form_list.first
         data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{form_number}.json"))
         form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
         expect do
           described_class.new(form_number: nil, form:)
-        end.to raise_error(RuntimeError, 'form_number and form are required')
+        end.to raise_error(RuntimeError, 'form_number is required')
       end
     end
 
     context 'when the filler is instantiated without a form' do
-      it 'should throw an error' do
+      it 'throws an error' do
         form_number = form_list.first
         expect do
           described_class.new(form_number:, form: nil)
-        end.to raise_error(RuntimeError, 'form_number and form are required')
+        end.to raise_error(RuntimeError, 'form needs a data attribute')
       end
     end
   end
