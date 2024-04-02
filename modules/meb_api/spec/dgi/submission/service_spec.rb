@@ -69,53 +69,29 @@ RSpec.describe MebApi::DGI::Submission::Service do
 
   let(:dd_params_lighthouse) do
     {
-      "payment_account" => {
-        "account_type" => "CHECKING",
-        "account_number" => "1234567890",
-        "financial_institution_routing_number" => "031000503",
-        "financial_institution_name" => "WELLSFARGO BANK"
+      'payment_account' => {
+        'account_type' => 'CHECKING',
+        'account_number' => '1234567890',
+        'financial_institution_routing_number' => '031000503',
+        'financial_institution_name' => 'WELLSFARGO BANK'
       },
-      "controlInformation" => {
-        "canUpdateDirectDeposit" => "true",
-        "isCorpAvailable" => "true",
-        "isCorpRecFound" => "true",
-        "hasNoBdnPayments" => "true",
-        "hasIndentity" => "true",
-        "hasIndex" => "true",
-        "isCompetent" => "true",
-        "hasMailingAddress" => "true",
-        "hasNoFiduciaryAssigned" => "true",
-        "isNotDeceased" => "true",
-        "hasPaymentAddress" => "true",
-        "isEduClaimAvailable" => "true"
+      'controlInformation' => {
+        'canUpdateDirectDeposit' => 'true',
+        'isCorpAvailable' => 'true',
+        'isCorpRecFound' => 'true',
+        'hasNoBdnPayments' => 'true',
+        'hasIndentity' => 'true',
+        'hasIndex' => 'true',
+        'isCompetent' => 'true',
+        'hasMailingAddress' => 'true',
+        'hasNoFiduciaryAssigned' => 'true',
+        'isNotDeceased' => 'true',
+        'hasPaymentAddress' => 'true',
+        'isEduClaimAvailable' => 'true'
       }
     }
   end
 
-  # let(:dd_params_lighthouse) do
-  #   {
-  #     paymentAccount: {
-  #       accountType: "CHECKING",
-  #       accountNumber: "1234567890",
-  #       financialInstitutionRoutingNumber: "031000503",
-  #       financialInstitutionName: "WELLSFARGO BANK"
-  #     },
-  #     controlInformation: {
-  #       canUpdateDirectDeposit: true,
-  #       isCorpAvailable: true,
-  #       isCorpRecFound: true,
-  #       hasNoBdnPayments: true,
-  #       hasIndentity: true,
-  #       hasIndex: true,
-  #       isCompetent: true,
-  #       hasMailingAddress: true,
-  #       hasNoFiduciaryAssigned: true,
-  #       isNotDeceased: true,
-  #       hasPaymentAddress: true,
-  #       isEduClaimAvailable: true
-  #     }
-  #   }
-  # end
   let(:claimant_params_with_asterisks) do
     duplicated_params = claimant_params.deep_dup
     # Explicitly creating the nested structure if it doesn't exist
