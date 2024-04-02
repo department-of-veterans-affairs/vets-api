@@ -18,6 +18,20 @@ RSpec.describe V1::SupplementalClaims::ContestableIssuesController do
 
     it 'fetches issues that the Veteran could contest via a supplemental claim' do
       VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with({
+                                                      message: 'Get contestable issues success!',
+                                                      user_uuid: user.uuid,
+                                                      action: 'Get contestable issues',
+                                                      form_id: '995',
+                                                      upstream_system: 'Lighthouse',
+                                                      downstream_system: nil,
+                                                      is_success: true,
+                                                      http: {
+                                                        status_code: 200,
+                                                        body: '[Redacted]'
+                                                      }
+                                                    })
         subject
         expect(response).to be_successful
         expect(JSON.parse(response.body)['data']).to be_an Array
@@ -27,6 +41,20 @@ RSpec.describe V1::SupplementalClaims::ContestableIssuesController do
     it 'adds to the PersonalInformationLog when an exception is thrown' do
       VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
         expect(personal_information_logs.count).to be 0
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with({
+                                                       message: 'Get contestable issues failure!',
+                                                       user_uuid: user.uuid,
+                                                       action: 'Get contestable issues',
+                                                       form_id: '995',
+                                                       upstream_system: 'Lighthouse',
+                                                       downstream_system: nil,
+                                                       is_success: false,
+                                                       http: {
+                                                         status_code: 404,
+                                                         body: anything
+                                                       }
+                                                     })
         subject
         expect(personal_information_logs.count).to be 1
         pil = personal_information_logs.first
