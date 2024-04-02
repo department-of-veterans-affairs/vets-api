@@ -24,6 +24,11 @@ module SimpleFormsApi
       }
     end
 
+    def zip_code_is_us_based
+      # TODO: Implement this
+      true
+    end
+
     def service(num, field, date)
       service_records = data.dig('application', 'veteran', 'service_records')
 
