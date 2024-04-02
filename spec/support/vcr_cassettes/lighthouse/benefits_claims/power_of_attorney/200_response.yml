@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1012666073V986297/power-of-attorney
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/power-of-attorney
     body:
       encoding: US-ASCII
       string: ''
@@ -18,15 +18,13 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 401
-      message: Unauthorized
+      code: 200
+      message: OK
     headers:
       Date:
-      - Tue, 02 Apr 2024 14:18:24 GMT
+      - Tue, 02 Apr 2024 14:30:58 GMT
       Content-Type:
       - application/json; charset=utf-8
-      Content-Length:
-      - '80'
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
@@ -38,7 +36,9 @@ http_interactions:
       Ratelimit-Limit:
       - '120'
       Ratelimit-Reset:
-      - '37'
+      - '10'
+      Etag:
+      - W/"f674f2056c77718a448e94dc8a1ed556"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Vary:
@@ -55,17 +55,24 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - c0e27b27-b8be-4f50-80af-d88d6b3a513b
+      - f7395f08-c7c7-4726-85e4-602c6ecf40fe
       X-Runtime:
-      - '0.279397'
+      - '8.308072'
       X-Xss-Protection:
       - '0'
       Access-Control-Allow-Origin:
       - "*"
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
     body:
-      encoding: UTF-8
-      string: '{"errors":[{"title":"Not authorized","status":"401","detail":"Not authorized"}]}'
-  recorded_at: Tue, 02 Apr 2024 14:18:24 GMT
+      encoding: ASCII-8BIT
+      string: '{"data":{"type":"individual","attributes":{"code":"067","name":"Tamara
+        Ellis","phoneNumber":null}}}'
+  recorded_at: Tue, 02 Apr 2024 14:30:58 GMT
 recorded_with: VCR 6.2.0
