@@ -103,7 +103,7 @@ module ClaimsApi
       end
 
       def error_handler(error, claim, method)
-        custom_error(error, claim, method).build_error
+        custom_error(error, claim, method).handle_error
       end
     end
   end
