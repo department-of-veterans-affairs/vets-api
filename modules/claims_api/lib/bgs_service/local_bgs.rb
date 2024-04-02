@@ -281,6 +281,7 @@ module ClaimsApi
           connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
         end
         target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
           post_body = full_body(action:, body:, namespace: target_namespace, additional_namespace:)
           post_headers = {

@@ -6,7 +6,7 @@ require 'bgs_service/vnp_ptcpnt_service'
 describe ClaimsApi::VnpPtcpntService do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
-  describe 'vnp_ptcpnt_service' do
+  describe 'vnp_ptcpnt_create' do
     let(:options) { {} }
 
     it 'responds with attributes' do
@@ -26,7 +26,7 @@ describe ClaimsApi::VnpPtcpntService do
       options[:tin_waiver_reason_type_cd] = nil
       options[:ptcpnt_fk_ptcpnt_id] = nil
       options[:corp_ptcpnt_id] = nil
-      VCR.use_cassette('bgs/vnp_proc_service_v2/vnp_ptcpnt_service') do
+      VCR.use_cassette('bgs/vnp_ptcpnt_service/vnp_ptcpnt_create') do
         response = subject.vnp_ptcpnt_create(options)
         expect(response).to include(
           { vnp_ptcpnt_id: '181913',
