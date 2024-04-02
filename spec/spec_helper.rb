@@ -50,6 +50,7 @@ unless ENV['NOCOVERAGE']
 
     # Modules
     add_group 'AccreditedRepresentativePortal', 'modules/accredited_representative_portal/'
+    add_group 'Analytics', 'modules/analytics/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'

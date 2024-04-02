@@ -7,6 +7,7 @@ ruby '~> 3.2.4'
 # Modules
 path 'modules' do
   gem 'accredited_representative_portal'
+  gem 'analytics'
   gem 'appeals_api'
   gem 'apps_api'
   gem 'ask_va_api'

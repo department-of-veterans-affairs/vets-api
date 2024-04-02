@@ -84,6 +84,7 @@ PATH
   remote: modules
   specs:
     accredited_representative_portal (0.1.0)
+    analytics (0.1.0)
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -1096,7 +1097,6 @@ GEM
 PLATFORMS
   aarch64-linux
   java
-  ruby
   x64-mingw32
   x86-mingw32
   x86-mswin32
@@ -1109,6 +1109,7 @@ DEPENDENCIES
   activerecord-import
   activerecord-postgis-adapter
   addressable
+  analytics!
   apivore!
   appeals_api!
   apps_api!
