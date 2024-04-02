@@ -25,6 +25,27 @@ RSpec.describe 'contacts' do
       end
     end
 
+    context '401 response' do
+      let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
+
+      it 'responds with 401 status' do
+        get '/v0/profile/contacts'
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context '403 response' do
+      let(:user) { build(:user, :loa1) }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
+
+      it 'responds with 403 status' do
+        sign_in_as(user)
+        get '/v0/profile/contacts'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context '404 response' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
