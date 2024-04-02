@@ -3,6 +3,8 @@
 module RepresentationManagement
   module PowerOfAttorney
     class RepresentativeSerializer < BaseSerializer
+      attribute :type
+      attribute :name
       attribute :email
 
       def type

@@ -3,13 +3,12 @@
 module RepresentationManagement
   module PowerOfAttorney
     class OrganizationSerializer < BaseSerializer
+      attribute :type
+      attribute :name
+
       def type
         'organization'
       end
-
-      delegate :name, to: :object
-
-      delegate :phone, to: :object
     end
   end
 end

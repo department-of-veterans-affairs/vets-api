@@ -3,8 +3,6 @@
 module RepresentationManagement
   module PowerOfAttorney
     class BaseSerializer < ActiveModel::Serializer
-      attribute :type
-      attribute :name
       attribute :address_line1
       attribute :address_line2
       attribute :address_line3
