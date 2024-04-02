@@ -6,6 +6,7 @@ require 'decision_review_v1/utilities/constants'
 
 module DecisionReviewV1
   module Appeals
+    # rubocop:disable Metrics/ModuleLength
     module SupplementalClaimServices
       include DecisionReviewV1::Appeals::Helpers
 
@@ -202,5 +203,6 @@ module DecisionReviewV1
         CentralMail::Service.new.upload(processor.request_body)
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end
