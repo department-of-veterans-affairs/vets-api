@@ -11,6 +11,6 @@ module AccreditedRepresentativePortal
       end
     end
 
-    class RepresentativeRecordNotFoundError < StandardError; end
+    class RecordNotFoundError < StandardError; end
   end
 end

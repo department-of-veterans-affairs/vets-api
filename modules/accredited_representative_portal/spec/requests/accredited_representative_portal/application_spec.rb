@@ -74,7 +74,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
         end
 
         context 'when the representative is not found' do
-          let(:expected_error) { AccreditedRepresentativePortal::Errors::RepresentativeRecordNotFoundError }
+          let(:expected_error) { AccreditedRepresentativePortal::Errors::RecordNotFoundError }
           let(:expected_error_message) { 'User is not a VA representative' }
 
           before do
