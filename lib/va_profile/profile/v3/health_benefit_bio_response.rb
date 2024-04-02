@@ -8,13 +8,18 @@ module VAProfile
   module Profile
     module V3
       class HealthBenefitBioResponse < VAProfile::Response
-        attr_reader :body
+        attr_reader(
+          :body,
+          :va_profile_tx_audit_id
+        )
 
         attribute :contacts, Array[VAProfile::Models::AssociatedPerson]
         attribute :messages, Array[VAProfile::Models::Message]
 
         def initialize(response)
           @body = response.body
+          @va_profile_tx_audit_id = response.response_headers['vaprofiletxauditid']
+
           contacts = body.dig('profile', 'health_benefit', 'associated_persons')
                          &.select { |p| valid_contact_types.include?(p['contact_type']) }
                          &.sort_by { |p| valid_contact_types.index(p['contact_type']) }
@@ -25,7 +30,8 @@ module VAProfile
         def metadata
           {
             status:,
-            messages:
+            messages:,
+            va_profile_tx_audit_id:
           }
         end
 

@@ -76,17 +76,28 @@ describe VAProfile::Profile::V3::Service do
         ]
         expect(types).to match_array(valid_contact_types)
       end
+
+      it 'does not call Sentry.set_extras' do
+        expect(Sentry).not_to receive(:set_extras)
+        subject.get_health_benefit_bio
+      end
     end
 
     context '404 response' do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
 
-      it 'includes messages received from the api' do
+      it 'includes messages, audit id received from the api' do
         response = subject.get_health_benefit_bio
         expect(response.status).to eq(404)
         expect(response.contacts.size).to eq(0)
-        expect(response.messages.size).to eq(1)
+        expect(response.metadata[:messages].size).to eq(1)
+        expect(response.metadata[:va_profile_tx_audit_id]).not_to be_empty
+      end
+
+      it 'calls Sentry.set_extras' do
+        expect(Sentry).to receive(:set_extras).once
+        subject.get_health_benefit_bio
       end
     end
 
@@ -94,11 +105,17 @@ describe VAProfile::Profile::V3::Service do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
 
-      it 'includes messages recieved from the api' do
+      it 'includes messages, audit id recieved from the api' do
         response = subject.get_health_benefit_bio
         expect(response.status).to eq(500)
         expect(response.contacts.size).to eq(0)
-        expect(response.messages.size).to eq(1)
+        expect(response.metadata[:messages].size).to eq(1)
+        expect(response.metadata[:va_profile_tx_audit_id]).not_to be_empty
+      end
+
+      it 'calls Sentry.set_extras' do
+        expect(Sentry).to receive(:set_extras).once
+        subject.get_health_benefit_bio
       end
     end
 
