@@ -71,10 +71,10 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
     let(:dd_params_lighthouse) do
       {
         paymentAccount: {
-          accountType: "CHECKING",
-          accountNumber: "1234567890",
-          financialInstitutionRoutingNumber: "031000503",
-          financialInstitutionName: "WELLSFARGO BANK"
+          accountType: 'CHECKING',
+          accountNumber: '1234567890',
+          financialInstitutionRoutingNumber: '031000503',
+          financialInstitutionName: 'WELLSFARGO BANK'
         },
         controlInformation: {
           canUpdateDirectDeposit: true,

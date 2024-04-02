@@ -112,11 +112,11 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
                  params: { "education_benefit":
                   { enrollment_verifications: {
                     enrollment_certify_requests: [{
-                      "certified_period_begin_date": '2022-08-01',
-                      "certified_period_end_date": '2022-08-31',
-                      "certified_through_date": '2022-08-31',
-                      "certification_method": 'MEB',
-                      "app_communication": { "response_type": 'Y' }
+                      'certified_period_begin_date': '2022-08-01',
+                      'certified_period_end_date': '2022-08-31',
+                      'certified_through_date': '2022-08-31',
+                      'certification_method': 'MEB',
+                      'app_communication': { 'response_type': 'Y' }
                     }]
                   } } }
             expect(response).to have_http_status(:ok)
@@ -195,7 +195,7 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
       end
 
       context 'confirmation email' do
-        xit 'delegates to submit_0994_form_confirmation job' do
+        it 'delegates to submit_0994_form_confirmation job' do
           VCR.use_cassette('dgi/submit_claim') do
             allow(MebApi::V0::Submit1990mebFormConfirmation).to receive(:perform_async)
             expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return({})
