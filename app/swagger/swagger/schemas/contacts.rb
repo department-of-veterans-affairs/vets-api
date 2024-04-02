@@ -24,18 +24,18 @@ module Swagger::Schemas
       property(
         :contact_type,
         type: :string,
-        enum: VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
+        enum: VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPE
       )
-      property :given_name, type: %i[string]
-      property :family_name, type: %i[string]
-      property :relationship, type: %i[string]
-      property :address_line1, type: %i[string]
-      property :address_line2, type: %i[string]
-      property :address_line3, type: %i[string]
-      property :city, type: %i[string]
-      property :state, type: %i[string]
-      property :zip_code, type: %i[string]
-      property :primary_phone, type: %i[string]
+      property :given_name, type: %i[string null]
+      property :family_name, type: %i[string null]
+      property :relationship, type: %i[string null]
+      property :address_line1, type: %i[string null]
+      property :address_line2, type: %i[string null]
+      property :address_line3, type: %i[string null]
+      property :city, type: %i[string null]
+      property :state, type: %i[string null]
+      property :zip_code, type: %i[string null]
+      property :primary_phone, type: %i[strin null]
     end
   end
 end
