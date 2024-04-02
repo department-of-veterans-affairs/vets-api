@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 78e9931f1b99663304f72c42fdd9f61ab328f4b1
+  revision: 7892dc348677325cc57712ff4a12d6a78f024315
   branch: master
   specs:
-    vets_json_schema (21.5.4)
+    vets_json_schema (21.5.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -104,6 +104,7 @@ PATH
     facilities_api (0.1.0)
     health_quest (0.1.0)
     income_limits (0.1.0)
+    ivc_champva (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
@@ -912,10 +913,13 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (2.27.1)
+    rubocop-rspec (2.28.0)
       rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
+      rubocop-rspec_rails (~> 2.28)
+    rubocop-rspec_rails (2.28.2)
+      rubocop (~> 1.40)
     rubocop-thread_safety (0.5.1)
       rubocop (>= 0.90.0)
     ruby-progressbar (1.13.0)
@@ -1157,6 +1161,7 @@ DEPENDENCIES
   ice_nine
   income_limits!
   iso_country_codes
+  ivc_champva!
   json
   json-schema
   json_schemer
@@ -1278,3 +1283,4 @@ RUBY VERSION
 
 BUNDLED WITH
    2.4.9
+

@@ -53,11 +53,7 @@ RSpec.describe Mobile::V0::AwardsController, type: :request do
           'ptcpntBeneId' => '2810777',
           'ptcpntVetId' => '2810777',
           'reasonOneTxt' => '21',
-          'spouseTxt' => 'Spouse',
-          'veteranId' => 600_061_742,
-          'isEligibleForPension' => true,
-          'isInReceiptOfPension' => true,
-          'netWorthLimit' => 129_094 }
+          'spouseTxt' => 'Spouse' }
       )
     end
 
