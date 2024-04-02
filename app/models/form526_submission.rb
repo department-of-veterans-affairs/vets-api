@@ -471,7 +471,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def submit_form_4142
-    CentralMail::SubmitForm4142Job.perform_async(id)
+    if Flipper.enabled?(:submit_form_4142_using_lighthouse)
+      LightHouse::SubmitForm4142Job.perform_async(id)
+    else
+      CentralMail::SubmitForm4142Job.perform_async(id)
+    end
   end
 
   def submit_form_0781

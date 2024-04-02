@@ -25,19 +25,21 @@ module EVSS
 
       FORM_ID = '21-4142'
 
+
       # @param submission [Form526Submission] a user's post-translated 526 submission
       # @param jid [String] the Sidekiq job id for the job submitting the 4142 form
       #
       # @return [EVSS::DisabilityCompensationForm::Form4142Processor] an instance of this class
       #
       def initialize(submission, jid)
-        @submission = submission
-        @pdf_path = generate_stamp_pdf
+        @submission   = submission
+        @pdf_path     = generate_stamp_pdf
         @request_body = {
           'document' => to_faraday_upload,
           'metadata' => generate_metadata(jid)
         }
       end
+
 
       # Invokes Filler ancillary form method to generate PDF document
       # Then calls method CentralMail::DatestampPdf to stamp the document.
@@ -48,8 +50,11 @@ module EVSS
       #
       def generate_stamp_pdf
         pdf = PdfFill::Filler.fill_ancillary_form(
-          form4142, @submission.submitted_claim_id, FORM_ID
+          form4142, 
+          @submission.submitted_claim_id, 
+          FORM_ID
         )
+
         stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
                                                               timestamp: submission_date)
         CentralMail::DatestampPdf.new(stamped_path).run(
@@ -60,8 +65,14 @@ module EVSS
         )
       end
 
+
+      #################################################
       private
 
+      # `Faraday::UploadIO.new` is used to prepare file uploads. It wraps 
+      # a file or similar object for uploading as multipart/form-data, 
+      # setting the appropriate MIME type and filename.
+      #
       def to_faraday_upload
         Faraday::UploadIO.new(
           @pdf_path,
@@ -69,22 +80,23 @@ module EVSS
         )
       end
 
+
       def generate_metadata(jid)
-        address = form4142['veteranAddress']
-        country_is_us = address['country'] == 'USA'
+        address           = form4142['veteranAddress']
+        country_is_us     = address['country'] == 'USA'
         veteran_full_name = form4142['veteranFullName']
-        metadata = {
-          'veteranFirstName' => veteran_full_name['first'],
-          'veteranLastName' => veteran_full_name['last'],
-          'fileNumber' => form4142['vaFileNumber'] || form4142['veteranSocialSecurityNumber'],
-          'receiveDt' => received_date,
-          'uuid' => jid,
-          'zipCode' => address['postalCode'],
-          'source' => 'VA Forms Group B',
-          'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
+        metadata          = {
+          'veteranFirstName'  => veteran_full_name['first'],
+          'veteranLastName'   => veteran_full_name['last'],
+          'fileNumber'        => form4142['vaFileNumber'] || form4142['veteranSocialSecurityNumber'],
+          'receiveDt'         => received_date,
+          'uuid'              => jid,
+          'zipCode'           => address['postalCode'],
+          'source'            => 'VA Forms Group B',
+          'hashV'             => Digest::SHA256.file(@pdf_path).hexdigest,
           'numberAttachments' => 0,
-          'docType' => FORM_ID,
-          'numberPages' => PDF::Reader.new(@pdf_path).pages.size
+          'docType'           => FORM_ID,
+          'numberPages'       => PDF::Reader.new(@pdf_path).pages.size
         }
 
         SimpleFormsApiSubmission::MetadataValidator.validate(
@@ -92,17 +104,21 @@ module EVSS
         ).to_json
       end
 
+
       def submission_date
         @submission.created_at.in_time_zone('Central Time (US & Canada)')
       end
+
 
       def received_date
         submission_date.strftime('%Y-%m-%d %H:%M:%S')
       end
 
+
       def form4142
         @form4142 ||= set_signature_date(@submission.form[Form526Submission::FORM_4142])
       end
+
 
       def set_signature_date(incoming_data)
         incoming_data.merge({ 'signatureDate' => received_date })

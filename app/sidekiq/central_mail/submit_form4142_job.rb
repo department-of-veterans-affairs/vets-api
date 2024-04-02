@@ -83,16 +83,25 @@ module CentralMail
     # @param submission_id [Integer] the {Form526Submission} id
     #
     def perform(submission_id)
-      @submission_id = submission_id
+      if Flipper.enabled?(:submit_form_4142_using_lighthouse)
+        ::Rails.logger.warn(
+          "Submission of Form 21-4142 via CentralMail is being rerouted to Lighthouse",
+          {submission_id:}
+        )
+        ::LightHouse::SubmitForm4142Job.perform(submission_id)
+      else
+        @submission_id = submission_id
 
-      Sentry.set_tags(source: '526EZ-all-claims')
-      super(submission_id)
+        Sentry.set_tags(source: '526EZ-all-claims')
+        super(submission_id)
 
-      with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
-        @pdf_path = processor.pdf_path
-        response = upload_to_central_mail
-        handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+        with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
+          @pdf_path = processor.pdf_path
+          response = upload_to_central_mail
+          handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+        end
       end
+
     rescue => e
       # Cannot move job straight to dead queue dynamically within an executing job
       # raising error for all the exceptions as sidekiq will then move into dead queue

@@ -1004,6 +1004,9 @@ features:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
     enable_in_development: true
+  submit_form_4142_using_lighthouse:
+    actor_type: user
+    description: Use Lighthouse API to submit Form 21-4142
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
