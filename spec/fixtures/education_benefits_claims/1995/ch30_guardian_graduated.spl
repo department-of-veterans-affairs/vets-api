@@ -1,12 +1,12 @@
 *INIT*
-FIRST
-MIDDLE
-LAST
-111223333
-111223333
+JOE
+
+TESTER
+223334444
+223334444
 V1995
 
-SCHOOL NAME
+
 Chapter1606
 *START*
 VA Form 22-1995
@@ -20,38 +20,41 @@ FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333    VA File Number: c12345678
+SSN: 223334444    VA File Number: c12345679
+
+Applicant has graduated high school or received GED? true
+
+Date graduated: 2023-04-12
 
 Sex: F  Date of Birth: 1970-01-01
 
-Name:   first middle last
+Name:   Joe Tester
 
 Address:
-123 MAIN ST
-MILWAUKEE, WI, 53130
+123 TEST ST
+AUSTIN, TX, 73301
 USA
 
-Telephone Numbers:     Mobile:  5551110001
-                       Home:    5551110000
+Telephone Numbers:     Mobile:
+                       Home:
 
-Email Address:  test@sample.com
-Preferred Method of Contact: email
+Email Address:  test@test.com
+Preferred Method of Contact:
 
-Direct Deposit: Start or Update EFT
-Type of Account: checking
-Routing/Transit #: 123456789   Account #: 88888888888
+Direct Deposit:     Type of Account:
+Routing/Transit #:    Account #:
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit Most Recently Received: Chapter33 Fry Scholarship
+Benefit Most Recently Received: Chapter30
 
 Select Another Benefit: Yes
 
 Benefit Being Applied For: Chapter1606
 
-Type of Education or Training: Prep Course For Lo C
-Education or Career Goal: bachelor's degree
+Type of Education or Training:
+Education or Career Goal:
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
@@ -66,6 +69,25 @@ education benefits? YES
 Date Entered   Date Separated     Service Component
 2012-06-26     2013-04-10         Army Reserve
 2013-04-22     2013-06-14         navy
+
+          GUARDIAN INFORMATION
+          --------------------
+First name of Parent, Guardian or Custodian: Richard
+
+Middle name of Parent, Guardian or Custodian: D
+
+Last name of Parent, Guardian or Custodian: Van Dyke
+
+Address of Parent, Guardian or Custodian:
+  Country: USA
+  Street: 456 oak blvd
+  Street address line 2: apt 88
+  City: Phoenix
+  State: AZ
+  Postal code: 56432
+  Mobile phone number: 9999999999
+  Home phone number: 8888888888
+  Email address: test84@test.com
 
 
 As an active-duty service member, you have consulted with an Education Service
