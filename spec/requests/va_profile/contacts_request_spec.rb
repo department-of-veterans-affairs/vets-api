@@ -11,38 +11,40 @@ RSpec.describe 'contacts' do
     VCR.use_cassette(cassette) { ex.run }
   end
 
-  describe 'GET /v0/profile/contacts -> 200' do
-    let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
-    let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
+  describe 'GET /v0/profile/contacts' do
+    context '200 response' do
+      let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_200' }
 
-    it 'responds with contacts' do
-      sign_in_as(user)
-      get '/v0/profile/contacts'
-      expect(response).to have_http_status(:ok)
-      expect(response).to match_response_schema('contacts')
-      expect(resource['data'].size).to eq(4)
+      it 'responds with contacts' do
+        sign_in_as(user)
+        get '/v0/profile/contacts'
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_response_schema('contacts')
+        expect(resource['data'].size).to eq(4)
+      end
     end
-  end
 
-  describe 'GET /v0/profile/contacts -> 404' do
-    let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
-    let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
+    context '404 response' do
+      let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_404' }
 
-    it 'responds with 404 status' do
-      sign_in_as(user)
-      get '/v0/profile/contacts'
-      expect(response).to have_http_status(:not_found)
+      it 'responds with 404 status' do
+        sign_in_as(user)
+        get '/v0/profile/contacts'
+        expect(response).to have_http_status(:not_found)
+      end
     end
-  end
 
-  describe 'GET /v0/profile/contacts -> 500' do
-    let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
-    let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
+    context '500 response' do
+      let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
+      let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
 
-    it 'responds with 500 status' do
-      sign_in_as(user)
-      get '/v0/profile/contacts'
-      expect(response).to have_http_status(:internal_server_error)
+      it 'responds with 500 status' do
+        sign_in_as(user)
+        get '/v0/profile/contacts'
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
   end
 end
