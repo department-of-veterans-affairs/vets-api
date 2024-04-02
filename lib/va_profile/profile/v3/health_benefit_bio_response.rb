@@ -23,7 +23,10 @@ module VAProfile
         end
 
         def metadata
-          { status:, messages: }
+          {
+            status:,
+            messages:
+          }
         end
 
         private
