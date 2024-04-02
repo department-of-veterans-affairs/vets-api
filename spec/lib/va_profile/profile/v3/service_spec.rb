@@ -57,12 +57,16 @@ describe VAProfile::Profile::V3::Service do
 
     let(:cassette_filename) { "spec/support/vcr_cassettes/#{cassette}.yml" }
     let(:cassette_data) { YAML.load_file(cassette_filename) }
-    let(:va_profile_tx_audit_id) { cassette_data['http_interactions'][0]['response']['headers']['Vaprofiletxauditid'][0] }
-    let(:debug_data) { {
-      status:,
-      message:,
-      va_profile_tx_audit_id:
-    }}
+    let(:va_profile_tx_audit_id) do
+      cassette_data['http_interactions'][0]['response']['headers']['Vaprofiletxauditid'][0]
+    end
+    let(:debug_data) do
+      {
+        status:,
+        message:,
+        va_profile_tx_audit_id:
+      }
+    end
 
     around do |ex|
       VCR.use_cassette(cassette) { ex.run }
@@ -110,7 +114,9 @@ describe VAProfile::Profile::V3::Service do
       let(:idme_uuid) { '88f572d4-91af-46ef-a393-cba6c351e252' }
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
       let(:status) { 500 }
-      let(:message) { 'MVI203 MviResponseError MVI returned acknowledgement error code AE with error detail: More Than One Active Correlation Exists' }
+      let(:message) do
+        'MVI203 MviResponseError MVI returned acknowledgement error code AE with error detail: More Than One Active Correlation Exists'
+      end
 
       it 'includes messages recieved from the api' do
         response = subject.get_health_benefit_bio
