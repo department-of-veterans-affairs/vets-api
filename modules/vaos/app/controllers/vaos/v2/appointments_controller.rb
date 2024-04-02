@@ -228,10 +228,8 @@ module VAOS
       #
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment is associated with cerner, false otherwise
-      #
-      # @raise [ArgumentError] if the appointment is nil
       def cerner?(appt)
-        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+        return false if appt.nil?
 
         identifiers = appt[:identifier]
 
@@ -265,9 +263,7 @@ module VAOS
       def merge_facilities(appointments)
         appointments.each do |appt|
           appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
-          log_appt_id_location_name(appt) if cerner?(appt) && appt[:location].any? do |_k, v|
-                                               v.include?('COL OR 1')
-                                             end
+          log_appt_id_location_name(appt) if cerner?(appt) && appt[:location].values.any? { |v| v.include?('COL OR 1') }
         end
       end
 
