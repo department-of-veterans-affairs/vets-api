@@ -58,7 +58,7 @@ module MebApi
 
       def submit_claim
         response_data = nil
-        binding.pry
+
         if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
           begin
             response_data = DirectDeposit::Client.new(@current_user&.icn).get_payment_info
@@ -68,7 +68,7 @@ module MebApi
             return
           end
         end
-        
+
         response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
