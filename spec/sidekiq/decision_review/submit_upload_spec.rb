@@ -279,7 +279,7 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
                                                               status_code: 200,
                                                               body: anything # why isn't this working?
                                                             },
-                                                            nod_uuid: appeal_submission.submitted_appeal_uuid,
+                                                            sc_uuid: appeal_submission.submitted_appeal_uuid,
                                                             appeal_submission_upload_id: appeal_submission_upload.id
                                                           })
               expect_uploaded_url = 'https://sandbox-api.va.gov/services_user_content/vba_documents/832a96ca-4dbd-4138-b7a4-6a991ff76faf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210521/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210521T193313Z&X-Amz-Expires=900&X-Amz-Signature=5d64a8a7fd749b1fb301a43226d45cc865fb68e6397026bdf047737c05fa4927&X-Amz-SignedHeaders=host'
