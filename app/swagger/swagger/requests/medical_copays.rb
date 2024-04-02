@@ -259,8 +259,16 @@ module Swagger
             key :required, true
 
             schema do
-              key :type, :object
+              key :type, :array
               key :required, [:statements]
+              items do
+                key :type, :object
+                property :veteranIdentifier, type: :string, example: '123456789'
+                property :identifierType, type: :string, example: 'edipi'
+                property :facilityNum, type: :string, example: '123'
+                property :facilityName, type: :string, example: 'VA Medical Center'
+                property :statementDate, type: :string, example: '01/01/2023'
+              end
             end
           end
 
