@@ -7,6 +7,7 @@ require 'decision_review_v1/utilities/logging_utils'
 
 module DecisionReviewV1
   module Appeals
+    # rubocop:disable Metrics/ModuleLength
     module SupplementalClaimServices
       include DecisionReviewV1::Appeals::Helpers
       include DecisionReviewV1::Appeals::LoggingUtils
@@ -38,12 +39,8 @@ module DecisionReviewV1
         with_monitoring_and_error_handling do
           request_body = request_body.to_json if request_body.is_a?(Hash)
           headers = create_supplemental_claims_headers(user)
-          common_log_params = {
-            key: :overall_claim_submission,
-            form_id: '995',
-            user_uuid: user.uuid,
-            downstream_system: 'Lighthouse'
-          }
+          common_log_params = { key: :overall_claim_submission, form_id: '995', user_uuid: user.uuid,
+                                downstream_system: 'Lighthouse' }
           response, bm = run_and_benchmark_if_enabled do
             perform :post, 'supplemental_claims', request_body, headers
           rescue => e
@@ -146,6 +143,7 @@ module DecisionReviewV1
       #
       # @return [Faraday::Response]
       #
+      # rubocop:disable Metrics/MethodLength
       def put_supplemental_claim_upload(upload_url:, file_upload:, metadata_string:, user_uuid: nil,
                                         appeal_submission_upload_id: nil)
         content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
@@ -187,6 +185,7 @@ module DecisionReviewV1
         json_tmpfile.close
         json_tmpfile.unlink
       end
+      # rubocop:enable Metrics/MethodLength
 
       ##
       # Returns all of the data associated with a specific Supplemental Claim Evidence Submission.
@@ -240,5 +239,6 @@ module DecisionReviewV1
         CentralMail::Service.new.upload(processor.request_body)
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end
