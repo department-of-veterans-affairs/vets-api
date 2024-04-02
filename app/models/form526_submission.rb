@@ -164,19 +164,7 @@ class Form526Submission < ApplicationRecord
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   #
   def start_evss_submission_job
-    workflow_batch = Sidekiq::Batch.new
-    workflow_batch.on(
-      :success,
-      'Form526Submission#perform_ancillary_jobs_handler',
-      'submission_id' => id,
-      # Call get_first_name while the temporary User record still exists
-      'first_name' => get_first_name
-    )
-    job_ids = workflow_batch.jobs do
-      EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
-    end
-
-    job_ids.first
+    Form526SubmissionWrapperJob.new(id).perform_async
   end
 
   # Runs start_evss_submission_job but first looks to see if the veteran has BIRLS IDs that previous start
@@ -337,18 +325,6 @@ class Form526Submission < ApplicationRecord
     @auth_headers_hash = nil # reset cache
   end
 
-  # Called by Sidekiq::Batch as part of the Form 526 submission workflow
-  # The workflow batch success handler
-  #
-  # @param _status [Sidekiq::Batch::Status] the status of the batch
-  # @param options [Hash] payload set in the workflow batch
-  #
-  def perform_ancillary_jobs_handler(_status, options)
-    submission = Form526Submission.find(options['submission_id'])
-    # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(options['first_name']) if submission.jobs_succeeded?
-  end
-
   def jobs_succeeded?
     a_submit_form_526_job_succeeded? && all_other_jobs_succeeded_if_any?
   end
@@ -367,30 +343,6 @@ class Form526Submission < ApplicationRecord
 
   def all_other_jobs_succeeded_if_any?
     form526_job_statuses.where.not(job_class: SUBMIT_FORM_526_JOB_CLASSES).all?(&:success?)
-  end
-
-  # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
-  #
-  # @param first_name [String] the first name of the user that submitted Form526
-  # @return [String] the workflow batch id
-  #
-  def perform_ancillary_jobs(first_name)
-    workflow_batch = Sidekiq::Batch.new
-    workflow_batch.on(
-      :success,
-      'Form526Submission#workflow_complete_handler',
-      'submission_id' => id,
-      'first_name' => first_name
-    )
-    workflow_batch.jobs do
-      submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
-      submit_form_0781 if form[FORM_0781].present?
-      submit_form_8940 if form[FORM_8940].present?
-      upload_bdd_instructions if bdd?
-      submit_flashes if form[FLASHES].present?
-      cleanup
-    end
   end
 
   # Called by Sidekiq::Batch as part of the Form 526 submission workflow
@@ -453,43 +405,5 @@ class Form526Submission < ApplicationRecord
 
   def enqueue_backup_submission(id)
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
-  end
-
-  def submit_uploads
-    # Put uploads on a one minute delay because of shared workload with EVSS
-    uploads = form[FORM_526_UPLOADS]
-    delay = 60.seconds
-    uploads.each do |upload|
-      EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, upload)
-      delay += 15.seconds
-    end
-  end
-
-  def upload_bdd_instructions
-    # send BDD instructions
-    EVSS::DisabilityCompensationForm::UploadBddInstructions.perform_in(60.seconds, id)
-  end
-
-  def submit_form_4142
-    CentralMail::SubmitForm4142Job.perform_async(id)
-  end
-
-  def submit_form_0781
-    EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(id)
-  end
-
-  def submit_form_8940
-    EVSS::DisabilityCompensationForm::SubmitForm8940.perform_async(id)
-  end
-
-  def submit_flashes
-    user = User.find(user_uuid)
-    # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
-    # If this method runs after the TTL, then the flashes will not be applied -- a possible bug.
-    BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
-  end
-
-  def cleanup
-    EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 end
