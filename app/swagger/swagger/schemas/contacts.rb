@@ -35,7 +35,7 @@ module Swagger::Schemas
       property :city, type: %i[string null]
       property :state, type: %i[string null]
       property :zip_code, type: %i[string null]
-      property :primary_phone, type: %i[strin null]
+      property :primary_phone, type: %i[string null]
     end
   end
 end
