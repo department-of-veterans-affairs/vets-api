@@ -10,7 +10,7 @@ module ClaimsApi
 
     def namespaces
       {
-        'data' => 'http://gov.va.vba.benefits.vdc/data'
+        'data' => '/data'
       }
     end
   end

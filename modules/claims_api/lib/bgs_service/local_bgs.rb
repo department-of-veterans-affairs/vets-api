@@ -236,7 +236,13 @@ module ClaimsApi
     end
 
     def full_body(action:, body:, namespace:, namespaces:)
-      namespaces = namespaces.map { |k, v| %(xmlns:#{k}="#{v}") }.join("\n")
+      namespaces =
+        namespaces.map do |aliaz, path|
+          uri = URI(namespace)
+          uri.path = path
+          %(xmlns:#{aliaz}="#{uri}")
+        end
+
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
           <env:Envelope
@@ -244,7 +250,7 @@ module ClaimsApi
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tns="#{namespace}"
             xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
-            #{namespaces}
+            #{namespaces.join("\n")}
           >
           #{header}
           <env:Body>
@@ -298,7 +304,7 @@ module ClaimsApi
         end
 
         url = "#{Settings.bgs.url}/#{endpoint}"
-        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+        namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
         body = full_body(action:, body:, namespace:, namespaces:)
         headers = {
           'Content-Type' => 'text/xml;charset=UTF-8',
