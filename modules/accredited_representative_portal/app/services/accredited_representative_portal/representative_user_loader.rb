@@ -10,7 +10,8 @@ module AccreditedRepresentativePortal
     end
 
     def perform
-      find_valid_user || reload_user
+      # find_valid_user || 
+      reload_user
     end
 
     private
