@@ -21,7 +21,11 @@ module Swagger::Schemas
 
     swagger_schema :Contact do
       key :required, %i[contact_type given_name family_name primary_phone]
-      property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
+      property(
+        :contact_type,
+        type: :string,
+        enum: VAProfile::Models::AssociatedPerson::PERSONAL_HEALTH_CARE_CONTACT_TYPES
+      )
       property :given_name, type: %i[string]
       property :family_name, type: %i[string]
       property :relationship, type: %i[string]

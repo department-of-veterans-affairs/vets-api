@@ -23,7 +23,7 @@ module VAProfile
       CONTACT_TYPES = [
         *PERSONAL_HEALTH_CARE_CONTACT_TYPES,
         DESIGNEE,
-        POWER_OF_ATTORNEY,
+        POWER_OF_ATTORNEY
       ].freeze
 
       attribute :contact_type, String

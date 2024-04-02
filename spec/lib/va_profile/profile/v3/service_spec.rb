@@ -115,7 +115,9 @@ describe VAProfile::Profile::V3::Service do
       let(:cassette) { 'va_profile/profile/v3/health_benefit_bio_500' }
       let(:status) { 500 }
       let(:message) do
-        'MVI203 MviResponseError MVI returned acknowledgement error code AE with error detail: More Than One Active Correlation Exists'
+        result = 'MVI203 MviResponseError MVI returned acknowledgement error code '
+        result += 'AE with error detail: More Than One Active Correlation Exists'
+        result
       end
 
       it 'includes messages recieved from the api' do
