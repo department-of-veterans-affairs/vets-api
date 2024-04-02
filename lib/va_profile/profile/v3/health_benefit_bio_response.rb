@@ -13,6 +13,7 @@ module VAProfile
         attribute :va_profile_tx_audit_id, String
 
         def initialize(response)
+          body = response.body
           contacts = body.dig('profile', 'health_benefit', 'associated_persons')
                          &.select { |p| valid_contact_types.include?(p['contact_type']) }
                          &.sort_by { |p| valid_contact_types.index(p['contact_type']) }
@@ -21,7 +22,7 @@ module VAProfile
           super(response.status, { contacts:, messages:, va_profile_tx_audit_id: })
         end
 
-        def metadata
+        def debug_data
           {
             status:,
             message:,
@@ -36,7 +37,10 @@ module VAProfile
         end
 
         def message
-          messages&.first&.to_h
+          m = messages&.first
+          return '' unless m
+
+          "#{m.code} #{m.key} #{m.text}"
         end
       end
     end
