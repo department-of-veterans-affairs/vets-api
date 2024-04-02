@@ -65,5 +65,6 @@ module SignIn
     class TermsOfUseNotAcceptedError < StandardError; end
     class CredentialLockedError < StandardError; end
     class InvalidAudienceError < StandardError; end
+    class RecordNotFoundError < StandardError; end
   end
 end

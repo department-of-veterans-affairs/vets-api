@@ -74,8 +74,13 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
         end
 
         context 'when the representative is not found' do
-          let(:expected_error) { AccreditedRepresentativePortal::Errors::RecordNotFoundError }
+          let(:expected_response_body) do
+            { errors: 'User is not a VA representative' }.to_json
+          end
           let(:expected_error_message) { 'User is not a VA representative' }
+          let(:expected_log_payload) do
+            { access_token_cookie: }.to_json
+          end
 
           before do
             allow(Rails.logger).to receive(:error)
@@ -83,6 +88,8 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
 
           it 'raises a representative record not found error' do
             expect(subject).to have_http_status(:unauthorized)
+            expect(subject.body).to eq(expected_response_body)
+            expect(Rails.logger).to have_received(:error).with(expected_error_message, expected_log_payload)
           end
         end
       end

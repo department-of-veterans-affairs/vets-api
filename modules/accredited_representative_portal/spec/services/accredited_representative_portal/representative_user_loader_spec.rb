@@ -61,7 +61,7 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
 
         context 'and user is not a VA representative' do
           let(:representative_attributes) { {} }
-          let(:expected_error) { AccreditedRepresentativePortal::Errors::RecordNotFoundError }
+          let(:expected_error) { SignIn::Errors::RecordNotFoundError }
           let(:expected_error_message) { 'User is not a VA representative' }
 
           it 'raises a representative record not found error' do

@@ -37,9 +37,7 @@ module AccreditedRepresentativePortal
                                                                  ssn: mpi_profile.ssn,
                                                                  dob: mpi_profile.birth_date)
 
-      if representative.blank?
-        raise AccreditedRepresentativePortal::Errors::RecordNotFoundError.new message: 'User is not a VA representative'
-      end
+      raise SignIn::Errors::RecordNotFoundError.new message: 'User is not a VA representative' if representative.blank?
     end
 
     def loa
@@ -54,10 +52,15 @@ module AccreditedRepresentativePortal
     end
 
     def authn_context
-      if user_verification.credential_type == SignIn::Constants::Auth::LOGINGOV
-        SignIn::Constants::Auth::LOGIN_GOV_IAL2
-      else
-        SignIn::Constants::Auth::IDME_LOA3
+      case user_verification.credential_type
+      when  SignIn::Constants::Auth::IDME
+        user_is_verified? ?  SignIn::Constants::Auth::IDME_LOA3 : SignIn::Constants::Auth::IDME_LOA1
+      when  SignIn::Constants::Auth::DSLOGON
+        user_is_verified? ?  SignIn::Constants::Auth::IDME_DSLOGON_LOA3 : SignIn::Constants::Auth::IDME_DSLOGON_LOA1
+      when  SignIn::Constants::Auth::MHV
+        user_is_verified? ?  SignIn::Constants::Auth::IDME_MHV_LOA3 : SignIn::Constants::Auth::IDME_MHV_LOA1
+      when  SignIn::Constants::Auth::LOGINGOV
+        user_is_verified? ?  SignIn::Constants::Auth::LOGIN_GOV_IAL2 : SignIn::Constants::Auth::LOGIN_GOV_IAL1
       end
     end
 

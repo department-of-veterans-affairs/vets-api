@@ -20,7 +20,7 @@ module SignIn
       @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
-    rescue AccreditedRepresentativePortal::Errors::RecordNotFoundError, Errors::StandardError => e
+    rescue Errors::StandardError => e
       handle_authenticate_error(e)
     end
 
@@ -30,7 +30,7 @@ module SignIn
       @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check
-    rescue AccreditedRepresentativePortal::Errors::RecordNotFoundError, Errors::StandardError
+    rescue Errors::StandardError
       nil
     end
 
@@ -65,6 +65,7 @@ module SignIn
         access_token_authorization_header: bearer_token,
         access_token_cookie: cookie_access_token(access_token_cookie_name:)
       }.compact
+
       log_message_to_sentry(error.message, :error, context)
       render json: { errors: error }, status: :unauthorized
     end
