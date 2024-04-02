@@ -27,6 +27,8 @@ module TermsOfUse
       @version = attrs[:version]
 
       terms_of_use_agreement.accepted? ? accept : decline
+
+      Sidekiq::AttrPackage.delete(attr_package_key)
     end
 
     private
