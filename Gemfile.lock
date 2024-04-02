@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d6918c7e0dce104ae9b06382a44df5deb56e2adf
+  revision: 7892dc348677325cc57712ff4a12d6a78f024315
   branch: master
   specs:
-    vets_json_schema (21.5.2)
+    vets_json_schema (21.5.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -104,6 +104,7 @@ PATH
     facilities_api (0.1.0)
     health_quest (0.1.0)
     income_limits (0.1.0)
+    ivc_champva (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
@@ -1157,6 +1158,7 @@ DEPENDENCIES
   ice_nine
   income_limits!
   iso_country_codes
+  ivc_champva!
   json
   json-schema
   json_schemer
@@ -1278,3 +1280,4 @@ RUBY VERSION
 
 BUNDLED WITH
    2.4.9
+
