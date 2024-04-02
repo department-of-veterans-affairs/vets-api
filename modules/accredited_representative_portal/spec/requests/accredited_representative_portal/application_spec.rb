@@ -87,7 +87,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
           it 'raises a representative record not found error' do
             expect(subject).to have_http_status(:unauthorized)
             expect(subject.body).to eq(expected_response_body)
-            expect(Rails.logger).to have_received(:error).with("#{expected_error} : #{expected_log_payload.to_s}")
+            expect(Rails.logger).to have_received(:error).with("#{expected_error} : #{expected_log_payload}")
           end
         end
       end
