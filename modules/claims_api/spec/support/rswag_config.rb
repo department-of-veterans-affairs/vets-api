@@ -127,7 +127,7 @@ class ClaimsApi::RswagConfig
           {
             name: 'Power of Attorney',
             description: <<~VERBIAGE
-              Allows authenticated and authorized users to retrieve the active power of attorney for a Veteran
+              Allows authenticated and authorized users to automatically establish power of attorney appointments to an organization or an individual. Organizations and individuals must be VA accredited representatives.
             VERBIAGE
           }
         ],

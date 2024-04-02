@@ -175,10 +175,12 @@ properties:
         example: "Rx Medication"
       trackingList:
         type: array
-        example: []
+        items:
+          $ref: "./PrescriptionTrackingItem.yml"
       rxRfRecords:
         type: array
-        example: []
+        items:
+          $ref: "./RxRfRecord.yml"
       tracking:
         type: boolean
         example: false

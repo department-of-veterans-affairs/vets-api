@@ -73,12 +73,10 @@ features:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
     enable_in_development: true
-  cerner_transition_556_t30:
+  ezr_tera_enabled:
     actor_type: user
-    description: This will control the content that will be in effect 30 days prior to transition.
-  cerner_transition_556_t5:
-    actor_type: user
-    description: This will control the content that will be in effect 5 days prior to transition.
+    description: Enables Toxic Exposure questions for 10-10EZR applicants.
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -157,10 +155,6 @@ features:
   check_in_experience_travel_claim_redis_client_refactor:
     actor_type: user
     description: Uses the refactored code for Travel Claim Redis client to fetch attributes
-    enable_in_development: true
-  check_in_experience_travel_claim_increase_timeout:
-    actor_type: user
-    description: Increases the timeout for BTSSS submit claim request to 120 seconds
     enable_in_development: true
   claim_letters_access:
     actor_type: user
@@ -357,9 +351,9 @@ features:
     actor_type: user
     description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
     enable_in_development: true
-  disability_526_maximum_rating_api:
+  disability_526_maximum_rating_api_all_conditions:
     actor_type: user
-    description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
+    description: enables calls to VRO Max CFI API for all conditions, otherwise only calls for select conditions are made
     enable_in_development: false
   disability_526_ep_merge_api:
     actor_type: user
@@ -468,6 +462,10 @@ features:
     description: Enables Find a Representative frontend
     enable_in_development: true
   find_a_representative_flag_results_enabled:
+    actor_type: user
+    description: Enables flagging feature for Find a Representative frontend
+    enable_in_development: true
+  representative_status_enabled:
     actor_type: user
     description: Enables flagging feature for Find a Representative frontend
     enable_in_development: true
@@ -1020,10 +1018,6 @@ features:
     actor_type: user
     description: Allows veterans to cancel VA appointments
     enable_in_development: true
-  va_online_scheduling_clinic_filtering:
-    actor_type: user
-    description: Allows clinic selection filtering by stop codes
-    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
@@ -1100,10 +1094,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
-  va_online_scheduling_required_schedulable_param:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle that requires the inclusion of a new 'schedulable' boolean param for fetching facilities
   va_online_scheduling_after_visit_summary:
     actor_type: user
     enable_in_development: true
@@ -1139,6 +1129,9 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
+  va_burial_v2:
+    actor_type: user
+    description: Allows us to toggle between 21-P530 and 21-P530V2
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1258,6 +1251,9 @@ features:
   disability_compensation_lighthouse_brd:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Reference Data service
+  disability_compensation_lighthouse_generate_pdf:
+    actor_type: user
+    description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
@@ -1335,12 +1331,6 @@ features:
     description: >-
       Master toggle for the VYE (Verify Your Enrollment) project.
       If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
-  yellow_ribbon_degree_filter:
-    actor_type: user
-    description: Enable the degree type filter for the Find a Yellow Ribbon school search
-  yellow_ribbon_search_enhancement:
-    actor_type: user
-    description: Enable changes to Find a Yellow Ribbon school search functionality
   travel_pay_power_switch:
     actor_type: user
     description: >-

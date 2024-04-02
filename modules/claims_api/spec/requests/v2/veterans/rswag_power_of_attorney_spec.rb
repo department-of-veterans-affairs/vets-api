@@ -143,7 +143,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a', production: false do
+  path '/veterans/{veteranId}/2122a' do
     post 'Appoint an individual Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
       operationId 'post2122a'
@@ -312,7 +312,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122', production: false do
+  path '/veterans/{veteranId}/2122' do
     post 'Appoint an organization Power of Attorney for a Veteran.' do
       description 'Updates current Power of Attorney for Veteran.'
       tags 'Power of Attorney'
@@ -355,6 +355,9 @@ describe 'PowerOfAttorney',
             Veteran::Service::Organization.create!(poa: organization_poa_code,
                                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
                                                    phone: '555-555-5555')
+            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
+                                                     first_name: 'Firstname', last_name: 'Lastname',
+                                                     phone: '555-555-5555')
 
             mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
@@ -468,7 +471,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a/validate', production: false do
+  path '/veterans/{veteranId}/2122a/validate' do
     post 'Validates a 2122a form submission.' do
       tags 'Power of Attorney'
       operationId 'post2122aValidate'
@@ -512,7 +515,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            Veteran::Service::Representative.new(representative_id: '12345',
+            Veteran::Service::Representative.new(representative_id: '67890',
                                                  poa_codes: [poa_code],
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
@@ -638,7 +641,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122/validate', production: false do
+  path '/veterans/{veteranId}/2122/validate' do
     post 'Validates a 2122 form submission.' do
       tags 'Power of Attorney'
       operationId 'post2122Validate'
@@ -681,6 +684,9 @@ describe 'PowerOfAttorney',
 
           before do |example|
             Veteran::Service::Organization.create!(poa: poa_code)
+            Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [poa_code],
+                                                     first_name: 'Firstname', last_name: 'Lastname',
+                                                     phone: '555-555-5555')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -796,7 +802,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/power-of-attorney/{id}', production: false do
+  path '/veterans/{veteranId}/power-of-attorney/{id}' do
     get 'Checks status of Power of Attorney appointment form submission' do
       description 'Gets the Power of Attorney appointment request status (21-22/21-22a)'
       tags 'Power of Attorney'

@@ -8,6 +8,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
   let(:poa_code) { 'ABC' }
+  let(:rep) { create(:representative, first_name: 'Bob', last_name: 'Representative') }
 
   before do
     Sidekiq::Job.clear_all
@@ -54,8 +55,6 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
           representative: {
             poaCode: poa_code.to_s,
             type: 'ATTORNEY',
-            firstName: 'Bob',
-            lastName: 'Representative',
             organizationName: 'I Help Vets LLC',
             address: {
               numberAndStreet: '2719 Hyperion Ave',
@@ -83,21 +82,9 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
-          final_data = data.merge(
+          final_data = data.deep_merge(
             {
               'text_signatures' => {
-                'page1' => [
-                  {
-                    'signature' => 'JESSE GRAY - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 73
-                  },
-                  {
-                    'signature' => 'Bob Representative - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 100
-                  }
-                ],
                 'page2' => [
                   {
                     'signature' => 'JESSE GRAY - signed via api.va.gov',
@@ -110,6 +97,10 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                     'y' => 200
                   }
                 ]
+              },
+              'representative' => {
+                'firstName' => 'Bob',
+                'lastName' => 'Representative'
               }
             }
           )
@@ -120,7 +111,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney.id, '2122A')
+          subject.new.perform(power_of_attorney.id, '2122A', rep.id)
         end
       end
 
@@ -138,7 +129,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
           expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-          subject.new.perform(power_of_attorney.id, '2122A')
+          subject.new.perform(power_of_attorney.id, '2122A', rep.id)
         end
       end
     end
@@ -213,24 +204,12 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                      }
                    }
                  )
-          final_data = data.merge(
+          final_data = data.deep_merge(
             {
               'text_signatures' => {
-                'page1' => [
-                  {
-                    'signature' => 'JESSE GRAY - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 73
-                  },
-                  {
-                    'signature' => 'Bob Representative - signed via api.va.gov',
-                    'x' => 35,
-                    'y' => 100
-                  }
-                ],
                 'page2' => [
                   {
-                    'signature' => 'Mitchell Jenkins - signed via api.va.gov',
+                    'signature' => 'JESSE GRAY - signed via api.va.gov',
                     'x' => 35,
                     'y' => 306
                   },
@@ -240,6 +219,10 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                     'y' => 200
                   }
                 ]
+              },
+              'representative' => {
+                'firstName' => 'Bob',
+                'lastName' => 'Representative'
               }
             }
           )
@@ -250,7 +233,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney.id, '2122A')
+          subject.new.perform(power_of_attorney.id, '2122A', rep.id)
         end
       end
     end
@@ -321,7 +304,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
-        final_data = data.merge(
+        final_data = data.deep_merge(
           {
             'text_signatures' => {
               'page2' => [
@@ -336,7 +319,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                   'y' => 200
                 }
               ]
-            }
+            },
+            'serviceOrganization' => { 'firstName' => 'Bob', 'lastName' => 'Representative' }
           }
         )
 
@@ -347,7 +331,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney.id, '2122')
+          subject.new.perform(power_of_attorney.id, '2122', rep.id)
         end
       end
 
@@ -364,7 +348,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-          subject.new.perform(power_of_attorney.id, '2122')
+          subject.new.perform(power_of_attorney.id, '2122', rep.id)
         end
       end
     end
@@ -436,7 +420,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                    }
                  }
                )
-        final_data = data.merge(
+        final_data = data.deep_merge(
           {
             'text_signatures' => {
               'page2' => [
@@ -451,7 +435,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
                   'y' => 200
                 }
               ]
-            }
+            },
+            'serviceOrganization' => { 'firstName' => 'Bob', 'lastName' => 'Representative' }
           }
         )
 
@@ -462,7 +447,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney.id, '2122')
+          subject.new.perform(power_of_attorney.id, '2122', rep.id)
         end
       end
     end

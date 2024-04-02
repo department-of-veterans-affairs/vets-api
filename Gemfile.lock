@@ -73,10 +73,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d6918c7e0dce104ae9b06382a44df5deb56e2adf
+  revision: 7892dc348677325cc57712ff4a12d6a78f024315
   branch: master
   specs:
-    vets_json_schema (21.5.2)
+    vets_json_schema (21.5.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -104,6 +104,7 @@ PATH
     facilities_api (0.1.0)
     health_quest (0.1.0)
     income_limits (0.1.0)
+    ivc_champva (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
@@ -416,7 +417,7 @@ GEM
     factory_bot_rails (6.4.3)
       factory_bot (~> 6.4)
       railties (>= 5.0.0)
-    faker (3.2.3)
+    faker (3.3.0)
       i18n (>= 1.8.11, < 2)
     faraday (2.9.0)
       faraday-net_http (>= 2.0, < 3.2)
@@ -572,7 +573,7 @@ GEM
     jmespath (1.6.2)
     json (2.7.1)
     json (2.7.1-java)
-    json-schema (4.2.0)
+    json-schema (4.3.0)
       addressable (>= 2.8)
     json_schemer (2.2.1)
       base64
@@ -691,7 +692,7 @@ GEM
     os (1.1.4)
     ox (2.14.18)
     parallel (1.24.0)
-    parallel_tests (4.5.2)
+    parallel_tests (4.6.0)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -810,7 +811,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.8.0)
-    rdoc (6.6.2)
+    rdoc (6.6.3.1)
       psych (>= 4.0.0)
     redis (5.1.0)
       redis-client (>= 0.17.0)
@@ -912,10 +913,13 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (2.27.1)
+    rubocop-rspec (2.28.0)
       rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
+      rubocop-rspec_rails (~> 2.28)
+    rubocop-rspec_rails (2.28.2)
+      rubocop (~> 1.40)
     rubocop-thread_safety (0.5.1)
       rubocop (>= 0.90.0)
     ruby-progressbar (1.13.0)
@@ -1157,6 +1161,7 @@ DEPENDENCIES
   ice_nine
   income_limits!
   iso_country_codes
+  ivc_champva!
   json
   json-schema
   json_schemer
@@ -1278,3 +1283,4 @@ RUBY VERSION
 
 BUNDLED WITH
    2.4.9
+
