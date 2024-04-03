@@ -1,32 +1,9 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class VdcVeteranRepresentativeService < ClaimsApi::LocalBGS
-    def bean_name
-      '/VDC/VeteranRepresentativeService'
-    end
-
+  class VeteranRepresentativeService < ClaimsApi::LocalBGS
+    # rubocop:disable Metrics/MethodLength
     def create_veteran_representative(ptcpnt_id, proc_id, form_type, poa_code)
-      body = get_create_representative_body(ptcpnt_id, proc_id, form_type, poa_code)
-
-      make_request(
-        endpoint: bean_name,
-        action: 'createVeteranRepresentative',
-        body:,
-        additional_namespace:
-      )
-    end
-
-    private
-
-    def additional_namespace
-      ans = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        data
-      EOXML
-      ans.to_s
-    end
-
-    def get_create_representative_body(ptcpnt_id, proc_id, form_type, poa_code)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <data:VeteranRepresentative>
           <procId>#{proc_id}</procId>
@@ -43,6 +20,14 @@ module ClaimsApi
           <veteranPtcpntId>#{ptcpnt_id}</veteranPtcpntId>
         </data:VeteranRepresentative>
       EOXML
+
+      make_request(
+        endpoint:,
+        action: 'createVeteranRepresentative',
+        body: body.to_s,
+        key: 'VeteranRepresentative'
+      )
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
