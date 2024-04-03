@@ -3,7 +3,7 @@
 module ClaimsApi
   class VeteranRepresentativeService < ClaimsApi::LocalBGS
     # rubocop:disable Metrics/MethodLength
-    def create_veteran_representative(ptcpnt_id, proc_id, form_type, poa_code)
+    def create_veteran_representative(ptcpnt_id:, proc_id:, form_type:, poa_code:)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <data:VeteranRepresentative>
           <procId>#{proc_id}</procId>
