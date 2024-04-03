@@ -247,8 +247,7 @@ RSpec.describe 'Forms uploader', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected ken at')
+          expect(response.body).to include('An unexpected token was found while parsing the payload')
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))

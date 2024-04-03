@@ -50,6 +50,8 @@ module SimpleFormsApi
         else
           submit_form_to_central_mail
         end
+      # rescue Oj::Error => e
+      #   raise RuntimeError.new(params), handle_pdftk_parsing_error(e)
       rescue => e
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
@@ -280,6 +282,15 @@ module SimpleFormsApi
           secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
           bucket_name: Settings.ivc_forms.s3.bucket
         )
+      end
+
+      def handle_pdftk_parsing_error(e)
+        match = e.message.match(/\(after (.+)\) at/)
+        failing_line = match ? match[1] : 'unknown'
+        new_message = "The JSON payload included an unprocessable token for key: #{failing_line}"
+        JSON::ParserError.new(new_message).tap do |error|
+          error.set_backtrace(e.backtrace)
+        end
       end
     end
   end

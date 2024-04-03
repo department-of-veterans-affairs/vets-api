@@ -41,6 +41,7 @@ module SimpleFormsApi
       b = binding
       b.local_variable_set(:data, form)
       result = ERB.new(template).result(b)
+      # Oj.load(escape_json_string(result))
       JSON.parse(escape_json_string(result))
     end
 

@@ -23,7 +23,7 @@ module SimpleFormsApi
 
         case params[:form_number]
         when '21-4142'
-          words_to_remove += SimpleFormsApi::VBA214142.new(params).words_to_remove
+          return redact_words(message, SimpleFormsApi::VBA214142.new(params).key_values_to_remove)
         when '21-10210'
           words_to_remove += SimpleFormsApi::VBA2110210.new(params).words_to_remove
         when '26-4555'
@@ -47,6 +47,27 @@ module SimpleFormsApi
         end
 
         message
+      end
+
+      def redact_words(message, key_segments)
+        # Extract the error message from the error string
+        malformed_json = message.match(/unexpected token at '(.+?)'/)[1]
+
+        # RegEx to match key-value pairs
+        key_value_regex = /"([^"]+)":\s*"([^"]*)"/
+
+        # Iterate over key-value pairs and replace values of keys containing specified substrings
+        redacted_json = malformed_json.gsub(key_value_regex) do |match|
+          key = $1
+          value = $2
+          if key_segments.any? { |segment| key.include?(segment) }
+            %("#{key}": "<REDACTED>")
+          else
+            match
+          end
+        end
+
+        "An unexpected token was found while parsing the payload: #{redacted_json}"
       end
 
       def aggregate_words(parsed_params)

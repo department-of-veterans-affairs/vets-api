@@ -11,6 +11,10 @@ module SimpleFormsApi
       @data = data
     end
 
+    def key_values_to_remove
+      %w[SocialSecurityNumber DOB MailingAddress PostalCode TelephoneNumber E_Mail_Address]
+    end
+
     def words_to_remove
       veteran_ssn + veteran_date_of_birth + veteran_address + patient_identification + veteran_home_phone +
         veteran_email
