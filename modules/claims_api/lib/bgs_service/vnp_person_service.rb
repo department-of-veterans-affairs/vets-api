@@ -7,16 +7,8 @@ module ClaimsApi
     # ptcpntId: Veteran's participant id
     # firstNm: Veteran's first name
     # lastNm: Veteran's last name
-    #
-    # The target veteran can be passed in as an optional second argument
-    # this overrides the ptcpntId, firstNm, and lastNm fields in the opts.
-    #
-    # The icn can be passed in as an optional third argument
-    # this does an MPI lookup to override the ptcpntId, firstNm, and lastNm fields in the opts.
-    def vnp_person_create(opts, target_veteran: nil, icn: nil)
+    def vnp_person_create(opts)
       opts = opts.dup
-      opts = icn_opts(icn).merge(opts) if icn
-      opts = target_veteran_opts(target_veteran).merge(opts) if target_veteran
       opts.transform_keys! { |k| k.to_s.camelize(:lower) }
 
       validate_opts! opts
@@ -54,24 +46,6 @@ module ClaimsApi
       required_keys = %w[vnpProcId vnpPtcpntId firstNm lastNm]
       missing_keys = required_keys.reject { opts.key? _1 }
       raise ArgumentError, "Missing required keys: #{missing_keys.join(', ')}" if missing_keys.present?
-    end
-
-    def target_veteran_opts(target_veteran)
-      {
-        vnpPtcpntId: target_veteran.participant_id,
-        firstNm: target_veteran.first_name,
-        lastNm: target_veteran.last_name
-      }
-    end
-
-    def icn_opts(icn)
-      mpi_profile = MPI::Service.new.find_profile_by_identifier(identifier: icn,
-                                                                identifier_type: MPI::Constants::ICN)
-      {
-        vnpPtcpntId: mpi_profile.profile.participant_id,
-        firstNm: mpi_profile.profile.given_names.first,
-        lastNm: mpi_profile.profile.family_name
-      }
     end
   end
 end

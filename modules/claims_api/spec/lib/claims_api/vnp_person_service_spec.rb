@@ -47,46 +47,5 @@ describe ClaimsApi::VnpPersonService do
         expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end
     end
-
-    it 'creates a new person from data and target_veteran' do
-      data = { vnp_proc_id: }
-      target_veteran = OpenStruct.new(
-        icn: '1012667145V762142',
-        first_name: 'Tamara',
-        last_name: 'Ellis',
-        loa: { current: 3, highest: 3 },
-        edipi: '1005490754',
-        ssn: '796130115',
-        participant_id: vnp_ptcpnt_id,
-        mpi: OpenStruct.new(
-          icn: '1012832025V743496',
-          profile: OpenStruct.new(ssn: '796130115')
-        )
-      )
-      VCR.use_cassette('bgs/vnp_person_service/vnp_person_create') do
-        result = subject.vnp_person_create(data, target_veteran:)
-        expect((data.to_a & result.to_a).to_h).to eq data
-        expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
-      end
-    end
-
-    it 'creates a new person from data and icn' do
-      profile = MPI::Responses::FindProfileResponse.new(
-        status: :ok,
-        profile: FactoryBot.build(:mpi_profile,
-                                  given_names: ['Tamara'],
-                                  family_name: 'Ellis',
-                                  participant_id: vnp_ptcpnt_id,
-                                  participant_ids: [vnp_ptcpnt_id])
-      )
-      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile)
-
-      data = { vnp_proc_id: }
-      icn = '1012667145V762142'
-      VCR.use_cassette('bgs/vnp_person_service/vnp_person_create') do
-        result = subject.vnp_person_create(data, icn:)
-        expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
-      end
-    end
   end
 end
