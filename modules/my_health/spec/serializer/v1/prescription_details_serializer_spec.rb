@@ -168,6 +168,50 @@ RSpec.describe MyHealth::V1::PrescriptionDetailsSerializer, type: :serializer do
   it 'includes the rx_rf_records' do
     expect(attributes['rx_rf_records']).to be_an(Array)
     expect(attributes['rx_rf_records']).to all(be_a(Hash))
+    rx_rf_record = attributes['rx_rf_records'][0]
+    expected_values = {
+      'refill_status' => 'suspended',
+      'refill_remaining' => 4,
+      'facility_name' => 'DAYT29',
+      'is_refillable' => false,
+      'is_trackable' => false,
+      'prescription_id' => 223_328_28,
+      'sig' => nil,
+      'quantity' => nil,
+      'expiration_date' => nil,
+      'prescription_number' => '2720542',
+      'prescription_name' => 'ONDANSETRON 8 MG TAB',
+      'dispensed_date' => 'Thu, 21 Apr 2016 00:00:00 EDT',
+      'station_number' => '989',
+      'in_cerner_transition' => false,
+      'not_refillable_display_message' => nil,
+      'cmop_division_phone' => nil,
+      'cmop_ndc_number' => nil,
+      'id' => 223_328_28,
+      'user_id' => 169_559_36,
+      'provider_first_name' => nil,
+      'provider_last_name' => nil,
+      'remarks' => nil,
+      'division_name' => nil,
+      'modified_date' => nil,
+      'institution_id' => nil,
+      'dial_cmop_division_phone' => '',
+      'disp_status' => 'Suspended',
+      'ndc' => nil,
+      'reason' => nil,
+      'prescription_number_index' => 'RF1',
+      'prescription_source' => 'RF',
+      'disclaimer' => nil,
+      'indication_for_use' => nil,
+      'indication_for_use_flag' => nil,
+      'category' => 'Rx Medication',
+      'tracking_list' => nil,
+      'rx_rf_records' => nil,
+      'tracking' => false
+    }
+    expected_values.each do |key, value|
+      expect(rx_rf_record[key]).to eq(value)
+    end
   end
 
   it 'includes the tracking_list records as an array' do

@@ -439,6 +439,12 @@ module PdfFill
             question_suffix: 'B',
             question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
             limit: 32
+          },
+          'placeAndLocation' => {
+            limit: 75,
+            question_num: 16,
+            question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY.",
+            key: 'form1[0].#subform[37].DeathOccurredPlaceAndLocation[1]'
           }
         },
         'hasPreviouslyReceivedAllowance' => {
@@ -570,7 +576,13 @@ module PdfFill
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
 
+        if location_of_death[location_of_death['location']].present? && location_of_death['location'] != 'other'
+          options = location_of_death[location_of_death['location']]
+          location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
+        end
+
         location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
+
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
       end
 
