@@ -21,11 +21,15 @@ module SimpleFormsApi
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
-        'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
+        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('veteran', 'address', 'country') == 'USA'
     end
 
     def submission_date_config
