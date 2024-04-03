@@ -11,7 +11,7 @@ RSpec.describe 'OrganizationSerializer' do
     Veteran::Service::Organization.find('og1')
   end
 
-  it 'can serialize a representative' do
+  it 'can serialize an organization' do
     result = serialize(organization,
                        serializer_class: RepresentationManagement::PowerOfAttorney::OrganizationSerializer)
     attributes = JSON.parse(result)['data']['attributes']
