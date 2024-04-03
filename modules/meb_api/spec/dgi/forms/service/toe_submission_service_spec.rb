@@ -123,12 +123,9 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
 
         it 'EVSS returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
-            Flipper.disable(:toe_light_house_dgi_direct_deposit)
-
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
                                             ActionController::Parameters.new(dd_params),
                                             'toe')
-            Flipper.enable(:toe_light_house_dgi_direct_deposit)
 
             expect(response.status).to eq(200)
           end
