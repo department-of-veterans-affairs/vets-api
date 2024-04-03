@@ -32,6 +32,10 @@ module SimpleFormsApi
       }
     end
 
+    def zip_code_is_us_based
+      @data.dig('address', 'country') == 'USA'
+    end
+
     def submission_date_config
       {
         should_stamp_date?: true,

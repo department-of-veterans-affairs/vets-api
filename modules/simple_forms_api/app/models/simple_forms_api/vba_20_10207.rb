@@ -10,6 +10,62 @@ module SimpleFormsApi
       @data = data
     end
 
+    def currently_homeless?
+      (0..2).include? homeless_living_situation
+    end
+
+    def homeless_living_situation
+      if @data['living_situation']['SHELTER']
+        0
+      elsif @data['living_situation']['FRIEND_OR_FAMILY']
+        1
+      elsif @data['living_situation']['OVERNIGHT']
+        2
+      end
+    end
+
+    def at_risk_of_being_homeless?
+      (0..2).include? risk_homeless_living_situation
+    end
+
+    def risk_homeless_living_situation
+      if @data['living_situation']['LOSING_HOME']
+        0
+      elsif @data['living_situation']['LEAVING_SHELTER']
+        1
+      elsif @data['living_situation']['OTHER_RISK']
+        2
+      end
+    end
+
+    def facility_name(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      "#{facility&.[]('facility_name')}\n#{facility_address(index)}"
+    end
+
+    def facility_address(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      address = facility&.[]('facility_address')
+      "#{address&.[]('street')}\n" \
+        "#{address&.[]('city')}, #{address&.[]('state')} #{address&.[]('postal_code')}\n" \
+        "#{address&.[]('country')}"
+    end
+
+    def facility_month(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      facility&.[]('start_date')&.[](5..6)
+    end
+
+    def facility_day(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      facility&.[]('start_date')&.[](8..9)
+    end
+
+    def facility_year(index)
+      facility = @data['medical_treatments']&.[](index - 1)
+      facility&.[]('start_date')&.[](0..3)
+    end
+
     def requester_signature
       @data['statement_of_truth_signature'] if @data['preparer_type'] == 'veteran'
     end
@@ -28,11 +84,17 @@ module SimpleFormsApi
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
         'veteranLastName' => @data.dig('veteran_full_name', 'last'),
         'fileNumber' => @data.dig('veteran_id', 'va_file_number').presence || @data.dig('veteran_id', 'ssn'),
-        'zipCode' => @data.dig('veteran_mailing_address', 'postal_code').presence || '00000',
+        'zipCode' => @data.dig('veteran_mailing_address',
+                               'postal_code').presence || @data.dig('non_veteran_mailing_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def zip_code_is_us_based
+      @data.dig('veteran_mailing_address',
+                'country') == 'USA' || @data.dig('non_veteran_mailing_address', 'country') == 'USA'
     end
 
     def handle_attachments(file_path)

@@ -214,4 +214,28 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       end
     end
   end
+
+  describe '#destroy_related_form' do
+    let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
+    let(:user) { build(:user, :loa3) }
+    let(:user_data) { build(:user_profile_attributes) }
+    let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: user.uuid) }
+
+    context 'when IPF has already been deleted' do
+      it 'does not throw an error' do
+        expect(InProgressForm.all.length).to eq(0)
+        described_class.new(combined_form_data, '123', user).destroy_related_form
+        expect(InProgressForm.all.length).to eq(0)
+      end
+    end
+
+    context 'when IPF is present' do
+      it 'deletes related In Progress Form' do
+        in_progress_form
+        expect(InProgressForm.all.length).to eq(1)
+        described_class.new(combined_form_data, '123', user).destroy_related_form
+        expect(InProgressForm.all.length).to eq(0)
+      end
+    end
+  end
 end
