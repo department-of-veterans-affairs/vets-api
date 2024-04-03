@@ -263,7 +263,9 @@ module VAOS
       def merge_facilities(appointments)
         appointments.each do |appt|
           appt[:location] = get_facility_memoized(appt[:location_id]) unless appt[:location_id].nil?
-          log_appt_id_location_name(appt) if cerner?(appt) && appt[:location].values.any? { |v| v.include?('COL OR 1') }
+          log_appt_id_location_name(appt) if cerner?(appt) && appt[:location]&.values&.any? do |v|
+                                               v.include?('COL OR 1')
+                                             end
         end
       end
 
