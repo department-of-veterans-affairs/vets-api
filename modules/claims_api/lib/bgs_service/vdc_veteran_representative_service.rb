@@ -38,6 +38,7 @@ module ClaimsApi
           <limitationHIV>false</limitationHIV>
           <limitationSCA>false</limitationSCA>
           <vdcStatus>This</vdcStatus>
+          <representativeType></representativeType>
           <changeAddressAuth>false</changeAddressAuth>
           <veteranPtcpntId>#{ptcpnt_id}</veteranPtcpntId>
         </data:VeteranRepresentative>
