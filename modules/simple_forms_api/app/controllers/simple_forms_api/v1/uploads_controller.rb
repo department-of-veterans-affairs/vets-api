@@ -234,8 +234,8 @@ module SimpleFormsApi
       end
 
       def form_is264555_and_should_use_lgy_api
-        # TODO: Remove prod check and ALWAYS require icn
-        if Rails.env.production?
+        # TODO: Remove prod/test check and ALWAYS require icn
+        if Rails.env.production? || Rails.env.test?
           params[:form_number] == '26-4555' && icn
         else
           params[:form_number] == '26-4555'
