@@ -1665,6 +1665,7 @@ travel_pay:
     auth_url: https://login.microsoftonline.us
   subscription_key: ~
   base_url: ~
+  client_number: ~
   service_name: BTSSS-API
 
 xlsx_file_fetcher:
