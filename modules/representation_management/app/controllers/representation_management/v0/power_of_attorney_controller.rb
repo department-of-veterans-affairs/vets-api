@@ -15,8 +15,8 @@ module RepresentationManagement
           return render json: { error: 'Unable to fetch power of attorney information' }, status: :service_unavailable
         end
 
-        type = body.dig(:data, :type)
-        code = body.dig(:data, :attributes, :code)
+        type = body.dig('data', 'type')
+        code = body.dig('data', 'attributes', 'code')
 
         if code.blank?
           Rails.logger.warn("No power of attorney found: #{body}")
