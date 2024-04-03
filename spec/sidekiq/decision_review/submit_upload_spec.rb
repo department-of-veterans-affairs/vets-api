@@ -22,7 +22,7 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
         message: 'Evidence upload retrieval success!',
         user_uuid: appeal_submission.user_uuid,
         action: 'Evidence upload retrieval',
-        form_id: '10182', # hmmm
+        form_id: '10182',
         upstream_system: 'AWS S3',
         downstream_system: nil,
         is_success: true,
