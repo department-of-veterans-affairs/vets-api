@@ -66,6 +66,32 @@ RSpec.describe MebApi::DGI::Submission::Service do
       routng_trnsit_nbr: '042102115'
     }
   end
+
+  let(:dd_params_lighthouse) do
+    {
+      'payment_account' => {
+        'account_type' => 'CHECKING',
+        'account_number' => '1234567890',
+        'financial_institution_routing_number' => '031000503',
+        'financial_institution_name' => 'WELLSFARGO BANK'
+      },
+      'controlInformation' => {
+        'canUpdateDirectDeposit' => 'true',
+        'isCorpAvailable' => 'true',
+        'isCorpRecFound' => 'true',
+        'hasNoBdnPayments' => 'true',
+        'hasIndentity' => 'true',
+        'hasIndex' => 'true',
+        'isCompetent' => 'true',
+        'hasMailingAddress' => 'true',
+        'hasNoFiduciaryAssigned' => 'true',
+        'isNotDeceased' => 'true',
+        'hasPaymentAddress' => 'true',
+        'isEduClaimAvailable' => 'true'
+      }
+    }
+  end
+
   let(:claimant_params_with_asterisks) do
     duplicated_params = claimant_params.deep_dup
     # Explicitly creating the nested structure if it doesn't exist
@@ -84,25 +110,15 @@ RSpec.describe MebApi::DGI::Submission::Service do
   end
 
   describe '#submit_claim' do
-    context 'when successful' do
+    context 'Lighthouse direct deposit' do
       it 'returns a status of 200' do
-        VCR.use_cassette('dgi/submit_claim') do
-          response = service.submit_claim(
-            ActionController::Parameters.new(claimant_params[:education_benefit]),
-            ActionController::Parameters.new(dd_params)
-          )
-          expect(response.status).to eq(200)
-        end
-      end
-    end
-
-    context 'with leading asterisks in account number' do
-      it 'replaces asterisked account and routing numbers with real values' do
-        VCR.use_cassette('dgi/submit_claim') do
+        VCR.use_cassette('dgi/submit_claim_lighthouse') do
+          lighthouse_dd_response = OpenStruct.new(body: dd_params_lighthouse)
           response = service.submit_claim(
             ActionController::Parameters.new(claimant_params_with_asterisks[:education_benefit]),
-            ActionController::Parameters.new(dd_params)
+            Lighthouse::DirectDeposit::PaymentInfoParser.parse(lighthouse_dd_response)
           )
+
           expect(response.status).to eq(200)
         end
       end
