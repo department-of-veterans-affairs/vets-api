@@ -55,7 +55,7 @@ module RepresentationManagement
       end
 
       def find_representative(code)
-        representatives = Veteran::Service::Representative.where('? = ANY(poa_codes)', code)
+        representatives = Veteran::Service::Representative.where('? = ANY(poa_codes)', code).order('created_at DESC')
         representatives.empty? ? nil : representatives.first
       end
 
