@@ -369,8 +369,7 @@ RSpec.describe 'BGS Claims management', type: :request do
             'key' => 'form526.submit.establishClaim.serviceError',
             'severity' => 'FATAL',
             'text' => 'Claim not established. System error with BGS. GUID: 00797c5d-89d4-4da6-aab7-24b4ad0e4a4f'
-          }] 
-        }
+          }] }
       }]
     end
 
