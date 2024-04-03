@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_02_140306) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_03_192137) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -86,12 +86,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_02_140306) do
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa"], name: "index_accredited_organizations_on_poa", unique: true
-  end
-
-  create_table "accredited_representative_types", id: false, force: :cascade do |t|
-    t.string "accredited_representative_number"
-    t.string "type"
-    t.index ["accredited_representative_number", "type"], name: "index_accredited_representative_types_on_id_and_type", unique: true
   end
 
   create_table "accredited_representatives", primary_key: "number", id: :string, force: :cascade do |t|
@@ -1498,7 +1492,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_02_140306) do
   add_foreign_key "account_login_stats", "accounts"
   add_foreign_key "accredited_organization_accredited_representatives", "accredited_organizations", column: "accredited_organization_poa", primary_key: "poa", validate: false
   add_foreign_key "accredited_organization_accredited_representatives", "accredited_representatives", column: "accredited_representative_number", primary_key: "number", validate: false
-  add_foreign_key "accredited_representative_types", "accredited_representatives", column: "accredited_representative_number", primary_key: "number", validate: false
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
