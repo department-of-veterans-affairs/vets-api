@@ -14,7 +14,7 @@ module AccreditedRepresentativePortal
         # TODO: The ID will be either a veteran_id or a poa_id
         # id = params[:id]
         # NOTE: the below is a placeholder for the deny logic
-        render json: { message: 'Denied' }, status: :ok
+        render json: { message: 'Declined' }, status: :ok
       end
     end
   end
