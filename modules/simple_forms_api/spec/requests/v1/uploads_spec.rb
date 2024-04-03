@@ -346,6 +346,22 @@ RSpec.describe 'Forms uploader', type: :request do
     end
 
     describe 'transliterating fields' do
+      context 'transliteration succeeds' do
+        it 'responds with ok' do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                             'form_with_accented_chars_21_0966.json')
+              data = JSON.parse(fixture_path.read)
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+
       context 'transliteration fails' do
         it 'responds with an error' do
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',

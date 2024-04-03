@@ -51,8 +51,10 @@ module SimpleFormsApi
           submit_form_to_central_mail
         end
       rescue Prawn::Errors::IncompatibleStringEncoding
+        byebug
         raise
       rescue => e
+        byebug
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
