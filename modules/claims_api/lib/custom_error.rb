@@ -49,7 +49,6 @@ module ClaimsApi
       detail = symbolized_error[:detail] || nil
       text = symbolized_error[:text] || nil
       key = symbolized_error[:key] || nil
-
       {
         key:,
         severity:,

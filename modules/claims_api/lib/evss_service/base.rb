@@ -16,7 +16,7 @@ module ClaimsApi
       def initialize(request = nil)
         @request = request
         @auth_headers = {}
-        @use_mock = Settings.evss.mock_claims || false
+        @use_mock = false
       end
 
       def submit(claim, data)
@@ -60,7 +60,7 @@ module ClaimsApi
                     ssl: { verify: Settings.evss&.dvp&.ssl != false },
                     headers:) do |f|
           f.request :json
-          f.response :betamocks if @use_mock
+          # f.response :betamocks if @use_mock
           f.response :raise_error
           f.response :json, parser_options: { symbolize_names: true }
           f.adapter Faraday.default_adapter
@@ -85,14 +85,6 @@ module ClaimsApi
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
-      # v1/disability_compenstaion_controller expects different values then the docker container provides
-      def format_docker_container_error_for_v1(errors)
-        errors.each do |err|
-          # need to add a :detail key v1 looks for in it's error reporting, get :text key from docker container
-          err.merge!(detail: err[:text]).stringify_keys!
-        end
-      end
-
       def log_outcome_for_claims_api(action, status, response, claim)
         ClaimsApi::Logger.log('526_docker_container',
                               detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
@@ -103,7 +95,7 @@ module ClaimsApi
       end
 
       def error_handler(error, claim, method)
-        custom_error(error, claim, method).handle_error
+        custom_error(error, claim, method).build_error
       end
     end
   end
