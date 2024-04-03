@@ -23,4 +23,13 @@ RSpec.describe EducationForm::Forms::VA1995 do
       expect(subject.direct_deposit_type('noChange')).to eq('Do Not Change')
     end
   end
+
+  context 'spool_file tests with high school minors' do
+    %w[
+      ch30_guardian_not_graduated
+      ch30_guardian_graduated_sponsor
+    ].each do |test_application|
+      test_spool_file('1995', test_application)
+    end
+  end
 end

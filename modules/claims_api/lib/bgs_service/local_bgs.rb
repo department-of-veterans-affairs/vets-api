@@ -214,10 +214,12 @@ module ClaimsApi
       header.to_s
     end
 
-    def full_body(action:, body:, namespace:)
+    def full_body(action:, body:, namespace:, additional_namespace: nil)
+      ans = additional_namespace ? construct_additional_namespace(namespace, additional_namespace) : nil
+
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" #{ans} xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
           #{header}
           <env:Body>
             <tns:#{action}>
@@ -227,6 +229,18 @@ module ClaimsApi
           </env:Envelope>
       EOXML
       body.to_s
+    end
+
+    def construct_additional_namespace(namespace, additional_namespace)
+      host_name = extract_hostname(namespace)
+      Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        xmlns:#{additional_namespace}="#{host_name}/#{additional_namespace.strip}"
+      EOXML
+    end
+
+    def extract_hostname(namespace)
+      uri = URI.parse(namespace)
+      "#{uri.scheme}://#{uri.host}#{uri.path.split('/')[0..-2].join('/')}"
     end
 
     def parsed_response(res, action, key = nil)
@@ -253,7 +267,7 @@ module ClaimsApi
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil) # rubocop:disable Metrics/MethodLength
+    def make_request(endpoint:, action:, body:, key: nil, additional_namespace: nil) # rubocop:disable Metrics/MethodLength
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
@@ -267,15 +281,17 @@ module ClaimsApi
           connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
         end
         target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
-          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                       body:,
-                                                                       namespace: target_namespace),
-                          {
-                            'Content-Type' => 'text/xml;charset=UTF-8',
-                            'Host' => "#{@env}.vba.va.gov",
-                            'Soapaction' => "\"#{action}\""
-                          })
+          post_body = full_body(action:, body:, namespace: target_namespace, additional_namespace:)
+          post_headers = {
+            'Content-Type' => 'text/xml;charset=UTF-8',
+            'Host' => "#{@env}.vba.va.gov",
+            'Soapaction' => "\"#{action}\""
+
+          }
+
+          connection.post("#{Settings.bgs.url}/#{endpoint}", post_body, post_headers)
         end
       rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
         ClaimsApi::Logger.log('local_bgs',

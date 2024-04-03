@@ -15,6 +15,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
   mock_facility = {
     'test' => 'test',
+    'id' => '668',
+    'name' => 'COL OR 1',
     'timezone' => {
       'timeZoneId' => 'America/New_York'
     }
@@ -184,6 +186,22 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
             expect(data[0]['attributes']['friendlyName']).to eq('service_name')
             expect(data[0]['attributes']['location']).to eq(mock_facility)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns cerner appointments and honors includes' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_with_color1_location',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data.size).to eq(2)
+            expect(data[0]['attributes']['location']).to eq(mock_facility)
+            expect(Rails.logger).to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
+                                                              any_args).at_least(:once)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end

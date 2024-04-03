@@ -169,10 +169,10 @@ RSpec.describe 'Claims', type: :request do
         end
 
         it 'are listed' do
-          lighthouse_claim = create(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+          lighthouse_claim = create(:auto_established_claim, status: 'established', veteran_icn: veteran_id,
                                                              evss_id: '600098193')
-          lighthouse_claim_two = create(:auto_established_claim, status: 'CAN', veteran_icn: veteran_id,
-                                                                 evss_id: '600098194')
+          lighthouse_claim_two = create(:auto_established_claim, status: 'pending', veteran_icn: veteran_id,
+                                                                 evss_id: nil)
 
           lh_claims = ClaimsApi::AutoEstablishedClaim.where(id: [lighthouse_claim.id, lighthouse_claim_two.id])
 
@@ -190,7 +190,7 @@ RSpec.describe 'Claims', type: :request do
               claim = json_response['data'].first
               claim_two = json_response['data'][1]
               expect(claim['attributes']['status']).to eq('COMPLETE')
-              expect(claim_two['attributes']['status']).to eq('CANCELED')
+              expect(claim_two['attributes']['status']).to eq('PENDING')
               expect(claim['attributes']['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
             end
           end
@@ -316,7 +316,8 @@ RSpec.describe 'Claims', type: :request do
                     {
                       base_end_prdct_type_cd: '400',
                       benefit_claim_id: '111111111',
-                      claim_status: 'Preparation for notification'
+                      claim_status: 'PEND',
+                      phase_type: 'Gathering of Evidence'
                     }
                   ]
                 }
@@ -327,7 +328,7 @@ RSpec.describe 'Claims', type: :request do
               lighthouse_claim = create(
                 :auto_established_claim,
                 id: '0958d973-36fb-43ef-8801-2718bd33c825',
-                status: 'Preparation for notification',
+                status: 'pending',
                 evss_id: '111111111'
               )
 
@@ -351,7 +352,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
                   expect(claim['attributes']['baseEndProductCode']).to eq('400')
-                  expect(claim['attributes']['status']).to eq('PREPARATION_FOR_NOTIFICATION')
+                  expect(claim['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 end
