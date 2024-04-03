@@ -86,55 +86,5 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
         expect(e.original_body[0]).to eq(error_original_body[:messages][0].deep_symbolize_keys)
       end
     end
-
-    #   context 'claim_establisher sends a Faraday::ServerError' do
-    #     let(:faraday_error) { Faraday::ServerError.new(backtrace) }
-    #     let(:faraday_error_submit) { ClaimsApi::CustomError.new(faraday_error, claim, 'validate') }
-
-    #     it 'handles the faraday error correctly' do
-    #       faraday_error_submit.build_error
-    #       faraday_error_submit.send(:build_error)
-    #     rescue => e
-    #       expect(e.errors[0]['detail']).to include 're-tryable'
-    #     end
-    #   end
-    # end
-
-    # describe 'errors are funneled as re-tryable' do
-    #   context 'claim_establisher sends a ActiveRecord::RecordInvalid' do
-    #     let(:active_record_error) { ActiveRecord::RecordInvalid.new(claim) }
-    #     let(:active_record_error_submit) { ClaimsApi::CustomError.new(active_record_error, claim, 'submit') }
-
-    #     it 'handles it as a client exception' do
-    #       active_record_error_submit.build_error
-    #       active_record_error_submit.send(:build_error)
-    #     rescue => e
-    #       expect(e.errors[0]['detail']).to include 'client exception'
-    #     end
-    #   end
-
-    #   context 'claim_establisher sends a Faraday::BadRequestError' do
-    #     let(:bad_request_error) { Faraday::BadRequestError.new(claim) }
-    #     let(:bad_request_error_submit) { ClaimsApi::CustomError.new(bad_request_error, claim, 'submit') }
-
-    #     it 'handles it as a client exception' do
-    #       bad_request_error_submit.build_error
-    #       bad_request_error_submit.send(:build_error)
-    #     rescue => e
-    #       expect(e.errors[0]['detail']).to include 'client exception'
-    #     end
-    #   end
-
-    #   context 'claim_establisher sends a Faraday::UnprocessableEntityError' do
-    #     let(:unprocessable_error) { Faraday::UnprocessableEntityError.new(claim) }
-    #     let(:unprocessable_error_submit) { ClaimsApi::CustomError.new(unprocessable_error, claim, 'submit') }
-
-    #     it 'handles it as a client exception' do
-    #       unprocessable_error_submit.build_error
-    #       unprocessable_error_submit.send(:build_error)
-    #     rescue => e
-    #       expect(e.errors[0]['detail']).to include 'client exception'
-    #     end
-    #   end
   end
 end
