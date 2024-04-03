@@ -213,6 +213,24 @@ RSpec.describe Form1010Ezr::Service do
             submit_form(form)
           end.to raise_error(StandardError)
         end
+
+        # REMOVE THIS TEST ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
+        context "when the error pertains to the Veteran's DOB" do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
+          end
+
+          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+            expect { submit_form(form) }.to raise_error do |e|
+              personal_information_log =
+                PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
+
+              expect(personal_information_log.present?).to eq(true)
+              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            end
+          end
+        end
       end
 
       context 'any other error' do
