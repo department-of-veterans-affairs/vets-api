@@ -299,6 +299,7 @@ Rails.application.routes.draw do
       resource :military_occupations, only: :show
 
       # Lighthouse
+      resource :direct_deposits, only: %i[show update]
       namespace :direct_deposits do
         resource :disability_compensations, only: %i[show update]
       end
