@@ -11,20 +11,20 @@ describe ClaimsApi::VnpPtcpntAddrsService do
 
     it 'responds with attributes' do
       options[:vnp_ptcpnt_addrs_id] = nil
-      options[:vnp_proc_id] = '3854437'
-      options[:vnp_ptcpnt_id] = nil
+      options[:vnp_proc_id] = '3854566'
+      options[:vnp_ptcpnt_id] = '182014'
       options[:efctv_dt] = '2020-07-16T18:20:17Z'
-      options[:addrs_one_txt] = ''
+      options[:addrs_one_txt] = '76 Crowther Ave'
       options[:addrs_two_txt] = ''
       options[:addrs_three_txt] = ''
       options[:bad_addrs_ind] = nil
       options[:city_nm] = 'Bridgeport'
       options[:cntry_nm] = 'United States'
       options[:county_nm] = 'Fairfield'
-      options[:eft_waiver_type_nm] = 281
+      options[:eft_waiver_type_nm] = nil
       options[:email_addrs_txt] = 281
       options[:end_dt] = '2025-07-16T18:20:17Z'
-      options[:fms_addrs_code_txt] = 281
+      options[:fms_addrs_code_txt] = nil
       options[:frgn_postal_cd] = nil
       options[:group_1_verifd_type_cd] = nil
       options[:jrn_dt] = '2020-07-16T18:20:17Z'
@@ -37,8 +37,8 @@ describe ClaimsApi::VnpPtcpntAddrsService do
       options[:mlty_post_office_type_cd] = nil
       options[:postal_cd] = nil
       options[:prvnc_nm] = nil
-      options[:ptcpnt_addrs_type_nm] = 'VAgovAPI'
-      options[:shared_addrs_ind] = nil
+      options[:ptcpnt_addrs_type_nm] = 'Mailing'
+      options[:shared_addrs_ind] = 'F'
       options[:trsury_addrs_six_txt] = nil
       options[:trsury_addrs_five_txt] = nil
       options[:trsury_addrs_four_txt] = nil
@@ -48,12 +48,12 @@ describe ClaimsApi::VnpPtcpntAddrsService do
       options[:trsury_seq_nbr] = nil
       options[:trtry_nm] = nil
       options[:zip_first_suffix_nbr] = 0
-      options[:zip_prefix_nbr] = 64
-      options[:zip_second_suffix_nbr] = 68
+      options[:zip_prefix_nbr] = 66
+      options[:zip_second_suffix_nbr] = 05
 
       VCR.use_cassette('bgs/vnp_ptcpnt_addrs_service/vnp_ptcpnt_addrs_create') do
-        response = subject.vnp_ptcpnt_addrs_create(options)
         byebug
+        response = subject.vnp_ptcpnt_addrs_create(options)
         expect(response).to include(
           { vnp_ptcpnt_id: '181913',
             vnp_proc_id: '3854437',
