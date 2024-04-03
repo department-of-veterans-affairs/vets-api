@@ -316,9 +316,6 @@ features:
   decision_review_delay_evidence:
     actor_type: user
     description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
-  decision_review_use_appeal_submitted_job:
-    actor_type: user
-    description: Uses the revised AppealSubmittedJob instead of AppealReceivedJob to send emails for newly submitted Decision Reviews
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1110,6 +1107,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_enable_OH_eligibility:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
