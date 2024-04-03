@@ -15,11 +15,11 @@ module V0
       lh_response = get_lh_rated_disabilities
       evss_response = get_evss_rated_disabilities
 
-      lh_response_length = lh_response.dig('data', 'attributes', 'individual_ratings').length
-      evss_response_length = evss_response.rated_disabilities.length
-
-      if lh_response_length != evss_response_length
-        log_length_discrepancy((lh_response_length - evss_response_length).abs)
+      lh_ratings = lh_response.dig('data', 'attributes', 'individual_ratings')
+      evss_ratings = evss_response.rated_disabilities
+      if lh_ratings.length != evss_ratings.length
+        log_length_discrepancy(evss_ratings, evss_ratings.length, lh_ratings,
+                               lh_ratings.length)
       end
 
       # This doesn't need to return anything at the moment
@@ -28,12 +28,19 @@ module V0
 
     private
 
-    def log_length_discrepancy(difference)
-      message = "Discrepancy of #{difference} disability ratings"
+    def log_length_discrepancy(evss_ratings, evss_ratings_length, lh_ratings, lh_ratings_length)
+      message = 'Discrepancy between Lighthouse and EVSS disability ratings'
+
+      evss_ids = evss_ratings.pluck('rated_disability_id')
+      lh_ids = lh_ratings.pluck('disability_rating_id')
 
       ::Rails.logger.info(message, {
                             message_type: 'lh.rated_disabilities.length_discrepancy',
-                            revision: 4
+                            evss_length: evss_ratings_length,
+                            evss_rating_ids: evss_ids,
+                            lighthouse_length: lh_ratings_length,
+                            lighthouse_rating_ids: lh_ids,
+                            revision: 5
                           })
     end
 
