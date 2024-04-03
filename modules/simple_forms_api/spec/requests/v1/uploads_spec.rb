@@ -344,6 +344,20 @@ RSpec.describe 'Forms uploader', type: :request do
         end
       end
     end
+
+    describe 'transliterating fields' do
+      context 'transliteration fails' do
+        it 'raises a Prawn error' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'form_with_non_latin_chars_21_0966.json')
+          data = JSON.parse(fixture_path.read)
+
+          expect do
+            post '/simple_forms_api/v1/simple_forms', params: data
+          end.to raise_error Prawn::Errors::IncompatibleStringEncoding
+        end
+      end
+    end
   end
 
   describe '#submit_supporting_documents' do
