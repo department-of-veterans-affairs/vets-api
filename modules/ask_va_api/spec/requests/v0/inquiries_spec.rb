@@ -337,4 +337,18 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
                                                         'attributes' => { 'status' => 'Reopened' } })
     end
   end
+
+  describe 'POST #create_reply' do
+    let(:payload) { { 'reply' => 'this is my reply' } }
+
+    before do
+      allow_any_instance_of(Crm::Service).to receive(:call).and_return({ Data: { Id: '123' } })
+      sign_in(authorized_user)
+      post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
+    end
+
+    it 'returns status 200' do
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

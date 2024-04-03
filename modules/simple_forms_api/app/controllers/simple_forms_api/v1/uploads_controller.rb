@@ -167,7 +167,8 @@ module SimpleFormsApi
                     else
                       filler.generate
                     end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
+                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
 
         maybe_add_file_paths =
           case form_id
