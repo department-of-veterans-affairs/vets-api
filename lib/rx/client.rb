@@ -134,11 +134,8 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rx(id)
-      if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
-        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
-      end
-      result
-    end
+      perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+    end 
 
     ##
     # Get Prescription preferences
