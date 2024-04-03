@@ -13,7 +13,6 @@ module Form526ClaimFastTrackingConcern
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
 
-  DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020 030 040].freeze
   EP_MERGE_SPECIAL_ISSUE = 'EMP'
   OPEN_STATUSES = ['CLAIM RECEIVED', 'UNDER REVIEW', 'GATHERING OF EVIDENCE', 'REVIEW OF EVIDENCE'].freeze
@@ -179,7 +178,7 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    DISABILITIES_WITH_MAX_CFI.intersection(diagnostic_codes).each do |diagnostic_code|
+    ClaimFastTracking::DiagnosticCodesForMetrics::DC.intersection(diagnostic_codes).each do |diagnostic_code|
       next unless disabilities.any? do |dis|
         diagnostic_code == dis['diagnosticCode']
       end
