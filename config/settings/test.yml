@@ -427,6 +427,7 @@ travel_pay:
     auth_url: 'https://auth.veis.gov'
   subscription_key: 'api_key'
   base_url: 'https://btsss.gov'
+  client_number: '12345'
   service_name: 'BTSSS-API'
 
 pension_ipf_vanotify_status_callback:
