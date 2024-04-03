@@ -37,6 +37,7 @@ module ClaimsApi
           <limitationAlcohol>false</limitationAlcohol>
           <limitationHIV>false</limitationHIV>
           <limitationSCA>false</limitationSCA>
+          <vdcStatus>This</vdcStatus>
           <changeAddressAuth>false</changeAddressAuth>
           <veteranPtcpntId>#{ptcpnt_id}</veteranPtcpntId>
         </data:VeteranRepresentative>
