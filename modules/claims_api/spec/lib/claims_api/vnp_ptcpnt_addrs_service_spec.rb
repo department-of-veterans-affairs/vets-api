@@ -52,7 +52,6 @@ describe ClaimsApi::VnpPtcpntAddrsService do
       options[:zip_second_suffix_nbr] = '05'
 
       VCR.use_cassette('bgs/vnp_ptcpnt_addrs_service/vnp_ptcpnt_addrs_create') do
-        byebug
         response = subject.vnp_ptcpnt_addrs_create(options)
         expect(response).to include(
           { vnp_ptcpnt_id: '181913',
