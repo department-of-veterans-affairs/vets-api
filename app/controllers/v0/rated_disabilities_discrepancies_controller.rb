@@ -28,15 +28,12 @@ module V0
     def log_length_discrepancy(evss_ratings, lh_ratings)
       message = 'Discrepancy between Lighthouse and EVSS disability ratings'
 
-      evss_ids = evss_ratings.pluck('rated_disability_id')
-      lh_ids = lh_ratings.pluck('disability_rating_id')
-
       ::Rails.logger.info(message, {
                             message_type: 'lh.rated_disabilities.length_discrepancy',
                             evss_length: evss_ratings.length,
-                            evss_rating_ids: evss_ids,
+                            evss_rating_ids: evss_ratings.pluck('rated_disability_id'),
                             lighthouse_length: lh_ratings.length,
-                            lighthouse_rating_ids: lh_ids,
+                            lighthouse_rating_ids: lh_ratings.pluck('disability_rating_id'),
                             revision: 5
                           })
     end
