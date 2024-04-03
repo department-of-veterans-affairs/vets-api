@@ -40,7 +40,7 @@ module SimpleFormsApi
 
         if form_is210966 && icn && first_party?
           handle_210966_authenticated
-        elsif params[:form_number] == '26-4555' && icn
+        elsif form_is264555_and_should_use_lgy_api
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
@@ -231,6 +231,15 @@ module SimpleFormsApi
 
       def form_is210966
         params[:form_number] == '21-0966'
+      end
+
+      def form_is264555_and_should_use_lgy_api
+        # TODO: Remove prod/test check and ALWAYS require icn
+        if Rails.env.production? || Rails.env.test?
+          params[:form_number] == '26-4555' && icn
+        else
+          params[:form_number] == '26-4555'
+        end
       end
 
       def should_authenticate
