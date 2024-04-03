@@ -21,13 +21,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
   end
 
-  describe 'POST /deny' do
+  describe 'POST /decline' do
     it 'returns a successful response with an accepted message' do
       id = '123'
-      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/deny"
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/decline"
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      expect(json['message']).to eq('Denied')
+      expect(json['message']).to eq('Declined')
     end
   end
 end
