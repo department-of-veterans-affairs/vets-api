@@ -100,7 +100,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         allow(faraday_response).to receive(:env)
       end
 
-      context "Feature toe_light_house_dgi_direct_deposit=true" do
+      context 'Feature toe_light_house_dgi_direct_deposit=true' do
         before do
           Flipper.enable(:toe_light_house_dgi_direct_deposit)
         end
@@ -116,7 +116,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         end
       end
 
-      context "Feature toe_light_house_dgi_direct_deposit=false" do
+      context 'Feature toe_light_house_dgi_direct_deposit=false' do
         before do
           Flipper.disable(:toe_light_house_dgi_direct_deposit)
         end
