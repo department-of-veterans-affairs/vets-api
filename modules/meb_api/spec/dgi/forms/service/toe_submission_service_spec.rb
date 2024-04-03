@@ -100,8 +100,28 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         allow(faraday_response).to receive(:env)
       end
 
-      context 'EVSS when successful' do
-        it 'returns a status of 200' do
+      context "Feature toe_light_house_dgi_direct_deposit=true" do
+        before do
+          Flipper.enable(:toe_light_house_dgi_direct_deposit)
+        end
+
+        it 'Lighthouse returns a status of 200' do
+          VCR.use_cassette('dgi/forms/submit_toe_claim') do
+            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
+                                            ActionController::Parameters.new(dd_params_lighthouse),
+                                            'toe')
+
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+
+      context "Feature toe_light_house_dgi_direct_deposit=false" do
+        before do
+          Flipper.disable(:toe_light_house_dgi_direct_deposit)
+        end
+
+        it 'EVSS returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
             Flipper.disable(:toe_light_house_dgi_direct_deposit)
 
@@ -109,18 +129,6 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
                                             ActionController::Parameters.new(dd_params),
                                             'toe')
             Flipper.enable(:toe_light_house_dgi_direct_deposit)
-
-            expect(response.status).to eq(200)
-          end
-        end
-      end
-
-      context 'Lighthouse when successful' do
-        it 'returns a status of 200' do
-          VCR.use_cassette('dgi/forms/submit_toe_claim') do
-            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
-                                            ActionController::Parameters.new(dd_params_lighthouse),
-                                            'toe')
 
             expect(response.status).to eq(200)
           end
