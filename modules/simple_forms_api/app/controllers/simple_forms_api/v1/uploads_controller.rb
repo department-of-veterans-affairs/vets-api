@@ -40,7 +40,7 @@ module SimpleFormsApi
 
         if form_is210966 && icn && first_party?
           handle_210966_authenticated
-        elsif params[:form_number] == '26-4555' && icn
+        elsif form_is264555_and_should_use_lgy_api
           parsed_form_data = JSON.parse(params.to_json)
           form = SimpleFormsApi::VBA264555.new(parsed_form_data)
           response = LGY::Service.new.post_grant_application(payload: form.as_payload)
@@ -50,12 +50,14 @@ module SimpleFormsApi
         else
           submit_form_to_central_mail
         end
+      rescue Prawn::Errors::IncompatibleStringEncoding
+        raise
       rescue => e
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
       def submit_supporting_documents
-        if %w[40-0247 20-10207 10-10D 40-10007].include?(params[:form_id])
+        if %w[40-0247 20-10207 10-10D 40-10007 10-7959F-2].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
@@ -167,11 +169,12 @@ module SimpleFormsApi
                     else
                       filler.generate
                     end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata)
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
+                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
 
         maybe_add_file_paths =
           case form_id
-          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007'
+          when 'vba_40_0247', 'vba_20_10207', 'vha_10_10d', 'vba_40_10007', 'vha_10_7959f_2'
             form.handle_attachments(file_path)
           else
             [file_path]
@@ -230,6 +233,15 @@ module SimpleFormsApi
 
       def form_is210966
         params[:form_number] == '21-0966'
+      end
+
+      def form_is264555_and_should_use_lgy_api
+        # TODO: Remove prod/test check and ALWAYS require icn
+        if Rails.env.production? || Rails.env.test?
+          params[:form_number] == '26-4555' && icn
+        else
+          params[:form_number] == '26-4555'
+        end
       end
 
       def should_authenticate
