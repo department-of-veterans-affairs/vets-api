@@ -5,7 +5,8 @@ require 'simple_forms_api_submission/metadata_validator'
 
 RSpec.describe 'Forms uploader', type: :request do
   non_ivc_forms = [
-    'vba_26_4555.json',
+    # TODO: Restore this test when we release 26-4555 to production.
+    # 'vba_26_4555.json',
     'vba_21_4142.json',
     'vba_21_10210.json',
     'vba_21p_0847.json',
@@ -284,6 +285,8 @@ RSpec.describe 'Forms uploader', type: :request do
 
       describe '26-4555' do
         it 'makes the request and expects a failure' do
+          skip 'restore this test when we release the form to production'
+
           fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                          'form_with_dangerous_characters_26_4555.json')
           data = JSON.parse(fixture_path.read)
@@ -341,6 +344,37 @@ RSpec.describe 'Forms uploader', type: :request do
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
           expect(exception).not_to include(data['veteran_ssn']&.[](3..4))
           expect(exception).not_to include(data['veteran_ssn']&.[](5..8))
+        end
+      end
+    end
+
+    describe 'transliterating fields' do
+      context 'transliteration succeeds' do
+        it 'responds with ok' do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                             'form_with_accented_chars_21_0966.json')
+              data = JSON.parse(fixture_path.read)
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+
+      context 'transliteration fails' do
+        it 'responds with an error' do
+          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                         'form_with_non_latin_chars_21_0966.json')
+          data = JSON.parse(fixture_path.read)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:error)
+          expect(response.body).to include('not compatible with the Windows-1252 character set')
         end
       end
     end
