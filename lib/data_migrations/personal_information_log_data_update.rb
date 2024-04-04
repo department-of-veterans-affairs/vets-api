@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module DataMigrations
   module PersonalInformationLogDataUpdate
     module_function

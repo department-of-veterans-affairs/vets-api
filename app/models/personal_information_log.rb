@@ -7,5 +7,4 @@ class PersonalInformationLog < ApplicationRecord
   has_encrypted :data, migrating: true, type: :json, key: :kms_key, **lockbox_options
 
   validates :error_class, presence: true
-
 end
