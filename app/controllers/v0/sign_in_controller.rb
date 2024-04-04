@@ -223,12 +223,6 @@ module V0
       render json: { errors: e }, status: :bad_request
     end
 
-    def introspect
-      render json: @current_user, serializer: SignIn::IntrospectSerializer, status: :ok
-    rescue SignIn::Errors::StandardError => e
-      render json: { errors: e }, status: :unauthorized
-    end
-
     private
 
     def validate_authorize_params(type, client_id, acr, operation)
