@@ -16,7 +16,7 @@ module ClaimsApi
       def initialize(request = nil)
         @request = request
         @auth_headers = {}
-        @use_mock = false
+        @use_mock = Settings.evss.mock_claims || false
       end
 
       def submit(claim, data)
@@ -60,7 +60,7 @@ module ClaimsApi
                     ssl: { verify: Settings.evss&.dvp&.ssl != false },
                     headers:) do |f|
           f.request :json
-          # f.response :betamocks if @use_mock
+          f.response :betamocks if @use_mock
           f.response :raise_error
           f.response :json, parser_options: { symbolize_names: true }
           f.adapter Faraday.default_adapter

@@ -358,7 +358,7 @@ RSpec.describe 'BGS Claims management', type: :request do
   # possible to have errors saved in production that were saved with this wrapper
   # so need to make sure they do not break the formatter, even though the
   # key of 400 will still show as the source, it will return the claim instead of saying 'not found'
-  context 'when a claim has a wrapper with a key that is an integer' do
+  context 'when a claim has an evss_response message with a key that is an integer' do
     let(:err_message) do
       [{
         'key' => 400,
