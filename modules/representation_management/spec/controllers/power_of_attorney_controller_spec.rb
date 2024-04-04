@@ -25,8 +25,8 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
 
     describe 'GET #index' do
       it 'returns a successful response' do
-        allow(service).to receive(:get_power_of_attorney).and_return({ data: { type: 'organization',
-                                                                               attributes: { code: 'og1' } } })
+        allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'organization',
+                                                                                   'attributes' => { 'code' => 'og1' } } }) # rubocop:disable Layout/LineLength
         allow(controller).to receive(:find_poa_by_code).and_return(organization)
         get :index
 
@@ -38,8 +38,8 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
           organization,
           serializer: RepresentationManagement::PowerOfAttorney::OrganizationSerializer
         ).to_json
-        allow(service).to receive(:get_power_of_attorney).and_return({ data: { type: 'organization',
-                                                                               attributes: { code: 'og1' } } })
+        allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'organization',
+                                                                                   'attributes' => { 'code' => 'og1' } } }) # rubocop:disable Layout/LineLength
         allow(controller).to receive(:find_poa_by_code).and_return(expected_serialized_organization)
         get :index
 

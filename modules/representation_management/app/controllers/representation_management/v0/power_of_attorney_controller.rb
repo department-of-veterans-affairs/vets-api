@@ -55,8 +55,11 @@ module RepresentationManagement
       end
 
       def find_representative(code)
-        representatives = Veteran::Service::Representative.where('? = ANY(poa_codes)', code).order('created_at DESC')
-        representatives.empty? ? nil : representatives.first
+        representatives = Veteran::Service::Representative.where('? = ANY(poa_codes)', code)
+        # Sort representatives by updated_at DESC
+        # For some reason, `#order` is not working on the ActiveRecord::Relation as expected here
+        # Using `min_by` instead
+        representatives.min_by { |rep| -rep.updated_at.to_i }
       end
 
       def serialize_organization(organization)
