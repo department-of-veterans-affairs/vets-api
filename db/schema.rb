@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_03_192137) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_04_010057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -54,12 +54,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_03_192137) do
   end
 
   create_table "accredited_organization_accredited_representatives", id: false, force: :cascade do |t|
-    t.string "accredited_representative_number"
-    t.string "accredited_organization_poa"
-    t.index ["accredited_representative_number", "accredited_organization_poa"], name: "index_organization_representatives_on_rep_and_org", unique: true
+    t.string "representative_id"
+    t.string "organization_poa_code"
+    t.index ["representative_id", "organization_poa_code"], name: "index_organization_representatives_on_rep_and_org", unique: true
   end
 
-  create_table "accredited_organizations", primary_key: "poa", id: { type: :string, limit: 3 }, force: :cascade do |t|
+  create_table "accredited_organizations", primary_key: "poa_code", id: { type: :string, limit: 3 }, force: :cascade do |t|
     t.string "name"
     t.string "phone"
     t.string "state", limit: 2
@@ -85,10 +85,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_03_192137) do
     t.datetime "updated_at", null: false
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
-    t.index ["poa"], name: "index_accredited_organizations_on_poa", unique: true
+    t.index ["poa_code"], name: "unique_index_on_poa_code", unique: true
   end
 
-  create_table "accredited_representatives", primary_key: "number", id: :string, force: :cascade do |t|
+  create_table "accredited_representatives", primary_key: "representative_id", id: :string, force: :cascade do |t|
     t.string "poa_code"
     t.string "first_name"
     t.string "middle_initial"
@@ -118,7 +118,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_03_192137) do
     t.datetime "updated_at", null: false
     t.index ["full_name"], name: "index_accredited_representatives_on_full_name"
     t.index ["location"], name: "index_accredited_representatives_on_location", using: :gist
-    t.index ["number"], name: "index_accredited_representatives_on_number", unique: true
+    t.index ["representative_id"], name: "unique_index_on_representative_id", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -1490,8 +1490,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_03_192137) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
-  add_foreign_key "accredited_organization_accredited_representatives", "accredited_organizations", column: "accredited_organization_poa", primary_key: "poa", validate: false
-  add_foreign_key "accredited_organization_accredited_representatives", "accredited_representatives", column: "accredited_representative_number", primary_key: "number", validate: false
+  add_foreign_key "accredited_organization_accredited_representatives", "accredited_organizations", column: "organization_poa_code", primary_key: "poa_code"
+  add_foreign_key "accredited_organization_accredited_representatives", "accredited_representatives", column: "representative_id", primary_key: "representative_id"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
