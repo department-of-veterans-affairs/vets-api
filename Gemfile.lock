@@ -692,7 +692,7 @@ GEM
     os (1.1.4)
     ox (2.14.18)
     parallel (1.24.0)
-    parallel_tests (4.6.0)
+    parallel_tests (4.6.1)
       parallel
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -952,7 +952,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.15.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.17.1)
+    sentry-ruby (5.17.2)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)

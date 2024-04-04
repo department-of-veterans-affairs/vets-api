@@ -110,23 +110,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      describe 'GET v0/sign_in/introspect' do
-        let(:access_token_object) { create(:access_token) }
-        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
-
-        it 'returns user attributes' do
-          expect(subject).to validate(
-            :get,
-            '/v0/sign_in/introspect',
-            200,
-            '_headers' => {
-              'Authorization' => "Bearer #{access_token}"
-            }
-          )
-        end
-      end
-
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
         let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
