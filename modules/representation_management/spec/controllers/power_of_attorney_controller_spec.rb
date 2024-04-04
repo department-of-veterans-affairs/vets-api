@@ -83,8 +83,10 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
       end
 
       it 'finds representative' do
+        relation_double = instance_double(ActiveRecord::Relation)
         allow(Veteran::Service::Representative).to receive(:where).with('? = ANY(poa_codes)',
-                                                                        'rp1').and_return([representative])
+                                                                        'rp1').and_return(relation_double)
+        allow(relation_double).to receive(:order).and_return([representative])
         expect(controller.send(:find_representative, 'rp1')).to eq(representative)
       end
 
