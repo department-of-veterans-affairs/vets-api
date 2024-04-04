@@ -11,7 +11,7 @@ module TravelPay
     end
 
     def authorized_ping
-      # TODO: handle this gracefully. Right now, it will fail on .split if there's no Authorization header
+      authorize
       vagov_token = request.headers['Authorization'].split[1]
       veis_token = client.request_veis_token
       btsss_token = client.request_btsss_token(veis_token, vagov_token)
