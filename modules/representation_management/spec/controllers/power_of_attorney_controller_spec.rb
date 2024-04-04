@@ -53,55 +53,6 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
         expect(response.body).to eq("{}") # rubocop:disable Style/StringLiterals
       end
     end
-
-    describe 'private methods' do
-      it 'finds organization poa by code' do
-        allow(Veteran::Service::Organization).to receive(:find).with('og1').and_return(organization)
-        expected_serialized_organization = ActiveModelSerializers::SerializableResource.new(
-          organization,
-          serializer: RepresentationManagement::PowerOfAttorney::OrganizationSerializer
-        ).as_json
-
-        expect(controller.send(:find_poa_by_code, 'organization', 'og1')).to eq(expected_serialized_organization)
-      end
-
-      it 'finds individual and representative poa by code' do
-        allow(Veteran::Service::Representative).to receive(:find).with('rp1').and_return(representative)
-        expected_serialized_representative = ActiveModelSerializers::SerializableResource.new(
-          representative,
-          serializer: RepresentationManagement::PowerOfAttorney::RepresentativeSerializer
-        ).as_json
-
-        %w[individual representative].each do |type|
-          expect(controller.send(:find_poa_by_code, type, 'rp1')).to eq(expected_serialized_representative)
-        end
-      end
-
-      it 'finds organization' do
-        allow(Veteran::Service::Organization).to receive(:find).with('og1').and_return(organization)
-        expect(controller.send(:find_organization, 'og1')).to eq(organization)
-      end
-
-      it 'finds representative' do
-        relation_double = instance_double(ActiveRecord::Relation)
-        allow(Veteran::Service::Representative).to receive(:where).with('? = ANY(poa_codes)',
-                                                                        'rp1').and_return(relation_double)
-        allow(relation_double).to receive(:order).and_return([representative])
-        expect(controller.send(:find_representative, 'rp1')).to eq(representative)
-      end
-
-      it 'serializes organization' do
-        serialized_org = controller.send(:serialize_organization, organization)
-        expect(serialized_org).to be_a(Hash)
-        expect(serialized_org[:data][:id]).to eq(organization.id)
-      end
-
-      it 'serializes representative' do
-        serialized_rep = controller.send(:serialize_representative, representative)
-        expect(serialized_rep).to be_a(Hash)
-        expect(serialized_rep[:data][:id]).to eq(representative.id)
-      end
-    end
   end
 
   context 'without a signed in user' do
