@@ -11,7 +11,6 @@ module TravelPay
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
 
-      # response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/v2.0/token") do |req|
       response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
         req.headers[:content_type] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form(veis_params)
