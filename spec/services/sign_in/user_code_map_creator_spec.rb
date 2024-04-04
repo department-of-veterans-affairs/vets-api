@@ -2,13 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::UserCreator do
+RSpec.describe SignIn::UserCodeMapCreator do
   describe '#perform' do
     subject do
-      SignIn::UserCreator.new(user_attributes:,
-                              state_payload:,
-                              verified_icn: icn,
-                              request_ip:).perform
+      described_class.new(user_attributes:,
+                          state_payload:,
+                          verified_icn: icn,
+                          request_ip:).perform
     end
 
     let(:user_attributes) do

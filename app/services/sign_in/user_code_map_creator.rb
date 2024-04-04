@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SignIn
-  class UserCreator
+  class UserCodeMapCreator
     attr_reader :state_payload,
                 :idme_uuid,
                 :logingov_uuid,
