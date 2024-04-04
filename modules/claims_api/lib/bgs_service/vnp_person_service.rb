@@ -3,10 +3,10 @@
 module ClaimsApi
   class VnpPersonService < ClaimsApi::LocalBGS
     # Takes an object with a minimum of (other fields are camelized and passed to BGS):
-    # procId: BGS procID
-    # ptcpntId: Veteran's participant id
-    # firstNm: Veteran's first name
-    # lastNm: Veteran's last name
+    # vnp_proc_id: BGS procID
+    # vnp_ptcpnt_id: Veteran's participant id
+    # first_nm: Veteran's first name
+    # last_nm: Veteran's last name
     def vnp_person_create(opts)
       opts = opts.dup
       opts.transform_keys! { |k| k.to_s.camelize(:lower) }
