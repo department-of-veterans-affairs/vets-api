@@ -445,18 +445,25 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
     end
   end
 
-  describe '#show alternate route' do
-    it 'returns direct deposit info' do
-      VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-        get(:show, params: { use_route: 'v0/profile/direct_deposits' })
-      end
+  describe 'alternate routes for direct deposit', type: :routing do
+    it 'routes GET v0/profile/direct_deposits to disability_compensations_controller#show' do
+      expect(get('v0/profile/direct_deposits')).to route_to(
+        {
+          'format' => 'json',
+          'controller' => 'v0/profile/direct_deposits/disability_compensations',
+          'action' => 'show'
+        }
+      )
+    end
 
-      json = JSON.parse(response.body)
-      payment_account = json['data']['attributes']['payment_account']
-      control_info = json['data']['attributes']['control_information']
-
-      expect(payment_account).not_to be_nil
-      expect(control_info).not_to be_nil
+    it 'routes PUT v0/profile/direct_deposits to disability_compensations_controller#update' do
+      expect(put('v0/profile/direct_deposits')).to route_to(
+        {
+          'format' => 'json',
+          'controller' => 'v0/profile/direct_deposits/disability_compensations',
+          'action' => 'update'
+        }
+      )
     end
   end
 end
