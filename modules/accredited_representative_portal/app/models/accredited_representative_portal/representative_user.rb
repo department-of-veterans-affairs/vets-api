@@ -21,7 +21,6 @@ module AccreditedRepresentativePortal
     attribute :poaCode
     attribute :sign_in
     attribute :uuid
-  
     alias_attribute :mhv_icn, :icn
     
     validates :uuid, :email, :first_name, :last_name, :icn, presence: true
