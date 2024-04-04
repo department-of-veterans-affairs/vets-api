@@ -11,8 +11,10 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
     let(:user) { create(:user, :loa3) }
     let(:icn) { '123498767V234859' }
     let(:service) { instance_double(BenefitsClaims::Service) }
-    let(:organization) { create(:organization, poa: 'og1') }
-    let(:representative) { create(:representative, representative_id: '123', poa_codes: ['rp1']) }
+    let(:org_poa) { 'og1' }
+    let(:rep_poa) { 'rp1' }
+    let(:organization) { create(:organization, poa: org_poa) }
+    let(:representative) { create(:representative, representative_id: '123', poa_codes: [rep_poa]) }
 
     before do
       sign_in_as(user)
@@ -26,24 +28,37 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
     describe 'GET #index' do
       it 'returns a successful response' do
         allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'organization',
-                                                                                   'attributes' => { 'code' => 'og1' } } }) # rubocop:disable Layout/LineLength
+                                                                                   'attributes' => { 'code' => org_poa } } }) # rubocop:disable Layout/LineLength
         allow(controller).to receive(:get_poa).and_return(organization)
         get :index
 
         expect(response).to be_successful
       end
 
-      it 'returns the expected response when a user has a POA' do
+      it 'returns the expected response when a user has an org POA' do
         expected_serialized_organization = ActiveModelSerializers::SerializableResource.new(
           organization,
           serializer: RepresentationManagement::PowerOfAttorney::OrganizationSerializer
         ).to_json
         allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'organization',
-                                                                                   'attributes' => { 'code' => 'og1' } } }) # rubocop:disable Layout/LineLength
+                                                                                   'attributes' => { 'code' => org_poa } } }) # rubocop:disable Layout/LineLength
         allow(controller).to receive(:get_poa).and_return(organization)
         get :index
 
         expect(response.body).to eq(expected_serialized_organization)
+      end
+
+      it 'returns the expected response when a user has a rep POA' do
+        expected_serialized_representative = ActiveModelSerializers::SerializableResource.new(
+          representative,
+          serializer: RepresentationManagement::PowerOfAttorney::RepresentativeSerializer
+        ).to_json
+        allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'individual',
+                                                                                   'attributes' => { 'code' => rep_poa } } }) # rubocop:disable Layout/LineLength
+        allow(controller).to receive(:get_poa).and_return(representative)
+        get :index
+
+        expect(response.body).to eq(expected_serialized_representative)
       end
 
       it 'returns the expected response when a user does not has a POA' do
