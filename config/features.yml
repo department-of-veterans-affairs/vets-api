@@ -1107,6 +1107,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Allows appointment cancellations to be routed to Oracle Health sites.
+  va_online_scheduling_enable_OH_eligibility:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
@@ -1187,6 +1191,10 @@ features:
   toe_short_circuit_bgs_failure:
     actor_type: user
     description: Flag to use begin rescue block for BGS call
+    enable_in_development: true
+  toe_light_house_dgi_direct_deposit:
+    actor_type: user
+    description: Uses lighthouse api for direct deposit information in TOE.
     enable_in_development: true
   move_form_back_button:
     actor_type: user
