@@ -27,7 +27,7 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
       it 'returns a successful response' do
         allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'organization',
                                                                                    'attributes' => { 'code' => 'og1' } } }) # rubocop:disable Layout/LineLength
-        allow(controller).to receive(:find_poa_by_code).and_return(organization)
+        allow(controller).to receive(:get_poa).and_return(organization)
         get :index
 
         expect(response).to be_successful
@@ -40,7 +40,7 @@ RSpec.describe RepresentationManagement::V0::PowerOfAttorneyController, type: :c
         ).to_json
         allow(service).to receive(:get_power_of_attorney).and_return({ 'data' => { 'type' => 'organization',
                                                                                    'attributes' => { 'code' => 'og1' } } }) # rubocop:disable Layout/LineLength
-        allow(controller).to receive(:find_poa_by_code).and_return(expected_serialized_organization)
+        allow(controller).to receive(:get_poa).and_return(organization)
         get :index
 
         expect(response.body).to eq(expected_serialized_organization)

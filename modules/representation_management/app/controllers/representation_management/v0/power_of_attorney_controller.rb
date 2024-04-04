@@ -15,14 +15,13 @@ module RepresentationManagement
           return render json: { error: 'Unable to fetch power of attorney information' }, status: :service_unavailable
         end
 
-        type = body.dig('data', 'type')
-        code = body.dig('data', 'attributes', 'code')
+        poa = get_poa(body)
 
-        if code.blank?
+        if poa.blank?
           Rails.logger.warn("No power of attorney found: #{body}")
           render json: {}, status: :ok
         else
-          render json: find_poa_by_code(type, code)
+          render json: poa, serializer: serializer_class(type(body)), status: :ok
         end
       end
 
@@ -36,40 +35,44 @@ module RepresentationManagement
         @current_user&.icn
       end
 
-      def find_poa_by_code(type, code)
-        if type == 'organization'
-          organization = find_organization(code)
-          return serialize_organization(organization) if organization.present?
+      def get_poa(body)
+        poa_type = type(body)
+        poa_code = code(body)
+
+        if poa_type == 'organization'
+          return find_organization(poa_code)
         else
-          representative = find_representative(code)
-          return serialize_representative(representative) if representative.present?
+          representative = find_representative(poa_code)
+          return representative if representative.present?
         end
 
         {}
       end
 
-      def find_organization(code)
-        Veteran::Service::Organization.find(code)
+      def type(body)
+        @type ||= body.dig('data', 'type')
+      end
+
+      def code(body)
+        body.dig('data', 'attributes', 'code')
+      end
+
+      def find_organization(poa_code)
+        Veteran::Service::Organization.find(poa_code)
       rescue ActiveRecord::RecordNotFound
         nil
       end
 
-      def find_representative(code)
-        Veteran::Service::Representative.where('? = ANY(poa_codes)', code).order(created_at: :desc).first
+      def find_representative(poa_code)
+        Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).order(created_at: :desc).first
       end
 
-      def serialize_organization(organization)
-        ActiveModelSerializers::SerializableResource.new(
-          organization,
-          serializer: RepresentationManagement::PowerOfAttorney::OrganizationSerializer
-        ).as_json
-      end
-
-      def serialize_representative(representative)
-        ActiveModelSerializers::SerializableResource.new(
-          representative,
-          serializer: RepresentationManagement::PowerOfAttorney::RepresentativeSerializer
-        ).as_json
+      def serializer_class(type)
+        if type == 'organization'
+          RepresentationManagement::PowerOfAttorney::OrganizationSerializer
+        else
+          RepresentationManagement::PowerOfAttorney::RepresentativeSerializer
+        end
       end
     end
   end
