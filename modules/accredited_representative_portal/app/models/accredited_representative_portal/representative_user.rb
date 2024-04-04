@@ -6,6 +6,7 @@ module AccreditedRepresentativePortal
     redis_ttl REDIS_CONFIG[:representative_user_store][:each_ttl]
     redis_key :uuid
 
+    # in alphabetical order
     attribute :authn_context
     attribute :email
     attribute :fingerprint
