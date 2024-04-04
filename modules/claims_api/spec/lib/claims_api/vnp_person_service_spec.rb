@@ -2,29 +2,26 @@
 
 require 'rails_helper'
 require 'bgs_service/vnp_person_service'
+require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_helpers.rb')
 
-describe ClaimsApi::VnpPersonService do
-  subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
+metadata = {
+  bgs: {
+    service: 'vnp_person_service',
+    operation: 'vnp_person_create'
+  }
+}
 
-  # get a proc_id from vnp_proc_create
-  # get a ptcpnt_id from vnp_ptcpnt_create (using the proc_id from the previous step)
-  let(:vnp_proc_id) { '3854545' }
-  let(:vnp_ptcpnt_id) { '182008' }
-  let(:expected_response) do
-    { vnp_proc_id:, vnp_ptcpnt_id:,
-      first_nm: 'Tamara', last_nm: 'Ellis' }
-  end
+describe ClaimsApi::VnpPersonService, metadata do
+  describe '#vnp_person_create' do
+    subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
-  describe 'vnp_person_create' do
-    before do |test|
-      unless test.metadata[:skip_name]
-        expect_any_instance_of(ClaimsApi::LocalBGS).to receive(:make_request).and_wrap_original do |orig, args|
-          body = Hash.from_xml(args[:body].to_s)['arg0']
-                     .transform_keys!(&:underscore).deep_symbolize_keys
-          expect((expected_response.to_a & body.to_a).to_h).to eq expected_response
-          orig.call(**args)
-        end
-      end
+    # get a proc_id from vnp_proc_create
+    # get a ptcpnt_id from vnp_ptcpnt_create (using the proc_id from the previous step)
+    let(:vnp_proc_id) { '3854545' }
+    let(:vnp_ptcpnt_id) { '182008' }
+    let(:expected_response) do
+      { vnp_proc_id:, vnp_ptcpnt_id:,
+        first_nm: 'Tamara', last_nm: 'Ellis' }
     end
 
     it 'validates data', :skip_name do
@@ -35,14 +32,15 @@ describe ClaimsApi::VnpPersonService do
       expect { subject.vnp_person_create(data) }.to raise_error(e)
     end
 
-    it 'creates a new person from data' do
+    it 'creates a new person from data', run_at: '2024-04-01T18:48:27Z' do
       data = {
         vnp_proc_id:,
         vnp_ptcpnt_id:,
         first_nm: 'Tamara',
         last_nm: 'Ellis'
       }
-      VCR.use_cassette('bgs/vnp_person_service/vnp_person_create') do
+
+      use_bgs_cassette('happy_path') do
         result = subject.vnp_person_create(data)
         expect((expected_response.to_a & result.to_a).to_h).to eq expected_response
       end
