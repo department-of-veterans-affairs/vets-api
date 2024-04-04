@@ -9,19 +9,16 @@ module RepresentationManagement
 
       def index
         begin
-          body = lighthouse_service.get_power_of_attorney
+          @active_poa = lighthouse_service.get_power_of_attorney
         rescue BenefitsClaims::ServiceException => e
-          Rails.logger.error("Error fetching power of attorney: #{e.message}")
+          Rails.logger.error("[Active POA] Error fetching power of attorney: #{e.message}")
           return render json: { error: 'Unable to fetch power of attorney information' }, status: :service_unavailable
         end
 
-        poa = get_poa(body)
-
-        if poa.blank?
-          Rails.logger.warn("No power of attorney found: #{body}")
-          render json: {}, status: :ok
+        if @active_poa.blank? || record.blank?
+          render json: { data: {} }, status: :ok
         else
-          render json: poa, serializer: serializer_class(type(body)), status: :ok
+          render json: record, serializer:, status: :ok
         end
       end
 
@@ -35,44 +32,38 @@ module RepresentationManagement
         @current_user&.icn
       end
 
-      def get_poa(body)
-        poa_type = type(body)
-        poa_code = code(body)
+      def poa_code
+        @poa_code ||= @active_poa.dig('data', 'attributes', 'code')
+      end
 
+      def poa_type
+        @poa_type ||= @active_poa.dig('data', 'type')
+      end
+
+      def record
+        return @record if defined? @record
+
+        @record ||= if poa_type == 'organization'
+                      organization
+                    else
+                      representative
+                    end
+      end
+
+      def serializer
         if poa_type == 'organization'
-          return find_organization(poa_code)
-        else
-          representative = find_representative(poa_code)
-          return representative if representative.present?
-        end
-
-        {}
-      end
-
-      def type(body)
-        body.dig('data', 'type')
-      end
-
-      def code(body)
-        body.dig('data', 'attributes', 'code')
-      end
-
-      def find_organization(poa_code)
-        Veteran::Service::Organization.find(poa_code)
-      rescue ActiveRecord::RecordNotFound
-        nil
-      end
-
-      def find_representative(poa_code)
-        Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).order(created_at: :desc).first
-      end
-
-      def serializer_class(type)
-        if type == 'organization'
           RepresentationManagement::PowerOfAttorney::OrganizationSerializer
         else
           RepresentationManagement::PowerOfAttorney::RepresentativeSerializer
         end
+      end
+
+      def organization
+        Veteran::Service::Organization.find_by(poa: poa_code)
+      end
+
+      def representative
+        Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).order(created_at: :desc).first
       end
     end
   end
