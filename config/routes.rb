@@ -18,7 +18,6 @@ Rails.application.routes.draw do
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
   post '/v0/sign_in/token', to: 'v0/sign_in#token'
-  get '/v0/sign_in/introspect', to: 'v0/sign_in#introspect'
   get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
