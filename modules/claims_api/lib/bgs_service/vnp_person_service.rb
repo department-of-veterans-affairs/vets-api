@@ -11,7 +11,7 @@ module ClaimsApi
       opts = opts.dup
       opts.transform_keys! { |k| k.to_s.camelize(:lower) }
 
-      validate_opts! opts
+      validate_opts! opts, %w[vnpProcId vnpPtcpntId firstNm lastNm]
 
       opts = jrn.merge(opts)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
@@ -28,24 +28,6 @@ module ClaimsApi
 
       make_request(endpoint: 'VnpPersonWebServiceBean/VnpPersonService', action: 'vnpPersonCreate', body:,
                    key: 'return')
-    end
-
-    private
-
-    def jrn
-      {
-        jrnDt: Time.current.iso8601,
-        jrnLctnId: Settings.bgs.client_station_id,
-        jrnStatusTypeCd: 'U',
-        jrnUserId: Settings.bgs.client_username,
-        jrnObjId: Settings.bgs.application
-      }
-    end
-
-    def validate_opts!(opts)
-      required_keys = %w[vnpProcId vnpPtcpntId firstNm lastNm]
-      missing_keys = required_keys.reject { opts.key? _1 }
-      raise ArgumentError, "Missing required keys: #{missing_keys.join(', ')}" if missing_keys.present?
     end
   end
 end
