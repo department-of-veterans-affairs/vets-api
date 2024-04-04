@@ -13,6 +13,14 @@
       :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
       :file_path: "/travel_pay/ping"
       :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized-ping"
+      :file_path: "/travel_pay/ping"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1/Auth/access-token"
+      :file_path: "/travel_pay/token"
+      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
@@ -23,15 +31,16 @@
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.auth_url).host}:#{URI(Settings.ask_va_api.crm_api.auth_url).port}" %>
   :endpoints:
     - :method: :post
-      # :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
-      :path: <%= "/*/oauth2/v2.0/token" %>
+      :path: <%= "/#{Settings.ask_va_api.crm_api.tenant_id}/oauth2/v2.0/token" %>
+      # :path: <%= "/*/oauth2/v2.0/token" %>
       :file_path: "/ask_va/token/default"
       # :cache_multiple_responses:
       #   :uid_location: url
       #   :uid_locator: '\/(.+)\/oauth2\/v2.0\/token' # matches anything supplied as a tenant_id
       :response_delay: 0.3
     - :method: :post
-      :path: '/*/oauth2/token'
+      :path: <%= "/#{Settings.travel_pay.veis.tenant_id}/oauth2/token" %>
+      # :path: '/*/oauth2/token'
       :file_path: '/ask_va/token/default'
       :response_delay: 0.3
 
@@ -893,7 +902,7 @@
       :file_path: "/travel_pay/ping"
       :response_delay: 15
     # - :method: :get
-    #   :path: "/travel_pay/pings/authorized_ping"
+    #   :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized_ping"
     #   :file_path: "/travel_pay/ping"
     #   :response_delay: 15
 
