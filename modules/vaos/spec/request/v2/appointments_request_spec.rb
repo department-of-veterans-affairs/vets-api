@@ -15,6 +15,8 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
 
   mock_facility = {
     'test' => 'test',
+    'id' => '668',
+    'name' => 'COL OR 1',
     'timezone' => {
       'timeZoneId' => 'America/New_York'
     }
@@ -188,6 +190,22 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
           end
         end
 
+        it 'has access and returns cerner appointments and honors includes' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner_with_color1_location',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data.size).to eq(2)
+            expect(data[0]['attributes']['location']).to eq(mock_facility)
+            expect(Rails.logger).to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
+                                                              any_args).at_least(:once)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
         it 'iterates over appointment list and merges provider name for cc proposed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
                                                                                     allow_playback_repeats: true) do
@@ -316,6 +334,22 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request, skip_mvi: true 
             expect(data.size).to eq(18)
             expect(data[0]['attributes']['location']).to eq(facility_error_msg)
             expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'has access and ensures no logging of facility details on mobile facility service fails' do
+          allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility_memoized).and_call_original
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_mobile_facility_service_500',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow(Rails.logger).to receive(:info)
+            get '/vaos/v2/appointments?_include=facilities', params:, headers: inflection_header
+            data = JSON.parse(response.body)['data']
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(data[0]['attributes']['location']).to eq(facility_error_msg)
+            expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
+            expect(Rails.logger).not_to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment", any_args)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
