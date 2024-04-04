@@ -16,6 +16,16 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
     Timecop.return
   end
 
+  context 'when user does not have access' do
+    before { allow_any_instance_of(User).to receive(:mhv_account_type).and_return(nil) }
+
+    it 'returns forbidden' do
+      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+    end
+  end
+
   context 'when not authorized' do
     it 'responds with 403 error' do
       VCR.use_cassette('mobile/messages/session_error') do

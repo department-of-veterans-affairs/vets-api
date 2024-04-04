@@ -18,6 +18,38 @@ RSpec.describe 'preferred_name', type: :request do
     let(:csd) { 'LGN' }
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
+      context 'when user does not have demographics access' do
+        before do
+          allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
+          allow_any_instance_of(User).to receive(:logingov_uuid).and_return(nil)
+        end
+
+        it 'returns forbidden' do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'when user does not have mpi access' do
+        before do
+          allow_any_instance_of(User).to receive(:icn).and_return(nil)
+          allow_any_instance_of(User).to receive(:first_name).and_return(nil)
+          allow_any_instance_of(User).to receive(:last_name).and_return(nil)
+          allow_any_instance_of(User).to receive(:birth_date).and_return(nil)
+          allow_any_instance_of(User).to receive(:ssn).and_return(nil)
+          allow_any_instance_of(User).to receive(:gender).and_return(nil)
+        end
+
+        it 'returns forbidden' do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
       context 'when text is valid' do
         it 'returns 204', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')

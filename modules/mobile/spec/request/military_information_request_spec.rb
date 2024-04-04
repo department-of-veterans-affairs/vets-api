@@ -165,6 +165,16 @@ RSpec.describe 'military_information', type: :request do
                  'honorableServiceIndicator' => nil }] } } }
       end
 
+      context 'when user does not have access' do
+        before { allow_any_instance_of(User).to receive(:edipi).and_return(nil) }
+
+        it 'returns forbidden' do
+          get '/mobile/v0/military-service-history', headers: sis_headers
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
           VCR.use_cassette('mobile/va_profile/post_read_service_histories_200') do
