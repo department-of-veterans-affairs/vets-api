@@ -19,9 +19,11 @@ RSpec.describe 'preferred_name', type: :request do
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when user does not have demographics access' do
-        before do
-          allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
-          allow_any_instance_of(User).to receive(:logingov_uuid).and_return(nil)
+        let!(:user) do
+          sis_user(
+            idme_uuid: nil,
+            logingov_uuid: nil
+          )
         end
 
         it 'returns forbidden' do
@@ -33,13 +35,15 @@ RSpec.describe 'preferred_name', type: :request do
       end
 
       context 'when user does not have mpi access' do
-        before do
-          allow_any_instance_of(User).to receive(:icn).and_return(nil)
-          allow_any_instance_of(User).to receive(:first_name).and_return(nil)
-          allow_any_instance_of(User).to receive(:last_name).and_return(nil)
-          allow_any_instance_of(User).to receive(:birth_date).and_return(nil)
-          allow_any_instance_of(User).to receive(:ssn).and_return(nil)
-          allow_any_instance_of(User).to receive(:gender).and_return(nil)
+        let!(:user) do
+          sis_user(
+            icn: nil,
+            first_name: nil,
+            last_name: nil,
+            birth_date: nil,
+            ssn: nil,
+            gender: nil
+          )
         end
 
         it 'returns forbidden' do

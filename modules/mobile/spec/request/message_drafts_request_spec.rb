@@ -25,7 +25,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
   end
 
   context 'when user does not have access' do
-    before { allow_any_instance_of(User).to receive(:mhv_account_type).and_return(nil) }
+    let!(:user) { sis_user(:mhv, mhv_account_type: 'Free') }
 
     it 'returns forbidden' do
       post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)

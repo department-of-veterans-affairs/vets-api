@@ -17,7 +17,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
   end
 
   context 'when user does not have access' do
-    before { allow_any_instance_of(User).to receive(:mhv_account_type).and_return(nil) }
+    let!(:user) { sis_user(:mhv, mhv_account_type: 'Free') }
 
     it 'returns forbidden' do
       get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers

@@ -166,7 +166,7 @@ RSpec.describe 'military_information', type: :request do
       end
 
       context 'when user does not have access' do
-        before { allow_any_instance_of(User).to receive(:edipi).and_return(nil) }
+        let!(:user) { sis_user(edipi: nil) }
 
         it 'returns forbidden' do
           get '/mobile/v0/military-service-history', headers: sis_headers
@@ -249,15 +249,6 @@ RSpec.describe 'military_information', type: :request do
       it 'returns not found when requesting non-existent path' do
         get '/mobile/v0/military-service-history/doesnt-exist'
         expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'with a user not authorized' do
-      let!(:user) { sis_user(edipi: nil) }
-
-      it 'returns a forbidden response' do
-        get '/mobile/v0/military-service-history', headers: sis_headers
-        expect(response).to have_http_status(:forbidden)
       end
     end
   end

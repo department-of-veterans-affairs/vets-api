@@ -41,7 +41,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
 
   describe 'Get /v0/disability-rating' do
     context 'user without access' do
-      before { allow_any_instance_of(User).to receive(:participant_id).and_return(nil) }
+      let!(:user) { sis_user(participant_id: nil) }
 
       it 'returns 403' do
         get '/mobile/v0/disability-rating', params: nil, headers: sis_headers

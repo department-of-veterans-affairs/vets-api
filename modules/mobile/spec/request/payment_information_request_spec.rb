@@ -45,7 +45,7 @@ RSpec.describe 'payment information', type: :request do
 
   describe 'GET /mobile/v0/payment-information/benefits lighthouse' do
     context 'user without access' do
-      before { allow_any_instance_of(User).to receive(:loa3?).and_return(nil) }
+      let!(:user) { sis_user(:api_auth, :loa1) }
 
       it 'returns 403' do
         get '/mobile/v0/payment-information/benefits', headers: sis_headers
@@ -167,7 +167,7 @@ RSpec.describe 'payment information', type: :request do
     end
 
     context 'user without access' do
-      before { allow_any_instance_of(User).to receive(:loa3?).and_return(nil) }
+      let!(:user) { sis_user(:api_auth, :loa1) }
 
       it 'returns 403' do
         put '/mobile/v0/payment-information/benefits', params: payment_info_request,
