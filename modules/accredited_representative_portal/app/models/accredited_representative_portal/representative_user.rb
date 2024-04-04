@@ -17,6 +17,8 @@ module AccreditedRepresentativePortal
     attribute :last_signed_in
     attribute :loa
     attribute :logingov_uuid
+    attribute :ogcNumber
+    attribute :poaCode
     attribute :sign_in
     attribute :uuid
   
